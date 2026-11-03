@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f111a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #23283b;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3b4363;
+  }
+}
