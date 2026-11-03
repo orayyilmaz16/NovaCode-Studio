@@ -1,6 +1,6 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
-import { X, Play, Copy, Check, Download } from 'lucide-react';
+import { X, Play, Copy, Check, Download, FileCode } from 'lucide-react';
 import type { FileItem } from '../types';
 
 interface EditorAreaProps {

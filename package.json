@@ -55,6 +55,7 @@
     "electron-builder": "^26.18.0",
     "typescript": "~7.0.2",
     "vite": "^8.3.5",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "wait-on": "^9.5.1"
   },
   "dependencies": {
@@ -65,6 +66,7 @@
     "dompurify": "^3.4.17",
     "electron-is-dev": "^3.0.1",
     "lucide-react": "^1.67.0",
+    "monaco-editor": "^0.57.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "socket.io-client": "^4.8.4",

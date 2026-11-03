@@ -11,17 +11,22 @@ import {
   Minimize2,
   FolderOpen,
   Save,
-  Monitor
+  Monitor,
+  Home
 } from 'lucide-react';
 import { FileTree } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
 import { Terminal } from './components/Terminal';
 import { Preview } from './components/Preview';
 import { AIAssistant } from './components/AIAssistant';
+import { LandingPage } from './components/LandingPage';
+import { SplashScreen } from './components/SplashScreen';
 import { initialFiles } from './mockFiles';
 import type { FileItem, ConsoleLog } from './types';
 
 export function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [showLanding, setShowLanding] = useState(false);
   const [files, setFiles] = useState<FileItem[]>(initialFiles);
   const [openFiles, setOpenFiles] = useState<FileItem[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
@@ -292,10 +297,23 @@ export function App() {
     return search(files) || '';
   };
 
+  // Flatten files for Landing Page
+  const getAllFiles = (items: FileItem[]): FileItem[] => {
+    let result: FileItem[] = [];
+    for (const item of items) {
+      if (item.type === 'file') result.push(item);
+      if (item.children) result = result.concat(getAllFiles(item.children));
+    }
+    return result;
+  };
+
   const activeFile = openFiles.find((f) => f.id === activeFileId);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0d1017] text-zinc-300 font-sans">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0d1017] text-zinc-300 font-sans relative">
+      {/* Splash Screen Animation */}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+
       {/* Top Titlebar */}
       <header className="flex items-center justify-between px-3 h-10 bg-[#0f111a] border-b border-zinc-800/80 select-none">
         <div className="flex items-center space-x-3">
@@ -311,10 +329,25 @@ export function App() {
         </div>
 
         <div className="text-xs text-zinc-400 truncate max-w-md hidden md:block">
-          {activeFile ? `${activeFile.name} — NovaCode Editor` : 'NovaCode Workspace'}
+          {showLanding
+            ? 'Hoş Geldiniz — NovaCode Başlangıç'
+            : activeFile
+            ? `${activeFile.name} — NovaCode Editor`
+            : 'NovaCode Workspace'}
         </div>
 
         <div className="flex items-center space-x-1">
+          <button
+            onClick={() => setShowLanding(!showLanding)}
+            title="Başlangıç / Landing Sayfası"
+            className={`p-1.5 rounded transition-colors ${
+              showLanding
+                ? 'bg-indigo-600/30 text-indigo-300'
+                : 'hover:bg-zinc-800 text-zinc-400'
+            }`}
+          >
+            <Home size={15} />
+          </button>
           <button
             onClick={() => setShowRightPanel(showRightPanel === 'preview' ? null : 'preview')}
             title="Canlı Önizleme Panelini Aç/Kapat"
@@ -346,10 +379,13 @@ export function App() {
         <div className="w-12 bg-[#090b10] border-r border-zinc-800/80 flex flex-col items-center py-3 justify-between select-none">
           <div className="flex flex-col space-y-4">
             <button
-              onClick={() => setActiveSidebarTab('files')}
+              onClick={() => {
+                setShowLanding(false);
+                setActiveSidebarTab('files');
+              }}
               title="Dosyalar"
               className={`p-2 rounded-lg transition-colors ${
-                activeSidebarTab === 'files'
+                !showLanding && activeSidebarTab === 'files'
                   ? 'text-indigo-400 bg-indigo-500/10'
                   : 'text-zinc-500 hover:text-zinc-300'
               }`}
@@ -357,13 +393,25 @@ export function App() {
               <Files size={18} />
             </button>
             <button
+              onClick={() => setShowLanding(true)}
+              title="Başlangıç Paneli"
+              className={`p-2 rounded-lg transition-colors ${
+                showLanding
+                  ? 'text-indigo-400 bg-indigo-500/10'
+                  : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              <Home size={18} />
+            </button>
+            <button
               onClick={() => {
+                setShowLanding(false);
                 setActiveSidebarTab('ai');
                 setShowRightPanel('ai');
               }}
               title="AI Asistan"
               className={`p-2 rounded-lg transition-colors ${
-                activeSidebarTab === 'ai' || showRightPanel === 'ai'
+                !showLanding && (activeSidebarTab === 'ai' || showRightPanel === 'ai')
                   ? 'text-purple-400 bg-purple-500/10'
                   : 'text-zinc-500 hover:text-zinc-300'
               }`}
@@ -374,10 +422,13 @@ export function App() {
 
           <div className="flex flex-col space-y-3">
             <button
-              onClick={() => setActiveSidebarTab('settings')}
+              onClick={() => {
+                setShowLanding(false);
+                setActiveSidebarTab('settings');
+              }}
               title="Ayarlar"
               className={`p-2 rounded-lg transition-colors ${
-                activeSidebarTab === 'settings'
+                !showLanding && activeSidebarTab === 'settings'
                   ? 'text-indigo-400 bg-indigo-500/10'
                   : 'text-zinc-500 hover:text-zinc-300'
               }`}
@@ -388,19 +439,22 @@ export function App() {
         </div>
 
         {/* Sidebar View */}
-        {activeSidebarTab === 'files' && (
+        {!showLanding && activeSidebarTab === 'files' && (
           <div className="w-60 h-full border-r border-zinc-800/80">
             <FileTree
               files={files}
               activeFileId={activeFileId}
-              onSelectFile={handleSelectFile}
+              onSelectFile={(f) => {
+                setShowLanding(false);
+                handleSelectFile(f);
+              }}
               onCreateFile={handleCreateFile}
               onDeleteFile={handleDeleteFile}
             />
           </div>
         )}
 
-        {activeSidebarTab === 'settings' && (
+        {!showLanding && activeSidebarTab === 'settings' && (
           <div className="w-60 h-full bg-[#131620] border-r border-zinc-800/80 p-3 select-none flex flex-col space-y-4">
             <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
               Editör Ayarları
@@ -434,35 +488,46 @@ export function App() {
           </div>
         )}
 
-        {/* Central Editor + Terminal */}
-        <div className="flex flex-col flex-1 h-full min-w-0">
-          <div className="flex-1 min-h-0">
-            <EditorArea
-              openFiles={openFiles}
-              activeFileId={activeFileId}
-              onSelectTab={(id) => setActiveFileId(id)}
-              onCloseTab={handleCloseTab}
-              onChangeContent={handleContentChange}
-              onRunCode={handleRunCode}
-              fontSize={fontSize}
-              theme={editorTheme}
-            />
-          </div>
-
-          {/* Bottom Terminal */}
-          {showBottomTerminal && (
-            <div className="h-48 border-t border-zinc-800">
-              <Terminal
-                logs={logs}
-                onClear={() => setLogs([])}
-                onExecuteCommand={handleExecuteTerminalCommand}
+        {/* Landing Page or Central Editor */}
+        {showLanding ? (
+          <LandingPage
+            onOpenProject={() => setShowLanding(false)}
+            onOpenFile={(file) => {
+              handleSelectFile(file);
+              setShowLanding(false);
+            }}
+            recentFiles={getAllFiles(files).slice(0, 5)}
+          />
+        ) : (
+          <div className="flex flex-col flex-1 h-full min-w-0">
+            <div className="flex-1 min-h-0">
+              <EditorArea
+                openFiles={openFiles}
+                activeFileId={activeFileId}
+                onSelectTab={(id) => setActiveFileId(id)}
+                onCloseTab={handleCloseTab}
+                onChangeContent={handleContentChange}
+                onRunCode={handleRunCode}
+                fontSize={fontSize}
+                theme={editorTheme}
               />
             </div>
-          )}
-        </div>
+
+            {/* Bottom Terminal */}
+            {showBottomTerminal && (
+              <div className="h-48 border-t border-zinc-800">
+                <Terminal
+                  logs={logs}
+                  onClear={() => setLogs([])}
+                  onExecuteCommand={handleExecuteTerminalCommand}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Right Side Panel (Preview or AI) */}
-        {showRightPanel === 'preview' && (
+        {!showLanding && showRightPanel === 'preview' && (
           <div className="w-[45%] h-full border-l border-zinc-800">
             <Preview
               htmlContent={getFileContentByName('index.html')}
@@ -483,7 +548,7 @@ export function App() {
           </div>
         )}
 
-        {showRightPanel === 'ai' && (
+        {!showLanding && showRightPanel === 'ai' && (
           <div className="w-80 h-full border-l border-zinc-800">
             <AIAssistant
               currentCode={activeFile?.content || ''}

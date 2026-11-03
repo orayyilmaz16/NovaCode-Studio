@@ -18,8 +18,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: true,
-      webSecurity: true
+      sandbox: false,
+      webSecurity: false
     },
     autoHideMenuBar: true,
   });
@@ -29,6 +29,9 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
+
+  // Hata ayıklama için devtools'u açalım
+  mainWindow.webContents.openDevTools({ mode: 'detach' });
 
   // Pencere render edildikten sonra pürüzsüz göster
   mainWindow.once('ready-to-show', () => {
