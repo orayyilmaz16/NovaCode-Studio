@@ -1,11 +1,13 @@
 export interface FileItem {
   id: string;
   name: string;
+  path?: string;
   type: 'file' | 'folder';
   content?: string;
   language?: string;
   children?: FileItem[];
   isOpen?: boolean;
+  isModified?: boolean;
 }
 
 export interface ConsoleLog {
@@ -15,8 +17,46 @@ export interface ConsoleLog {
   time: string;
 }
 
-export interface ThemeConfig {
-  name: string;
+export interface GitChange {
+  code: string;
+  file: string;
+}
+
+export interface GitStatus {
+  isRepo: boolean;
+  branch?: string;
+  changes: GitChange[];
+}
+
+export interface Snippet {
   id: string;
-  monacoTheme: string;
+  label: string;
+  prefix: string;
+  description: string;
+  language: string;
+  body: string;
+}
+
+export interface ElectronBridge {
+  isElectron: boolean;
+  openFolderDialog: () => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | null>;
+  openFileDialog: () => Promise<FileItem[]>;
+  readDirectory: (dirPath: string) => Promise<FileItem[]>;
+  readFile: (filePath: string) => Promise<string>;
+  writeFile: (filePath: string, content: string) => Promise<{ success: boolean; error?: string }>;
+  createFile: (filePath: string) => Promise<{ success: boolean; error?: string }>;
+  createFolder: (folderPath: string) => Promise<{ success: boolean; error?: string }>;
+  deleteItem: (targetPath: string) => Promise<{ success: boolean; error?: string }>;
+  renameItem: (oldPath: string, newPath: string) => Promise<{ success: boolean; error?: string }>;
+  getGitStatus: (repoPath: string) => Promise<GitStatus>;
+  gitCommit: (repoPath: string, message: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
+  gitPush: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
+  gitPull: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
+  onFileChanged: (callback: (data: { filename: string; rootPath: string }) => void) => void;
+}
+
+declare global {
+  interface Window {
+    electronAPI?: ElectronBridge;
+  }
 }

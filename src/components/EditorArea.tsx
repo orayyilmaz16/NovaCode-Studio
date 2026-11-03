@@ -1,6 +1,6 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
-import { X, Play, Copy, Check, Download, FileCode } from 'lucide-react';
+import { X, Play, Copy, Check, Download, FileCode, Save } from 'lucide-react';
 import type { FileItem } from '../types';
 
 interface EditorAreaProps {
@@ -9,6 +9,7 @@ interface EditorAreaProps {
   onSelectTab: (id: string) => void;
   onCloseTab: (id: string) => void;
   onChangeContent: (id: string, content: string) => void;
+  onSaveFile?: (file: FileItem) => void;
   onRunCode: () => void;
   fontSize: number;
   theme: string;
@@ -20,11 +21,13 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   onSelectTab,
   onCloseTab,
   onChangeContent,
+  onSaveFile,
   onRunCode,
   fontSize,
   theme,
 }) => {
   const [copied, setCopied] = React.useState(false);
+  const [savedEffect, setSavedEffect] = React.useState(false);
   const activeFile = openFiles.find((f) => f.id === activeFileId);
 
   const handleCopy = () => {
@@ -46,6 +49,14 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  const handleSave = () => {
+    if (activeFile && onSaveFile) {
+      onSaveFile(activeFile);
+      setSavedEffect(true);
+      setTimeout(() => setSavedEffect(false), 1500);
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 h-full bg-[#1e1e2e] overflow-hidden">
       {/* Tab Bar */}
@@ -57,13 +68,16 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               <div
                 key={file.id}
                 onClick={() => onSelectTab(file.id)}
-                className={`flex items-center space-x-2 px-3 h-full cursor-pointer border-t-2 text-xs transition-colors ${
+                className={`flex items-center space-x-2 px-3 h-full cursor-pointer border-t-2 text-xs transition-colors group ${
                   isActive
                     ? 'bg-[#1e1e2e] border-indigo-500 text-zinc-100 font-medium'
                     : 'border-transparent text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-300'
                 }`}
               >
                 <span className="truncate max-w-[120px]">{file.name}</span>
+                {file.isModified && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" title="Kaydedilmemiş Değişiklik" />
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -80,7 +94,17 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
         {/* Action Tools */}
         {activeFile && (
-          <div className="flex items-center space-x-2 ml-4">
+          <div className="flex items-center space-x-1.5 ml-4">
+            {onSaveFile && (
+              <button
+                onClick={handleSave}
+                title="Dosyayı Kaydet (Ctrl+S)"
+                className="flex items-center space-x-1 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-xs transition-colors"
+              >
+                {savedEffect ? <Check size={13} className="text-emerald-400" /> : <Save size={13} />}
+                <span className="hidden sm:inline">Kaydet</span>
+              </button>
+            )}
             <button
               onClick={handleCopy}
               title="Kodu Kopyala"

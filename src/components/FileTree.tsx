@@ -4,27 +4,34 @@ import {
   FileCode,
   ChevronRight,
   ChevronDown,
-  Plus,
   Trash2,
   FilePlus,
-  FolderPlus
+  FolderPlus,
+  FolderOpen,
+  UploadCloud
 } from 'lucide-react';
 import type { FileItem } from '../types';
 
 interface FileTreeProps {
   files: FileItem[];
   activeFileId: string | null;
+  currentRootName?: string;
   onSelectFile: (file: FileItem) => void;
   onCreateFile: (name: string, isFolder: boolean) => void;
   onDeleteFile: (id: string) => void;
+  onOpenFolder?: () => void;
+  onOpenFiles?: () => void;
 }
 
 export const FileTree: React.FC<FileTreeProps> = ({
   files,
   activeFileId,
+  currentRootName,
   onSelectFile,
   onCreateFile,
   onDeleteFile,
+  onOpenFolder,
+  onOpenFiles
 }) => {
   const [newFileName, setNewFileName] = useState('');
   const [isCreating, setIsCreating] = useState<'file' | 'folder' | null>(null);
@@ -50,29 +57,31 @@ export const FileTree: React.FC<FileTreeProps> = ({
       case 'html':
         return <span className="text-orange-500 font-bold text-xs mr-1.5">&lt;&gt;</span>;
       case 'css':
-        return <span className="text-blue-500 font-bold text-xs mr-1.5">#</span>;
+      case 'scss':
+        return <span className="text-sky-400 font-bold text-xs mr-1.5">#</span>;
       case 'json':
-        return <span className="text-emerald-400 font-bold text-xs mr-1.5">{}</span>;
+        return <span className="text-amber-300 font-bold text-xs mr-1.5">&#123;&#125;</span>;
       case 'md':
-        return <span className="text-indigo-400 font-bold text-xs mr-1.5">M↓</span>;
+        return <span className="text-zinc-400 font-bold text-xs mr-1.5">M↓</span>;
+      case 'py':
+        return <span className="text-emerald-400 font-bold text-xs mr-1.5">PY</span>;
       default:
-        return <FileCode size={14} className="text-zinc-400 mr-1.5 shrink-0" />;
+        return <FileCode size={14} className="mr-1.5 text-zinc-400 shrink-0" />;
     }
   };
 
   const renderTree = (items: FileItem[], depth = 0) => {
     return items.map((item) => {
-      const isSelected = activeFileId === item.id;
+      const isSelected = item.id === activeFileId;
 
       if (item.type === 'folder') {
         return (
           <div key={item.id} className="select-none">
             <div
-              className={`flex items-center px-2 py-1 cursor-pointer hover:bg-zinc-800/60 rounded text-xs text-zinc-300 transition-colors group`}
+              className="flex items-center px-2 py-1 cursor-pointer hover:bg-zinc-800/60 rounded text-xs text-zinc-300 transition-colors group"
               style={{ paddingLeft: `${depth * 14 + 8}px` }}
               onClick={() => {
                 item.isOpen = !item.isOpen;
-                // Force update
                 onSelectFile({ ...item });
               }}
             >
@@ -84,6 +93,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
               <Folder size={14} className="mr-1.5 text-amber-400 fill-amber-400/20 shrink-0" />
               <span className="truncate flex-1 font-medium">{item.name}</span>
             </div>
+
             {item.isOpen && item.children && (
               <div>{renderTree(item.children, depth + 1)}</div>
             )}
@@ -105,7 +115,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
           <div className="flex items-center truncate flex-1">
             {getFileIcon(item.name)}
             <span className="truncate">{item.name}</span>
+            {item.isModified && (
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1.5 shrink-0" />
+            )}
           </div>
+
           <button
             title="Dosyayı Sil"
             onClick={(e) => {
@@ -123,11 +137,32 @@ export const FileTree: React.FC<FileTreeProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-[#131620] text-zinc-300 select-none">
+      {/* Top Header */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-zinc-800/80">
-        <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
-          Gezgin / Dosyalar
-        </span>
+        <div className="flex items-center space-x-1.5 truncate">
+          <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase truncate">
+            {currentRootName ? currentRootName : 'GEZGİN'}
+          </span>
+        </div>
         <div className="flex items-center space-x-1">
+          {onOpenFolder && (
+            <button
+              onClick={onOpenFolder}
+              title="Yerel Klasör Aç"
+              className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-indigo-300 transition-colors"
+            >
+              <FolderOpen size={14} />
+            </button>
+          )}
+          {onOpenFiles && (
+            <button
+              onClick={onOpenFiles}
+              title="Dosya Yükle / Seç"
+              className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-indigo-300 transition-colors"
+            >
+              <UploadCloud size={14} />
+            </button>
+          )}
           <button
             onClick={() => setIsCreating('file')}
             title="Yeni Dosya"
@@ -161,8 +196,23 @@ export const FileTree: React.FC<FileTreeProps> = ({
         </form>
       )}
 
+      {/* Tree Content */}
       <div className="flex-1 overflow-y-auto py-2">
-        {renderTree(files)}
+        {files.length === 0 ? (
+          <div className="p-4 text-center text-zinc-500 text-xs space-y-2">
+            <p>Açık dosya veya klasör yok.</p>
+            {onOpenFolder && (
+              <button
+                onClick={onOpenFolder}
+                className="px-3 py-1 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 rounded text-xs transition-colors cursor-pointer"
+              >
+                Klasör Aç
+              </button>
+            )}
+          </div>
+        ) : (
+          renderTree(files)
+        )}
       </div>
     </div>
   );
