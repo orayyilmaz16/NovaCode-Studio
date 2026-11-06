@@ -19,12 +19,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('fs:watch-change', (_event, data) => callback(data));
   },
   termStart: (shell, cwd) => ipcRenderer.invoke('term:start', shell, cwd),
-  termInput: (line) => ipcRenderer.invoke('term:input', line),
-  termStop: () => ipcRenderer.invoke('term:stop'),
+  termInput: (shell, line) => ipcRenderer.invoke('term:input', shell, line),
+  termStop: (shell) => ipcRenderer.invoke('term:stop', shell),
   onTermOutput: (callback) => {
-    ipcRenderer.on('term:output', (_event, text) => callback(text));
+    ipcRenderer.on('term:output', (_event, data) => callback(data));
   },
   onTermExit: (callback) => {
-    ipcRenderer.on('term:exit', (_event, code) => callback(code));
+    ipcRenderer.on('term:exit', (_event, data) => callback(data));
   }
 });

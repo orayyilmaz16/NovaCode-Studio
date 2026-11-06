@@ -321,15 +321,26 @@ ipcMain.handle('git:pull', async (_event, repoPath) => {
 });
 
 // ----------------------------------------------------
-// IPC Handlers: Gerçek shell (PowerShell / CMD), kalıcı oturum
+// IPC Handlers: Gerçek shell (PowerShell / CMD), kalıcı oturumlar
 // ----------------------------------------------------
 // PTY değil, stdin/stdout borusu: çoğu komut çalışır, renkli/tam ekran programlar çalışmaz.
-let shellProc = null;
+// Her shell bir kez başlar ve sekme değişince kapanmaz; böylece tekrar açmak anında olur.
+const shells = new Map(); // name -> { proc, cwd }
+let cachedPwsh = null;
 
-function stopShell() {
-  if (shellProc) {
-    try { shellProc.kill(); } catch (e) {}
-    shellProc = null;
+function hasPwsh() {
+  if (cachedPwsh !== null) return cachedPwsh;
+  if (process.platform !== 'win32') return (cachedPwsh = false);
+  try { execFileSync('where.exe', ['pwsh'], { windowsHide: true, stdio: 'ignore' }); cachedPwsh = true; }
+  catch { cachedPwsh = false; }
+  return cachedPwsh;
+}
+
+function stopShell(name) {
+  const entry = shells.get(name);
+  if (entry) {
+    try { entry.proc.kill(); } catch (e) {}
+    shells.delete(name);
   }
 }
 
@@ -340,53 +351,63 @@ function sendTerm(channel, payload) {
 }
 
 ipcMain.handle('term:start', async (_event, shellName, cwd) => {
-  stopShell();
+  const name = shellName === 'cmd' ? 'cmd' : 'powershell';
   if (!isValidPath(cwd) || !fs.existsSync(cwd)) {
     return { success: false, error: 'Çalışma klasörü yok. Önce bir klasör açın.' };
   }
-  const isCmd = shellName === 'cmd';
-  // PowerShell 7 (pwsh) varsa onu, yoksa Windows PowerShell'i kullan.
-  const hasPwsh = process.platform === 'win32' && (() => {
-    try { execFileSync('where.exe', ['pwsh'], { windowsHide: true, stdio: 'ignore' }); return true; } catch { return false; }
-  })();
-  const command = isCmd ? 'cmd.exe' : (process.platform === 'win32' ? (hasPwsh ? 'pwsh.exe' : 'powershell.exe') : 'bash');
+  const existing = shells.get(name);
+  if (existing && existing.cwd === cwd && existing.proc.exitCode === null) {
+    return { success: true, shell: name, reused: true };
+  }
+  stopShell(name);
+
+  const isCmd = name === 'cmd';
+  const command = isCmd ? 'cmd.exe' : (process.platform === 'win32' ? (hasPwsh() ? 'pwsh.exe' : 'powershell.exe') : 'bash');
   const args = isCmd
     ? ['/Q']
     : process.platform === 'win32'
       ? ['-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', '-']
       : [];
+  let proc;
   try {
-    shellProc = spawn(command, args, { cwd, windowsHide: true, env: process.env });
+    proc = spawn(command, args, { cwd, windowsHide: true, env: process.env });
   } catch (err) {
     return { success: false, error: err.message };
   }
+  shells.set(name, { proc, cwd });
+
   // Türkçe karakterler için çıktı kodlamasını UTF-8'e al (Windows varsayılanı OEM kod sayfası).
   if (isCmd) {
-    shellProc.stdin.write('chcp 65001 >nul\r\n');
+    proc.stdin.write('chcp 65001 >nul\r\n');
   } else if (process.platform === 'win32') {
-    shellProc.stdin.write('[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8\n');
+    proc.stdin.write('[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8\n');
   }
-  shellProc.stdout.on('data', (chunk) => sendTerm('term:output', chunk.toString('utf8')));
-  shellProc.stderr.on('data', (chunk) => sendTerm('term:output', chunk.toString('utf8')));
-  shellProc.on('error', (err) => sendTerm('term:output', `\n[shell hatası] ${err.message}\n`));
-  shellProc.on('exit', (code) => {
-    shellProc = null;
-    sendTerm('term:exit', code);
+  proc.stdout.on('data', (chunk) => sendTerm('term:output', { shell: name, text: chunk.toString('utf8') }));
+  proc.stderr.on('data', (chunk) => sendTerm('term:output', { shell: name, text: chunk.toString('utf8') }));
+  proc.on('error', (err) => sendTerm('term:output', { shell: name, text: `\n[shell hatası] ${err.message}\n` }));
+  proc.on('exit', (code) => {
+    if (shells.get(name)?.proc === proc) shells.delete(name);
+    sendTerm('term:exit', { shell: name, code });
   });
   return { success: true, shell: command };
 });
 
-ipcMain.handle('term:input', async (_event, line) => {
-  if (!shellProc || typeof line !== 'string' || line.length > 10000) {
+ipcMain.handle('term:input', async (_event, shellName, line) => {
+  const entry = shells.get(shellName === 'cmd' ? 'cmd' : 'powershell');
+  if (!entry || typeof line !== 'string' || line.length > 10000) {
     return { success: false, error: 'Shell çalışmıyor.' };
   }
-  shellProc.stdin.write(line + '\n');
+  entry.proc.stdin.write(line + '\n');
   return { success: true };
 });
 
-ipcMain.handle('term:stop', async () => {
-  stopShell();
+ipcMain.handle('term:stop', async (_event, shellName) => {
+  stopShell(shellName === 'cmd' ? 'cmd' : 'powershell');
   return { success: true };
+});
+
+app.on('before-quit', () => {
+  for (const name of [...shells.keys()]) stopShell(name);
 });
 
 // Single instance lock

@@ -8,7 +8,8 @@ interface TerminalProps {
   cwd?: string | null;
 }
 
-type TabId = 'powershell' | 'cmd' | 'log';
+type ShellId = 'powershell' | 'cmd';
+type TabId = ShellId | 'log';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'powershell', label: 'PowerShell' },
@@ -22,56 +23,43 @@ const ANSI = /\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07]*\x07/g;
 
 export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd }) => {
   const [tab, setTab] = useState<TabId>('powershell');
-  const [output, setOutput] = useState<Record<'powershell' | 'cmd', string>>({ powershell: '', cmd: '' });
+  const [output, setOutput] = useState<Record<ShellId, string>>({ powershell: '', cmd: '' });
+  const [running, setRunning] = useState<Record<ShellId, boolean>>({ powershell: false, cmd: false });
+  const [status, setStatus] = useState<Record<ShellId, string>>({ powershell: '', cmd: '' });
   const [input, setInput] = useState('');
-  const [status, setStatus] = useState<string>('');
-  const [running, setRunning] = useState(false);
-  const activeShell = useRef<'powershell' | 'cmd' | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const api = typeof window !== 'undefined' ? window.electronAPI : undefined;
   const hasShell = !!api?.termStart;
 
-  // Çıktı akışını bir kez bağla (preload'da kaldırma API'si yok)
+  // Çıktı akışını bir kez bağla (preload'da kaldırma API'si yok). Her shell kendi çıktısına yazar.
   useEffect(() => {
     if (!api?.onTermOutput || !api?.onTermExit) return;
-    api.onTermOutput((text: string) => {
-      const shell = activeShell.current;
-      if (!shell) return;
+    api.onTermOutput(({ shell, text }) => {
       const clean = text.replace(ANSI, '');
-      setOutput((prev) => {
-        const next = (prev[shell] + clean).slice(-MAX_OUTPUT);
-        return { ...prev, [shell]: next };
-      });
+      setOutput((prev) => ({ ...prev, [shell]: (prev[shell] + clean).slice(-MAX_OUTPUT) }));
     });
-    api.onTermExit((code: number | null) => {
-      activeShell.current = null;
-      setRunning(false);
-      setStatus(`Shell kapandı (kod ${code ?? '?'}). Sekmeye tekrar tıklayarak yeniden başlatın.`);
+    api.onTermExit(({ shell, code }) => {
+      setRunning((prev) => ({ ...prev, [shell]: false }));
+      setStatus((prev) => ({ ...prev, [shell]: `Shell kapandı (kod ${code ?? '?'}). Sekmeye tekrar tıklayarak yeniden başlatın.` }));
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sekme veya klasör değişince shell'i (yeniden) başlat
+  // Sekme açılınca veya klasör değişince shell'i başlat. Zaten çalışıyorsa main süreç yeniden kullanır.
   useEffect(() => {
     if (tab === 'log' || !hasShell) return;
+    const shell = tab;
     if (!cwd) {
-      setRunning(false);
-      setStatus('Shell için önce bir klasör açın.');
+      setStatus((prev) => ({ ...prev, [shell]: 'Shell için önce bir klasör açın.' }));
       return;
     }
     let cancelled = false;
-    setStatus('Shell başlatılıyor...');
-    api!.termStart(tab, cwd).then((res: { success: boolean; error?: string }) => {
+    setStatus((prev) => ({ ...prev, [shell]: 'Shell başlatılıyor...' }));
+    api!.termStart(shell, cwd).then((res) => {
       if (cancelled) return;
-      if (res.success) {
-        activeShell.current = tab;
-        setRunning(true);
-        setStatus('');
-      } else {
-        setRunning(false);
-        setStatus(res.error || 'Shell başlatılamadı.');
-      }
+      setRunning((prev) => ({ ...prev, [shell]: res.success }));
+      setStatus((prev) => ({ ...prev, [shell]: res.success ? '' : res.error || 'Shell başlatılamadı.' }));
     });
     return () => {
       cancelled = true;
@@ -84,25 +72,26 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd }) => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [output, logs, tab]);
 
+  const shellId: ShellId | null = tab === 'log' ? null : tab;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!running || tab === 'log' || !api?.termInput) return;
+    if (!shellId || !running[shellId] || !api?.termInput) return;
     const line = input;
     setInput('');
-    setOutput((prev) => ({ ...prev, [tab]: prev[tab] + `> ${line}\n` }));
-    const res = await api.termInput(line);
-    if (!res.success) setStatus(res.error || 'Komut gönderilemedi.');
+    setOutput((prev) => ({ ...prev, [shellId]: prev[shellId] + `> ${line}\n` }));
+    const res = await api.termInput(shellId, line);
+    if (!res.success) setStatus((prev) => ({ ...prev, [shellId]: res.error || 'Komut gönderilemedi.' }));
   };
 
   const handleStop = async () => {
-    await api?.termStop();
-    activeShell.current = null;
-    setRunning(false);
-    setStatus('Shell durduruldu.');
+    if (!shellId) return;
+    await api?.termStop(shellId);
+    setRunning((prev) => ({ ...prev, [shellId]: false }));
+    setStatus((prev) => ({ ...prev, [shellId]: 'Shell durduruldu.' }));
   };
 
-  const shellView = tab !== 'log';
-  const currentOutput = shellView ? output[tab] : '';
+  const currentStatus = shellId ? status[shellId] : '';
 
   return (
     <div className="flex flex-col h-full bg-[#0c0f16] text-zinc-300 font-mono text-xs">
@@ -117,23 +106,28 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd }) => {
               }`}
             >
               {t.label}
+              {t !== TABS[2] && running[t.id as ShellId] && <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 align-middle" />}
             </button>
           ))}
         </div>
         <div className="flex items-center gap-1">
-          {shellView && running && (
+          {shellId && running[shellId] && (
             <button onClick={handleStop} title="Shell'i durdur" className="p-1 rounded text-zinc-500 hover:text-zinc-200">
               <Square size={12} />
             </button>
           )}
-          <button onClick={tab === 'log' ? onClear : () => setOutput((p) => ({ ...p, [tab]: '' }))} title="Temizle" className="p-1 rounded text-zinc-500 hover:text-zinc-200">
+          <button
+            onClick={() => (shellId ? setOutput((p) => ({ ...p, [shellId]: '' })) : onClear())}
+            title="Temizle"
+            className="p-1 rounded text-zinc-500 hover:text-zinc-200"
+          >
             <Trash2 size={12} />
           </button>
         </div>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2">
-        {tab === 'log' ? (
+        {shellId === null ? (
           logs.length === 0 ? (
             <div className="text-zinc-600">Henüz kayıt yok.</div>
           ) : (
@@ -150,21 +144,21 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd }) => {
           )
         ) : (
           <pre className="whitespace-pre-wrap break-all leading-relaxed text-zinc-300 m-0">
-            {currentOutput || (status ? '' : 'Komut yazın ve Enter’a basın.')}
+            {output[shellId] || (currentStatus ? '' : 'Komut yazın ve Enter’a basın.')}
           </pre>
         )}
-        {shellView && status && <div className="text-amber-300/90 mt-1">{status}</div>}
+        {shellId && currentStatus && <div className="text-amber-300/90 mt-1">{currentStatus}</div>}
       </div>
 
-      {shellView && (
+      {shellId && (
         <form onSubmit={handleSubmit} className="flex items-center px-3 h-9 border-t border-zinc-800/80 bg-[#10131c]">
-          <span className="text-zinc-500 mr-2 select-none">{tab === 'cmd' ? '>' : 'PS>'}</span>
+          <span className="text-zinc-500 mr-2 select-none">{shellId === 'cmd' ? '>' : 'PS>'}</span>
           <input
             type="text"
             value={input}
-            disabled={!running}
+            disabled={!running[shellId]}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={running ? 'Komut yazın...' : 'Shell hazır değil'}
+            placeholder={running[shellId] ? 'Komut yazın...' : 'Shell hazır değil'}
             className="flex-1 bg-transparent text-zinc-100 outline-none placeholder:text-zinc-600 disabled:opacity-50"
           />
         </form>

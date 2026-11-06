@@ -7,7 +7,8 @@ import { execFileSync } from "node:child_process";
 const git = (...a) =>
   execFileSync("git", ["-c", "core.quotepath=off", ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trimEnd();
 
-const EXCLUDE = /^(dist\/|dist-electron\/|release\/|build\/|node_modules\/)/;
+// Yalnız geçici/yerel klasörler hariç tutulur (dist dahil). Gizli dosyalar RISKY ile zaten engellenir.
+const EXCLUDE = /^(dist-electron\/|release\/|build\/|node_modules\/)/;
 const RISKY = /(^|\/)(\.env(\..*)?|.*\.(pem|key|pfx|p12)|id_rsa.*|credentials.*)$/i;
 
 const say = (msg) => process.stdout.write(JSON.stringify({ systemMessage: msg }));
