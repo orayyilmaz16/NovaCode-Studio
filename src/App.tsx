@@ -90,11 +90,15 @@ export function App() {
   useEffect(() => {
     if (window.electronAPI?.onFileChanged) {
       window.electronAPI.onFileChanged(async ({ filename, rootPath }) => {
-        addLog('info', `Disk üzerinde dosya değişimi algılandı: ${filename || 'Proje'}`);
-        if (rootPath) {
-          const updatedTree = await window.electronAPI.readDirectory(rootPath);
-          setFiles(updatedTree);
-          refreshGitStatus(rootPath);
+        try {
+          addLog('info', `Disk üzerinde dosya değişimi algılandı: ${filename || 'Proje'}`);
+          if (rootPath) {
+            const updatedTree = await window.electronAPI.readDirectory(rootPath);
+            setFiles(updatedTree);
+            refreshGitStatus(rootPath);
+          }
+        } catch (err) {
+          addLog('error', `Dosya ağacı yenilenemedi: ${String(err)}`);
         }
       });
     }
@@ -132,15 +136,23 @@ export function App() {
   // ----------------------------------------------------
   const handleOpenFolderDialog = async () => {
     if (window.electronAPI?.openFolderDialog) {
-      const result = await window.electronAPI.openFolderDialog();
-      if (result) {
-        setCurrentRootPath(result.rootPath);
-        setCurrentRootName(result.rootName);
-        setFiles(result.tree);
-        setShowLanding(false);
-        setActiveSidebarTab('files');
-        addLog('info', `Çalışma alanı açıldı: ${result.rootPath}`);
-        refreshGitStatus(result.rootPath);
+      try {
+        const result = await window.electronAPI.openFolderDialog();
+        if (result && 'error' in result) {
+          addLog('error', `Klasör açılamadı: ${result.error}`);
+          return;
+        }
+        if (result && 'rootPath' in result) {
+          setCurrentRootPath(result.rootPath);
+          setCurrentRootName(result.rootName);
+          setFiles(result.tree);
+          setShowLanding(false);
+          setActiveSidebarTab('files');
+          addLog('info', `Çalışma alanı açıldı: ${result.rootPath}`);
+          refreshGitStatus(result.rootPath);
+        }
+      } catch (err) {
+        addLog('error', `Klasör açılamadı: ${String(err)}`);
       }
     } else {
       // Web fallback dosya yükleme

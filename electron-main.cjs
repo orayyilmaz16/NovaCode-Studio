@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
@@ -117,13 +117,21 @@ function scanDirectorySync(dirPath, maxDepth = 4, currentDepth = 0) {
   }
 }
 
-function startFileWatcher(rootPath) {
+function stopFileWatcher() {
   if (activeWatcher) {
-    try { activeWatcher.close(); } catch(e) {}
+    try { activeWatcher.close(); } catch (e) {}
+    activeWatcher = null;
   }
+}
+
+function startFileWatcher(rootPath) {
+  stopFileWatcher();
   try {
     let debounceTimer;
-    activeWatcher = fs.watch(rootPath, { recursive: true }, (_eventType, filename) => {
+    const watcher = fs.watch(rootPath, { recursive: true }, (_eventType, filename) => {
+      // node_modules gibi büyük klasörler olay selini tetiklemesin
+      const name = filename ? String(filename) : '';
+      if (name && name.split(/[\\/]/).some((part) => IGNORED_DIRS.has(part))) return;
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -131,32 +139,49 @@ function startFileWatcher(rootPath) {
         }
       }, 300);
     });
+    // Olay dinleyicisi olmayan 'error' olayı süreci çökertir (ör. izlenen klasör silinirse).
+    watcher.on('error', (err) => {
+      console.warn('File watcher error:', err);
+      if (activeWatcher === watcher) {
+        stopFileWatcher();
+      }
+    });
+    activeWatcher = watcher;
   } catch (e) {
     console.warn('File watcher could not be attached:', e);
   }
+}
+
+function isValidPath(p) {
+  return typeof p === 'string' && p.length > 0 && p.length < 4096 && !p.includes('\0');
 }
 
 // ----------------------------------------------------
 // IPC Handlers: Dialogs & Real FS
 // ----------------------------------------------------
 ipcMain.handle('dialog:openFolder', async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory'],
-    title: 'Çalışma Alanı Klasörü Seçin'
-  });
-  if (result.canceled || !result.filePaths.length) return null;
+  try {
+    const result = await dialog.showOpenDialog(mainWindow || undefined, {
+      properties: ['openDirectory'],
+      title: 'Çalışma Alanı Klasörü Seçin'
+    });
+    if (result.canceled || !result.filePaths.length) return null;
 
-  const folderPath = result.filePaths[0];
-  startFileWatcher(folderPath);
+    const folderPath = result.filePaths[0];
+    if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
+      throw new Error('Seçilen klasör bulunamadı veya erişilemiyor.');
+    }
+    startFileWatcher(folderPath);
 
-  const folderName = path.basename(folderPath);
-  const tree = scanDirectorySync(folderPath);
-
-  return {
-    rootPath: folderPath,
-    rootName: folderName,
-    tree
-  };
+    return {
+      rootPath: folderPath,
+      rootName: path.basename(folderPath),
+      tree: scanDirectorySync(folderPath)
+    };
+  } catch (err) {
+    console.error('Klasör açılamadı:', err);
+    return { error: err.message || 'Klasör açılamadı.' };
+  }
 });
 
 ipcMain.handle('dialog:openFiles', async () => {
@@ -186,6 +211,7 @@ ipcMain.handle('dialog:openFiles', async () => {
 });
 
 ipcMain.handle('fs:readDir', async (_event, dirPath) => {
+  if (!isValidPath(dirPath) || !fs.existsSync(dirPath)) return [];
   return scanDirectorySync(dirPath);
 });
 
@@ -251,9 +277,14 @@ ipcMain.handle('fs:renameItem', async (_event, oldPath, newPath) => {
 // ----------------------------------------------------
 // IPC Handlers: Real Git Integration
 // ----------------------------------------------------
-function runGitCommand(cmd, cwd) {
+// Kabuk kullanılmaz (execFile): argümanlar doğrudan git'e gider, enjeksiyon olmaz.
+function runGitCommand(args, cwd) {
   return new Promise((resolve) => {
-    exec(cmd, { cwd }, (error, stdout, stderr) => {
+    if (!isValidPath(cwd) || !fs.existsSync(cwd)) {
+      resolve({ success: false, stdout: '', stderr: 'Geçersiz depo yolu.' });
+      return;
+    }
+    execFile('git', args, { cwd, windowsHide: true, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
       resolve({
         success: !error,
         stdout: stdout ? stdout.trim() : '',
@@ -264,15 +295,15 @@ function runGitCommand(cmd, cwd) {
 }
 
 ipcMain.handle('git:status', async (_event, repoPath) => {
-  if (!repoPath) return { isRepo: false };
-  const check = await runGitCommand('git rev-parse --is-inside-work-tree', repoPath);
+  if (!isValidPath(repoPath)) return { isRepo: false };
+  const check = await runGitCommand(['rev-parse', '--is-inside-work-tree'], repoPath);
   if (!check.success || check.stdout !== 'true') {
     return { isRepo: false };
   }
 
   const [branchRes, statusRes] = await Promise.all([
-    runGitCommand('git branch --show-current', repoPath),
-    runGitCommand('git status --short', repoPath)
+    runGitCommand(['branch', '--show-current'], repoPath),
+    runGitCommand(['status', '--short'], repoPath)
   ]);
 
   const changes = statusRes.stdout
@@ -291,16 +322,19 @@ ipcMain.handle('git:status', async (_event, repoPath) => {
 });
 
 ipcMain.handle('git:commit', async (_event, repoPath, message) => {
-  await runGitCommand('git add .', repoPath);
-  return runGitCommand(`git commit -m "${message.replace(/"/g, '\\"')}"`, repoPath);
+  if (typeof message !== 'string' || !message.trim() || message.length > 500) {
+    return { success: false, stdout: '', stderr: 'Geçersiz commit mesajı.' };
+  }
+  await runGitCommand(['add', '.'], repoPath);
+  return runGitCommand(['commit', '-m', message], repoPath);
 });
 
 ipcMain.handle('git:push', async (_event, repoPath) => {
-  return runGitCommand('git push', repoPath);
+  return runGitCommand(['push'], repoPath);
 });
 
 ipcMain.handle('git:pull', async (_event, repoPath) => {
-  return runGitCommand('git pull', repoPath);
+  return runGitCommand(['pull'], repoPath);
 });
 
 // Single instance lock
