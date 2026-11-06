@@ -28,7 +28,9 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 
 ## Git ve sürüm (ayrıntı: `AGENT.md`, `.claude/skills/nova-release/SKILL.md`)
 - Conventional Commits. Sürüm SemVer, tek kaynak `package.json`.
-- **Commit/push otomatiktir (kullanıcı onayıyla kuruldu):** her Claude turu bitince `scripts/auto-commit.mjs` (Stop hook, `.claude/settings.json`) değişiklikleri `chore(auto): ...` mesajıyla `origin main`'e push eder. Gizli dosya, `dist/`, `release/` atlanır; gizli dosya varsa o tur commit edilmez. Tag ve release hâlâ onay ister.
+- **Commit/push otomatiktir (kullanıcı onayıyla kuruldu):** her Claude turu bitince `scripts/auto-commit.mjs` (Stop hook, `.claude/settings.json`) değişiklikleri `chore(auto): ...` mesajıyla `origin main`'e push eder. Gizli dosya, `dist/`, `release/` atlanır; gizli dosya varsa o tur commit edilmez. Tag ve release hâlâ onay ister. Kullanıcı bu otomatik commit/push için kalıcı izin verdi (2026-11-06).
+- **Güvenlik/kalite taraması otomatik:** `ci-cd.yml` (tip, hijyen, npm audit high, build, bundle bütçesi) ve `security.yml` (CodeQL, gitleaks, dependency review, haftalık npm audit) her push/PR'da çalışır. `chore(auto)` commit'leri sürüm artırmaz.
+- Yeni bir zaafiyet veya kırık CI görülürse önce düzeltmeyi öner; CI yeşil olmadan "yayında" deme.
 - Deploy/CI kaydı yeşil bitmeden "yayında" deme.
 
 ## KVKK ve gizlilik
