@@ -1,80 +1,125 @@
-name: CI/CD Pipeline & Cross-Platform Desktop Release
+name: CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 jobs:
-  # 1. Aşama: Kod Kalitesi, Güvenlik Taraması & Web Build
-  test-and-security:
-    name: 🛡️ Audit & Web Build Test
+  # 1) Tip kontrolü, ignore/sır hijyeni, güvenlik, build, performans bütçesi
+  quality:
+    name: Kalite, Güvenlik ve Performans
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
 
-      - name: Install Dependencies
-        run: npm ci
+      # Yalnız denetler: sır bulunursa durur, .gitignore sapmaları uyarıdır (düzeltme sürüm işinde yapılır).
+      - name: Ignore ve sır hijyeni
+        run: node scripts/check-hygiene.mjs
 
-      - name: Security Vulnerability Scan
-        run: npm audit --audit-level=high || true
+      - name: Tip kontrolü
+        run: npx tsc --noEmit
 
-      - name: Build Web Application
+      - name: Güvenlik açığı taraması (high+ build'i durdurur)
+        run: npm audit --audit-level=high
+
+      - name: Web build
         run: npm run build
 
-  # 2. Aşama: Otonom Masaüstü Uygulaması Derleme (Windows .exe Installer)
-  release-desktop:
-    name: 📦 Build Windows Desktop Installer (.exe)
-    needs: test-and-security
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: windows-latest
+      - name: Performans bütçesi
+        run: node scripts/check-bundle.mjs
+
+  # 2) Sürüm, .gitignore düzeltmesi, CHANGELOG, etiket (yalnız main push)
+  version:
+    name: Otomatik Sürümleme
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(release)')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      release: ${{ steps.bump.outputs.release }}
+      sha: ${{ steps.push.outputs.sha }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: .gitignore ve indeks düzeltmesi
+        run: node scripts/check-hygiene.mjs --fix
 
-      - name: Build Desktop Executable & NSIS Setup
+      - name: Sürümü hesapla
+        id: bump
+        run: node scripts/bump-version.mjs
+
+      - name: Commit, etiket ve push
+        id: push
+        run: |
+          git config user.name "novacode-bot"
+          git config user.email "novacode-bot@users.noreply.github.com"
+          git add -A -- .gitignore package.json package-lock.json CHANGELOG.md
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): v${{ steps.bump.outputs.version }} [skip ci]"
+            git push origin HEAD:main
+          fi
+          if [ "${{ steps.bump.outputs.release }}" = "true" ] && ! git rev-parse "v${{ steps.bump.outputs.version }}" >/dev/null 2>&1; then
+            git tag "v${{ steps.bump.outputs.version }}"
+            git push origin "v${{ steps.bump.outputs.version }}"
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  # 3) Windows .exe derleme ve GitHub Release (sürüm etiketiyle)
+  release-desktop:
+    name: Windows Kurulum (.exe) ve Release
+    needs: version
+    if: needs.version.outputs.release == 'true'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Masaüstü uygulaması derle
         run: npm run electron:build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Artifacts (Windows Installer)
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: NovaCode-Studio-Windows-Installer
           path: release/*.exe
           retention-days: 14
-
-      - name: Create GitHub Release
-        id: create_release
+      - name: GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.0.0-${{ github.run_number }}
-          name: NovaCode Studio Release v1.0.0 (Build ${{ github.run_number }})
-          draft: false
-          prerelease: false
+          tag_name: v${{ needs.version.outputs.version }}
+          name: NovaCode Studio v${{ needs.version.outputs.version }}
+          generate_release_notes: true
           files: release/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
