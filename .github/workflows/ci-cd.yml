@@ -36,6 +36,9 @@ jobs:
       - name: Tip kontrolü
         run: npx tsc --noEmit
 
+      - name: Senkron sunucusu sözdizimi
+        run: node --check server/sync-server.mjs
+
       - name: Güvenlik açığı taraması (high+ build'i durdurur)
         run: npm audit --audit-level=high
 

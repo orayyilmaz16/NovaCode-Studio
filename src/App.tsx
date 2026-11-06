@@ -56,6 +56,21 @@ export function App() {
   useEffect(() => { saveStoredNumber('nova.terminalHeight', terminalHeight); }, [terminalHeight]);
   useEffect(() => { saveStoredNumber('nova.previewWidth', previewWidth); }, [previewWidth]);
 
+  // Ortak düzenleme (kendi sunucun, açık kaynak Yjs). Ayarlar tarayıcıda saklanır.
+  const readLS = (key: string, fallback: string) => {
+    try { return window.localStorage.getItem(key) ?? fallback; } catch { return fallback; }
+  };
+  const writeLS = (key: string, value: string) => {
+    try { window.localStorage.setItem(key, value); } catch { /* depolama kapalı */ }
+  };
+  const [collabEnabled, setCollabEnabled] = useState(() => readLS('nova.collab.enabled', '0') === '1');
+  const [collabUrl, setCollabUrl] = useState(() => readLS('nova.collab.url', ''));
+  const [collabToken, setCollabToken] = useState(() => readLS('nova.collab.token', ''));
+  useEffect(() => { writeLS('nova.collab.enabled', collabEnabled ? '1' : '0'); }, [collabEnabled]);
+  useEffect(() => { writeLS('nova.collab.url', collabUrl); }, [collabUrl]);
+  useEffect(() => { writeLS('nova.collab.token', collabToken); }, [collabToken]);
+  const collabUrlValid = /^(wss:\/\/|ws:\/\/(localhost|127\.0\.0\.1)[:/])/.test(collabUrl.trim());
+
   // Terminal Logları
   const [logs, setLogs] = useState<ConsoleLog[]>([
     {
@@ -728,6 +743,38 @@ export function App() {
                 <option value="light">Light (Aydınlık)</option>
               </select>
             </div>
+            <div className="pt-3 border-t border-zinc-800 space-y-2">
+              <label className="flex items-center gap-2 text-xs text-zinc-300">
+                <input
+                  type="checkbox"
+                  checked={collabEnabled}
+                  onChange={(e) => setCollabEnabled(e.target.checked)}
+                  className="accent-indigo-500"
+                />
+                Ortak düzenleme
+              </label>
+              <input
+                type="text"
+                value={collabUrl}
+                onChange={(e) => setCollabUrl(e.target.value)}
+                placeholder="wss://sunucun.example.com"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none"
+              />
+              <input
+                type="password"
+                value={collabToken}
+                onChange={(e) => setCollabToken(e.target.value)}
+                placeholder="Sunucu token'ı"
+                autoComplete="off"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none"
+              />
+              {collabUrl && !collabUrlValid && (
+                <p className="text-[11px] text-rose-400">Adres wss:// ile başlamalı (yerel test için ws://localhost).</p>
+              )}
+              <p className="text-[10px] text-zinc-500 leading-snug">
+                Kodun yalnızca bu adrese gönderilir. Sunucu açık kaynaktır: <span className="font-mono">server/sync-server.mjs</span>
+              </p>
+            </div>
             <div className="pt-4 border-t border-zinc-800 text-[11px] text-zinc-500 space-y-1">
               <p className="font-semibold text-zinc-400">Sistem & Disk Bilgisi:</p>
               <p>Aktif Dizin: <span className="text-zinc-300 font-mono text-[10px]">{currentRootPath || 'Bellek (Memory)'}</span></p>
@@ -768,6 +815,12 @@ export function App() {
                 onRunCode={handleRunCode}
                 fontSize={fontSize}
                 theme={editorTheme}
+                collab={{
+                  enabled: collabEnabled && collabUrlValid,
+                  url: collabUrl.trim(),
+                  token: collabToken,
+                  room: currentRootPath || ''
+                }}
               />
             </div>
 

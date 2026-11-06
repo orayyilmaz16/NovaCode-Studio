@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Editor from '@monaco-editor/react';
-import { X, Play, Copy, Check, Download, FileCode, Save } from 'lucide-react';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { MonacoBinding } from 'y-monaco';
+import { X, Play, Copy, Check, Download, FileCode, Save, Users } from 'lucide-react';
 import type { FileItem } from '../types';
+
+export interface CollabConfig {
+  enabled: boolean;
+  url: string;      // wss:// veya yerel ws://
+  token: string;    // sunucu NOVA_SYNC_TOKEN değeri
+  room: string;     // proje kimliği (kök klasör yolu)
+}
 
 interface EditorAreaProps {
   openFiles: FileItem[];
@@ -13,6 +23,7 @@ interface EditorAreaProps {
   onRunCode: () => void;
   fontSize: number;
   theme: string;
+  collab?: CollabConfig;
 }
 
 export const EditorArea: React.FC<EditorAreaProps> = ({
@@ -25,10 +36,62 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   onRunCode,
   fontSize,
   theme,
+  collab,
 }) => {
   const [copied, setCopied] = React.useState(false);
   const [savedEffect, setSavedEffect] = React.useState(false);
+  const [editorInstance, setEditorInstance] = useState<any>(null);
+  const [collabStatus, setCollabStatus] = useState<'off' | 'connecting' | 'synced' | 'error'>('off');
   const activeFile = openFiles.find((f) => f.id === activeFileId);
+
+  // Ortak düzenleme: aktif dosya için bir Yjs odası aç ve Monaco modeline bağla.
+  // Odalar dosya bazlıdır: <proje>/<dosya-yolu>. Sunucu kapalıysa editör yerel çalışmaya devam eder.
+  const collabOn = !!collab?.enabled && !!collab.url && !!collab.room && !!activeFile?.path && !!editorInstance;
+  const activeId = activeFile?.id;
+  const activePath = activeFile?.path;
+  const activeContent = activeFile?.content;
+  useEffect(() => {
+    if (!collabOn || !collab || !activePath || !editorInstance) {
+      setCollabStatus('off');
+      return;
+    }
+    const model = editorInstance.getModel();
+    if (!model) return;
+
+    const doc = new Y.Doc();
+    const roomName = `${encodeURIComponent(collab.room)}/${encodeURIComponent(activePath)}`;
+    const provider = new WebsocketProvider(collab.url, roomName, doc, {
+      params: collab.token ? { token: collab.token } : {},
+      connect: true
+    });
+    const ytext = doc.getText('monaco');
+    const binding = new MonacoBinding(ytext, model, new Set([editorInstance]), provider.awareness);
+
+    setCollabStatus('connecting');
+    const onStatus = ({ status }: { status: string }) => setCollabStatus(status === 'connected' ? 'synced' : 'connecting');
+    const onSync = (synced: boolean) => {
+      if (synced) {
+        // Oda boşsa (ilk bağlanan) yerel içeriği tohumla; doluysa sunucudaki içerik kullanılır.
+        if (ytext.length === 0 && activeContent) ytext.insert(0, activeContent);
+        setCollabStatus('synced');
+      }
+    };
+    provider.on('status', onStatus);
+    provider.on('sync', onSync);
+    const onConnErr = () => setCollabStatus('error');
+    provider.on('connection-error', onConnErr);
+
+    return () => {
+      provider.off('status', onStatus);
+      provider.off('sync', onSync);
+      provider.off('connection-error', onConnErr);
+      binding.destroy();
+      provider.destroy();
+      doc.destroy();
+    };
+    // activeContent bilerek bağımlılıkta değil: her tuş vuruşunda odayı yeniden kurmamak için.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collabOn, collab?.url, collab?.token, collab?.room, activeId, activePath, editorInstance]);
 
   const handleCopy = () => {
     if (activeFile?.content) {
@@ -95,6 +158,21 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
         {/* Action Tools */}
         {activeFile && (
           <div className="flex items-center space-x-1.5 ml-4">
+            {collab?.enabled && (
+              <span
+                title="Ortak düzenleme durumu"
+                className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded ${
+                  collabStatus === 'synced'
+                    ? 'text-emerald-300 bg-emerald-500/10'
+                    : collabStatus === 'error'
+                      ? 'text-rose-300 bg-rose-500/10'
+                      : 'text-zinc-400 bg-zinc-800'
+                }`}
+              >
+                <Users size={11} />
+                {collabStatus === 'synced' ? 'Bağlı' : collabStatus === 'error' ? 'Bağlantı hatası' : collabStatus === 'connecting' ? 'Bağlanıyor' : 'Kapalı'}
+              </span>
+            )}
             {onSaveFile && (
               <button
                 onClick={handleSave}
@@ -139,6 +217,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             theme={theme}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}
+            onMount={(ed) => setEditorInstance(ed)}
             onChange={(val) => onChangeContent(activeFile.id, val || '')}
             options={{
               fontSize: fontSize,

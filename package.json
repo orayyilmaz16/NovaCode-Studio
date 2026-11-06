@@ -14,7 +14,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron:dev": "concurrently -k \"cross-env BROWSER=none vite\" \"wait-on tcp:5173 && cross-env NODE_ENV=development electron .\"",
-    "electron:build": "vite build && electron-builder"
+    "electron:build": "vite build && electron-builder",
+    "sync:server": "node server/sync-server.mjs"
   },
   "build": {
     "appId": "com.orayyilmaz.novacode",
@@ -66,12 +67,17 @@
     "@types/react-dom": "^19.3.0",
     "dompurify": "^3.4.17",
     "electron-is-dev": "^3.0.1",
+    "lib0": "0.2.119",
     "lucide-react": "^1.67.0",
     "monaco-editor": "^0.57.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "socket.io-client": "^4.8.4",
-    "tailwindcss": "^4.3.4"
+    "tailwindcss": "^4.3.4",
+    "ws": "8.22.1",
+    "y-monaco": "0.1.6",
+    "y-protocols": "1.0.7",
+    "y-websocket": "3.1.0",
+    "yjs": "13.6.33"
   },
   "overrides": {
     "monaco-editor": {

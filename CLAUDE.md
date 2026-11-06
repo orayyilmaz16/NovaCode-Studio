@@ -12,7 +12,8 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 - `electron-main.cjs`, `electron-preload.cjs` — ana süreç, dosya sistemi, watcher, IPC, sandbox
 - `src/App.tsx` — kabuk, durum yönetimi
 - `src/components/` — EditorArea, FileTree, GitPanel, Terminal, AIAssistant, Preview, SnippetsPanel, LandingPage, SplashScreen
-- `src/services/realtime.ts` — socket.io senkron
+- `server/sync-server.mjs` — açık kaynak Yjs senkron sunucusu (kendi sunucunda, `NOVA_SYNC_TOKEN` zorunlu, `npm run sync:server`)
+- `src/services/monacoShim.ts` — y-monaco için global Monaco köprüsü (vite alias)
 - `src/snippets/defaultSnippets.ts` — hazır snippet'ler
 - `.github/workflows/ci-cd.yml` — audit + build + Windows release
 

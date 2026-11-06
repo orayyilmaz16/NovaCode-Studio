@@ -66,7 +66,8 @@ Geri dönüş planı: `git revert <sha>` ve `npm version` değişikliğinin geri
 ## 7. Güvenlik ve KVKK kapısı
 Aşağıdakilere dokunan her değişiklikte raporda ayrıca belirt:
 - IPC kanalları, dosya sistemi erişimi, `electron-main.cjs` sandbox ayarları
-- `realtime.ts` ile dışarı giden veri, AIAssistant'a gönderilen kod/içerik
+- Ortak düzenleme (`server/sync-server.mjs`) yalnız kullanıcının ayarladığı `wss://` adresine dosya içeriği gönderir; varsayılan sunucu yoktur. Sunucu token olmadan açılmaz.
+- AIAssistant'a gönderilen kod/içerik
 - Yeni 3. parti paket veya servis, analitik, çerez
 Belirt: veri, amaç, hukuki sebep, saklama süresi, yurt dışı aktarım. Gizli bilgi commit'e girmez.
 
