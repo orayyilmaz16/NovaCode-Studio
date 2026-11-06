@@ -23,6 +23,7 @@ import { LandingPage } from './components/LandingPage';
 import { SplashScreen } from './components/SplashScreen';
 import { GitPanel } from './components/GitPanel';
 import { SnippetsPanel } from './components/SnippetsPanel';
+import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { initialFiles } from './mockFiles';
 import type { FileItem, ConsoleLog, GitStatus } from './types';
 
@@ -41,8 +42,19 @@ export function App() {
 
   // Paneller
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'git' | 'snippets' | 'ai' | 'settings'>('files');
-  const [showRightPanel, setShowRightPanel] = useState<'preview' | 'ai' | null>('preview');
+  // Önizleme varsayılan olarak kapalı; yalnız HTML dosyasında düğmesi görünür.
+  const [showRightPanel, setShowRightPanel] = useState<'preview' | 'ai' | null>(null);
   const [showBottomTerminal, setShowBottomTerminal] = useState(true);
+  const [isLoadingProject, setIsLoadingProject] = useState(false);
+
+  // Sürüklenebilir panel boyutları (tercihler tarayıcıda saklanır)
+  const [sidebarWidth, setSidebarWidth] = useState(() => loadStoredNumber('nova.sidebarWidth', 256));
+  const [terminalHeight, setTerminalHeight] = useState(() => loadStoredNumber('nova.terminalHeight', 208));
+  const [previewWidth, setPreviewWidth] = useState(() => loadStoredNumber('nova.previewWidth', 560));
+
+  useEffect(() => { saveStoredNumber('nova.sidebarWidth', sidebarWidth); }, [sidebarWidth]);
+  useEffect(() => { saveStoredNumber('nova.terminalHeight', terminalHeight); }, [terminalHeight]);
+  useEffect(() => { saveStoredNumber('nova.previewWidth', previewWidth); }, [previewWidth]);
 
   // Terminal Logları
   const [logs, setLogs] = useState<ConsoleLog[]>([
@@ -138,6 +150,7 @@ export function App() {
   // ----------------------------------------------------
   const handleOpenFolderDialog = async () => {
     if (window.electronAPI?.openFolderDialog) {
+      setIsLoadingProject(true);
       try {
         const result = await window.electronAPI.openFolderDialog();
         if (result && 'error' in result) {
@@ -155,6 +168,8 @@ export function App() {
         }
       } catch (err) {
         addLog('error', `Klasör açılamadı: ${String(err)}`);
+      } finally {
+        setIsLoadingProject(false);
       }
     } else {
       // Web fallback dosya yükleme
@@ -528,15 +543,18 @@ export function App() {
           >
             <Home size={15} />
           </button>
-          <button
-            onClick={() => setShowRightPanel(showRightPanel === 'preview' ? null : 'preview')}
-            title="Canlı Önizleme Panelini Aç/Kapat"
-            className={`p-1.5 rounded transition-colors ${
-              showRightPanel === 'preview' ? 'bg-indigo-600/30 text-indigo-300' : 'hover:bg-zinc-800 text-zinc-400'
-            }`}
-          >
-            <Columns size={15} />
-          </button>
+          {/* Önizleme yalnız HTML dosyası açıkken görünür */}
+          {openFiles.find((f) => f.id === activeFileId)?.language === 'html' && (
+            <button
+              onClick={() => setShowRightPanel(showRightPanel === 'preview' ? null : 'preview')}
+              title="HTML Önizleme"
+              className={`p-1.5 rounded transition-colors ${
+                showRightPanel === 'preview' ? 'bg-indigo-600/30 text-indigo-300' : 'hover:bg-zinc-800 text-zinc-400'
+              }`}
+            >
+              <Columns size={15} />
+            </button>
+          )}
           <button
             onClick={() => setShowBottomTerminal(!showBottomTerminal)}
             title="Terminali Aç/Kapat"
@@ -646,8 +664,9 @@ export function App() {
 
         {/* Sidebar View */}
         {!showLanding && activeSidebarTab === 'files' && (
-          <div className="w-64 h-full border-r border-zinc-800/80">
+          <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0">
             <FileTree
+              isLoading={isLoadingProject}
               files={files}
               activeFileId={activeFileId}
               currentRootName={currentRootName}
@@ -664,7 +683,7 @@ export function App() {
         )}
 
         {!showLanding && activeSidebarTab === 'git' && (
-          <div className="w-64 h-full border-r border-zinc-800/80">
+          <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0">
             <GitPanel
               status={gitStatus}
               currentRepoPath={currentRootPath}
@@ -677,13 +696,13 @@ export function App() {
         )}
 
         {!showLanding && activeSidebarTab === 'snippets' && (
-          <div className="w-64 h-full border-r border-zinc-800/80">
+          <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0">
             <SnippetsPanel onInsertSnippet={handleInsertSnippet} />
           </div>
         )}
 
         {!showLanding && activeSidebarTab === 'settings' && (
-          <div className="w-64 h-full bg-[#131620] border-r border-zinc-800/80 p-3 select-none flex flex-col space-y-4">
+          <div style={{ width: sidebarWidth }} className="h-full bg-[#131620] border-r border-zinc-800/80 p-3 select-none flex flex-col space-y-4 shrink-0">
             <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
               Editör Ayarları
             </span>
@@ -717,6 +736,15 @@ export function App() {
           </div>
         )}
 
+        {/* Sidebar genişliği: sağ kenardan sürükle */}
+        {!showLanding && (
+          <ResizeHandle
+            direction="horizontal"
+            title="Kenar çubuğu genişliği"
+            onResize={(d) => setSidebarWidth((w) => clamp(w + d, 180, 560))}
+          />
+        )}
+
         {/* Landing Page or Central Editor */}
         {showLanding ? (
           <LandingPage
@@ -745,7 +773,14 @@ export function App() {
 
             {/* Bottom Terminal */}
             {showBottomTerminal && (
-              <div className="h-48 border-t border-zinc-800">
+              <ResizeHandle
+                direction="vertical"
+                title="Terminal yüksekliği"
+                onResize={(d) => setTerminalHeight((h) => clamp(h - d, 120, 640))}
+              />
+            )}
+            {showBottomTerminal && (
+              <div style={{ height: terminalHeight }} className="border-t border-zinc-800 shrink-0">
                 <Terminal
                   logs={logs}
                   onClear={() => setLogs([])}
@@ -757,10 +792,16 @@ export function App() {
         )}
 
         {/* Right Side Panel (Preview or AI) */}
-        {!showLanding && showRightPanel === 'preview' && (
-          <div className="w-[45%] h-full border-l border-zinc-800">
+        {!showLanding && showRightPanel === 'preview' && openFiles.find((f) => f.id === activeFileId)?.language === 'html' && (
+          <>
+          <ResizeHandle
+            direction="horizontal"
+            title="Önizleme genişliği"
+            onResize={(d) => setPreviewWidth((w) => clamp(w - d, 320, 1200))}
+          />
+          <div style={{ width: previewWidth }} className="h-full border-l border-zinc-800 shrink-0">
             <Preview
-              htmlContent={getFileContentByName('index.html')}
+              htmlContent={openFiles.find((f) => f.id === activeFileId)?.content || ''}
               cssContent={getFileContentByName('styles.css')}
               jsContent={getFileContentByName('app.js')}
               onRefresh={() => {
@@ -776,6 +817,7 @@ export function App() {
               }}
             />
           </div>
+          </>
         )}
 
         {!showLanding && showRightPanel === 'ai' && (

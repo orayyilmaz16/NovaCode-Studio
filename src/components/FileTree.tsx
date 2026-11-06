@@ -21,6 +21,7 @@ interface FileTreeProps {
   onDeleteFile: (id: string) => void;
   onOpenFolder?: () => void;
   onOpenFiles?: () => void;
+  isLoading?: boolean;
 }
 
 export const FileTree: React.FC<FileTreeProps> = ({
@@ -31,7 +32,8 @@ export const FileTree: React.FC<FileTreeProps> = ({
   onCreateFile,
   onDeleteFile,
   onOpenFolder,
-  onOpenFiles
+  onOpenFiles,
+  isLoading = false
 }) => {
   const [newFileName, setNewFileName] = useState('');
   const [isCreating, setIsCreating] = useState<'file' | 'folder' | null>(null);
@@ -198,7 +200,12 @@ export const FileTree: React.FC<FileTreeProps> = ({
 
       {/* Tree Content */}
       <div className="flex-1 overflow-y-auto py-2">
-        {files.length === 0 ? (
+        {isLoading ? (
+          <div className="p-4 flex items-center justify-center gap-2 text-zinc-400 text-xs">
+            <span className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+            Proje yükleniyor...
+          </div>
+        ) : files.length === 0 ? (
           <div className="p-4 text-center text-zinc-500 text-xs space-y-2">
             <p>Açık dosya veya klasör yok.</p>
             {onOpenFolder && (

@@ -107,71 +107,6 @@ function languageFromExt(ext) {
   return map[ext] || 'plaintext';
 }
 
-function scanDirectorySync(dirPath, maxDepth = 4, currentDepth = 0) {
-  if (currentDepth > maxDepth) return [];
-  try {
-    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-    const items = [];
-
-    for (const entry of entries) {
-      if (IGNORED_DIRS.has(entry.name)) continue;
-
-      const fullPath = path.join(dirPath, entry.name);
-      const isDirectory = entry.isDirectory();
-
-      const ext = path.extname(entry.name).toLowerCase().replace('.', '');
-      let language = 'plaintext';
-      if (['js', 'jsx', 'mjs', 'cjs'].includes(ext)) language = 'javascript';
-      else if (['ts', 'tsx'].includes(ext)) language = 'typescript';
-      else if (['html', 'htm'].includes(ext)) language = 'html';
-      else if (['css', 'scss', 'sass', 'less'].includes(ext)) language = 'css';
-      else if (['json'].includes(ext)) language = 'json';
-      else if (['md', 'markdown'].includes(ext)) language = 'markdown';
-      else if (['py'].includes(ext)) language = 'python';
-      else if (['rs'].includes(ext)) language = 'rust';
-      else if (['go'].includes(ext)) language = 'go';
-      else if (['c', 'cpp', 'h', 'hpp'].includes(ext)) language = 'cpp';
-      else if (['java'].includes(ext)) language = 'java';
-      else if (['sql'].includes(ext)) language = 'sql';
-      else if (['sh', 'bash', 'zsh', 'ps1'].includes(ext)) language = 'shell';
-      else if (['yaml', 'yml'].includes(ext)) language = 'yaml';
-
-      if (isDirectory) {
-        items.push({
-          id: fullPath,
-          name: entry.name,
-          path: fullPath,
-          type: 'folder',
-          isOpen: currentDepth < 1,
-          children: scanDirectorySync(fullPath, maxDepth, currentDepth + 1)
-        });
-      } else {
-        items.push({
-          id: fullPath,
-          name: entry.name,
-          path: fullPath,
-          type: 'file',
-          language
-        });
-      }
-    }
-
-    return items.sort((a, b) => {
-      if (a.type === b.type) return a.name.localeCompare(b.name);
-      return a.type === 'folder' ? -1 : 1;
-    });
-  } catch (err) {
-    return [];
-  }
-}
-
-function stopFileWatcher() {
-  if (activeWatcher) {
-    try { activeWatcher.close(); } catch (e) {}
-    activeWatcher = null;
-  }
-}
-
 function startFileWatcher(rootPath) {
   stopFileWatcher();
   try {
@@ -224,7 +159,7 @@ ipcMain.handle('dialog:openFolder', async () => {
     return {
       rootPath: folderPath,
       rootName: path.basename(folderPath),
-      tree: scanDirectorySync(folderPath)
+      tree: await scanDirectory(folderPath)
     };
   } catch (err) {
     console.error('Klasör açılamadı:', err);
@@ -260,7 +195,7 @@ ipcMain.handle('dialog:openFiles', async () => {
 
 ipcMain.handle('fs:readDir', async (_event, dirPath) => {
   if (!isValidPath(dirPath) || !fs.existsSync(dirPath)) return [];
-  return scanDirectorySync(dirPath);
+  return scanDirectory(dirPath);
 });
 
 ipcMain.handle('fs:readFile', async (_event, filePath) => {
