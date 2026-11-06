@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execFile } = require('child_process');
+const { execFile, spawn } = require('child_process');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
@@ -335,6 +335,71 @@ ipcMain.handle('git:push', async (_event, repoPath) => {
 
 ipcMain.handle('git:pull', async (_event, repoPath) => {
   return runGitCommand(['pull'], repoPath);
+});
+
+// ----------------------------------------------------
+// IPC Handlers: Gerçek shell (PowerShell / CMD), kalıcı oturum
+// ----------------------------------------------------
+// PTY değil, stdin/stdout borusu: çoğu komut çalışır, renkli/tam ekran programlar çalışmaz.
+let shellProc = null;
+
+function stopShell() {
+  if (shellProc) {
+    try { shellProc.kill(); } catch (e) {}
+    shellProc = null;
+  }
+}
+
+function sendTerm(channel, payload) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(channel, payload);
+  }
+}
+
+ipcMain.handle('term:start', async (_event, shellName, cwd) => {
+  stopShell();
+  if (!isValidPath(cwd) || !fs.existsSync(cwd)) {
+    return { success: false, error: 'Çalışma klasörü yok. Önce bir klasör açın.' };
+  }
+  const isCmd = shellName === 'cmd';
+  const command = isCmd ? 'cmd.exe' : (process.platform === 'win32' ? 'powershell.exe' : 'bash');
+  const args = isCmd
+    ? ['/Q']
+    : process.platform === 'win32'
+      ? ['-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', '-']
+      : [];
+  try {
+    shellProc = spawn(command, args, { cwd, windowsHide: true, env: process.env });
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+  // Türkçe karakterler için çıktı kodlamasını UTF-8'e al (Windows varsayılanı OEM kod sayfası).
+  if (isCmd) {
+    shellProc.stdin.write('chcp 65001 >nul\r\n');
+  } else if (process.platform === 'win32') {
+    shellProc.stdin.write('[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8\n');
+  }
+  shellProc.stdout.on('data', (chunk) => sendTerm('term:output', chunk.toString('utf8')));
+  shellProc.stderr.on('data', (chunk) => sendTerm('term:output', chunk.toString('utf8')));
+  shellProc.on('error', (err) => sendTerm('term:output', `\n[shell hatası] ${err.message}\n`));
+  shellProc.on('exit', (code) => {
+    shellProc = null;
+    sendTerm('term:exit', code);
+  });
+  return { success: true, shell: command };
+});
+
+ipcMain.handle('term:input', async (_event, line) => {
+  if (!shellProc || typeof line !== 'string' || line.length > 10000) {
+    return { success: false, error: 'Shell çalışmıyor.' };
+  }
+  shellProc.stdin.write(line + '\n');
+  return { success: true };
+});
+
+ipcMain.handle('term:stop', async () => {
+  stopShell();
+  return { success: true };
 });
 
 // Single instance lock

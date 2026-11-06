@@ -53,6 +53,11 @@ export interface ElectronBridge {
   gitPush: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
   gitPull: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
   onFileChanged: (callback: (data: { filename: string; rootPath: string }) => void) => void;
+  termStart: (shell: 'powershell' | 'cmd', cwd: string) => Promise<{ success: boolean; error?: string; shell?: string }>;
+  termInput: (line: string) => Promise<{ success: boolean; error?: string }>;
+  termStop: () => Promise<{ success: boolean }>;
+  onTermOutput: (callback: (text: string) => void) => void;
+  onTermExit: (callback: (code: number | null) => void) => void;
 }
 
 declare global {

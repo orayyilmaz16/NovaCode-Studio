@@ -17,5 +17,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gitPull: (repoPath) => ipcRenderer.invoke('git:pull', repoPath),
   onFileChanged: (callback) => {
     ipcRenderer.on('fs:watch-change', (_event, data) => callback(data));
+  },
+  termStart: (shell, cwd) => ipcRenderer.invoke('term:start', shell, cwd),
+  termInput: (line) => ipcRenderer.invoke('term:input', line),
+  termStop: () => ipcRenderer.invoke('term:stop'),
+  onTermOutput: (callback) => {
+    ipcRenderer.on('term:output', (_event, text) => callback(text));
+  },
+  onTermExit: (callback) => {
+    ipcRenderer.on('term:exit', (_event, code) => callback(code));
   }
 });

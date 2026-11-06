@@ -29,7 +29,8 @@ import type { FileItem, ConsoleLog, GitStatus } from './types';
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [showLanding, setShowLanding] = useState(false);
-  const [files, setFiles] = useState<FileItem[]>(initialFiles);
+  // Masaüstünde sahte örnek dosyalar gösterilmez: ağaç yalnız gerçek klasörden gelir.
+  const [files, setFiles] = useState<FileItem[]>(window.electronAPI ? [] : initialFiles);
   const [openFiles, setOpenFiles] = useState<FileItem[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
 
@@ -59,6 +60,7 @@ export function App() {
 
   // Varsayılan açılış dosyası
   useEffect(() => {
+    if (window.electronAPI) return;
     const srcFolder = initialFiles.find((f) => f.name === 'src');
     const indexHtml = srcFolder?.children?.find((f) => f.name === 'index.html');
     if (indexHtml) {
@@ -347,7 +349,9 @@ export function App() {
 
   const handleCreateFile = async (name: string, isFolder: boolean) => {
     if (currentRootPath && window.electronAPI) {
-      const targetPath = `${currentRootPath}/${name}`;
+      // Klasörün kendi ayırıcısını kullan (Windows'ta '\', diğerlerinde '/')
+      const sep = currentRootPath.includes('\\') ? '\\' : '/';
+      const targetPath = `${currentRootPath.replace(/[\\/]+$/, '')}${sep}${name.replace(/[\\/]+/g, sep)}`;
       if (isFolder) {
         await window.electronAPI.createFolder(targetPath);
       } else {
@@ -435,16 +439,6 @@ export function App() {
       }
     } else {
       setShowRightPanel('preview');
-    }
-  };
-
-  const handleExecuteTerminalCommand = (command: string) => {
-    addLog('info', `> ${command}`);
-    try {
-      const result = eval(command);
-      addLog('log', String(result));
-    } catch (err: any) {
-      addLog('error', err.message);
     }
   };
 
@@ -753,7 +747,7 @@ export function App() {
                 <Terminal
                   logs={logs}
                   onClear={() => setLogs([])}
-                  onExecuteCommand={handleExecuteTerminalCommand}
+                  cwd={currentRootPath}
                 />
               </div>
             )}
