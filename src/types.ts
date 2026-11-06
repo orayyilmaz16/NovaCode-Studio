@@ -64,4 +64,6 @@ declare global {
   interface Window {
     electronAPI?: ElectronBridge;
   }
+  // vite.config.ts içinde package.json'dan enjekte edilir
+  const __APP_VERSION__: string;
 }

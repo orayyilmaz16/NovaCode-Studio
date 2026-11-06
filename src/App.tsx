@@ -49,7 +49,7 @@ export function App() {
     {
       id: '0',
       type: 'info',
-      text: 'NovaCode IDE v1.0.0 başlatıldı. Gerçek zamanlı dosya & Git motoru devrede.',
+      text: `NovaCode IDE v${__APP_VERSION__} başlatıldı. Gerçek zamanlı dosya & Git motoru devrede.`,
       time: new Date().toLocaleTimeString()
     }
   ]);
@@ -351,7 +351,9 @@ export function App() {
     if (currentRootPath && window.electronAPI) {
       // Klasörün kendi ayırıcısını kullan (Windows'ta '\', diğerlerinde '/')
       const sep = currentRootPath.includes('\\') ? '\\' : '/';
-      const targetPath = `${currentRootPath.replace(/[\\/]+$/, '')}${sep}${name.replace(/[\\/]+/g, sep)}`;
+      const base = currentRootPath.split(sep).filter(Boolean).join(sep);
+      const relative = name.split(/[\\/]+/).filter(Boolean).join(sep);
+      const targetPath = currentRootPath.startsWith(sep) ? sep + base + sep + relative : base + sep + relative;
       if (isFolder) {
         await window.electronAPI.createFolder(targetPath);
       } else {
@@ -490,7 +492,7 @@ export function App() {
             </span>
           </div>
           <span className="text-[11px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full font-mono">
-            v1.0.0 Pro
+            v{__APP_VERSION__} Pro
           </span>
           {currentRootPath && (
             <span className="text-[11px] text-zinc-400 border-l border-zinc-700/80 pl-3 hidden sm:inline">

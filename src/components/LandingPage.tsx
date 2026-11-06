@@ -45,7 +45,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 NovaCode Studio
               </h1>
               <span className="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                v1.0.0 Pro IDE
+                v{__APP_VERSION__} Pro IDE
               </span>
             </div>
             <p className="text-xs text-zinc-400 mt-1">
@@ -183,7 +183,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       {/* Footer Branding */}
       <div className="border-t border-zinc-800/40 py-3 px-8 text-center text-[11px] text-zinc-500">
-        NovaCode Studio IDE • Yerel Masaüstü Sürümü v1.0.0
+        NovaCode Studio IDE • Yerel Masaüstü Sürümü v{__APP_VERSION__}
       </div>
     </div>
   );

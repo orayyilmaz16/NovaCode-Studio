@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execFile, spawn } = require('child_process');
+const { execFile, execFileSync, spawn } = require('child_process');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
@@ -362,7 +362,11 @@ ipcMain.handle('term:start', async (_event, shellName, cwd) => {
     return { success: false, error: 'Çalışma klasörü yok. Önce bir klasör açın.' };
   }
   const isCmd = shellName === 'cmd';
-  const command = isCmd ? 'cmd.exe' : (process.platform === 'win32' ? 'powershell.exe' : 'bash');
+  // PowerShell 7 (pwsh) varsa onu, yoksa Windows PowerShell'i kullan.
+  const hasPwsh = process.platform === 'win32' && (() => {
+    try { execFileSync('where.exe', ['pwsh'], { windowsHide: true, stdio: 'ignore' }); return true; } catch { return false; }
+  })();
+  const command = isCmd ? 'cmd.exe' : (process.platform === 'win32' ? (hasPwsh ? 'pwsh.exe' : 'powershell.exe') : 'bash');
   const args = isCmd
     ? ['/Q']
     : process.platform === 'win32'

@@ -25,16 +25,27 @@ if (!lastTag) {
   process.exit(0);
 }
 
-const raw = git("log", `${lastTag}..HEAD`, "--format=%s%n%b%x00");
+const raw = git("log", `${lastTag}..HEAD`, "--format=%H%n%s%n%b%x00");
 const commits = raw.split("\0").map((c) => c.trim()).filter(Boolean)
-  .filter((c) => !/^chore\(release\)/.test(c));
+  .map((c) => {
+    const nl = c.indexOf("\n");
+    return { sha: c.slice(0, nl), text: c.slice(nl + 1).trim() };
+  })
+  .filter((c) => !/^chore\(release\)/.test(c.text));
+
+// Otomatik kayıt commit'leri (chore(auto)) kaynak kodu değiştirdiyse yama sürümü sayılır.
+const CODE_PATH = /^(src\/|electron-[^/]+\.cjs$|electron-builder|package\.json$)/;
 
 let level = 0; // 1 patch, 2 minor, 3 major
 const notes = { feat: [], fix: [], other: [] };
-for (const c of commits) {
+for (const { sha, text: c } of commits) {
   const [subject] = c.split("\n");
   const m = /^(\w+)(\([^)]*\))?(!)?:\s*(.+)$/.exec(subject);
-  const type = m?.[1] ?? "other";
+  let type = m?.[1] ?? "other";
+  if (type === "chore" && m?.[2] === "(auto)") {
+    const files = git("diff-tree", "--no-commit-id", "--name-only", "-r", sha).split("\n");
+    type = files.some((f) => CODE_PATH.test(f)) ? "fix" : "other";
+  }
   const breaking = !!m?.[3] || /BREAKING CHANGE:/.test(c);
   if (breaking) level = 3;
   else if (type === "feat") level = Math.max(level, 2);
