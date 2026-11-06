@@ -28,7 +28,7 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 
 ## Git ve sürüm (ayrıntı: `AGENT.md`, `.claude/skills/nova-release/SKILL.md`)
 - Conventional Commits. Sürüm SemVer, tek kaynak `package.json`.
-- **Commit, push, tag ve release onaysız yapılmaz.** Agent commit mesajını, sürüm önerisini ve diff özetini hazırlar; kullanıcı "onay" dedikten sonra çalıştırır.
+- **Commit/push otomatiktir (kullanıcı onayıyla kuruldu):** her Claude turu bitince `scripts/auto-commit.mjs` (Stop hook, `.claude/settings.json`) değişiklikleri `chore(auto): ...` mesajıyla `origin main`'e push eder. Gizli dosya, `dist/`, `release/` atlanır; gizli dosya varsa o tur commit edilmez. Tag ve release hâlâ onay ister.
 - Deploy/CI kaydı yeşil bitmeden "yayında" deme.
 
 ## KVKK ve gizlilik

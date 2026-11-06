@@ -31,6 +31,7 @@ Birden çok commit varsa en yüksek seviye uygulanır.
 1. `git status --short` + `git diff --stat` ile değişikliği gör.
 2. Türü belirle, sürüm artışını hesapla.
 3. **Taslağı göster:** commit mesajı, yeni sürüm, etkilenen dosyalar.
+   - Not: Her Claude turu sonunda `scripts/auto-commit.mjs` otomatik commit + push yapar (`chore(auto)` mesajı). Bu akış o commit'leri kapsamaz; sürüm artışı ve anlamlı mesaj için yine bu akış kullanılır.
 4. **Kullanıcı onayı gelince:**
    - `npm version <patch|minor|major> --no-git-tag-version`
    - `git add <belirli dosyalar>` (asla `git add -A` körlemesine; `.env`, `release/`, `dist/` hariç)
