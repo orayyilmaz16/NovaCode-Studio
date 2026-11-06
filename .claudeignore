@@ -1,0 +1,55 @@
+# Bağımlılıklar ve derleme çıktıları
+node_modules/
+dist/
+dist-electron/
+release/
+build/
+.venv/
+__pycache__/
+*.pyc
+
+# Kilit ve üretilmiş dosyalar (gerekirse elle istenir)
+package-lock.json
+*.map
+*.min.js
+*.tsbuildinfo
+
+# Gizli bilgiler
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+secrets/
+
+# Binary ve medya
+*.exe
+*.msi
+*.dll
+*.asar
+*.zip
+*.7z
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.icns
+*.woff
+*.woff2
+*.ttf
+*.mp4
+
+# Loglar, önbellek, editör
+*.log
+.cache/
+.vite/
+.vscode/
+.idea/
+coverage/
+.DS_Store
+Thumbs.db
+
+# Git iç yapısı
+.git/
