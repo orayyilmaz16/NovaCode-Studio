@@ -57,7 +57,55 @@ function createWindow() {
 // ----------------------------------------------------
 // File System Helpers
 // ----------------------------------------------------
-const IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'release', '.vscode', '.idea']);
+const IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'release', '.vscode', '.idea', '.venv', '__pycache__', '.next', 'coverage']);
+const MAX_TREE_NODES = 5000; // büyük klasörlerde arayüzün ve sürecin takılmasını önler
+
+// Asenkron tarama: ana süreç bloklanmaz, toplam düğüm sayısı sınırlıdır.
+async function scanDirectory(dirPath, budget = { left: MAX_TREE_NODES }, maxDepth = 4, currentDepth = 0) {
+  if (currentDepth > maxDepth || budget.left <= 0) return [];
+  let entries;
+  try {
+    entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
+  } catch (err) {
+    return [];
+  }
+  const items = [];
+  for (const entry of entries) {
+    if (budget.left <= 0) break;
+    if (IGNORED_DIRS.has(entry.name)) continue;
+    budget.left--;
+    const fullPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      items.push({
+        id: fullPath,
+        name: entry.name,
+        path: fullPath,
+        type: 'folder',
+        isOpen: currentDepth < 1,
+        children: await scanDirectory(fullPath, budget, maxDepth, currentDepth + 1)
+      });
+    } else {
+      const ext = path.extname(entry.name).toLowerCase().replace('.', '');
+      items.push({ id: fullPath, name: entry.name, path: fullPath, type: 'file', language: languageFromExt(ext) });
+    }
+  }
+  return items.sort((a, b) => {
+    if (a.type === b.type) return a.name.localeCompare(b.name);
+    return a.type === 'folder' ? -1 : 1;
+  });
+}
+
+function languageFromExt(ext) {
+  const map = {
+    js: 'javascript', jsx: 'javascript', mjs: 'javascript', cjs: 'javascript',
+    ts: 'typescript', tsx: 'typescript', html: 'html', htm: 'html',
+    css: 'css', scss: 'css', sass: 'css', less: 'css', json: 'json',
+    md: 'markdown', markdown: 'markdown', py: 'python', rs: 'rust', go: 'go',
+    c: 'cpp', cpp: 'cpp', h: 'cpp', hpp: 'cpp', java: 'java', sql: 'sql',
+    sh: 'shell', bash: 'shell', zsh: 'shell', ps1: 'shell', yaml: 'yaml', yml: 'yaml'
+  };
+  return map[ext] || 'plaintext';
+}
 
 function scanDirectorySync(dirPath, maxDepth = 4, currentDepth = 0) {
   if (currentDepth > maxDepth) return [];
