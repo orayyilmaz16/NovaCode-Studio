@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Güvenlik açığı / Security vulnerability
+    url: https://github.com/orayyilmaz16/NovaCode-Studio/security/advisories/new
+    about: Güvenlik açıklarını herkese açık issue ile değil, özel olarak bildirin. / Report security issues privately, not as public issues.

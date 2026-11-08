@@ -1,0 +1,10 @@
+# Varsayılan sahip / Default owner
+*                       @orayyilmaz16
+
+# Güvenlik, CI ve bağımlılık ayarları / Security, CI and dependency config
+/.github/               @orayyilmaz16
+/SECURITY.md            @orayyilmaz16
+/electron-main.cjs      @orayyilmaz16
+/electron-preload.cjs   @orayyilmaz16
+/scripts/               @orayyilmaz16
+/server/                @orayyilmaz16

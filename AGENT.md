@@ -95,6 +95,41 @@ Aşağıdakilere dokunan her değişiklikte raporda ayrıca belirt:
 - Yeni 3. parti paket veya servis, analitik, çerez
 Belirt: veri, amaç, hukuki sebep, saklama süresi, yurt dışı aktarım. Gizli bilgi commit'e girmez.
 
+## 8. Döngü ve token koruması
+- Aynı komut aynı hatayla iki kez başarısızsa dur; kök nedeni bul ya da kullanıcıya raporla. Üçüncü deneme yok.
+- Bekleme ve yoklama yok: uzun işler `run_in_background` ile; bitince bildirim gelir. `sleep` döngüsü yazma.
+- Bir görevde en fazla 3 doğrulama turu (tsc/build/CI). Aşılırsa dur ve raporla.
+- Dosya tek turda en fazla bir kez tam okunur; sonrasında yalnız satır aralığı.
+- Alt ajan yalnız geniş aramada; tek dosyalık işte kullanma.
+- Hook çıktısı tekrar tetiklenmez: `chore(auto)` commit'i sonrası yeni commit üretme.
+- Yanıt: önce sonuç, en fazla 5 satır; tekrar özet ve dosya dökümü yok.
+
+## 9. Md dosyaları arası haberleşme (tek kaynak ilkesi)
+| Dosya | Ne tutar | Kim okur |
+|---|---|---|
+| `CLAUDE.md` | Kalıcı kurallar (kısa, değişmez) | Her oturum |
+| `AGENT.md` | İş akışı, sürüm/CI, döngü kuralları, repo ayarları, **Durum** (handoff) | Her oturum, görev başında |
+| `SECURITY.md` | Güvenlik açığı bildirim süreci (insanlara dönük) | Bildiren kişi, ekip |
+| `CHANGELOG.md` | Sürüm notları TR/EN; `## Unreleased` bekleyen maddeler | CI, kullanıcı |
+| `release-notes/vX.Y.Z.md` | CI'ın ürettiği release gövdesi (elle düzenlenmez) | GitHub Release |
+| Hafıza (`memory/`) | Kullanıcı tercihleri ve bağlam; repo kuralını kopyalamaz, işaret eder | Claude |
+
+Kurallar:
+- Bilgi tek yerde durur. Diğer dosya kopyalamaz, `[[bağlantı]]` veya dosya yolu verir.
+- Bir kural değişirse önce `CLAUDE.md`/`AGENT.md`, sonra ilgili hafıza kaydı güncellenir. Eski kayıt silinir.
+- Oturum devri: görev bitince `AGENT.md` → **Durum** bölümüne tarihli, en fazla 10 satır yaz. Yeni oturum önce `CLAUDE.md` ve **Durum**'u okur; başka md dosyasını yalnız ihtiyaç olunca açar.
+
+## 10. Repo güvenlik ve birleşme ayarları (GitHub)
+- Private vulnerability reporting: açık. Bildirim yolu `SECURITY.md`.
+- Dependabot alerts ve security updates: açık. Yapılandırma `.github/dependabot.yml`.
+- Secret scanning + push protection: açık.
+- CODEOWNERS: `.github/CODEOWNERS` (güvenlik, CI, `scripts/`, `server/`).
+- Issue şablonları: hata ve özellik; boş issue kapalı; güvenlik bağlantısı var.
+- PR şablonu: `.github/pull_request_template.md` (doğrulama ve veri kontrol listesi).
+- Auto-merge: açık; otomatik commit'ler `auto/<zaman>` dalı → PR → CI yeşilse birleşir.
+- `main` ruleset (PR zorunlu, `quality` check zorunlu, force push/silme yasak): PR #5 birleştikten sonra açılır.
+
 ## Durum
 - 04.11.2026: CLAUDE.md, AGENT.md, release skill ve .claudeignore oluşturuldu.
+- 08.11.2026: Repo güvenliği: Dependabot alerts + security updates, private vulnerability reporting, secret scanning açık. SECURITY.md, issue/PR şablonları, CODEOWNERS eklendi (dal `chore/repo-security`). PR #5 (auto-merge akışı) bekliyor; ruleset onun birleşmesinden sonra açılacak.
 - 08.11.2026: Her güncelleme patch sürüm alır (CI). TR+EN sürüm notları `CHANGELOG.md` Unreleased → `release-notes/`. CI'da `version` işindeki bozuk `if:` satırı düzeltildi. Açık: ilk `v1.1.0` release'inin CI'da yeşil geçmesi; 8 dil i18n kapsamı yalnız yeni metinlerde.

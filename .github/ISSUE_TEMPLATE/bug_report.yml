@@ -1,0 +1,43 @@
+name: Hata bildirimi / Bug report
+description: Bir hata bulduysanız bildirin. / Report a bug.
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Güvenlik açığıysa bu formu kullanmayın; SECURITY.md'deki özel bildirim yolunu izleyin.
+        If this is a security issue, do not use this form; follow the private route in SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: Sürüm / Version
+      placeholder: "1.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: ["Windows (masaüstü / desktop)", "Web (tarayıcı / browser)", "Diğer / Other"]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Adımlar / Steps to reproduce
+      placeholder: "1. ...\n2. ...\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Beklenen / Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Gerçek / Actual
+      description: Varsa hata mesajı veya terminal çıktısı ekleyin (gizli bilgi olmadan). / Add error messages or terminal output (without secrets).
+    validations:
+      required: true
