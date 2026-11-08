@@ -3,8 +3,9 @@ import Editor from '@monaco-editor/react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
-import { X, Play, Copy, Check, Download, FileCode, Save, Users } from 'lucide-react';
+import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus } from 'lucide-react';
 import type { FileItem } from '../types';
+import { t } from '../i18n/uiText';
 
 export interface CollabConfig {
   enabled: boolean;
@@ -21,6 +22,9 @@ interface EditorAreaProps {
   onChangeContent: (id: string, content: string) => void;
   onSaveFile?: (file: FileItem) => void;
   onRunCode: () => void;
+  onNewFile?: () => void;
+  onOpenFolder?: () => void;
+  onOpenFiles?: () => void;
   fontSize: number;
   theme: string;
   collab?: CollabConfig;
@@ -34,6 +38,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   onChangeContent,
   onSaveFile,
   onRunCode,
+  onNewFile,
+  onOpenFolder,
+  onOpenFiles,
   fontSize,
   theme,
   collab,
@@ -153,6 +160,16 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               </div>
             );
           })}
+          {onNewFile && (
+            <button
+              onClick={onNewFile}
+              title={`${t('newTab')} (Ctrl+N)`}
+              aria-label={t('newTab')}
+              className="flex items-center justify-center w-7 h-7 ml-1 rounded text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+            >
+              <Plus size={15} />
+            </button>
+          )}
         </div>
 
         {/* Action Tools */}
@@ -235,11 +252,43 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             }}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-zinc-500 text-sm space-y-2">
+          <div className="flex flex-col items-center justify-center h-full text-zinc-500 text-sm space-y-5 px-6 select-none">
             <div className="p-4 bg-zinc-800/40 rounded-full">
               <FileCode size={36} className="text-zinc-600" />
             </div>
-            <p>Düzenlemek için sol menüden bir dosya seçin veya yeni oluşturun.</p>
+            <p className="text-center max-w-md">{t('emptyHint')}</p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {onOpenFolder && (
+                <button
+                  onClick={onOpenFolder}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs transition-colors"
+                >
+                  <FolderOpen size={14} className="text-amber-400" />
+                  <span>{t('openFolder')}</span>
+                  <kbd className="ml-1 px-1.5 py-0.5 rounded bg-zinc-900 text-[10px] text-zinc-400 font-mono">Ctrl+O</kbd>
+                </button>
+              )}
+              {onOpenFiles && (
+                <button
+                  onClick={onOpenFiles}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs transition-colors"
+                >
+                  <FileCode size={14} className="text-sky-400" />
+                  <span>{t('openFiles')}</span>
+                  <kbd className="ml-1 px-1.5 py-0.5 rounded bg-zinc-900 text-[10px] text-zinc-400 font-mono">Ctrl+Shift+O</kbd>
+                </button>
+              )}
+              {onNewFile && (
+                <button
+                  onClick={onNewFile}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs transition-colors"
+                >
+                  <FilePlus size={14} />
+                  <span>{t('newFile')}</span>
+                  <kbd className="ml-1 px-1.5 py-0.5 rounded bg-indigo-900/60 text-[10px] text-indigo-100 font-mono">Ctrl+N</kbd>
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>

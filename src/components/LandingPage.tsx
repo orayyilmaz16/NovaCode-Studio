@@ -12,6 +12,7 @@ import {
   FolderGit2 
 } from 'lucide-react';
 import type { FileItem } from '../types';
+import { t } from '../i18n/uiText';
 
 interface LandingPageProps {
   onOpenProject: () => void;
@@ -67,7 +68,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               Hemen Kodlamaya Başla
             </h3>
             <p className="text-[12px] text-zinc-400 mt-1">
-              Varsayılan çalışma alanı dosyasını (index.html) editörde açın ve canlı önizleyin.
+              {t('startDesc')}
             </p>
             <div className="mt-3 flex items-center text-xs text-indigo-400 group-hover:translate-x-1 transition-transform">
               <span>Editöre Geç</span>

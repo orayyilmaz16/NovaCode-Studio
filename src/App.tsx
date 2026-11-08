@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Code,
   Files,
@@ -12,7 +12,8 @@ import {
   FolderOpen,
   UploadCloud,
   Save,
-  Check
+  Check,
+  Power
 } from 'lucide-react';
 import { FileTree } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
@@ -24,14 +25,15 @@ import { SplashScreen } from './components/SplashScreen';
 import { GitPanel } from './components/GitPanel';
 import { SnippetsPanel } from './components/SnippetsPanel';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
-import { initialFiles } from './mockFiles';
+import { t } from './i18n/uiText';
 import type { FileItem, ConsoleLog, GitStatus } from './types';
 
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [showLanding, setShowLanding] = useState(false);
-  // Masaüstünde sahte örnek dosyalar gösterilmez: ağaç yalnız gerçek klasörden gelir.
-  const [files, setFiles] = useState<FileItem[]>(window.electronAPI ? [] : initialFiles);
+  // Açılışta hiçbir proje/dosya otomatik açılmaz: ağaç yalnız kullanıcının açtığı klasörden gelir.
+  const [files, setFiles] = useState<FileItem[]>([]);
+  const untitledCounter = useRef(0);
   const [openFiles, setOpenFiles] = useState<FileItem[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
 
@@ -85,17 +87,6 @@ export function App() {
   const [fontSize, setFontSize] = useState<number>(14);
   const [editorTheme, setEditorTheme] = useState<string>('vs-dark');
 
-  // Varsayılan açılış dosyası
-  useEffect(() => {
-    if (window.electronAPI) return;
-    const srcFolder = initialFiles.find((f) => f.name === 'src');
-    const indexHtml = srcFolder?.children?.find((f) => f.name === 'index.html');
-    if (indexHtml) {
-      setOpenFiles([indexHtml]);
-      setActiveFileId(indexHtml.id);
-    }
-  }, []);
-
   // Iframe console dinleyicisi
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -133,20 +124,70 @@ export function App() {
     }
   }, []);
 
-  // Kısayol tuşları (Ctrl+S kaydet)
+  // Kısayol tuşları. Dinleyici tek sefer kurulur; her render'da güncel işleyiciye yönlenir.
+  const shortcutHandler = useRef<(e: KeyboardEvent) => void>(() => {});
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        const activeFile = openFiles.find((f) => f.id === activeFileId);
-        if (activeFile) {
-          handleSaveFile(activeFile);
-        }
-      }
+    const onKeyDown = (e: KeyboardEvent) => shortcutHandler.current(e);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  shortcutHandler.current = (e: KeyboardEvent) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (!mod) return;
+    const key = e.key.toLowerCase();
+
+    if (key === 'q') { e.preventDefault(); handleQuit(); return; }
+    if (e.key === '`') { e.preventDefault(); setShowBottomTerminal((v) => !v); return; }
+    if (key === 's') {
+      e.preventDefault();
+      const activeFile = openFiles.find((f) => f.id === activeFileId);
+      if (activeFile) handleSaveFile(activeFile);
+      return;
+    }
+
+    // Terminalde yazarken Ctrl+N/O/W/Tab gibi tuşlar kabuğa aittir.
+    if ((e.target as HTMLElement | null)?.closest?.('[data-terminal]')) return;
+
+    if (key === 'o') {
+      e.preventDefault();
+      if (e.shiftKey) handleOpenFileDialog();
+      else handleOpenFolderDialog();
+    } else if (key === 'n') {
+      e.preventDefault();
+      handleNewUntitled();
+    } else if (key === 'w') {
+      if (activeFileId) { e.preventDefault(); handleCloseTab(activeFileId); }
+    } else if (e.key === 'Tab' && openFiles.length > 1) {
+      e.preventDefault();
+      const idx = openFiles.findIndex((f) => f.id === activeFileId);
+      const step = e.shiftKey ? -1 : 1;
+      const next = openFiles[(idx + step + openFiles.length) % openFiles.length];
+      setActiveFileId(next.id);
+    }
+  };
+
+  const handleNewUntitled = () => {
+    untitledCounter.current += 1;
+    const newItem: FileItem = {
+      id: `untitled-${Date.now()}`,
+      name: `untitled-${untitledCounter.current}.txt`,
+      type: 'file',
+      language: 'plaintext',
+      content: '',
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [openFiles, activeFileId]);
+    setOpenFiles((prev) => [...prev, newItem]);
+    setActiveFileId(newItem.id);
+    setShowLanding(false);
+  };
+
+  const handleQuit = () => {
+    if (window.electronAPI?.quitApp) {
+      window.electronAPI.quitApp();
+    } else {
+      window.close();
+    }
+  };
 
   const addLog = (type: 'info' | 'log' | 'warn' | 'error', text: string) => {
     setLogs((prev) => [
@@ -579,6 +620,14 @@ export function App() {
           >
             <TerminalIcon size={15} />
           </button>
+          <button
+            onClick={handleQuit}
+            title={`${t('quit')} (Ctrl+Q)`}
+            aria-label={t('quit')}
+            className="p-1.5 rounded transition-colors hover:bg-rose-600/30 text-zinc-400 hover:text-rose-300"
+          >
+            <Power size={15} />
+          </button>
         </div>
       </header>
 
@@ -810,6 +859,9 @@ export function App() {
                 activeFileId={activeFileId}
                 onSelectTab={(id) => setActiveFileId(id)}
                 onCloseTab={handleCloseTab}
+                onNewFile={handleNewUntitled}
+                onOpenFolder={handleOpenFolderDialog}
+                onOpenFiles={handleOpenFileDialog}
                 onChangeContent={handleContentChange}
                 onSaveFile={handleSaveFile}
                 onRunCode={handleRunCode}
@@ -833,7 +885,7 @@ export function App() {
               />
             )}
             {showBottomTerminal && (
-              <div style={{ height: terminalHeight }} className="border-t border-zinc-800 shrink-0">
+              <div data-terminal="" style={{ height: terminalHeight }} className="border-t border-zinc-800 shrink-0">
                 <Terminal
                   logs={logs}
                   onClear={() => setLogs([])}

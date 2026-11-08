@@ -39,6 +39,7 @@ export interface Snippet {
 
 export interface ElectronBridge {
   isElectron: boolean;
+  quitApp: () => Promise<void>;
   openFolderDialog: () => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | { error: string } | null>;
   openFileDialog: () => Promise<FileItem[]>;
   readDirectory: (dirPath: string) => Promise<FileItem[]>;

@@ -142,6 +142,10 @@ function isValidPath(p) {
 // ----------------------------------------------------
 // IPC Handlers: Dialogs & Real FS
 // ----------------------------------------------------
+ipcMain.handle('app:quit', () => {
+  app.quit();
+});
+
 ipcMain.handle('dialog:openFolder', async () => {
   try {
     const result = await dialog.showOpenDialog(mainWindow || undefined, {
