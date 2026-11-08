@@ -52,7 +52,8 @@ jobs:
   version:
     name: Otomatik Sürümleme
     needs: quality
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(release)')    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(release)')
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     outputs:
@@ -79,7 +80,7 @@ jobs:
         run: |
           git config user.name "novacode-bot"
           git config user.email "novacode-bot@users.noreply.github.com"
-          git add -A -- .gitignore package.json package-lock.json CHANGELOG.md
+          git add -A -- .gitignore package.json package-lock.json CHANGELOG.md release-notes
           if ! git diff --cached --quiet; then
             git commit -m "chore(release): v${{ steps.bump.outputs.version }} [skip ci]"
             git push origin HEAD:main
@@ -121,7 +122,8 @@ jobs:
         with:
           tag_name: v${{ needs.version.outputs.version }}
           name: NovaCode Studio v${{ needs.version.outputs.version }}
-          generate_release_notes: true
+          body_path: release-notes/v${{ needs.version.outputs.version }}.md
+          generate_release_notes: false
           files: release/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

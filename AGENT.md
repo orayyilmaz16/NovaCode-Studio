@@ -17,15 +17,40 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## 3. Commit ve sürüm otomasyonu
 
-### Sürüm kuralı (SemVer, kaynak: `package.json`)
+### Sürüm kuralı (SemVer, kaynak: `package.json`) — otomatik
 | Commit türü | Artış |
 |---|---|
-| `fix:`, `perf:`, `refactor:`, `docs:`, `chore:` | patch (1.0.0 → 1.0.1) |
-| `feat:` | minor (1.0.1 → 1.1.0) |
-| `feat!:` / `BREAKING CHANGE:` | major (1.1.0 → 2.0.0) |
-| yalnız `docs:`/`chore:`/`test:`/`ci:` | sürüm artmaz |
+| `feat:`, `fix:`, `perf:`, `refactor:`, `chore(auto):` (kod/içerik) | **patch** (1.1.0 → 1.1.1) |
+| `feat!:` / `BREAKING CHANGE:` | major (1.1.1 → 2.0.0) |
+| yalnız `docs:`/`ci:`/`test:` | sürüm artmaz |
 
-Birden çok commit varsa en yüksek seviye uygulanır.
+Sürüm elle artırılmaz; CI hesaplar. Elle sürüm değiştirmek gerekiyorsa (ör. 1.1.0 gibi bilinçli bir sürüm) `package.json` ve `package-lock.json` düzenlenip etiketlenir; CI ilk çalıştırmada o sürümü olduğu gibi yayınlar.
+
+### Sürüm notları (TR + EN)
+- Her kullanıcıya görünen değişiklikte `CHANGELOG.md` içindeki `## Unreleased` bölümüne iki dilde madde yaz:
+  ```
+  ## Unreleased
+  ### tr
+  - Boş editöre Klasör Aç düğmesi eklendi.
+  ### en
+  - Added an Open folder button to the empty editor.
+  ```
+- CI bu maddeleri alır, `CHANGELOG.md` içinde yeni sürüm bölümüne taşır ve `release-notes/vX.Y.Z.md` dosyasını yazar (önce Türkçe, sonra English). Madde yoksa İngilizce kısım commit konularından üretilir, Türkçe kısım uyarı olur; bu durumda Unreleased'i yine de doldur.
+
+### Sürüm derlemesi ve release (CI, otomatik)
+1. `push` → `main` (her Claude turu sonundaki `chore(auto)` dahil).
+2. `quality`: hijyen, `tsc --noEmit`, `npm audit --audit-level=high`, `npm run build`, bundle bütçesi.
+3. `version`: `scripts/bump-version.mjs` → patch/major sürümü, `package.json`, `package-lock.json`, `CHANGELOG.md`, `release-notes/vX.Y.Z.md` → `chore(release): vX.Y.Z [skip ci]` commit'i → `vX.Y.Z` etiketi.
+4. `release-desktop` (Windows runner): `npm run electron:build` → `release/*.exe` → GitHub Release `vX.Y.Z`, gövde = `release-notes/vX.Y.Z.md`.
+5. Yeşil değilse "yayında" deme; hatayı raporla. Yerelde `gh` kurulu değil; kontrol için GitHub Actions ve Releases sayfası kullanılır.
+
+### Akış (elle commit gerekirse)
+1. `git status --short` + `git diff --stat` ile değişikliği gör.
+2. Türü belirle, `CHANGELOG.md` Unreleased maddelerini yaz.
+3. **Taslağı göster:** commit mesajı, beklenen yeni sürüm, etkilenen dosyalar.
+   - Not: Her Claude turu sonunda `scripts/auto-commit.mjs` otomatik commit + push yapar (`chore(auto)` mesajı). Otomatik commit'ler de CI'da patch sürüm alır.
+4. Elle commit gerekiyorsa `git add <belirli dosyalar>` (asla körlemesine `git add -A`; `.env`, `release/`, `dist/` hariç) ve `git commit -m "<tür>: <kısa özet>"`.
+5. Push sonrası CI'yı izle. Yeşil değilse "yayında" deme.
 
 ### Akış
 1. `git status --short` + `git diff --stat` ile değişikliği gör.
@@ -40,16 +65,15 @@ Birden çok commit varsa en yüksek seviye uygulanır.
 5. Push sonrası CI'yı izle: `gh run watch`. Yeşil değilse "yayında" deme, hatayı raporla.
 
 ### Yasaklar (onay olmadan)
-`git push`, `git push --force`, `git tag`, `git reset --hard`, dal silme, release oluşturma, `main`'e doğrudan geri dönülmez değişiklik.
-Geri dönüş planı: `git revert <sha>` ve `npm version` değişikliğinin geri alınması.
+`git push --force`, `git reset --hard`, dal silme, `main`'e doğrudan geri dönülmez değişiklik.
+Etiket ve GitHub Release artık CI tarafından otomatik atılır (bkz. yukarıdaki bölüm). Elle etiket/release gerekirse onay al.
+Geri dönüş planı: `git revert <sha>`; yanlış bir sürüm yayınlandıysa yeni bir patch ile düzelt, eski release'i silme.
 
 ## 4. CI/CD notları
-- Pipeline: `.github/workflows/ci-cd.yml` (audit → web build → Windows installer → release).
-- Bilinen eksikler (öner, onayla, sonra uygula):
-  - Release tag'i `v1.0.0-${run_number}` sabit; `package.json` sürümünden üretilmeli.
-  - `npm audit ... || true` hataları yutuyor.
-  - Tip kontrolü (`tsc --noEmit`) yok.
-  - Aynı sürüm tekrar yayınlanmasın diye tag var mı kontrolü yok.
+- Pipeline: `.github/workflows/ci-cd.yml` (quality → version → release-desktop).
+- Açık konular (öner, onayla, sonra uygula):
+  - `npm audit ... || true` hataları yutuyor (şu an `--audit-level=high` ile sertleştirildi; kontrol et).
+  - Tag çakışması: sürüm etiketi zaten varsa yeni etiket atılmaz; aynı sürüm için release gövdesi yeniden yazılır.
 
 ## 5. Bağlam yönetimi
 - Kalıcı bilgi: `CLAUDE.md` (kurallar), bu dosya (akış + durum). Sohbet geçicidir.
@@ -72,4 +96,5 @@ Aşağıdakilere dokunan her değişiklikte raporda ayrıca belirt:
 Belirt: veri, amaç, hukuki sebep, saklama süresi, yurt dışı aktarım. Gizli bilgi commit'e girmez.
 
 ## Durum
-- 04.11.2026: CLAUDE.md, AGENT.md, release skill ve .claudeignore oluşturuldu. Açık: CI tag/sürüm düzeltmesi (bölüm 4), 8 dil i18n altyapısı kontrolü.
+- 04.11.2026: CLAUDE.md, AGENT.md, release skill ve .claudeignore oluşturuldu.
+- 08.11.2026: Her güncelleme patch sürüm alır (CI). TR+EN sürüm notları `CHANGELOG.md` Unreleased → `release-notes/`. CI'da `version` işindeki bozuk `if:` satırı düzeltildi. Açık: ilk `v1.1.0` release'inin CI'da yeşil geçmesi; 8 dil i18n kapsamı yalnız yeni metinlerde.
