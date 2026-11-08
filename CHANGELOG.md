@@ -6,6 +6,14 @@
 
 ### en
 
+## 1.1.1 - 08.11.2026
+### Türkçe
+- Otomatik güncelleme. Ayrıntılar için İngilizce notlara bakın.
+
+### English
+- add security policy, issue/PR templates and CODEOWNERS (#6)
+- open PR and enable auto-merge for auto-commits (#5)
+
 ## 1.1.0 - 08.11.2026
 ### Türkçe
 - Otomatik güncelleme. Ayrıntılar için İngilizce notlara bakın.
