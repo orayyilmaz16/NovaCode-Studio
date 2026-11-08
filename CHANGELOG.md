@@ -8,6 +8,13 @@
 
 ## 1.1.0 - 08.11.2026
 ### Türkçe
+- Otomatik güncelleme. Ayrıntılar için İngilizce notlara bakın.
+
+### English
+- Automatic update.
+
+## 1.1.0 - 08.11.2026
+### Türkçe
 - Uygulama açılışta hiçbir proje veya dosyayı otomatik açmaz; boş editör gösterilir.
 - Boş editörde Klasör Aç, Dosya Aç ve Yeni Dosya düğmeleri eklendi; sekme çubuğuna + düğmesi eklendi.
 - Klavye kısayolları eklendi: Ctrl+O, Ctrl+Shift+O, Ctrl+N, Ctrl+W, Ctrl+Tab, Ctrl+` ve Ctrl+Q.

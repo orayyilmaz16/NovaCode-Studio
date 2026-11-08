@@ -22,3 +22,15 @@ build
 *.njsproj
 *.sln
 *.sw?
+
+# Otomatik eklenenler (scripts/check-hygiene.mjs)
+dist
+.venv
+.env
+.env.*
+!.env.example
+Thumbs.db
+*.pem
+*.key
+*.pfx
+coverage
