@@ -1,0 +1,22 @@
+name: Özellik isteği / Feature request
+description: Yeni bir özellik veya iyileştirme önerin. / Suggest a feature or improvement.
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Hangi sorunu çözüyor? / What problem does it solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Önerilen çözüm / Proposed solution
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Veri etkisi / Data impact
+      options:
+        - label: Bu özellik yeni bir kişisel veri toplar veya 3. parti servise veri gönderir (varsa açıklayın). / This feature collects new personal data or sends data to a third-party service (describe if so).

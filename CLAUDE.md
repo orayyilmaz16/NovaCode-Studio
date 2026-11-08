@@ -46,3 +46,5 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 - Çıktısı uzun komutlarda `| tail -n 30` veya `--silent` kullan.
 - Bağlam şişince `/compact` öner; görev değişince `/clear`.
 - Kararlar ve açık işler `AGENT.md` içindeki "Durum" bölümüne kısa not olarak yazılır, sohbette taşınmaz.
+- Döngü koruması ve md haritası: `AGENT.md` §8–9. Aynı hata iki kez tekrarlanırsa dur, raporla; yoklama/sleep döngüsü yok.
+- Güvenlik açığı bildirimi: `SECURITY.md`. Repo güvenlik ayarları: `AGENT.md` §10.
