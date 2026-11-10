@@ -46,12 +46,16 @@ function createWindow() {
   });
 
   mainWindow.on('closed', () => {
-    if (activeWatcher) {
-      try { activeWatcher.close(); } catch(e) {}
-      activeWatcher = null;
-    }
+    stopFileWatcher();
     mainWindow = null;
   });
+}
+
+function stopFileWatcher() {
+  if (activeWatcher) {
+    try { activeWatcher.close(); } catch (e) { /* zaten kapalı */ }
+    activeWatcher = null;
+  }
 }
 
 // ----------------------------------------------------
