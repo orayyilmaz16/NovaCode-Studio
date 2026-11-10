@@ -184,6 +184,41 @@ ipcMain.handle('app:quit', () => {
   app.quit();
 });
 
+// Son açılan klasörler: yalnız kullanıcının seçtiği klasör yolları, yerelde (userData) saklanır; hiçbir yere gönderilmez.
+const RECENT_MAX = 8;
+const recentFile = () => path.join(app.getPath('userData'), 'recent-folders.json');
+
+function readRecent() {
+  try {
+    const list = JSON.parse(fs.readFileSync(recentFile(), 'utf8'));
+    return Array.isArray(list) ? list.filter((p) => typeof p === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function pushRecent(folderPath) {
+  const list = [folderPath, ...readRecent().filter((p) => p !== folderPath)].slice(0, RECENT_MAX);
+  try {
+    fs.writeFileSync(recentFile(), JSON.stringify(list), { mode: 0o600 });
+  } catch (e) {
+    console.warn('Son klasörler kaydedilemedi:', e);
+  }
+}
+
+async function openWorkspace(folderPath) {
+  if (!isValidPath(folderPath) || !fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
+    throw new Error('Seçilen klasör bulunamadı veya erişilemiyor.');
+  }
+  startFileWatcher(folderPath);
+  pushRecent(folderPath);
+  return {
+    rootPath: folderPath,
+    rootName: path.basename(folderPath),
+    tree: await scanDirectory(folderPath)
+  };
+}
+
 ipcMain.handle('dialog:openFolder', async () => {
   try {
     const result = await dialog.showOpenDialog(mainWindow || undefined, {
@@ -191,20 +226,25 @@ ipcMain.handle('dialog:openFolder', async () => {
       title: 'Çalışma Alanı Klasörü Seçin'
     });
     if (result.canceled || !result.filePaths.length) return null;
-
-    const folderPath = result.filePaths[0];
-    if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
-      throw new Error('Seçilen klasör bulunamadı veya erişilemiyor.');
-    }
-    startFileWatcher(folderPath);
-
-    return {
-      rootPath: folderPath,
-      rootName: path.basename(folderPath),
-      tree: await scanDirectory(folderPath)
-    };
+    return await openWorkspace(result.filePaths[0]);
   } catch (err) {
     console.error('Klasör açılamadı:', err);
+    return { error: err.message || 'Klasör açılamadı.' };
+  }
+});
+
+ipcMain.handle('workspace:recent', async () =>
+  readRecent()
+    .filter((p) => fs.existsSync(p))
+    .map((p) => ({ path: p, name: path.basename(p) }))
+);
+
+// Yalnız daha önce diyalogla seçilmiş (son klasörler listesindeki) yollar açılır: rastgele yol açılamaz.
+ipcMain.handle('workspace:open', async (_event, folderPath) => {
+  if (!isValidPath(folderPath) || !readRecent().includes(folderPath)) return { error: 'not-recent' };
+  try {
+    return await openWorkspace(folderPath);
+  } catch (err) {
     return { error: err.message || 'Klasör açılamadı.' };
   }
 });

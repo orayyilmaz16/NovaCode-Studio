@@ -32,7 +32,10 @@ import type { FileItem, ConsoleLog, GitStatus } from './types';
 
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const [showLanding, setShowLanding] = useState(false);
+  // VS Code gibi: açılışta karşılama sayfası gösterilir (kullanıcı kapatabilir).
+  const [showLanding, setShowLanding] = useState(() => {
+    try { return window.localStorage.getItem('nova.welcome') !== '0'; } catch { return true; }
+  });
   // Açılışta hiçbir proje/dosya otomatik açılmaz: ağaç yalnız kullanıcının açtığı klasörden gelir.
   const [files, setFiles] = useState<FileItem[]>([]);
   const untitledCounter = useRef(0);
@@ -76,6 +79,15 @@ export function App() {
   useEffect(() => { writeLS('nova.collab.enabled', collabEnabled ? '1' : '0'); }, [collabEnabled]);
   useEffect(() => { writeLS('nova.collab.url', collabUrl); }, [collabUrl]);
   useEffect(() => { writeLS('nova.collab.token', collabToken); }, [collabToken]);
+  const [welcomeOnStartup, setWelcomeOnStartup] = useState(() => readLS('nova.welcome', '1') !== '0');
+  useEffect(() => { writeLS('nova.welcome', welcomeOnStartup ? '1' : '0'); }, [welcomeOnStartup]);
+
+  // Son açılan klasörler (yalnız yerelde, ana süreçte tutulur)
+  const [recentFolders, setRecentFolders] = useState<{ path: string; name: string }[]>([]);
+  const loadRecent = () => {
+    void window.electronAPI?.recentFolders?.().then(setRecentFolders).catch(() => setRecentFolders([]));
+  };
+  useEffect(loadRecent, []);
   const collabUrlValid = /^(wss:\/\/|ws:\/\/(localhost|127\.0\.0\.1)[:/])/.test(collabUrl.trim());
 
   // Terminal Logları
@@ -261,6 +273,18 @@ export function App() {
   // ----------------------------------------------------
   // Gerçek Klasör ve Dosya Seçimi
   // ----------------------------------------------------
+  const applyWorkspace = (result: { rootPath: string; rootName: string; tree: FileItem[] }) => {
+    setCurrentRootPath(result.rootPath);
+    setCurrentRootName(result.rootName);
+    setFiles(result.tree);
+    setShowLanding(false);
+    setActiveSidebarTab('files');
+    setSidebarVisible(true);
+    addLog('info', `Çalışma alanı açıldı: ${result.rootPath}`);
+    refreshGitStatus(result.rootPath);
+    loadRecent();
+  };
+
   const handleOpenFolderDialog = async () => {
     if (window.electronAPI?.openFolderDialog) {
       setIsLoadingProject(true);
@@ -270,15 +294,7 @@ export function App() {
           addLog('error', `Klasör açılamadı: ${result.error}`);
           return;
         }
-        if (result && 'rootPath' in result) {
-          setCurrentRootPath(result.rootPath);
-          setCurrentRootName(result.rootName);
-          setFiles(result.tree);
-          setShowLanding(false);
-          setActiveSidebarTab('files');
-          addLog('info', `Çalışma alanı açıldı: ${result.rootPath}`);
-          refreshGitStatus(result.rootPath);
-        }
+        if (result && 'rootPath' in result) applyWorkspace(result);
       } catch (err) {
         addLog('error', `Klasör açılamadı: ${String(err)}`);
       } finally {
@@ -287,6 +303,24 @@ export function App() {
     } else {
       // Web fallback dosya yükleme
       handleOpenFilesViaInput();
+    }
+  };
+
+  const handleOpenRecent = async (folderPath: string) => {
+    if (!window.electronAPI?.openRecentFolder) return;
+    setIsLoadingProject(true);
+    try {
+      const result = await window.electronAPI.openRecentFolder(folderPath);
+      if ('error' in result) {
+        addLog('error', `Klasör açılamadı: ${result.error}`);
+        loadRecent();
+        return;
+      }
+      applyWorkspace(result);
+    } catch (err) {
+      addLog('error', `Klasör açılamadı: ${String(err)}`);
+    } finally {
+      setIsLoadingProject(false);
     }
   };
 
@@ -791,12 +825,23 @@ export function App() {
         {/* Karşılama sayfası veya editör */}
         {showLanding ? (
           <LandingPage
-            onOpenProject={() => setShowLanding(false)}
-            onOpenFile={(file) => {
-              handleSelectFile(file);
+            onNewFile={handleNewUntitled}
+            onOpenFiles={handleOpenFileDialog}
+            onOpenFolder={handleOpenFolderDialog}
+            onOpenGit={() => pickSidebar('git')}
+            onOpenAI={() => {
               setShowLanding(false);
+              setShowRightPanel('ai');
             }}
-            recentFiles={getAllFiles(files).slice(0, 5)}
+            onOpenTerminal={() => {
+              setShowLanding(false);
+              setShowBottomTerminal(true);
+            }}
+            onOpenRecent={handleOpenRecent}
+            recentFolders={recentFolders}
+            githubLogin={auth.connected ? auth.profile?.login : null}
+            showOnStartup={welcomeOnStartup}
+            onToggleStartup={setWelcomeOnStartup}
           />
         ) : (
           <div className="flex flex-col flex-1 h-full min-w-0">

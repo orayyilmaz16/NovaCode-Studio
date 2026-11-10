@@ -34,6 +34,11 @@ try {
   const startBranch = git("rev-parse", "--abbrev-ref", "HEAD");
   if (startBranch === "main") syncMain();
 
+  // Proje beyni: STATE.md'yi koddan yeniden üret; değişiklikler aynı commit'e girer. Hata commit'i engellemez.
+  try {
+    execFileSync(process.execPath, ["scripts/brain.mjs", "--quiet"], { stdio: "ignore", timeout: 30000 });
+  } catch { /* beyin güncellenemezse devam */ }
+
   const entries = git("status", "--porcelain").split("\n").filter(Boolean);
   const paths = entries.map((l) => l.slice(3).replace(/^"|"$/g, ""));
   if (!paths.length) process.exit(0);

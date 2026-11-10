@@ -365,6 +365,42 @@ export const UI_TEXT = {
   stPlain: {
     tr: "Düz metin", en: "Plain text", de: "Nur Text", ru: "Простой текст", ar: "نص عادي", es: "Texto sin formato", fr: "Texte brut", az: "Sadə mətn",
   },
+  welStart: {
+    tr: "Başlangıç", en: "Start", de: "Start", ru: "Начало", ar: "البدء", es: "Inicio", fr: "Démarrer", az: "Başlanğıc",
+  },
+  welConnected: {
+    tr: "GitHub bağlı: @{login}", en: "GitHub connected: @{login}", de: "GitHub verbunden: @{login}", ru: "GitHub подключён: @{login}", ar: "GitHub متصل: @{login}", es: "GitHub conectado: @{login}", fr: "GitHub connecté : @{login}", az: "GitHub bağlıdır: @{login}",
+  },
+  welRecent: {
+    tr: "Son açılanlar", en: "Recent", de: "Zuletzt geöffnet", ru: "Недавние", ar: "الأخيرة", es: "Recientes", fr: "Récents", az: "Son açılanlar",
+  },
+  welNoRecent: {
+    tr: "Henüz son açılan klasör yok.", en: "No recent folders yet.", de: "Noch keine zuletzt geöffneten Ordner.", ru: "Недавних папок пока нет.", ar: "لا توجد مجلدات حديثة بعد.", es: "Aún no hay carpetas recientes.", fr: "Aucun dossier récent pour l’instant.", az: "Hələ son açılan qovluq yoxdur.",
+  },
+  welWalkthroughs: {
+    tr: "Keşfet", en: "Explore", de: "Entdecken", ru: "Обзор", ar: "استكشاف", es: "Explorar", fr: "Découvrir", az: "Kəşf et",
+  },
+  welGitTitle: {
+    tr: "Git ve GitHub ile çalış", en: "Work with Git and GitHub", de: "Mit Git und GitHub arbeiten", ru: "Работа с Git и GitHub", ar: "العمل مع Git وGitHub", es: "Trabaja con Git y GitHub", fr: "Travaillez avec Git et GitHub", az: "Git və GitHub ilə işlə",
+  },
+  welGitDesc: {
+    tr: "Hesabını bağla; değişiklikleri sahnele, commit et, eşzamanla, PR aç.", en: "Connect your account; stage, commit, sync and open pull requests.", de: "Konto verbinden; stagen, committen, synchronisieren und Pull Requests öffnen.", ru: "Подключите аккаунт; индексируйте, коммитьте, синхронизируйте и открывайте PR.", ar: "اربط حسابك؛ جهّز وأنشئ commit وزامن وافتح طلبات الدمج.", es: "Conecta tu cuenta; prepara, haz commit, sincroniza y abre pull requests.", fr: "Connectez votre compte ; indexez, commitez, synchronisez et ouvrez des PR.", az: "Hesabınızı bağlayın; hazırlayın, commit edin, sinxronlaşdırın, PR açın.",
+  },
+  welAiTitle: {
+    tr: "Yapay zekâ asistanı", en: "AI assistant", de: "KI-Assistent", ru: "ИИ-ассистент", ar: "مساعد الذكاء الاصطناعي", es: "Asistente de IA", fr: "Assistant IA", az: "Süni intellekt köməkçisi",
+  },
+  welAiDesc: {
+    tr: "Kodunu açıkla, hata bul, optimize et.", en: "Explain code, find bugs, optimize.", de: "Code erklären, Fehler finden, optimieren.", ru: "Объясняйте код, ищите ошибки, оптимизируйте.", ar: "اشرح الكود واعثر على الأخطاء وحسّنه.", es: "Explica código, encuentra errores y optimiza.", fr: "Expliquez le code, trouvez les bugs, optimisez.", az: "Kodu izah et, xəta tap, optimallaşdır.",
+  },
+  welTermTitle: {
+    tr: "Entegre terminal", en: "Integrated terminal", de: "Integriertes Terminal", ru: "Встроенный терминал", ar: "الطرفية المدمجة", es: "Terminal integrada", fr: "Terminal intégré", az: "Daxili terminal",
+  },
+  welTermDesc: {
+    tr: "PowerShell ve CMD, renkli çıktı ve canlı klasör istemi.", en: "PowerShell and CMD with color output and a live directory prompt.", de: "PowerShell und CMD mit Farbausgabe und aktuellem Verzeichnis-Prompt.", ru: "PowerShell и CMD с цветным выводом и актуальным приглашением каталога.", ar: "PowerShell وCMD بمخرجات ملونة ومؤشر مجلد مباشر.", es: "PowerShell y CMD con salida en color y prompt de directorio en vivo.", fr: "PowerShell et CMD avec sortie colorée et invite de dossier en direct.", az: "PowerShell və CMD, rəngli çıxış və canlı qovluq sətri.",
+  },
+  welShowOnStartup: {
+    tr: "Açılışta karşılama sayfasını göster", en: "Show welcome page on startup", de: "Willkommensseite beim Start anzeigen", ru: "Показывать приветствие при запуске", ar: "إظهار صفحة الترحيب عند البدء", es: "Mostrar la página de bienvenida al iniciar", fr: "Afficher la page d’accueil au démarrage", az: "Açılışda xoş gəlmisiniz səhifəsini göstər",
+  },
 } satisfies Record<string, Dict>;
 
 export type UiTextKey = keyof typeof UI_TEXT;

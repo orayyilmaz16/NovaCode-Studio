@@ -9,7 +9,8 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 - `npm run electron:build` — Windows NSIS kurulum (`release/`)
 
 ## Harita (önce buraya bak, tüm repoyu tarama)
-- `electron-main.cjs`, `electron-preload.cjs` — ana süreç, dosya sistemi, watcher, IPC, sandbox
+- **Proje beyni:** `docs/brain/BRAIN.md` — okuma sırası, aksiyon oyun kitapları (`docs/brain/actions/`), karar günlüğü; `docs/brain/STATE.md` koddan otomatik üretilir (`npm run brain`, doğrulama `npm run brain:check`). İşe başlarken uygun aksiyon dosyasını oku, bitince `writes` listesini güncelle.
+- `electron-main.cjs`, `electron-preload.cjs`, `electron-git.cjs`, `electron-github.cjs` — ana süreç, dosya sistemi, watcher, IPC, git/GitHub, terminal, sandbox
 - `src/App.tsx` — kabuk, durum yönetimi
 - `src/components/` — EditorArea, FileTree, GitPanel, Terminal, AIAssistant, Preview, SnippetsPanel, LandingPage, SplashScreen
 - `server/sync-server.mjs` — açık kaynak Yjs senkron sunucusu (kendi sunucunda, `NOVA_SYNC_TOKEN` zorunlu, `npm run sync:server`)

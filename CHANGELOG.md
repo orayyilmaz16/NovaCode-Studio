@@ -25,7 +25,14 @@
 - Marka: yeni NovaCode logosu (kod ayracı + yapay zekâ kıvılcımı), favicon ve uygulama simgesi (`public/logo.svg`, `public/icon.png`; yeniden üretmek için `npx electron scripts/make-icons.cjs`).
 - Hareket: logo çizim animasyonu, sade açılış ekranı, kenar çubuğu/panel/sekme geçişleri, simge etkileşimleri; `prefers-reduced-motion` ile kapatılır.
 
+- Logo arka plansız ve sadeleştirildi (gradient kod ayracı + yapay zekâ kıvılcımı); arayüz vurgu rengi logoya uyumlu indigo-menekşe oldu.
+- Karşılama ekranı VS Code "Welcome" düzeninde yenilendi: Başlangıç bağlantıları, Son açılan klasörler, Keşfet kartları, "Açılışta göster" seçeneği. Son klasörler yalnız yerelde tutulur.
+- Proje beyni: `docs/brain/` altında harita, proje bilgisi, karar günlüğü ve her aksiyon için bir oyun kitabı; `STATE.md` koddan otomatik üretilir (`npm run brain`), tutarlılık `npm run brain:check` ile denetlenir. Git modülü testleri `npm test` ile CI'da çalışır.
+
 ### en
+- The logo now has no background and is simpler (gradient code bracket + AI spark); the UI accent color follows the logo's indigo-violet.
+- The welcome screen was rebuilt in the VS Code "Welcome" layout: Start links, Recent folders, Explore cards, a "show on startup" option. Recent folders are kept locally only.
+- Project brain: `docs/brain/` holds a map, project info, a decision log and one playbook per action; `STATE.md` is generated from code (`npm run brain`) and consistency is checked with `npm run brain:check`. Git module tests run in CI via `npm test`.
 - Design: the UI was rebuilt in the VS Code "Dark Modern" style (flat surfaces, no glass/blur): custom title bar, icon activity bar (active indicator, Git count badge, GitHub avatar), file-type colored tabs with breadcrumbs, VS Code-style bottom panel tabs, status bar (branch, ↑↓, GitHub account), Ctrl+B sidebar toggle, Nova Dark Monaco theme.
 - Brand: new NovaCode logo (code bracket + AI spark), favicon and app icon (`public/logo.svg`, `public/icon.png`; regenerate with `npx electron scripts/make-icons.cjs`).
 - Motion: logo draw-in animation, minimal splash screen, sidebar/panel/tab transitions, icon interactions; disabled under `prefers-reduced-motion`.

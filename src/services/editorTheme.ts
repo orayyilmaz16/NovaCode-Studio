@@ -28,7 +28,7 @@ export function defineNovaThemes(monaco: MonacoLike) {
       'editorLineNumber.activeForeground': '#cccccc',
       'editor.lineHighlightBackground': '#282828',
       'editor.lineHighlightBorder': '#00000000',
-      'editor.selectionBackground': '#264f78',
+      'editor.selectionBackground': '#3b4080',
       'editor.inactiveSelectionBackground': '#3a3d41',
       'editorCursor.foreground': '#aeafad',
       'editorIndentGuide.background1': '#404040',
@@ -39,7 +39,7 @@ export function defineNovaThemes(monaco: MonacoLike) {
       'editorWidget.border': '#2b2b2b',
       'editorSuggestWidget.background': '#202020',
       'editorSuggestWidget.border': '#2b2b2b',
-      'editorSuggestWidget.selectedBackground': '#04395e',
+      'editorSuggestWidget.selectedBackground': '#2c2f6b',
       'editorHoverWidget.background': '#202020',
       'editorHoverWidget.border': '#2b2b2b',
       'minimap.background': '#1f1f1f',
@@ -47,7 +47,7 @@ export function defineNovaThemes(monaco: MonacoLike) {
       'scrollbarSlider.hoverBackground': '#646464b3',
       'scrollbarSlider.activeBackground': '#bfbfbf66',
       'input.background': '#313131',
-      'focusBorder': '#0078d4'
+      'focusBorder': '#6d75f5'
     }
   });
 }

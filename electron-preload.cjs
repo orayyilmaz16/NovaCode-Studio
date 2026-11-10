@@ -4,6 +4,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   isElectron: true,
   quitApp: () => ipcRenderer.invoke('app:quit'),
   openFolderDialog: () => ipcRenderer.invoke('dialog:openFolder'),
+  recentFolders: () => ipcRenderer.invoke('workspace:recent'),
+  openRecentFolder: (folderPath) => ipcRenderer.invoke('workspace:open', folderPath),
   openFileDialog: () => ipcRenderer.invoke('dialog:openFiles'),
   readDirectory: (dirPath) => ipcRenderer.invoke('fs:readDir', dirPath),
   readFile: (filePath) => ipcRenderer.invoke('fs:readFile', filePath),

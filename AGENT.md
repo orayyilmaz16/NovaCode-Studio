@@ -112,6 +112,10 @@ Belirt: veri, amaç, hukuki sebep, saklama süresi, yurt dışı aktarım. Gizli
 | `SECURITY.md` | Güvenlik açığı bildirim süreci (insanlara dönük) | Bildiren kişi, ekip |
 | `CHANGELOG.md` | Sürüm notları TR/EN; `## Unreleased` bekleyen maddeler | CI, kullanıcı |
 | `release-notes/vX.Y.Z.md` | CI'ın ürettiği release gövdesi (elle düzenlenmez) | GitHub Release |
+| `docs/brain/BRAIN.md` | **Proje beyni** haritası: okuma sırası, aksiyon tablosu, haberleşme kuralları | Her oturum |
+| `docs/brain/actions/*.md` | Aksiyon başına oyun kitabı (`reads`/`writes` ile haberleşir): release, git-github, ui-design, i18n, security-kvkk, terminal, ci-cd, testing, brain-maintenance | İlgili işte |
+| `docs/brain/PROJECT.md`, `DECISIONS.md` | Mimari ve tarihli karar günlüğü | İhtiyaç olunca |
+| `docs/brain/STATE.md` | Koddan **otomatik** üretilen durum (`npm run brain`; hook her turda günceller) | Görev başında |
 | Hafıza (`memory/`) | Kullanıcı tercihleri ve bağlam; repo kuralını kopyalamaz, işaret eder | Claude |
 
 Kurallar:
@@ -132,4 +136,6 @@ Kurallar:
 ## Durum
 - 04.11.2026: CLAUDE.md, AGENT.md, release skill ve .claudeignore oluşturuldu.
 - 08.11.2026: Repo güvenliği: Dependabot alerts + security updates, private vulnerability reporting, secret scanning açık. SECURITY.md, issue/PR şablonları, CODEOWNERS eklendi (dal `chore/repo-security`). PR #5 (auto-merge akışı) bekliyor; ruleset onun birleşmesinden sonra açılacak.
+- 10.11.2026: v1.2.0 hazırlığı: GitHub hesabıyla Git (sahneleme, dal, eşzamanla, PR, yayınlama, canlı takip), VS Code çizgisinde yeni arayüz + arka plansız logo + karşılama ekranı, proje beyni (`docs/brain/`, `scripts/brain.mjs`, hook `auto-commit.mjs` her turda STATE'i yeniler). Testler `npm test`, beyin denetimi `npm run brain:check` (CI'da).
+- 10.11.2026: Açık: gerçek hesapla uçtan uca GitHub giriş/PR denemesi; eski panellerde kalan sabit Türkçe metinler (i18n borcu); `minimatch` (dev) Dependabot hatası electron-builder güncellemesini bekliyor.
 - 08.11.2026: Her güncelleme patch sürüm alır (CI). TR+EN sürüm notları `CHANGELOG.md` Unreleased → `release-notes/`. CI'da `version` işindeki bozuk `if:` satırı düzeltildi. Açık: ilk `v1.1.0` release'inin CI'da yeşil geçmesi; 8 dil i18n kapsamı yalnız yeni metinlerde.
