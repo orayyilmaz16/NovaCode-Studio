@@ -46,12 +46,16 @@ function createWindow() {
   });
 
   mainWindow.on('closed', () => {
-    if (activeWatcher) {
-      try { activeWatcher.close(); } catch(e) {}
-      activeWatcher = null;
-    }
+    stopFileWatcher();
     mainWindow = null;
   });
+}
+
+function stopFileWatcher() {
+  if (activeWatcher) {
+    try { activeWatcher.close(); } catch (e) { /* zaten kapalı */ }
+    activeWatcher = null;
+  }
 }
 
 // ----------------------------------------------------
@@ -111,16 +115,20 @@ function startFileWatcher(rootPath) {
   stopFileWatcher();
   try {
     let debounceTimer;
+    const pending = new Set();
     const watcher = fs.watch(rootPath, { recursive: true }, (_eventType, filename) => {
       // node_modules gibi büyük klasörler olay selini tetiklemesin
       const name = filename ? String(filename) : '';
       if (name && name.split(/[\\/]/).some((part) => IGNORED_DIRS.has(part))) return;
+      if (name) pending.add(path.join(rootPath, name));
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
+        const changed = Array.from(pending).slice(0, 200);
+        pending.clear();
         if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.webContents.send('fs:watch-change', { filename, rootPath });
+          mainWindow.webContents.send('fs:watch-change', { filename, rootPath, changed });
         }
-      }, 300);
+      }, 150);
     });
     // Olay dinleyicisi olmayan 'error' olayı süreci çökertir (ör. izlenen klasör silinirse).
     watcher.on('error', (err) => {

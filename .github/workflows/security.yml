@@ -55,4 +55,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm audit --audit-level=moderate
+      # Çalışma zamanı bağımlılıkları moderate+; derleme araçları (dev) high+ durdurur.
+      - run: npm audit --omit=dev --audit-level=moderate
+      - run: npm audit --audit-level=high

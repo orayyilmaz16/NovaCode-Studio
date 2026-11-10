@@ -35,6 +35,8 @@ export function App() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const untitledCounter = useRef(0);
   const [openFiles, setOpenFiles] = useState<FileItem[]>([]);
+  const openFilesRef = useRef<FileItem[]>([]);
+  openFilesRef.current = openFiles;
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
 
   // Yerel Proje ve Git Durumu
@@ -108,20 +110,35 @@ export function App() {
 
   // Gerçek Zamanlı Disk Değişikliği Dinleyicisi (File Watcher)
   useEffect(() => {
-    if (window.electronAPI?.onFileChanged) {
-      window.electronAPI.onFileChanged(async ({ filename, rootPath }) => {
-        try {
-          addLog('info', `Disk üzerinde dosya değişimi algılandı: ${filename || 'Proje'}`);
-          if (rootPath) {
-            const updatedTree = await window.electronAPI.readDirectory(rootPath);
-            setFiles(updatedTree);
-            refreshGitStatus(rootPath);
-          }
-        } catch (err) {
-          addLog('error', `Dosya ağacı yenilenemedi: ${String(err)}`);
+    const api = window.electronAPI;
+    if (!api?.onFileChanged) return;
+    const unsubscribe = api.onFileChanged(async ({ filename, rootPath, changed }) => {
+      try {
+        if (rootPath) {
+          const updatedTree = await api.readDirectory(rootPath);
+          setFiles(updatedTree);
+          refreshGitStatus(rootPath);
         }
-      });
-    }
+        // Açık, kaydedilmemiş değişikliği olmayan sekmeleri diskten canlı yenile.
+        const changedSet = new Set(changed ?? []);
+        const targets = openFilesRef.current.filter(
+          (f) => f.path && !f.isModified && changedSet.has(f.path)
+        );
+        for (const f of targets) {
+          try {
+            const fresh = await api.readFile(f.path as string);
+            setOpenFiles((prev) =>
+              prev.map((o) => (o.id === f.id && !o.isModified && o.content !== fresh ? { ...o, content: fresh } : o))
+            );
+          } catch {
+            /* dosya silinmiş veya okunamıyor olabilir */
+          }
+        }
+      } catch (err) {
+        addLog('error', `Dosya ağacı yenilenemedi: ${filename || ''} ${String(err)}`);
+      }
+    });
+    return unsubscribe;
   }, []);
 
   // Kısayol tuşları. Dinleyici tek sefer kurulur; her render'da güncel işleyiciye yönlenir.

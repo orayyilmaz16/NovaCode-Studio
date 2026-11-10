@@ -17,7 +17,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gitPush: (repoPath) => ipcRenderer.invoke('git:push', repoPath),
   gitPull: (repoPath) => ipcRenderer.invoke('git:pull', repoPath),
   onFileChanged: (callback) => {
-    ipcRenderer.on('fs:watch-change', (_event, data) => callback(data));
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on('fs:watch-change', listener);
+    return () => ipcRenderer.removeListener('fs:watch-change', listener);
   },
   termStart: (shell, cwd) => ipcRenderer.invoke('term:start', shell, cwd),
   termInput: (shell, line) => ipcRenderer.invoke('term:input', shell, line),

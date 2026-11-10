@@ -3,8 +3,14 @@
 ## Unreleased
 
 ### tr
+- CI: sürüm işindeki push yarışı (non-fast-forward) giderildi; rebase + yeniden deneme eklendi, işlere zaman aşımı konuldu.
+- CI: çalışma zamanı bağımlılıkları için moderate, geliştirme araçları için high düzeyinde audit uygulanıyor.
+- Açık klasördeki dosya değişiklikleri artık gerçek zamanlı: dosya ağacı ve kaydedilmemiş değişikliği olmayan açık sekmeler diskten anında yenileniyor.
 
 ### en
+- CI: fixed the non-fast-forward push race in the version job (rebase + retry) and added job timeouts.
+- CI: audit now fails on moderate for runtime dependencies and on high for dev tooling.
+- Open-folder changes are now real-time: the file tree and unmodified open tabs refresh from disk instantly.
 
 ## 1.1.1 - 08.11.2026
 ### Türkçe
