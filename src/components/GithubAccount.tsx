@@ -16,7 +16,6 @@ export const GithubAccount: React.FC = () => {
   const api = window.electronAPI?.github;
   const [pending, setPending] = useState<Pending>(null);
   const [error, setError] = useState<string | null>(null);
-  const [clientId, setClientId] = useState('');
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -44,7 +43,7 @@ export const GithubAccount: React.FC = () => {
     if (res.success && res.userCode && res.verificationUri) {
       setPending({ userCode: res.userCode, verificationUri: res.verificationUri });
     } else {
-      setError(res.error === 'client-id-missing' ? null : t('ghLoginFailed'));
+      setError(res.error === 'client-id-missing' ? t('ghNotConfigured') : t('ghLoginFailed'));
       void refresh();
     }
   };
@@ -52,15 +51,6 @@ export const GithubAccount: React.FC = () => {
   const cancel = async () => {
     await api!.cancel();
     setPending(null);
-  };
-
-  const saveClientId = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = await api!.setClientId(clientId);
-    if (!res.success) return setError(t('ghInvalidClientId'));
-    setClientId('');
-    setError(null);
-    await refresh();
   };
 
   const copyCode = async () => {
@@ -116,20 +106,7 @@ export const GithubAccount: React.FC = () => {
           </div>
         </div>
       ) : !auth.hasClientId ? (
-        <form onSubmit={saveClientId} className="space-y-2">
-          <p className="text-zinc-400 leading-relaxed">{t('ghClientIdHelp')}</p>
-          <input
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-            placeholder={t('ghClientIdPlaceholder')}
-            spellCheck={false}
-            autoComplete="off"
-            className="w-full bg-[#0d1017] border border-zinc-700/80 rounded px-2 py-1.5 text-zinc-200 outline-none focus:border-indigo-500 font-mono"
-          />
-          <button type="submit" disabled={!clientId.trim()} className={`${btn} w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white`}>
-            {t('ghSave')}
-          </button>
-        </form>
+        <p className="text-amber-300/90 leading-relaxed">{t('ghNotConfigured')}</p>
       ) : (
         <div className="space-y-2">
           <p className="text-zinc-500 leading-relaxed">{t('ghSignInForLive')}</p>

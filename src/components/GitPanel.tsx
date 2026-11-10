@@ -130,6 +130,15 @@ export const GitPanel: React.FC<GitPanelProps> = ({
     setTimeout(() => setFeedback(null), 3500);
   };
 
+  if (!auth.connected || status.locked) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-4 text-center text-zinc-500 text-xs">
+        <AlertCircle size={32} className="mb-2 text-indigo-400 opacity-80" />
+        <p className="mt-1 leading-relaxed">{t('gitLocked')}</p>
+      </div>
+    );
+  }
+
   if (!currentRepoPath) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4 text-center text-zinc-500 text-xs">

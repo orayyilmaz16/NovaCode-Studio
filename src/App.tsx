@@ -37,6 +37,7 @@ export function App() {
   const untitledCounter = useRef(0);
   const [openFiles, setOpenFiles] = useState<FileItem[]>([]);
   const openFilesRef = useRef<FileItem[]>([]);
+  const refreshGitStatusRef = useRef<() => Promise<void>>(async () => {});
   openFilesRef.current = openFiles;
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
 
@@ -140,6 +141,14 @@ export function App() {
       }
     });
     return unsubscribe;
+  }, []);
+
+  // GitHub bağlanınca/çıkınca Git durumu hemen yenilenir (bağlı değilken Git verisi kilitlidir).
+  useEffect(() => {
+    const off = window.electronAPI?.github?.onAuth(() => {
+      void refreshGitStatusRef.current();
+    });
+    return off;
   }, []);
 
   // Kısayol tuşları. Dinleyici tek sefer kurulur; her render'da güncel işleyiciye yönlenir.
@@ -315,6 +324,8 @@ export function App() {
       setGitStatus(status);
     }
   };
+
+  refreshGitStatusRef.current = refreshGitStatus;
 
   const handleGitCommit = async (message: string): Promise<boolean> => {
     if (!currentRootPath || !window.electronAPI?.gitCommit) return false;

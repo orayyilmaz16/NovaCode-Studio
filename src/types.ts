@@ -28,6 +28,7 @@ export interface GitStatus {
   ahead?: number;
   behind?: number;
   hasUpstream?: boolean;
+  locked?: boolean;
   hasRemote?: boolean;
   changes: GitChange[];
 }
@@ -96,7 +97,6 @@ export interface ElectronBridge {
   gitFetch: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
   github: {
     status: () => Promise<GithubAuthStatus>;
-    setClientId: (id: string) => Promise<{ success: boolean; error?: string }>;
     login: () => Promise<{ success: boolean; error?: string; userCode?: string; verificationUri?: string; expiresIn?: number }>;
     cancel: () => Promise<{ success: boolean }>;
     logout: () => Promise<{ success: boolean }>;

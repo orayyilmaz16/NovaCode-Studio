@@ -133,7 +133,7 @@ function register({ getWindow, runGit, isValidPath }) {
       /* ağ yoksa token saklı kalır; sonraki durum sorgusunda tekrar denenir */
     }
   };
-  app.whenReady().then(() => setTimeout(restore, 800));
+  app.whenReady().then(restore);
 
   ipcMain.handle('github:status', async () => {
     if (session.token && !session.profile) {
@@ -145,14 +145,6 @@ function register({ getWindow, runGit, isValidPath }) {
       hasClientId: !!getClientId(),
       canStoreToken: await canEncrypt()
     };
-  });
-
-  ipcMain.handle('github:setClientId', async (_e, id) => {
-    if (typeof id !== 'string' || !/^[A-Za-z0-9._-]{10,64}$/.test(id.trim())) {
-      return { success: false, error: 'Geçersiz Client ID.' };
-    }
-    saveClientId(id.trim());
-    return { success: true };
   });
 
   // Cihaz akışı: kod al, tarayıcıyı aç, kullanıcı onaylayana kadar arka planda sorgula.
@@ -265,4 +257,6 @@ function register({ getWindow, runGit, isValidPath }) {
   });
 }
 
-module.exports = { register, gitAuthEnv };
+const isConnected = () => !!session.token;
+
+module.exports = { register, gitAuthEnv, isConnected };

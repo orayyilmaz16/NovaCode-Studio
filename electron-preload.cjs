@@ -24,7 +24,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gitFetch: (repoPath) => ipcRenderer.invoke('git:fetch', repoPath),
   github: {
     status: () => ipcRenderer.invoke('github:status'),
-    setClientId: (id) => ipcRenderer.invoke('github:setClientId', id),
     login: () => ipcRenderer.invoke('github:login'),
     cancel: () => ipcRenderer.invoke('github:cancel'),
     logout: () => ipcRenderer.invoke('github:logout'),

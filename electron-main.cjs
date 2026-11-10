@@ -292,7 +292,11 @@ function runGitCommand(args, cwd, { auth = false, timeout = 120000 } = {}) {
   });
 }
 
+// GitHub hesabı bağlı değilken Git verisi (değişiklikler, commit, push, pull) uygulamaya sunulmaz.
+const GITHUB_REQUIRED = { success: false, stdout: '', stderr: 'github-required' };
+
 ipcMain.handle('git:status', async (_event, repoPath) => {
+  if (!github.isConnected()) return { isRepo: false, locked: true, changes: [] };
   if (!isValidPath(repoPath)) return { isRepo: false };
   const check = await runGitCommand(['rev-parse', '--is-inside-work-tree'], repoPath);
   if (!check.success || check.stdout !== 'true') {
@@ -335,6 +339,7 @@ ipcMain.handle('git:status', async (_event, repoPath) => {
 });
 
 ipcMain.handle('git:commit', async (_event, repoPath, message) => {
+  if (!github.isConnected()) return GITHUB_REQUIRED;
   if (typeof message !== 'string' || !message.trim() || message.length > 500) {
     return { success: false, stdout: '', stderr: 'Geçersiz commit mesajı.' };
   }
@@ -343,6 +348,7 @@ ipcMain.handle('git:commit', async (_event, repoPath, message) => {
 });
 
 ipcMain.handle('git:push', async (_event, repoPath) => {
+  if (!github.isConnected()) return GITHUB_REQUIRED;
   const res = await runGitCommand(['push'], repoPath, { auth: true });
   if (!res.success && /no upstream branch/i.test(res.stderr)) {
     // İlk push: yukarı akış dalını otomatik ayarla.
@@ -352,10 +358,12 @@ ipcMain.handle('git:push', async (_event, repoPath) => {
 });
 
 ipcMain.handle('git:fetch', async (_event, repoPath) => {
+  if (!github.isConnected()) return GITHUB_REQUIRED;
   return runGitCommand(['fetch', '--prune'], repoPath, { auth: true, timeout: 30000 });
 });
 
 ipcMain.handle('git:pull', async (_event, repoPath) => {
+  if (!github.isConnected()) return GITHUB_REQUIRED;
   return runGitCommand(['pull', '--ff-only'], repoPath, { auth: true });
 });
 
