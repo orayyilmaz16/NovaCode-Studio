@@ -164,6 +164,9 @@ export const UI_TEXT = {
   gitLive: {
     tr: "Canlı", en: "Live", de: "Live", ru: "Онлайн", ar: "مباشر", es: "En vivo", fr: "En direct", az: "Canlı",
   },
+  ghScopes: {
+    tr: "Bağlanınca NovaCode şunlara erişir: depolarınız ve profil bilgileriniz (ad, kullanıcı adı, avatar). İstediğiniz an GitHub ayarlarından erişimi kaldırabilirsiniz.", en: "Once connected, NovaCode can access your repositories and profile info (name, username, avatar). You can revoke access anytime in GitHub settings.", de: "Nach der Verbindung kann NovaCode auf Ihre Repositories und Profildaten (Name, Benutzername, Avatar) zugreifen. Den Zugriff können Sie jederzeit in den GitHub-Einstellungen widerrufen.", ru: "После подключения NovaCode получит доступ к вашим репозиториям и данным профиля (имя, логин, аватар). Доступ можно отозвать в настройках GitHub в любой момент.", ar: "بعد الربط، سيتمكن NovaCode من الوصول إلى مستودعاتك وبيانات ملفك (الاسم، اسم المستخدم، الصورة). يمكنك إلغاء الوصول في أي وقت من إعدادات GitHub.", es: "Al conectar, NovaCode podrá acceder a tus repositorios y datos de perfil (nombre, usuario, avatar). Puedes revocar el acceso en cualquier momento en los ajustes de GitHub.", fr: "Une fois connecté, NovaCode accède à vos dépôts et aux infos de profil (nom, identifiant, avatar). Vous pouvez révoquer l’accès à tout moment dans les paramètres GitHub.", az: "Bağlandıqdan sonra NovaCode depolarınıza və profil məlumatlarınıza (ad, istifadəçi adı, avatar) çata biləcək. Girişi istənilən vaxt GitHub parametrlərindən ləğv edə bilərsiniz.",
+  },
 } satisfies Record<string, Dict>;
 
 export type UiTextKey = keyof typeof UI_TEXT;

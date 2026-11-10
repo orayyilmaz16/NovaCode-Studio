@@ -133,6 +133,7 @@ export const GithubAccount: React.FC = () => {
       ) : (
         <div className="space-y-2">
           <p className="text-zinc-500 leading-relaxed">{t('ghSignInForLive')}</p>
+          <p className="text-[11px] text-zinc-500 leading-relaxed">{t('ghScopes')}</p>
           <button onClick={login} disabled={busy} className={`${btn} w-full bg-zinc-100 hover:bg-white text-zinc-900 disabled:opacity-60`}>
             {busy ? <Loader2 size={14} className="animate-spin" /> : <Github size={14} />}
             <span>{t('ghConnect')}</span>

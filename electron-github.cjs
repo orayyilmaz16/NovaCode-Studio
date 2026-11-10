@@ -21,7 +21,12 @@ function getClientId() {
   if (process.env.NOVA_GITHUB_CLIENT_ID) return process.env.NOVA_GITHUB_CLIENT_ID.trim();
   try {
     const cfg = JSON.parse(fs.readFileSync(configFile(), 'utf8'));
-    return typeof cfg.clientId === 'string' ? cfg.clientId.trim() : '';
+    if (typeof cfg.clientId === 'string' && cfg.clientId.trim()) return cfg.clientId.trim();
+  } catch { /* yapılandırma yok */ }
+  // Uygulama sahibi, herkese açık (gizli olmayan) Client ID'yi package.json içine bir kez yazar.
+  try {
+    const id = require('./package.json').novaGithubClientId;
+    return typeof id === 'string' ? id.trim() : '';
   } catch {
     return '';
   }
@@ -32,16 +37,25 @@ function saveClientId(id) {
 }
 
 // ---- Token saklama (şifreli) ----
-function persistToken(token) {
-  if (!safeStorage.isEncryptionAvailable()) return false; // şifreleyemiyorsak diske yazmayız
-  fs.writeFileSync(tokenFile(), safeStorage.encryptString(token), { mode: 0o600 });
+async function canEncrypt() {
+  try {
+    return await safeStorage.isAsyncEncryptionAvailable();
+  } catch {
+    return false;
+  }
+}
+
+async function persistToken(token) {
+  if (!(await canEncrypt())) return false; // şifreleyemiyorsak diske yazmayız
+  fs.writeFileSync(tokenFile(), await safeStorage.encryptStringAsync(token), { mode: 0o600 });
   return true;
 }
 
-function loadToken() {
+async function loadToken() {
   try {
-    if (!safeStorage.isEncryptionAvailable() || !fs.existsSync(tokenFile())) return null;
-    return safeStorage.decryptString(fs.readFileSync(tokenFile()));
+    if (!(await canEncrypt()) || !fs.existsSync(tokenFile())) return null;
+    const { result } = await safeStorage.decryptStringAsync(fs.readFileSync(tokenFile()));
+    return result;
   } catch {
     return null;
   }
@@ -110,7 +124,7 @@ function register({ getWindow, runGit, isValidPath }) {
 
   // Uygulama açılışında kayıtlı oturumu sessizce geri yükle.
   const restore = async () => {
-    const token = loadToken();
+    const token = await loadToken();
     if (!token) return;
     session.token = token;
     try {
@@ -129,7 +143,7 @@ function register({ getWindow, runGit, isValidPath }) {
       connected: !!session.token && !!session.profile,
       profile: session.profile,
       hasClientId: !!getClientId(),
-      canStoreToken: safeStorage.isEncryptionAvailable()
+      canStoreToken: await canEncrypt()
     };
   });
 
@@ -156,7 +170,10 @@ function register({ getWindow, runGit, isValidPath }) {
       const d = await res.json();
       if (!res.ok || !d.device_code) return { success: false, error: d.error_description || 'Kod alınamadı.' };
 
-      shell.openExternal(d.verification_uri).catch(() => {});
+      // Kod önceden doldurulmuş sayfa: oturum yoksa GitHub giriş/kayıt ekranına, varsa doğrudan yetkilendirmeye gider.
+      const target = new URL(d.verification_uri);
+      target.searchParams.set('user_code', d.user_code);
+      shell.openExternal(target.toString()).catch(() => {});
 
       (async () => {
         let interval = Math.max(5, d.interval || 5);
@@ -177,7 +194,7 @@ function register({ getWindow, runGit, isValidPath }) {
             const t = await tr.json();
             if (t.access_token) {
               session.token = t.access_token;
-              const stored = persistToken(t.access_token);
+              const stored = await persistToken(t.access_token);
               notify({ state: 'connected', profile: await loadProfile(), stored });
               return;
             }
