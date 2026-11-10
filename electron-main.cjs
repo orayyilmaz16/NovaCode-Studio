@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { execFile, execFileSync, spawn } = require('child_process');
+const github = require('./electron-github.cjs');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
@@ -22,7 +23,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
-      webSecurity: false
+      webSecurity: true
     },
     autoHideMenuBar: true,
   });
@@ -273,13 +274,15 @@ ipcMain.handle('fs:renameItem', async (_event, oldPath, newPath) => {
 // IPC Handlers: Real Git Integration
 // ----------------------------------------------------
 // Kabuk kullanılmaz (execFile): argümanlar doğrudan git'e gider, enjeksiyon olmaz.
-function runGitCommand(args, cwd) {
+function runGitCommand(args, cwd, { auth = false, timeout = 120000 } = {}) {
   return new Promise((resolve) => {
     if (!isValidPath(cwd) || !fs.existsSync(cwd)) {
       resolve({ success: false, stdout: '', stderr: 'Geçersiz depo yolu.' });
       return;
     }
-    execFile('git', args, { cwd, windowsHide: true, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
+    // GIT_TERMINAL_PROMPT=0: kimlik sorusunda sonsuza dek beklemek yerine hata ver.
+    const env = { ...process.env, GIT_TERMINAL_PROMPT: '0', ...(auth ? github.gitAuthEnv() : {}) };
+    execFile('git', args, { cwd, env, timeout, windowsHide: true, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
       resolve({
         success: !error,
         stdout: stdout ? stdout.trim() : '',
@@ -296,10 +299,21 @@ ipcMain.handle('git:status', async (_event, repoPath) => {
     return { isRepo: false };
   }
 
-  const [branchRes, statusRes] = await Promise.all([
+  const [branchRes, statusRes, abRes, remoteRes] = await Promise.all([
     runGitCommand(['branch', '--show-current'], repoPath),
-    runGitCommand(['status', '--short'], repoPath)
+    runGitCommand(['status', '--short'], repoPath),
+    runGitCommand(['rev-list', '--left-right', '--count', '@{upstream}...HEAD'], repoPath),
+    runGitCommand(['remote', 'get-url', 'origin'], repoPath)
   ]);
+  let behind = 0;
+  let ahead = 0;
+  let hasUpstream = false;
+  if (abRes.success) {
+    const [b, a] = abRes.stdout.split(/\s+/).map(Number);
+    behind = b || 0;
+    ahead = a || 0;
+    hasUpstream = true;
+  }
 
   const changes = statusRes.stdout
     ? statusRes.stdout.split('\n').filter(Boolean).map(line => {
@@ -312,6 +326,10 @@ ipcMain.handle('git:status', async (_event, repoPath) => {
   return {
     isRepo: true,
     branch: branchRes.stdout || 'main',
+    ahead,
+    behind,
+    hasUpstream,
+    hasRemote: remoteRes.success,
     changes
   };
 });
@@ -325,12 +343,23 @@ ipcMain.handle('git:commit', async (_event, repoPath, message) => {
 });
 
 ipcMain.handle('git:push', async (_event, repoPath) => {
-  return runGitCommand(['push'], repoPath);
+  const res = await runGitCommand(['push'], repoPath, { auth: true });
+  if (!res.success && /no upstream branch/i.test(res.stderr)) {
+    // İlk push: yukarı akış dalını otomatik ayarla.
+    return runGitCommand(['push', '--set-upstream', 'origin', 'HEAD'], repoPath, { auth: true });
+  }
+  return res;
+});
+
+ipcMain.handle('git:fetch', async (_event, repoPath) => {
+  return runGitCommand(['fetch', '--prune'], repoPath, { auth: true, timeout: 30000 });
 });
 
 ipcMain.handle('git:pull', async (_event, repoPath) => {
-  return runGitCommand(['pull'], repoPath);
+  return runGitCommand(['pull', '--ff-only'], repoPath, { auth: true });
 });
+
+github.register({ getWindow: () => mainWindow, runGit: runGitCommand, isValidPath });
 
 // ----------------------------------------------------
 // IPC Handlers: Gerçek shell (PowerShell / CMD), kalıcı oturumlar
@@ -356,6 +385,51 @@ function stopShell(name) {
   }
 }
 
+// Her komuttan sonra shell'e çalışma klasörünü yazdırtırız; bu satırları yakalayıp arayüzde istemde gösteririz.
+const CWD_MARK = '@@NOVA_CWD@@';
+
+function cwdProbe(name) {
+  return name === 'cmd' ? `echo ${CWD_MARK}%CD%\r\n` : `Write-Host "${CWD_MARK}$((Get-Location).Path)"\n`;
+}
+
+// Akıştaki işaret satırlarını ayıklar. Tamamlanmamış satır işaretin başlangıcıysa bir sonraki parçaya kadar bekletilir.
+function makeCwdFilter(name) {
+  let buf = '';
+  // CMD, kodlama değişmeden önce (bozuk karakterli) açılış başlığını basar; ilk işarete kadar çıktıyı at.
+  let waitFirstMark = name === 'cmd';
+  return (text) => {
+    buf += text;
+    const parts = buf.split('\n');
+    const tail = parts.pop();
+    let out = '';
+    for (const line of parts) {
+      const clean = line.replace(/\r$/, '');
+      const idx = clean.indexOf(CWD_MARK);
+      if (idx >= 0) {
+        waitFirstMark = false;
+        sendTerm('term:cwd', { shell: name, cwd: clean.slice(idx + CWD_MARK.length).trim() });
+        // İşaretten önce gerçek çıktı varsa (satır sonu olmayan program çıktısı) onu koru.
+        const before = clean.slice(0, idx).replace(/\x1b\[[0-9;]*m/g, '');
+        if (before.trim()) out += clean.slice(0, idx) + '\n';
+      } else if (!waitFirstMark) {
+        out += clean + '\n';
+      }
+    }
+    if (waitFirstMark) {
+      buf = tail.length < 4096 ? tail : '';
+      return out;
+    }
+    const bare = tail.replace(/\x1b\[[0-9;]*m/g, '');
+    if (bare && (CWD_MARK.startsWith(bare) || bare.startsWith(CWD_MARK))) {
+      buf = tail;
+    } else {
+      buf = '';
+      out += tail;
+    }
+    return out;
+  };
+}
+
 function sendTerm(channel, payload) {
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send(channel, payload);
@@ -369,6 +443,7 @@ ipcMain.handle('term:start', async (_event, shellName, cwd) => {
   }
   const existing = shells.get(name);
   if (existing && existing.cwd === cwd && existing.proc.exitCode === null) {
+    existing.proc.stdin.write(cwdProbe(name)); // arayüz istemi güncel çalışma klasörünü öğrensin
     return { success: true, shell: name, reused: true };
   }
   stopShell(name);
@@ -382,7 +457,11 @@ ipcMain.handle('term:start', async (_event, shellName, cwd) => {
       : [];
   let proc;
   try {
-    proc = spawn(command, args, { cwd, windowsHide: true, env: process.env });
+    proc = spawn(command, args, {
+      cwd,
+      windowsHide: true,
+      env: { ...process.env, FORCE_COLOR: '1', CLICOLOR_FORCE: '1', TERM: 'xterm-256color' }
+    });
   } catch (err) {
     return { success: false, error: err.message };
   }
@@ -390,12 +469,19 @@ ipcMain.handle('term:start', async (_event, shellName, cwd) => {
 
   // Türkçe karakterler için çıktı kodlamasını UTF-8'e al (Windows varsayılanı OEM kod sayfası).
   if (isCmd) {
-    proc.stdin.write('chcp 65001 >nul\r\n');
+    // chcp: UTF-8; prompt: CMD boru girdisinde bile istem basar, onu görünmez yapıp istemi arayüz çizer.
+    proc.stdin.write('chcp 65001 >nul\r\nprompt $E[0m\r\n');
   } else if (process.platform === 'win32') {
-    proc.stdin.write('[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8\n');
+    // PowerShell 7.2+ renkli (ANSI) çıktı verir; 5.1'de $PSStyle yoktur, koşul bunu korur.
+    proc.stdin.write('[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; if ($PSStyle) { $PSStyle.OutputRendering = "Ansi" }\n');
   }
-  proc.stdout.on('data', (chunk) => sendTerm('term:output', { shell: name, text: chunk.toString('utf8') }));
-  proc.stderr.on('data', (chunk) => sendTerm('term:output', { shell: name, text: chunk.toString('utf8') }));
+  proc.stdin.write(cwdProbe(name));
+  const outFilter = makeCwdFilter(name);
+  proc.stdout.on('data', (chunk) => {
+    const text = outFilter(chunk.toString('utf8'));
+    if (text) sendTerm('term:output', { shell: name, text, stream: 'stdout' });
+  });
+  proc.stderr.on('data', (chunk) => sendTerm('term:output', { shell: name, text: chunk.toString('utf8'), stream: 'stderr' }));
   proc.on('error', (err) => sendTerm('term:output', { shell: name, text: `\n[shell hatası] ${err.message}\n` }));
   proc.on('exit', (code) => {
     if (shells.get(name)?.proc === proc) shells.delete(name);
@@ -409,7 +495,8 @@ ipcMain.handle('term:input', async (_event, shellName, line) => {
   if (!entry || typeof line !== 'string' || line.length > 10000) {
     return { success: false, error: 'Shell çalışmıyor.' };
   }
-  entry.proc.stdin.write(line + '\n');
+  if (line.includes('\0')) return { success: false, error: 'Geçersiz komut.' };
+  entry.proc.stdin.write(line + '\n' + cwdProbe(shellName === 'cmd' ? 'cmd' : 'powershell'));
   return { success: true };
 });
 

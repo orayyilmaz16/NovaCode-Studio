@@ -25,7 +25,40 @@ export interface GitChange {
 export interface GitStatus {
   isRepo: boolean;
   branch?: string;
+  ahead?: number;
+  behind?: number;
+  hasUpstream?: boolean;
+  hasRemote?: boolean;
   changes: GitChange[];
+}
+
+export interface GithubProfile {
+  login: string;
+  name: string;
+  avatarUrl: string;
+}
+
+export interface GithubAuthStatus {
+  connected: boolean;
+  profile: GithubProfile | null;
+  hasClientId: boolean;
+  canStoreToken: boolean;
+}
+
+export type GithubAuthEvent =
+  | { state: 'connected'; profile: GithubProfile; stored?: boolean }
+  | { state: 'disconnected' }
+  | { state: 'error'; error: string };
+
+export interface GithubRepoInfo {
+  available: boolean;
+  error?: string;
+  fullName?: string;
+  url?: string;
+  stars?: number;
+  openIssues?: number;
+  runs?: { id: number; name: string; status: string; conclusion: string | null; url: string; branch: string }[];
+  pulls?: { number: number; title: string; url: string; author?: string }[];
 }
 
 export interface Snippet {
@@ -57,8 +90,20 @@ export interface ElectronBridge {
   termStart: (shell: 'powershell' | 'cmd', cwd: string) => Promise<{ success: boolean; error?: string; shell?: string }>;
   termInput: (shell: 'powershell' | 'cmd', line: string) => Promise<{ success: boolean; error?: string }>;
   termStop: (shell: 'powershell' | 'cmd') => Promise<{ success: boolean }>;
-  onTermOutput: (callback: (data: { shell: 'powershell' | 'cmd'; text: string }) => void) => void;
-  onTermExit: (callback: (data: { shell: 'powershell' | 'cmd'; code: number | null }) => void) => void;
+  onTermOutput: (callback: (data: { shell: 'powershell' | 'cmd'; text: string; stream?: 'stdout' | 'stderr' }) => void) => () => void;
+  onTermExit: (callback: (data: { shell: 'powershell' | 'cmd'; code: number | null }) => void) => () => void;
+  onTermCwd: (callback: (data: { shell: 'powershell' | 'cmd'; cwd: string }) => void) => () => void;
+  gitFetch: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
+  github: {
+    status: () => Promise<GithubAuthStatus>;
+    setClientId: (id: string) => Promise<{ success: boolean; error?: string }>;
+    login: () => Promise<{ success: boolean; error?: string; userCode?: string; verificationUri?: string; expiresIn?: number }>;
+    cancel: () => Promise<{ success: boolean }>;
+    logout: () => Promise<{ success: boolean }>;
+    repoInfo: (repoPath: string) => Promise<GithubRepoInfo>;
+    openExternal: (url: string) => Promise<{ success: boolean }>;
+    onAuth: (callback: (event: GithubAuthEvent) => void) => () => void;
+  };
 }
 
 declare global {

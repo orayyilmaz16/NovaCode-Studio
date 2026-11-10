@@ -21,13 +21,37 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('fs:watch-change', listener);
     return () => ipcRenderer.removeListener('fs:watch-change', listener);
   },
+  gitFetch: (repoPath) => ipcRenderer.invoke('git:fetch', repoPath),
+  github: {
+    status: () => ipcRenderer.invoke('github:status'),
+    setClientId: (id) => ipcRenderer.invoke('github:setClientId', id),
+    login: () => ipcRenderer.invoke('github:login'),
+    cancel: () => ipcRenderer.invoke('github:cancel'),
+    logout: () => ipcRenderer.invoke('github:logout'),
+    repoInfo: (repoPath) => ipcRenderer.invoke('github:repoInfo', repoPath),
+    openExternal: (url) => ipcRenderer.invoke('github:openExternal', url),
+    onAuth: (callback) => {
+      const listener = (_event, data) => callback(data);
+      ipcRenderer.on('github:auth', listener);
+      return () => ipcRenderer.removeListener('github:auth', listener);
+    }
+  },
+  onTermCwd: (callback) => {
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on('term:cwd', listener);
+    return () => ipcRenderer.removeListener('term:cwd', listener);
+  },
   termStart: (shell, cwd) => ipcRenderer.invoke('term:start', shell, cwd),
   termInput: (shell, line) => ipcRenderer.invoke('term:input', shell, line),
   termStop: (shell) => ipcRenderer.invoke('term:stop', shell),
   onTermOutput: (callback) => {
-    ipcRenderer.on('term:output', (_event, data) => callback(data));
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on('term:output', listener);
+    return () => ipcRenderer.removeListener('term:output', listener);
   },
   onTermExit: (callback) => {
-    ipcRenderer.on('term:exit', (_event, data) => callback(data));
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on('term:exit', listener);
+    return () => ipcRenderer.removeListener('term:exit', listener);
   }
 });

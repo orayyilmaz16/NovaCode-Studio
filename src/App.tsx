@@ -23,6 +23,7 @@ import { AIAssistant } from './components/AIAssistant';
 import { LandingPage } from './components/LandingPage';
 import { SplashScreen } from './components/SplashScreen';
 import { GitPanel } from './components/GitPanel';
+import { GithubAccount } from './components/GithubAccount';
 import { SnippetsPanel } from './components/SnippetsPanel';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { t } from './i18n/uiText';
@@ -764,15 +765,18 @@ export function App() {
         )}
 
         {!showLanding && activeSidebarTab === 'git' && (
-          <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0">
-            <GitPanel
-              status={gitStatus}
-              currentRepoPath={currentRootPath}
-              onRefresh={() => refreshGitStatus()}
-              onCommit={handleGitCommit}
-              onPush={handleGitPush}
-              onPull={handleGitPull}
-            />
+          <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0 flex flex-col">
+            <GithubAccount />
+            <div className="flex-1 min-h-0">
+              <GitPanel
+                status={gitStatus}
+                currentRepoPath={currentRootPath}
+                onRefresh={() => refreshGitStatus()}
+                onCommit={handleGitCommit}
+                onPush={handleGitPush}
+                onPull={handleGitPull}
+              />
+            </div>
           </div>
         )}
 
@@ -907,6 +911,7 @@ export function App() {
                   logs={logs}
                   onClear={() => setLogs([])}
                   cwd={currentRootPath}
+                  branch={gitStatus.isRepo ? gitStatus.branch : null}
                 />
               </div>
             )}

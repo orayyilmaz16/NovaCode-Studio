@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   GitBranch, 
   GitCommit, 
@@ -7,9 +7,14 @@ import {
   RefreshCw, 
   FileDiff, 
   Check, 
-  AlertCircle 
+  AlertCircle,
+  CircleDot,
+  GitPullRequest,
+  ExternalLink
 } from 'lucide-react';
-import type { GitStatus } from '../types';
+import type { GitStatus, GithubRepoInfo } from '../types';
+import { t } from '../i18n/uiText';
+import { useGithubAuth } from '../services/useGithubAuth';
 
 interface GitPanelProps {
   status: GitStatus;
@@ -31,6 +36,65 @@ export const GitPanel: React.FC<GitPanelProps> = ({
   const [commitMessage, setCommitMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [repoInfo, setRepoInfo] = useState<GithubRepoInfo | null>(null);
+  const { auth } = useGithubAuth();
+  const refreshRef = useRef(onRefresh);
+  refreshRef.current = onRefresh;
+  const isRepo = status.isRepo;
+  const hasRemote = status.hasRemote;
+
+  // Gerçek zamanlı Git: terminalde veya dışarıda yapılan commit/checkout 8 sn içinde panele yansır.
+  useEffect(() => {
+    if (!currentRepoPath || !isRepo) return;
+    const tick = () => {
+      if (!document.hidden) refreshRef.current();
+    };
+    const id = setInterval(tick, 8000);
+    document.addEventListener('visibilitychange', tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', tick);
+    };
+  }, [currentRepoPath, isRepo]);
+
+  // Uzak depodaki yeni commit'leri (ahead/behind için) dakikada bir sessizce getir.
+  useEffect(() => {
+    const api = window.electronAPI;
+    if (!currentRepoPath || !isRepo || !hasRemote || !api?.gitFetch) return;
+    let cancelled = false;
+    const run = async () => {
+      if (document.hidden) return;
+      await api.gitFetch(currentRepoPath);
+      if (!cancelled) refreshRef.current();
+    };
+    void run();
+    const id = setInterval(run, 60000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [currentRepoPath, isRepo, hasRemote, auth.connected]);
+
+  // GitHub'daki canlı durum (açık PR'lar, son Actions koşuları): bağlıysa 30 sn'de bir.
+  useEffect(() => {
+    const api = window.electronAPI?.github;
+    if (!currentRepoPath || !isRepo || !hasRemote || !auth.connected || !api) {
+      setRepoInfo(null);
+      return;
+    }
+    let cancelled = false;
+    const run = async () => {
+      if (document.hidden) return;
+      const info = await api.repoInfo(currentRepoPath);
+      if (!cancelled) setRepoInfo(info);
+    };
+    void run();
+    const id = setInterval(run, 30000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [currentRepoPath, isRepo, hasRemote, auth.connected]);
 
   const handleCommit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +160,15 @@ export const GitPanel: React.FC<GitPanelProps> = ({
           <span className="px-1.5 py-0.5 rounded bg-indigo-600/20 text-indigo-300 font-mono text-[10px]">
             {status.branch || 'main'}
           </span>
+          {status.hasUpstream && (status.ahead || status.behind) ? (
+            <span
+              title={t('gitAheadBehind')}
+              className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px]"
+            >
+              <span className="text-emerald-400">↑{status.ahead ?? 0}</span> <span className="text-amber-300">↓{status.behind ?? 0}</span>
+            </span>
+          ) : null}
+          <span title={t('gitLive')} className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
         </div>
         <div className="flex items-center space-x-1">
           <button
@@ -144,6 +217,50 @@ export const GitPanel: React.FC<GitPanelProps> = ({
           </div>
         )}
       </form>
+
+      {status.hasRemote === false && (
+        <div className="px-3 py-2 text-[11px] text-amber-300/90 bg-amber-950/20 border-b border-amber-900/40">{t('gitNoRemote')}</div>
+      )}
+
+      {auth.connected && repoInfo?.available && (
+        <div className="px-3 py-2 border-b border-zinc-800/80 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">{t('ghLive')}</span>
+            <button
+              onClick={() => repoInfo.url && window.electronAPI?.github.openExternal(repoInfo.url)}
+              title={repoInfo.fullName}
+              className="flex items-center gap-1 text-zinc-300 hover:text-white truncate max-w-[60%]"
+            >
+              <span className="truncate">{repoInfo.fullName}</span>
+              <ExternalLink size={11} className="shrink-0" />
+            </button>
+          </div>
+          <div className="flex items-center gap-3 text-zinc-400">
+            <span className="flex items-center gap-1"><GitPullRequest size={12} /> {t('ghOpenPulls')}: {repoInfo.pulls?.length ?? 0}</span>
+            <span className="flex items-center gap-1"><CircleDot size={12} /> {repoInfo.openIssues ?? 0}</span>
+          </div>
+          <div className="text-[10px] text-zinc-500 uppercase tracking-wider pt-1">{t('ghActions')}</div>
+          {repoInfo.runs && repoInfo.runs.length > 0 ? (
+            repoInfo.runs.map((r) => {
+              const color =
+                r.status !== 'completed' ? 'bg-amber-400 animate-pulse' : r.conclusion === 'success' ? 'bg-emerald-400' : r.conclusion === 'cancelled' || r.conclusion === 'skipped' ? 'bg-zinc-500' : 'bg-rose-400';
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => window.electronAPI?.github.openExternal(r.url)}
+                  className="w-full flex items-center gap-2 text-left text-zinc-300 hover:text-white"
+                >
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${color}`} />
+                  <span className="truncate flex-1">{r.name}</span>
+                  <span className="font-mono text-[10px] text-zinc-500 truncate max-w-[40%]">{r.branch}</span>
+                </button>
+              );
+            })
+          ) : (
+            <div className="text-zinc-600">{t('ghNoRuns')}</div>
+          )}
+        </div>
+      )}
 
       {/* Changed Files List */}
       <div className="flex-1 overflow-y-auto p-2">
