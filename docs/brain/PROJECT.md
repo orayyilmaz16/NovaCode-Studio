@@ -8,7 +8,7 @@ Electron + React 19 + Vite + Monaco + Tailwind 4 + TypeScript (strict). Ortak d�
 ## Süreç modeli
 | Katman | Dosyalar | Sorumluluk |
 |---|---|---|
-| Ana süreç | `electron-main.cjs`, `electron-git.cjs`, `electron-github.cjs` | Dosya sistemi, izleyiciler, git, GitHub, terminal kabukları, IPC |
+| Ana süreç | `electron-main.cjs`, `electron-git.cjs`, `electron-github.cjs`, `electron-secrets.cjs` | Dosya sistemi, izleyiciler, git, GitHub, terminal kabukları, IPC |
 | Preload | `electron-preload.cjs` | `contextBridge` ile dar, tipli API (`window.electronAPI`) |
 | Renderer | `src/` | Arayüz; Node erişimi yok, `contextIsolation` açık |
 
@@ -20,6 +20,9 @@ IPC kanallarının güncel listesi [[STATE]] içindedir. Her kanal `electron-pre
 - **GitHub girişi:** OAuth Device Flow. Token yalnız ana süreçte, `safeStorage` ile şifreli saklanır; renderer'a profil gider, token gitmez.
 - **Terminal:** `child_process` ile kalıcı kabuk oturumları; her komuttan sonra çalışma klasörü işareti okunur, arayüz istemi çizer. Ayrıntı: [[terminal]].
 - **Ortak düzenleme:** Yalnız kullanıcının girdiği `wss://` adresine dosya içeriği gider; varsayılan sunucu yok.
+
+## Ayarlar
+Gerçek zamanlı, şema güdümlü ayar sistemi: `src/services/settingsSchema.json` (tek kaynak) → doğrulama, arayüz (`SettingsPage`) ve belge üretimi. Tema (koyu/açık/sistem), vurgu rengi, yazı tipleri, yakınlaştırma, dil, editör, snippet, kayıt, terminal, Git aralıkları, ortak düzenleme. Yerelde saklanır; token şifreli (`electron-secrets.cjs`). Ayrıntı: [[settings]].
 
 ## Arayüz
 VS Code "Dark Modern" çizgisi: düz yüzeyler, cam/bulanıklık yok. Tasarım jetonları `src/style.css` (`@theme`). Marka: arka plansız gradient logo (`public/logo.svg`). Ayrıntı: [[ui-design]].

@@ -401,6 +401,438 @@ export const UI_TEXT = {
   welShowOnStartup: {
     tr: "Açılışta karşılama sayfasını göster", en: "Show welcome page on startup", de: "Willkommensseite beim Start anzeigen", ru: "Показывать приветствие при запуске", ar: "إظهار صفحة الترحيب عند البدء", es: "Mostrar la página de bienvenida al iniciar", fr: "Afficher la page d’accueil au démarrage", az: "Açılışda xoş gəlmisiniz səhifəsini göstər",
   },
+  setCatAppearance: {
+    tr: "Görünüm", en: "Appearance", de: "Darstellung", ru: "Внешний вид", ar: "المظهر", es: "Apariencia", fr: "Apparence", az: "Görünüş",
+  },
+  setCatEditor: {
+    tr: "Editör", en: "Editor", de: "Editor", ru: "Редактор", ar: "المحرر", es: "Editor", fr: "Éditeur", az: "Redaktor",
+  },
+  setCatSnippets: {
+    tr: "Snippet ve tamamlama", en: "Snippets & completion", de: "Snippets & Vervollständigung", ru: "Сниппеты и автодополнение", ar: "المقتطفات والإكمال", es: "Snippets y autocompletado", fr: "Snippets et complétion", az: "Snippet və tamamlama",
+  },
+  setCatFiles: {
+    tr: "Dosyalar ve kayıt", en: "Files & saving", de: "Dateien & Speichern", ru: "Файлы и сохранение", ar: "الملفات والحفظ", es: "Archivos y guardado", fr: "Fichiers et enregistrement", az: "Fayllar və yadda saxlama",
+  },
+  setCatTerminal: {
+    tr: "Terminal", en: "Terminal", de: "Terminal", ru: "Терминал", ar: "الطرفية", es: "Terminal", fr: "Terminal", az: "Terminal",
+  },
+  setCatGit: {
+    tr: "Git ve GitHub", en: "Git & GitHub", de: "Git & GitHub", ru: "Git и GitHub", ar: "Git وGitHub", es: "Git y GitHub", fr: "Git et GitHub", az: "Git və GitHub",
+  },
+  setCatCollab: {
+    tr: "Ortak düzenleme", en: "Collaboration", de: "Zusammenarbeit", ru: "Совместная работа", ar: "التحرير المشترك", es: "Colaboración", fr: "Collaboration", az: "Birgə redaktə",
+  },
+  setCatShortcuts: {
+    tr: "Klavye kısayolları", en: "Keyboard shortcuts", de: "Tastenkürzel", ru: "Горячие клавиши", ar: "اختصارات لوحة المفاتيح", es: "Atajos de teclado", fr: "Raccourcis clavier", az: "Klaviatura qısayolları",
+  },
+  setCatAbout: {
+    tr: "Hakkında ve yedek", en: "About & backup", de: "Info & Sicherung", ru: "О программе и резервная копия", ar: "حول والنسخ الاحتياطي", es: "Acerca de y copia", fr: "À propos et sauvegarde", az: "Haqqında və ehtiyat",
+  },
+  setTitle: {
+    tr: "Ayarlar", en: "Settings", de: "Einstellungen", ru: "Настройки", ar: "الإعدادات", es: "Ajustes", fr: "Paramètres", az: "Parametrlər",
+  },
+  setSearch: {
+    tr: "Ayarlarda ara...", en: "Search settings...", de: "Einstellungen durchsuchen...", ru: "Поиск в настройках...", ar: "ابحث في الإعدادات...", es: "Buscar en ajustes...", fr: "Rechercher dans les paramètres...", az: "Parametrlərdə axtar...",
+  },
+  setNoResults: {
+    tr: "Eşleşen ayar yok.", en: "No matching settings.", de: "Keine passenden Einstellungen.", ru: "Подходящих настроек нет.", ar: "لا توجد إعدادات مطابقة.", es: "No hay ajustes que coincidan.", fr: "Aucun paramètre correspondant.", az: "Uyğun parametr yoxdur.",
+  },
+  setModified: {
+    tr: "Varsayılandan farklı", en: "Modified from default", de: "Vom Standard abweichend", ru: "Отличается от значения по умолчанию", ar: "تم تغييره عن الافتراضي", es: "Modificado respecto al valor por defecto", fr: "Modifié par rapport au défaut", az: "Standartdan fərqlidir",
+  },
+  setResetOne: {
+    tr: "Varsayılana döndür", en: "Reset to default", de: "Auf Standard zurücksetzen", ru: "Сбросить по умолчанию", ar: "إعادة إلى الافتراضي", es: "Restablecer valor", fr: "Rétablir la valeur par défaut", az: "Standarta qaytar",
+  },
+  setResetAll: {
+    tr: "Tüm ayarları sıfırla", en: "Reset all settings", de: "Alle Einstellungen zurücksetzen", ru: "Сбросить все настройки", ar: "إعادة تعيين كل الإعدادات", es: "Restablecer todos los ajustes", fr: "Réinitialiser tous les paramètres", az: "Bütün parametrləri sıfırla",
+  },
+  setResetAllConfirm: {
+    tr: "Tüm ayarlar varsayılana dönecek (özel snippet'ler korunur). Devam edilsin mi?", en: "All settings will return to defaults (your custom snippets are kept). Continue?", de: "Alle Einstellungen werden auf Standard zurückgesetzt (eigene Snippets bleiben). Fortfahren?", ru: "Все настройки вернутся к значениям по умолчанию (ваши сниппеты сохранятся). Продолжить?", ar: "ستعود كل الإعدادات إلى الافتراضي (تبقى مقتطفاتك المخصصة). هل تريد المتابعة؟", es: "Todos los ajustes volverán a sus valores por defecto (se conservan tus snippets). ¿Continuar?", fr: "Tous les paramètres reviendront aux valeurs par défaut (vos snippets sont conservés). Continuer ?", az: "Bütün parametrlər standarta qayıdacaq (xüsusi snippetlər qalır). Davam edilsin?",
+  },
+  setExport: {
+    tr: "Ayarları dışa aktar", en: "Export settings", de: "Einstellungen exportieren", ru: "Экспорт настроек", ar: "تصدير الإعدادات", es: "Exportar ajustes", fr: "Exporter les paramètres", az: "Parametrləri ixrac et",
+  },
+  setImport: {
+    tr: "Ayarları içe aktar", en: "Import settings", de: "Einstellungen importieren", ru: "Импорт настроек", ar: "استيراد الإعدادات", es: "Importar ajustes", fr: "Importer les paramètres", az: "Parametrləri idxal et",
+  },
+  setImportDone: {
+    tr: "Ayarlar içe aktarıldı.", en: "Settings imported.", de: "Einstellungen importiert.", ru: "Настройки импортированы.", ar: "تم استيراد الإعدادات.", es: "Ajustes importados.", fr: "Paramètres importés.", az: "Parametrlər idxal edildi.",
+  },
+  setImportFailed: {
+    tr: "Dosya geçerli bir ayar dosyası değil.", en: "The file is not a valid settings file.", de: "Die Datei ist keine gültige Einstellungsdatei.", ru: "Файл не является допустимым файлом настроек.", ar: "الملف ليس ملف إعدادات صالحًا.", es: "El archivo no es un archivo de ajustes válido.", fr: "Le fichier n’est pas un fichier de paramètres valide.", az: "Fayl etibarlı parametr faylı deyil.",
+  },
+  setAutoSaved: {
+    tr: "Değişiklikler anında uygulanır ve bu cihazda otomatik kaydedilir.", en: "Changes apply instantly and are saved automatically on this device.", de: "Änderungen werden sofort angewendet und automatisch auf diesem Gerät gespeichert.", ru: "Изменения применяются сразу и автоматически сохраняются на этом устройстве.", ar: "تُطبَّق التغييرات فورًا وتُحفظ تلقائيًا على هذا الجهاز.", es: "Los cambios se aplican al instante y se guardan automáticamente en este dispositivo.", fr: "Les changements s’appliquent instantanément et sont enregistrés automatiquement sur cet appareil.", az: "Dəyişikliklər dərhal tətbiq olunur və bu cihazda avtomatik saxlanılır.",
+  },
+  setClose: {
+    tr: "Ayarları kapat", en: "Close settings", de: "Einstellungen schließen", ru: "Закрыть настройки", ar: "إغلاق الإعدادات", es: "Cerrar ajustes", fr: "Fermer les paramètres", az: "Parametrləri bağla",
+  },
+  setPreview: {
+    tr: "Önizleme", en: "Preview", de: "Vorschau", ru: "Предпросмотр", ar: "معاينة", es: "Vista previa", fr: "Aperçu", az: "Önizləmə",
+  },
+  setCollabUrlInvalid: {
+    tr: "Adres wss:// ile başlamalı (yerel test için ws://localhost).", en: "The address must start with wss:// (ws://localhost for local testing).", de: "Die Adresse muss mit wss:// beginnen (ws://localhost für lokale Tests).", ru: "Адрес должен начинаться с wss:// (ws://localhost для локальных тестов).", ar: "يجب أن يبدأ العنوان بـ wss:// (ws://localhost للاختبار المحلي).", es: "La dirección debe empezar por wss:// (ws://localhost para pruebas locales).", fr: "L’adresse doit commencer par wss:// (ws://localhost pour les tests locaux).", az: "Ünvan wss:// ilə başlamalıdır (yerli test üçün ws://localhost).",
+  },
+  optDark: {
+    tr: "Koyu", en: "Dark", de: "Dunkel", ru: "Тёмная", ar: "داكن", es: "Oscuro", fr: "Sombre", az: "Tünd",
+  },
+  optLight: {
+    tr: "Açık", en: "Light", de: "Hell", ru: "Светлая", ar: "فاتح", es: "Claro", fr: "Clair", az: "Açıq",
+  },
+  optSystem: {
+    tr: "Sistem", en: "System", de: "System", ru: "Системная", ar: "النظام", es: "Sistema", fr: "Système", az: "Sistem",
+  },
+  optAuto: {
+    tr: "Otomatik", en: "Automatic", de: "Automatisch", ru: "Автоматически", ar: "تلقائي", es: "Automático", fr: "Automatique", az: "Avtomatik",
+  },
+  optOff: {
+    tr: "Kapalı", en: "Off", de: "Aus", ru: "Выкл.", ar: "متوقف", es: "Desactivado", fr: "Désactivé", az: "Söndürülü",
+  },
+  optOn: {
+    tr: "Açık", en: "On", de: "An", ru: "Вкл.", ar: "مفعّل", es: "Activado", fr: "Activé", az: "Aktiv",
+  },
+  optAfterDelay: {
+    tr: "Gecikmeden sonra", en: "After delay", de: "Nach Verzögerung", ru: "После задержки", ar: "بعد تأخير", es: "Tras un retraso", fr: "Après un délai", az: "Gecikmədən sonra",
+  },
+  optOnFocusChange: {
+    tr: "Odak değişince", en: "On focus change", de: "Bei Fokuswechsel", ru: "При потере фокуса", ar: "عند تغيير التركيز", es: "Al cambiar el foco", fr: "Au changement de focus", az: "Fokus dəyişəndə",
+  },
+  optCustom: {
+    tr: "Özel...", en: "Custom...", de: "Benutzerdefiniert...", ru: "Свой...", ar: "مخصص...", es: "Personalizado...", fr: "Personnalisé...", az: "Xüsusi...",
+  },
+  optNone: {
+    tr: "Hiçbiri", en: "None", de: "Keine", ru: "Нет", ar: "بدون", es: "Ninguno", fr: "Aucun", az: "Heç biri",
+  },
+  optTop: {
+    tr: "Üstte", en: "Top", de: "Oben", ru: "Сверху", ar: "في الأعلى", es: "Arriba", fr: "En haut", az: "Yuxarıda",
+  },
+  optBottom: {
+    tr: "Altta", en: "Bottom", de: "Unten", ru: "Снизу", ar: "في الأسفل", es: "Abajo", fr: "En bas", az: "Aşağıda",
+  },
+  optInline: {
+    tr: "Satır içi", en: "Inline", de: "Inline", ru: "В строке", ar: "ضمن السطر", es: "En línea", fr: "En ligne", az: "Sətir daxili",
+  },
+  optNormal: {
+    tr: "Normal", en: "Normal", de: "Normal", ru: "Обычный", ar: "عادي", es: "Normal", fr: "Normal", az: "Normal",
+  },
+  optBold: {
+    tr: "Kalın", en: "Bold", de: "Fett", ru: "Жирный", ar: "عريض", es: "Negrita", fr: "Gras", az: "Qalın",
+  },
+  optMono: {
+    tr: "Sabit aralıklı", en: "Monospace", de: "Monospace", ru: "Моноширинный", ar: "أحادي المسافة", es: "Monoespaciado", fr: "Monospace", az: "Monoşirinli",
+  },
+  accIndigo: {
+    tr: "İndigo", en: "Indigo", de: "Indigo", ru: "Индиго", ar: "نيلي", es: "Índigo", fr: "Indigo", az: "İndiqo",
+  },
+  accBlue: {
+    tr: "Mavi", en: "Blue", de: "Blau", ru: "Синий", ar: "أزرق", es: "Azul", fr: "Bleu", az: "Mavi",
+  },
+  accTeal: {
+    tr: "Turkuaz", en: "Teal", de: "Türkis", ru: "Бирюзовый", ar: "فيروزي", es: "Turquesa", fr: "Turquoise", az: "Firuzəyi",
+  },
+  accGreen: {
+    tr: "Yeşil", en: "Green", de: "Grün", ru: "Зелёный", ar: "أخضر", es: "Verde", fr: "Vert", az: "Yaşıl",
+  },
+  accOrange: {
+    tr: "Turuncu", en: "Orange", de: "Orange", ru: "Оранжевый", ar: "برتقالي", es: "Naranja", fr: "Orange", az: "Narıncı",
+  },
+  accPink: {
+    tr: "Pembe", en: "Pink", de: "Pink", ru: "Розовый", ar: "وردي", es: "Rosa", fr: "Rose", az: "Çəhrayı",
+  },
+  set_themeMode: {
+    tr: "Tema modu", en: "Color mode", de: "Farbmodus", ru: "Режим темы", ar: "وضع السمة", es: "Modo de color", fr: "Mode de couleur", az: "Tema rejimi",
+  },
+  set_accent: {
+    tr: "Vurgu rengi", en: "Accent color", de: "Akzentfarbe", ru: "Акцентный цвет", ar: "لون التمييز", es: "Color de acento", fr: "Couleur d’accent", az: "Vurğu rəngi",
+  },
+  set_uiFont: {
+    tr: "Arayüz yazı tipi", en: "Interface font", de: "Oberflächenschrift", ru: "Шрифт интерфейса", ar: "خط الواجهة", es: "Fuente de la interfaz", fr: "Police de l’interface", az: "İnterfeys şrifti",
+  },
+  set_uiZoom: {
+    tr: "Arayüz yakınlaştırma", en: "Interface zoom", de: "Oberflächen-Zoom", ru: "Масштаб интерфейса", ar: "تكبير الواجهة", es: "Zoom de la interfaz", fr: "Zoom de l’interface", az: "İnterfeys miqyası",
+  },
+  set_animations: {
+    tr: "Animasyonlar", en: "Animations", de: "Animationen", ru: "Анимации", ar: "الرسوم المتحركة", es: "Animaciones", fr: "Animations", az: "Animasiyalar",
+  },
+  set_language: {
+    tr: "Dil", en: "Language", de: "Sprache", ru: "Язык", ar: "اللغة", es: "Idioma", fr: "Langue", az: "Dil",
+  },
+  set_editorTheme: {
+    tr: "Editör teması", en: "Editor theme", de: "Editor-Design", ru: "Тема редактора", ar: "سمة المحرر", es: "Tema del editor", fr: "Thème de l’éditeur", az: "Redaktor temasi",
+  },
+  set_fontFamily: {
+    tr: "Kod yazı tipi", en: "Code font", de: "Code-Schrift", ru: "Шрифт кода", ar: "خط الكود", es: "Fuente del código", fr: "Police du code", az: "Kod şrifti",
+  },
+  set_fontFamilyCustom: {
+    tr: "Özel yazı tipi", en: "Custom font", de: "Eigene Schrift", ru: "Свой шрифт", ar: "خط مخصص", es: "Fuente personalizada", fr: "Police personnalisée", az: "Xüsusi şrift",
+  },
+  set_fontSize: {
+    tr: "Yazı boyutu", en: "Font size", de: "Schriftgröße", ru: "Размер шрифта", ar: "حجم الخط", es: "Tamaño de fuente", fr: "Taille de police", az: "Şrift ölçüsü",
+  },
+  set_lineHeight: {
+    tr: "Satır yüksekliği", en: "Line height", de: "Zeilenhöhe", ru: "Высота строки", ar: "ارتفاع السطر", es: "Altura de línea", fr: "Hauteur de ligne", az: "Sətir hündürlüyü",
+  },
+  set_fontWeight: {
+    tr: "Yazı kalınlığı", en: "Font weight", de: "Schriftstärke", ru: "Насыщенность шрифта", ar: "سماكة الخط", es: "Grosor de fuente", fr: "Graisse de police", az: "Şrift qalınlığı",
+  },
+  set_letterSpacing: {
+    tr: "Harf aralığı", en: "Letter spacing", de: "Zeichenabstand", ru: "Межбуквенный интервал", ar: "تباعد الأحرف", es: "Espaciado de letras", fr: "Espacement des lettres", az: "Hərf aralığı",
+  },
+  set_fontLigatures: {
+    tr: "Yazı tipi ligatürleri", en: "Font ligatures", de: "Schriftligaturen", ru: "Лигатуры шрифта", ar: "ربطات الخط", es: "Ligaduras de fuente", fr: "Ligatures de police", az: "Şrift liqaturaları",
+  },
+  set_tabSize: {
+    tr: "Sekme boşluğu", en: "Tab size", de: "Tab-Breite", ru: "Размер табуляции", ar: "حجم علامة التبويب", es: "Tamaño de tabulación", fr: "Taille de tabulation", az: "Tab ölçüsü",
+  },
+  set_insertSpaces: {
+    tr: "Sekme yerine boşluk kullan", en: "Insert spaces instead of tabs", de: "Leerzeichen statt Tabs", ru: "Пробелы вместо табуляции", ar: "استخدام مسافات بدل التبويب", es: "Usar espacios en lugar de tabulaciones", fr: "Espaces au lieu de tabulations", az: "Tab əvəzinə boşluq",
+  },
+  set_wordWrap: {
+    tr: "Satır kaydırma", en: "Word wrap", de: "Zeilenumbruch", ru: "Перенос строк", ar: "التفاف الأسطر", es: "Ajuste de línea", fr: "Retour à la ligne", az: "Sətir keçidi",
+  },
+  set_lineNumbers: {
+    tr: "Satır numaraları", en: "Line numbers", de: "Zeilennummern", ru: "Номера строк", ar: "أرقام الأسطر", es: "Números de línea", fr: "Numéros de ligne", az: "Sətir nömrələri",
+  },
+  set_minimap: {
+    tr: "Mini harita", en: "Minimap", de: "Minimap", ru: "Мини-карта", ar: "الخريطة المصغرة", es: "Minimapa", fr: "Minimap", az: "Mini xəritə",
+  },
+  set_renderWhitespace: {
+    tr: "Boşlukları göster", en: "Render whitespace", de: "Leerzeichen anzeigen", ru: "Показывать пробелы", ar: "إظهار المسافات", es: "Mostrar espacios", fr: "Afficher les espaces", az: "Boşluqları göstər",
+  },
+  set_cursorStyle: {
+    tr: "İmleç stili", en: "Cursor style", de: "Cursor-Stil", ru: "Стиль курсора", ar: "نمط المؤشر", es: "Estilo del cursor", fr: "Style du curseur", az: "Kursor üslubu",
+  },
+  set_cursorBlinking: {
+    tr: "İmleç yanıp sönmesi", en: "Cursor blinking", de: "Cursor-Blinken", ru: "Мигание курсора", ar: "وميض المؤشر", es: "Parpadeo del cursor", fr: "Clignotement du curseur", az: "Kursor yanıb-sönməsi",
+  },
+  set_smoothCaret: {
+    tr: "Yumuşak imleç animasyonu", en: "Smooth caret animation", de: "Sanfte Cursor-Animation", ru: "Плавная анимация курсора", ar: "حركة مؤشر سلسة", es: "Animación suave del cursor", fr: "Animation fluide du curseur", az: "Yumşaq kursor animasiyası",
+  },
+  set_smoothScrolling: {
+    tr: "Yumuşak kaydırma", en: "Smooth scrolling", de: "Sanftes Scrollen", ru: "Плавная прокрутка", ar: "تمرير سلس", es: "Desplazamiento suave", fr: "Défilement fluide", az: "Yumşaq sürüşdürmə",
+  },
+  set_bracketColorization: {
+    tr: "Parantez çiftlerini renklendir", en: "Colorize bracket pairs", de: "Klammerpaare einfärben", ru: "Раскрашивать парные скобки", ar: "تلوين أزواج الأقواس", es: "Colorear pares de corchetes", fr: "Colorer les paires de parenthèses", az: "Mötərizə cütlərini rəngləndir",
+  },
+  set_indentGuides: {
+    tr: "Girinti kılavuzları", en: "Indent guides", de: "Einzugslinien", ru: "Направляющие отступов", ar: "أدلة المسافات البادئة", es: "Guías de sangría", fr: "Repères d’indentation", az: "Girinti bələdçiləri",
+  },
+  set_renderLineHighlight: {
+    tr: "Etkin satırı vurgula", en: "Highlight active line", de: "Aktive Zeile hervorheben", ru: "Подсветка текущей строки", ar: "تمييز السطر النشط", es: "Resaltar línea activa", fr: "Surligner la ligne active", az: "Aktiv sətri vurğula",
+  },
+  set_folding: {
+    tr: "Kod katlama", en: "Code folding", de: "Code-Faltung", ru: "Сворачивание кода", ar: "طي الكود", es: "Plegado de código", fr: "Repli du code", az: "Kod qatlanması",
+  },
+  set_stickyScroll: {
+    tr: "Yapışkan kaydırma (üstte bağlam)", en: "Sticky scroll (context on top)", de: "Sticky Scroll (Kontext oben)", ru: "Закреплённый контекст сверху", ar: "تمرير ملتصق (السياق في الأعلى)", es: "Desplazamiento fijo (contexto arriba)", fr: "Défilement collant (contexte en haut)", az: "Yapışqan sürüşdürmə (yuxarıda kontekst)",
+  },
+  set_scrollBeyondLastLine: {
+    tr: "Son satırın ötesine kaydır", en: "Scroll beyond last line", de: "Über letzte Zeile hinaus scrollen", ru: "Прокрутка за последнюю строку", ar: "التمرير بعد السطر الأخير", es: "Desplazar más allá de la última línea", fr: "Défiler au-delà de la dernière ligne", az: "Son sətirdən kənara sürüşdür",
+  },
+  set_formatOnPaste: {
+    tr: "Yapıştırırken biçimlendir", en: "Format on paste", de: "Beim Einfügen formatieren", ru: "Форматировать при вставке", ar: "تنسيق عند اللصق", es: "Formatear al pegar", fr: "Formater au collage", az: "Yapışdırarkən formatla",
+  },
+  set_formatOnType: {
+    tr: "Yazarken biçimlendir", en: "Format on type", de: "Beim Tippen formatieren", ru: "Форматировать при вводе", ar: "تنسيق عند الكتابة", es: "Formatear al escribir", fr: "Formater à la saisie", az: "Yazarkən formatla",
+  },
+  set_autoClosingBrackets: {
+    tr: "Parantezleri otomatik kapat", en: "Auto-close brackets", de: "Klammern automatisch schließen", ru: "Автозакрытие скобок", ar: "إغلاق الأقواس تلقائيًا", es: "Cerrar corchetes automáticamente", fr: "Fermer les parenthèses automatiquement", az: "Mötərizələri avtomatik bağla",
+  },
+  set_quickSuggestions: {
+    tr: "Yazarken öneri göster", en: "Quick suggestions while typing", de: "Schnellvorschläge beim Tippen", ru: "Подсказки при вводе", ar: "اقتراحات سريعة أثناء الكتابة", es: "Sugerencias rápidas al escribir", fr: "Suggestions rapides à la saisie", az: "Yazarkən təkliflər",
+  },
+  set_suggestOnTriggerCharacters: {
+    tr: "Tetikleyici karakterlerde öner", en: "Suggest on trigger characters", de: "Bei Auslösezeichen vorschlagen", ru: "Подсказки по символам-триггерам", ar: "اقتراح عند أحرف التفعيل", es: "Sugerir con caracteres desencadenantes", fr: "Suggérer sur caractères déclencheurs", az: "Tətik simvollarında təklif et",
+  },
+  set_parameterHints: {
+    tr: "Parametre ipuçları", en: "Parameter hints", de: "Parameterhinweise", ru: "Подсказки параметров", ar: "تلميحات المعاملات", es: "Sugerencias de parámetros", fr: "Aide sur les paramètres", az: "Parametr göstərişləri",
+  },
+  set_hover: {
+    tr: "Üzerine gelince bilgi", en: "Hover information", de: "Hover-Informationen", ru: "Информация при наведении", ar: "معلومات عند التمرير", es: "Información al pasar el cursor", fr: "Infobulles au survol", az: "Üzərinə gələndə məlumat",
+  },
+  set_rulers: {
+    tr: "Cetvel sütunları", en: "Ruler columns", de: "Lineal-Spalten", ru: "Колонки линейки", ar: "أعمدة المسطرة", es: "Columnas de regla", fr: "Colonnes de règle", az: "Xətkeş sütunları",
+  },
+  set_defaultSnippetsInEditor: {
+    tr: "Hazır snippet'leri otomatik tamamlamada göster", en: "Show built-in snippets in completion", de: "Integrierte Snippets in Vervollständigung zeigen", ru: "Показывать встроенные сниппеты в автодополнении", ar: "إظهار المقتطفات المدمجة في الإكمال", es: "Mostrar snippets integrados en el autocompletado", fr: "Afficher les snippets intégrés dans la complétion", az: "Hazır snippetləri tamamlamada göstər",
+  },
+  set_snippetSuggestions: {
+    tr: "Snippet önerilerinin konumu", en: "Snippet suggestion position", de: "Position der Snippet-Vorschläge", ru: "Положение подсказок сниппетов", ar: "موضع اقتراحات المقتطفات", es: "Posición de sugerencias de snippets", fr: "Position des suggestions de snippets", az: "Snippet təkliflərinin yeri",
+  },
+  set_autoSave: {
+    tr: "Otomatik kaydet", en: "Auto save", de: "Automatisch speichern", ru: "Автосохранение", ar: "الحفظ التلقائي", es: "Guardado automático", fr: "Enregistrement automatique", az: "Avtomatik yadda saxla",
+  },
+  set_autoSaveDelay: {
+    tr: "Otomatik kayıt gecikmesi", en: "Auto save delay", de: "Verzögerung beim automatischen Speichern", ru: "Задержка автосохранения", ar: "تأخير الحفظ التلقائي", es: "Retraso del guardado automático", fr: "Délai d’enregistrement automatique", az: "Avtomatik saxlama gecikməsi",
+  },
+  set_trimTrailingWhitespace: {
+    tr: "Kayıtta satır sonu boşluklarını sil", en: "Trim trailing whitespace on save", de: "Nachgestellte Leerzeichen beim Speichern entfernen", ru: "Удалять пробелы в конце строк при сохранении", ar: "حذف المسافات الزائدة عند الحفظ", es: "Recortar espacios finales al guardar", fr: "Supprimer les espaces de fin à l’enregistrement", az: "Saxlayarkən sətir sonu boşluqlarını sil",
+  },
+  set_insertFinalNewline: {
+    tr: "Kayıtta sona boş satır ekle", en: "Insert final newline on save", de: "Beim Speichern abschließenden Zeilenumbruch einfügen", ru: "Добавлять пустую строку в конце при сохранении", ar: "إضافة سطر فارغ أخير عند الحفظ", es: "Insertar salto de línea final al guardar", fr: "Insérer un saut de ligne final à l’enregistrement", az: "Saxlayarkən sona boş sətir əlavə et",
+  },
+  set_welcomeOnStartup: {
+    tr: "Açılışta karşılama sayfasını göster", en: "Show welcome page on startup", de: "Willkommensseite beim Start anzeigen", ru: "Показывать приветствие при запуске", ar: "إظهار صفحة الترحيب عند البدء", es: "Mostrar la página de bienvenida al iniciar", fr: "Afficher la page d’accueil au démarrage", az: "Açılışda xoş gəlmisiniz səhifəsini göstər",
+  },
+  set_showGitDecorations: {
+    tr: "Dosya ağacında Git durumunu göster", en: "Show Git status in file tree", de: "Git-Status im Dateibaum anzeigen", ru: "Показывать статус Git в дереве файлов", ar: "إظهار حالة Git في شجرة الملفات", es: "Mostrar estado de Git en el árbol de archivos", fr: "Afficher l’état Git dans l’arborescence", az: "Fayl ağacında Git statusunu göstər",
+  },
+  set_terminalFontSize: {
+    tr: "Terminal yazı boyutu", en: "Terminal font size", de: "Terminal-Schriftgröße", ru: "Размер шрифта терминала", ar: "حجم خط الطرفية", es: "Tamaño de fuente del terminal", fr: "Taille de police du terminal", az: "Terminal şrift ölçüsü",
+  },
+  set_defaultShell: {
+    tr: "Varsayılan kabuk", en: "Default shell", de: "Standard-Shell", ru: "Оболочка по умолчанию", ar: "الـ shell الافتراضي", es: "Shell predeterminado", fr: "Shell par défaut", az: "Susmaya görə shell",
+  },
+  set_terminalColorInput: {
+    tr: "Komutları renklendir", en: "Colorize commands", de: "Befehle einfärben", ru: "Подсвечивать команды", ar: "تلوين الأوامر", es: "Colorear comandos", fr: "Colorer les commandes", az: "Komandaları rəngləndir",
+  },
+  set_terminalShowBranch: {
+    tr: "İstemde Git dalını göster", en: "Show Git branch in prompt", de: "Git-Branch im Prompt anzeigen", ru: "Показывать ветку Git в приглашении", ar: "إظهار فرع Git في المؤشر", es: "Mostrar rama de Git en el prompt", fr: "Afficher la branche Git dans l’invite", az: "Sətirdə Git budağını göstər",
+  },
+  set_gitAutoFetch: {
+    tr: "Uzak değişiklikleri otomatik getir (fetch)", en: "Automatically fetch remote changes", de: "Remote-Änderungen automatisch abrufen (fetch)", ru: "Автоматически получать изменения (fetch)", ar: "جلب التغييرات البعيدة تلقائيًا (fetch)", es: "Obtener cambios remotos automáticamente (fetch)", fr: "Récupérer automatiquement les changements distants (fetch)", az: "Uzaq dəyişiklikləri avtomatik gətir (fetch)",
+  },
+  set_gitStatusInterval: {
+    tr: "Git durumu yenileme aralığı", en: "Git status refresh interval", de: "Git-Status-Aktualisierungsintervall", ru: "Интервал обновления статуса Git", ar: "فاصل تحديث حالة Git", es: "Intervalo de actualización del estado de Git", fr: "Intervalle d’actualisation de l’état Git", az: "Git statusu yenilənmə intervalı",
+  },
+  set_gitFetchInterval: {
+    tr: "Otomatik fetch aralığı", en: "Auto fetch interval", de: "Intervall für automatisches Fetch", ru: "Интервал автоматического fetch", ar: "فاصل الجلب التلقائي", es: "Intervalo de fetch automático", fr: "Intervalle de fetch automatique", az: "Avtomatik fetch intervalı",
+  },
+  set_collabEnabled: {
+    tr: "Ortak düzenlemeyi aç", en: "Enable collaboration", de: "Zusammenarbeit aktivieren", ru: "Включить совместную работу", ar: "تفعيل التحرير المشترك", es: "Activar colaboración", fr: "Activer la collaboration", az: "Birgə redaktəni aktiv et",
+  },
+  set_collabUrl: {
+    tr: "Sunucu adresi", en: "Server address", de: "Server-Adresse", ru: "Адрес сервера", ar: "عنوان الخادم", es: "Dirección del servidor", fr: "Adresse du serveur", az: "Server ünvanı",
+  },
+  set_collabToken: {
+    tr: "Sunucu token'ı", en: "Server token", de: "Server-Token", ru: "Токен сервера", ar: "رمز الخادم", es: "Token del servidor", fr: "Jeton du serveur", az: "Server tokeni",
+  },
+  setDesc_themeMode: {
+    tr: "Koyu, açık ya da sistem temasını izle. Anında uygulanır.", en: "Dark, light, or follow the system theme. Applies instantly.", de: "Dunkel, hell oder Systemdesign folgen. Wird sofort angewendet.", ru: "Тёмная, светлая или системная тема. Применяется сразу.", ar: "داكن أو فاتح أو اتباع سمة النظام. يُطبَّق فورًا.", es: "Oscuro, claro o seguir el tema del sistema. Se aplica al instante.", fr: "Sombre, clair ou thème du système. S’applique instantanément.", az: "Tünd, açıq və ya sistem temasını izlə. Dərhal tətbiq olunur.",
+  },
+  setDesc_uiZoom: {
+    tr: "Tüm arayüzü eşit ölçekler (%80–150).", en: "Scales the whole interface evenly (80–150%).", de: "Skaliert die gesamte Oberfläche gleichmäßig (80–150 %).", ru: "Равномерно масштабирует весь интерфейс (80–150 %).", ar: "يكبّر الواجهة كلها بشكل متساوٍ (80–150٪).", es: "Escala toda la interfaz por igual (80–150 %).", fr: "Met à l’échelle toute l’interface (80–150 %).", az: "Bütün interfeysi bərabər miqyaslayır (80–150%).",
+  },
+  setDesc_language: {
+    tr: "Otomatik: sistem dilini izler. Değişiklik anında uygulanır.", en: "Automatic follows your system language. Applies instantly.", de: "Automatisch folgt der Systemsprache. Wird sofort angewendet.", ru: "Автоматически — язык системы. Применяется сразу.", ar: "تلقائي يتبع لغة النظام. يُطبَّق فورًا.", es: "Automático sigue el idioma del sistema. Se aplica al instante.", fr: "Automatique suit la langue du système. S’applique instantanément.", az: "Avtomatik sistem dilini izləyir. Dərhal tətbiq olunur.",
+  },
+  setDesc_editorTheme: {
+    tr: "Otomatik: tema moduna göre Nova Dark veya Nova Light.", en: "Automatic: Nova Dark or Nova Light following the color mode.", de: "Automatisch: Nova Dark oder Nova Light je nach Farbmodus.", ru: "Автоматически: Nova Dark или Nova Light по режиму темы.", ar: "تلقائي: Nova Dark أو Nova Light حسب وضع السمة.", es: "Automático: Nova Dark o Nova Light según el modo de color.", fr: "Automatique : Nova Dark ou Nova Light selon le mode.", az: "Avtomatik: tema rejiminə görə Nova Dark və ya Nova Light.",
+  },
+  setDesc_fontFamilyCustom: {
+    tr: "Yüklü bir yazı tipi adı yaz; virgülle yedek ekleyebilirsin.", en: "Enter an installed font name; add fallbacks separated by commas.", de: "Name einer installierten Schrift eingeben; Ersatzschriften mit Komma trennen.", ru: "Введите имя установленного шрифта; запасные — через запятую.", ar: "اكتب اسم خط مثبّت؛ يمكنك إضافة بدائل مفصولة بفواصل.", es: "Escribe el nombre de una fuente instalada; añade alternativas separadas por comas.", fr: "Saisissez le nom d’une police installée ; ajoutez des alternatives séparées par des virgules.", az: "Quraşdırılmış şrift adı yazın; ehtiyatları vergüllə ayırın.",
+  },
+  setDesc_lineHeight: {
+    tr: "0 = yazı boyutundan otomatik. 8'den küçük değerler yazı boyutuyla çarpılır.", en: "0 = automatic from font size. Values below 8 multiply the font size.", de: "0 = automatisch aus der Schriftgröße. Werte unter 8 werden mit der Schriftgröße multipliziert.", ru: "0 = автоматически от размера шрифта. Значения меньше 8 умножаются на размер шрифта.", ar: "0 = تلقائي من حجم الخط. القيم الأقل من 8 تُضرب بحجم الخط.", es: "0 = automático según el tamaño de fuente. Valores menores de 8 multiplican el tamaño.", fr: "0 = automatique selon la taille de police. Les valeurs < 8 multiplient la taille.", az: "0 = şrift ölçüsündən avtomatik. 8-dən kiçik dəyərlər şrift ölçüsünə vurulur.",
+  },
+  setDesc_rulers: {
+    tr: "Dikey cetvel çizgisi sütunları, virgülle (örn: 80, 120).", en: "Vertical ruler columns, comma-separated (e.g. 80, 120).", de: "Spalten für vertikale Lineale, kommagetrennt (z. B. 80, 120).", ru: "Колонки вертикальных линеек через запятую (напр. 80, 120).", ar: "أعمدة خطوط المسطرة العمودية مفصولة بفواصل (مثل 80, 120).", es: "Columnas de reglas verticales separadas por comas (p. ej. 80, 120).", fr: "Colonnes des règles verticales, séparées par des virgules (ex. 80, 120).", az: "Şaquli xətkeş sütunları, vergüllə (məs. 80, 120).",
+  },
+  setDesc_defaultSnippetsInEditor: {
+    tr: "Kapatırsan yalnız kendi snippet'lerin tamamlamada çıkar.", en: "If off, only your own snippets appear in completion.", de: "Wenn aus, erscheinen nur Ihre eigenen Snippets.", ru: "Если выключено, в автодополнении только ваши сниппеты.", ar: "عند الإيقاف تظهر مقتطفاتك الخاصة فقط في الإكمال.", es: "Si se desactiva, solo aparecen tus snippets en el autocompletado.", fr: "Si désactivé, seuls vos snippets apparaissent.", az: "Söndürülərsə yalnız öz snippetləriniz görünür.",
+  },
+  setDesc_snippetSuggestions: {
+    tr: "Snippet önerilerinin diğer önerilere göre sırası.", en: "Where snippet suggestions appear relative to other suggestions.", de: "Position der Snippet-Vorschläge relativ zu anderen Vorschlägen.", ru: "Где показывать сниппеты относительно других подсказок.", ar: "موضع اقتراحات المقتطفات بالنسبة لباقي الاقتراحات.", es: "Dónde aparecen los snippets respecto a otras sugerencias.", fr: "Où apparaissent les snippets par rapport aux autres suggestions.", az: "Snippet təkliflərinin digər təkliflərə nisbətən yeri.",
+  },
+  setDesc_autoSave: {
+    tr: "Gecikmeden sonra: yazmayı bırakınca; odak değişince: başka pencereye geçince.", en: "After delay: when you stop typing; on focus change: when you leave the window.", de: "Nach Verzögerung: wenn Sie aufhören zu tippen; bei Fokuswechsel: beim Verlassen des Fensters.", ru: "После задержки — когда перестали печатать; при потере фокуса — при уходе из окна.", ar: "بعد تأخير: عند التوقف عن الكتابة؛ عند تغيير التركيز: عند مغادرة النافذة.", es: "Tras un retraso: al dejar de escribir; al cambiar el foco: al salir de la ventana.", fr: "Après un délai : quand vous arrêtez de taper ; au changement de focus : en quittant la fenêtre.", az: "Gecikmədən sonra: yazmağı dayandırdıqda; fokus dəyişəndə: pəncərədən çıxdıqda.",
+  },
+  setDesc_autoSaveDelay: {
+    tr: "Yazmayı bıraktıktan kaç ms sonra kaydedilsin.", en: "Milliseconds after you stop typing before saving.", de: "Millisekunden nach dem letzten Tastendruck bis zum Speichern.", ru: "Через сколько мс после остановки ввода сохранять.", ar: "عدد الميلي ثانية بعد التوقف عن الكتابة قبل الحفظ.", es: "Milisegundos tras dejar de escribir antes de guardar.", fr: "Millisecondes après l’arrêt de la saisie avant l’enregistrement.", az: "Yazmağı dayandırdıqdan neçə ms sonra saxlanılsın.",
+  },
+  setDesc_trimTrailingWhitespace: {
+    tr: "Yalnız kaydederken uygulanır; dosya içeriğini değiştirir.", en: "Applied only when saving; it changes the file content.", de: "Wird nur beim Speichern angewendet; ändert den Dateiinhalt.", ru: "Применяется только при сохранении; изменяет содержимое файла.", ar: "يُطبَّق عند الحفظ فقط؛ ويغيّر محتوى الملف.", es: "Se aplica solo al guardar; modifica el contenido del archivo.", fr: "Appliqué uniquement à l’enregistrement ; modifie le contenu du fichier.", az: "Yalnız saxlayarkən tətbiq olunur; fayl məzmununu dəyişir.",
+  },
+  setDesc_terminalColorInput: {
+    tr: "Komut, bayrak, metin ve değişkenleri farklı renklerle gösterir.", en: "Shows commands, flags, strings and variables in different colors.", de: "Zeigt Befehle, Flags, Zeichenketten und Variablen farbig.", ru: "Показывает команды, флаги, строки и переменные разными цветами.", ar: "يعرض الأوامر والخيارات والنصوص والمتغيرات بألوان مختلفة.", es: "Muestra comandos, flags, cadenas y variables en distintos colores.", fr: "Affiche commandes, options, chaînes et variables en couleurs.", az: "Komanda, bayraq, mətn və dəyişənləri müxtəlif rənglərdə göstərir.",
+  },
+  setDesc_gitStatusInterval: {
+    tr: "Terminalde yapılan değişiklikler dışında .git izleyicisi zaten anlıktır.", en: "The .git watcher is already instant; this is a fallback poll.", de: "Der .git-Watcher ist bereits sofort; dies ist eine Ersatzabfrage.", ru: "Наблюдатель .git и так мгновенный; это резервный опрос.", ar: "مراقب .git فوري أصلًا؛ هذا استعلام احتياطي.", es: "El observador de .git ya es instantáneo; esto es un sondeo de respaldo.", fr: "L’observateur .git est déjà instantané ; ceci est un sondage de secours.", az: ".git izləyicisi onsuz da ani işləyir; bu ehtiyat sorğusudur.",
+  },
+  setDesc_gitFetchInterval: {
+    tr: "Uzak depodaki yeni commit'lerin (↑↓) ne sıklıkla kontrol edileceği.", en: "How often to check the remote for new commits (↑↓).", de: "Wie oft das Remote auf neue Commits (↑↓) geprüft wird.", ru: "Как часто проверять удалённый репозиторий на новые коммиты (↑↓).", ar: "عدد مرات التحقق من المستودع البعيد بحثًا عن commits جديدة (↑↓).", es: "Con qué frecuencia comprobar el remoto en busca de commits nuevos (↑↓).", fr: "Fréquence de vérification du dépôt distant (↑↓).", az: "Uzaq depoda yeni commitlərin (↑↓) nə qədər tez yoxlanılacağı.",
+  },
+  setDesc_collabUrl: {
+    tr: "Yalnız kendi sunucun. Dosya içeriği yalnız bu adrese gönderilir.", en: "Your own server only. File contents are sent only to this address.", de: "Nur Ihr eigener Server. Dateiinhalte gehen nur an diese Adresse.", ru: "Только ваш сервер. Содержимое файлов отправляется только на этот адрес.", ar: "خادمك الخاص فقط. يُرسل محتوى الملفات إلى هذا العنوان فقط.", es: "Solo tu propio servidor. El contenido de los archivos se envía solo a esta dirección.", fr: "Uniquement votre serveur. Le contenu des fichiers n’est envoyé qu’à cette adresse.", az: "Yalnız öz serveriniz. Fayl məzmunu yalnız bu ünvana göndərilir.",
+  },
+  setDesc_collabToken: {
+    tr: "Cihazda şifreli saklanır (kayıt: ana süreç, düz metin yok).", en: "Stored encrypted on this device (main process, never plain text).", de: "Verschlüsselt auf diesem Gerät gespeichert (Hauptprozess, nie im Klartext).", ru: "Хранится на устройстве в зашифрованном виде (основной процесс, не в открытом виде).", ar: "يُخزَّن مشفرًا على هذا الجهاز (العملية الرئيسية، لا نص عادي).", es: "Se guarda cifrado en este dispositivo (proceso principal, nunca en texto plano).", fr: "Stocké chiffré sur cet appareil (processus principal, jamais en clair).", az: "Bu cihazda şifrələnmiş saxlanılır (əsas proses, açıq mətn yoxdur).",
+  },
+  snipUser: {
+    tr: "Özel snippet'lerim", en: "My snippets", de: "Meine Snippets", ru: "Мои сниппеты", ar: "مقتطفاتي", es: "Mis snippets", fr: "Mes snippets", az: "Xüsusi snippetlərim",
+  },
+  snipAdd: {
+    tr: "Snippet ekle", en: "Add snippet", de: "Snippet hinzufügen", ru: "Добавить сниппет", ar: "إضافة مقتطف", es: "Añadir snippet", fr: "Ajouter un snippet", az: "Snippet əlavə et",
+  },
+  snipEdit: {
+    tr: "Düzenle", en: "Edit", de: "Bearbeiten", ru: "Изменить", ar: "تعديل", es: "Editar", fr: "Modifier", az: "Redaktə et",
+  },
+  snipPrefix: {
+    tr: "Tetikleyici (boşluksuz)", en: "Trigger (no spaces)", de: "Auslöser (ohne Leerzeichen)", ru: "Триггер (без пробелов)", ar: "المُشغّل (بدون مسافات)", es: "Disparador (sin espacios)", fr: "Déclencheur (sans espaces)", az: "Tətik (boşluqsuz)",
+  },
+  snipDescription: {
+    tr: "Açıklama", en: "Description", de: "Beschreibung", ru: "Описание", ar: "الوصف", es: "Descripción", fr: "Description", az: "Təsvir",
+  },
+  snipLanguage: {
+    tr: "Dil", en: "Language", de: "Sprache", ru: "Язык", ar: "اللغة", es: "Idioma", fr: "Langage", az: "Dil",
+  },
+  snipLanguageAll: {
+    tr: "Tüm diller", en: "All languages", de: "Alle Sprachen", ru: "Все языки", ar: "كل اللغات", es: "Todos los idiomas", fr: "Tous les langages", az: "Bütün dillər",
+  },
+  snipBody: {
+    tr: "İçerik", en: "Body", de: "Inhalt", ru: "Содержимое", ar: "المحتوى", es: "Contenido", fr: "Contenu", az: "Məzmun",
+  },
+  snipSave: {
+    tr: "Snippet'i kaydet", en: "Save snippet", de: "Snippet speichern", ru: "Сохранить сниппет", ar: "حفظ المقتطف", es: "Guardar snippet", fr: "Enregistrer le snippet", az: "Snippeti saxla",
+  },
+  snipDelete: {
+    tr: "Sil", en: "Delete", de: "Löschen", ru: "Удалить", ar: "حذف", es: "Eliminar", fr: "Supprimer", az: "Sil",
+  },
+  snipEmpty: {
+    tr: "Henüz özel snippet yok.", en: "No custom snippets yet.", de: "Noch keine eigenen Snippets.", ru: "Своих сниппетов пока нет.", ar: "لا توجد مقتطفات مخصصة بعد.", es: "Aún no hay snippets personalizados.", fr: "Aucun snippet personnalisé pour l’instant.", az: "Hələ xüsusi snippet yoxdur.",
+  },
+  snipHelp: {
+    tr: "Sekme duraklarını $1, $2 veya ${1:varsayılan} ile yaz; $0 son imleç konumudur. Yazarken tetikleyiciyi yazıp Tab/Enter'a bas.", en: "Use tab stops like $1, $2 or ${1:default}; $0 is the final cursor position. Type the trigger and press Tab/Enter.", de: "Tabstopps wie $1, $2 oder ${1:Standard}; $0 ist die Endposition. Auslöser tippen und Tab/Enter drücken.", ru: "Используйте позиции $1, $2 или ${1:по умолчанию}; $0 — конечная позиция. Введите триггер и нажмите Tab/Enter.", ar: "استخدم نقاط التوقف مثل $1 و$2 أو ${1:افتراضي}؛ $0 موضع المؤشر النهائي. اكتب المُشغّل واضغط Tab/Enter.", es: "Usa paradas como $1, $2 o ${1:valor}; $0 es la posición final. Escribe el disparador y pulsa Tab/Enter.", fr: "Utilisez des arrêts $1, $2 ou ${1:défaut} ; $0 est la position finale. Tapez le déclencheur puis Tab/Entrée.", az: "Tab dayanacaqlarını $1, $2 və ya ${1:ilkin} kimi yazın; $0 son kursor yeridir. Tətiki yazıb Tab/Enter basın.",
+  },
+  snipBuiltinCount: {
+    tr: "{n} hazır snippet de kullanılabilir.", en: "{n} built-in snippets are also available.", de: "{n} integrierte Snippets sind ebenfalls verfügbar.", ru: "Также доступно {n} встроенных сниппетов.", ar: "تتوفر أيضًا {n} مقتطفات مدمجة.", es: "También hay {n} snippets integrados.", fr: "{n} snippets intégrés sont aussi disponibles.", az: "{n} hazır snippet də mövcuddur.",
+  },
+  snipInvalid: {
+    tr: "Tetikleyici ve içerik zorunlu; tetikleyicide boşluk olmamalı.", en: "Trigger and body are required; the trigger cannot contain spaces.", de: "Auslöser und Inhalt sind Pflicht; der Auslöser darf keine Leerzeichen enthalten.", ru: "Триггер и содержимое обязательны; в триггере не должно быть пробелов.", ar: "المُشغّل والمحتوى مطلوبان؛ ولا يجوز أن يحتوي المُشغّل على مسافات.", es: "Disparador y contenido son obligatorios; el disparador no puede tener espacios.", fr: "Le déclencheur et le contenu sont obligatoires ; pas d’espaces dans le déclencheur.", az: "Tətik və məzmun məcburidir; tətikdə boşluq olmamalıdır.",
+  },
+  scSave: {
+    tr: "Kaydet", en: "Save", de: "Speichern", ru: "Сохранить", ar: "حفظ", es: "Guardar", fr: "Enregistrer", az: "Yadda saxla",
+  },
+  scNextTab: {
+    tr: "Sonraki / önceki sekme", en: "Next / previous tab", de: "Nächster / vorheriger Tab", ru: "Следующая / предыдущая вкладка", ar: "علامة التبويب التالية / السابقة", es: "Pestaña siguiente / anterior", fr: "Onglet suivant / précédent", az: "Növbəti / əvvəlki vərəq",
+  },
+  scToggleSidebar: {
+    tr: "Kenar çubuğunu aç/kapat", en: "Toggle sidebar", de: "Seitenleiste ein-/ausblenden", ru: "Показать/скрыть боковую панель", ar: "إظهار/إخفاء الشريط الجانبي", es: "Mostrar/ocultar barra lateral", fr: "Afficher/masquer la barre latérale", az: "Yan paneli göstər/gizlət",
+  },
+  scToggleTerminal: {
+    tr: "Terminali aç/kapat", en: "Toggle terminal", de: "Terminal ein-/ausblenden", ru: "Показать/скрыть терминал", ar: "إظهار/إخفاء الطرفية", es: "Mostrar/ocultar terminal", fr: "Afficher/masquer le terminal", az: "Terminalı göstər/gizlət",
+  },
+  scClearTerminal: {
+    tr: "Terminali temizle", en: "Clear terminal", de: "Terminal leeren", ru: "Очистить терминал", ar: "مسح الطرفية", es: "Limpiar terminal", fr: "Effacer le terminal", az: "Terminalı təmizlə",
+  },
+  aboutVersion: {
+    tr: "Sürüm", en: "Version", de: "Version", ru: "Версия", ar: "الإصدار", es: "Versión", fr: "Version", az: "Versiya",
+  },
+  aboutRuntime: {
+    tr: "Çalışma ortamı", en: "Runtime", de: "Laufzeit", ru: "Среда выполнения", ar: "بيئة التشغيل", es: "Entorno de ejecución", fr: "Environnement d’exécution", az: "İcra mühiti",
+  },
+  aboutStorage: {
+    tr: "Ayarlar yalnız bu cihazda saklanır ve hiçbir yere gönderilmez. Ortak düzenleme token'ı şifreli tutulur; dışa aktarılan dosyaya girmez.", en: "Settings stay on this device and are never sent anywhere. The collaboration token is stored encrypted and is not included in exports.", de: "Einstellungen bleiben auf diesem Gerät und werden nirgends hingesendet. Das Kollaborations-Token ist verschlüsselt und nicht im Export enthalten.", ru: "Настройки хранятся только на этом устройстве и никуда не отправляются. Токен совместной работы зашифрован и не попадает в экспорт.", ar: "تبقى الإعدادات على هذا الجهاز ولا تُرسل إلى أي مكان. رمز التحرير المشترك مشفّر ولا يدخل في التصدير.", es: "Los ajustes permanecen en este dispositivo y no se envían a ningún sitio. El token de colaboración se guarda cifrado y no se incluye en la exportación.", fr: "Les paramètres restent sur cet appareil et ne sont envoyés nulle part. Le jeton de collaboration est chiffré et exclu de l’export.", az: "Parametrlər yalnız bu cihazda qalır və heç yerə göndərilmir. Birgə redaktə tokeni şifrələnir və ixraca daxil edilmir.",
+  },
+  aboutDocs: {
+    tr: "Dökümantasyon", en: "Documentation", de: "Dokumentation", ru: "Документация", ar: "التوثيق", es: "Documentación", fr: "Documentation", az: "Sənədləşdirmə",
+  },
+  setTokenSaved: {
+    tr: "Token şifreli kaydedildi.", en: "Token saved (encrypted).", de: "Token verschlüsselt gespeichert.", ru: "Токен сохранён (зашифрован).", ar: "تم حفظ الرمز (مشفّر).", es: "Token guardado (cifrado).", fr: "Jeton enregistré (chiffré).", az: "Token şifrələnmiş saxlanıldı.",
+  },
+  setTokenNoEnc: {
+    tr: "Bu cihazda şifreli depolama yok; token saklanamadı (yalnız bu oturumda geçerli).", en: "Encrypted storage is unavailable; the token could not be saved (valid for this session only).", de: "Verschlüsselter Speicher nicht verfügbar; Token nicht gespeichert (nur für diese Sitzung gültig).", ru: "Зашифрованное хранилище недоступно; токен не сохранён (действует только в этом сеансе).", ar: "التخزين المشفّر غير متاح؛ لم يُحفظ الرمز (صالح لهذه الجلسة فقط).", es: "El almacenamiento cifrado no está disponible; el token no se guardó (válido solo en esta sesión).", fr: "Le stockage chiffré est indisponible ; jeton non enregistré (valable pour cette session seulement).", az: "Şifrəli saxlama yoxdur; token saxlanılmadı (yalnız bu sessiya üçün).",
+  },
 } satisfies Record<string, Dict>;
 
 export type UiTextKey = keyof typeof UI_TEXT;
@@ -414,7 +846,16 @@ function detectLang(): UiLang {
   }
 }
 
-const currentLang: UiLang = detectLang();
+let currentLang: UiLang = detectLang();
+
+/** Dil ayarı: 'auto' sistem dilini izler; desteklenmeyen değer sistem diline düşer. */
+export function setUiLang(lang: string) {
+  currentLang = (UI_LANGS as readonly string[]).includes(lang) ? (lang as UiLang) : detectLang();
+}
+
+export function getUiLang(): UiLang {
+  return currentLang;
+}
 
 export function t(key: UiTextKey): string {
   return UI_TEXT[key][currentLang];

@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BookOpen, Copy, Check, Search, PlusCircle } from 'lucide-react';
 import { builtInSnippets } from '../snippets/defaultSnippets';
 import type { Snippet } from '../types';
+import { useSettings } from '../services/SettingsContext';
 
 interface SnippetsPanelProps {
   onInsertSnippet: (snippetText: string) => void;
 }
 
 export const SnippetsPanel: React.FC<SnippetsPanelProps> = ({ onInsertSnippet }) => {
-  const [snippets, setSnippets] = useState<Snippet[]>(builtInSnippets);
+  const { userSnippets } = useSettings();
+  const snippets = useMemo<Snippet[]>(() => [...userSnippets, ...builtInSnippets], [userSnippets]);
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 

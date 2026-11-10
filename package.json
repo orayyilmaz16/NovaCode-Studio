@@ -33,6 +33,7 @@
       "electron-preload.cjs",
       "electron-github.cjs",
       "electron-git.cjs",
+      "electron-secrets.cjs",
       "package.json"
     ],
     "win": {

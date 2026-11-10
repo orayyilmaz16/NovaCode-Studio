@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
@@ -6,6 +6,9 @@ import { MonacoBinding } from 'y-monaco';
 import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight } from 'lucide-react';
 import { Logo } from './Logo';
 import { defineNovaThemes } from '../services/editorTheme';
+import { useSettings } from '../services/SettingsContext';
+import { resolveEditorTheme, toMonacoOptions } from '../services/settings';
+import { registerSnippetProvider, setSnippetSource } from '../services/snippetProvider';
 import type { FileItem } from '../types';
 import { t } from '../i18n/uiText';
 
@@ -27,8 +30,6 @@ interface EditorAreaProps {
   onNewFile?: () => void;
   onOpenFolder?: () => void;
   onOpenFiles?: () => void;
-  fontSize: number;
-  theme: string;
   collab?: CollabConfig;
 }
 
@@ -55,10 +56,15 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   onNewFile,
   onOpenFolder,
   onOpenFiles,
-  fontSize,
-  theme,
   collab,
 }) => {
+  // Ayarlar: yazı tipi, tema, imleç, snippet... değiştiği an editöre yansır (gerçek zamanlı)
+  const { values, userSnippets, mode } = useSettings();
+  const theme = resolveEditorTheme(values.editorTheme, mode);
+  const editorOptions = useMemo(() => toMonacoOptions(values), [values]);
+  useEffect(() => {
+    setSnippetSource({ user: userSnippets, includeBuiltIn: values.defaultSnippetsInEditor === true });
+  }, [userSnippets, values.defaultSnippetsInEditor]);
   const [copied, setCopied] = React.useState(false);
   const [savedEffect, setSavedEffect] = React.useState(false);
   const [editorInstance, setEditorInstance] = useState<any>(null);
@@ -195,7 +201,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               </div>
             );
           })}
-          {onNewFile && (
+          {onNewFile && openFiles.length > 0 && (
             <button
               onClick={onNewFile}
               title={`${t('newTab')} (Ctrl+N)`}
@@ -267,29 +273,15 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             key={activeFile.id}
             height="100%"
             theme={theme}
-            beforeMount={defineNovaThemes}
+            beforeMount={(monaco) => {
+              defineNovaThemes(monaco);
+              registerSnippetProvider(monaco);
+            }}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}
             onMount={(ed) => setEditorInstance(ed)}
             onChange={(val) => onChangeContent(activeFile.id, val || '')}
-            options={{
-              fontSize: fontSize,
-              fontFamily: "'Cascadia Code', 'Fira Code', Consolas, 'Courier New', monospace",
-              fontLigatures: true,
-              minimap: { enabled: true, renderCharacters: false, scale: 1 },
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              smoothScrolling: true,
-              cursorBlinking: 'smooth',
-              cursorSmoothCaretAnimation: 'on',
-              formatOnPaste: true,
-              tabSize: 2,
-              padding: { top: 8 },
-              renderLineHighlight: 'all',
-              roundedSelection: false,
-              guides: { bracketPairs: true, indentation: true },
-              bracketPairColorization: { enabled: true }
-            }}
+            options={editorOptions}
           />
         ) : (
           <div className="animate-fade-in flex flex-col items-center justify-center h-full text-zinc-500 text-sm px-6 select-none">

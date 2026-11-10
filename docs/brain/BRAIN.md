@@ -25,7 +25,8 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 |---|---|
 | [[release]] | Commit, sürüm, push, release |
 | [[git-github]] | Git paneli, GitHub hesabı, PR, eşzamanlama |
-| [[ui-design]] | Arayüz, tema, logo, animasyon |
+| [[ui-design]] | Arayüz, tema (koyu/açık), logo, animasyon |
+| [[settings]] | Ayarlar sistemi: yeni ayar, tema/font/editör/snippet |
 | [[i18n]] | Arayüze metin eklemek (8 dil) |
 | [[security-kvkk]] | IPC, dosya sistemi, token, kişisel veri |
 | [[terminal]] | Entegre terminal (PowerShell/CMD) |

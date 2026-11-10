@@ -118,6 +118,50 @@ if (exists("src/i18n/uiText.ts")) {
   }
 }
 
+// ---------- Ayar şeması (src/services/settingsSchema.json: tek kaynak) ----------
+const uiTextSrc = exists("src/i18n/uiText.ts") ? read("src/i18n/uiText.ts").replace(/\r\n/g, "\n") : "";
+const uiKeys = new Map(); // anahtar -> Türkçe metin
+for (const m of uiTextSrc.matchAll(/^  (\w+): \{\n([\s\S]*?)\n  \},/gm)) {
+  const tr = /\btr:\s*(["'`])((?:\\.|(?!\1)[^\\])*)\1/.exec(m[2]);
+  uiKeys.set(m[1], tr ? tr[2].replace(/\\(.)/g, "$1") : "");
+}
+const schema = exists("src/services/settingsSchema.json") ? JSON.parse(read("src/services/settingsSchema.json")) : { categories: [], settings: [] };
+
+function validateSchema() {
+  const catIds = new Set(schema.categories.map((c) => c.id));
+  const ids = new Set();
+  const need = (key, where) => { if (!uiKeys.has(key)) errors.push(`ayar şeması: ${where} için i18n anahtarı yok: ${key}`); };
+  for (const c of schema.categories) need(c.labelKey, `kategori ${c.id}`);
+  for (const s of schema.settings) {
+    if (ids.has(s.id)) errors.push(`ayar şeması: yinelenen id ${s.id}`);
+    ids.add(s.id);
+    if (!catIds.has(s.category)) errors.push(`ayar şeması: ${s.id} bilinmeyen kategori '${s.category}'`);
+    need(`set_${s.id}`, s.id);
+    if (s.desc) need(`setDesc_${s.id}`, `${s.id} açıklaması`);
+    for (const o of s.options ?? []) if (o.labelKey) need(o.labelKey, `${s.id} seçeneği`);
+    const t = s.type;
+    if (t === "toggle" && typeof s.default !== "boolean") errors.push(`ayar şeması: ${s.id} varsayılanı boolean olmalı`);
+    if (t === "slider" && !(typeof s.default === "number" && s.default >= s.min && s.default <= s.max)) errors.push(`ayar şeması: ${s.id} varsayılanı min/max dışında`);
+    if ((t === "select" || t === "accent") && !(s.options ?? []).some((o) => o.value === s.default)) errors.push(`ayar şeması: ${s.id} varsayılanı seçeneklerde yok`);
+    if (t === "text" && typeof s.default !== "string") errors.push(`ayar şeması: ${s.id} varsayılanı metin olmalı`);
+    if (s.showWhen && !schema.settings.some((x) => x.id === s.showWhen.id)) errors.push(`ayar şeması: ${s.id} showWhen bilinmeyen ayara bağlı`);
+  }
+  for (const k of ["setTitle", "setSearch", "setAutoSaved"]) need(k, "ayarlar sayfası");
+}
+
+function settingsSection() {
+  if (!schema.settings.length) return "—\n";
+  const cat = new Map(schema.categories.map((c) => [c.id, uiKeys.get(c.labelKey) || c.id]));
+  const rows = schema.settings.map((s) => {
+    let range = "";
+    if (s.type === "slider") range = `${s.min}–${s.max}${s.unit ? " " + s.unit : ""}`;
+    else if (s.options) range = s.options.map((o) => o.value).join(", ");
+    else if (s.type === "text") range = `≤${s.maxLength ?? 200} karakter`;
+    return `| ${cat.get(s.category)} | \`${s.id}\` | ${uiKeys.get(`set_${s.id}`) || ""} | ${s.type} | \`${JSON.stringify(s.default)}\` | ${range} |`;
+  });
+  return `${schema.settings.length} ayar, ${schema.categories.length} kategori. Tek kaynak: \`src/services/settingsSchema.json\`. Ekleme kuralı: [[settings]].\n\n| Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |\n|---|---|---|---|---|---|\n${rows.join("\n")}\n`;
+}
+
 // ---------- İş akışları ----------
 function workflows() {
   const out = [];
@@ -183,6 +227,8 @@ function buildState() {
     "## i18n",
     `- ${i18nKeys} anahtar; her biri ${LANGS.length} dilde (${LANGS.join(", ")}) dolu olmalı. Denetim: \`npm run brain:check\`.`,
     "",
+    "## Ayarlar",
+    settingsSection(),
     "## GitHub Actions",
     workflows(),
     "## Md haritası",
@@ -222,6 +268,7 @@ function check() {
   }
   for (const req of ["CLAUDE", "AGENT"]) if (!mdIndex.has(req)) errors.push(`Kök dosya yok: ${req}.md`);
 
+  validateSchema();
   if (current !== state) warnings.push("STATE.md güncel değil (npm run brain ile yenile)");
 }
 

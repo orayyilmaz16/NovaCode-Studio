@@ -1,7 +1,7 @@
 ---
 action: ui-design
 purpose: Arayüz, tema, logo ve animasyon değişiklikleri
-reads: [CLAUDE, PROJECT, i18n]
+reads: [CLAUDE, PROJECT, i18n, settings]
 writes: [CHANGELOG, DECISIONS]
 triggers: ["tasarım", "tema", "logo", "renk", "animasyon", "arayüz"]
 ---
@@ -12,6 +12,13 @@ triggers: ["tasarım", "tema", "logo", "renk", "animasyon", "arayüz"]
 - Jetonlar `src/style.css` içindeki `@theme`: nötrler `zinc-*` (50→950), vurgu `indigo-*` (logodaki indigo-menekşe), yüzeyler `nv-editor` `#1f1f1f`, `nv-side` `#181818`, `nv-input`, `nv-hover`, `nv-active`, `nv-border`.
 - Yeni bileşende sabit hex kullanma; jeton sınıfı kullan (`bg-nv-side`, `border-nv-border`, `text-zinc-400`, `bg-indigo-600`).
 - Yazı tipleri: sistem `Segoe UI Variable`, kod `Cascadia Code`. Dış font yüklenmez (gizlilik).
+
+## Koyu / açık mod
+- `<html data-theme="dark|light">`; açık mod `src/style.css` içindeki `:root[data-theme="light"]` bloğuyla **yalnız değişkenleri** değiştirir (zinc ölçeği ters çevrilir, `nv-*` yüzeyleri, `--hover-overlay`, `--selection`, `--ansi-*`). Bileşen kodu moda göre dallanmaz.
+- Bu yüzden: renkleri **hex yazma**; `zinc-*`, `indigo-*`, `nv-*` ve `var(--ansi-N)` kullan. Beyaz/siyah gerekiyorsa `--color-zinc-50` (moda göre ters döner).
+- Vurgu rengi kullanıcı ayarıdır (6 hazır renk); `indigo-*` jetonları çalışma zamanında yeniden yazılır (`applyAppearance`). Vurguya bağlı yüzeyler `color-mix()` ile türetilir (`--color-nv-active`).
+- Terminal ve komut renklendirme `--ansi-0…15` değişkenlerini kullanır; paletler iki modda ayrı tanımlıdır. Monaco: `nova-dark`, `nova-light` (`editorTheme.ts`).
+- Yeni bir yüzey/bileşen sonrası **iki modda da** kontrol et (kontrast ≥ 4.5:1).
 
 ## Düzen
 Başlık çubuğu (36 px, özel; pencere düğmeleri sistemden) → etkinlik çubuğu (48 px) → kenar çubuğu → editör (sekmeler + yol göstergesi) → alt panel → durum çubuğu (22 px). Kısayol: Ctrl+B kenar çubuğu.

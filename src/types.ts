@@ -101,6 +101,12 @@ export interface Snippet {
 
 export interface ElectronBridge {
   isElectron: boolean;
+  versions: { electron: string; chrome: string; node: string };
+  ui: { setZoom: (factor: number) => void; setTheme: (mode: 'dark' | 'light') => Promise<{ success: boolean }> };
+  secrets: {
+    get: (key: 'collabToken') => Promise<{ value: string } | { error: string }>;
+    set: (key: 'collabToken', value: string) => Promise<{ success: boolean; error?: string }>;
+  };
   quitApp: () => Promise<void>;
   openFolderDialog: () => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | { error: string } | null>;
   recentFolders: () => Promise<{ path: string; name: string }[]>;

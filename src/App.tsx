@@ -24,6 +24,11 @@ import { SplashScreen } from './components/SplashScreen';
 import { GitPanel } from './components/GitPanel';
 import { GithubAccount } from './components/GithubAccount';
 import { Logo } from './components/Logo';
+import { SettingsPage } from './components/SettingsPage';
+import { builtInSnippets } from './snippets/defaultSnippets';
+import { useSettings } from './services/SettingsContext';
+import { useCollabToken } from './services/useCollabToken';
+import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 import { SnippetsPanel } from './components/SnippetsPanel';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
@@ -33,14 +38,14 @@ import type { FileItem, ConsoleLog, GitStatus } from './types';
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
   // VS Code gibi: açılışta karşılama sayfası gösterilir (kullanıcı kapatabilir).
-  const [showLanding, setShowLanding] = useState(() => {
-    try { return window.localStorage.getItem('nova.welcome') !== '0'; } catch { return true; }
-  });
+  const [showLanding, setShowLanding] = useState(() => loadSettings().values.welcomeOnStartup !== false);
+  const [showSettings, setShowSettings] = useState(false);
   // Açılışta hiçbir proje/dosya otomatik açılmaz: ağaç yalnız kullanıcının açtığı klasörden gelir.
   const [files, setFiles] = useState<FileItem[]>([]);
   const untitledCounter = useRef(0);
   const [openFiles, setOpenFiles] = useState<FileItem[]>([]);
   const openFilesRef = useRef<FileItem[]>([]);
+  const handleSaveFileRef = useRef<(f: FileItem) => Promise<void>>(async () => {});
   const refreshGitStatusRef = useRef<() => Promise<void>>(async () => {});
   openFilesRef.current = openFiles;
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
@@ -51,7 +56,7 @@ export function App() {
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
 
   // Paneller
-  const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'git' | 'snippets' | 'ai' | 'settings'>('files');
+  const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'git' | 'snippets'>('files');
   // Önizleme varsayılan olarak kapalı; yalnız HTML dosyasında düğmesi görünür.
   const [showRightPanel, setShowRightPanel] = useState<'preview' | 'ai' | null>(null);
   const [showBottomTerminal, setShowBottomTerminal] = useState(true);
@@ -67,20 +72,11 @@ export function App() {
   useEffect(() => { saveStoredNumber('nova.previewWidth', previewWidth); }, [previewWidth]);
 
   // Ortak düzenleme (kendi sunucun, açık kaynak Yjs). Ayarlar tarayıcıda saklanır.
-  const readLS = (key: string, fallback: string) => {
-    try { return window.localStorage.getItem(key) ?? fallback; } catch { return fallback; }
-  };
-  const writeLS = (key: string, value: string) => {
-    try { window.localStorage.setItem(key, value); } catch { /* depolama kapalı */ }
-  };
-  const [collabEnabled, setCollabEnabled] = useState(() => readLS('nova.collab.enabled', '0') === '1');
-  const [collabUrl, setCollabUrl] = useState(() => readLS('nova.collab.url', ''));
-  const [collabToken, setCollabToken] = useState(() => readLS('nova.collab.token', ''));
-  useEffect(() => { writeLS('nova.collab.enabled', collabEnabled ? '1' : '0'); }, [collabEnabled]);
-  useEffect(() => { writeLS('nova.collab.url', collabUrl); }, [collabUrl]);
-  useEffect(() => { writeLS('nova.collab.token', collabToken); }, [collabToken]);
-  const [welcomeOnStartup, setWelcomeOnStartup] = useState(() => readLS('nova.welcome', '1') !== '0');
-  useEffect(() => { writeLS('nova.welcome', welcomeOnStartup ? '1' : '0'); }, [welcomeOnStartup]);
+  // Ayarlar (gerçek zamanlı, tek kaynak: SettingsContext)
+  const { values: settings, set: setSetting } = useSettings();
+  const { token: collabToken } = useCollabToken();
+  const collabEnabled = settings.collabEnabled === true;
+  const collabUrl = String(settings.collabUrl);
 
   // Son açılan klasörler (yalnız yerelde, ana süreçte tutulur)
   const [recentFolders, setRecentFolders] = useState<{ path: string; name: string }[]>([]);
@@ -100,9 +96,6 @@ export function App() {
     }
   ]);
 
-  // Editör Ayarları
-  const [fontSize, setFontSize] = useState<number>(14);
-  const [editorTheme, setEditorTheme] = useState<string>('nova-dark');
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const { auth } = useGithubAuth();
 
@@ -188,6 +181,7 @@ export function App() {
 
     if (key === 'q') { e.preventDefault(); handleQuit(); return; }
     if (key === 'b') { e.preventDefault(); setSidebarVisible((v) => !v); return; }
+    if (key === ',') { e.preventDefault(); setShowLanding(false); setShowSettings((v) => !v); return; }
     if (e.key === '`') { e.preventDefault(); setShowBottomTerminal((v) => !v); return; }
     if (key === 's') {
       e.preventDefault();
@@ -220,7 +214,7 @@ export function App() {
   // Dosya ağacı için Git durumu: dosya -> harf, üst klasörler -> 'dir'
   const gitDecor = React.useMemo(() => {
     const map: Record<string, string> = {};
-    if (!currentRootPath || !gitStatus.isRepo) return map;
+    if (!currentRootPath || !gitStatus.isRepo || settings.showGitDecorations === false) return map;
     const root = currentRootPath.split('\\').join('/').replace(/\/+$/, '');
     for (const f of gitStatus.files ?? []) {
       const letter = f.untracked ? 'U' : f.worktree || f.index || 'M';
@@ -234,7 +228,7 @@ export function App() {
       }
     }
     return map;
-  }, [gitStatus, currentRootPath]);
+  }, [gitStatus, currentRootPath, settings.showGitDecorations]);
 
   const handleNewUntitled = () => {
     untitledCounter.current += 1;
@@ -248,6 +242,7 @@ export function App() {
     setOpenFiles((prev) => [...prev, newItem]);
     setActiveFileId(newItem.id);
     setShowLanding(false);
+    setShowSettings(false);
   };
 
   const handleQuit = () => {
@@ -278,6 +273,7 @@ export function App() {
     setCurrentRootName(result.rootName);
     setFiles(result.tree);
     setShowLanding(false);
+    setShowSettings(false);
     setActiveSidebarTab('files');
     setSidebarVisible(true);
     addLog('info', `Çalışma alanı açıldı: ${result.rootPath}`);
@@ -356,6 +352,7 @@ export function App() {
       setOpenFiles((prev) => [...newItems, ...prev]);
       setActiveFileId(newItems[0].id);
       setShowLanding(false);
+    setShowSettings(false);
       addLog('info', `${newItems.length} dosya çalışma alanına yüklendi.`);
     };
     input.click();
@@ -371,6 +368,7 @@ export function App() {
         });
         setActiveFileId(opened[0].id);
         setShowLanding(false);
+    setShowSettings(false);
         addLog('info', `${opened.length} dosya editörde açıldı.`);
       }
     } else {
@@ -448,11 +446,15 @@ export function App() {
 
   const handleSaveFile = async (file: FileItem) => {
     if (file.path && window.electronAPI?.writeFile) {
-      const res = await window.electronAPI.writeFile(file.path, file.content || '');
+      // Ayarlara göre kayıt dönüşümleri
+      let content = file.content || '';
+      if (settings.trimTrailingWhitespace === true) content = content.replace(/[ \t]+$/gm, '');
+      if (settings.insertFinalNewline === true && content && !content.endsWith('\n')) content += '\n';
+      const res = await window.electronAPI.writeFile(file.path, content);
       if (res.success) {
         addLog('info', `Kaydedildi: ${file.name}`);
         setOpenFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, isModified: false } : f))
+          prev.map((f) => (f.id === file.id ? { ...f, content, isModified: false } : f))
         );
         refreshGitStatus();
       } else {
@@ -465,6 +467,25 @@ export function App() {
       addLog('info', `Yerel belleğe kaydedildi: ${file.name}`);
     }
   };
+
+  handleSaveFileRef.current = handleSaveFile;
+
+  // Otomatik kayıt: gecikmeyle (yazmayı bırakınca) veya pencere odağını kaybedince
+  const autoSave = String(settings.autoSave);
+  const autoSaveDelay = Number(settings.autoSaveDelay);
+  useEffect(() => {
+    if (autoSave !== 'afterDelay') return;
+    const dirty = openFiles.filter((f) => f.isModified && f.path);
+    if (dirty.length === 0) return;
+    const timer = setTimeout(() => dirty.forEach((f) => void handleSaveFileRef.current(f)), autoSaveDelay);
+    return () => clearTimeout(timer);
+  }, [openFiles, autoSave, autoSaveDelay]);
+  useEffect(() => {
+    if (autoSave !== 'onFocusChange') return;
+    const onBlur = () => openFilesRef.current.filter((f) => f.isModified && f.path).forEach((f) => void handleSaveFileRef.current(f));
+    window.addEventListener('blur', onBlur);
+    return () => window.removeEventListener('blur', onBlur);
+  }, [autoSave]);
 
   const handleCreateFile = async (name: string, isFolder: boolean) => {
     if (currentRootPath && window.electronAPI) {
@@ -602,12 +623,13 @@ export function App() {
   const isHtml = activeFile?.language === 'html';
 
   // Etkinlik çubuğu: etkin sekmeye tekrar basmak kenar çubuğunu kapatır (VS Code davranışı)
-  const pickSidebar = (tab: 'files' | 'git' | 'snippets' | 'settings') => {
+  const pickSidebar = (tab: 'files' | 'git' | 'snippets') => {
     if (!showLanding && activeSidebarTab === tab && sidebarVisible) {
       setSidebarVisible(false);
       return;
     }
     setShowLanding(false);
+    setShowSettings(false);
     setActiveSidebarTab(tab);
     setSidebarVisible(true);
     if (tab === 'git') refreshGitStatus();
@@ -636,7 +658,9 @@ export function App() {
         >
           <Search size={12} className="text-zinc-500 shrink-0" />
           <span className="truncate">
-            {showLanding
+            {showSettings
+              ? t('setTitle')
+              : showLanding
               ? t('actHome')
               : activeFile
                 ? `${activeFile.name}${activeFile.isModified ? ' •' : ''}${projectName ? ` — ${projectName}` : ''}`
@@ -693,6 +717,7 @@ export function App() {
               aria-label={t('actAI')}
               onClick={() => {
                 setShowLanding(false);
+    setShowSettings(false);
                 setShowRightPanel(showRightPanel === 'ai' ? null : 'ai');
               }}
             >
@@ -701,7 +726,10 @@ export function App() {
           </div>
 
           <div className="flex flex-col">
-            <button {...barBtn(showLanding)} title={t('actHome')} aria-label={t('actHome')} onClick={() => setShowLanding(!showLanding)}>
+            <button {...barBtn(showLanding)} title={t('actHome')} aria-label={t('actHome')} onClick={() => {
+              setShowSettings(false);
+              setShowLanding(!showLanding);
+            }}>
               <House size={24} strokeWidth={1.5} />
             </button>
             <button
@@ -716,7 +744,15 @@ export function App() {
                 <UserRound size={24} strokeWidth={1.5} />
               )}
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'settings')} title={t('actSettings')} aria-label={t('actSettings')} onClick={() => pickSidebar('settings')}>
+            <button
+              {...barBtn(showSettings)}
+              title={`${t('actSettings')} (Ctrl+,)`}
+              aria-label={t('actSettings')}
+              onClick={() => {
+                setShowLanding(false);
+                setShowSettings((v) => !v);
+              }}
+            >
               <Settings size={24} strokeWidth={1.5} />
             </button>
           </div>
@@ -733,6 +769,7 @@ export function App() {
               currentRootName={projectName}
               onSelectFile={(f) => {
                 setShowLanding(false);
+    setShowSettings(false);
                 handleSelectFile(f);
               }}
               onCreateFile={handleCreateFile}
@@ -763,67 +800,13 @@ export function App() {
           </div>
         )}
 
-        {sidebarShown && activeSidebarTab === 'settings' && (
-          <div key="settings" style={{ width: sidebarWidth }} className="animate-sidebar-in h-full bg-nv-side border-r border-nv-border p-3 select-none flex flex-col space-y-4 shrink-0 overflow-y-auto">
-            <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">Editör Ayarları</span>
-            <div className="space-y-1.5">
-              <label className="text-xs text-zinc-400">Yazı Boyutu ({fontSize}px)</label>
-              <input type="range" min="11" max="24" value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} className="w-full accent-indigo-500" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs text-zinc-400">Tema</label>
-              <select
-                value={editorTheme}
-                onChange={(e) => setEditorTheme(e.target.value)}
-                className="w-full bg-nv-input border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none focus:border-indigo-500"
-              >
-                <option value="nova-dark">Nova Dark</option>
-                <option value="vs-dark">VS Dark</option>
-                <option value="vs">Light</option>
-              </select>
-            </div>
-            <div className="pt-3 border-t border-nv-border space-y-2">
-              <label className="flex items-center gap-2 text-xs text-zinc-300">
-                <input type="checkbox" checked={collabEnabled} onChange={(e) => setCollabEnabled(e.target.checked)} className="accent-indigo-500" />
-                Ortak düzenleme
-              </label>
-              <input
-                type="text"
-                value={collabUrl}
-                onChange={(e) => setCollabUrl(e.target.value)}
-                placeholder="wss://sunucun.example.com"
-                className="w-full bg-nv-input border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none focus:border-indigo-500"
-              />
-              <input
-                type="password"
-                value={collabToken}
-                onChange={(e) => setCollabToken(e.target.value)}
-                placeholder="Sunucu token'ı"
-                autoComplete="off"
-                className="w-full bg-nv-input border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none focus:border-indigo-500"
-              />
-              {collabUrl && !collabUrlValid && <p className="text-[11px] text-rose-400">Adres wss:// ile başlamalı (yerel test için ws://localhost).</p>}
-              <p className="text-[10px] text-zinc-500 leading-snug">
-                Kodun yalnızca bu adrese gönderilir. Sunucu açık kaynaktır: <span className="font-mono">server/sync-server.mjs</span>
-              </p>
-            </div>
-            <div className="pt-4 border-t border-nv-border text-[11px] text-zinc-500 space-y-1">
-              <p className="font-semibold text-zinc-400">Sistem & Disk Bilgisi:</p>
-              <p>
-                Aktif Dizin: <span className="text-zinc-300 font-mono text-[10px]">{currentRootPath || 'Bellek (Memory)'}</span>
-              </p>
-              <p>
-                Git Branch: <span className="text-indigo-400 font-mono text-[10px]">{gitStatus.branch || 'Yok'}</span>
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Sidebar genişliği: sağ kenardan sürükle */}
         {sidebarShown && <ResizeHandle direction="horizontal" title="Kenar çubuğu genişliği" onResize={(d) => setSidebarWidth((w) => clamp(w + d, 180, 560))} />}
 
         {/* Karşılama sayfası veya editör */}
-        {showLanding ? (
+        {showSettings ? (
+          <SettingsPage onClose={() => setShowSettings(false)} builtInSnippetCount={builtInSnippets.length} />
+        ) : showLanding ? (
           <LandingPage
             onNewFile={handleNewUntitled}
             onOpenFiles={handleOpenFileDialog}
@@ -831,17 +814,19 @@ export function App() {
             onOpenGit={() => pickSidebar('git')}
             onOpenAI={() => {
               setShowLanding(false);
+    setShowSettings(false);
               setShowRightPanel('ai');
             }}
             onOpenTerminal={() => {
               setShowLanding(false);
+    setShowSettings(false);
               setShowBottomTerminal(true);
             }}
             onOpenRecent={handleOpenRecent}
             recentFolders={recentFolders}
             githubLogin={auth.connected ? auth.profile?.login : null}
-            showOnStartup={welcomeOnStartup}
-            onToggleStartup={setWelcomeOnStartup}
+            showOnStartup={settings.welcomeOnStartup === true}
+            onToggleStartup={(v) => setSetting('welcomeOnStartup', v)}
           />
         ) : (
           <div className="flex flex-col flex-1 h-full min-w-0">
@@ -857,8 +842,6 @@ export function App() {
                 onChangeContent={handleContentChange}
                 onSaveFile={handleSaveFile}
                 onRunCode={handleRunCode}
-                fontSize={fontSize}
-                theme={editorTheme}
                 collab={{ enabled: collabEnabled && collabUrlValid, url: collabUrl.trim(), token: collabToken, room: currentRootPath || '' }}
               />
             </div>
@@ -867,7 +850,7 @@ export function App() {
             {showBottomTerminal && <ResizeHandle direction="vertical" title="Terminal yüksekliği" onResize={(d) => setTerminalHeight((h) => clamp(h - d, 120, 640))} />}
             {showBottomTerminal && (
               <div data-terminal="" style={{ height: terminalHeight }} className="animate-panel-up border-t border-nv-border shrink-0">
-                <Terminal logs={logs} onClear={() => setLogs([])} cwd={currentRootPath} branch={gitStatus.isRepo ? gitStatus.branch : null} />
+                <Terminal logs={logs} onClear={() => setLogs([])} cwd={currentRootPath} branch={gitStatus.isRepo && settings.terminalShowBranch !== false ? gitStatus.branch : null} />
               </div>
             )}
           </div>

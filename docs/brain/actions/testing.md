@@ -18,6 +18,8 @@ triggers: ["test", "doğrula", "build", "tsc"]
 ## Test yazarken
 - Electron'u taklit eden yardımcı: testler `electron`'u `Module._load` ile taklit eder; gerçek `git` ve geçici dizinler kullanılır.
 - Her yeni IPC kanalı için en az bir test ve bir "yetkisiz/bozuk girdi reddedilir" testi.
+- **Ayrı profil:** çalışan uygulamayı bozmamak ve kullanıcının ayarlarına dokunmamak için testi `electron . --user-data-dir=<geçici dizin> --remote-debugging-port=<port>` ile ayrı örnekte çalıştır; işin bitince yalnız kendi süreçlerini kapat. Kullanıcının açık penceresinde ayar değiştirme.
+- **Canlı ayar testi:** DevTools protokolüyle ayarı değiştir (React uyumlu: `HTMLSelectElement.prototype.value` setter + `change` olayı), sonra etkisini ölç: `document.documentElement.dataset.theme`, CSS değişkeni, `monaco.editor.getEditors()[n].getRawOptions()`.
 - Görsel doğrulamada yalnız uygulamanın kendi içeriğini yakala (DevTools `Page.captureScreenshot`); ekran yakalama başka pencereleri içerebilir.
 
 ## Çıktı

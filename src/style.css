@@ -34,10 +34,60 @@
   --color-nv-side: #181818;
   --color-nv-input: #313131;
   --color-nv-hover: #2a2d2e;
-  --color-nv-active: #2c2f6b;
+  --color-nv-active: color-mix(in srgb, var(--color-indigo-500) 30%, var(--color-nv-side));
   --color-nv-border: #2b2b2b;
 
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/*
+ * Koyu (varsayılan) ve açık mod. Bileşenler zinc-*, indigo-* ve nv-* jetonlarını kullandığı için
+ * yalnız bu değişkenleri değiştirmek tüm arayüzü dönüştürür. Mod, <html data-theme="dark|light"> ile seçilir.
+ */
+:root {
+  color-scheme: dark;
+  --hover-overlay: rgba(255, 255, 255, 0.08);
+  --active-overlay: rgba(255, 255, 255, 0.12);
+  --selection: #3b4080;
+  --scroll-thumb: rgba(121, 121, 121, 0.4);
+  --scroll-thumb-hover: rgba(100, 100, 100, 0.7);
+  --on-strong: #ffffff;
+  /* Terminal ANSI paleti (16 renk) */
+  --ansi-0: #3b4252; --ansi-1: #f7768e; --ansi-2: #9ece6a; --ansi-3: #e0af68;
+  --ansi-4: #7aa2f7; --ansi-5: #bb9af7; --ansi-6: #7dcfff; --ansi-7: #c0caf5;
+  --ansi-8: #565f89; --ansi-9: #ff899d; --ansi-10: #b9f27c; --ansi-11: #ffc777;
+  --ansi-12: #94b8ff; --ansi-13: #d0b3ff; --ansi-14: #a4daff; --ansi-15: #ffffff;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-zinc-50: #111111;
+  --color-zinc-100: #1f1f1f;
+  --color-zinc-200: #2b2b2b;
+  --color-zinc-300: #3b3b3b;
+  --color-zinc-400: #585858;
+  --color-zinc-500: #6e6e6e;
+  --color-zinc-600: #a0a0a0;
+  --color-zinc-700: #d0d0d0;
+  --color-zinc-800: #e6e6e6;
+  --color-zinc-900: #f3f3f3;
+  --color-zinc-950: #f8f8f8;
+  --color-nv-editor: #ffffff;
+  --color-nv-side: #f8f8f8;
+  --color-nv-input: #ececec;
+  --color-nv-hover: #eaeaea;
+  --color-nv-active: color-mix(in srgb, var(--color-indigo-500) 18%, var(--color-nv-side));
+  --color-nv-border: #e2e2e2;
+  --hover-overlay: rgba(0, 0, 0, 0.06);
+  --active-overlay: rgba(0, 0, 0, 0.1);
+  --selection: #cfd4ff;
+  --scroll-thumb: rgba(100, 100, 100, 0.35);
+  --scroll-thumb-hover: rgba(80, 80, 80, 0.6);
+  --on-strong: #111111;
+  --ansi-0: #3b3b3b; --ansi-1: #c72e4a; --ansi-2: #2e7d32; --ansi-3: #9a6700;
+  --ansi-4: #0b5cad; --ansi-5: #7b3fc4; --ansi-6: #0e7490; --ansi-7: #555555;
+  --ansi-8: #6e6e6e; --ansi-9: #d6455d; --ansi-10: #3a8f3f; --ansi-11: #b26b00;
+  --ansi-12: #1f6fd0; --ansi-13: #8f56d6; --ansi-14: #1488a6; --ansi-15: #1f1f1f;
 }
 
 @layer base {
@@ -55,8 +105,8 @@
   }
 
   ::selection {
-    background: #3b4080;
-    color: #fff;
+    background: var(--selection);
+    color: inherit;
   }
 
   /* Klavye odağı: ince, tutarlı halka (yalnız klavyeyle gezerken) */
@@ -79,13 +129,13 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(121, 121, 121, 0.4);
+    background: var(--scroll-thumb);
     border: 2px solid transparent;
     background-clip: content-box;
     border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 100, 100, 0.7);
+    background: var(--scroll-thumb-hover);
     background-clip: content-box;
   }
   ::-webkit-scrollbar-corner {
@@ -109,14 +159,14 @@
   justify-content: center;
   width: 48px;
   height: 48px;
-  color: #858585;
+  color: var(--color-zinc-500);
   transition: color 140ms var(--ease-out-soft);
 }
 .ab-item svg {
   transition: transform 160ms var(--ease-out-soft);
 }
 .ab-item:hover {
-  color: #fff;
+  color: var(--color-zinc-50);
 }
 .ab-item:hover svg {
   transform: scale(1.1);
@@ -125,7 +175,7 @@
   transform: scale(0.92);
 }
 .ab-item[data-active="true"] {
-  color: #fff;
+  color: var(--color-zinc-50);
 }
 /* Etkin öğenin solundaki gösterge çubuğu kayarak belirir */
 .ab-item::before {
@@ -135,7 +185,7 @@
   top: 12px;
   bottom: 12px;
   width: 2px;
-  background: #fff;
+  background: var(--color-zinc-50);
   border-radius: 0 2px 2px 0;
   transform: scaleY(0);
   transform-origin: center;
@@ -153,19 +203,19 @@
   width: 28px;
   height: 24px;
   border-radius: 5px;
-  color: #9d9d9d;
+  color: var(--color-zinc-400);
   transition: background-color 120ms ease, color 120ms ease, transform 120ms var(--ease-out-soft);
 }
 .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--hover-overlay);
+  color: var(--color-zinc-50);
 }
 .icon-btn:active {
   transform: scale(0.94);
 }
 .icon-btn[data-active="true"] {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--active-overlay);
+  color: var(--color-zinc-50);
 }
 
 /* Durum çubuğu öğeleri */
@@ -178,7 +228,7 @@
   transition: background-color 120ms ease;
 }
 button.status-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--active-overlay);
 }
 
 /* ---------- Animasyonlar ---------- */
@@ -247,6 +297,18 @@ button.status-item:hover {
   width: 40%;
   background: var(--color-indigo-400);
   animation: loadBar 1100ms var(--ease-out-soft) infinite;
+}
+
+/* Ayarlardan "Animasyonlar" kapatılırsa (data-motion="off") tüm hareket durur */
+:root[data-motion="off"] *,
+:root[data-motion="off"] *::before,
+:root[data-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+:root[data-motion="off"] .logo-bracket {
+  stroke-dashoffset: 0;
 }
 
 /* Hareketi azaltmak isteyen kullanıcılar için tüm animasyonlar kapanır */

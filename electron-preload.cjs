@@ -1,7 +1,17 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webFrame } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   isElectron: true,
+  versions: { electron: process.versions.electron, chrome: process.versions.chrome, node: process.versions.node },
+  ui: {
+    // Arayüz yakınlaştırma (0.8–1.5): tüm uygulamayı eşit ölçekler
+    setZoom: (factor) => webFrame.setZoomFactor(Math.min(1.5, Math.max(0.8, Number(factor) || 1))),
+    setTheme: (mode) => ipcRenderer.invoke('ui:setTheme', mode)
+  },
+  secrets: {
+    get: (key) => ipcRenderer.invoke('secrets:get', key),
+    set: (key, value) => ipcRenderer.invoke('secrets:set', key, value)
+  },
   quitApp: () => ipcRenderer.invoke('app:quit'),
   openFolderDialog: () => ipcRenderer.invoke('dialog:openFolder'),
   recentFolders: () => ipcRenderer.invoke('workspace:recent'),

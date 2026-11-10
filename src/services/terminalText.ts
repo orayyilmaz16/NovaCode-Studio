@@ -11,10 +11,8 @@ export interface Span {
   underline?: boolean;
 }
 
-const BASE16 = [
-  '#3b4252', '#f7768e', '#9ece6a', '#e0af68', '#7aa2f7', '#bb9af7', '#7dcfff', '#c0caf5',
-  '#565f89', '#ff899d', '#b9f27c', '#ffc777', '#94b8ff', '#d0b3ff', '#a4daff', '#ffffff'
-];
+// 16 renk CSS değişkenlerindedir (style.css: --ansi-N); koyu ve açık temada farklı değer alır.
+const BASE16 = Array.from({ length: 16 }, (_, i) => `var(--ansi-${i})`);
 
 function color256(n: number): string | undefined {
   if (n < 0 || n > 255) return undefined;
@@ -87,14 +85,24 @@ export function parseAnsi(input: string): Span[] {
 export type TokenKind = 'command' | 'flag' | 'string' | 'variable' | 'operator' | 'number' | 'text' | 'space';
 
 export const TOKEN_COLOR: Record<TokenKind, string | undefined> = {
-  command: '#9ece6a',
-  flag: '#e0af68',
-  string: '#ff9e64',
-  variable: '#7dcfff',
-  operator: '#bb9af7',
-  number: '#ff9e64',
+  command: 'var(--ansi-2)',
+  flag: 'var(--ansi-3)',
+  string: 'var(--ansi-11)',
+  variable: 'var(--ansi-6)',
+  operator: 'var(--ansi-5)',
+  number: 'var(--ansi-11)',
   text: undefined,
   space: undefined
+};
+
+// Geçmişe yazılan komut yankısı için aynı renklerin ANSI 16-renk karşılığı
+const TOKEN_ANSI: Partial<Record<TokenKind, number>> = {
+  command: 2,
+  flag: 3,
+  string: 11,
+  variable: 6,
+  operator: 5,
+  number: 11
 };
 
 export interface CmdToken {
@@ -122,14 +130,12 @@ export function tokenizeCommand(line: string, shell: 'powershell' | 'cmd'): CmdT
   return tokens;
 }
 
-const hex = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)).join(';');
-
 // Geçmişe yazılacak komut yankısı için aynı renkleri ANSI olarak üretir.
 export function commandToAnsi(line: string, shell: 'powershell' | 'cmd'): string {
   return tokenizeCommand(line, shell)
     .map((t) => {
-      const c = TOKEN_COLOR[t.kind];
-      return c ? `${ESC}[38;2;${hex(c)}m${t.text}${ESC}[0m` : t.text;
+      const n = TOKEN_ANSI[t.kind];
+      return n === undefined ? t.text : `${ESC}[38;5;${n}m${t.text}${ESC}[0m`;
     })
     .join('');
 }

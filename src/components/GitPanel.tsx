@@ -21,6 +21,7 @@ import {
 import type { GitCommitInfo, GitFile, GitResult, GitStatus, GithubRepoInfo } from '../types';
 import { t } from '../i18n/uiText';
 import { useGithubAuth } from '../services/useGithubAuth';
+import { useSettings } from '../services/SettingsContext';
 
 interface GitPanelProps {
   status: GitStatus;
@@ -99,6 +100,10 @@ const FileRow: React.FC<FileRowProps> = ({ f, side, busy, onStage, onUnstage, on
 
 export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onRefresh, onLog }) => {
   const { auth } = useGithubAuth();
+  const { values } = useSettings();
+  const statusMs = Math.max(3, Number(values.gitStatusInterval) || 8) * 1000;
+  const fetchMs = Math.max(15, Number(values.gitFetchInterval) || 60) * 1000;
+  const autoFetch = values.gitAutoFetch !== false;
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -161,17 +166,17 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
     const tick = () => {
       if (!document.hidden) void refreshRef.current();
     };
-    const id = setInterval(tick, 8000);
+    const id = setInterval(tick, statusMs);
     document.addEventListener('visibilitychange', tick);
     return () => {
       clearInterval(id);
       document.removeEventListener('visibilitychange', tick);
     };
-  }, [currentRepoPath, isRepo]);
+  }, [currentRepoPath, isRepo, statusMs]);
 
   // 2) Uzak depodaki yeni commit'ler (ahead/behind için) dakikada bir sessizce getirilir.
   useEffect(() => {
-    if (!currentRepoPath || !isRepo || !hasRemote || !auth.connected || !api?.gitFetch) return;
+    if (!autoFetch || !currentRepoPath || !isRepo || !hasRemote || !auth.connected || !api?.gitFetch) return;
     let cancelled = false;
     const go = async () => {
       if (document.hidden) return;
@@ -179,12 +184,12 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       if (!cancelled) void refreshRef.current();
     };
     void go();
-    const id = setInterval(go, 60000);
+    const id = setInterval(go, fetchMs);
     return () => {
       cancelled = true;
       clearInterval(id);
     };
-  }, [currentRepoPath, isRepo, hasRemote, auth.connected, api]);
+  }, [currentRepoPath, isRepo, hasRemote, auth.connected, api, autoFetch, fetchMs]);
 
   // 3) GitHub'daki açık PR'lar ve Actions koşuları 30 sn'de bir.
   useEffect(() => {

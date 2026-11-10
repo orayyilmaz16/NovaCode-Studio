@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Trash2, Square } from 'lucide-react';
 import type { ConsoleLog } from '../types';
 import { t } from '../i18n/uiText';
+import { useSettings } from '../services/SettingsContext';
 import { commandToAnsi, parseAnsi, shortenPath, tokenizeCommand, TOKEN_COLOR } from '../services/terminalText';
 
 interface TerminalProps {
@@ -14,11 +15,6 @@ interface TerminalProps {
 type ShellId = 'powershell' | 'cmd';
 type TabId = ShellId | 'log';
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'powershell', label: 'PowerShell' },
-  { id: 'cmd', label: 'CMD' },
-  { id: 'log', label: t('termLog') }
-];
 
 const MAX_OUTPUT = 200_000;
 const MAX_HISTORY = 100;
@@ -26,8 +22,8 @@ const ESC = '\u001b';
 
 // İstem renkleri: PS (mavi) + yol (turkuaz) + dal (mor) + ok (beyaz)
 const promptAnsi = (shell: ShellId, cwd: string, branch?: string | null) =>
-  `${shell === 'powershell' ? `${ESC}[1;38;2;122;162;247mPS${ESC}[0m ` : ''}${ESC}[38;2;125;207;255m${cwd}${ESC}[0m` +
-  `${branch ? ` ${ESC}[38;2;187;154;247m(${branch})${ESC}[0m` : ''}${ESC}[0m> `;
+  `${shell === 'powershell' ? `${ESC}[1;38;5;4mPS${ESC}[0m ` : ''}${ESC}[38;5;6m${cwd}${ESC}[0m` +
+  `${branch ? ` ${ESC}[38;5;5m(${branch})${ESC}[0m` : ''}${ESC}[0m> `;
 
 const Output: React.FC<{ text: string }> = React.memo(({ text }) => {
   const spans = useMemo(() => parseAnsi(text), [text]);
@@ -53,7 +49,21 @@ const Output: React.FC<{ text: string }> = React.memo(({ text }) => {
 });
 
 export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }) => {
-  const [tab, setTab] = useState<TabId>('powershell');
+  const { values } = useSettings();
+  const defaultShell: ShellId = values.defaultShell === 'cmd' ? 'cmd' : 'powershell';
+  const colorInput = values.terminalColorInput !== false;
+  const fontSize = Number(values.terminalFontSize) || 12;
+  const [tab, setTab] = useState<TabId>(defaultShell);
+  const TABS: { id: TabId; label: string }[] = [
+    { id: 'powershell', label: 'PowerShell' },
+    { id: 'cmd', label: 'CMD' },
+    { id: 'log', label: t('termLog') }
+  ];
+
+  // Varsayılan kabuk ayarı değişince (bir kabuk sekmesindeyken) anında o kabuğa geç
+  useEffect(() => {
+    setTab((cur) => (cur === 'log' ? cur : defaultShell));
+  }, [defaultShell]);
   const [output, setOutput] = useState<Record<ShellId, string>>({ powershell: '', cmd: '' });
   const [running, setRunning] = useState<Record<ShellId, boolean>>({ powershell: false, cmd: false });
   const [status, setStatus] = useState<Record<ShellId, string>>({ powershell: '', cmd: '' });
@@ -73,7 +83,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
     if (!api?.onTermOutput || !api?.onTermExit) return;
     const offOut = api.onTermOutput(({ shell, text, stream }) => {
       // stderr kırmızı: PowerShell hataları ve komut hataları öne çıksın
-      const colored = stream === 'stderr' ? `${ESC}[38;2;247;118;142m${text}${ESC}[0m` : text;
+      const colored = stream === 'stderr' ? `${ESC}[38;5;1m${text}${ESC}[0m` : text;
       setOutput((prev) => ({ ...prev, [shell]: (prev[shell] + colored).slice(-MAX_OUTPUT) }));
     });
     const offCwd = api.onTermCwd?.(({ shell, cwd: next }) => {
@@ -129,7 +139,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
 
   const runLine = async (line: string) => {
     if (!shellId || !running[shellId] || !api?.termInput) return;
-    const echo = `${promptAnsi(shellId, shownCwd, branch)}${commandToAnsi(line, shellId)}\n`;
+    const echo = `${promptAnsi(shellId, shownCwd, branch)}${colorInput ? commandToAnsi(line, shellId) : line}\n`;
     setOutput((prev) => ({ ...prev, [shellId]: (prev[shellId] + echo).slice(-MAX_OUTPUT) }));
     const res = await api.termInput(shellId, line);
     if (!res.success) setStatus((prev) => ({ ...prev, [shellId]: res.error || t('termSendFailed') }));
@@ -180,7 +190,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
   const currentStatus = shellId ? status[shellId] : '';
 
   return (
-    <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono text-xs" onClick={() => shellId && inputRef.current?.focus()}>
+    <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }} onClick={() => shellId && inputRef.current?.focus()}>
       <div className="flex items-stretch justify-between px-2 h-8 border-b border-nv-border bg-nv-side">
         <div className="flex items-stretch gap-1">
           {TABS.map((tb) => (
@@ -243,15 +253,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
       {shellId && (
         <form onSubmit={handleSubmit} className="flex items-center px-3 h-9 border-t border-zinc-800/80 bg-nv-side gap-0">
           <span className="shrink-0 max-w-[55%] truncate select-none" title={shownCwd}>
-            {shellId === 'powershell' && <span className="font-bold" style={{ color: '#7aa2f7' }}>PS </span>}
-            <span style={{ color: '#7dcfff' }}>{shortenPath(shownCwd)}</span>
-            {branch && <span style={{ color: '#bb9af7' }}> ({branch})</span>}
+            {shellId === 'powershell' && <span className="font-bold" style={{ color: 'var(--ansi-4)' }}>PS </span>}
+            <span style={{ color: 'var(--ansi-6)' }}>{shortenPath(shownCwd)}</span>
+            {branch && <span style={{ color: 'var(--ansi-5)' }}> ({branch})</span>}
             <span className="text-zinc-300">&gt;&nbsp;</span>
           </span>
           <div className="relative flex-1 h-full min-w-0">
             <div ref={overlayRef} aria-hidden className="absolute inset-0 flex items-center whitespace-pre overflow-hidden pointer-events-none">
               {tokens.map((tk, i) => (
-                <span key={i} style={{ color: TOKEN_COLOR[tk.kind] ?? '#e4e4e7' }}>
+                <span key={i} style={{ color: colorInput ? TOKEN_COLOR[tk.kind] ?? 'var(--color-zinc-200)' : 'var(--color-zinc-200)' }}>
                   {tk.text}
                 </span>
               ))}

@@ -13,7 +13,8 @@ triggers: ["ipc", "güvenlik", "kvkk", "token", "kişisel veri", "3. parti"]
 3. Kabuk çalıştırma yok: `execFile`/`spawn` + argüman dizisi. Terminal kabuğu kullanıcının kendi komutlarıdır; uygulama komutu kendisi üretmez.
 4. Gizli bilgi (token, anahtar, sunucu IP'si) koda, commit'e, loga, çıktıya yazılmaz; yer tutucu `<API_KEY>`. Token yalnız ana süreçte, şifreli.
 5. HTML basılan yerde `dompurify`; terminal çıktısı React span'i (HTML yok).
-6. Dış ağ: yalnız `github.com`, `api.github.com` (allowlist) ve kullanıcının girdiği `wss://` adresi.
+6. Gizli değerler `localStorage`'a yazılmaz; `electron-secrets.cjs` izin listeli anahtarlarla şifreli saklar. Ayar içe aktarma/dışa aktarma gizli değer içermez.
+7. Dış ağ: yalnız `github.com`, `api.github.com` (allowlist) ve kullanıcının girdiği `wss://` adresi.
 
 ## KVKK sorusu listesi (her yeni veri akışı için yanıtla)
 Veri nedir? Amaç? Hukuki sebep? Saklama süresi? Yurt dışına aktarım var mı? Kullanıcı nasıl geri alır/siler?
@@ -24,6 +25,8 @@ Veri nedir? Amaç? Hukuki sebep? Saklama süresi? Yurt dışına aktarım var m�
 | PR / depo yayınlama | PR başlığı-gövdesi, depo adı, commit'ler | Kullanıcının istediği işlem | GitHub'da | GitHub (ABD) |
 | Ortak düzenleme | Dosya içeriği | Kullanıcının ayarladığı sunucuya senkron | Kullanıcının sunucusunda | Kullanıcının seçimi |
 | Son klasörler | Klasör yolları | Kolay erişim | Yerelde (`userData`) | Yok |
+| Ayarlar | Tercihler, özel snippet'ler | Kişiselleştirme | Yerelde (`localStorage`); dışa aktarım kullanıcının dosyası | Yok |
+| Ortak düzenleme token'ı | Sunucu token'ı | Kullanıcının sunucusuna kimlik | Yerelde, şifreli (`safeStorage`); düz metin yok | Yok (yalnız kullanıcının sunucusuna gider) |
 
 Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmadan yükleme.
 

@@ -7,6 +7,7 @@ type MonacoLike = {
 };
 
 export const NOVA_DARK = 'nova-dark';
+export const NOVA_LIGHT = 'nova-light';
 
 export function defineNovaThemes(monaco: MonacoLike) {
   monaco.editor.defineTheme(NOVA_DARK, {
@@ -48,6 +49,48 @@ export function defineNovaThemes(monaco: MonacoLike) {
       'scrollbarSlider.activeBackground': '#bfbfbf66',
       'input.background': '#313131',
       'focusBorder': '#6d75f5'
+    }
+  });
+
+  monaco.editor.defineTheme(NOVA_LIGHT, {
+    base: 'vs',
+    inherit: true,
+    rules: [
+      { token: 'comment', foreground: '6A8F55', fontStyle: 'italic' },
+      { token: 'keyword', foreground: '9b3fb0' },
+      { token: 'string', foreground: 'b4552d' },
+      { token: 'number', foreground: '3f7d3a' },
+      { token: 'type', foreground: '1f7a6a' },
+      { token: 'function', foreground: '7a5f12' },
+      { token: 'variable', foreground: '1f5fa8' }
+    ],
+    colors: {
+      'editor.background': '#ffffff',
+      'editor.foreground': '#3b3b3b',
+      'editorLineNumber.foreground': '#9a9a9a',
+      'editorLineNumber.activeForeground': '#3b3b3b',
+      'editor.lineHighlightBackground': '#f5f5f5',
+      'editor.lineHighlightBorder': '#00000000',
+      'editor.selectionBackground': '#cfd4ff',
+      'editor.inactiveSelectionBackground': '#e4e6ff',
+      'editorCursor.foreground': '#3b3b3b',
+      'editorIndentGuide.background1': '#e3e3e3',
+      'editorIndentGuide.activeBackground1': '#b5b5b5',
+      'editorWhitespace.foreground': '#d4d4d4',
+      'editorGutter.background': '#ffffff',
+      'editorWidget.background': '#f8f8f8',
+      'editorWidget.border': '#e2e2e2',
+      'editorSuggestWidget.background': '#f8f8f8',
+      'editorSuggestWidget.border': '#e2e2e2',
+      'editorSuggestWidget.selectedBackground': '#dfe1ff',
+      'editorHoverWidget.background': '#f8f8f8',
+      'editorHoverWidget.border': '#e2e2e2',
+      'minimap.background': '#ffffff',
+      'scrollbarSlider.background': '#64646466',
+      'scrollbarSlider.hoverBackground': '#646464b3',
+      'scrollbarSlider.activeBackground': '#00000066',
+      'input.background': '#ececec',
+      'focusBorder': '#5359e0'
     }
   });
 }
