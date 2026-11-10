@@ -9,7 +9,7 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -19,6 +19,7 @@ jobs:
   quality:
     name: Kalite, Güvenlik ve Performans
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,6 +43,9 @@ jobs:
       - name: Güvenlik açığı taraması (high+ build'i durdurur)
         run: npm audit --audit-level=high
 
+      - name: Çalışma zamanı bağımlılıkları (moderate+ build'i durdurur)
+        run: npm audit --omit=dev --audit-level=moderate
+
       - name: Web build
         run: npm run build
 
@@ -54,6 +58,10 @@ jobs:
     needs: quality
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(release)')
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: release-version
+      cancel-in-progress: false
     permissions:
       contents: write
     outputs:
@@ -67,6 +75,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Güncel main'e hizala (yarış önleme)
+        run: git pull --rebase origin main
 
       - name: .gitignore ve indeks düzeltmesi
         run: node scripts/check-hygiene.mjs --fix
@@ -83,7 +94,12 @@ jobs:
           git add -A -- .gitignore package.json package-lock.json CHANGELOG.md release-notes
           if ! git diff --cached --quiet; then
             git commit -m "chore(release): v${{ steps.bump.outputs.version }} [skip ci]"
-            git push origin HEAD:main
+            for i in 1 2 3; do
+              git push origin HEAD:main && break
+              echo "Push reddedildi, rebase deneniyor ($i/3)"
+              git pull --rebase origin main
+            done
+            git push origin HEAD:main --dry-run >/dev/null
           fi
           if [ "${{ steps.bump.outputs.release }}" = "true" ] && ! git rev-parse "v${{ steps.bump.outputs.version }}" >/dev/null 2>&1; then
             git tag "v${{ steps.bump.outputs.version }}"
@@ -97,6 +113,7 @@ jobs:
     needs: version
     if: needs.version.outputs.release == 'true'
     runs-on: windows-latest
+    timeout-minutes: 30
     permissions:
       contents: write
     steps:

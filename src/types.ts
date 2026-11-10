@@ -53,7 +53,7 @@ export interface ElectronBridge {
   gitCommit: (repoPath: string, message: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
   gitPush: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
   gitPull: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
-  onFileChanged: (callback: (data: { filename: string; rootPath: string }) => void) => void;
+  onFileChanged: (callback: (data: { filename: string; rootPath: string; changed?: string[] }) => void) => () => void;
   termStart: (shell: 'powershell' | 'cmd', cwd: string) => Promise<{ success: boolean; error?: string; shell?: string }>;
   termInput: (shell: 'powershell' | 'cmd', line: string) => Promise<{ success: boolean; error?: string }>;
   termStop: (shell: 'powershell' | 'cmd') => Promise<{ success: boolean }>;
