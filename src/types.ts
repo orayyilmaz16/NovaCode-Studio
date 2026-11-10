@@ -22,6 +22,31 @@ export interface GitChange {
   file: string;
 }
 
+export interface GitFile {
+  path: string;
+  orig?: string;
+  index: string; // sahnelenmiş durum harfi ('' = yok)
+  worktree: string; // çalışma ağacı durum harfi ('' = yok, 'U' = izlenmiyor)
+  untracked: boolean;
+  conflict: boolean;
+}
+
+export interface GitCommitInfo {
+  hash: string;
+  author: string;
+  when: string;
+  subject: string;
+}
+
+export interface GitResult {
+  success: boolean;
+  stdout?: string;
+  stderr?: string;
+  step?: string;
+  pulled?: number;
+  pushed?: number;
+}
+
 export interface GitStatus {
   isRepo: boolean;
   branch?: string;
@@ -29,6 +54,8 @@ export interface GitStatus {
   behind?: number;
   hasUpstream?: boolean;
   locked?: boolean;
+  detached?: boolean;
+  files?: GitFile[];
   hasRemote?: boolean;
   changes: GitChange[];
 }
@@ -55,6 +82,7 @@ export interface GithubRepoInfo {
   available: boolean;
   error?: string;
   fullName?: string;
+  defaultBranch?: string;
   url?: string;
   stars?: number;
   openIssues?: number;
@@ -94,13 +122,26 @@ export interface ElectronBridge {
   onTermOutput: (callback: (data: { shell: 'powershell' | 'cmd'; text: string; stream?: 'stdout' | 'stderr' }) => void) => () => void;
   onTermExit: (callback: (data: { shell: 'powershell' | 'cmd'; code: number | null }) => void) => () => void;
   onTermCwd: (callback: (data: { shell: 'powershell' | 'cmd'; cwd: string }) => void) => () => void;
-  gitFetch: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
+  gitFetch: (repoPath: string) => Promise<GitResult>;
+  gitStage: (repoPath: string, paths: string[]) => Promise<GitResult>;
+  gitStageAll: (repoPath: string) => Promise<GitResult>;
+  gitUnstage: (repoPath: string, paths: string[]) => Promise<GitResult>;
+  gitDiscard: (repoPath: string, files: { path: string; untracked: boolean }[]) => Promise<GitResult>;
+  gitSync: (repoPath: string) => Promise<GitResult>;
+  gitBranches: (repoPath: string) => Promise<{ success: boolean; branches: string[]; current: string }>;
+  gitCheckout: (repoPath: string, name: string) => Promise<GitResult>;
+  gitCreateBranch: (repoPath: string, name: string) => Promise<GitResult>;
+  gitLog: (repoPath: string) => Promise<{ success: boolean; commits: GitCommitInfo[] }>;
+  gitInit: (repoPath: string) => Promise<GitResult>;
+  onGitChanged: (callback: (data: { rootPath: string }) => void) => () => void;
   github: {
     status: () => Promise<GithubAuthStatus>;
     login: () => Promise<{ success: boolean; error?: string; userCode?: string; verificationUri?: string; expiresIn?: number }>;
     cancel: () => Promise<{ success: boolean }>;
     logout: () => Promise<{ success: boolean }>;
     repoInfo: (repoPath: string) => Promise<GithubRepoInfo>;
+    createPr: (repoPath: string, input: { title: string; body?: string; draft?: boolean }) => Promise<{ success: boolean; url?: string; number?: number; error?: string; detail?: string }>;
+    publishRepo: (repoPath: string, input: { name: string; isPrivate: boolean }) => Promise<{ success: boolean; url?: string; error?: string; detail?: string }>;
     openExternal: (url: string) => Promise<{ success: boolean }>;
     onAuth: (callback: (event: GithubAuthEvent) => void) => () => void;
   };

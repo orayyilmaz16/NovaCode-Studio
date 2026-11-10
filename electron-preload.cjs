@@ -22,12 +22,29 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('fs:watch-change', listener);
   },
   gitFetch: (repoPath) => ipcRenderer.invoke('git:fetch', repoPath),
+  gitStage: (repoPath, paths) => ipcRenderer.invoke('git:stage', repoPath, paths),
+  gitStageAll: (repoPath) => ipcRenderer.invoke('git:stageAll', repoPath),
+  gitUnstage: (repoPath, paths) => ipcRenderer.invoke('git:unstage', repoPath, paths),
+  gitDiscard: (repoPath, files) => ipcRenderer.invoke('git:discard', repoPath, files),
+  gitSync: (repoPath) => ipcRenderer.invoke('git:sync', repoPath),
+  gitBranches: (repoPath) => ipcRenderer.invoke('git:branches', repoPath),
+  gitCheckout: (repoPath, name) => ipcRenderer.invoke('git:checkout', repoPath, name),
+  gitCreateBranch: (repoPath, name) => ipcRenderer.invoke('git:createBranch', repoPath, name),
+  gitLog: (repoPath) => ipcRenderer.invoke('git:log', repoPath),
+  gitInit: (repoPath) => ipcRenderer.invoke('git:init', repoPath),
+  onGitChanged: (callback) => {
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on('git:changed', listener);
+    return () => ipcRenderer.removeListener('git:changed', listener);
+  },
   github: {
     status: () => ipcRenderer.invoke('github:status'),
     login: () => ipcRenderer.invoke('github:login'),
     cancel: () => ipcRenderer.invoke('github:cancel'),
     logout: () => ipcRenderer.invoke('github:logout'),
     repoInfo: (repoPath) => ipcRenderer.invoke('github:repoInfo', repoPath),
+    createPr: (repoPath, input) => ipcRenderer.invoke('github:createPr', repoPath, input),
+    publishRepo: (repoPath, input) => ipcRenderer.invoke('github:publishRepo', repoPath, input),
     openExternal: (url) => ipcRenderer.invoke('github:openExternal', url),
     onAuth: (callback) => {
       const listener = (_event, data) => callback(data);

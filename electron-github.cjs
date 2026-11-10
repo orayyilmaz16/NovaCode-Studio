@@ -80,17 +80,32 @@ async function ghFetch(url, init = {}) {
   return res;
 }
 
-async function api(pathname) {
+async function api(pathname, { method = 'GET', body } = {}) {
   if (!session.token) throw new Error('GitHub hesabı bağlı değil.');
   const res = await ghFetch(`https://api.github.com${pathname}`, {
-    headers: { Authorization: `Bearer ${session.token}`, 'X-GitHub-Api-Version': '2022-11-28' }
+    method,
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(body ? { 'Content-Type': 'application/json' } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
   });
   if (res.status === 401) {
     clearToken();
     throw new Error('GitHub oturumu geçersiz. Tekrar bağlanın.');
   }
-  if (!res.ok) throw new Error(`GitHub API hatası (${res.status}).`);
-  return res.json();
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const j = await res.json();
+      detail = [j.message, ...(j.errors || []).map((e) => e.message || e.code)].filter(Boolean).join(' ');
+    } catch { /* gövde yok */ }
+    const err = new Error(detail || `GitHub API hatası (${res.status}).`);
+    err.status = res.status;
+    throw err;
+  }
+  return res.status === 204 ? null : res.json();
 }
 
 async function loadProfile() {
@@ -227,6 +242,57 @@ function register({ getWindow, runGit, isValidPath }) {
     return { success: false };
   });
 
+  const NOT_CONNECTED = { success: false, error: 'github-required' };
+
+  // Geçerli dal için Pull Request açar. Önce dalı uzak depoya gönderir.
+  ipcMain.handle('github:createPr', async (_e, repoPath, input) => {
+    if (!session.token) return NOT_CONNECTED;
+    if (!isValidPath(repoPath) || !input || typeof input.title !== 'string') return { success: false, error: 'invalid-input' };
+    const title = input.title.trim();
+    const body = typeof input.body === 'string' ? input.body : '';
+    if (!title || title.length > 256 || body.length > 65536) return { success: false, error: 'invalid-input' };
+    const remote = await runGit(['remote', 'get-url', 'origin'], repoPath);
+    const parsed = remote.success ? parseRemote(remote.stdout) : null;
+    if (!parsed) return { success: false, error: 'no-remote' };
+    const branch = (await runGit(['branch', '--show-current'], repoPath)).stdout;
+    if (!branch) return { success: false, error: 'detached' };
+    try {
+      const base = `/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}`;
+      const repo = await api(base);
+      if (repo.default_branch === branch) return { success: false, error: 'on-default-branch' };
+      const pushed = await runGit(['push', '--set-upstream', 'origin', 'HEAD'], repoPath, { auth: true });
+      if (!pushed.success) return { success: false, error: 'push-failed', detail: pushed.stderr };
+      const pr = await api(`${base}/pulls`, {
+        method: 'POST',
+        body: { title, body, head: branch, base: repo.default_branch, draft: !!input.draft }
+      });
+      return { success: true, url: pr.html_url, number: pr.number };
+    } catch (err) {
+      return { success: false, error: /already exists/i.test(err.message) ? 'pr-exists' : 'api-failed', detail: err.message };
+    }
+  });
+
+  // Yerel depoyu GitHub'da yeni bir depo olarak yayınlar (origin ekler ve gönderir).
+  ipcMain.handle('github:publishRepo', async (_e, repoPath, input) => {
+    if (!session.token) return NOT_CONNECTED;
+    if (!isValidPath(repoPath) || !input || typeof input.name !== 'string' || !/^[A-Za-z0-9._-]{1,100}$/.test(input.name)) {
+      return { success: false, error: 'invalid-input' };
+    }
+    const existing = await runGit(['remote', 'get-url', 'origin'], repoPath);
+    if (existing.success) return { success: false, error: 'has-remote' };
+    const hasCommit = (await runGit(['rev-parse', '--verify', 'HEAD'], repoPath)).success;
+    if (!hasCommit) return { success: false, error: 'no-commits' };
+    try {
+      const repo = await api('/user/repos', { method: 'POST', body: { name: input.name, private: input.isPrivate !== false } });
+      await runGit(['remote', 'add', 'origin', repo.clone_url], repoPath);
+      const pushed = await runGit(['push', '--set-upstream', 'origin', 'HEAD'], repoPath, { auth: true });
+      if (!pushed.success) return { success: false, error: 'push-failed', detail: pushed.stderr, url: repo.html_url };
+      return { success: true, url: repo.html_url };
+    } catch (err) {
+      return { success: false, error: /already exists/i.test(err.message) ? 'repo-exists' : 'api-failed', detail: err.message };
+    }
+  });
+
   // Açık deponun GitHub'daki canlı durumu: açık PR sayısı, son Actions koşuları.
   ipcMain.handle('github:repoInfo', async (_e, repoPath) => {
     if (!session.token || !isValidPath(repoPath)) return { available: false };
@@ -244,6 +310,7 @@ function register({ getWindow, runGit, isValidPath }) {
         available: true,
         fullName: repo.full_name,
         url: repo.html_url,
+        defaultBranch: repo.default_branch,
         stars: repo.stargazers_count,
         openIssues: repo.open_issues_count,
         runs: (runs.workflow_runs || []).map((r) => ({

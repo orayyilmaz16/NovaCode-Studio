@@ -173,6 +173,144 @@ export const UI_TEXT = {
   ghNotConfigured: {
     tr: "GitHub bağlantısı bu sürümde henüz yapılandırılmamış. Lütfen daha sonra tekrar deneyin.", en: "GitHub sign-in is not configured in this version yet. Please try again later.", de: "Die GitHub-Anmeldung ist in dieser Version noch nicht konfiguriert. Bitte versuchen Sie es später erneut.", ru: "Вход через GitHub в этой версии ещё не настроен. Повторите попытку позже.", ar: "لم يتم إعداد تسجيل الدخول إلى GitHub في هذا الإصدار بعد. يرجى المحاولة لاحقًا.", es: "El acceso con GitHub aún no está configurado en esta versión. Inténtalo más tarde.", fr: "La connexion GitHub n’est pas encore configurée dans cette version. Réessayez plus tard.", az: "GitHub girişi bu versiyada hələ konfiqurasiya edilməyib. Zəhmət olmasa sonra yenidən cəhd edin.",
   },
+  gitBranch: {
+    tr: "Dal", en: "Branch", de: "Branch", ru: "Ветка", ar: "الفرع", es: "Rama", fr: "Branche", az: "Budaq",
+  },
+  gitNewBranch: {
+    tr: "Yeni dal", en: "New branch", de: "Neuer Branch", ru: "Новая ветка", ar: "فرع جديد", es: "Nueva rama", fr: "Nouvelle branche", az: "Yeni budaq",
+  },
+  gitBranchPlaceholder: {
+    tr: "dal-adı (örn: feature/arama)", en: "branch-name (e.g. feature/search)", de: "branch-name (z. B. feature/suche)", ru: "имя-ветки (напр. feature/search)", ar: "اسم-الفرع (مثل feature/search)", es: "nombre-rama (p. ej. feature/buscar)", fr: "nom-branche (ex. feature/recherche)", az: "budaq-adı (məs. feature/axtar)",
+  },
+  gitCreate: {
+    tr: "Oluştur", en: "Create", de: "Erstellen", ru: "Создать", ar: "إنشاء", es: "Crear", fr: "Créer", az: "Yarat",
+  },
+  gitSync: {
+    tr: "Eşzamanla (fetch + pull + push)", en: "Sync (fetch + pull + push)", de: "Synchronisieren (fetch + pull + push)", ru: "Синхронизировать (fetch + pull + push)", ar: "مزامنة (fetch + pull + push)", es: "Sincronizar (fetch + pull + push)", fr: "Synchroniser (fetch + pull + push)", az: "Sinxronlaşdır (fetch + pull + push)",
+  },
+  gitSyncDone: {
+    tr: "Eşzamanlandı.", en: "Synced.", de: "Synchronisiert.", ru: "Синхронизировано.", ar: "تمت المزامنة.", es: "Sincronizado.", fr: "Synchronisé.", az: "Sinxronlaşdırıldı.",
+  },
+  gitDiverged: {
+    tr: "Yerel ve uzak dal ayrıştı. Güvenlik için otomatik birleştirme yapılmadı; terminalde merge veya rebase ile çözün.", en: "Local and remote branches have diverged. Nothing was merged automatically; resolve it in the terminal with merge or rebase.", de: "Lokaler und Remote-Branch sind auseinandergelaufen. Es wurde nichts automatisch zusammengeführt; lösen Sie das im Terminal per merge oder rebase.", ru: "Локальная и удалённая ветки разошлись. Автоматического слияния не было; решите это в терминале через merge или rebase.", ar: "تباعد الفرعان المحلي والبعيد. لم يتم الدمج تلقائيًا؛ عالج ذلك في الطرفية عبر merge أو rebase.", es: "Las ramas local y remota han divergido. No se fusionó nada automáticamente; resuélvelo en la terminal con merge o rebase.", fr: "Les branches locale et distante ont divergé. Rien n’a été fusionné automatiquement ; résolvez dans le terminal avec merge ou rebase.", az: "Lokal və uzaq budaq ayrılıb. Avtomatik birləşdirmə edilmədi; terminalda merge və ya rebase ilə həll edin.",
+  },
+  gitStaged: {
+    tr: "Sahnelenen değişiklikler", en: "Staged changes", de: "Gestagte Änderungen", ru: "Подготовленные изменения", ar: "التغييرات المجهّزة", es: "Cambios preparados", fr: "Modifications indexées", az: "Hazırlanmış dəyişikliklər",
+  },
+  gitChanges: {
+    tr: "Değişiklikler", en: "Changes", de: "Änderungen", ru: "Изменения", ar: "التغييرات", es: "Cambios", fr: "Modifications", az: "Dəyişikliklər",
+  },
+  gitStageAll: {
+    tr: "Tümünü sahnele", en: "Stage all", de: "Alle stagen", ru: "Подготовить все", ar: "تجهيز الكل", es: "Preparar todo", fr: "Tout indexer", az: "Hamısını hazırla",
+  },
+  gitUnstageAll: {
+    tr: "Tümünü geri al", en: "Unstage all", de: "Alle entstagen", ru: "Убрать все", ar: "إلغاء تجهيز الكل", es: "Quitar todo", fr: "Tout désindexer", az: "Hamısını geri al",
+  },
+  gitStage: {
+    tr: "Sahnele", en: "Stage", de: "Stagen", ru: "Подготовить", ar: "تجهيز", es: "Preparar", fr: "Indexer", az: "Hazırla",
+  },
+  gitUnstage: {
+    tr: "Sahneden çıkar", en: "Unstage", de: "Entstagen", ru: "Убрать из индекса", ar: "إلغاء التجهيز", es: "Quitar", fr: "Désindexer", az: "Hazırlıqdan çıxar",
+  },
+  gitDiscard: {
+    tr: "Değişikliği at", en: "Discard changes", de: "Änderungen verwerfen", ru: "Отменить изменения", ar: "تجاهل التغييرات", es: "Descartar cambios", fr: "Annuler les modifications", az: "Dəyişikliyi at",
+  },
+  gitDiscardConfirm: {
+    tr: "Bu değişiklik kalıcı olarak silinecek ve geri alınamaz. Devam edilsin mi?", en: "This change will be permanently discarded and cannot be undone. Continue?", de: "Diese Änderung wird endgültig verworfen und kann nicht rückgängig gemacht werden. Fortfahren?", ru: "Это изменение будет безвозвратно отменено. Продолжить?", ar: "سيتم تجاهل هذا التغيير نهائيًا ولا يمكن التراجع عنه. هل تريد المتابعة؟", es: "Este cambio se descartará de forma permanente y no se puede deshacer. ¿Continuar?", fr: "Cette modification sera définitivement annulée et ne pourra pas être restaurée. Continuer ?", az: "Bu dəyişiklik həmişəlik silinəcək və geri qaytarıla bilməz. Davam edilsin?",
+  },
+  gitCommitPlaceholder: {
+    tr: "Commit mesajı (örn: feat: arama ekle)", en: "Commit message (e.g. feat: add search)", de: "Commit-Nachricht (z. B. feat: Suche hinzufügen)", ru: "Сообщение коммита (напр. feat: add search)", ar: "رسالة commit (مثل feat: add search)", es: "Mensaje de commit (p. ej. feat: añadir búsqueda)", fr: "Message de commit (ex. feat: ajouter la recherche)", az: "Commit mesajı (məs. feat: axtarış əlavə et)",
+  },
+  gitCommit: {
+    tr: "Commit", en: "Commit", de: "Commit", ru: "Коммит", ar: "Commit", es: "Commit", fr: "Commit", az: "Commit",
+  },
+  gitCommitDone: {
+    tr: "Commit oluşturuldu.", en: "Commit created.", de: "Commit erstellt.", ru: "Коммит создан.", ar: "تم إنشاء commit.", es: "Commit creado.", fr: "Commit créé.", az: "Commit yaradıldı.",
+  },
+  gitNothingStaged: {
+    tr: "Commit için önce dosyaları sahneleyin.", en: "Stage files first to commit.", de: "Stagen Sie zuerst Dateien für den Commit.", ru: "Сначала подготовьте файлы для коммита.", ar: "جهّز الملفات أولًا لإجراء commit.", es: "Prepara primero los archivos para hacer commit.", fr: "Indexez d’abord des fichiers pour commiter.", az: "Commit üçün əvvəlcə faylları hazırlayın.",
+  },
+  gitClean: {
+    tr: "Çalışma ağacı temiz.", en: "Working tree is clean.", de: "Arbeitsverzeichnis ist sauber.", ru: "Рабочее дерево чистое.", ar: "شجرة العمل نظيفة.", es: "El árbol de trabajo está limpio.", fr: "L’arbre de travail est propre.", az: "İş ağacı təmizdir.",
+  },
+  gitHistory: {
+    tr: "Geçmiş", en: "History", de: "Verlauf", ru: "История", ar: "السجل", es: "Historial", fr: "Historique", az: "Tarixçə",
+  },
+  gitNoCommits: {
+    tr: "Henüz commit yok.", en: "No commits yet.", de: "Noch keine Commits.", ru: "Коммитов пока нет.", ar: "لا توجد commits بعد.", es: "Aún no hay commits.", fr: "Aucun commit pour l’instant.", az: "Hələ commit yoxdur.",
+  },
+  gitInit: {
+    tr: "Git deposu oluştur", en: "Initialize Git repository", de: "Git-Repository initialisieren", ru: "Создать Git-репозиторий", ar: "تهيئة مستودع Git", es: "Inicializar repositorio Git", fr: "Initialiser un dépôt Git", az: "Git deposu yarat",
+  },
+  gitNotRepo: {
+    tr: "Bu klasör bir Git deposu değil.", en: "This folder is not a Git repository.", de: "Dieser Ordner ist kein Git-Repository.", ru: "Эта папка не является Git-репозиторием.", ar: "هذا المجلد ليس مستودع Git.", es: "Esta carpeta no es un repositorio Git.", fr: "Ce dossier n’est pas un dépôt Git.", az: "Bu qovluq Git deposu deyil.",
+  },
+  gitOpenFolder: {
+    tr: "Git kontrollerini görmek için bir klasör açın.", en: "Open a folder to see Git controls.", de: "Öffnen Sie einen Ordner, um die Git-Steuerung zu sehen.", ru: "Откройте папку, чтобы увидеть управление Git.", ar: "افتح مجلدًا لعرض عناصر تحكم Git.", es: "Abre una carpeta para ver los controles de Git.", fr: "Ouvrez un dossier pour voir les commandes Git.", az: "Git idarəetməsini görmək üçün qovluq açın.",
+  },
+  gitPull: {
+    tr: "Çek (pull)", en: "Pull", de: "Pull", ru: "Получить (pull)", ar: "سحب (pull)", es: "Traer (pull)", fr: "Tirer (pull)", az: "Çək (pull)",
+  },
+  gitPush: {
+    tr: "Gönder (push)", en: "Push", de: "Push", ru: "Отправить (push)", ar: "دفع (push)", es: "Enviar (push)", fr: "Pousser (push)", az: "Göndər (push)",
+  },
+  gitDone: {
+    tr: "İşlem tamamlandı.", en: "Done.", de: "Fertig.", ru: "Готово.", ar: "تم.", es: "Hecho.", fr: "Terminé.", az: "Tamamlandı.",
+  },
+  gitFailed: {
+    tr: "İşlem başarısız oldu.", en: "The operation failed.", de: "Der Vorgang ist fehlgeschlagen.", ru: "Операция не удалась.", ar: "فشلت العملية.", es: "La operación falló.", fr: "L’opération a échoué.", az: "Əməliyyat uğursuz oldu.",
+  },
+  gitConflict: {
+    tr: "Çakışma", en: "Conflict", de: "Konflikt", ru: "Конфликт", ar: "تعارض", es: "Conflicto", fr: "Conflit", az: "Konflikt",
+  },
+  prOpen: {
+    tr: "Pull Request aç", en: "Open a pull request", de: "Pull Request erstellen", ru: "Создать pull request", ar: "فتح طلب دمج", es: "Abrir pull request", fr: "Ouvrir une pull request", az: "Pull request aç",
+  },
+  prTitle: {
+    tr: "PR başlığı", en: "PR title", de: "PR-Titel", ru: "Заголовок PR", ar: "عنوان PR", es: "Título del PR", fr: "Titre de la PR", az: "PR başlığı",
+  },
+  prBody: {
+    tr: "Açıklama (isteğe bağlı)", en: "Description (optional)", de: "Beschreibung (optional)", ru: "Описание (необязательно)", ar: "الوصف (اختياري)", es: "Descripción (opcional)", fr: "Description (facultatif)", az: "Təsvir (könüllü)",
+  },
+  prDraft: {
+    tr: "Taslak olarak aç", en: "Open as draft", de: "Als Entwurf öffnen", ru: "Открыть как черновик", ar: "فتح كمسودة", es: "Abrir como borrador", fr: "Ouvrir en brouillon", az: "Qaralama kimi aç",
+  },
+  prSubmit: {
+    tr: "PR oluştur", en: "Create PR", de: "PR erstellen", ru: "Создать PR", ar: "إنشاء PR", es: "Crear PR", fr: "Créer la PR", az: "PR yarat",
+  },
+  prCreated: {
+    tr: "Pull request oluşturuldu.", en: "Pull request created.", de: "Pull Request erstellt.", ru: "Pull request создан.", ar: "تم إنشاء طلب الدمج.", es: "Pull request creado.", fr: "Pull request créée.", az: "Pull request yaradıldı.",
+  },
+  prOnDefault: {
+    tr: "Varsayılan daldasınız. PR için önce yeni bir dal oluşturup commit yapın.", en: "You are on the default branch. Create a new branch and commit before opening a PR.", de: "Sie befinden sich im Standard-Branch. Erstellen Sie vor dem PR einen neuen Branch und committen Sie.", ru: "Вы в основной ветке. Для PR создайте новую ветку и сделайте коммит.", ar: "أنت على الفرع الافتراضي. أنشئ فرعًا جديدًا وأجرِ commit قبل فتح PR.", es: "Estás en la rama predeterminada. Crea una rama nueva y haz commit antes del PR.", fr: "Vous êtes sur la branche par défaut. Créez une branche et commitez avant la PR.", az: "Siz əsas budaqdasınız. PR üçün əvvəlcə yeni budaq yaradıb commit edin.",
+  },
+  prExists: {
+    tr: "Bu dal için zaten açık bir PR var.", en: "An open PR already exists for this branch.", de: "Für diesen Branch existiert bereits ein offener PR.", ru: "Для этой ветки уже есть открытый PR.", ar: "يوجد طلب دمج مفتوح لهذا الفرع بالفعل.", es: "Ya existe un PR abierto para esta rama.", fr: "Une PR est déjà ouverte pour cette branche.", az: "Bu budaq üçün artıq açıq PR var.",
+  },
+  pubTitle: {
+    tr: "GitHub’da yayınla", en: "Publish to GitHub", de: "Auf GitHub veröffentlichen", ru: "Опубликовать на GitHub", ar: "نشر على GitHub", es: "Publicar en GitHub", fr: "Publier sur GitHub", az: "GitHub-da yayımla",
+  },
+  pubName: {
+    tr: "Depo adı", en: "Repository name", de: "Repository-Name", ru: "Имя репозитория", ar: "اسم المستودع", es: "Nombre del repositorio", fr: "Nom du dépôt", az: "Depo adı",
+  },
+  pubPrivate: {
+    tr: "Özel depo", en: "Private repository", de: "Privates Repository", ru: "Приватный репозиторий", ar: "مستودع خاص", es: "Repositorio privado", fr: "Dépôt privé", az: "Gizli depo",
+  },
+  pubSubmit: {
+    tr: "Yayınla", en: "Publish", de: "Veröffentlichen", ru: "Опубликовать", ar: "نشر", es: "Publicar", fr: "Publier", az: "Yayımla",
+  },
+  pubDone: {
+    tr: "Depo GitHub’da yayınlandı.", en: "Repository published on GitHub.", de: "Repository auf GitHub veröffentlicht.", ru: "Репозиторий опубликован на GitHub.", ar: "تم نشر المستودع على GitHub.", es: "Repositorio publicado en GitHub.", fr: "Dépôt publié sur GitHub.", az: "Depo GitHub-da yayımlandı.",
+  },
+  pubNoCommits: {
+    tr: "Yayınlamadan önce en az bir commit oluşturun.", en: "Create at least one commit before publishing.", de: "Erstellen Sie vor dem Veröffentlichen mindestens einen Commit.", ru: "Перед публикацией создайте хотя бы один коммит.", ar: "أنشئ commit واحدًا على الأقل قبل النشر.", es: "Crea al menos un commit antes de publicar.", fr: "Créez au moins un commit avant de publier.", az: "Yayımlamazdan əvvəl ən azı bir commit yaradın.",
+  },
+  pubExists: {
+    tr: "Bu adla bir depo zaten var.", en: "A repository with this name already exists.", de: "Ein Repository mit diesem Namen existiert bereits.", ru: "Репозиторий с таким именем уже существует.", ar: "يوجد مستودع بهذا الاسم بالفعل.", es: "Ya existe un repositorio con este nombre.", fr: "Un dépôt portant ce nom existe déjà.", az: "Bu adda depo artıq mövcuddur.",
+  },
+  gitSyncing: {
+    tr: "Eşzamanlanıyor...", en: "Syncing...", de: "Synchronisiere...", ru: "Синхронизация...", ar: "جارٍ المزامنة...", es: "Sincronizando...", fr: "Synchronisation...", az: "Sinxronlaşdırılır...",
+  },
 } satisfies Record<string, Dict>;
 
 export type UiTextKey = keyof typeof UI_TEXT;

@@ -24,7 +24,7 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 | `feat!:` / `BREAKING CHANGE:` | major (1.1.1 → 2.0.0) |
 | yalnız `docs:`/`ci:`/`test:` | sürüm artmaz |
 
-Sürüm elle artırılmaz; CI hesaplar. Elle sürüm değiştirmek gerekiyorsa (ör. 1.1.0 gibi bilinçli bir sürüm) `package.json` ve `package-lock.json` düzenlenip etiketlenir; CI ilk çalıştırmada o sürümü olduğu gibi yayınlar.
+Sürüm elle artırılmaz; CI hesaplar. İstisna: `package.json` sürümü son `vX.Y.Z` etiketinden büyükse (bilinçli minor/major, ör. `npm version minor --no-git-tag-version`) CI o sürümü olduğu gibi yayınlar ve etiketler. Elle sürüm değiştirmek gerekiyorsa (ör. 1.1.0 gibi bilinçli bir sürüm) `package.json` ve `package-lock.json` düzenlenip etiketlenir; CI ilk çalıştırmada o sürümü olduğu gibi yayınlar.
 
 ### Sürüm notları (TR + EN)
 - Her kullanıcıya görünen değişiklikte `CHANGELOG.md` içindeki `## Unreleased` bölümüne iki dilde madde yaz:

@@ -32,6 +32,15 @@ const bullets = (lang) => {
 const manualTr = bullets("tr");
 const manualEn = bullets("en");
 
+// Bilinçli (elle yükseltilmiş) sürüm: package.json sürümü son etiketten büyükse CI onu olduğu gibi yayınlar.
+const cmpVer = (a, c) => {
+  const x = a.split(".").map(Number);
+  const y = c.split(".").map(Number);
+  for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0);
+  return 0;
+};
+const pkgAhead = !!lastTag && cmpVer(pkg.version, lastTag.slice(1)) > 0;
+
 // İlk çalışma: mevcut sürümü etiketle, artırma (kendi sürüm notunu da üretir).
 let level = 0; // 1 patch, 3 major
 let commitSubjects = [];
@@ -55,7 +64,7 @@ if (lastTag) {
   }
   if (commits.length && !commitSubjects.length) commitSubjects = ["Otomatik kayıt (oturum değişiklikleri)"];
 
-  if (level === 0) {
+  if (level === 0 && !pkgAhead) {
     out("version", pkg.version);
     out("bumped", "false");
     out("release", "false");
@@ -66,11 +75,11 @@ if (lastTag) {
 
 const base = lastTag ? lastTag.slice(1).split(".").map(Number) : pkg.version.split(".").map(Number);
 const [maj, min, pat] = base;
-const next = !lastTag
+const next = !lastTag || pkgAhead
   ? pkg.version
   : level === 3 ? `${maj + 1}.0.0` : `${maj}.${min}.${pat + 1}`;
 
-if (lastTag) {
+if (lastTag && !pkgAhead) {
   pkg.version = next;
   writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
   if (existsSync("package-lock.json")) {
@@ -116,6 +125,6 @@ const emptyUnreleased = "## Unreleased\n\n### tr\n\n### en\n";
 writeFileSync("CHANGELOG.md", `# Changelog\n\n${emptyUnreleased}\n${section}\n\n${withoutUnreleased}`.trimEnd() + "\n");
 
 out("version", next);
-out("bumped", lastTag ? "true" : "false");
+out("bumped", lastTag && !pkgAhead ? "true" : "false");
 out("release", "true");
 out("notes_file", notesFile);

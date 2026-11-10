@@ -8,6 +8,7 @@ const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
 let mainWindow;
 let activeWatcher = null;
+let activeGitWatcher = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -53,6 +54,10 @@ function createWindow() {
 }
 
 function stopFileWatcher() {
+  if (activeGitWatcher) {
+    try { activeGitWatcher.close(); } catch (e) { /* zaten kapalı */ }
+    activeGitWatcher = null;
+  }
   if (activeWatcher) {
     try { activeWatcher.close(); } catch (e) { /* zaten kapalı */ }
     activeWatcher = null;
@@ -139,6 +144,25 @@ function startFileWatcher(rootPath) {
       }
     });
     activeWatcher = watcher;
+
+    // .git içindeki HEAD/index/refs değişimleri: terminalde veya başka araçta yapılan commit, checkout,
+    // fetch anında arayüze yansır (nesne dosyaları yok sayılır).
+    const gitDir = path.join(rootPath, '.git');
+    if (fs.existsSync(gitDir) && fs.statSync(gitDir).isDirectory()) {
+      let gitTimer;
+      activeGitWatcher = fs.watch(gitDir, { recursive: true }, (_t, filename) => {
+        const f = filename ? String(filename).split('\\').join('/') : '';
+        if (!/^(HEAD|index|MERGE_HEAD|ORIG_HEAD|FETCH_HEAD|packed-refs|refs\/.*)$/.test(f) || f.endsWith('.lock')) return;
+        clearTimeout(gitTimer);
+        gitTimer = setTimeout(() => {
+          if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('git:changed', { rootPath });
+        }, 150);
+      });
+      activeGitWatcher.on('error', () => {
+        try { activeGitWatcher && activeGitWatcher.close(); } catch (e) { /* kapalı */ }
+        activeGitWatcher = null;
+      });
+    }
   } catch (e) {
     console.warn('File watcher could not be attached:', e);
   }
@@ -274,100 +298,27 @@ ipcMain.handle('fs:renameItem', async (_event, oldPath, newPath) => {
 // IPC Handlers: Real Git Integration
 // ----------------------------------------------------
 // Kabuk kullanılmaz (execFile): argümanlar doğrudan git'e gider, enjeksiyon olmaz.
-function runGitCommand(args, cwd, { auth = false, timeout = 120000 } = {}) {
+function runGitCommand(args, cwd, { auth = false, raw = false, timeout = 120000 } = {}) {
   return new Promise((resolve) => {
     if (!isValidPath(cwd) || !fs.existsSync(cwd)) {
       resolve({ success: false, stdout: '', stderr: 'Geçersiz depo yolu.' });
       return;
     }
     // GIT_TERMINAL_PROMPT=0: kimlik sorusunda sonsuza dek beklemek yerine hata ver.
-    const env = { ...process.env, GIT_TERMINAL_PROMPT: '0', ...(auth ? github.gitAuthEnv() : {}) };
+    const env = { ...process.env, GIT_TERMINAL_PROMPT: '0', LC_ALL: 'C', ...(auth ? github.gitAuthEnv() : {}) };
     execFile('git', args, { cwd, env, timeout, windowsHide: true, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
       resolve({
         success: !error,
-        stdout: stdout ? stdout.trim() : '',
+        stdout: stdout ? (raw ? stdout : stdout.trim()) : '',
         stderr: stderr ? stderr.trim() : (error ? error.message : '')
       });
     });
   });
 }
 
-// GitHub hesabı bağlı değilken Git verisi (değişiklikler, commit, push, pull) uygulamaya sunulmaz.
-const GITHUB_REQUIRED = { success: false, stdout: '', stderr: 'github-required' };
-
-ipcMain.handle('git:status', async (_event, repoPath) => {
-  if (!github.isConnected()) return { isRepo: false, locked: true, changes: [] };
-  if (!isValidPath(repoPath)) return { isRepo: false };
-  const check = await runGitCommand(['rev-parse', '--is-inside-work-tree'], repoPath);
-  if (!check.success || check.stdout !== 'true') {
-    return { isRepo: false };
-  }
-
-  const [branchRes, statusRes, abRes, remoteRes] = await Promise.all([
-    runGitCommand(['branch', '--show-current'], repoPath),
-    runGitCommand(['status', '--short'], repoPath),
-    runGitCommand(['rev-list', '--left-right', '--count', '@{upstream}...HEAD'], repoPath),
-    runGitCommand(['remote', 'get-url', 'origin'], repoPath)
-  ]);
-  let behind = 0;
-  let ahead = 0;
-  let hasUpstream = false;
-  if (abRes.success) {
-    const [b, a] = abRes.stdout.split(/\s+/).map(Number);
-    behind = b || 0;
-    ahead = a || 0;
-    hasUpstream = true;
-  }
-
-  const changes = statusRes.stdout
-    ? statusRes.stdout.split('\n').filter(Boolean).map(line => {
-        const code = line.substring(0, 2).trim();
-        const file = line.substring(3).trim();
-        return { code, file };
-      })
-    : [];
-
-  return {
-    isRepo: true,
-    branch: branchRes.stdout || 'main',
-    ahead,
-    behind,
-    hasUpstream,
-    hasRemote: remoteRes.success,
-    changes
-  };
-});
-
-ipcMain.handle('git:commit', async (_event, repoPath, message) => {
-  if (!github.isConnected()) return GITHUB_REQUIRED;
-  if (typeof message !== 'string' || !message.trim() || message.length > 500) {
-    return { success: false, stdout: '', stderr: 'Geçersiz commit mesajı.' };
-  }
-  await runGitCommand(['add', '.'], repoPath);
-  return runGitCommand(['commit', '-m', message], repoPath);
-});
-
-ipcMain.handle('git:push', async (_event, repoPath) => {
-  if (!github.isConnected()) return GITHUB_REQUIRED;
-  const res = await runGitCommand(['push'], repoPath, { auth: true });
-  if (!res.success && /no upstream branch/i.test(res.stderr)) {
-    // İlk push: yukarı akış dalını otomatik ayarla.
-    return runGitCommand(['push', '--set-upstream', 'origin', 'HEAD'], repoPath, { auth: true });
-  }
-  return res;
-});
-
-ipcMain.handle('git:fetch', async (_event, repoPath) => {
-  if (!github.isConnected()) return GITHUB_REQUIRED;
-  return runGitCommand(['fetch', '--prune'], repoPath, { auth: true, timeout: 30000 });
-});
-
-ipcMain.handle('git:pull', async (_event, repoPath) => {
-  if (!github.isConnected()) return GITHUB_REQUIRED;
-  return runGitCommand(['pull', '--ff-only'], repoPath, { auth: true });
-});
-
+const gitModule = require('./electron-git.cjs');
 github.register({ getWindow: () => mainWindow, runGit: runGitCommand, isValidPath });
+gitModule.register({ runGit: runGitCommand, github, isValidPath });
 
 // ----------------------------------------------------
 // IPC Handlers: Gerçek shell (PowerShell / CMD), kalıcı oturumlar

@@ -1,7 +1,7 @@
 {
   "name": "novacode-studio",
   "productName": "NovaCode Studio",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "novaGithubClientId": "",
   "description": "Profesyonel Masaüstü ve Web Destekli Kod Editörü",
   "license": "MIT",
@@ -29,6 +29,7 @@
       "electron-main.cjs",
       "electron-preload.cjs",
       "electron-github.cjs",
+      "electron-git.cjs",
       "package.json"
     ],
     "win": {

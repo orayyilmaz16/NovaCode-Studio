@@ -15,7 +15,7 @@ import {
   Check,
   Power
 } from 'lucide-react';
-import { FileTree } from './components/FileTree';
+import { FileTree, normGitPath } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
 import { Terminal } from './components/Terminal';
 import { Preview } from './components/Preview';
@@ -145,10 +145,17 @@ export function App() {
 
   // GitHub bağlanınca/çıkınca Git durumu hemen yenilenir (bağlı değilken Git verisi kilitlidir).
   useEffect(() => {
-    const off = window.electronAPI?.github?.onAuth(() => {
+    const offAuth = window.electronAPI?.github?.onAuth(() => {
       void refreshGitStatusRef.current();
     });
-    return off;
+    // .git içindeki HEAD/index/refs değişimi (terminal, başka araç) anında yansır.
+    const offGit = window.electronAPI?.onGitChanged?.(() => {
+      void refreshGitStatusRef.current();
+    });
+    return () => {
+      offAuth?.();
+      offGit?.();
+    };
   }, []);
 
   // Kısayol tuşları. Dinleyici tek sefer kurulur; her render'da güncel işleyiciye yönlenir.
@@ -193,6 +200,25 @@ export function App() {
       setActiveFileId(next.id);
     }
   };
+
+  // Dosya ağacı için Git durumu: dosya -> harf, üst klasörler -> 'dir'
+  const gitDecor = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    if (!currentRootPath || !gitStatus.isRepo) return map;
+    const root = currentRootPath.split('\\').join('/').replace(/\/+$/, '');
+    for (const f of gitStatus.files ?? []) {
+      const letter = f.untracked ? 'U' : f.worktree || f.index || 'M';
+      const abs = `${root}/${f.path}`;
+      map[normGitPath(abs)] = letter;
+      let dir = abs.slice(0, abs.lastIndexOf('/'));
+      while (dir.length > root.length) {
+        const k = normGitPath(dir);
+        if (!map[k]) map[k] = 'dir';
+        dir = dir.slice(0, dir.lastIndexOf('/'));
+      }
+    }
+    return map;
+  }, [gitStatus, currentRootPath]);
 
   const handleNewUntitled = () => {
     untitledCounter.current += 1;
@@ -326,51 +352,6 @@ export function App() {
   };
 
   refreshGitStatusRef.current = refreshGitStatus;
-
-  const handleGitCommit = async (message: string): Promise<boolean> => {
-    if (!currentRootPath || !window.electronAPI?.gitCommit) return false;
-    const res = await window.electronAPI.gitCommit(currentRootPath, message);
-    if (res.success) {
-      addLog('info', `Git commit oluşturuldu: "${message}"`);
-      await refreshGitStatus();
-      return true;
-    } else {
-      addLog('error', `Git commit hatası: ${res.stderr}`);
-      return false;
-    }
-  };
-
-  const handleGitPush = async (): Promise<boolean> => {
-    if (!currentRootPath || !window.electronAPI?.gitPush) return false;
-    addLog('info', 'Git Push başlatılıyor...');
-    const res = await window.electronAPI.gitPush(currentRootPath);
-    if (res.success) {
-      addLog('info', 'Git Push başarıyla tamamlandı.');
-      await refreshGitStatus();
-      return true;
-    } else {
-      addLog('error', `Git Push hatası: ${res.stderr}`);
-      return false;
-    }
-  };
-
-  const handleGitPull = async (): Promise<boolean> => {
-    if (!currentRootPath || !window.electronAPI?.gitPull) return false;
-    addLog('info', 'Git Pull başlatılıyor...');
-    const res = await window.electronAPI.gitPull(currentRootPath);
-    if (res.success) {
-      addLog('info', 'Git Pull tamamlandı.');
-      if (currentRootPath) {
-        const tree = await window.electronAPI.readDirectory(currentRootPath);
-        setFiles(tree);
-      }
-      await refreshGitStatus();
-      return true;
-    } else {
-      addLog('error', `Git Pull hatası: ${res.stderr}`);
-      return false;
-    }
-  };
 
   // ----------------------------------------------------
   // Dosya Seçim & Okuma & Kaydetme
@@ -760,6 +741,7 @@ export function App() {
           <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0">
             <FileTree
               isLoading={isLoadingProject}
+              gitDecor={gitDecor}
               files={files}
               activeFileId={activeFileId}
               currentRootName={currentRootName}
@@ -783,9 +765,7 @@ export function App() {
                 status={gitStatus}
                 currentRepoPath={currentRootPath}
                 onRefresh={() => refreshGitStatus()}
-                onCommit={handleGitCommit}
-                onPush={handleGitPush}
-                onPull={handleGitPull}
+                onLog={(type, text) => addLog(type, text)}
               />
             </div>
           </div>

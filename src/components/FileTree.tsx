@@ -22,9 +22,21 @@ interface FileTreeProps {
   onOpenFolder?: () => void;
   onOpenFiles?: () => void;
   isLoading?: boolean;
+  /** Normalleştirilmiş mutlak yol -> Git durum harfi (M, A, U, D, R) veya 'dir' (içinde değişiklik var). */
+  gitDecor?: Record<string, string>;
 }
 
+const GIT_NAME_COLOR: Record<string, string> = {
+  M: 'text-amber-300',
+  A: 'text-emerald-300',
+  U: 'text-emerald-300',
+  D: 'text-rose-300 line-through',
+  R: 'text-sky-300'
+};
+export const normGitPath = (p?: string) => (p ? p.split('\\').join('/').toLowerCase() : '');
+
 export const FileTree: React.FC<FileTreeProps> = ({
+  gitDecor,
   files,
   activeFileId,
   currentRootName,
@@ -94,6 +106,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
               )}
               <Folder size={14} className="mr-1.5 text-amber-400 fill-amber-400/20 shrink-0" />
               <span className="truncate flex-1 font-medium">{item.name}</span>
+              {gitDecor?.[normGitPath(item.path)] === 'dir' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 ml-1.5 shrink-0" />}
             </div>
 
             {item.isOpen && item.children && (
@@ -116,7 +129,12 @@ export const FileTree: React.FC<FileTreeProps> = ({
         >
           <div className="flex items-center truncate flex-1">
             {getFileIcon(item.name)}
-            <span className="truncate">{item.name}</span>
+            <span className={`truncate ${GIT_NAME_COLOR[gitDecor?.[normGitPath(item.path)] ?? ''] ?? ''}`}>{item.name}</span>
+            {gitDecor?.[normGitPath(item.path)] && gitDecor[normGitPath(item.path)] !== 'dir' && (
+              <span className={`ml-auto pl-2 font-mono text-[10px] shrink-0 ${GIT_NAME_COLOR[gitDecor[normGitPath(item.path)]]?.split(' ')[0] ?? 'text-zinc-400'}`}>
+                {gitDecor[normGitPath(item.path)]}
+              </span>
+            )}
             {item.isModified && (
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1.5 shrink-0" />
             )}
