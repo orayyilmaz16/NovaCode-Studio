@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execFile, execFileSync, spawn } = require('child_process');
+const { execFile } = require('child_process');
 const github = require('./electron-github.cjs');
 const secrets = require('./electron-secrets.cjs');
 
@@ -42,6 +42,12 @@ function createWindow() {
   }
 
   mainWindow.once('ready-to-show', () => {
+    // NOVA_HEADLESS=1: otomatik testler için pencere ekran dışında, odaksız açılır (render sürer, kullanıcı görmez/etkilemez).
+    if (process.env.NOVA_HEADLESS === '1') {
+      mainWindow.setPosition(-3200, -3200);
+      mainWindow.showInactive();
+      return;
+    }
     mainWindow.show();
     mainWindow.focus();
   });
@@ -387,152 +393,9 @@ github.register({ getWindow: () => mainWindow, runGit: runGitCommand, isValidPat
 gitModule.register({ runGit: runGitCommand, github, isValidPath });
 
 // ----------------------------------------------------
-// IPC Handlers: Gerçek shell (PowerShell / CMD), kalıcı oturumlar
+// Entegre terminal: çoklu kabuk oturumları (electron-term.cjs)
 // ----------------------------------------------------
-// PTY değil, stdin/stdout borusu: çoğu komut çalışır, renkli/tam ekran programlar çalışmaz.
-// Her shell bir kez başlar ve sekme değişince kapanmaz; böylece tekrar açmak anında olur.
-const shells = new Map(); // name -> { proc, cwd }
-let cachedPwsh = null;
-
-function hasPwsh() {
-  if (cachedPwsh !== null) return cachedPwsh;
-  if (process.platform !== 'win32') return (cachedPwsh = false);
-  try { execFileSync('where.exe', ['pwsh'], { windowsHide: true, stdio: 'ignore' }); cachedPwsh = true; }
-  catch { cachedPwsh = false; }
-  return cachedPwsh;
-}
-
-function stopShell(name) {
-  const entry = shells.get(name);
-  if (entry) {
-    try { entry.proc.kill(); } catch (e) {}
-    shells.delete(name);
-  }
-}
-
-// Her komuttan sonra shell'e çalışma klasörünü yazdırtırız; bu satırları yakalayıp arayüzde istemde gösteririz.
-const CWD_MARK = '@@NOVA_CWD@@';
-
-function cwdProbe(name) {
-  return name === 'cmd' ? `echo ${CWD_MARK}%CD%\r\n` : `Write-Host "${CWD_MARK}$((Get-Location).Path)"\n`;
-}
-
-// Akıştaki işaret satırlarını ayıklar. Tamamlanmamış satır işaretin başlangıcıysa bir sonraki parçaya kadar bekletilir.
-function makeCwdFilter(name) {
-  let buf = '';
-  // CMD, kodlama değişmeden önce (bozuk karakterli) açılış başlığını basar; ilk işarete kadar çıktıyı at.
-  let waitFirstMark = name === 'cmd';
-  return (text) => {
-    buf += text;
-    const parts = buf.split('\n');
-    const tail = parts.pop();
-    let out = '';
-    for (const line of parts) {
-      const clean = line.replace(/\r$/, '');
-      const idx = clean.indexOf(CWD_MARK);
-      if (idx >= 0) {
-        waitFirstMark = false;
-        sendTerm('term:cwd', { shell: name, cwd: clean.slice(idx + CWD_MARK.length).trim() });
-        // İşaretten önce gerçek çıktı varsa (satır sonu olmayan program çıktısı) onu koru.
-        const before = clean.slice(0, idx).replace(/\x1b\[[0-9;]*m/g, '');
-        if (before.trim()) out += clean.slice(0, idx) + '\n';
-      } else if (!waitFirstMark) {
-        out += clean + '\n';
-      }
-    }
-    if (waitFirstMark) {
-      buf = tail.length < 4096 ? tail : '';
-      return out;
-    }
-    const bare = tail.replace(/\x1b\[[0-9;]*m/g, '');
-    if (bare && (CWD_MARK.startsWith(bare) || bare.startsWith(CWD_MARK))) {
-      buf = tail;
-    } else {
-      buf = '';
-      out += tail;
-    }
-    return out;
-  };
-}
-
-function sendTerm(channel, payload) {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send(channel, payload);
-  }
-}
-
-ipcMain.handle('term:start', async (_event, shellName, cwd) => {
-  const name = shellName === 'cmd' ? 'cmd' : 'powershell';
-  if (!isValidPath(cwd) || !fs.existsSync(cwd)) {
-    return { success: false, error: 'Çalışma klasörü yok. Önce bir klasör açın.' };
-  }
-  const existing = shells.get(name);
-  if (existing && existing.cwd === cwd && existing.proc.exitCode === null) {
-    existing.proc.stdin.write(cwdProbe(name)); // arayüz istemi güncel çalışma klasörünü öğrensin
-    return { success: true, shell: name, reused: true };
-  }
-  stopShell(name);
-
-  const isCmd = name === 'cmd';
-  const command = isCmd ? 'cmd.exe' : (process.platform === 'win32' ? (hasPwsh() ? 'pwsh.exe' : 'powershell.exe') : 'bash');
-  const args = isCmd
-    ? ['/Q']
-    : process.platform === 'win32'
-      ? ['-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', '-']
-      : [];
-  let proc;
-  try {
-    proc = spawn(command, args, {
-      cwd,
-      windowsHide: true,
-      env: { ...process.env, FORCE_COLOR: '1', CLICOLOR_FORCE: '1', TERM: 'xterm-256color' }
-    });
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
-  shells.set(name, { proc, cwd });
-
-  // Türkçe karakterler için çıktı kodlamasını UTF-8'e al (Windows varsayılanı OEM kod sayfası).
-  if (isCmd) {
-    // chcp: UTF-8; prompt: CMD boru girdisinde bile istem basar, onu görünmez yapıp istemi arayüz çizer.
-    proc.stdin.write('chcp 65001 >nul\r\nprompt $E[0m\r\n');
-  } else if (process.platform === 'win32') {
-    // PowerShell 7.2+ renkli (ANSI) çıktı verir; 5.1'de $PSStyle yoktur, koşul bunu korur.
-    proc.stdin.write('[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; if ($PSStyle) { $PSStyle.OutputRendering = "Ansi" }\n');
-  }
-  proc.stdin.write(cwdProbe(name));
-  const outFilter = makeCwdFilter(name);
-  proc.stdout.on('data', (chunk) => {
-    const text = outFilter(chunk.toString('utf8'));
-    if (text) sendTerm('term:output', { shell: name, text, stream: 'stdout' });
-  });
-  proc.stderr.on('data', (chunk) => sendTerm('term:output', { shell: name, text: chunk.toString('utf8'), stream: 'stderr' }));
-  proc.on('error', (err) => sendTerm('term:output', { shell: name, text: `\n[shell hatası] ${err.message}\n` }));
-  proc.on('exit', (code) => {
-    if (shells.get(name)?.proc === proc) shells.delete(name);
-    sendTerm('term:exit', { shell: name, code });
-  });
-  return { success: true, shell: command };
-});
-
-ipcMain.handle('term:input', async (_event, shellName, line) => {
-  const entry = shells.get(shellName === 'cmd' ? 'cmd' : 'powershell');
-  if (!entry || typeof line !== 'string' || line.length > 10000) {
-    return { success: false, error: 'Shell çalışmıyor.' };
-  }
-  if (line.includes('\0')) return { success: false, error: 'Geçersiz komut.' };
-  entry.proc.stdin.write(line + '\n' + cwdProbe(shellName === 'cmd' ? 'cmd' : 'powershell'));
-  return { success: true };
-});
-
-ipcMain.handle('term:stop', async (_event, shellName) => {
-  stopShell(shellName === 'cmd' ? 'cmd' : 'powershell');
-  return { success: true };
-});
-
-app.on('before-quit', () => {
-  for (const name of [...shells.keys()]) stopShell(name);
-});
+require('./electron-term.cjs').register({ getWindow: () => mainWindow, isValidPath });
 
 // Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();

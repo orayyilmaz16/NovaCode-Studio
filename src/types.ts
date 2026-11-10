@@ -124,12 +124,12 @@ export interface ElectronBridge {
   gitPush: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
   gitPull: (repoPath: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
   onFileChanged: (callback: (data: { filename: string; rootPath: string; changed?: string[] }) => void) => () => void;
-  termStart: (shell: 'powershell' | 'cmd', cwd: string) => Promise<{ success: boolean; error?: string; shell?: string }>;
-  termInput: (shell: 'powershell' | 'cmd', line: string) => Promise<{ success: boolean; error?: string }>;
-  termStop: (shell: 'powershell' | 'cmd') => Promise<{ success: boolean }>;
-  onTermOutput: (callback: (data: { shell: 'powershell' | 'cmd'; text: string; stream?: 'stdout' | 'stderr' }) => void) => () => void;
-  onTermExit: (callback: (data: { shell: 'powershell' | 'cmd'; code: number | null }) => void) => () => void;
-  onTermCwd: (callback: (data: { shell: 'powershell' | 'cmd'; cwd: string }) => void) => () => void;
+  termStart: (shell: 'powershell' | 'cmd', cwd: string, id: string) => Promise<{ success: boolean; error?: string; shell?: string; reused?: boolean }>;
+  termInput: (id: string, line: string) => Promise<{ success: boolean; error?: string }>;
+  termStop: (id: string) => Promise<{ success: boolean }>;
+  onTermOutput: (callback: (data: { id: string; shell: 'powershell' | 'cmd'; text: string; stream?: 'stdout' | 'stderr' }) => void) => () => void;
+  onTermExit: (callback: (data: { id: string; shell: 'powershell' | 'cmd'; code: number | null }) => void) => () => void;
+  onTermCwd: (callback: (data: { id: string; shell: 'powershell' | 'cmd'; cwd: string }) => void) => () => void;
   gitFetch: (repoPath: string) => Promise<GitResult>;
   gitStage: (repoPath: string, paths: string[]) => Promise<GitResult>;
   gitStageAll: (repoPath: string) => Promise<GitResult>;

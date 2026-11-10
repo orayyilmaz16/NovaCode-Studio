@@ -17,7 +17,7 @@
     "electron:dev": "concurrently -k \"cross-env BROWSER=none vite\" \"wait-on tcp:5173 && cross-env NODE_ENV=development electron .\"",
     "electron:build": "vite build && electron-builder",
     "sync:server": "node server/sync-server.mjs",
-    "test": "node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs",
+    "test": "node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs",
     "brain": "node scripts/brain.mjs",
     "brain:check": "node scripts/brain.mjs --check"
   },
@@ -34,6 +34,7 @@
       "electron-github.cjs",
       "electron-git.cjs",
       "electron-secrets.cjs",
+      "electron-term.cjs",
       "package.json"
     ],
     "win": {

@@ -69,9 +69,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('term:cwd', listener);
     return () => ipcRenderer.removeListener('term:cwd', listener);
   },
-  termStart: (shell, cwd) => ipcRenderer.invoke('term:start', shell, cwd),
-  termInput: (shell, line) => ipcRenderer.invoke('term:input', shell, line),
-  termStop: (shell) => ipcRenderer.invoke('term:stop', shell),
+  termStart: (shell, cwd, id) => ipcRenderer.invoke('term:start', shell, cwd, id),
+  termInput: (id, line) => ipcRenderer.invoke('term:input', id, line),
+  termStop: (id) => ipcRenderer.invoke('term:stop', id),
   onTermOutput: (callback) => {
     const listener = (_event, data) => callback(data);
     ipcRenderer.on('term:output', listener);

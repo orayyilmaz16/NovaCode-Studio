@@ -23,6 +23,19 @@ triggers: ["tasarım", "tema", "logo", "renk", "animasyon", "arayüz"]
 ## Düzen
 Başlık çubuğu (36 px, özel; pencere düğmeleri sistemden) → etkinlik çubuğu (48 px) → kenar çubuğu → editör (sekmeler + yol göstergesi) → alt panel → durum çubuğu (22 px). Kısayol: Ctrl+B kenar çubuğu.
 
+## Kenar çubuğu ve Gezgin (VS Code son sürüm uyumlu)
+- Başlık: `GEZGİN` + `…` menüsü. Bölümler: **Açık düzenleyiciler** (sayaç rozeti, kapatma, kirli nokta) ve **çalışma alanı** (proje adı büyük harf; üzerine gelince Yeni dosya / Yeni klasör / Yenile / Hepsini daralt).
+- Ağaç: 22 px (sıkı) veya 28 px (rahat) satır, dönen chevron, renkli dosya simgeleri, girinti kılavuzları, Git harfleri/noktaları. Açılıp kapanma `grid-template-rows` animasyonuyla.
+- **Satır içi** oluşturma (Enter/Esc) ve yeniden adlandırma (F2); sağ tık menüsü (yeni, yeniden adlandır, sil, yolu kopyala); klavye: ↑ ↓ ← → Home End Enter F2 Del.
+- Kenar çubuğu konumu (sol/sağ), etkinlik çubuğu, durum çubuğu, breadcrumb ve açık düzenleyiciler **ayarlarla** gizlenip gösterilebilir.
+- Kenar çubuğu ve terminal paneli açılıp kapanırken **boyut animasyonlu**; sürüklerken geçiş kapanır (`<html data-resizing>`).
+
+## Açılır menü ve geçişler
+`PopupMenu` (`Menu.tsx`): `animate-menu` (120 ms), ↑/↓/Enter/Esc, dışarı tıklayınca kapanır, ekrandan taşmaz. Yeni listeler/menüler bunu kullanır.
+
+## Boşluk disiplini
+Gereksiz yer kaplayan öğeler yok: sürüm etiketi başlık çubuğunda değil (Hakkında/Karşılama'da), durum çubuğunda yalnız anlamlı bilgi (dal, hesap, kaydedilmedi, boşluk/kodlama/dil), terminal paneli varsayılan kapalı, tek satırlık boş durumlar.
+
 ## Hareket
 Tanımlı sınıflar: `animate-fade-in`, `animate-sidebar-in`, `animate-panel-up`, `animate-tab-in`, `ab-item`, `icon-btn`, `status-item`, logo çizim animasyonu. Süre 120–250 ms, `ease-out-soft`. `prefers-reduced-motion` ile hepsi kapanır; bunu bozma.
 

@@ -2,6 +2,14 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 10.11.2026 (terminal ve gezgin)
+- **Terminal çoklu ve kimlikli oturumlar** (`electron-term.cjs`, `id`, en çok 12). Neden: VS Code deneyimi (birden çok terminal, oturum listesi); eski tasarım kabuk adına bağlıydı. Terminal kodu ana süreçten ayrı modüle taşındı ve gerçek kabuklarla test edilir.
+- **İstem satırı çıktının sonunda satır içi**, ayrı giriş çubuğu kaldırıldı. Neden: gerçek terminal hissi ve daha az yer.
+- **Terminal paneli her zaman bağlı, varsayılan kapalı.** Neden: panel gizliyken oturumlar ve çıktı kaybolmasın; açılışta gereksiz yer kaplamasın. Son terminal kapanınca panel kapanır.
+- **Gezgin yeniden yazıldı** (bölümler, satır içi oluşturma/yeniden adlandırma, bağlam menüsü, klavye gezinmesi, animasyonlu açılma). Genişlik/yükseklik geçişleri CSS ile; sürüklerken geçiş kapalı.
+- **Yerleşim özelleştirilebilir:** kenar çubuğu sol/sağ, etkinlik ve durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzlar ayarlardadır.
+- **Test örneği için `NOVA_HEADLESS=1`** (ekran dışı pencere). Neden: otomatik testler kullanıcının açık penceresiyle karışmasın.
+
 ## 10.11.2026 (ayarlar)
 - **Ayarlar şema güdümlü ve gerçek zamanlı** (`settingsSchema.json` tek kaynak). Neden: eski panel çalışmıyordu ve genişletilemezdi; şema arayüzü, doğrulamayı ve belgeyi birlikte üretir. Bkz. [[settings]].
 - **Açık tema CSS değişken geçersiz kılmasıyla.** Neden: bileşenlerde moda göre dallanma olmasın; `zinc-*`/`nv-*`/`--ansi-*` değişkenleri yeter.

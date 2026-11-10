@@ -36,7 +36,16 @@
 - Düzeltme: dosya açık değilken sekme çubuğundaki gereksiz `+` düğmesi gizlendi.
 - Dökümantasyon: README yenilendi; `docs/brain/` içine `settings` aksiyonu, ayar tablosu (şemadan otomatik) ve karar günlüğü eklendi; `brain:check` ayar şemasını ve çevirileri de denetler.
 
+- Terminal VS Code gibi yenilendi: birden çok terminal (+ ▾ ile PowerShell/CMD seçimi), sağda oturum listesi, paneli büyüt/küçült/kapat, istem satırı çıktının sonunda satır içi, blok/çubuk/alt çizgi imleç, `Ctrl+C` ile satır iptali. Panel varsayılan kapalı; gizliyken oturumlar canlı kalır. Terminal kodu `electron-term.cjs` modülüne taşındı ve gerçek kabuklarla test edilir (`npm test`).
+- Gezgin VS Code son sürüme uyarlandı: "Açık düzenleyiciler" ve çalışma alanı bölümleri, satır içi oluşturma, F2 ile yeniden adlandırma, sağ tık menüsü, klavye gezinmesi, girinti kılavuzları, animasyonlu klasör açma. Alt klasörde dosya/klasör oluşturma ve klasör silme düzeltildi.
+- Yer kaplayan öğeler kaldırıldı (başlıktaki sürüm etiketi, anlamsız durum çubuğu öğeleri); durum çubuğu yalnız anlamlı bilgi gösterir. Yeni geçişler: açılır menüler, kenar çubuğu ve terminal paneli boyut animasyonu.
+- 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
+
 ### en
+- The terminal was rebuilt VS Code-style: multiple terminals (+ ▾ to pick PowerShell/CMD), a session list on the right, maximize/restore/close, an inline prompt at the end of the output, block/bar/underline cursor, `Ctrl+C` cancels the line. The panel is closed by default and sessions stay alive while hidden. Terminal code moved to `electron-term.cjs` and is tested with real shells (`npm test`).
+- The Explorer follows the latest VS Code: "Open editors" and workspace sections, inline create, F2 rename, context menu, keyboard navigation, indent guides, animated folder expansion. Creating files/folders in subfolders and deleting folders were fixed.
+- Space-wasting elements were removed (version chip in the title bar, meaningless status bar items); the status bar shows only meaningful info. New transitions: popup menus, sidebar and terminal panel resize animation.
+- 10 new settings: sidebar position, activity/status bar, breadcrumbs, open editors, tree density and guides, terminal line height/scrollback/cursor.
 - Settings were rebuilt: real-time, VS Code-style full page (`Ctrl+,`) with search and categories. Dark / light / system theme, 6 accent colors, UI font, zoom, animations and language (instant); editor font (preset list or custom), size, line height, weight, ligatures, tabs, wrapping, cursor, minimap, folding, suggestions, rulers and more, 30+ settings; live Monaco preview.
 - Custom snippets (trigger, language, Monaco syntax) appear in autocomplete; built-in snippets can be toggled.
 - File and terminal settings: auto save (delay / focus change), trim whitespace and final newline on save, terminal font size / default shell / command coloring, Git refresh intervals. Settings can be exported/imported as JSON.

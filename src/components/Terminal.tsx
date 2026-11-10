@@ -1,34 +1,51 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Trash2, Square } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Plus, ChevronDown, Trash2, Maximize2, Minimize2, X, SquareTerminal, FolderOpen } from 'lucide-react';
 import type { ConsoleLog } from '../types';
 import { t } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
 import { commandToAnsi, parseAnsi, shortenPath, tokenizeCommand, TOKEN_COLOR } from '../services/terminalText';
+import { PopupMenu } from './Menu';
 
 interface TerminalProps {
   logs: ConsoleLog[];
   onClear: () => void;
   cwd?: string | null;
   branch?: string | null;
+  /** Panel görünür mü (ilk terminal ilk görünüşte açılır; panel gizliyken oturumlar canlı kalır). */
+  visible: boolean;
+  maximized: boolean;
+  onToggleMaximize: () => void;
+  onClose: () => void;
+  onOpenFolder?: () => void;
 }
 
 type ShellId = 'powershell' | 'cmd';
-type TabId = ShellId | 'log';
+type PanelTab = 'terminal' | 'log';
 
+interface Session {
+  id: string;
+  shell: ShellId;
+  running: boolean;
+  status: string;
+  output: string;
+  cwd: string;
+}
 
-const MAX_OUTPUT = 200_000;
-const MAX_HISTORY = 100;
+const SHELL_LABEL: Record<ShellId, string> = { powershell: 'PowerShell', cmd: 'CMD' };
 const ESC = '\u001b';
+const MAX_HISTORY = 100;
 
-// İstem renkleri: PS (mavi) + yol (turkuaz) + dal (mor) + ok (beyaz)
+// İstem: PS (mavi) + yol (turkuaz) + dal (mor) + ok
 const promptAnsi = (shell: ShellId, cwd: string, branch?: string | null) =>
-  `${shell === 'powershell' ? `${ESC}[1;38;5;4mPS${ESC}[0m ` : ''}${ESC}[38;5;6m${cwd}${ESC}[0m` +
+  `${shell === 'powershell' ? `${ESC}[1;38;5;4mPS${ESC}[0m ` : ''}${ESC}[38;5;6m${shortenPath(cwd)}${ESC}[0m` +
   `${branch ? ` ${ESC}[38;5;5m(${branch})${ESC}[0m` : ''}${ESC}[0m> `;
+
+const baseName = (p: string) => p.split(/[\\/]/).filter(Boolean).pop() ?? p;
 
 const Output: React.FC<{ text: string }> = React.memo(({ text }) => {
   const spans = useMemo(() => parseAnsi(text), [text]);
   return (
-    <pre className="whitespace-pre-wrap break-all leading-relaxed text-zinc-300 m-0">
+    <pre className="whitespace-pre-wrap break-all m-0 text-zinc-300 select-text">
       {spans.map((s, i) => (
         <span
           key={i}
@@ -48,50 +65,51 @@ const Output: React.FC<{ text: string }> = React.memo(({ text }) => {
   );
 });
 
-export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }) => {
+export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, visible, maximized, onToggleMaximize, onClose, onOpenFolder }) => {
   const { values } = useSettings();
   const defaultShell: ShellId = values.defaultShell === 'cmd' ? 'cmd' : 'powershell';
   const colorInput = values.terminalColorInput !== false;
   const fontSize = Number(values.terminalFontSize) || 12;
-  const [tab, setTab] = useState<TabId>(defaultShell);
-  const TABS: { id: TabId; label: string }[] = [
-    { id: 'powershell', label: 'PowerShell' },
-    { id: 'cmd', label: 'CMD' },
-    { id: 'log', label: t('termLog') }
-  ];
+  const lineHeight = Number(values.terminalLineHeight) || 1.4;
+  const scrollback = Number(values.terminalScrollback) || 200_000;
+  const cursor = String(values.terminalCursor);
 
-  // Varsayılan kabuk ayarı değişince (bir kabuk sekmesindeyken) anında o kabuğa geç
-  useEffect(() => {
-    setTab((cur) => (cur === 'log' ? cur : defaultShell));
-  }, [defaultShell]);
-  const [output, setOutput] = useState<Record<ShellId, string>>({ powershell: '', cmd: '' });
-  const [running, setRunning] = useState<Record<ShellId, boolean>>({ powershell: false, cmd: false });
-  const [status, setStatus] = useState<Record<ShellId, string>>({ powershell: '', cmd: '' });
-  const [liveCwd, setLiveCwd] = useState<Record<ShellId, string>>({ powershell: '', cmd: '' });
+  const [tab, setTab] = useState<PanelTab>('terminal');
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState('');
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const history = useRef<Record<ShellId, string[]>>({ powershell: [], cmd: [] });
-  const historyPos = useRef(-1);
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
   const api = typeof window !== 'undefined' ? window.electronAPI : undefined;
   const hasShell = !!api?.termStart;
+  const counter = useRef(0);
+  const history = useRef<Map<string, string[]>>(new Map());
+  const historyPos = useRef(-1);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const stick = useRef(true);
+  const autoOpened = useRef(false);
+  const scrollbackRef = useRef(scrollback);
+  scrollbackRef.current = scrollback;
 
-  // Çıktı, çalışma klasörü ve çıkış olaylarını bağla; bileşen kapanınca dinleyicileri kaldır.
+  const active = sessions.find((s) => s.id === activeId) ?? null;
+  const patch = useCallback((id: string, fn: (s: Session) => Session) => {
+    setSessions((prev) => prev.map((s) => (s.id === id ? fn(s) : s)));
+  }, []);
+
+  // ---- Ana süreçten gelen olaylar (kimlikle eşleşir) ----
   useEffect(() => {
     if (!api?.onTermOutput || !api?.onTermExit) return;
-    const offOut = api.onTermOutput(({ shell, text, stream }) => {
-      // stderr kırmızı: PowerShell hataları ve komut hataları öne çıksın
+    const offOut = api.onTermOutput(({ id, text, stream }) => {
       const colored = stream === 'stderr' ? `${ESC}[38;5;1m${text}${ESC}[0m` : text;
-      setOutput((prev) => ({ ...prev, [shell]: (prev[shell] + colored).slice(-MAX_OUTPUT) }));
+      patch(id, (s) => ({ ...s, output: (s.output + colored).slice(-scrollbackRef.current) }));
     });
-    const offCwd = api.onTermCwd?.(({ shell, cwd: next }) => {
-      if (next) setLiveCwd((prev) => (prev[shell] === next ? prev : { ...prev, [shell]: next }));
+    const offCwd = api.onTermCwd?.(({ id, cwd: next }) => {
+      if (next) patch(id, (s) => (s.cwd === next ? s : { ...s, cwd: next }));
     });
-    const offExit = api.onTermExit(({ shell, code }) => {
-      setRunning((prev) => ({ ...prev, [shell]: false }));
-      setStatus((prev) => ({ ...prev, [shell]: t('termClosed').replace('{code}', String(code ?? '?')) }));
+    const offExit = api.onTermExit(({ id, code }) => {
+      patch(id, (s) => ({ ...s, running: false, status: t('termEnded').replace('{code}', String(code ?? '?')) }));
     });
     return () => {
       offOut?.();
@@ -101,66 +119,106 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sekme açılınca veya klasör değişince shell'i başlat. Zaten çalışıyorsa main süreç yeniden kullanır.
+  const createSession = useCallback(
+    async (shell: ShellId) => {
+      if (!api?.termStart || !cwd) return;
+      if (sessions.length >= 12) return;
+      counter.current += 1;
+      const id = `t-${counter.current}-${Math.random().toString(36).slice(2, 6)}`;
+      setSessions((prev) => [...prev, { id, shell, running: false, status: t('termStarting'), output: '', cwd }]);
+      setActiveId(id);
+      setTab('terminal');
+      const res = await api.termStart(shell, cwd, id);
+      patch(id, (s) => ({ ...s, running: res.success, status: res.success ? '' : res.error === 'too-many' ? t('termTooMany') : t('termStartFailed') }));
+      inputRef.current?.focus();
+    },
+    [api, cwd, sessions.length, patch]
+  );
+
+  // Panel ilk kez görününce ve klasör varsa ilk terminali aç
   useEffect(() => {
-    if (tab === 'log' || !hasShell) return;
-    const shell = tab;
-    if (!cwd) {
-      setStatus((prev) => ({ ...prev, [shell]: t('termNeedFolder') }));
+    if (!visible) {
+      autoOpened.current = false;
       return;
     }
-    let cancelled = false;
-    setStatus((prev) => ({ ...prev, [shell]: t('termStarting') }));
-    api!.termStart(shell, cwd).then((res) => {
-      if (cancelled) return;
-      setRunning((prev) => ({ ...prev, [shell]: res.success }));
-      setStatus((prev) => ({ ...prev, [shell]: res.success ? '' : res.error || t('termStartFailed') }));
-      if (res.success) setLiveCwd((prev) => ({ ...prev, [shell]: prev[shell] || cwd }));
-      inputRef.current?.focus();
-    });
-    return () => {
-      cancelled = true;
-    };
+    if (hasShell && cwd && sessions.length === 0 && !autoOpened.current) {
+      autoOpened.current = true;
+      void createSession(defaultShell);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, cwd]);
+  }, [visible, cwd, hasShell]);
 
+  const closeSession = useCallback(
+    async (id: string) => {
+      await api?.termStop(id);
+      history.current.delete(id);
+      setSessions((prev) => {
+        const next = prev.filter((s) => s.id !== id);
+        setActiveId((cur) => (cur === id ? next[next.length - 1]?.id ?? null : cur));
+        // Son terminal kapanınca panel de kapanır (VS Code gibi); yeniden açınca yenisi başlar
+        if (next.length === 0) {
+          autoOpened.current = false;
+          setTimeout(onClose, 0);
+        }
+        return next;
+      });
+    },
+    [api, onClose]
+  );
+
+  // ---- Kaydırma: kullanıcı en alttaysa yeni çıktıyı izle ----
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+  };
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [output, logs, tab]);
-
-  const shellId: ShellId | null = tab === 'log' ? null : tab;
-  const shownCwd = shellId ? liveCwd[shellId] || cwd || '' : '';
-  const tokens = useMemo(() => (shellId ? tokenizeCommand(input, shellId) : []), [input, shellId]);
+    const el = scrollRef.current;
+    if (el && stick.current) el.scrollTop = el.scrollHeight;
+  }, [active?.output, active?.status, logs, tab, activeId, input]);
 
   // Uzun komutta kaydırma konumunu üstteki renkli katmanla eşle
   useEffect(() => {
     if (overlayRef.current && inputRef.current) overlayRef.current.scrollLeft = inputRef.current.scrollLeft;
   });
 
+  // Etkin oturum değişince girdi ve geçmiş konumunu sıfırla
+  useEffect(() => {
+    setInput('');
+    historyPos.current = -1;
+    stick.current = true;
+    inputRef.current?.focus();
+  }, [activeId]);
+
+  const activeShell = active?.shell;
+  const tokens = useMemo(() => (activeShell ? tokenizeCommand(input, activeShell) : []), [input, activeShell]);
+
+  // ---- Komut gönderme ----
   const runLine = async (line: string) => {
-    if (!shellId || !running[shellId] || !api?.termInput) return;
-    const echo = `${promptAnsi(shellId, shownCwd, branch)}${colorInput ? commandToAnsi(line, shellId) : line}\n`;
-    setOutput((prev) => ({ ...prev, [shellId]: (prev[shellId] + echo).slice(-MAX_OUTPUT) }));
-    const res = await api.termInput(shellId, line);
-    if (!res.success) setStatus((prev) => ({ ...prev, [shellId]: res.error || t('termSendFailed') }));
+    if (!active || !active.running || !api?.termInput) return;
+    const echo = `${promptAnsi(active.shell, active.cwd, branch)}${colorInput ? commandToAnsi(line, active.shell) : line}\n`;
+    patch(active.id, (s) => ({ ...s, output: (s.output + echo).slice(-scrollbackRef.current) }));
+    stick.current = true;
+    const res = await api.termInput(active.id, line);
+    if (!res.success) patch(active.id, (s) => ({ ...s, status: t('termSendFailed') }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const line = input;
     setInput('');
     historyPos.current = -1;
-    if (shellId && line.trim()) {
-      const h = history.current[shellId];
+    if (active && line.trim()) {
+      const h = history.current.get(active.id) ?? [];
       if (h[h.length - 1] !== line) h.push(line);
       if (h.length > MAX_HISTORY) h.shift();
+      history.current.set(active.id, h);
     }
     void runLine(line);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!shellId) return;
-    const h = history.current[shellId];
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!active) return;
+    const h = history.current.get(active.id) ?? [];
     if (e.key === 'ArrowUp' && h.length) {
       e.preventDefault();
       historyPos.current = historyPos.current < 0 ? h.length - 1 : Math.max(0, historyPos.current - 1);
@@ -176,111 +234,207 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
       }
     } else if (e.ctrlKey && e.key.toLowerCase() === 'l') {
       e.preventDefault();
-      setOutput((p) => ({ ...p, [shellId]: '' }));
+      patch(active.id, (s) => ({ ...s, output: '' }));
+    } else if (e.ctrlKey && e.key.toLowerCase() === 'c' && !window.getSelection()?.toString()) {
+      // Seçim yoksa: satırı iptal et (^C), kabuk gibi
+      e.preventDefault();
+      const echo = `${promptAnsi(active.shell, active.cwd, branch)}${input}^C\n`;
+      patch(active.id, (s) => ({ ...s, output: (s.output + echo).slice(-scrollbackRef.current) }));
+      setInput('');
+      historyPos.current = -1;
     }
   };
 
-  const handleStop = async () => {
-    if (!shellId) return;
-    await api?.termStop(shellId);
-    setRunning((prev) => ({ ...prev, [shellId]: false }));
-    setStatus((prev) => ({ ...prev, [shellId]: t('termStopped') }));
+  const focusInput = () => {
+    if (!window.getSelection()?.toString()) inputRef.current?.focus();
   };
 
-  const currentStatus = shellId ? status[shellId] : '';
+  const clearActive = () => (tab === 'log' ? onClear() : active && patch(active.id, (s) => ({ ...s, output: '' })));
+
+  // ---- Üst çubuk ----
+  const tabBtn = (id: PanelTab, label: string) => (
+    <button
+      key={id}
+      onClick={() => setTab(id)}
+      className={`relative px-3 text-[11px] uppercase tracking-wide transition-colors ${tab === id ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
+    >
+      {label}
+      <span className={`absolute left-2 right-2 bottom-0 h-px bg-indigo-500 origin-left transition-transform duration-200 ${tab === id ? 'scale-x-100' : 'scale-x-0'}`} />
+    </button>
+  );
+
+  const cursorShape = cursor === 'bar' ? 'bar' : cursor === 'underline' ? 'underline' : 'block';
+  const inputStyle = { caretShape: cursorShape, caretColor: 'var(--color-zinc-100)' } as React.CSSProperties;
 
   return (
-    <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }} onClick={() => shellId && inputRef.current?.focus()}>
-      <div className="flex items-stretch justify-between px-2 h-8 border-b border-nv-border bg-nv-side">
-        <div className="flex items-stretch gap-1">
-          {TABS.map((tb) => (
-            <button
-              key={tb.id}
-              onClick={(e) => {
-                e.stopPropagation();
-                setTab(tb.id);
-              }}
-              className={`px-2.5 text-[11px] uppercase tracking-wide transition-colors ${
-                tab === tb.id ? 'text-zinc-100 shadow-[inset_0_-1px_0_var(--color-indigo-500)]' : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-            >
-              {tb.label}
-              {tb.id !== 'log' && running[tb.id] && <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 align-middle" />}
-            </button>
-          ))}
+    <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
+      <div className="flex items-stretch justify-between h-9 pl-1 pr-2 border-b border-nv-border shrink-0 font-sans">
+        <div className="flex items-stretch">
+          {tabBtn('terminal', t('termTab'))}
+          {tabBtn('log', t('termLog'))}
         </div>
-        <div className="flex items-center gap-1 self-center">
-          {shellId && running[shellId] && (
-            <button onClick={handleStop} title={t('termStopTitle')} aria-label={t('termStopTitle')} className="p-1 rounded text-zinc-500 hover:text-zinc-200">
-              <Square size={12} />
+        <div className="flex items-center gap-0.5">
+          {tab === 'terminal' && hasShell && (
+            <div className="flex items-center">
+              <button onClick={() => void createSession(defaultShell)} disabled={!cwd} title={t('termNew')} aria-label={t('termNew')} className="icon-btn !w-6 disabled:opacity-40">
+                <Plus size={15} />
+              </button>
+              <button
+                onClick={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  setMenu({ x: r.left - 140, y: r.bottom + 4 });
+                }}
+                disabled={!cwd}
+                title={t('termPickShell')}
+                aria-label={t('termPickShell')}
+                className="icon-btn !w-5 disabled:opacity-40"
+              >
+                <ChevronDown size={13} />
+              </button>
+            </div>
+          )}
+          {(tab === 'log' || active) && (
+            <button onClick={clearActive} title={`${t('termClear')} (Ctrl+L)`} aria-label={t('termClear')} className="icon-btn">
+              <Trash2 size={14} />
             </button>
           )}
-          <button
-            onClick={() => (shellId ? setOutput((p) => ({ ...p, [shellId]: '' })) : onClear())}
-            title={`${t('termClear')} (Ctrl+L)`}
-            aria-label={t('termClear')}
-            className="p-1 rounded text-zinc-500 hover:text-zinc-200"
-          >
-            <Trash2 size={12} />
+          {tab === 'terminal' && active && (
+            <button onClick={() => void closeSession(active.id)} title={t('termKill')} aria-label={t('termKill')} className="icon-btn">
+              <X size={15} />
+            </button>
+          )}
+          <button onClick={onToggleMaximize} title={maximized ? t('termRestore') : t('termMaximize')} aria-label={maximized ? t('termRestore') : t('termMaximize')} className="icon-btn">
+            {maximized ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+          </button>
+          <button onClick={onClose} title={t('termClosePanel')} aria-label={t('termClosePanel')} className="icon-btn">
+            <ChevronDown size={16} />
           </button>
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2">
-        {shellId === null ? (
-          logs.length === 0 ? (
-            <div className="text-zinc-600">{t('termLogEmpty')}</div>
+      <div className="flex flex-1 min-h-0">
+        {/* Ana alan */}
+        <div className="flex-1 min-w-0 relative">
+          {tab === 'log' ? (
+            <div className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
+              {logs.length === 0 ? (
+                <div className="text-zinc-600">{t('termLogEmpty')}</div>
+              ) : (
+                logs.map((log) => {
+                  const color = log.type === 'error' ? 'text-rose-400' : log.type === 'warn' ? 'text-amber-300' : log.type === 'info' ? 'text-sky-300' : 'text-zinc-300';
+                  return (
+                    <div key={log.id} className="flex gap-2">
+                      <span className="text-zinc-600 text-[10px] shrink-0 pt-px">{log.time}</span>
+                      <span className={`break-all whitespace-pre-wrap ${color}`}>{log.text}</span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          ) : !cwd && sessions.length === 0 ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-500 font-sans text-[13px]">
+              <SquareTerminal size={20} className="opacity-60" />
+              <span>{t('termNeedFolder')}</span>
+              {onOpenFolder && (
+                <button onClick={onOpenFolder} className="flex items-center gap-1.5 h-7 px-3 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[12px] transition-colors">
+                  <FolderOpen size={13} />
+                  {t('openFolder')}
+                </button>
+              )}
+            </div>
           ) : (
-            logs.map((log) => {
-              const color =
-                log.type === 'error' ? 'text-rose-400' : log.type === 'warn' ? 'text-amber-300' : log.type === 'info' ? 'text-sky-300' : 'text-zinc-300';
+            <div ref={scrollRef} onScroll={onScroll} onClick={focusInput} className="absolute inset-0 overflow-y-auto px-3 py-1.5" style={{ lineHeight }} data-terminal-scroll="">
+              {active && (
+                <>
+                  <Output text={active.output} />
+                  {active.status && <div className="text-amber-300/90 animate-fade-in">{active.status}</div>}
+                  {active.running && (
+                    <form onSubmit={submit} className="flex items-center" style={{ minHeight: `${lineHeight}em` }}>
+                      <span className="shrink-0 max-w-[60%] truncate whitespace-pre select-none" title={active.cwd}>
+                        {active.shell === 'powershell' && <span className="font-bold" style={{ color: 'var(--ansi-4)' }}>PS </span>}
+                        <span style={{ color: 'var(--ansi-6)' }}>{shortenPath(active.cwd)}</span>
+                        {branch && <span style={{ color: 'var(--ansi-5)' }}> ({branch})</span>}
+                        <span className="text-zinc-300">&gt; </span>
+                      </span>
+                      <div className="relative flex-1 min-w-0 self-stretch">
+                        <div ref={overlayRef} aria-hidden className="absolute inset-0 flex items-center whitespace-pre overflow-hidden pointer-events-none">
+                          {tokens.map((tk, i) => (
+                            <span key={i} style={{ color: colorInput ? TOKEN_COLOR[tk.kind] ?? 'var(--color-zinc-200)' : 'var(--color-zinc-200)' }}>
+                              {tk.text}
+                            </span>
+                          ))}
+                        </div>
+                        <input
+                          ref={inputRef}
+                          type="text"
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          onKeyDown={onKeyDown}
+                          spellCheck={false}
+                          autoComplete="off"
+                          autoFocus
+                          aria-label={t('termPlaceholder')}
+                          className="absolute inset-0 w-full h-full bg-transparent text-transparent outline-none"
+                          style={inputStyle}
+                        />
+                      </div>
+                    </form>
+                  )}
+                </>
+              )}
+              {!active && cwd && <div className="text-zinc-600 font-sans">{t('termStarting')}</div>}
+            </div>
+          )}
+        </div>
+
+        {/* Oturum listesi: birden fazla terminal varken (VS Code gibi) sağda */}
+        {tab === 'terminal' && sessions.length > 1 && (
+          <div className="w-44 shrink-0 border-l border-nv-border overflow-y-auto font-sans animate-fade-in" role="tablist" aria-label={t('termTab')}>
+            {sessions.map((s) => {
+              const on = s.id === activeId;
               return (
-                <div key={log.id} className="flex gap-2 leading-relaxed">
-                  <span className="text-zinc-600 text-[10px] shrink-0">[{log.time}]</span>
-                  <span className={`break-all whitespace-pre-wrap ${color}`}>{log.text}</span>
+                <div
+                  key={s.id}
+                  role="tab"
+                  aria-selected={on}
+                  tabIndex={0}
+                  onClick={() => setActiveId(s.id)}
+                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setActiveId(s.id)}
+                  className={`group relative flex items-center gap-2 h-7 pl-3 pr-1 cursor-pointer text-[12px] transition-colors ${on ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'}`}
+                >
+                  <span className={`absolute left-0 top-1 bottom-1 w-0.5 rounded-r bg-indigo-400 transition-transform ${on ? 'scale-y-100' : 'scale-y-0'}`} />
+                  <SquareTerminal size={13} className={s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0'} />
+                  <span className="truncate flex-1">
+                    {SHELL_LABEL[s.shell]} <span className="text-zinc-500">{baseName(s.cwd)}</span>
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void closeSession(s.id);
+                    }}
+                    aria-label={t('termKill')}
+                    title={t('termKill')}
+                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-0.5 rounded hover:bg-white/10 transition-opacity"
+                  >
+                    <X size={12} />
+                  </button>
                 </div>
               );
-            })
-          )
-        ) : output[shellId] ? (
-          <Output text={output[shellId]} />
-        ) : (
-          !currentStatus && <div className="text-zinc-600">{t('termHint')}</div>
+            })}
+          </div>
         )}
-        {shellId && currentStatus && <div className="text-amber-300/90 mt-1">{currentStatus}</div>}
       </div>
 
-      {shellId && (
-        <form onSubmit={handleSubmit} className="flex items-center px-3 h-9 border-t border-zinc-800/80 bg-nv-side gap-0">
-          <span className="shrink-0 max-w-[55%] truncate select-none" title={shownCwd}>
-            {shellId === 'powershell' && <span className="font-bold" style={{ color: 'var(--ansi-4)' }}>PS </span>}
-            <span style={{ color: 'var(--ansi-6)' }}>{shortenPath(shownCwd)}</span>
-            {branch && <span style={{ color: 'var(--ansi-5)' }}> ({branch})</span>}
-            <span className="text-zinc-300">&gt;&nbsp;</span>
-          </span>
-          <div className="relative flex-1 h-full min-w-0">
-            <div ref={overlayRef} aria-hidden className="absolute inset-0 flex items-center whitespace-pre overflow-hidden pointer-events-none">
-              {tokens.map((tk, i) => (
-                <span key={i} style={{ color: colorInput ? TOKEN_COLOR[tk.kind] ?? 'var(--color-zinc-200)' : 'var(--color-zinc-200)' }}>
-                  {tk.text}
-                </span>
-              ))}
-            </div>
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              disabled={!running[shellId]}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              spellCheck={false}
-              autoComplete="off"
-              aria-label={t('termPlaceholder')}
-              placeholder={running[shellId] ? t('termPlaceholder') : t('termNotReady')}
-              className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-zinc-100 outline-none placeholder:text-zinc-600 disabled:opacity-50"
-            />
-          </div>
-        </form>
+      {menu && (
+        <PopupMenu
+          x={menu.x}
+          y={menu.y}
+          onClose={() => setMenu(null)}
+          items={[
+            { label: 'PowerShell', icon: <SquareTerminal size={13} />, onClick: () => void createSession('powershell') },
+            { label: 'CMD', icon: <SquareTerminal size={13} />, onClick: () => void createSession('cmd') }
+          ]}
+        />
       )}
     </div>
   );

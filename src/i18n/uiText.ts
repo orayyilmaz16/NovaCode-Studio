@@ -833,6 +833,123 @@ export const UI_TEXT = {
   setTokenNoEnc: {
     tr: "Bu cihazda şifreli depolama yok; token saklanamadı (yalnız bu oturumda geçerli).", en: "Encrypted storage is unavailable; the token could not be saved (valid for this session only).", de: "Verschlüsselter Speicher nicht verfügbar; Token nicht gespeichert (nur für diese Sitzung gültig).", ru: "Зашифрованное хранилище недоступно; токен не сохранён (действует только в этом сеансе).", ar: "التخزين المشفّر غير متاح؛ لم يُحفظ الرمز (صالح لهذه الجلسة فقط).", es: "El almacenamiento cifrado no está disponible; el token no se guardó (válido solo en esta sesión).", fr: "Le stockage chiffré est indisponible ; jeton non enregistré (valable pour cette session seulement).", az: "Şifrəli saxlama yoxdur; token saxlanılmadı (yalnız bu sessiya üçün).",
   },
+  set_sidebarPosition: {
+    tr: "Kenar çubuğu konumu", en: "Sidebar position", de: "Position der Seitenleiste", ru: "Положение боковой панели", ar: "موضع الشريط الجانبي", es: "Posición de la barra lateral", fr: "Position de la barre latérale", az: "Yan panelin yeri",
+  },
+  set_activityBarVisible: {
+    tr: "Etkinlik çubuğunu göster", en: "Show activity bar", de: "Aktivitätsleiste anzeigen", ru: "Показывать панель действий", ar: "إظهار شريط الأنشطة", es: "Mostrar barra de actividad", fr: "Afficher la barre d’activité", az: "Fəaliyyət panelini göstər",
+  },
+  set_statusBarVisible: {
+    tr: "Durum çubuğunu göster", en: "Show status bar", de: "Statusleiste anzeigen", ru: "Показывать строку состояния", ar: "إظهار شريط الحالة", es: "Mostrar barra de estado", fr: "Afficher la barre d’état", az: "Status panelini göstər",
+  },
+  set_showBreadcrumbs: {
+    tr: "Dosya yolu göstergesi (breadcrumb)", en: "File path breadcrumbs", de: "Dateipfad-Breadcrumbs", ru: "Хлебные крошки пути файла", ar: "مسار الملف (breadcrumbs)", es: "Ruta de navegación del archivo", fr: "Fil d’Ariane du chemin", az: "Fayl yolu göstəricisi",
+  },
+  set_showOpenEditors: {
+    tr: "Gezginde \"Açık düzenleyiciler\"", en: "\"Open editors\" in Explorer", de: "„Geöffnete Editoren“ im Explorer", ru: "«Открытые редакторы» в проводнике", ar: "\"المحررات المفتوحة\" في المستكشف", es: "«Editores abiertos» en el explorador", fr: "« Éditeurs ouverts » dans l’explorateur", az: "Kəşfiyyatçıda \"Açıq redaktorlar\"",
+  },
+  set_treeDensity: {
+    tr: "Ağaç satır yüksekliği", en: "Tree row density", de: "Zeilendichte im Baum", ru: "Плотность строк дерева", ar: "كثافة صفوف الشجرة", es: "Densidad de filas del árbol", fr: "Densité des lignes de l’arbre", az: "Ağac sətir sıxlığı",
+  },
+  set_treeIndentGuides: {
+    tr: "Girinti kılavuz çizgileri (ağaç)", en: "Indent guides (tree)", de: "Einzugslinien (Baum)", ru: "Направляющие отступов (дерево)", ar: "خطوط المسافات البادئة (الشجرة)", es: "Guías de sangría (árbol)", fr: "Repères d’indentation (arbre)", az: "Girinti xətləri (ağac)",
+  },
+  set_terminalLineHeight: {
+    tr: "Terminal satır yüksekliği", en: "Terminal line height", de: "Terminal-Zeilenhöhe", ru: "Высота строки терминала", ar: "ارتفاع سطر الطرفية", es: "Altura de línea del terminal", fr: "Hauteur de ligne du terminal", az: "Terminal sətir hündürlüyü",
+  },
+  set_terminalScrollback: {
+    tr: "Terminal geçmiş sınırı (karakter)", en: "Terminal scrollback (characters)", de: "Terminal-Verlauf (Zeichen)", ru: "История терминала (символы)", ar: "سجل الطرفية (أحرف)", es: "Historial del terminal (caracteres)", fr: "Historique du terminal (caractères)", az: "Terminal tarixçəsi (simvol)",
+  },
+  set_terminalCursor: {
+    tr: "Terminal imleç şekli", en: "Terminal cursor shape", de: "Terminal-Cursorform", ru: "Форма курсора терминала", ar: "شكل مؤشر الطرفية", es: "Forma del cursor del terminal", fr: "Forme du curseur du terminal", az: "Terminal kursor forması",
+  },
+  optLeft: {
+    tr: "Sol", en: "Left", de: "Links", ru: "Слева", ar: "يسار", es: "Izquierda", fr: "Gauche", az: "Sol",
+  },
+  optRight: {
+    tr: "Sağ", en: "Right", de: "Rechts", ru: "Справа", ar: "يمين", es: "Derecha", fr: "Droite", az: "Sağ",
+  },
+  optCompact: {
+    tr: "Sıkı", en: "Compact", de: "Kompakt", ru: "Компактно", ar: "مضغوط", es: "Compacta", fr: "Compacte", az: "Sıx",
+  },
+  optComfortable: {
+    tr: "Rahat", en: "Comfortable", de: "Komfortabel", ru: "Свободно", ar: "مريح", es: "Cómoda", fr: "Confortable", az: "Rahat",
+  },
+  termTab: {
+    tr: "Terminal", en: "Terminal", de: "Terminal", ru: "Терминал", ar: "الطرفية", es: "Terminal", fr: "Terminal", az: "Terminal",
+  },
+  termNew: {
+    tr: "Yeni terminal", en: "New terminal", de: "Neues Terminal", ru: "Новый терминал", ar: "طرفية جديدة", es: "Nuevo terminal", fr: "Nouveau terminal", az: "Yeni terminal",
+  },
+  termKill: {
+    tr: "Terminali sonlandır", en: "Kill terminal", de: "Terminal beenden", ru: "Завершить терминал", ar: "إنهاء الطرفية", es: "Terminar terminal", fr: "Arrêter le terminal", az: "Terminalı sonlandır",
+  },
+  termMaximize: {
+    tr: "Paneli büyüt", en: "Maximize panel", de: "Panel maximieren", ru: "Развернуть панель", ar: "تكبير اللوحة", es: "Maximizar panel", fr: "Agrandir le panneau", az: "Paneli böyüt",
+  },
+  termRestore: {
+    tr: "Paneli küçült", en: "Restore panel size", de: "Panelgröße wiederherstellen", ru: "Восстановить размер панели", ar: "استعادة حجم اللوحة", es: "Restaurar tamaño del panel", fr: "Restaurer la taille du panneau", az: "Panelin ölçüsünü bərpa et",
+  },
+  termClosePanel: {
+    tr: "Paneli kapat", en: "Close panel", de: "Panel schließen", ru: "Закрыть панель", ar: "إغلاق اللوحة", es: "Cerrar panel", fr: "Fermer le panneau", az: "Paneli bağla",
+  },
+  termPickShell: {
+    tr: "Kabuk seç", en: "Select shell", de: "Shell auswählen", ru: "Выбрать оболочку", ar: "اختيار الـ shell", es: "Seleccionar shell", fr: "Choisir le shell", az: "Shell seç",
+  },
+  termEnded: {
+    tr: "Süreç sonlandı (kod {code}). Yeni bir terminal açabilirsin.", en: "Process ended (code {code}). You can open a new terminal.", de: "Prozess beendet (Code {code}). Sie können ein neues Terminal öffnen.", ru: "Процесс завершён (код {code}). Можно открыть новый терминал.", ar: "انتهت العملية (الرمز {code}). يمكنك فتح طرفية جديدة.", es: "Proceso finalizado (código {code}). Puedes abrir un terminal nuevo.", fr: "Processus terminé (code {code}). Vous pouvez ouvrir un nouveau terminal.", az: "Proses bitdi (kod {code}). Yeni terminal aça bilərsiniz.",
+  },
+  termTooMany: {
+    tr: "En fazla 12 terminal açılabilir.", en: "You can open up to 12 terminals.", de: "Es können bis zu 12 Terminals geöffnet werden.", ru: "Можно открыть не более 12 терминалов.", ar: "يمكن فتح 12 طرفية كحد أقصى.", es: "Se pueden abrir hasta 12 terminales.", fr: "Vous pouvez ouvrir jusqu’à 12 terminaux.", az: "Ən çoxu 12 terminal açıla bilər.",
+  },
+  expOpenEditors: {
+    tr: "Açık düzenleyiciler", en: "Open editors", de: "Geöffnete Editoren", ru: "Открытые редакторы", ar: "المحررات المفتوحة", es: "Editores abiertos", fr: "Éditeurs ouverts", az: "Açıq redaktorlar",
+  },
+  expNewFolder: {
+    tr: "Yeni klasör", en: "New folder", de: "Neuer Ordner", ru: "Новая папка", ar: "مجلد جديد", es: "Nueva carpeta", fr: "Nouveau dossier", az: "Yeni qovluq",
+  },
+  expRefresh: {
+    tr: "Yenile", en: "Refresh", de: "Aktualisieren", ru: "Обновить", ar: "تحديث", es: "Actualizar", fr: "Actualiser", az: "Yenilə",
+  },
+  expCollapseAll: {
+    tr: "Hepsini daralt", en: "Collapse all", de: "Alle zuklappen", ru: "Свернуть все", ar: "طي الكل", es: "Contraer todo", fr: "Tout réduire", az: "Hamısını yığ",
+  },
+  expMore: {
+    tr: "Diğer eylemler", en: "More actions", de: "Weitere Aktionen", ru: "Другие действия", ar: "إجراءات أخرى", es: "Más acciones", fr: "Plus d’actions", az: "Digər əməliyyatlar",
+  },
+  expRename: {
+    tr: "Yeniden adlandır", en: "Rename", de: "Umbenennen", ru: "Переименовать", ar: "إعادة تسمية", es: "Cambiar nombre", fr: "Renommer", az: "Adını dəyiş",
+  },
+  expDelete: {
+    tr: "Sil", en: "Delete", de: "Löschen", ru: "Удалить", ar: "حذف", es: "Eliminar", fr: "Supprimer", az: "Sil",
+  },
+  expCopyPath: {
+    tr: "Yolu kopyala", en: "Copy path", de: "Pfad kopieren", ru: "Копировать путь", ar: "نسخ المسار", es: "Copiar ruta", fr: "Copier le chemin", az: "Yolu kopyala",
+  },
+  expCopyRelPath: {
+    tr: "Göreli yolu kopyala", en: "Copy relative path", de: "Relativen Pfad kopieren", ru: "Копировать относительный путь", ar: "نسخ المسار النسبي", es: "Copiar ruta relativa", fr: "Copier le chemin relatif", az: "Nisbi yolu kopyala",
+  },
+  expNoFolder: {
+    tr: "Henüz bir klasör açmadınız.", en: "You have not opened a folder yet.", de: "Sie haben noch keinen Ordner geöffnet.", ru: "Вы ещё не открыли папку.", ar: "لم تفتح مجلدًا بعد.", es: "Aún no has abierto una carpeta.", fr: "Vous n’avez pas encore ouvert de dossier.", az: "Hələ qovluq açmamısınız.",
+  },
+  expLoading: {
+    tr: "Yükleniyor...", en: "Loading...", de: "Wird geladen...", ru: "Загрузка...", ar: "جارٍ التحميل...", es: "Cargando...", fr: "Chargement...", az: "Yüklənir...",
+  },
+  expDeleteConfirm: {
+    tr: "\"{name}\" kalıcı olarak silinsin mi?", en: "Permanently delete \"{name}\"?", de: "„{name}“ endgültig löschen?", ru: "Удалить «{name}» навсегда?", ar: "هل تريد حذف \"{name}\" نهائيًا؟", es: "¿Eliminar «{name}» de forma permanente?", fr: "Supprimer définitivement « {name} » ?", az: "\"{name}\" həmişəlik silinsin?",
+  },
+  expFilePlaceholder: {
+    tr: "Dosya adı, Enter ile oluştur", en: "File name, press Enter to create", de: "Dateiname, mit Enter erstellen", ru: "Имя файла, Enter для создания", ar: "اسم الملف، اضغط Enter للإنشاء", es: "Nombre de archivo, Enter para crear", fr: "Nom du fichier, Entrée pour créer", az: "Fayl adı, yaratmaq üçün Enter",
+  },
+  expFolderPlaceholder: {
+    tr: "Klasör adı, Enter ile oluştur", en: "Folder name, press Enter to create", de: "Ordnername, mit Enter erstellen", ru: "Имя папки, Enter для создания", ar: "اسم المجلد، اضغط Enter للإنشاء", es: "Nombre de carpeta, Enter para crear", fr: "Nom du dossier, Entrée pour créer", az: "Qovluq adı, yaratmaq üçün Enter",
+  },
+  expInvalidName: {
+    tr: "Geçersiz ad: / \\ ve boş ad kullanılamaz.", en: "Invalid name: \"/\", \"\\\" and empty names are not allowed.", de: "Ungültiger Name: „/“, „\\“ und leere Namen sind nicht erlaubt.", ru: "Недопустимое имя: «/», «\\» и пустые имена запрещены.", ar: "اسم غير صالح: لا يُسمح بـ \"/\" و\"\\\" والأسماء الفارغة.", es: "Nombre no válido: no se permiten «/», «\\» ni nombres vacíos.", fr: "Nom invalide : « / », « \\ » et les noms vides sont interdits.", az: "Yanlış ad: \"/\", \"\\\" və boş ad olmaz.",
+  },
+  expCloseEditor: {
+    tr: "Düzenleyiciyi kapat", en: "Close editor", de: "Editor schließen", ru: "Закрыть редактор", ar: "إغلاق المحرر", es: "Cerrar editor", fr: "Fermer l’éditeur", az: "Redaktoru bağla",
+  },
 } satisfies Record<string, Dict>;
 
 export type UiTextKey = keyof typeof UI_TEXT;

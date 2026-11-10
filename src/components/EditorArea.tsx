@@ -30,6 +30,9 @@ interface EditorAreaProps {
   onNewFile?: () => void;
   onOpenFolder?: () => void;
   onOpenFiles?: () => void;
+  /** Açık çalışma alanı kökü: yol göstergesi köke göre gösterilir. */
+  rootPath?: string | null;
+  rootName?: string;
   collab?: CollabConfig;
 }
 
@@ -56,6 +59,8 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   onNewFile,
   onOpenFolder,
   onOpenFiles,
+  rootPath,
+  rootName,
   collab,
 }) => {
   // Ayarlar: yazı tipi, tema, imleç, snippet... değiştiği an editöre yansır (gerçek zamanlı)
@@ -147,7 +152,16 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     }
   };
 
-  const crumbs = activeFile?.path ? activeFile.path.split(/[\\/]/).filter(Boolean).slice(-4) : activeFile ? [activeFile.name] : [];
+  const crumbs = (() => {
+    if (!activeFile) return [] as string[];
+    if (!activeFile.path) return [activeFile.name];
+    const np = activeFile.path.split('\\').join('/');
+    const nr = (rootPath ?? '').split('\\').join('/').replace(/\/+$/, '');
+    if (nr && np.toLowerCase().startsWith(nr.toLowerCase() + '/')) {
+      return [rootName || nr.split('/').pop() || '', ...np.slice(nr.length + 1).split('/')].filter(Boolean);
+    }
+    return np.split('/').filter(Boolean).slice(-4);
+  })();
 
   return (
     <div className="flex flex-col flex-1 h-full bg-nv-editor overflow-hidden">
@@ -255,7 +269,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
       </div>
 
       {/* Yol göstergesi */}
-      {activeFile && (
+      {activeFile && values.showBreadcrumbs !== false && (
         <div className="flex items-center gap-1 h-[22px] px-3 text-[12px] text-zinc-500 bg-nv-editor select-none overflow-hidden whitespace-nowrap" aria-label="Dosya yolu">
           {crumbs.map((c, i) => (
             <React.Fragment key={`${c}-${i}`}>

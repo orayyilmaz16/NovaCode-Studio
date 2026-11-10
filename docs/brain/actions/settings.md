@@ -45,6 +45,9 @@ Tüm editör ayarları `toMonacoOptions(values)` ile Monaco `options`'ına gider
 - Özel snippet = `{ prefix (boşluksuz), description, language ('*' = hepsi), body }`; Monaco snippet sözdizimi (`$1`, `${1:ad}`, `$0`). Hazır snippet'ler düz koddur (`escapeBody` ile `\ $ }` kaçırılır).
 - En çok 200 özel snippet; gövde ≤ 20 000 karakter. Ayarlar sayfasındaki önizleme editöründe snippet'ler denenebilir.
 
+## Yerleşim ayarları
+`sidebarPosition`, `activityBarVisible`, `statusBarVisible`, `showBreadcrumbs`, `showOpenEditors`, `treeDensity`, `treeIndentGuides` `App.tsx` / `FileTree.tsx` / `EditorArea.tsx` içinde okunur. Terminal: `terminalFontSize`, `terminalLineHeight`, `terminalScrollback`, `terminalCursor`, `defaultShell` (`Terminal.tsx`).
+
 ## Kayıt ve otomasyon davranışları
 `autoSave` (`afterDelay` / `onFocusChange`), `trimTrailingWhitespace`, `insertFinalNewline`: `App.tsx` içinde `handleSaveFile` ve otomatik kayıt efektleri. Git aralıkları: `GitPanel.tsx` (`gitStatusInterval`, `gitAutoFetch`, `gitFetchInterval`).
 

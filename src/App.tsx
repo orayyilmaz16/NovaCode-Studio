@@ -59,7 +59,9 @@ export function App() {
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'git' | 'snippets'>('files');
   // Önizleme varsayılan olarak kapalı; yalnız HTML dosyasında düğmesi görünür.
   const [showRightPanel, setShowRightPanel] = useState<'preview' | 'ai' | null>(null);
-  const [showBottomTerminal, setShowBottomTerminal] = useState(true);
+  const [showBottomTerminal, setShowBottomTerminal] = useState(false);
+  const [terminalMaximized, setTerminalMaximized] = useState(false);
+  const [sbMounted, setSbMounted] = useState(true);
   const [isLoadingProject, setIsLoadingProject] = useState(false);
 
   // Sürüklenebilir panel boyutları (tercihler tarayıcıda saklanır)
@@ -487,22 +489,31 @@ export function App() {
     return () => window.removeEventListener('blur', onBlur);
   }, [autoSave]);
 
-  const handleCreateFile = async (name: string, isFolder: boolean) => {
+  const refreshTree = async () => {
     if (currentRootPath && window.electronAPI) {
-      // Klasörün kendi ayırıcısını kullan (Windows'ta '\', diğerlerinde '/')
-      const sep = currentRootPath.includes('\\') ? '\\' : '/';
-      const base = currentRootPath.split(sep).filter(Boolean).join(sep);
-      const relative = name.split(/[\\/]+/).filter(Boolean).join(sep);
-      const targetPath = currentRootPath.startsWith(sep) ? sep + base + sep + relative : base + sep + relative;
-      if (isFolder) {
-        await window.electronAPI.createFolder(targetPath);
-      } else {
-        await window.electronAPI.createFile(targetPath);
-      }
-      const tree = await window.electronAPI.readDirectory(currentRootPath);
-      setFiles(tree);
-      addLog('info', `Yeni ${isFolder ? 'klasör' : 'dosya'} oluşturuldu: ${name}`);
+      setFiles(await window.electronAPI.readDirectory(currentRootPath));
       refreshGitStatus();
+    }
+  };
+
+  const handleCreateFile = async (name: string, isFolder: boolean, parentDir?: string) => {
+    if (currentRootPath && window.electronAPI) {
+      const baseDir = parentDir || currentRootPath;
+      // Klasörün kendi ayırıcısını kullan (Windows'ta '\', diğerlerinde '/')
+      const sep = baseDir.includes('\\') ? '\\' : '/';
+      const relative = name.split(/[\\/]+/).filter(Boolean).join(sep);
+      const targetPath = baseDir.replace(/[\\/]+$/, '') + sep + relative;
+      const res = isFolder ? await window.electronAPI.createFolder(targetPath) : await window.electronAPI.createFile(targetPath);
+      if (res && res.success === false) {
+        addLog('error', `Oluşturulamadı: ${res.error ?? name}`);
+        return;
+      }
+      await refreshTree();
+      addLog('info', `Yeni ${isFolder ? 'klasör' : 'dosya'} oluşturuldu: ${name}`);
+      if (!isFolder) {
+        const created = getAllFiles(await window.electronAPI.readDirectory(currentRootPath)).find((f) => f.path === targetPath);
+        if (created) void handleSelectFile(created);
+      }
       return;
     }
 
@@ -532,8 +543,40 @@ export function App() {
     }
   };
 
+  const findItem = (items: FileItem[], id: string): FileItem | undefined => {
+    for (const it of items) {
+      if (it.id === id) return it;
+      const hit = it.children && findItem(it.children, id);
+      if (hit) return hit;
+    }
+    return undefined;
+  };
+
+  const handleRename = async (item: FileItem, newName: string) => {
+    if (!item.path || !window.electronAPI?.renameItem) return;
+    const oldPath = item.path;
+    const sep = oldPath.includes('\\') ? '\\' : '/';
+    const next = oldPath.slice(0, oldPath.lastIndexOf(sep)) + sep + newName;
+    const res = await window.electronAPI.renameItem(oldPath, next);
+    if (!res.success) {
+      addLog('error', `Yeniden adlandırılamadı: ${res.error ?? newName}`);
+      return;
+    }
+    // Açık sekmeleri yeni yola taşı (klasör adı değiştiyse içindeki dosyalar da)
+    const remap = (id: string) => (id === oldPath ? next : id.startsWith(oldPath + sep) ? next + id.slice(oldPath.length) : id);
+    setOpenFiles((prev) =>
+      prev.map((f) => {
+        const nid = remap(f.id);
+        return nid === f.id ? f : { ...f, id: nid, path: nid, name: nid === next ? newName : f.name };
+      })
+    );
+    setActiveFileId((cur) => (cur ? remap(cur) : cur));
+    await refreshTree();
+    addLog('info', `Yeniden adlandırıldı: ${item.name} → ${newName}`);
+  };
+
   const handleDeleteFile = async (id: string) => {
-    const file = openFiles.find(f => f.id === id) || getAllFiles(files).find(f => f.id === id);
+    const file = openFiles.find(f => f.id === id) || findItem(files, id);
     if (file?.path && window.electronAPI?.deleteItem) {
       await window.electronAPI.deleteItem(file.path);
       if (currentRootPath) {
@@ -619,6 +662,18 @@ export function App() {
   const isElectron = !!window.electronAPI?.isElectron;
   const projectName = currentRootPath ? currentRootName : '';
   const sidebarShown = sidebarVisible && !showLanding;
+  const sidebarRight = settings.sidebarPosition === 'right';
+  const tabSize = Number(settings.tabSize) || 2;
+
+  // Kenar çubuğu kapanırken içerik genişlik animasyonu bitene kadar bağlı kalır
+  useEffect(() => {
+    if (sidebarShown) {
+      setSbMounted(true);
+      return;
+    }
+    const id = setTimeout(() => setSbMounted(false), 230);
+    return () => clearTimeout(id);
+  }, [sidebarShown]);
   const changeCount = gitStatus.changes.length;
   const isHtml = activeFile?.language === 'html';
 
@@ -647,7 +702,6 @@ export function App() {
         <div className="flex items-center gap-2 pl-3 min-w-0">
           <Logo size={18} />
           <span className="text-[12px] text-zinc-400 hidden sm:inline">NovaCode Studio</span>
-          <span className="text-[10px] font-mono px-1.5 rounded bg-zinc-800 text-zinc-500 hidden md:inline">v{__APP_VERSION__}</span>
         </div>
 
         {/* Orta: komut merkezi görünümlü proje alanı */}
@@ -683,6 +737,20 @@ export function App() {
               <Columns size={15} />
             </button>
           )}
+          {settings.activityBarVisible === false && (
+            <button
+              onClick={() => {
+                setShowLanding(false);
+                setShowSettings((v) => !v);
+              }}
+              title={`${t('actSettings')} (Ctrl+,)`}
+              aria-label={t('actSettings')}
+              data-active={showSettings}
+              className="icon-btn"
+            >
+              <Settings size={15} />
+            </button>
+          )}
           <button onClick={() => setSidebarVisible((v) => !v)} title={t('tbSidebar')} aria-label={t('tbSidebar')} data-active={sidebarShown} className="icon-btn">
             <PanelLeft size={15} />
           </button>
@@ -693,9 +761,10 @@ export function App() {
       </header>
 
       {/* Çalışma alanı */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className={`flex flex-1 min-h-0 overflow-hidden ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
-        <nav aria-label="Activity bar" className="w-12 bg-nv-side border-r border-nv-border flex flex-col items-center justify-between select-none shrink-0">
+        {settings.activityBarVisible !== false && (
+        <nav aria-label="Activity bar" className={`w-12 bg-nv-side ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border flex flex-col items-center justify-between select-none shrink-0`}>
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} title={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
               <Files size={24} strokeWidth={1.5} />
@@ -757,54 +826,63 @@ export function App() {
             </button>
           </div>
         </nav>
-
-        {/* Kenar çubuğu görünümleri */}
-        {sidebarShown && activeSidebarTab === 'files' && (
-          <div key="files" style={{ width: sidebarWidth }} className="animate-sidebar-in h-full border-r border-nv-border shrink-0">
-            <FileTree
-              isLoading={isLoadingProject}
-              gitDecor={gitDecor}
-              files={files}
-              activeFileId={activeFileId}
-              currentRootName={projectName}
-              onSelectFile={(f) => {
-                setShowLanding(false);
-    setShowSettings(false);
-                handleSelectFile(f);
-              }}
-              onCreateFile={handleCreateFile}
-              onDeleteFile={handleDeleteFile}
-              onOpenFolder={handleOpenFolderDialog}
-              onOpenFiles={handleOpenFileDialog}
-            />
-          </div>
         )}
 
-        {sidebarShown && activeSidebarTab === 'git' && (
-          <div key="git" style={{ width: sidebarWidth }} className="animate-sidebar-in h-full border-r border-nv-border shrink-0 flex flex-col bg-nv-side">
-            <GithubAccount />
-            <div className="flex-1 min-h-0">
-              <GitPanel
-                status={gitStatus}
-                currentRepoPath={currentRootPath}
-                onRefresh={() => refreshGitStatus()}
-                onLog={(type, text) => addLog(type, text)}
-              />
+        {/* Kenar çubuğu (kapanırken genişlik animasyonla daralır) */}
+        <div className="sidebar-shell h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? sidebarWidth : 0 }}>
+          {sbMounted && (
+            <div style={{ width: sidebarWidth }} className={`h-full ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border bg-nv-side`}>
+              {activeSidebarTab === 'files' && (
+                <div key="files" className="animate-sidebar-in h-full">
+                  <FileTree
+                    isLoading={isLoadingProject}
+                    gitDecor={gitDecor}
+                    files={files}
+                    openFiles={openFiles}
+                    activeFileId={activeFileId}
+                    rootName={projectName}
+                    rootPath={currentRootPath}
+                    density={settings.treeDensity === 'comfortable' ? 'comfortable' : 'compact'}
+                    indentGuides={settings.treeIndentGuides !== false}
+                    showOpenEditors={settings.showOpenEditors !== false}
+                    onSelectFile={(f) => {
+                      setShowLanding(false);
+                      setShowSettings(false);
+                      void handleSelectFile(f);
+                    }}
+                    onCloseOpenFile={handleCloseTab}
+                    onCreate={handleCreateFile}
+                    onRename={handleRename}
+                    onDelete={handleDeleteFile}
+                    onRefresh={refreshTree}
+                    onOpenFolder={handleOpenFolderDialog}
+                    onOpenFiles={handleOpenFileDialog}
+                  />
+                </div>
+              )}
+              {activeSidebarTab === 'git' && (
+                <div key="git" className="animate-sidebar-in h-full flex flex-col">
+                  <div className="h-9 flex items-center pl-4 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">{t('actGit')}</div>
+                  <GithubAccount />
+                  <div className="flex-1 min-h-0">
+                    <GitPanel status={gitStatus} currentRepoPath={currentRootPath} onRefresh={() => refreshGitStatus()} onLog={(type, text) => addLog(type, text)} />
+                  </div>
+                </div>
+              )}
+              {activeSidebarTab === 'snippets' && (
+                <div key="snippets" className="animate-sidebar-in h-full">
+                  <SnippetsPanel onInsertSnippet={handleInsertSnippet} />
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
+        {sidebarShown && <ResizeHandle direction="horizontal" title="Kenar çubuğu genişliği" onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
 
-        {sidebarShown && activeSidebarTab === 'snippets' && (
-          <div key="snippets" style={{ width: sidebarWidth }} className="animate-sidebar-in h-full border-r border-nv-border shrink-0">
-            <SnippetsPanel onInsertSnippet={handleInsertSnippet} />
-          </div>
-        )}
-
-        {/* Sidebar genişliği: sağ kenardan sürükle */}
-        {sidebarShown && <ResizeHandle direction="horizontal" title="Kenar çubuğu genişliği" onResize={(d) => setSidebarWidth((w) => clamp(w + d, 180, 560))} />}
-
-        {/* Karşılama sayfası veya editör */}
-        {showSettings ? (
+        {/* Ana sütun: görünüm (ayarlar / karşılama / editör) + terminal paneli (oturumlar panel gizliyken de canlı kalır) */}
+        <div className="flex flex-col flex-1 h-full min-w-0">
+          <div className="flex-1 min-h-0 flex flex-col min-w-0">
+            {showSettings ? (
           <SettingsPage onClose={() => setShowSettings(false)} builtInSnippetCount={builtInSnippets.length} />
         ) : showLanding ? (
           <LandingPage
@@ -828,9 +906,7 @@ export function App() {
             showOnStartup={settings.welcomeOnStartup === true}
             onToggleStartup={(v) => setSetting('welcomeOnStartup', v)}
           />
-        ) : (
-          <div className="flex flex-col flex-1 h-full min-w-0">
-            <div className="flex-1 min-h-0">
+            ) : (
               <EditorArea
                 openFiles={openFiles}
                 activeFileId={activeFileId}
@@ -839,22 +915,47 @@ export function App() {
                 onNewFile={handleNewUntitled}
                 onOpenFolder={handleOpenFolderDialog}
                 onOpenFiles={handleOpenFileDialog}
+                rootPath={currentRootPath}
+                rootName={projectName}
                 onChangeContent={handleContentChange}
                 onSaveFile={handleSaveFile}
                 onRunCode={handleRunCode}
                 collab={{ enabled: collabEnabled && collabUrlValid, url: collabUrl.trim(), token: collabToken, room: currentRootPath || '' }}
               />
-            </div>
-
-            {/* Alt panel: terminal */}
-            {showBottomTerminal && <ResizeHandle direction="vertical" title="Terminal yüksekliği" onResize={(d) => setTerminalHeight((h) => clamp(h - d, 120, 640))} />}
-            {showBottomTerminal && (
-              <div data-terminal="" style={{ height: terminalHeight }} className="animate-panel-up border-t border-nv-border shrink-0">
-                <Terminal logs={logs} onClear={() => setLogs([])} cwd={currentRootPath} branch={gitStatus.isRepo && settings.terminalShowBranch !== false ? gitStatus.branch : null} />
-              </div>
             )}
           </div>
-        )}
+
+          {showBottomTerminal && (
+            <ResizeHandle
+              direction="vertical"
+              title="Terminal yüksekliği"
+              onResize={(d) => {
+                setTerminalMaximized(false);
+                setTerminalHeight((h) => clamp(h - d, 120, 640));
+              }}
+            />
+          )}
+          <div
+            data-terminal=""
+            className="terminal-shell shrink-0 overflow-hidden border-nv-border"
+            style={{ height: showBottomTerminal ? (terminalMaximized ? '70%' : terminalHeight) : 0, borderTopWidth: showBottomTerminal ? 1 : 0 }}
+          >
+            <Terminal
+              logs={logs}
+              onClear={() => setLogs([])}
+              cwd={currentRootPath}
+              branch={gitStatus.isRepo && settings.terminalShowBranch !== false ? gitStatus.branch : null}
+              visible={showBottomTerminal}
+              maximized={terminalMaximized}
+              onToggleMaximize={() => setTerminalMaximized((v) => !v)}
+              onClose={() => {
+                setShowBottomTerminal(false);
+                setTerminalMaximized(false);
+              }}
+              onOpenFolder={handleOpenFolderDialog}
+            />
+          </div>
+        </div>
 
         {/* Sağ panel: önizleme veya yapay zekâ */}
         {!showLanding && showRightPanel === 'preview' && isHtml && (
@@ -888,37 +989,39 @@ export function App() {
         )}
       </div>
 
-      {/* Durum çubuğu */}
-      <footer className="h-[22px] bg-nv-side border-t border-nv-border flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
-        <div className="flex items-center h-full">
-          {gitStatus.isRepo && (
-            <button className="status-item" onClick={() => pickSidebar('git')} title={t('actGit')}>
-              <GitBranch size={12} />
-              <span className="font-mono">{gitStatus.branch}</span>
-              {(gitStatus.behind || gitStatus.ahead) ? (
-                <span className="font-mono">
-                  ↓{gitStatus.behind ?? 0} ↑{gitStatus.ahead ?? 0}
-                </span>
-              ) : null}
-              {changeCount > 0 && <span className="text-amber-400">±{changeCount}</span>}
+      {/* Durum çubuğu: yalnız anlamlı bilgiler */}
+      {settings.statusBarVisible !== false && (
+        <footer className="h-[22px] bg-nv-side border-t border-nv-border flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
+          <div className="flex items-center h-full">
+            {gitStatus.isRepo && (
+              <button className="status-item" onClick={() => pickSidebar('git')} title={t('actGit')}>
+                <GitBranch size={12} />
+                <span className="font-mono">{gitStatus.branch}</span>
+                {gitStatus.behind || gitStatus.ahead ? (
+                  <span className="font-mono">
+                    ↓{gitStatus.behind ?? 0} ↑{gitStatus.ahead ?? 0}
+                  </span>
+                ) : null}
+                {changeCount > 0 && <span className="text-amber-400">±{changeCount}</span>}
+              </button>
+            )}
+            <button className="status-item" onClick={() => pickSidebar('git')} title={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}>
+              <UserRound size={12} />
+              <span>{auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}</span>
             </button>
-          )}
-          <button className="status-item" onClick={() => pickSidebar('git')} title={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}>
-            <UserRound size={12} />
-            <span>{auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}</span>
-          </button>
-        </div>
-        <div className="flex items-center h-full">
-          <span className="status-item">{activeFile?.isModified ? t('stUnsaved') : t('stSaved')}</span>
-          <span className="status-item">{t('stSpaces')}</span>
-          <span className="status-item">UTF-8</span>
-          <span className="status-item">{activeFile?.language ? activeFile.language : t('stPlain')}</span>
-          <span className="status-item">
-            <Check size={12} className="text-emerald-400" />
-            {t('stReady')}
-          </span>
-        </div>
-      </footer>
+          </div>
+          <div className="flex items-center h-full">
+            {activeFile?.isModified && <span className="status-item text-amber-300">{t('stUnsaved')}</span>}
+            {activeFile && (
+              <>
+                <span className="status-item">{t('stSpaces').replace(/\d+/, String(tabSize))}</span>
+                <span className="status-item">UTF-8</span>
+                <span className="status-item">{activeFile.language ? activeFile.language : t('stPlain')}</span>
+              </>
+            )}
+          </div>
+        </footer>
+      )}
     </div>
   );
 }

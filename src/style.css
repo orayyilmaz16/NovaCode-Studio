@@ -195,6 +195,19 @@
   transform: scaleY(1);
 }
 
+/* Kenar çubuğu ve terminal paneli: açılıp kapanırken boyut yumuşakça değişir.
+   Kenarı sürüklerken (data-resizing) gecikme olmaması için geçiş kapatılır. */
+.sidebar-shell {
+  transition: width 190ms var(--ease-out-soft);
+}
+.terminal-shell {
+  transition: height 200ms var(--ease-out-soft), border-top-width 200ms;
+}
+:root[data-resizing] .sidebar-shell,
+:root[data-resizing] .terminal-shell {
+  transition: none;
+}
+
 /* Başlık çubuğu ve genel simge düğmeleri */
 .icon-btn {
   display: inline-flex;
@@ -256,6 +269,10 @@ button.status-item:hover {
   from { opacity: 0; transform: scale(0.2) rotate(-70deg); }
   to { opacity: 1; transform: none; }
 }
+@keyframes menuIn {
+  from { opacity: 0; transform: scale(0.96) translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
 @keyframes splashOut {
   to { opacity: 0; }
 }
@@ -272,6 +289,7 @@ button.status-item:hover {
 .animate-sidebar-in { animation: slideInLeft 180ms var(--ease-out-soft) both; }
 .animate-panel-up { animation: panelUp 200ms var(--ease-out-soft) both; }
 .animate-tab-in { animation: tabIn 160ms var(--ease-out-soft) both; }
+.animate-menu { animation: menuIn 120ms var(--ease-out-soft) both; transform-origin: top left; }
 .animate-splash-out { animation: splashOut 260ms ease forwards; }
 .animate-twinkle { animation: twinkle 3.2s ease-in-out infinite; transform-origin: center; }
 

@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 
@@ -27,14 +27,15 @@
 |---|---|
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
-| `electron-main.cjs` | 562 |
+| `electron-main.cjs` | 425 |
 | `electron-preload.cjs` | 85 |
 | `electron-secrets.cjs` | 46 |
+| `electron-term.cjs` | 155 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 926 |
+| `src/App.tsx` | 1029 |
 | `src/main.tsx` | 21 |
 | `src/types.ts` | 164 |
 
@@ -42,18 +43,19 @@
 | Dosya | Satır |
 |---|---|
 | `src/components/AIAssistant.tsx` | 157 |
-| `src/components/EditorArea.tsx` | 319 |
-| `src/components/FileTree.tsx` | 244 |
+| `src/components/EditorArea.tsx` | 333 |
+| `src/components/FileTree.tsx` | 599 |
 | `src/components/GitPanel.tsx` | 608 |
 | `src/components/GithubAccount.tsx` | 132 |
 | `src/components/LandingPage.tsx` | 135 |
 | `src/components/Logo.tsx` | 34 |
+| `src/components/Menu.tsx` | 100 |
 | `src/components/Preview.tsx` | 97 |
-| `src/components/ResizeHandle.tsx` | 64 |
+| `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SettingsPage.tsx` | 573 |
 | `src/components/SnippetsPanel.tsx` | 97 |
 | `src/components/SplashScreen.tsx` | 38 |
-| `src/components/Terminal.tsx` | 287 |
+| `src/components/Terminal.tsx` | 441 |
 
 ### Servisler
 | Dosya | Satır |
@@ -70,13 +72,13 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 862 |
+| `src/i18n/uiText.ts` | 979 |
 
 ### Betikler
 | Dosya | Satır |
 |---|---|
 | `scripts/auto-commit.mjs` | 116 |
-| `scripts/brain.mjs` | 294 |
+| `scripts/brain.mjs` | 295 |
 | `scripts/bump-version.mjs` | 130 |
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
@@ -87,6 +89,7 @@
 |---|---|
 | `scripts/tests/git.test.cjs` | 84 |
 | `scripts/tests/sync.test.cjs` | 58 |
+| `scripts/tests/term.test.cjs` | 74 |
 
 ### Sunucu
 | Dosya | Satır |
@@ -109,10 +112,10 @@
 **Olaylar (ana süreç → arayüz):** `fs:watch-change`, `git:changed`, `github:auth`, `term:cwd`, `term:exit`, `term:output`
 
 ## i18n
-- 269 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 308 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-55 ayar, 9 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+65 ayar, 9 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -121,6 +124,9 @@
 | Görünüm | `uiFont` | Arayüz yazı tipi | select | `"system"` | system, segoe, arial, verdana, tahoma, mono |
 | Görünüm | `uiZoom` | Arayüz yakınlaştırma | slider | `100` | 80–150 % |
 | Görünüm | `animations` | Animasyonlar | toggle | `true` |  |
+| Görünüm | `sidebarPosition` | Kenar çubuğu konumu | select | `"left"` | left, right |
+| Görünüm | `activityBarVisible` | Etkinlik çubuğunu göster | toggle | `true` |  |
+| Görünüm | `statusBarVisible` | Durum çubuğunu göster | toggle | `true` |  |
 | Görünüm | `language` | Dil | select | `"auto"` | auto, tr, en, de, ru, ar, es, fr, az |
 | Editör | `editorTheme` | Editör teması | select | `"auto"` | auto, nova-dark, nova-light, vs-dark, vs, hc-black |
 | Editör | `fontFamily` | Kod yazı tipi | select | `"cascadia"` | cascadia, fira, jetbrains, consolas, courier, monospace, custom |
@@ -154,6 +160,7 @@
 | Editör | `parameterHints` | Parametre ipuçları | toggle | `true` |  |
 | Editör | `hover` | Üzerine gelince bilgi | toggle | `true` |  |
 | Editör | `rulers` | Cetvel sütunları | text | `""` | ≤40 karakter |
+| Editör | `showBreadcrumbs` | Dosya yolu göstergesi (breadcrumb) | toggle | `true` |  |
 | Snippet ve tamamlama | `defaultSnippetsInEditor` | Hazır snippet'leri otomatik tamamlamada göster | toggle | `true` |  |
 | Snippet ve tamamlama | `snippetSuggestions` | Snippet önerilerinin konumu | select | `"inline"` | top, inline, bottom, none |
 | Dosyalar ve kayıt | `autoSave` | Otomatik kaydet | select | `"off"` | off, afterDelay, onFocusChange |
@@ -162,10 +169,16 @@
 | Dosyalar ve kayıt | `insertFinalNewline` | Kayıtta sona boş satır ekle | toggle | `false` |  |
 | Dosyalar ve kayıt | `welcomeOnStartup` | Açılışta karşılama sayfasını göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showGitDecorations` | Dosya ağacında Git durumunu göster | toggle | `true` |  |
+| Dosyalar ve kayıt | `showOpenEditors` | Gezginde "Açık düzenleyiciler" | toggle | `true` |  |
+| Dosyalar ve kayıt | `treeDensity` | Ağaç satır yüksekliği | select | `"compact"` | compact, comfortable |
+| Dosyalar ve kayıt | `treeIndentGuides` | Girinti kılavuz çizgileri (ağaç) | toggle | `true` |  |
 | Terminal | `terminalFontSize` | Terminal yazı boyutu | slider | `12` | 10–20 px |
 | Terminal | `defaultShell` | Varsayılan kabuk | select | `"powershell"` | powershell, cmd |
 | Terminal | `terminalColorInput` | Komutları renklendir | toggle | `true` |  |
 | Terminal | `terminalShowBranch` | İstemde Git dalını göster | toggle | `true` |  |
+| Terminal | `terminalLineHeight` | Terminal satır yüksekliği | slider | `1.4` | 1–2 |
+| Terminal | `terminalScrollback` | Terminal geçmiş sınırı (karakter) | select | `200000` | 50000, 100000, 200000, 500000 |
+| Terminal | `terminalCursor` | Terminal imleç şekli | select | `"block"` | block, bar, underline |
 | Git ve GitHub | `gitAutoFetch` | Uzak değişiklikleri otomatik getir (fetch) | toggle | `true` |  |
 | Git ve GitHub | `gitStatusInterval` | Git durumu yenileme aralığı | select | `8` | 5, 8, 15, 30, 60 |
 | Git ve GitHub | `gitFetchInterval` | Otomatik fetch aralığı | select | `60` | 30, 60, 120, 300 |
@@ -191,7 +204,7 @@
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
 | [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör/snippet davranışları, kalıcılık ve gizli değerler |
-| [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal (PowerShell/CMD) davranışı, istem ve renklendirme |
+| [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: çoklu oturum, panel davranışı, istem, renklendirme |
 | [[testing]] | `docs/brain/actions/testing.md` | Değişikliği doğrulamak: tip, derleme, birim ve entegrasyon testleri, uygulamayı çalıştırma |
 | [[ui-design]] | `docs/brain/actions/ui-design.md` | Arayüz, tema, logo ve animasyon değişiklikleri |
 | [[BRAIN]] | `docs/brain/BRAIN.md` | NovaCode Studio — Proje Beyni |

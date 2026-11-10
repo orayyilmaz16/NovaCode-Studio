@@ -8,7 +8,7 @@ Electron + React 19 + Vite + Monaco + Tailwind 4 + TypeScript (strict). Ortak d�
 ## Süreç modeli
 | Katman | Dosyalar | Sorumluluk |
 |---|---|---|
-| Ana süreç | `electron-main.cjs`, `electron-git.cjs`, `electron-github.cjs`, `electron-secrets.cjs` | Dosya sistemi, izleyiciler, git, GitHub, terminal kabukları, IPC |
+| Ana süreç | `electron-main.cjs`, `electron-git.cjs`, `electron-github.cjs`, `electron-secrets.cjs`, `electron-term.cjs` | Dosya sistemi, izleyiciler, git, GitHub, şifreli sırlar, çoklu terminal oturumları, IPC |
 | Preload | `electron-preload.cjs` | `contextBridge` ile dar, tipli API (`window.electronAPI`) |
 | Renderer | `src/` | Arayüz; Node erişimi yok, `contextIsolation` açık |
 

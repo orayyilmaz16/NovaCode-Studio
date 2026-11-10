@@ -8,10 +8,11 @@ Yapay zekâ destekli, VS Code çizgisinde modern kod editörü. **Masaüstü (El
 
 | Alan | Neler var |
 |---|---|
+| **Gezgin** | VS Code son sürüm uyumlu: Açık düzenleyiciler + çalışma alanı bölümleri, satır içi dosya/klasör oluşturma, F2 ile yeniden adlandırma, sağ tık menüsü, klavye gezinmesi, girinti kılavuzları, Git durumu, animasyonlu açılma. |
 | **Editör** | Monaco (VS Code motoru): sözdizimi renklendirme, IntelliSense, parantez eşleme, mini harita, katlama, sekmeler, yol göstergesi. Dosya türüne göre renkli sekme simgeleri. |
 | **Gerçek zamanlı dosya takibi** | Açılan klasör izlenir: dışarıdan değişen dosyalar ağaçta ve (kaydedilmemişse) açık sekmelerde anında yenilenir. Son açılan klasörler karşılama ekranında. |
 | **Git + GitHub** | GitHub hesabını uygulama içinden bağla (cihaz kodu akışı). Parça parça sahnele/geri al, commit, dal oluştur/geç, eşzamanla (fetch + fast-forward pull + push), Pull Request aç, depoyu GitHub'da yayınla, commit geçmişi, açık PR ve Actions durumu. Hesap bağlı değilken Git verisi kilitli. |
-| **Terminal** | PowerShell ve CMD; istemde çalışma klasörü ve Git dalı; komut/bayrak/metin/değişken renkli; ANSI renkli çıktı, kırmızı hata çıktısı; ↑/↓ geçmiş. |
+| **Terminal** | VS Code gibi panel: birden çok terminal (PowerShell/CMD), oturum listesi, büyüt/küçült, satır içi istem (çalışma klasörü + Git dalı), renkli komutlar ve ANSI çıktı, ↑/↓ geçmiş, blok/çubuk imleç. Panel gizliyken oturumlar canlı kalır. |
 | **Önizleme ve AI** | HTML için canlı önizleme; kod açıklama/hata bulma/optimize etme asistanı. |
 | **Ayarlar** | VS Code tarzı tam sayfa ayarlar: arama, kategoriler, canlı editör önizlemesi. Aşağıya bak. |
 | **Ortak düzenleme** | Kendi sunucunda açık kaynak Yjs senkron sunucusu (`server/sync-server.mjs`); token şifreli saklanır. |
@@ -21,7 +22,8 @@ Yapay zekâ destekli, VS Code çizgisinde modern kod editörü. **Masaüstü (El
 - **Editör:** tema (Nova Dark/Light, VS Dark/Light, High Contrast), kod yazı tipi (hazır liste veya özel), boyut, satır yüksekliği, kalınlık, harf aralığı, ligatürler, sekme boşluğu, satır kaydırma, satır numaraları, mini harita, boşluk gösterimi, imleç stili/yanıp sönmesi, yumuşak kaydırma, parantez renklendirme, girinti kılavuzları, katlama, sticky scroll, biçimlendirme, otomatik kapatma, öneriler, ipuçları, cetvel sütunları.
 - **Snippet:** özel snippet'ler (tetikleyici, dil, Monaco snippet sözdizimi) otomatik tamamlamada çıkar; hazır snippet'ler açılıp kapatılabilir.
 - **Dosyalar:** otomatik kayıt (gecikme / odak değişimi), kayıtta satır sonu boşluklarını sil, sona boş satır, karşılama sayfası, dosya ağacında Git durumu.
-- **Terminal:** yazı boyutu, varsayılan kabuk, komut renklendirme, istemde Git dalı. **Git:** otomatik fetch ve yenileme aralıkları.
+- **Yerleşim:** kenar çubuğu sol/sağ, etkinlik çubuğu ve durum çubuğu göster/gizle, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve girinti kılavuzları.
+- **Terminal:** yazı boyutu, satır yüksekliği, geçmiş sınırı, imleç şekli, varsayılan kabuk, komut renklendirme, istemde Git dalı. **Git:** otomatik fetch ve yenileme aralıkları.
 - **Yedek:** ayarları JSON olarak dışa/içe aktar, tümünü sıfırla. Ayarlar yalnız bu cihazda tutulur.
 - Tam liste (şemadan otomatik üretilir): [`docs/brain/STATE.md`](docs/brain/STATE.md) → *Ayarlar*.
 

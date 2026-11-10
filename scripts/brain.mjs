@@ -86,6 +86,7 @@ for (const { f, text } of mainSrc) {
   for (const m of text.matchAll(/ipcMain\.handle\(\s*'([^']+)'/g)) handles.set(m[1], f);
   for (const m of text.matchAll(/webContents\.send\(\s*'([^']+)'/g)) sends.add(m[1]);
   for (const m of text.matchAll(/sendTerm\(\s*'([^']+)'/g)) sends.add(m[1]);
+  for (const m of text.matchAll(/\bsend\(\s*'([^']+)'/g)) sends.add(m[1]);
 }
 const preload = exists("electron-preload.cjs") ? read("electron-preload.cjs") : "";
 const invokes = new Set([...preload.matchAll(/ipcRenderer\.invoke\(\s*'([^']+)'/g)].map((m) => m[1]));

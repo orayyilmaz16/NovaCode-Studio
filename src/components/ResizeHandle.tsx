@@ -22,6 +22,7 @@ export const ResizeHandle: React.FC<ResizeHandleProps> = ({ direction, onResize,
         last.current = isH ? e.clientX : e.clientY;
         e.currentTarget.setPointerCapture(e.pointerId);
         document.body.style.cursor = isH ? 'col-resize' : 'row-resize';
+        document.documentElement.dataset.resizing = '1';
       }}
       onPointerMove={(e) => {
         if (last.current === null) return;
@@ -34,6 +35,7 @@ export const ResizeHandle: React.FC<ResizeHandleProps> = ({ direction, onResize,
         last.current = null;
         e.currentTarget.releasePointerCapture(e.pointerId);
         document.body.style.cursor = '';
+        delete document.documentElement.dataset.resizing;
       }}
       className={`shrink-0 group relative z-10 ${
         isH ? 'w-1 cursor-col-resize' : 'h-1 cursor-row-resize'
