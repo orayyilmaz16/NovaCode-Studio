@@ -67,7 +67,7 @@ export const GithubAccount: React.FC = () => {
   const btn = 'flex items-center justify-center gap-1.5 py-1.5 rounded font-medium transition-colors cursor-pointer text-xs';
 
   return (
-    <div className="p-3 border-b border-zinc-800/80 text-xs bg-[#131620]">
+    <div className="p-3 border-b border-zinc-800/80 text-xs bg-nv-side">
       <div className="flex items-center gap-2 mb-2 text-zinc-200 font-semibold">
         <Github size={14} className="text-zinc-300" />
         <span>{t('ghTitle')}</span>
@@ -90,7 +90,7 @@ export const GithubAccount: React.FC = () => {
         <div className="space-y-2">
           <p className="text-zinc-400">{t('ghCodeHint')}</p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 text-center text-lg tracking-widest font-mono py-1.5 rounded bg-[#0d1017] border border-zinc-700 text-indigo-300 select-all">
+            <code className="flex-1 text-center text-lg tracking-widest font-mono py-1.5 rounded bg-nv-editor border border-zinc-700 text-indigo-300 select-all">
               {pending.userCode}
             </code>
             <button onClick={copyCode} title={t('ghCopyCode')} aria-label={t('ghCopyCode')} className="p-2 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200">

@@ -3,7 +3,9 @@ import Editor from '@monaco-editor/react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
-import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus } from 'lucide-react';
+import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight } from 'lucide-react';
+import { Logo } from './Logo';
+import { defineNovaThemes } from '../services/editorTheme';
 import type { FileItem } from '../types';
 import { t } from '../i18n/uiText';
 
@@ -28,6 +30,18 @@ interface EditorAreaProps {
   fontSize: number;
   theme: string;
   collab?: CollabConfig;
+}
+
+// Dosya türüne göre simge rengi (VS Code benzeri ayırt edicilik)
+function extColor(name: string): string {
+  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  if (['ts', 'tsx'].includes(ext)) return 'text-sky-400';
+  if (['js', 'jsx', 'mjs', 'cjs', 'json'].includes(ext)) return 'text-yellow-300';
+  if (['html', 'htm'].includes(ext)) return 'text-orange-400';
+  if (['css', 'scss', 'sass', 'less'].includes(ext)) return 'text-blue-400';
+  if (['md', 'markdown'].includes(ext)) return 'text-zinc-300';
+  if (['py'].includes(ext)) return 'text-emerald-400';
+  return 'text-zinc-400';
 }
 
 export const EditorArea: React.FC<EditorAreaProps> = ({
@@ -127,35 +141,56 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     }
   };
 
+  const crumbs = activeFile?.path ? activeFile.path.split(/[\\/]/).filter(Boolean).slice(-4) : activeFile ? [activeFile.name] : [];
+
   return (
-    <div className="flex flex-col flex-1 h-full bg-[#1e1e2e] overflow-hidden">
-      {/* Tab Bar */}
-      <div className="flex items-center justify-between bg-[#11121d] border-b border-zinc-800 px-2 h-9 overflow-x-auto select-none">
-        <div className="flex items-center space-x-1 h-full">
+    <div className="flex flex-col flex-1 h-full bg-nv-editor overflow-hidden">
+      {/* Sekme çubuğu */}
+      <div className="flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[35px] select-none">
+        <div role="tablist" className="flex items-stretch min-w-0 overflow-x-auto [scrollbar-width:none]">
           {openFiles.map((file) => {
             const isActive = file.id === activeFileId;
             return (
               <div
                 key={file.id}
+                role="tab"
+                aria-selected={isActive}
+                tabIndex={0}
                 onClick={() => onSelectTab(file.id)}
-                className={`flex items-center space-x-2 px-3 h-full cursor-pointer border-t-2 text-xs transition-colors group ${
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectTab(file.id);
+                  }
+                }}
+                onAuxClick={(e) => {
+                  if (e.button === 1) onCloseTab(file.id);
+                }}
+                title={file.path || file.name}
+                className={`animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 min-w-[96px] max-w-[200px] cursor-pointer border-r border-nv-border text-[13px] transition-colors ${
                   isActive
-                    ? 'bg-[#1e1e2e] border-indigo-500 text-zinc-100 font-medium'
-                    : 'border-transparent text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-300'
+                    ? 'bg-nv-editor text-zinc-100 shadow-[inset_0_1px_0_var(--color-indigo-500)]'
+                    : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
                 }`}
               >
-                <span className="truncate max-w-[120px]">{file.name}</span>
-                {file.isModified && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" title="Kaydedilmemiş Değişiklik" />
-                )}
+                <FileCode size={14} className={`shrink-0 ${extColor(file.name)}`} />
+                <span className="truncate">{file.name}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onCloseTab(file.id);
                   }}
-                  className="hover:bg-zinc-700/60 p-0.5 rounded-full text-zinc-400 hover:text-zinc-200"
+                  aria-label={`${file.name} — ${t('closeTab')}`}
+                  title={t('closeTab')}
+                  className="ml-auto relative flex items-center justify-center w-5 h-5 rounded text-zinc-400 hover:bg-white/10 hover:text-zinc-100"
                 >
-                  <X size={12} />
+                  {file.isModified && (
+                    <span className="absolute w-2 h-2 rounded-full bg-zinc-200 transition-opacity group-hover:opacity-0" />
+                  )}
+                  <X
+                    size={14}
+                    className={`transition-opacity ${file.isModified ? 'opacity-0 group-hover:opacity-100' : isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                  />
                 </button>
               </div>
             );
@@ -165,20 +200,20 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               onClick={onNewFile}
               title={`${t('newTab')} (Ctrl+N)`}
               aria-label={t('newTab')}
-              className="flex items-center justify-center w-7 h-7 ml-1 rounded text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+              className="icon-btn self-center ml-1 shrink-0"
             >
               <Plus size={15} />
             </button>
           )}
         </div>
 
-        {/* Action Tools */}
+        {/* Eylem düğmeleri */}
         {activeFile && (
-          <div className="flex items-center space-x-1.5 ml-4">
+          <div className="flex items-center gap-0.5 pl-3 pr-2 shrink-0">
             {collab?.enabled && (
               <span
                 title="Ortak düzenleme durumu"
-                className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded ${
+                className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded mr-1 ${
                   collabStatus === 'synced'
                     ? 'text-emerald-300 bg-emerald-500/10'
                     : collabStatus === 'error'
@@ -191,56 +226,57 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               </span>
             )}
             {onSaveFile && (
-              <button
-                onClick={handleSave}
-                title="Dosyayı Kaydet (Ctrl+S)"
-                className="flex items-center space-x-1 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-xs transition-colors"
-              >
-                {savedEffect ? <Check size={13} className="text-emerald-400" /> : <Save size={13} />}
-                <span className="hidden sm:inline">Kaydet</span>
+              <button onClick={handleSave} title="Dosyayı Kaydet (Ctrl+S)" aria-label="Kaydet" className="icon-btn">
+                {savedEffect ? <Check size={15} className="text-emerald-400" /> : <Save size={15} />}
               </button>
             )}
-            <button
-              onClick={handleCopy}
-              title="Kodu Kopyala"
-              className="p-1.5 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded transition-colors"
-            >
-              {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+            <button onClick={handleCopy} title="Kodu Kopyala" aria-label="Kodu Kopyala" className="icon-btn">
+              {copied ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
             </button>
-            <button
-              onClick={handleDownload}
-              title="Dosyayı İndir"
-              className="p-1.5 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded transition-colors"
-            >
-              <Download size={14} />
+            <button onClick={handleDownload} title="Dosyayı İndir" aria-label="Dosyayı İndir" className="icon-btn">
+              <Download size={15} />
             </button>
             <button
               onClick={onRunCode}
               title="Kodu Çalıştır / Önizle"
-              className="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded text-xs font-semibold shadow-sm shadow-indigo-500/30 transition-all cursor-pointer"
+              className="ml-1 flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 h-6 rounded text-xs font-medium transition-colors cursor-pointer"
             >
-              <Play size={12} className="fill-white" />
+              <Play size={11} className="fill-white" />
               <span>Çalıştır</span>
             </button>
           </div>
         )}
       </div>
 
-      {/* Editor Content */}
+      {/* Yol göstergesi */}
+      {activeFile && (
+        <div className="flex items-center gap-1 h-[22px] px-3 text-[12px] text-zinc-500 bg-nv-editor select-none overflow-hidden whitespace-nowrap" aria-label="Dosya yolu">
+          {crumbs.map((c, i) => (
+            <React.Fragment key={`${c}-${i}`}>
+              {i > 0 && <ChevronRight size={12} className="shrink-0 text-zinc-600" />}
+              <span className={i === crumbs.length - 1 ? 'text-zinc-300' : ''}>{c}</span>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+
+      {/* Editör */}
       <div className="flex-1 w-full h-full relative">
         {activeFile ? (
           <Editor
+            key={activeFile.id}
             height="100%"
             theme={theme}
+            beforeMount={defineNovaThemes}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}
             onMount={(ed) => setEditorInstance(ed)}
             onChange={(val) => onChangeContent(activeFile.id, val || '')}
             options={{
               fontSize: fontSize,
-              fontFamily: "'Fira Code', 'Cascadia Code', Consolas, 'Courier New', monospace",
+              fontFamily: "'Cascadia Code', 'Fira Code', Consolas, 'Courier New', monospace",
               fontLigatures: true,
-              minimap: { enabled: true },
+              minimap: { enabled: true, renderCharacters: false, scale: 1 },
               scrollBeyondLastLine: false,
               automaticLayout: true,
               smoothScrolling: true,
@@ -248,44 +284,38 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               cursorSmoothCaretAnimation: 'on',
               formatOnPaste: true,
               tabSize: 2,
+              padding: { top: 8 },
+              renderLineHighlight: 'all',
+              roundedSelection: false,
+              guides: { bracketPairs: true, indentation: true },
               bracketPairColorization: { enabled: true }
             }}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-zinc-500 text-sm space-y-5 px-6 select-none">
-            <div className="p-4 bg-zinc-800/40 rounded-full">
-              <FileCode size={36} className="text-zinc-600" />
-            </div>
-            <p className="text-center max-w-md">{t('emptyHint')}</p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="animate-fade-in flex flex-col items-center justify-center h-full text-zinc-500 text-sm px-6 select-none">
+            <Logo size={72} animated className="mb-5 opacity-90" />
+            <p className="text-zinc-300 text-lg font-light tracking-wide mb-1">NovaCode Studio</p>
+            <p className="text-center max-w-md mb-6">{t('emptyHint')}</p>
+            <div className="flex flex-col gap-1.5 w-full max-w-xs">
               {onOpenFolder && (
-                <button
-                  onClick={onOpenFolder}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs transition-colors"
-                >
-                  <FolderOpen size={14} className="text-amber-400" />
-                  <span>{t('openFolder')}</span>
-                  <kbd className="ml-1 px-1.5 py-0.5 rounded bg-zinc-900 text-[10px] text-zinc-400 font-mono">Ctrl+O</kbd>
+                <button onClick={onOpenFolder} className="group flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover transition-colors">
+                  <FolderOpen size={15} className="text-indigo-400" />
+                  <span className="flex-1 text-left">{t('openFolder')}</span>
+                  <kbd className="px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+O</kbd>
                 </button>
               )}
               {onOpenFiles && (
-                <button
-                  onClick={onOpenFiles}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs transition-colors"
-                >
-                  <FileCode size={14} className="text-sky-400" />
-                  <span>{t('openFiles')}</span>
-                  <kbd className="ml-1 px-1.5 py-0.5 rounded bg-zinc-900 text-[10px] text-zinc-400 font-mono">Ctrl+Shift+O</kbd>
+                <button onClick={onOpenFiles} className="group flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover transition-colors">
+                  <FileCode size={15} className="text-indigo-400" />
+                  <span className="flex-1 text-left">{t('openFiles')}</span>
+                  <kbd className="px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+Shift+O</kbd>
                 </button>
               )}
               {onNewFile && (
-                <button
-                  onClick={onNewFile}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs transition-colors"
-                >
-                  <FilePlus size={14} />
-                  <span>{t('newFile')}</span>
-                  <kbd className="ml-1 px-1.5 py-0.5 rounded bg-indigo-900/60 text-[10px] text-indigo-100 font-mono">Ctrl+N</kbd>
+                <button onClick={onNewFile} className="group flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover transition-colors">
+                  <FilePlus size={15} className="text-indigo-400" />
+                  <span className="flex-1 text-left">{t('newFile')}</span>
+                  <kbd className="px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+N</kbd>
                 </button>
               )}
             </div>

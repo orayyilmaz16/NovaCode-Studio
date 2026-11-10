@@ -59,8 +59,8 @@ export const Preview: React.FC<PreviewProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#11131c] border-l border-zinc-800">
-      <div className="flex items-center justify-between px-3 py-2 bg-[#171a26] border-b border-zinc-800 text-xs">
+    <div className="flex flex-col h-full bg-nv-side border-l border-zinc-800">
+      <div className="flex items-center justify-between px-3 py-2 bg-nv-side border-b border-zinc-800 text-xs">
         <div className="flex items-center space-x-2">
           <Globe size={14} className="text-emerald-400" />
           <span className="font-semibold text-zinc-300">Canlı Önizleme (Live Web)</span>

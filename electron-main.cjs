@@ -16,8 +16,13 @@ function createWindow() {
     height: 860,
     minWidth: 980,
     minHeight: 660,
-    backgroundColor: '#0d1017',
+    backgroundColor: '#181818',
     title: 'NovaCode Studio',
+    // Uygulama simgesi: geliştirmede public/, paketli uygulamada dist/ içinden
+    icon: path.join(__dirname, isDev ? 'public' : 'dist', 'icon.png'),
+    // Özel başlık çubuğu: pencere düğmeleri (küçült/büyüt/kapat) sistem tarafından arayüzün üstüne çizilir
+    titleBarStyle: 'hidden',
+    titleBarOverlay: { color: '#181818', symbolColor: '#cccccc', height: 36 },
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.cjs'),

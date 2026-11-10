@@ -311,6 +311,60 @@ export const UI_TEXT = {
   gitSyncing: {
     tr: "Eşzamanlanıyor...", en: "Syncing...", de: "Synchronisiere...", ru: "Синхронизация...", ar: "جارٍ المزامنة...", es: "Sincronizando...", fr: "Synchronisation...", az: "Sinxronlaşdırılır...",
   },
+  closeTab: {
+    tr: "Sekmeyi kapat", en: "Close tab", de: "Tab schließen", ru: "Закрыть вкладку", ar: "إغلاق علامة التبويب", es: "Cerrar pestaña", fr: "Fermer l’onglet", az: "Vərəqi bağla",
+  },
+  splashLoading: {
+    tr: "NovaCode Studio yükleniyor", en: "Loading NovaCode Studio", de: "NovaCode Studio wird geladen", ru: "Загрузка NovaCode Studio", ar: "جارٍ تحميل NovaCode Studio", es: "Cargando NovaCode Studio", fr: "Chargement de NovaCode Studio", az: "NovaCode Studio yüklənir",
+  },
+  splashTagline: {
+    tr: "Yapay zekâ destekli modern kod editörü", en: "The AI-powered modern code editor", de: "Der KI-gestützte moderne Code-Editor", ru: "Современный редактор кода с ИИ", ar: "محرر الأكواد الحديث المدعوم بالذكاء الاصطناعي", es: "El editor de código moderno con IA", fr: "L’éditeur de code moderne propulsé par l’IA", az: "Süni intellektli müasir kod redaktoru",
+  },
+  actExplorer: {
+    tr: "Gezgin", en: "Explorer", de: "Explorer", ru: "Проводник", ar: "المستكشف", es: "Explorador", fr: "Explorateur", az: "Kəşfiyyatçı",
+  },
+  actGit: {
+    tr: "Kaynak Denetimi", en: "Source Control", de: "Quellcodeverwaltung", ru: "Система управления версиями", ar: "التحكم بالمصدر", es: "Control de código fuente", fr: "Gestion de versions", az: "Mənbə nəzarəti",
+  },
+  actSnippets: {
+    tr: "Kod Parçacıkları", en: "Snippets", de: "Snippets", ru: "Сниппеты", ar: "المقتطفات", es: "Fragmentos", fr: "Extraits", az: "Kod parçaları",
+  },
+  actAI: {
+    tr: "Yapay Zekâ Asistanı", en: "AI Assistant", de: "KI-Assistent", ru: "ИИ-ассистент", ar: "مساعد الذكاء الاصطناعي", es: "Asistente de IA", fr: "Assistant IA", az: "Süni intellekt köməkçisi",
+  },
+  actSettings: {
+    tr: "Ayarlar", en: "Settings", de: "Einstellungen", ru: "Настройки", ar: "الإعدادات", es: "Ajustes", fr: "Paramètres", az: "Parametrlər",
+  },
+  actHome: {
+    tr: "Hoş Geldiniz", en: "Welcome", de: "Willkommen", ru: "Добро пожаловать", ar: "مرحبًا", es: "Bienvenido", fr: "Bienvenue", az: "Xoş gəlmisiniz",
+  },
+  actAccountOff: {
+    tr: "GitHub’a giriş yap", en: "Sign in to GitHub", de: "Bei GitHub anmelden", ru: "Войти в GitHub", ar: "تسجيل الدخول إلى GitHub", es: "Iniciar sesión en GitHub", fr: "Se connecter à GitHub", az: "GitHub-a daxil ol",
+  },
+  tbSidebar: {
+    tr: "Kenar çubuğunu aç/kapat (Ctrl+B)", en: "Toggle sidebar (Ctrl+B)", de: "Seitenleiste ein-/ausblenden (Strg+B)", ru: "Показать/скрыть боковую панель (Ctrl+B)", ar: "إظهار/إخفاء الشريط الجانبي (Ctrl+B)", es: "Mostrar/ocultar barra lateral (Ctrl+B)", fr: "Afficher/masquer la barre latérale (Ctrl+B)", az: "Yan paneli göstər/gizlət (Ctrl+B)",
+  },
+  tbTerminal: {
+    tr: "Terminali aç/kapat (Ctrl+`)", en: "Toggle terminal (Ctrl+`)", de: "Terminal ein-/ausblenden (Strg+`)", ru: "Показать/скрыть терминал (Ctrl+`)", ar: "إظهار/إخفاء الطرفية (Ctrl+`)", es: "Mostrar/ocultar terminal (Ctrl+`)", fr: "Afficher/masquer le terminal (Ctrl+`)", az: "Terminalı göstər/gizlət (Ctrl+`)",
+  },
+  tbPreview: {
+    tr: "HTML önizleme", en: "HTML preview", de: "HTML-Vorschau", ru: "Предпросмотр HTML", ar: "معاينة HTML", es: "Vista previa HTML", fr: "Aperçu HTML", az: "HTML önizləmə",
+  },
+  stReady: {
+    tr: "Hazır", en: "Ready", de: "Bereit", ru: "Готово", ar: "جاهز", es: "Listo", fr: "Prêt", az: "Hazır",
+  },
+  stSaved: {
+    tr: "Kaydedildi", en: "Saved", de: "Gespeichert", ru: "Сохранено", ar: "تم الحفظ", es: "Guardado", fr: "Enregistré", az: "Yadda saxlanıldı",
+  },
+  stUnsaved: {
+    tr: "Kaydedilmedi", en: "Unsaved", de: "Nicht gespeichert", ru: "Не сохранено", ar: "غير محفوظ", es: "Sin guardar", fr: "Non enregistré", az: "Yadda saxlanılmayıb",
+  },
+  stSpaces: {
+    tr: "Boşluklar: 2", en: "Spaces: 2", de: "Leerzeichen: 2", ru: "Пробелы: 2", ar: "المسافات: 2", es: "Espacios: 2", fr: "Espaces : 2", az: "Boşluqlar: 2",
+  },
+  stPlain: {
+    tr: "Düz metin", en: "Plain text", de: "Nur Text", ru: "Простой текст", ar: "نص عادي", es: "Texto sin formato", fr: "Texte brut", az: "Sadə mətn",
+  },
 } satisfies Record<string, Dict>;
 
 export type UiTextKey = keyof typeof UI_TEXT;

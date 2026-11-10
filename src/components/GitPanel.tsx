@@ -54,7 +54,7 @@ function explain(res: Pick<GitResult, 'stderr'>): string {
 }
 
 const iconBtn = 'p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-transparent';
-const field = 'w-full bg-[#0d1017] border border-zinc-700/80 rounded px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-indigo-500';
+const field = 'w-full bg-nv-editor border border-zinc-700/80 rounded px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-indigo-500';
 const primaryBtn = 'w-full flex items-center justify-center gap-1.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white rounded font-medium transition-colors cursor-pointer text-xs';
 
 interface FileRowProps {
@@ -330,7 +330,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   const isBusy = !!busy;
 
   return (
-    <div className="flex flex-col h-full bg-[#131620] text-zinc-300 select-none text-xs overflow-y-auto">
+    <div className="flex flex-col h-full bg-nv-side text-zinc-300 select-none text-xs overflow-y-auto">
       {/* Başlık: dal seçici + eşzamanla */}
       <div className="px-3 py-2.5 border-b border-zinc-800/80 space-y-2">
         <div className="flex items-center gap-1.5">
@@ -340,7 +340,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             onChange={(e) => doCheckout(e.target.value)}
             disabled={isBusy}
             aria-label={t('gitBranch')}
-            className="flex-1 min-w-0 bg-[#0d1017] border border-zinc-700/80 rounded px-1.5 py-1 text-indigo-300 font-mono text-[11px] outline-none focus:border-indigo-500"
+            className="flex-1 min-w-0 bg-nv-editor border border-zinc-700/80 rounded px-1.5 py-1 text-indigo-300 font-mono text-[11px] outline-none focus:border-indigo-500"
           >
             {status.detached && <option value="">{status.branch}</option>}
             {branches.map((b) => (

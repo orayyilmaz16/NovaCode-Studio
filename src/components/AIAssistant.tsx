@@ -65,14 +65,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ currentCode, onApplyCo
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#11131c] border-l border-zinc-800 text-zinc-300">
-      <div className="flex items-center space-x-2 px-3 py-2 bg-[#171a26] border-b border-zinc-800">
+    <div className="flex flex-col h-full bg-nv-side border-l border-zinc-800 text-zinc-300">
+      <div className="flex items-center space-x-2 px-3 py-2 bg-nv-side border-b border-zinc-800">
         <Sparkles size={15} className="text-purple-400" />
         <span className="font-semibold text-xs text-zinc-200">NovaCode Copilot & AI</span>
       </div>
 
       {/* Hızlı İşlemler */}
-      <div className="flex items-center space-x-1.5 p-2 bg-[#141622] border-b border-zinc-800/60 overflow-x-auto text-[11px]">
+      <div className="flex items-center space-x-1.5 p-2 bg-nv-side border-b border-zinc-800/60 overflow-x-auto text-[11px]">
         <button
           onClick={() => handleSend('Mevcut kodu satır satır açıkla')}
           className="flex items-center space-x-1 bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-zinc-300 whitespace-nowrap"
@@ -136,7 +136,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ currentCode, onApplyCo
           e.preventDefault();
           handleSend();
         }}
-        className="p-2 bg-[#141622] border-t border-zinc-800 flex items-center space-x-2"
+        className="p-2 bg-nv-side border-t border-zinc-800 flex items-center space-x-2"
       >
         <input
           type="text"

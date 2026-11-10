@@ -180,9 +180,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
   const currentStatus = shellId ? status[shellId] : '';
 
   return (
-    <div className="flex flex-col h-full bg-[#0c0f16] text-zinc-300 font-mono text-xs" onClick={() => shellId && inputRef.current?.focus()}>
-      <div className="flex items-center justify-between px-2 h-8 border-b border-zinc-800/80 bg-[#10131c]">
-        <div className="flex items-center gap-1">
+    <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono text-xs" onClick={() => shellId && inputRef.current?.focus()}>
+      <div className="flex items-stretch justify-between px-2 h-8 border-b border-nv-border bg-nv-side">
+        <div className="flex items-stretch gap-1">
           {TABS.map((tb) => (
             <button
               key={tb.id}
@@ -190,8 +190,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
                 e.stopPropagation();
                 setTab(tb.id);
               }}
-              className={`px-2.5 h-6 rounded text-[11px] transition-colors ${
-                tab === tb.id ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'
+              className={`px-2.5 text-[11px] uppercase tracking-wide transition-colors ${
+                tab === tb.id ? 'text-zinc-100 shadow-[inset_0_-1px_0_var(--color-indigo-500)]' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
               {tb.label}
@@ -199,7 +199,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 self-center">
           {shellId && running[shellId] && (
             <button onClick={handleStop} title={t('termStopTitle')} aria-label={t('termStopTitle')} className="p-1 rounded text-zinc-500 hover:text-zinc-200">
               <Square size={12} />
@@ -241,7 +241,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch }
       </div>
 
       {shellId && (
-        <form onSubmit={handleSubmit} className="flex items-center px-3 h-9 border-t border-zinc-800/80 bg-[#10131c] gap-0">
+        <form onSubmit={handleSubmit} className="flex items-center px-3 h-9 border-t border-zinc-800/80 bg-nv-side gap-0">
           <span className="shrink-0 max-w-[55%] truncate select-none" title={shownCwd}>
             {shellId === 'powershell' && <span className="font-bold" style={{ color: '#7aa2f7' }}>PS </span>}
             <span style={{ color: '#7dcfff' }}>{shortenPath(shownCwd)}</span>

@@ -156,7 +156,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#131620] text-zinc-300 select-none">
+    <div className="flex flex-col h-full bg-nv-side text-zinc-300 select-none">
       {/* Top Header */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-zinc-800/80">
         <div className="flex items-center space-x-1.5 truncate">

@@ -1,6 +1,5 @@
 import React from 'react';
 import { 
-  Code2, 
   FileCode2, 
   Sparkles, 
   Play, 
@@ -12,6 +11,7 @@ import {
   FolderGit2 
 } from 'lucide-react';
 import type { FileItem } from '../types';
+import { Logo } from './Logo';
 import { t } from '../i18n/uiText';
 
 interface LandingPageProps {
@@ -26,31 +26,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   recentFiles,
 }) => {
   return (
-    <div className="flex-1 h-full w-full bg-[#0d1017] text-zinc-200 overflow-y-auto select-none flex flex-col justify-between animate-fade-in">
-      {/* Background Decorative Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-b from-indigo-500/10 via-sky-500/5 to-transparent blur-3xl pointer-events-none" />
-
+    <div className="flex-1 h-full w-full bg-nv-editor text-zinc-200 overflow-y-auto select-none flex flex-col justify-between animate-fade-in">
       {/* Main Content */}
       <div className="max-w-5xl mx-auto w-full px-8 py-10 z-10">
-        {/* Header Hero */}
-        <div className="flex items-center space-x-4 mb-8">
-          <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-              <Code2 size={32} className="text-white" />
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0d1017] animate-pulse" />
-          </div>
+        {/* Başlık */}
+        <div className="flex items-center gap-4 mb-8">
+          <Logo size={56} animated />
           <div>
-            <div className="flex items-center space-x-2.5">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-                NovaCode Studio
-              </h1>
-              <span className="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                v{__APP_VERSION__} Pro IDE
-              </span>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">NovaCode Studio</h1>
+              <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">v{__APP_VERSION__}</span>
             </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              Hızlı, Akıllı Monaco Editör Motoru & Entegre Canlı Web Simülatörü
+            <p className="text-[13px] text-zinc-400 mt-1">
+              Hızlı Monaco editörü, canlı web önizleme ve yapay zekâ destekli kodlama.
             </p>
           </div>
         </div>
@@ -59,9 +47,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
           <button
             onClick={onOpenProject}
-            className="flex flex-col items-start p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 hover:border-indigo-500/60 hover:bg-zinc-800/40 transition-all group text-left cursor-pointer shadow-sm"
+            className="flex flex-col items-start p-4 rounded-md bg-nv-side border border-nv-border hover:border-indigo-500/60 hover:bg-nv-hover transition-colors group text-left cursor-pointer"
           >
-            <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors mb-3">
+            <div className="p-2.5 rounded bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors mb-3">
               <Zap size={20} />
             </div>
             <h3 className="font-semibold text-sm text-zinc-100 group-hover:text-indigo-300 transition-colors">
@@ -76,8 +64,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </button>
 
-          <div className="flex flex-col items-start p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 hover:border-sky-500/60 transition-all text-left shadow-sm">
-            <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-400 mb-3">
+          <div className="flex flex-col items-start p-4 rounded-md bg-nv-side border border-nv-border hover:border-sky-500/60 transition-all text-left">
+            <div className="p-2.5 rounded bg-sky-500/10 text-sky-400 mb-3">
               <Play size={20} />
             </div>
             <h3 className="font-semibold text-sm text-zinc-100">
@@ -91,8 +79,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </span>
           </div>
 
-          <div className="flex flex-col items-start p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 hover:border-purple-500/60 transition-all text-left shadow-sm">
-            <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400 mb-3">
+          <div className="flex flex-col items-start p-4 rounded-md bg-nv-side border border-nv-border hover:border-purple-500/60 transition-all text-left">
+            <div className="p-2.5 rounded bg-purple-500/10 text-purple-400 mb-3">
               <Sparkles size={20} />
             </div>
             <h3 className="font-semibold text-sm text-zinc-100">

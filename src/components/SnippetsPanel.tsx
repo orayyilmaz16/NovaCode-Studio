@@ -27,7 +27,7 @@ export const SnippetsPanel: React.FC<SnippetsPanelProps> = ({ onInsertSnippet })
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#131620] text-zinc-300 select-none text-xs">
+    <div className="flex flex-col h-full bg-nv-side text-zinc-300 select-none text-xs">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-zinc-800/80">
         <div className="flex items-center space-x-2">
@@ -41,7 +41,7 @@ export const SnippetsPanel: React.FC<SnippetsPanelProps> = ({ onInsertSnippet })
 
       {/* Search Bar */}
       <div className="p-2 border-b border-zinc-800/80">
-        <div className="flex items-center bg-[#0d1017] border border-zinc-700/80 rounded px-2 py-1">
+        <div className="flex items-center bg-nv-editor border border-zinc-700/80 rounded px-2 py-1">
           <Search size={13} className="text-zinc-500 mr-1.5" />
           <input
             type="text"
@@ -59,7 +59,7 @@ export const SnippetsPanel: React.FC<SnippetsPanelProps> = ({ onInsertSnippet })
           <div
             key={snippet.id}
             onClick={() => onInsertSnippet(snippet.body)}
-            className="p-2.5 rounded-lg bg-[#0d1017] border border-zinc-800/80 hover:border-indigo-500/50 hover:bg-zinc-800/30 transition-all cursor-pointer group"
+            className="p-2.5 rounded-lg bg-nv-editor border border-zinc-800/80 hover:border-indigo-500/50 hover:bg-zinc-800/30 transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-1">
               <span className="font-semibold text-zinc-100 group-hover:text-indigo-300">

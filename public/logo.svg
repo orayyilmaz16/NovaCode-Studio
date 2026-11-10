@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" role="img" aria-label="NovaCode Studio">
+  <defs>
+    <linearGradient id="nova-g" x1="10" y1="8" x2="92" y2="94" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="24" fill="url(#nova-g)"/>
+  <!-- kod ayracı -->
+  <path d="M31 35 15 50l16 15" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- yapay zekâ kıvılcımı (nova) -->
+  <path fill="#fff" d="M64 28Q67.4 48.6 88 52Q67.4 55.4 64 76Q60.6 55.4 40 52Q60.6 48.6 64 28Z"/>
+  <path fill="#fff" fill-opacity=".85" d="M82 15Q83.3 22.7 91 24Q83.3 25.3 82 33Q80.7 25.3 73 24Q80.7 22.7 82 15Z"/>
+</svg>

@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Code,
   Files,
-  Terminal as TerminalIcon,
   Settings,
   Sparkles,
   Columns,
-  Home,
+  House,
   GitBranch,
   BookOpen,
   FolderOpen,
-  UploadCloud,
-  Save,
   Check,
-  Power
+  Search,
+  PanelLeft,
+  PanelBottom,
+  UserRound
 } from 'lucide-react';
 import { FileTree, normGitPath } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
@@ -24,6 +23,8 @@ import { LandingPage } from './components/LandingPage';
 import { SplashScreen } from './components/SplashScreen';
 import { GitPanel } from './components/GitPanel';
 import { GithubAccount } from './components/GithubAccount';
+import { Logo } from './components/Logo';
+import { useGithubAuth } from './services/useGithubAuth';
 import { SnippetsPanel } from './components/SnippetsPanel';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { t } from './i18n/uiText';
@@ -89,7 +90,9 @@ export function App() {
 
   // Editör Ayarları
   const [fontSize, setFontSize] = useState<number>(14);
-  const [editorTheme, setEditorTheme] = useState<string>('vs-dark');
+  const [editorTheme, setEditorTheme] = useState<string>('nova-dark');
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const { auth } = useGithubAuth();
 
   // Iframe console dinleyicisi
   useEffect(() => {
@@ -172,6 +175,7 @@ export function App() {
     const key = e.key.toLowerCase();
 
     if (key === 'q') { e.preventDefault(); handleQuit(); return; }
+    if (key === 'b') { e.preventDefault(); setSidebarVisible((v) => !v); return; }
     if (e.key === '`') { e.preventDefault(); setShowBottomTerminal((v) => !v); return; }
     if (key === 's') {
       e.preventDefault();
@@ -557,194 +561,142 @@ export function App() {
   };
 
   const activeFile = openFiles.find((f) => f.id === activeFileId);
+  const isElectron = !!window.electronAPI?.isElectron;
+  const projectName = currentRootPath ? currentRootName : '';
+  const sidebarShown = sidebarVisible && !showLanding;
+  const changeCount = gitStatus.changes.length;
+  const isHtml = activeFile?.language === 'html';
+
+  // Etkinlik çubuğu: etkin sekmeye tekrar basmak kenar çubuğunu kapatır (VS Code davranışı)
+  const pickSidebar = (tab: 'files' | 'git' | 'snippets' | 'settings') => {
+    if (!showLanding && activeSidebarTab === tab && sidebarVisible) {
+      setSidebarVisible(false);
+      return;
+    }
+    setShowLanding(false);
+    setActiveSidebarTab(tab);
+    setSidebarVisible(true);
+    if (tab === 'git') refreshGitStatus();
+  };
+
+  const barBtn = (active: boolean) => ({ 'data-active': active, className: 'ab-item' }) as const;
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0d1017] text-zinc-300 font-sans relative">
-      {/* Splash Screen Animation */}
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-nv-editor text-zinc-300 font-sans relative">
+      {/* Açılış animasyonu */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
-      {/* Top Titlebar */}
-      <header className="flex items-center justify-between px-3 h-10 bg-[#0f111a] border-b border-zinc-800/80 select-none">
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2 text-indigo-400 font-bold tracking-wide text-sm">
-            <Code size={18} className="text-indigo-400" />
-            <span className="bg-gradient-to-r from-indigo-400 to-sky-400 bg-clip-text text-transparent">
-              NovaCode Studio
-            </span>
-          </div>
-          <span className="text-[11px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full font-mono">
-            v{__APP_VERSION__} Pro
+      {/* Başlık çubuğu */}
+      <header className="app-drag relative flex items-center justify-between h-9 bg-nv-side border-b border-nv-border select-none shrink-0">
+        <div className="flex items-center gap-2 pl-3 min-w-0">
+          <Logo size={18} />
+          <span className="text-[12px] text-zinc-400 hidden sm:inline">NovaCode Studio</span>
+          <span className="text-[10px] font-mono px-1.5 rounded bg-zinc-800 text-zinc-500 hidden md:inline">v{__APP_VERSION__}</span>
+        </div>
+
+        {/* Orta: komut merkezi görünümlü proje alanı */}
+        <button
+          onClick={() => (currentRootPath ? pickSidebar('files') : handleOpenFolderDialog())}
+          title={currentRootPath || t('openFolder')}
+          className="app-no-drag absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 h-6 w-[min(44vw,460px)] rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
+        >
+          <Search size={12} className="text-zinc-500 shrink-0" />
+          <span className="truncate">
+            {showLanding
+              ? t('actHome')
+              : activeFile
+                ? `${activeFile.name}${activeFile.isModified ? ' •' : ''}${projectName ? ` — ${projectName}` : ''}`
+                : projectName || 'NovaCode Studio'}
           </span>
-          {currentRootPath && (
-            <span className="text-[11px] text-zinc-400 border-l border-zinc-700/80 pl-3 hidden sm:inline">
-              📂 {currentRootName}
-            </span>
-          )}
-        </div>
+        </button>
 
-        <div className="text-xs text-zinc-400 truncate max-w-md hidden md:block">
-          {showLanding
-            ? 'Hoş Geldiniz — NovaCode Başlangıç'
-            : activeFile
-            ? `${activeFile.name}${activeFile.isModified ? ' •' : ''} — NovaCode Editor`
-            : 'NovaCode Workspace'}
-        </div>
-
-        <div className="flex items-center space-x-1">
-          <button
-            onClick={handleOpenFolderDialog}
-            title="Yerel Klasör Aç"
-            className="flex items-center space-x-1 px-2 py-1 rounded bg-zinc-800/80 hover:bg-zinc-700 text-xs text-zinc-200 transition-colors cursor-pointer"
-          >
-            <FolderOpen size={13} className="text-amber-400" />
-            <span className="hidden sm:inline">Klasör Aç</span>
+        <div className="app-no-drag flex items-center gap-0.5 pr-2" style={{ marginRight: isElectron ? 138 : 0 }}>
+          <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="icon-btn">
+            <FolderOpen size={15} />
           </button>
-
-          <button
-            onClick={() => setShowLanding(!showLanding)}
-            title="Başlangıç / Landing Sayfası"
-            className={`p-1.5 rounded transition-colors ${
-              showLanding ? 'bg-indigo-600/30 text-indigo-300' : 'hover:bg-zinc-800 text-zinc-400'
-            }`}
-          >
-            <Home size={15} />
-          </button>
-          {/* Önizleme yalnız HTML dosyası açıkken görünür */}
-          {openFiles.find((f) => f.id === activeFileId)?.language === 'html' && (
+          {isHtml && (
             <button
               onClick={() => setShowRightPanel(showRightPanel === 'preview' ? null : 'preview')}
-              title="HTML Önizleme"
-              className={`p-1.5 rounded transition-colors ${
-                showRightPanel === 'preview' ? 'bg-indigo-600/30 text-indigo-300' : 'hover:bg-zinc-800 text-zinc-400'
-              }`}
+              title={t('tbPreview')}
+              aria-label={t('tbPreview')}
+              data-active={showRightPanel === 'preview'}
+              className="icon-btn"
             >
               <Columns size={15} />
             </button>
           )}
-          <button
-            onClick={() => setShowBottomTerminal(!showBottomTerminal)}
-            title="Terminali Aç/Kapat"
-            className={`p-1.5 rounded transition-colors ${
-              showBottomTerminal ? 'bg-indigo-600/30 text-indigo-300' : 'hover:bg-zinc-800 text-zinc-400'
-            }`}
-          >
-            <TerminalIcon size={15} />
+          <button onClick={() => setSidebarVisible((v) => !v)} title={t('tbSidebar')} aria-label={t('tbSidebar')} data-active={sidebarShown} className="icon-btn">
+            <PanelLeft size={15} />
           </button>
-          <button
-            onClick={handleQuit}
-            title={`${t('quit')} (Ctrl+Q)`}
-            aria-label={t('quit')}
-            className="p-1.5 rounded transition-colors hover:bg-rose-600/30 text-zinc-400 hover:text-rose-300"
-          >
-            <Power size={15} />
+          <button onClick={() => setShowBottomTerminal((v) => !v)} title={t('tbTerminal')} aria-label={t('tbTerminal')} data-active={showBottomTerminal} className="icon-btn">
+            <PanelBottom size={15} />
           </button>
         </div>
       </header>
 
-      {/* Main Workspace */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Activity Bar (Icons) */}
-        <div className="w-12 bg-[#090b10] border-r border-zinc-800/80 flex flex-col items-center py-3 justify-between select-none">
-          <div className="flex flex-col space-y-4">
-            <button
-              onClick={() => {
-                setShowLanding(false);
-                setActiveSidebarTab('files');
-              }}
-              title="Dosyalar & Gezgin"
-              className={`p-2 rounded-lg transition-colors ${
-                !showLanding && activeSidebarTab === 'files'
-                  ? 'text-indigo-400 bg-indigo-500/10'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-            >
-              <Files size={18} />
+      {/* Çalışma alanı */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* Etkinlik çubuğu */}
+        <nav aria-label="Activity bar" className="w-12 bg-nv-side border-r border-nv-border flex flex-col items-center justify-between select-none shrink-0">
+          <div className="flex flex-col">
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} title={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
+              <Files size={24} strokeWidth={1.5} />
             </button>
-            <button
-              onClick={() => {
-                setShowLanding(false);
-                setActiveSidebarTab('git');
-                refreshGitStatus();
-              }}
-              title="Git Kaynak Kontrolü"
-              className={`p-2 rounded-lg transition-colors relative ${
-                !showLanding && activeSidebarTab === 'git'
-                  ? 'text-indigo-400 bg-indigo-500/10'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-            >
-              <GitBranch size={18} />
-              {gitStatus.changes.length > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-indigo-400 ring-2 ring-[#090b10]" />
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} title={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
+              <GitBranch size={24} strokeWidth={1.5} />
+              {changeCount > 0 && (
+                <span className="absolute bottom-2 right-1.5 min-w-4 h-4 px-1 rounded-full bg-indigo-500 text-white text-[10px] leading-4 text-center font-semibold">
+                  {changeCount > 99 ? '99+' : changeCount}
+                </span>
               )}
             </button>
-            <button
-              onClick={() => {
-                setShowLanding(false);
-                setActiveSidebarTab('snippets');
-              }}
-              title="Kod Snippetları"
-              className={`p-2 rounded-lg transition-colors ${
-                !showLanding && activeSidebarTab === 'snippets'
-                  ? 'text-amber-400 bg-amber-500/10'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-            >
-              <BookOpen size={18} />
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'snippets')} title={t('actSnippets')} aria-label={t('actSnippets')} onClick={() => pickSidebar('snippets')}>
+              <BookOpen size={24} strokeWidth={1.5} />
             </button>
             <button
-              onClick={() => setShowLanding(true)}
-              title="Başlangıç Paneli"
-              className={`p-2 rounded-lg transition-colors ${
-                showLanding ? 'text-indigo-400 bg-indigo-500/10' : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-            >
-              <Home size={18} />
-            </button>
-            <button
+              {...barBtn(!showLanding && showRightPanel === 'ai')}
+              title={t('actAI')}
+              aria-label={t('actAI')}
               onClick={() => {
                 setShowLanding(false);
-                setActiveSidebarTab('ai');
-                setShowRightPanel('ai');
+                setShowRightPanel(showRightPanel === 'ai' ? null : 'ai');
               }}
-              title="AI Asistan"
-              className={`p-2 rounded-lg transition-colors ${
-                !showLanding && (activeSidebarTab === 'ai' || showRightPanel === 'ai')
-                  ? 'text-purple-400 bg-purple-500/10'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
             >
-              <Sparkles size={18} />
+              <Sparkles size={24} strokeWidth={1.5} />
             </button>
           </div>
 
-          <div className="flex flex-col space-y-3">
+          <div className="flex flex-col">
+            <button {...barBtn(showLanding)} title={t('actHome')} aria-label={t('actHome')} onClick={() => setShowLanding(!showLanding)}>
+              <House size={24} strokeWidth={1.5} />
+            </button>
             <button
-              onClick={() => {
-                setShowLanding(false);
-                setActiveSidebarTab('settings');
-              }}
-              title="Ayarlar"
-              className={`p-2 rounded-lg transition-colors ${
-                !showLanding && activeSidebarTab === 'settings'
-                  ? 'text-indigo-400 bg-indigo-500/10'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
+              {...barBtn(false)}
+              title={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}
+              aria-label={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}
+              onClick={() => pickSidebar('git')}
             >
-              <Settings size={18} />
+              {auth.connected && auth.profile?.avatarUrl ? (
+                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="w-6 h-6 rounded-full ring-1 ring-zinc-700" />
+              ) : (
+                <UserRound size={24} strokeWidth={1.5} />
+              )}
+            </button>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'settings')} title={t('actSettings')} aria-label={t('actSettings')} onClick={() => pickSidebar('settings')}>
+              <Settings size={24} strokeWidth={1.5} />
             </button>
           </div>
-        </div>
+        </nav>
 
-        {/* Sidebar View */}
-        {!showLanding && activeSidebarTab === 'files' && (
-          <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0">
+        {/* Kenar çubuğu görünümleri */}
+        {sidebarShown && activeSidebarTab === 'files' && (
+          <div key="files" style={{ width: sidebarWidth }} className="animate-sidebar-in h-full border-r border-nv-border shrink-0">
             <FileTree
               isLoading={isLoadingProject}
               gitDecor={gitDecor}
               files={files}
               activeFileId={activeFileId}
-              currentRootName={currentRootName}
+              currentRootName={projectName}
               onSelectFile={(f) => {
                 setShowLanding(false);
                 handleSelectFile(f);
@@ -757,8 +709,8 @@ export function App() {
           </div>
         )}
 
-        {!showLanding && activeSidebarTab === 'git' && (
-          <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0 flex flex-col">
+        {sidebarShown && activeSidebarTab === 'git' && (
+          <div key="git" style={{ width: sidebarWidth }} className="animate-sidebar-in h-full border-r border-nv-border shrink-0 flex flex-col bg-nv-side">
             <GithubAccount />
             <div className="flex-1 min-h-0">
               <GitPanel
@@ -771,47 +723,34 @@ export function App() {
           </div>
         )}
 
-        {!showLanding && activeSidebarTab === 'snippets' && (
-          <div style={{ width: sidebarWidth }} className="h-full border-r border-zinc-800/80 shrink-0">
+        {sidebarShown && activeSidebarTab === 'snippets' && (
+          <div key="snippets" style={{ width: sidebarWidth }} className="animate-sidebar-in h-full border-r border-nv-border shrink-0">
             <SnippetsPanel onInsertSnippet={handleInsertSnippet} />
           </div>
         )}
 
-        {!showLanding && activeSidebarTab === 'settings' && (
-          <div style={{ width: sidebarWidth }} className="h-full bg-[#131620] border-r border-zinc-800/80 p-3 select-none flex flex-col space-y-4 shrink-0">
-            <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
-              Editör Ayarları
-            </span>
+        {sidebarShown && activeSidebarTab === 'settings' && (
+          <div key="settings" style={{ width: sidebarWidth }} className="animate-sidebar-in h-full bg-nv-side border-r border-nv-border p-3 select-none flex flex-col space-y-4 shrink-0 overflow-y-auto">
+            <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">Editör Ayarları</span>
             <div className="space-y-1.5">
               <label className="text-xs text-zinc-400">Yazı Boyutu ({fontSize}px)</label>
-              <input
-                type="range"
-                min="11"
-                max="24"
-                value={fontSize}
-                onChange={(e) => setFontSize(Number(e.target.value))}
-                className="w-full accent-indigo-500"
-              />
+              <input type="range" min="11" max="24" value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} className="w-full accent-indigo-500" />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs text-zinc-400">Tema</label>
               <select
                 value={editorTheme}
                 onChange={(e) => setEditorTheme(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none"
+                className="w-full bg-nv-input border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none focus:border-indigo-500"
               >
-                <option value="vs-dark">VS Dark (Karanlık)</option>
-                <option value="light">Light (Aydınlık)</option>
+                <option value="nova-dark">Nova Dark</option>
+                <option value="vs-dark">VS Dark</option>
+                <option value="vs">Light</option>
               </select>
             </div>
-            <div className="pt-3 border-t border-zinc-800 space-y-2">
+            <div className="pt-3 border-t border-nv-border space-y-2">
               <label className="flex items-center gap-2 text-xs text-zinc-300">
-                <input
-                  type="checkbox"
-                  checked={collabEnabled}
-                  onChange={(e) => setCollabEnabled(e.target.checked)}
-                  className="accent-indigo-500"
-                />
+                <input type="checkbox" checked={collabEnabled} onChange={(e) => setCollabEnabled(e.target.checked)} className="accent-indigo-500" />
                 Ortak düzenleme
               </label>
               <input
@@ -819,7 +758,7 @@ export function App() {
                 value={collabUrl}
                 onChange={(e) => setCollabUrl(e.target.value)}
                 placeholder="wss://sunucun.example.com"
-                className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none"
+                className="w-full bg-nv-input border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none focus:border-indigo-500"
               />
               <input
                 type="password"
@@ -827,33 +766,29 @@ export function App() {
                 onChange={(e) => setCollabToken(e.target.value)}
                 placeholder="Sunucu token'ı"
                 autoComplete="off"
-                className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none"
+                className="w-full bg-nv-input border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 outline-none focus:border-indigo-500"
               />
-              {collabUrl && !collabUrlValid && (
-                <p className="text-[11px] text-rose-400">Adres wss:// ile başlamalı (yerel test için ws://localhost).</p>
-              )}
+              {collabUrl && !collabUrlValid && <p className="text-[11px] text-rose-400">Adres wss:// ile başlamalı (yerel test için ws://localhost).</p>}
               <p className="text-[10px] text-zinc-500 leading-snug">
                 Kodun yalnızca bu adrese gönderilir. Sunucu açık kaynaktır: <span className="font-mono">server/sync-server.mjs</span>
               </p>
             </div>
-            <div className="pt-4 border-t border-zinc-800 text-[11px] text-zinc-500 space-y-1">
+            <div className="pt-4 border-t border-nv-border text-[11px] text-zinc-500 space-y-1">
               <p className="font-semibold text-zinc-400">Sistem & Disk Bilgisi:</p>
-              <p>Aktif Dizin: <span className="text-zinc-300 font-mono text-[10px]">{currentRootPath || 'Bellek (Memory)'}</span></p>
-              <p>Git Branch: <span className="text-indigo-400 font-mono text-[10px]">{gitStatus.branch || 'Yok'}</span></p>
+              <p>
+                Aktif Dizin: <span className="text-zinc-300 font-mono text-[10px]">{currentRootPath || 'Bellek (Memory)'}</span>
+              </p>
+              <p>
+                Git Branch: <span className="text-indigo-400 font-mono text-[10px]">{gitStatus.branch || 'Yok'}</span>
+              </p>
             </div>
           </div>
         )}
 
         {/* Sidebar genişliği: sağ kenardan sürükle */}
-        {!showLanding && (
-          <ResizeHandle
-            direction="horizontal"
-            title="Kenar çubuğu genişliği"
-            onResize={(d) => setSidebarWidth((w) => clamp(w + d, 180, 560))}
-          />
-        )}
+        {sidebarShown && <ResizeHandle direction="horizontal" title="Kenar çubuğu genişliği" onResize={(d) => setSidebarWidth((w) => clamp(w + d, 180, 560))} />}
 
-        {/* Landing Page or Central Editor */}
+        {/* Karşılama sayfası veya editör */}
         {showLanding ? (
           <LandingPage
             onOpenProject={() => setShowLanding(false)}
@@ -879,67 +814,42 @@ export function App() {
                 onRunCode={handleRunCode}
                 fontSize={fontSize}
                 theme={editorTheme}
-                collab={{
-                  enabled: collabEnabled && collabUrlValid,
-                  url: collabUrl.trim(),
-                  token: collabToken,
-                  room: currentRootPath || ''
-                }}
+                collab={{ enabled: collabEnabled && collabUrlValid, url: collabUrl.trim(), token: collabToken, room: currentRootPath || '' }}
               />
             </div>
 
-            {/* Bottom Terminal */}
+            {/* Alt panel: terminal */}
+            {showBottomTerminal && <ResizeHandle direction="vertical" title="Terminal yüksekliği" onResize={(d) => setTerminalHeight((h) => clamp(h - d, 120, 640))} />}
             {showBottomTerminal && (
-              <ResizeHandle
-                direction="vertical"
-                title="Terminal yüksekliği"
-                onResize={(d) => setTerminalHeight((h) => clamp(h - d, 120, 640))}
-              />
-            )}
-            {showBottomTerminal && (
-              <div data-terminal="" style={{ height: terminalHeight }} className="border-t border-zinc-800 shrink-0">
-                <Terminal
-                  logs={logs}
-                  onClear={() => setLogs([])}
-                  cwd={currentRootPath}
-                  branch={gitStatus.isRepo ? gitStatus.branch : null}
-                />
+              <div data-terminal="" style={{ height: terminalHeight }} className="animate-panel-up border-t border-nv-border shrink-0">
+                <Terminal logs={logs} onClear={() => setLogs([])} cwd={currentRootPath} branch={gitStatus.isRepo ? gitStatus.branch : null} />
               </div>
             )}
           </div>
         )}
 
-        {/* Right Side Panel (Preview or AI) */}
-        {!showLanding && showRightPanel === 'preview' && openFiles.find((f) => f.id === activeFileId)?.language === 'html' && (
+        {/* Sağ panel: önizleme veya yapay zekâ */}
+        {!showLanding && showRightPanel === 'preview' && isHtml && (
           <>
-          <ResizeHandle
-            direction="horizontal"
-            title="Önizleme genişliği"
-            onResize={(d) => setPreviewWidth((w) => clamp(w - d, 320, 1200))}
-          />
-          <div style={{ width: previewWidth }} className="h-full border-l border-zinc-800 shrink-0">
-            <Preview
-              htmlContent={openFiles.find((f) => f.id === activeFileId)?.content || ''}
-              cssContent={getFileContentByName('styles.css')}
-              jsContent={getFileContentByName('app.js')}
-              onRefresh={() => {
-                setLogs((prev) => [
-                  ...prev,
-                  {
-                    id: Date.now().toString(),
-                    type: 'info',
-                    text: 'Önizleme yenilendi.',
-                    time: new Date().toLocaleTimeString()
-                  }
-                ]);
-              }}
-            />
-          </div>
+            <ResizeHandle direction="horizontal" title="Önizleme genişliği" onResize={(d) => setPreviewWidth((w) => clamp(w - d, 320, 1200))} />
+            <div style={{ width: previewWidth }} className="animate-fade-in h-full border-l border-nv-border shrink-0">
+              <Preview
+                htmlContent={activeFile?.content || ''}
+                cssContent={getFileContentByName('styles.css')}
+                jsContent={getFileContentByName('app.js')}
+                onRefresh={() => {
+                  setLogs((prev) => [
+                    ...prev,
+                    { id: Date.now().toString(), type: 'info', text: 'Önizleme yenilendi.', time: new Date().toLocaleTimeString() }
+                  ]);
+                }}
+              />
+            </div>
           </>
         )}
 
         {!showLanding && showRightPanel === 'ai' && (
-          <div className="w-80 h-full border-l border-zinc-800">
+          <div className="animate-fade-in w-80 h-full border-l border-nv-border shrink-0">
             <AIAssistant
               currentCode={activeFile?.content || ''}
               onApplyCode={(c) => {
@@ -950,29 +860,35 @@ export function App() {
         )}
       </div>
 
-      {/* Bottom Status Bar */}
-      <footer className="h-6 bg-[#090b10] border-t border-zinc-800/80 px-3 flex items-center justify-between text-[11px] text-zinc-500 select-none">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-1.5 text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Hazır</span>
-          </div>
+      {/* Durum çubuğu */}
+      <footer className="h-[22px] bg-nv-side border-t border-nv-border flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
+        <div className="flex items-center h-full">
           {gitStatus.isRepo && (
-            <div className="flex items-center space-x-1 text-indigo-400 font-mono">
-              <GitBranch size={11} />
-              <span>{gitStatus.branch}</span>
-              {gitStatus.changes.length > 0 && (
-                <span className="text-amber-400">({gitStatus.changes.length})</span>
-              )}
-            </div>
+            <button className="status-item" onClick={() => pickSidebar('git')} title={t('actGit')}>
+              <GitBranch size={12} />
+              <span className="font-mono">{gitStatus.branch}</span>
+              {(gitStatus.behind || gitStatus.ahead) ? (
+                <span className="font-mono">
+                  ↓{gitStatus.behind ?? 0} ↑{gitStatus.ahead ?? 0}
+                </span>
+              ) : null}
+              {changeCount > 0 && <span className="text-amber-400">±{changeCount}</span>}
+            </button>
           )}
-          <span>UTF-8</span>
-          <span>{activeFile?.language?.toUpperCase() || 'METİN'}</span>
+          <button className="status-item" onClick={() => pickSidebar('git')} title={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}>
+            <UserRound size={12} />
+            <span>{auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}</span>
+          </button>
         </div>
-        <div className="flex items-center space-x-3">
-          <span>{activeFile?.isModified ? 'Kaydedilmedi' : 'Kaydedildi'}</span>
-          <span>Boşluklar: 2</span>
-          <span>NovaCode IDE Studio</span>
+        <div className="flex items-center h-full">
+          <span className="status-item">{activeFile?.isModified ? t('stUnsaved') : t('stSaved')}</span>
+          <span className="status-item">{t('stSpaces')}</span>
+          <span className="status-item">UTF-8</span>
+          <span className="status-item">{activeFile?.language ? activeFile.language : t('stPlain')}</span>
+          <span className="status-item">
+            <Check size={12} className="text-emerald-400" />
+            {t('stReady')}
+          </span>
         </div>
       </footer>
     </div>

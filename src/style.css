@@ -1,41 +1,264 @@
 @import "tailwindcss";
 
+/*
+ * NovaCode tasarım dili: VS Code "Dark Modern" benzeri, düz yüzeyler (cam/bulanıklık yok).
+ * Tailwind paleti burada yeniden tanımlanır; bileşenler zinc-* ve indigo-* sınıflarını kullanmaya devam eder.
+ */
+@theme {
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Code", "Cascadia Mono", "Fira Code", Consolas, "Courier New", monospace;
+
+  /* Nötr yüzeyler ve metin */
+  --color-zinc-50: #f8f8f8;
+  --color-zinc-100: #e7e7e7;
+  --color-zinc-200: #d4d4d4;
+  --color-zinc-300: #cccccc;
+  --color-zinc-400: #9d9d9d;
+  --color-zinc-500: #858585;
+  --color-zinc-600: #5a5a5a;
+  --color-zinc-700: #3c3c3c;
+  --color-zinc-800: #2b2b2b;
+  --color-zinc-900: #1f1f1f;
+  --color-zinc-950: #181818;
+
+  /* Vurgu: VS Code mavisi */
+  --color-indigo-200: #bde0ff;
+  --color-indigo-300: #75beff;
+  --color-indigo-400: #4daafc;
+  --color-indigo-500: #1f8ad2;
+  --color-indigo-600: #0e639c;
+  --color-indigo-700: #0a4f7e;
+
+  /* Uygulama yüzeyleri */
+  --color-nv-editor: #1f1f1f;
+  --color-nv-side: #181818;
+  --color-nv-input: #313131;
+  --color-nv-hover: #2a2d2e;
+  --color-nv-active: #04395e;
+  --color-nv-border: #2b2b2b;
+
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @layer base {
   * {
     box-sizing: border-box;
   }
-  
-  /* Custom scrollbar */
+
+  html,
+  body {
+    background: var(--color-nv-editor);
+    color: var(--color-zinc-300);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: #264f78;
+    color: #fff;
+  }
+
+  /* Klavye odağı: ince, tutarlı halka (yalnız klavyeyle gezerken) */
+  :focus-visible {
+    outline: 1px solid var(--color-indigo-500);
+    outline-offset: -1px;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 1px solid var(--color-indigo-500);
+  }
+
+  /* VS Code tarzı kaydırma çubuğu */
   ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
+    width: 10px;
+    height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0f111a;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #23283b;
-    border-radius: 4px;
+    background: rgba(121, 121, 121, 0.4);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3b4363;
+    background: rgba(100, 100, 100, 0.7);
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }
 
+/* ---------- Başlık çubuğu: sürükleme alanı ---------- */
+.app-drag {
+  -webkit-app-region: drag;
+}
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* ---------- Etkinlik çubuğu ---------- */
+.ab-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: #858585;
+  transition: color 140ms var(--ease-out-soft);
+}
+.ab-item svg {
+  transition: transform 160ms var(--ease-out-soft);
+}
+.ab-item:hover {
+  color: #fff;
+}
+.ab-item:hover svg {
+  transform: scale(1.1);
+}
+.ab-item:active svg {
+  transform: scale(0.92);
+}
+.ab-item[data-active="true"] {
+  color: #fff;
+}
+/* Etkin öğenin solundaki gösterge çubuğu kayarak belirir */
+.ab-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: #fff;
+  border-radius: 0 2px 2px 0;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 220ms var(--ease-out-soft);
+}
+.ab-item[data-active="true"]::before {
+  transform: scaleY(1);
+}
+
+/* Başlık çubuğu ve genel simge düğmeleri */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  border-radius: 5px;
+  color: #9d9d9d;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms var(--ease-out-soft);
+}
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.icon-btn:active {
+  transform: scale(0.94);
+}
+.icon-btn[data-active="true"] {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Durum çubuğu öğeleri */
+.status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  padding: 0 7px;
+  transition: background-color 120ms ease;
+}
+button.status-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- Animasyonlar ---------- */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes panelUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes drawStroke {
+  from { stroke-dashoffset: 60; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes starIn {
+  from { opacity: 0; transform: scale(0.2) rotate(-70deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes splashOut {
+  to { opacity: 0; }
+}
+@keyframes loadBar {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+@keyframes twinkle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
 }
 
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.08); }
+.animate-fade-in { animation: fadeIn 220ms var(--ease-out-soft) both; }
+.animate-sidebar-in { animation: slideInLeft 180ms var(--ease-out-soft) both; }
+.animate-panel-up { animation: panelUp 200ms var(--ease-out-soft) both; }
+.animate-tab-in { animation: tabIn 160ms var(--ease-out-soft) both; }
+.animate-splash-out { animation: splashOut 260ms ease forwards; }
+.animate-twinkle { animation: twinkle 3.2s ease-in-out infinite; transform-origin: center; }
+
+.logo-bracket {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: drawStroke 600ms 120ms var(--ease-out-soft) forwards;
+}
+.logo-star {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: starIn 650ms 280ms var(--ease-out-soft) both;
+}
+.logo-star-small {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: starIn 650ms 520ms var(--ease-out-soft) both;
+}
+.load-bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 40%;
+  background: var(--color-indigo-400);
+  animation: loadBar 1100ms var(--ease-out-soft) infinite;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-pulse-glow {
-  animation: pulseGlow 3s ease-in-out infinite;
+/* Hareketi azaltmak isteyen kullanıcılar için tüm animasyonlar kapanır */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .logo-bracket {
+    stroke-dashoffset: 0;
+  }
 }
