@@ -54,7 +54,7 @@
 | `src/components/EditorArea.tsx` | 363 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 919 |
-| `src/components/FileTypeIcon.tsx` | 111 |
+| `src/components/FileTypeIcon.tsx` | 180 |
 | `src/components/GitPanel.tsx` | 608 |
 | `src/components/GithubAccount.tsx` | 132 |
 | `src/components/LandingPage.tsx` | 135 |

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### tr
+- **Dosya simgeleri VS Code tarzı:** JS/TS yazılı kare, Python yılanı, PHP oval rozeti, SQL veritabanı, React atomu, HTML/CSS/JSON simgeleri; diğer türler rozet olarak kaldı.
 - **Sekme çubuğu ve önizleme:** Açık sekme yokken sekme çubuğu hiç görünmez; sekme açılınca yumuşak animasyonla gelir, sekmeler VS Code tarzı yuvarlak köşeli ve kenarlıklıdır. HTML/web dosyasında Kaydet/Çalıştır yanında önizlemeyi açıp kapatan düğme var. Dosya menüsünden "Çık" kaldırıldı (Ctrl+Q çalışır).
 - **Klasör açma düzeltmeleri:** Yeniden başlatınca başlık "Gezgin" iken eski projenin dosyalarının görünmesi giderildi (eski klasör izleyicisi artık ağacı doldurmaz). Başka klasör açılınca eski projenin kaydedilmiş sekmeleri kapanır. Klasör diyaloğunun düğmesi "Klasörü Seç" oldu.
 - **Önizleme yenilendi:** `.html`, `.svg` ve `.md` dosyası açılınca localhost gerekmeden önizleme kendiliğinden açılır (ayar: Çalıştır ve önizleme). Yerel CSS/JS/görsel/yazı tipleri diskten gömülür, yazdıkça (kaydetmeden) ve diskte değişince canlı yenilenir; sandbox içinde çalışır, konsol çıktısı ve hata rozeti görünür. Terminalde çalışan yerel sunucu (`localhost`) algılanır ve tek tıkla önizlenir.
@@ -71,6 +72,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **VS Code-style file icons:** JS/TS lettered squares, Python snake, PHP oval, SQL database, React atom, HTML/CSS/JSON glyphs; other types keep the badge.
 - **Tab bar and preview:** The tab bar is hidden when no tab is open and slides in smoothly when one opens; tabs are VS Code-style with rounded corners and borders. HTML/web files get a preview toggle next to Save/Run. "Quit" removed from the File menu (Ctrl+Q still works).
 - **Folder opening fixes:** Fixed the old project's files showing under an "Explorer" header after a restart (a stale folder watcher no longer fills the tree). Opening another folder closes the previous project's saved tabs. The folder dialog button now reads "Select Folder".
 - **Preview overhaul:** opening an `.html`, `.svg` or `.md` file opens a preview automatically, no localhost needed (setting: Run & preview). Local CSS/JS/images/fonts are inlined from disk, refreshed live as you type (unsaved) and when files change on disk; sandboxed, with console output and an error badge. A local dev server (`localhost`) started in the terminal is detected and previewed in one click.
