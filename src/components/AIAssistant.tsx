@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Bot, Check, ChevronDown, ChevronRight, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
+  ArrowDown, Bot, Check, ChevronDown, ChevronRight, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
   Settings as Cog, ShieldCheck, Sparkles, Square, Terminal as TermIcon, Trash2, Wrench, X, ArrowUp, Zap
 } from 'lucide-react';
 import { t, getUiLang } from '../i18n/uiText';
@@ -8,10 +8,11 @@ import { useSettings } from '../services/SettingsContext';
 import { getSelectedText, replaceSelection } from '../services/editorBridge';
 import { useDictation } from '../services/useDictation';
 import {
-  DEFAULT_MODEL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartTitle, splitParts, titleFrom, uid,
-  type AiSession, type ChatMsg, type ToolCard
+  DEFAULT_MODEL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartCategory, smartTitle, splitParts, titleFrom, uid,
+  type AiSession, type CategoryId, type ChatMsg, type ToolCard
 } from '../services/aiClient';
 import { ChatSessions } from './ChatSessions';
+import { ThinkingMenu, type ThinkingLevel } from './ThinkingMenu';
 import type { AiEvent, AiProvider, LlmModelInfo, LlmProgress } from '../types';
 
 interface AIAssistantProps {
@@ -52,6 +53,21 @@ const MessageText: React.FC<{ text: string }> = ({ text }) => (
     )}
   </div>
 );
+
+const CopyMsg: React.FC<{ text: string; className?: string }> = ({ text, className = '' }) => {
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => { void navigator.clipboard.writeText(text); setDone(true); setTimeout(() => setDone(false), 1400); }}
+      title={t('aiCopyMsg')}
+      aria-label={t('aiCopyMsg')}
+      className={`w-5 h-4 rounded flex items-center justify-center text-zinc-500 hover:text-zinc-200 hover:bg-white/10 opacity-0 group-hover/msg:opacity-100 focus:opacity-100 transition-opacity ${className}`}
+    >
+      {done ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+    </button>
+  );
+};
 
 const toolTarget = (input: Record<string, unknown>) => String(input.path ?? input.query ?? input.command ?? '');
 
@@ -102,6 +118,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const builtinId = DEFAULT_MODEL.builtin;
   const model = DEFAULT_MODEL.ollama;
   const modelLabel = provider === 'builtin' ? llm.find((m) => m.id === builtinId)?.label ?? builtinId : model;
+  const thinkingRaw = String(isAgent ? values.aiAgentThinking : values.aiAskThinking);
+  const thinkingLevel: ThinkingLevel = (['fast', 'balanced', 'deep'] as const).find((x) => x === thinkingRaw) ?? 'balanced';
+  const maxTokensNow = Number(isAgent ? values.aiAgentMaxTokens : values.aiMaxTokens) || (isAgent ? 8192 : 4096);
   const [renameId, setRenameId] = useState<string | null>(null);
   const fileHintRef = useRef<string | undefined>(undefined);
   fileHintRef.current = activeFile?.name;
@@ -117,7 +136,24 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   // Kalıcılık (yalnız bu cihaz; boş sohbetler yazılmaz)
-  useEffect(() => { saveSessions(sessions); }, [sessions]);
+  // Yanıt akarken her parçada tüm sohbetleri yazmak arayüzü kasıyordu: 600 ms gecikmeli yaz, kapanırken/yok olurken boşalt
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const sessionsRef = useRef(sessions);
+  sessionsRef.current = sessions;
+  useEffect(() => {
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => saveSessions(sessions), 600);
+    return () => clearTimeout(saveTimer.current);
+  }, [sessions]);
+  useEffect(() => {
+    const flush = () => saveSessions(sessionsRef.current);
+    window.addEventListener('beforeunload', flush);
+    return () => { window.removeEventListener('beforeunload', flush); flush(); };
+  }, []);
+
+  // En alta in düğmesi: kullanıcı yukarı kaydırdıysa görünür
+  const [atBottom, setAtBottom] = useState(true);
+  const [delArm, setDelArm] = useState(false); // başlıktaki çöp kutusu: ilk tık uyarır, ikinci tık siler
 
   // Başka sohbete geçilince, içine hiçbir şey yazılmamış eski sohbet bellekten de silinir
   useEffect(() => {
@@ -130,7 +166,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   // Kullanıcı en alttaysa yeni çıktıyı izle; yukarı kaydırdıysa yerinde bırak
   const onScroll = () => {
     const el = scrollRef.current;
-    if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+    if (!el) return;
+    stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+    setAtBottom((was) => (was === stick.current ? was : stick.current));
+  };
+  const toBottom = () => {
+    const el = scrollRef.current;
+    if (el) { el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' }); stick.current = true; setAtBottom(true); }
   };
   useEffect(() => {
     const el = scrollRef.current;
@@ -202,9 +244,16 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         patchMsg(sessionId, msgId, (m) => ({ ...m, streaming: false, usage: ev.usage && (ev.usage.in || ev.usage.out) ? ev.usage : undefined }));
         // Otomatik ad: ilk yanıttan sonra konu/dosya/dil bilgisiyle bir kez incelt (kullanıcı adı elle verdiyse dokunma; yerelde, veri gitmez)
         setSessions((all) => all.map((s) => {
-          if (s.id !== sessionId || s.titleLocked || (s.autoLevel ?? 0) >= 2) return s;
-          const better = refineTitle(s, fileHintRef.current);
-          return { ...s, title: better || s.title, autoLevel: 2 };
+          if (s.id !== sessionId) return s;
+          let next = s;
+          if (!s.titleLocked && (s.autoLevel ?? 0) < 2) next = { ...next, title: refineTitle(s, fileHintRef.current) || s.title, autoLevel: 2 };
+          // Kategori ilk iletiden "genel" çıktıysa, yanıtın içeriğiyle yeniden dene (elle seçilmediyse)
+          if (!s.categoryLocked && (!s.category || s.category === 'general')) {
+            const u = s.messages.find((m) => m.role === 'user')?.text ?? '';
+            const b = s.messages.find((m) => m.role === 'assistant' && m.text)?.text ?? '';
+            next = { ...next, category: smartCategory(`${u}\n${b.slice(0, 600)}`) };
+          }
+          return next;
         }));
         runRef.current = null;
         setBusy(false);
@@ -264,9 +313,20 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     setRenameId(null);
     setSessions((all) => all.map((s) => {
       if (s.id !== id) return s;
+      if (title && title === s.title) return s; // ada dokunulmadıysa otomatik adlandırma kilitlenmez
       if (title) return { ...s, title, titleLocked: true };
       const first = s.messages.find((m) => m.role === 'user')?.text ?? '';
       return { ...s, title: first ? smartTitle(first, fileHintRef.current) || titleFrom(first) : '', titleLocked: false, autoLevel: first ? 1 : 0 };
+    }));
+  };
+  // Kategori: elle seçilince kilitlenir; null = otomatik (konudan yeniden hesaplanır)
+  const setCategory = (id: string, cat: CategoryId | null) => {
+    setSessions((all) => all.map((s) => {
+      if (s.id !== id) return s;
+      if (cat) return { ...s, category: cat, categoryLocked: true };
+      const u = s.messages.find((m) => m.role === 'user')?.text ?? '';
+      const b = s.messages.find((m) => m.role === 'assistant' && m.text)?.text ?? '';
+      return { ...s, categoryLocked: false, category: smartCategory(`${u}\n${b.slice(0, 600)}`) };
     }));
   };
   const pinSession = (id: string) => setSessions((all) => all.map((s) => (s.id === id ? { ...s, pinned: !s.pinned } : s)));
@@ -319,7 +379,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     const runId = uid();
     runRef.current = { runId, sessionId: session.id, msgId: botMsg.id };
     stick.current = true;
-    setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, ...(s.title || s.titleLocked ? {} : { title: smartTitle(userMsg.text, fileHintRef.current) || titleFrom(userMsg.text), autoLevel: 1 as const }), updatedAt: Date.now(), messages: [...history, botMsg] })));
+    setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, ...(s.title || s.titleLocked ? {} : { title: smartTitle(userMsg.text, fileHintRef.current) || titleFrom(userMsg.text), autoLevel: 1 as const }), ...(!s.categoryLocked && !s.category ? { category: smartCategory(userMsg.text) } : {}), updatedAt: Date.now(), messages: [...history, botMsg] })));
     const sent = provider === 'builtin' ? [] : images; // yerleşik model görsel okuyamaz
     setInput('');
     setImages([]);
@@ -336,8 +396,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
 
     const res = await api.run({
       runId, provider, model,
-      thinking: (['fast', 'balanced', 'deep'].includes(String(isAgent ? values.aiAgentThinking : values.aiAskThinking)) ? String(isAgent ? values.aiAgentThinking : values.aiAskThinking) : 'balanced') as 'fast' | 'balanced' | 'deep',
-      maxTokens: Number(isAgent ? values.aiAgentMaxTokens : values.aiMaxTokens) || (isAgent ? 8192 : 4096),
+      thinking: thinkingLevel,
+      maxTokens: maxTokensNow,
       instructions: String((isAgent ? values.aiAgentInstructions : values.aiAskInstructions) || '').slice(0, 600) || undefined,
       mode, lang: getUiLang(),
       autoApproveEdits: !!values.aiAutoApproveEdits,
@@ -416,11 +476,22 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
           onPin={pinSession}
           onDelete={deleteById}
           onExport={exportSession}
+          onSetCategory={setCategory}
           onClearUnpinned={clearUnpinned}
         />
         <button className={icoBtn} onClick={startNew} title={t('aiNewSession')} aria-label={t('aiNewSession')}><Plus size={15} /></button>
         <button className={icoBtn} onClick={() => setRenameId(session.id)} title={t('aiRename')} aria-label={t('aiRename')}><Pencil size={14} /></button>
-        <button className={icoBtn} onClick={deleteSession} disabled={busy} title={t('aiDeleteSession')} aria-label={t('aiDeleteSession')}><Trash2 size={14} /></button>
+        <button
+          className={`${icoBtn} ${delArm ? '!text-rose-300 !bg-rose-500/15' : ''}`}
+          onClick={() => {
+            if (!delArm) { setDelArm(true); window.setTimeout(() => setDelArm(false), 3000); return; }
+            setDelArm(false);
+            deleteSession();
+          }}
+          disabled={busy || !session?.messages.length}
+          title={delArm ? t('aiClickAgainDelete') : t('aiDeleteSession')}
+          aria-label={t('aiDeleteSession')}
+        >{delArm ? <Check size={14} /> : <Trash2 size={14} />}</button>
         <button className={icoBtn} onClick={onOpenSettings} title={t('aiOpenSettings')} aria-label={t('aiOpenSettings')}><Cog size={15} /></button>
       </div>
 
@@ -463,7 +534,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
       )}
 
       {/* İletiler */}
-      <div ref={scrollRef} onScroll={onScroll} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-4 text-[12.5px]">
+      <div className="relative flex-1 min-h-0">
+      <div ref={scrollRef} onScroll={onScroll} className="absolute inset-0 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-4 text-[12.5px]">
         {provider === 'builtin' && !builtinReady && (
           <div className={`${banner} !mx-0 !mt-0 border-indigo-500/40 bg-indigo-500/10 text-indigo-100`}>
             <div className="font-semibold text-[12px] mb-1">{t('aiBuiltinTitle')}</div>
@@ -507,22 +579,23 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center mb-3"><Bot size={20} className="text-purple-300" /></div>
             <p>{t('aiWelcome')}</p>
             <div className="grid grid-cols-2 gap-1.5 mt-4">
-              {([['aiQuickExplain', 'Explain this code step by step.'], ['aiQuickBugs', 'Find possible bugs and edge cases in this code.'], ['aiQuickRefactor', 'Refactor this code to be cleaner and more efficient. Keep behavior the same.'], ['aiQuickTests', 'Write unit tests for this code.']] as const).map(([k, p]) => (
-                <button key={k} className="h-8 px-2 rounded-lg border border-zinc-700/70 hover:bg-nv-hover text-zinc-300 text-[12px] truncate" onClick={() => quick(p)}>{t(k)}</button>
+              {(isAgent ? (['aiQuickAgent1', 'aiQuickAgent2', 'aiQuickAgent3', 'aiQuickAgent4'] as const) : (['aiQuickExplain', 'aiQuickBugs', 'aiQuickRefactor', 'aiQuickTests'] as const)).map((k) => (
+                <button key={k} className="min-h-8 px-2 py-1 rounded-lg border border-zinc-700/70 hover:bg-nv-hover text-zinc-300 text-[12px] text-left leading-snug" onClick={() => quick(t(k))}>{t(k)}</button>
               ))}
             </div>
           </div>
         )}
         {session?.messages.map((m) =>
           m.role === 'user' ? (
-            <div key={m.id} className="flex justify-end min-w-0">
+            <div key={m.id} className="group/msg flex justify-end items-start gap-1 min-w-0">
+              <CopyMsg text={m.text} className="mt-1" />
               <div className="max-w-[88%] rounded-2xl rounded-br-md bg-nv-active text-zinc-50 px-3 py-2 leading-relaxed min-w-0">
                 {m.imageCount ? <div className="flex items-center gap-1 text-[10px] opacity-80 mb-1"><ImagePlus size={11} />×{m.imageCount}</div> : null}
                 <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{m.text}</div>
               </div>
             </div>
           ) : (
-            <div key={m.id} className="flex gap-2 min-w-0">
+            <div key={m.id} className="group/msg flex gap-2 min-w-0">
               <div className="w-5 h-5 mt-0.5 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0"><Sparkles size={11} className="text-white" /></div>
               <div className="min-w-0 flex-1 text-zinc-200 leading-relaxed">
                 {m.text ? <MessageText text={m.text} /> : m.streaming && !m.approvals?.some((a) => !a.decided) ? (
@@ -544,11 +617,26 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
                   </div>
                 ))}
                 {m.error && <div className="mt-1 text-rose-300 break-words">{m.error}</div>}
-                {m.usage && <div className="mt-1 text-[10px] text-zinc-500">{t('aiUsage').replace('{in}', String(m.usage.in)).replace('{out}', String(m.usage.out))}</div>}
+                {(m.usage || (m.text && !m.streaming)) && (
+                  <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-zinc-500">
+                    {m.text && !m.streaming && <CopyMsg text={m.text} />}
+                    {m.usage && <span>{t('aiUsage').replace('{in}', String(m.usage.in)).replace('{out}', String(m.usage.out))}</span>}
+                  </div>
+                )}
               </div>
             </div>
           )
         )}
+      </div>
+      {!atBottom && (session?.messages.length ?? 0) > 0 && (
+        <button
+          type="button"
+          onClick={toBottom}
+          title={t('aiScrollDown')}
+          aria-label={t('aiScrollDown')}
+          className="absolute bottom-2 right-4 w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 shadow-lg flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 animate-fade-in"
+        ><ArrowDown size={14} /></button>
+      )}
       </div>
 
       {/* Eğik çizgi önerileri */}
@@ -601,6 +689,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
             >
               {dictation.state === 'transcribing' ? <Loader2 size={15} className="animate-spin" /> : <Mic size={15} />}
             </button>
+            <ThinkingMenu
+              level={thinkingLevel}
+              onLevel={(l) => setSetting(isAgent ? 'aiAgentThinking' : 'aiAskThinking', l)}
+              maxTokens={maxTokensNow}
+              onMaxTokens={(n) => setSetting(isAgent ? 'aiAgentMaxTokens' : 'aiMaxTokens', n)}
+              disabled={busy}
+            />
             <button className="min-w-0 flex-1 text-left px-1.5 text-[10.5px] text-zinc-500 hover:text-zinc-300 truncate" onClick={onOpenSettings} title={t('aiOpenSettings')}>
               {PROVIDER_LABEL[provider]} · {modelLabel}
             </button>
