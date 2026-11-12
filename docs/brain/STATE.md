@@ -22,6 +22,7 @@
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `version:check` | `node scripts/check-version.mjs` |
 | `sync` | `node scripts/auto-commit.mjs` |
+| `icons:gen` | `node scripts/gen-file-icons.mjs` |
 
 ## Dosya haritası
 ### Ana süreç ve preload
@@ -54,7 +55,7 @@
 | `src/components/EditorArea.tsx` | 363 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 919 |
-| `src/components/FileTypeIcon.tsx` | 180 |
+| `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 608 |
 | `src/components/GithubAccount.tsx` | 132 |
 | `src/components/LandingPage.tsx` | 135 |
@@ -103,6 +104,7 @@
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
 | `scripts/check-version.mjs` | 74 |
+| `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/make-icons.cjs` | 29 |
 
 ### Testler

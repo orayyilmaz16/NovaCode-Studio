@@ -154,7 +154,7 @@ const GLYPHS: Record<string, { title: string; node: React.ReactNode }> = {
   json: { title: 'JSON', node: <path d="M6 2.5C4.5 2.5 4.5 4 4.5 5.5S4 7.8 2.5 8c1.5.2 2 .5 2 2.5s0 3 1.5 3M10 2.5c1.5 0 1.5 1.5 1.5 3s.5 2.3 2 2.5c-1.5.2-2 .5-2 2.5s0 3-1.5 3" fill="none" stroke="#cbcb41" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /> },
 };
 
-export const FileTypeIcon: React.FC<{ name: string; size?: number; className?: string }> = ({ name, size = 15, className = '' }) => {
+const FallbackIcon: React.FC<{ name: string; size?: number; className?: string }> = ({ name, size = 15, className = '' }) => {
   const lower = name.toLowerCase();
   const ext = lower.includes('.') ? lower.split('.').pop()! : '';
   const g = !NAMES[lower] && GLYPHS[ext];
@@ -177,4 +177,50 @@ export const FileTypeIcon: React.FC<{ name: string; size?: number; className?: s
       </text>
     </svg>
   );
+};
+
+// ---- Gerçek VS Code simgeleri: Material Icon Theme (MIT). Eşleme küçük bir JSON, SVG'ler gerektikçe yüklenir. ----
+type IconMap = { d: string; e: Record<string, string>; n: Record<string, string> };
+let mapPromise: Promise<IconMap> | null = null;
+let iconMap: IconMap | null = null;
+const loadMap = () => (mapPromise ??= import('../data/fileIcons.json').then((m) => (iconMap = (m.default ?? m) as IconMap)));
+const loadLoaders = () => import('../data/fileIconLoaders');
+const urlCache = new Map<string, string>();
+
+function resolveIcon(name: string, m: IconMap): string {
+  const lower = name.toLowerCase();
+  if (m.n[lower]) return m.n[lower];
+  // "a.test.ts" için sırayla "test.ts", "ts" denenir (en uzun eşleşme önce)
+  const parts = lower.split('.');
+  for (let i = 1; i < parts.length; i++) {
+    const hit = m.e[parts.slice(i).join('.')];
+    if (hit) return hit;
+  }
+  return m.d;
+}
+
+export const FileTypeIcon: React.FC<{ name: string; size?: number; className?: string }> = ({ name, size = 15, className = '' }) => {
+  const [, bump] = React.useReducer((x: number) => x + 1, 0);
+  const [failed, setFailed] = React.useState(false);
+  const icon = iconMap ? resolveIcon(name, iconMap) : null;
+  const url = icon ? urlCache.get(icon) : undefined;
+
+  React.useEffect(() => {
+    let alive = true;
+    void loadMap().then((m) => {
+      const ic = resolveIcon(name, m);
+      if (urlCache.has(ic)) return alive && bump();
+      return loadLoaders().then(({ loaderFor }) => {
+        const load = loaderFor(ic);
+        if (!load) { if (alive) setFailed(true); return; }
+        return load().then((u) => { urlCache.set(ic, u); if (alive) bump(); });
+      });
+    }).catch(() => { if (alive) setFailed(true); });
+    return () => { alive = false; };
+  }, [name]);
+
+  if (url && !failed) {
+    return <img src={url} width={size} height={size} alt="" aria-hidden draggable={false} className={`shrink-0 ${className}`} onError={() => setFailed(true)} />;
+  }
+  return <FallbackIcon name={name} size={size} className={className} />;
 };
