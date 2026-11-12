@@ -70,12 +70,12 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 - **CSS katmanı:** `.icon-btn`, `.status-item` `@layer components` içindedir. Katmansız CSS Tailwind yardımcılarını (`hidden`, `w-*`) **ezer**; yeni özel sınıfları katmana koy.
 - **Menü:** kapalı öğe `aria-disabled` + soluk + `title` ipucu (neden kapalı); fare üzerinde gezinebilir. Uzun menü `max-h` ile kayar; menü çubuğu dar pencerede yatay kayar (tekerlek yatay çevrilir).
 
-## Yumuşak çerçeve (üst çubuk, kenar çubuğu, alt çubuk)
-- **Kenarlıklar:** `--color-nv-border` yarı saydamdır (koyu `rgba(255,255,255,.075)`, açık `rgba(0,0,0,.09)`); tüm paneller ve ayırıcılar birlikte yumuşar. Katı renk kenarlık ekleme.
-- **Üst/alt çubuk:** `.chrome-header` / `.chrome-footer` (hafif degrade + ince kenarlık, `@layer components`). Arama kutusu `.cmd-pill` (yuvarlak, üzerine gelince vurgu rengine yaklaşır). Başlık 38 px, alt çubuk 26 px.
-- **Etkinlik çubuğu:** `.ab-item` yuvarlak "hap" zemin (`::after`, hover ve etkin durumda dolar) + yan gösterge (`::before`); simgeler 22 px / çizgi 1,6. Genişlik `--ab-w` (48 px; pencere < 760 px iken 42 px): **sabit `w-12` kullanma**.
-- **Durum çubuğu:** `.status-item` hap biçimli (20 px, `border-radius: 7px`). Alt çubuk `@container`: ikincil bilgiler (girinti, UTF-8) `hidden @lg:inline-flex` ile dar genişlikte gizlenir.
-- **Simge düğmeleri:** `.icon-btn` 28×26, `border-radius: 8px`.
+## Çerçeve (üst çubuk, etkinlik şeridi, yan panel, editör, sağ paneller, alt çubuk)
+- **Karar:** paneller ince 1 px kenarlıklı, hafif yuvarlak **kartlardır** (VS Code tarzı, sade). **Renkler, tema ve editör görünümü değişmez**: yüzey renkleri `nv-side`/`nv-editor`, kenarlık düz `nv-border` kalır. Degrade, yarı saydam kenarlık, hap zemin, renkli vurgu gibi stil değişikliği ekleme.
+- **Ölçüler (esnek):** `--frame` (kart boşluğu, 6 px) ve `--frame-r` (köşe, 8 px); pencere < 760 px iken 2 px / 6 px. Kartlarda `mx/mt/m-[var(--frame)]`, `rounded-[var(--frame-r)]`, `border border-nv-border` kullan; sabit px yazma.
+- **Düzen:** kök `bg-nv-side` (boşlukların rengi). Üst çubuk (`h-9`) ve alt çubuk (`h-6`) kartları; çalışma alanı `px/pt-[var(--frame)]`; etkinlik şeridi `w-[50px]` kart; yan panel, editör sütunu (terminal dahil) ve sağ paneller (AI, önizleme) kart. Panel iç bileşenleri kendi dış kenarlığını taşımaz (ör. `AIAssistant` kökünde `border-l` yok): çerçeveyi `App.tsx` verir.
+- **Sürükleme:** üst çubuk kartının üstündeki dar boşlukta `app-drag` şeridi vardır (pencere taşınabilsin). Sağ paneller dar ekranda (`compactRight`) editörün üstüne biner (`right/top-[var(--frame)]`).
+- **Alt çubuk:** `@container`; ikincil bilgiler (girinti, UTF-8) `hidden @lg:inline-flex` ile dar genişlikte gizlenir.
 
 ## Erişilebilirlik
 Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontrast ≥ 4.5:1. Metinler [[i18n]] ile 8 dilde.

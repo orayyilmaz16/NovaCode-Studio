@@ -986,7 +986,7 @@ export function App() {
   const barBtn = (active: boolean) => ({ 'data-active': active, className: 'ab-item' }) as const;
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-nv-editor text-zinc-300 font-sans relative">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-nv-side text-zinc-300 font-sans relative">
       {/* Açılış animasyonu */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
@@ -1026,9 +1026,10 @@ export function App() {
         </Suspense>
       )}
 
-      {/* Başlık çubuğu */}
+      {/* Başlık çubuğu: ince kenarlıklı, yuvarlak çerçeve; üstteki dar boşluk da pencereyi sürüklemeye yarar */}
+      <div className="app-drag absolute inset-x-0 top-0 h-[var(--frame)] z-10" aria-hidden />
       <header
-        className="chrome-header app-drag relative grid items-center h-[38px] select-none shrink-0"
+        className="app-drag relative grid items-center h-9 mx-[var(--frame)] mt-[var(--frame)] rounded-[var(--frame-r)] border border-nv-border bg-nv-side select-none shrink-0"
         // Üç bölge: sol (logo + menü) · orta (arama, pencereye göre ortalı) · sağ (düğmeler; pencere denetimlerinden önce biter)
         style={{ gridTemplateColumns: `minmax(0,1fr) minmax(130px,min(${compactMenu ? 460 : 360}px,calc(100% - ${isElectron ? 600 : 328}px))) minmax(0,1fr)` }}
       >
@@ -1042,7 +1043,7 @@ export function App() {
           <button
             onClick={() => setPalette('')}
             title={`${t('cpTitle')} (Ctrl+P)`}
-            className="cmd-pill w-full min-w-0 flex items-center justify-center gap-2 h-[26px] px-3 text-[12px] text-zinc-300"
+            className="w-full min-w-0 flex items-center justify-center gap-2 h-6 px-2 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
           >
             <Search size={12} className="text-zinc-500 shrink-0" />
             <span className="truncate min-w-0">
@@ -1113,22 +1114,22 @@ export function App() {
       </header>
 
       {/* Çalışma alanı */}
-      <div className={`relative flex flex-1 min-h-0 overflow-hidden ${sidebarRight ? 'flex-row-reverse' : ''}`}>
+      <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${settings.statusBarVisible === false ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
-        <nav aria-label="Activity bar" className={`w-[var(--ab-w)] bg-nv-side ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border flex flex-col items-center justify-between py-1 select-none shrink-0`}>
+        <nav aria-label="Activity bar" className={`w-[50px] bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-1' : 'mr-1'} py-1 flex flex-col items-center justify-between select-none shrink-0 overflow-hidden`}>
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} title={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
-              <Files size={22} strokeWidth={1.6} />
+              <Files size={24} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} {...dis(!currentRootPath, `${t('actSearch')} — ${t('mnHintNoFolder')}`)} title={currentRootPath ? `${t('actSearch')} (Ctrl+Shift+F)` : `${t('actSearch')} — ${t('mnHintNoFolder')}`} aria-label={t('actSearch')} onClick={() => { if (currentRootPath) pickSidebar('search'); }}>
-              <Search size={22} strokeWidth={1.6} />
+              <Search size={24} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} title={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
-              <Puzzle size={22} strokeWidth={1.6} />
+              <Puzzle size={24} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} title={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
-              <GitBranch size={22} strokeWidth={1.6} />
+              <GitBranch size={24} strokeWidth={1.5} />
               {changeCount > 0 && (
                 <span className="absolute bottom-2 right-1.5 min-w-4 h-4 px-1 rounded-full bg-indigo-500 text-white text-[10px] leading-4 text-center font-semibold">
                   {changeCount > 99 ? '99+' : changeCount}
@@ -1142,7 +1143,7 @@ export function App() {
               setShowSettings(false);
               setShowLanding(!showLanding);
             }}>
-              <House size={22} strokeWidth={1.6} />
+              <House size={24} strokeWidth={1.5} />
             </button>
             <button
               {...barBtn(false)}
@@ -1153,7 +1154,7 @@ export function App() {
               {auth.connected && auth.profile?.avatarUrl ? (
                 <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="w-6 h-6 rounded-full ring-1 ring-zinc-700" />
               ) : (
-                <UserRound size={22} strokeWidth={1.6} />
+                <UserRound size={24} strokeWidth={1.5} />
               )}
             </button>
             <button
@@ -1165,7 +1166,7 @@ export function App() {
                 setShowSettings((v) => !v);
               }}
             >
-              <Settings size={22} strokeWidth={1.6} />
+              <Settings size={24} strokeWidth={1.5} />
             </button>
           </div>
         </nav>
@@ -1174,7 +1175,7 @@ export function App() {
         {/* Kenar çubuğu (kapanırken genişlik animasyonla daralır) */}
         <div className="sidebar-shell h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? sbW : 0 }}>
           {sbMounted && (
-            <div style={{ width: sbW }} className={`h-full ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border bg-nv-side`}>
+            <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden">
               {activeSidebarTab === 'files' && (
                 <div key="files" className="animate-sidebar-in h-full">
                   <FileTree
@@ -1232,7 +1233,7 @@ export function App() {
         {sidebarShown && <ResizeHandle direction="horizontal" title="Kenar çubuğu genişliği" onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
 
         {/* Ana sütun: görünüm (ayarlar / karşılama / editör) + terminal paneli (oturumlar panel gizliyken de canlı kalır) */}
-        <div className="flex flex-col flex-1 h-full min-w-0">
+        <div className="flex flex-col flex-1 h-full min-w-0 rounded-[var(--frame-r)] border border-nv-border bg-nv-editor overflow-hidden">
           <div className="flex-1 min-h-0 flex flex-col min-w-0">
             {showLanding ? (
           <Suspense fallback={null}><LandingPage
@@ -1312,9 +1313,9 @@ export function App() {
 
         {/* Sağ panel: önizleme veya yapay zekâ */}
         {!showLanding && showRightPanel === 'preview' && canPreview && (
-          <div className={compactRight ? 'absolute right-0 top-0 bottom-0 z-30 flex shadow-[-14px_0_32px_rgba(0,0,0,0.4)]' : 'contents'}>
+          <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex shadow-[-14px_0_32px_rgba(0,0,0,0.4)]' : 'contents'}>
             <ResizeHandle direction="horizontal" title={t('tbPreview')} onResize={(d) => setPreviewWidth((w) => clamp(w - d, 320, 1200))} />
-            <div style={{ width: Math.min(previewWidth, compactRight ? vw - 56 : Math.round(vw * 0.5)) }} className="animate-fade-in h-full border-l border-nv-border bg-nv-side shrink-0 min-w-0">
+            <div style={{ width: Math.min(previewWidth, compactRight ? vw - 56 : Math.round(vw * 0.5)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden shrink-0 min-w-0">
               <Suspense fallback={null}><Preview
                 file={activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: activeFile.content } : null}
                 rootPath={currentRootPath}
@@ -1328,9 +1329,9 @@ export function App() {
         )}
 
         {!showLanding && showRightPanel === 'ai' && (
-          <div className={compactRight ? 'absolute right-0 top-0 bottom-0 z-30 flex shadow-[-14px_0_32px_rgba(0,0,0,0.4)]' : 'contents'}>
+          <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex shadow-[-14px_0_32px_rgba(0,0,0,0.4)]' : 'contents'}>
           <ResizeHandle direction="horizontal" title={t('aiTitle')} onResize={(d) => setAiWidth((w) => clamp(w - d, 300, 720))} />
-          <div style={{ width: Math.min(aiWidth, compactRight ? vw - 56 : Math.round(vw * 0.4)) }} className="animate-fade-in h-full shrink-0 min-w-0">
+          <div style={{ width: Math.min(aiWidth, compactRight ? vw - 56 : Math.round(vw * 0.4)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] border border-nv-border overflow-hidden shrink-0 min-w-0">
             <Suspense fallback={null}>
             <AIAssistant
               activeFile={activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: activeFile.content } : null}
@@ -1347,7 +1348,7 @@ export function App() {
 
       {/* Durum çubuğu: yalnız anlamlı bilgiler */}
       {settings.statusBarVisible !== false && (
-        <footer className="chrome-footer @container h-[26px] px-1.5 flex items-center justify-between gap-2 text-[12px] text-zinc-400 select-none shrink-0">
+        <footer className="@container h-6 m-[var(--frame)] rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
           <div className="flex items-center h-full min-w-0 overflow-hidden">
             {gitStatus.isRepo && (
               <button className="status-item" onClick={() => pickSidebar('git')} title={t('actGit')}>
