@@ -47,7 +47,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1569 |
+| `src/App.tsx` | 1577 |
 | `src/main.tsx` | 21 |
 | `src/types.ts` | 409 |
 
@@ -60,7 +60,7 @@
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 485 |
+| `src/components/EditorArea.tsx` | 496 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -88,6 +88,7 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
+| `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
 | `src/services/editorBridge.ts` | 80 |
@@ -115,7 +116,7 @@
 | `src/i18n/uiText.ts` | 1606 |
 | `src/i18n/uiTextAi.ts` | 516 |
 | `src/i18n/uiTextDev.ts` | 126 |
-| `src/i18n/uiTextScm.ts` | 213 |
+| `src/i18n/uiTextScm.ts` | 219 |
 
 ### Betikler
 | Dosya | Satır |
@@ -171,7 +172,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 786 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 788 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 95 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
