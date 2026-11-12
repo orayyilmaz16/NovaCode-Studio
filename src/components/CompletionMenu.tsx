@@ -51,7 +51,7 @@ const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, ch
 
 const Range: React.FC<{ id: string; min: number; max: number; step: number; value: number; set: (id: string, v: number) => void; label: string; fmt?: (n: number) => string }> = ({ id, min, max, step, value, set, label, fmt }) => (
   <div className="flex items-center gap-2 px-3 h-6">
-    <span className="text-[11.5px] text-zinc-400 w-[118px] shrink-0 truncate" title={label}>{label}</span>
+    <span className="text-[11.5px] text-zinc-400 w-[158px] shrink-0 truncate" title={label}>{label}</span>
     <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={(e) => set(id, Number(e.target.value))} className="flex-1 min-w-0 accent-indigo-500 h-1" />
     <span className="w-[46px] text-right font-mono text-[10.5px] text-zinc-300 shrink-0">{fmt ? fmt(value) : value}</span>
   </div>
@@ -97,7 +97,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
         : t('cmStatusOn');
   const statusColor = !enabled || status.state === 'off' ? 'bg-zinc-500' : status.state === 'busy' ? 'bg-amber-400 animate-pulse' : status.state === 'unavailable' ? 'bg-rose-400' : 'bg-emerald-400';
 
-  const left = Math.max(8, Math.min(anchor.x - 170, window.innerWidth - 348));
+  const left = Math.max(8, Math.min(anchor.x - 190, window.innerWidth - 388));
   const bottom = Math.max(8, window.innerHeight - anchor.y + 6);
 
   const [adv, setAdv] = useState(false);
@@ -112,7 +112,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
         aria-label={t('set_aiCompletion')}
         onMouseDown={(e) => e.stopPropagation()}
         style={{ left, bottom, maxHeight: `calc(100vh - ${bottom + 16}px)` }}
-        className="absolute w-[348px] overflow-y-auto rounded-lg border border-zinc-700 bg-nv-side shadow-2xl animate-fade-in outline-none text-zinc-300"
+        className="absolute w-[380px] overflow-y-auto rounded-lg border border-zinc-700 bg-nv-side shadow-2xl animate-fade-in outline-none text-zinc-300"
       >
         <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-700/70">
           <Sparkles size={14} className="text-indigo-300 shrink-0" />
