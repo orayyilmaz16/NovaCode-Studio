@@ -97,6 +97,9 @@ export const COMP_TEXT = {
   cmModel: {
     tr: "Model: {m} · yalnız bu bilgisayarda çalışır", en: "Model: {m} · runs only on this computer", de: "Modell: {m} · läuft nur auf diesem Computer", ru: "Модель: {m} · работает только на этом компьютере", ar: "النموذج: {m} · يعمل على هذا الحاسوب فقط", es: "Modelo: {m} · se ejecuta solo en este equipo", fr: "Modèle : {m} · fonctionne uniquement sur cet ordinateur", az: "Model: {m} · yalnız bu kompüterdə işləyir",
   },
+  cmAdvanced: {
+    tr: "Gelişmiş", en: "Advanced", de: "Erweitert", ru: "Дополнительно", ar: "متقدم", es: "Avanzado", fr: "Avancé", az: "Əlavə",
+  },
 } satisfies Record<string, Dict>;
 
 export type CompTextKey = keyof typeof COMP_TEXT;
