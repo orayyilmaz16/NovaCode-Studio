@@ -175,7 +175,7 @@ const Control: React.FC<{ def: SettingDef; value: SettingValue; onChange: (v: Se
   }
 };
 
-const Row: React.FC<{ def: SettingDef }> = ({ def }) => {
+const Row: React.FC<{ def: SettingDef; tag?: string }> = ({ def, tag }) => {
   const { values, set, reset, isModified } = useSettings();
   if (!isVisible(def, values)) return null;
   const label = tk(`set_${def.id}`);
@@ -186,6 +186,7 @@ const Row: React.FC<{ def: SettingDef }> = ({ def }) => {
         <div className="flex items-center gap-2 text-[13px] text-zinc-100">
           {modified && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" title={t('setModified')} />}
           <span>{label}</span>
+          {tag && <span className="text-[10px] px-1.5 rounded bg-zinc-800 text-zinc-400">{tag}</span>}
           {modified && (
             <button onClick={() => reset(def.id)} title={t('setResetOne')} aria-label={t('setResetOne')} className="icon-btn !w-5 !h-5">
               <RotateCcw size={11} />
@@ -575,7 +576,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
                     <section key={c.id} className="mb-6">
                       <h2 className="text-[12px] uppercase tracking-wider text-zinc-500 mb-1">{tk(c.labelKey)}</h2>
                       {list.map((d) => (
-                        <Row key={d.id} def={d} />
+                        <Row key={d.id} def={d} tag={d.group ? tk(d.group) : undefined} />
                       ))}
                     </section>
                   ) : null;
@@ -585,8 +586,13 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
               <section key={current.id} className="animate-fade-in">
                 <h2 className="text-[20px] font-light text-zinc-100 mb-3">{tk(current.labelKey)}</h2>
                 {current.id === 'editor' && <EditorPreview />}
-                {rows.map((d) => (
-                  <Row key={d.id} def={d} />
+                {rows.map((d, i) => (
+                  <React.Fragment key={d.id}>
+                    {d.group && d.group !== rows[i - 1]?.group && (
+                      <h3 className={`mb-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-300/80 ${i === 0 ? '' : 'mt-7'}`}>{tk(d.group)}</h3>
+                    )}
+                    <Row def={d} />
+                  </React.Fragment>
                 ))}
                 {current.id === 'collab' && (
                   <>

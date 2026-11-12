@@ -85,18 +85,27 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const [llm, setLlm] = useState<LlmModelInfo[]>([]);
   const [progress, setProgress] = useState<Record<string, LlmProgress>>({});
   const ollamaBase = provider === 'ollama' ? String(values.aiBaseUrl || '').trim() || undefined : undefined;
-  const builtinId = String(values.aiBuiltinModel || DEFAULT_MODEL.builtin);
-  const model = provider === 'builtin'
-    ? builtinId
-    : String(values.aiModel || '').trim() || (provider === 'ollama' ? pickOllamaModel(ollama?.models ?? []) : '') || DEFAULT_MODEL[provider];
-  const modelLabel = provider === 'builtin' ? llm.find((m) => m.id === builtinId)?.label ?? builtinId : model;
 
+  // Sohbet (ask) ve Ajan (agent) modlarının sohbetleri ayrıdır: her sohbet tek bir moda aittir, liste moda göre süzülür.
+  const defMode: 'ask' | 'agent' = values.aiDefaultMode === 'agent' ? 'agent' : 'ask';
   const [sessions, setSessions] = useState<AiSession[]>(() => {
     const loaded = loadSessions();
-    return loaded.length ? loaded : [newSession(values.aiDefaultMode === 'agent' ? 'agent' : 'ask')];
+    return loaded.some((s) => s.mode === defMode) ? loaded : [newSession(defMode), ...loaded];
   });
-  const [activeId, setActiveId] = useState<string>(() => sessions[0]?.id);
+  const [activeId, setActiveId] = useState<string>(() => [...sessions].filter((s) => s.mode === defMode).sort((a, b) => b.updatedAt - a.updatedAt)[0]?.id ?? sessions[0]?.id);
   const session = sessions.find((s) => s.id === activeId) ?? sessions[0];
+  const mode = session?.mode ?? 'ask';
+  const isAgent = mode === 'agent';
+  const modeSessions = useMemo(() => sessions.filter((s) => s.mode === mode), [sessions, mode]);
+  const modeCount = (m: 'ask' | 'agent') => sessions.filter((s) => s.mode === m && s.messages.length > 0).length;
+
+  // Modele özel ayarlar: model, yerleşik model, bağlam, yanıt uzunluğu, özel yönerge (boşsa Genel ayar)
+  const builtinId = String((isAgent ? values.aiAgentBuiltinModel : values.aiAskBuiltinModel) || values.aiBuiltinModel || DEFAULT_MODEL.builtin);
+  const modelOverride = String((isAgent ? values.aiAgentModel : values.aiAskModel) || '').trim();
+  const model = provider === 'builtin'
+    ? builtinId
+    : modelOverride || String(values.aiModel || '').trim() || (provider === 'ollama' ? pickOllamaModel(ollama?.models ?? []) : '') || DEFAULT_MODEL[provider];
+  const modelLabel = provider === 'builtin' ? llm.find((m) => m.id === builtinId)?.label ?? builtinId : model;
   const [renameId, setRenameId] = useState<string | null>(null);
   const fileHintRef = useRef<string | undefined>(undefined);
   fileHintRef.current = activeFile?.name;
@@ -209,11 +218,25 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     }
   });
 
-  const mode = session?.mode ?? 'ask';
-  const setMode = (m: 'ask' | 'agent') => setSessions((all) => all.map((s) => (s.id === session.id ? { ...s, mode: m } : s)));
+  // Mod değiştirme = o modun son sohbetine geçmek (yoksa yeni açılır). Boş sohbetteyken yeni liste kurulmaz, sohbet o moda çevrilir.
+  const drafts = useRef<{ ask: string; agent: string }>({ ask: '', agent: '' });
+  const switchMode = (m: 'ask' | 'agent') => {
+    if (m === mode || busy || !session) return;
+    drafts.current[mode] = input;
+    setImages([]);
+    setRenameId(null);
+    if (!session.messages.length) {
+      setSessions((all) => all.map((s) => (s.id === session.id ? { ...s, mode: m } : s)));
+    } else {
+      const last = sessions.filter((s) => s.mode === m).sort((a, b) => b.updatedAt - a.updatedAt)[0];
+      if (last) setActiveId(last.id);
+      else { const s = newSession(m); setSessions((all) => [s, ...all]); setActiveId(s.id); }
+    }
+    setInput(drafts.current[m]);
+  };
 
   const startNew = () => {
-    const s = newSession(values.aiDefaultMode === 'agent' ? 'agent' : 'ask');
+    const s = newSession(mode);
     setSessions((all) => [s, ...all]);
     setActiveId(s.id);
     setInput('');
@@ -222,10 +245,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
 
   const deleteById = (id: string) => {
     if (runRef.current?.sessionId === id) return; // yanıtı akan sohbet silinmez
+    const m = sessions.find((s) => s.id === id)?.mode ?? mode;
     const rest = sessions.filter((s) => s.id !== id);
-    if (!rest.length) { const s = newSession('ask'); setSessions([s]); setActiveId(s.id); return; }
+    const sameMode = rest.filter((s) => s.mode === m).sort((a, b) => b.updatedAt - a.updatedAt);
+    if (!sameMode.length) { const s = newSession(m); setSessions([s, ...rest]); if (id === session.id) setActiveId(s.id); return; }
     setSessions(rest);
-    if (id === session.id) setActiveId([...rest].sort((a, b) => b.updatedAt - a.updatedAt)[0].id);
+    if (id === session.id) setActiveId(sameMode[0].id);
   };
   const deleteSession = () => { if (!busy) deleteById(session.id); };
 
@@ -242,7 +267,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const pinSession = (id: string) => setSessions((all) => all.map((s) => (s.id === id ? { ...s, pinned: !s.pinned } : s)));
   const clearUnpinned = () => {
     if (busy) return;
-    setSessions((all) => all.filter((s) => s.pinned || s.id === session.id));
+    setSessions((all) => all.filter((s) => s.mode !== mode || s.pinned || s.id === session.id)); // yalnız bu modun sohbetleri
   };
   const exportSession = (id: string) => {
     const s = sessions.find((x) => x.id === id);
@@ -258,7 +283,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   };
 
   const buildContext = (): string => {
-    if (!values.aiIncludeContext || !activeFile) return '';
+    if (!(isAgent ? values.aiAgentIncludeContext : values.aiIncludeContext) || !activeFile) return '';
     const sel = getSelectedText();
     const body = sel || (activeFile.content ?? '').slice(0, provider === 'builtin' ? 6000 : 20000);
     if (!body) return '';
@@ -275,7 +300,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     if (slash) {
       const [, name, rest] = slash;
       if (name === 'new') { startNew(); return; }
-      if (name === 'ask' || name === 'agent') { setMode(name); setInput(rest); return; }
+      if (name === 'ask' || name === 'agent') { switchMode(name); setInput(rest); return; }
       const c = custom.find((x) => x.name === name);
       if (c) text = c.template.includes('{{args}}') ? c.template.replace('{{args}}', rest) : `${c.template}\n\n${rest}`;
     }
@@ -307,7 +332,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     const res = await api.run({
       runId, provider, model,
       baseUrl: String(values.aiBaseUrl || '').trim() || undefined,
-      maxTokens: Number(values.aiMaxTokens) || 4096,
+      maxTokens: Number(isAgent ? values.aiAgentMaxTokens : values.aiMaxTokens) || (isAgent ? 8192 : 4096),
+      instructions: String((isAgent ? values.aiAgentInstructions : values.aiAskInstructions) || '').slice(0, 600) || undefined,
       mode, lang: getUiLang(),
       autoApproveEdits: !!values.aiAutoApproveEdits,
       allowCommands: values.aiAllowCommands !== false,
@@ -373,7 +399,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
       <div className="relative flex items-center gap-1 px-2 h-10 border-b border-nv-border shrink-0">
         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0"><Sparkles size={13} className="text-white" /></div>
         <ChatSessions
-          sessions={sessions}
+          sessions={modeSessions}
           activeId={session?.id}
           busy={busy}
           busyId={busy ? runRef.current?.sessionId : null}
@@ -397,10 +423,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         <div className="grid grid-cols-2 gap-0.5 p-0.5 rounded-lg bg-nv-input/60" role="tablist">
           {(['ask', 'agent'] as const).map((m) => (
             <button
-              key={m} role="tab" aria-selected={mode === m} onClick={() => setMode(m)}
-              className={`h-6 rounded-md text-[12px] flex items-center justify-center gap-1.5 transition-colors ${mode === m ? 'bg-nv-active text-zinc-50 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+              key={m} role="tab" aria-selected={mode === m} onClick={() => switchMode(m)} disabled={busy && mode !== m}
+              className={`h-6 rounded-md text-[12px] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 ${mode === m ? 'bg-nv-active text-zinc-50 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
             >
               {m === 'ask' ? <MessageSquare size={12} /> : <Zap size={12} />}{m === 'ask' ? t('aiModeAsk') : t('aiModeAgent')}
+              {modeCount(m) > 0 && <span className="text-[10px] px-1 rounded-full bg-white/10 text-zinc-400">{modeCount(m)}</span>}
             </button>
           ))}
         </div>
@@ -418,6 +445,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
           <span className="min-w-0">{t('aiNoKey')}</span>
           <button className="h-6 px-2 rounded bg-amber-500/20 hover:bg-amber-500/30 shrink-0" onClick={onOpenSettings}>{t('aiOpenSettings')}</button>
         </div>
+      )}
+      {isAgent && !hasWorkspace && (
+        <p className="mx-3 mt-2 text-[11px] text-amber-300/90 leading-snug shrink-0">{t('aiAgentNeedsFolder')}</p>
       )}
       {provider === 'builtin' && mode === 'agent' && builtinId === 'qwen2.5-coder-1.5b' && builtinReady && (
         <p className="mx-3 mt-2 text-[10.5px] text-amber-300/90 leading-snug shrink-0">{t('aiBuiltinAgentWarn')}</p>

@@ -155,6 +155,8 @@ export interface AiRunRequest {
   autoApproveEdits?: boolean;
   allowCommands?: boolean;
   useProject?: boolean;
+  /** Moda özel kullanıcı yönergesi (en çok ~1500 karakter, sistem istemine eklenir). */
+  instructions?: string;
   messages: { role: 'user' | 'assistant'; text: string; images?: { mediaType: string; data: string }[] }[];
 }
 

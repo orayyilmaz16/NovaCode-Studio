@@ -26,6 +26,8 @@ export interface SettingDef {
   /** Ayarlar sayfasında satır olarak gösterilmez (başka bir arayüz yönetir, ör. eklenti teması). */
   hidden?: boolean;
   showWhen?: { id: string; equals: SettingValue };
+  /** Aynı kategoride alt başlık (i18n anahtarı): ör. Genel / Sohbet / Ajan. */
+  group?: string;
 }
 export interface CategoryDef {
   id: string;
