@@ -37,6 +37,7 @@ Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmad
 | Open VSX / Eclipse CDN | Eklenti arama/indirme | Arama sözcüğü, IP | Kullanıcı verisi yok; konak denetimli |
 | Seçilen AI sağlayıcı (Anthropic/OpenAI/Ollama uzak) | Kullanıcı sohbet gönderince | Mesaj, bağlam kodu | Varsayılan yerleşik: hiçbiri |
 | Dikte (OpenAI uyumlu) | Mikrofon kullanılınca ve açık rıza varsa | Ses | Yerel adreste yerelde kalır |
+| GitHub (güncelleme) | Güncelleme denetimi / sürüm notları | IP, uygulama sürümü, platform | Kullanıcı isteğiyle veya "açılışta denetle" ayarıyla; kişisel veri yok |
 | GitHub | Git/GitHub paneli | Kimlik doğrulama, repo işlemleri | Kullanıcı eylemiyle |
 
 ## Çıktı

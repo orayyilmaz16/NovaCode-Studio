@@ -158,7 +158,7 @@ const Row: React.FC<{ def: SettingDef }> = ({ def }) => {
   const label = tk(`set_${def.id}`);
   const modified = isModified(def.id);
   return (
-    <div className="flex items-start justify-between gap-6 py-3 border-b border-nv-border/70 last:border-0">
+    <div className="flex flex-col @lg:flex-row items-start @lg:justify-between gap-2 @lg:gap-6 py-3 border-b border-nv-border/70 last:border-0">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 text-[13px] text-zinc-100">
           {modified && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" title={t('setModified')} />}
@@ -171,7 +171,7 @@ const Row: React.FC<{ def: SettingDef }> = ({ def }) => {
         </div>
         {def.desc && <p className="mt-1 text-[12px] text-zinc-500 leading-relaxed max-w-[520px]">{tk(`setDesc_${def.id}`)}</p>}
       </div>
-      <div className="shrink-0 pt-0.5">
+      <div className="@lg:shrink-0 pt-0.5 max-w-full">
         <Control def={def} value={values[def.id]} onChange={(v) => set(def.id, v)} label={label} />
       </div>
     </div>
@@ -326,13 +326,13 @@ const TokenField: React.FC = () => {
   const [msg, setMsg] = useState<string | null>(null);
   const shown = value ?? token;
   return (
-    <div className="flex items-start justify-between gap-6 py-3 border-b border-nv-border/70">
+    <div className="flex flex-col @lg:flex-row items-start @lg:justify-between gap-2 @lg:gap-6 py-3 border-b border-nv-border/70">
       <div className="min-w-0 flex-1">
         <div className="text-[13px] text-zinc-100">{t('set_collabToken')}</div>
         <p className="mt-1 text-[12px] text-zinc-500 leading-relaxed max-w-[520px]">{t('setDesc_collabToken')}</p>
         {msg && <p className="mt-1 text-[12px] text-emerald-400">{msg}</p>}
       </div>
-      <div className="shrink-0 flex gap-2">
+      <div className="@lg:shrink-0 flex flex-wrap gap-2 max-w-full">
         <input
           type="password"
           autoComplete="off"
@@ -340,7 +340,7 @@ const TokenField: React.FC = () => {
           value={shown}
           onChange={(e) => setValue(e.target.value)}
           maxLength={2048}
-          className={`${field} w-[220px] font-mono`}
+          className={`${field} w-[220px] max-w-full font-mono`}
         />
         <button
           onClick={async () => {
@@ -375,13 +375,13 @@ const AiKeyRow: React.FC<{ id: 'aiKey_anthropic' | 'aiKey_openai'; label: UiText
     if (res?.success) { setSaved(v !== ''); setValue(''); setMsg(null); } else setMsg(t('aiKeyNoEncrypt'));
   };
   return (
-    <div className="flex items-start justify-between gap-6 py-3 border-b border-nv-border/70">
+    <div className="flex flex-col @lg:flex-row items-start @lg:justify-between gap-2 @lg:gap-6 py-3 border-b border-nv-border/70">
       <div className="min-w-0 flex-1">
         <div className="text-[13px] text-zinc-100">{t(label)}</div>
         <p className={`mt-1 text-[12px] ${saved ? 'text-emerald-400' : 'text-zinc-500'}`}>{saved === null ? '' : saved ? t('aiKeySet') : t('aiKeyNotSet')}</p>
         {msg && <p className="mt-1 text-[12px] text-rose-400">{msg}</p>}
       </div>
-      <div className="shrink-0 flex gap-2">
+      <div className="@lg:shrink-0 flex flex-wrap gap-2 max-w-full">
         <input
           type="password"
           autoComplete="off"
@@ -390,7 +390,7 @@ const AiKeyRow: React.FC<{ id: 'aiKey_anthropic' | 'aiKey_openai'; label: UiText
           onChange={(e) => setValue(e.target.value)}
           maxLength={2048}
           placeholder={saved ? '••••••••' : ''}
-          className={`${field} w-[220px] font-mono`}
+          className={`${field} w-[220px] max-w-full font-mono`}
         />
         <button disabled={!value.trim()} onClick={() => void save(value.trim())} className="h-7 px-3 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-[12px] transition-colors">{t('aiKeySave')}</button>
         {saved && <button onClick={() => void save('')} className="h-7 px-3 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-100 text-[12px] transition-colors">{t('aiKeyClear')}</button>}
@@ -549,9 +549,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnip
   const rows = SCHEMA.filter((d) => d.category === current.id && !d.hidden);
 
   return (
-    <div className="animate-fade-in flex flex-col flex-1 h-full min-w-0 bg-nv-editor select-none">
-      <header className="flex items-center gap-4 h-12 px-6 border-b border-nv-border shrink-0">
-        <h1 className="text-[16px] font-normal text-zinc-100">{t('setTitle')}</h1>
+    <div className="@container animate-fade-in flex flex-col flex-1 h-full min-w-0 bg-nv-editor select-none">
+      <header className="flex items-center gap-2 @md:gap-4 h-12 px-3 @md:px-6 border-b border-nv-border shrink-0">
+        <h1 className="text-[15px] @md:text-[16px] font-normal text-zinc-100 whitespace-nowrap">{t('setTitle')}</h1>
         <div className="relative flex-1 max-w-[460px]">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
@@ -569,8 +569,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnip
         </button>
       </header>
 
-      <div className="flex flex-1 min-h-0">
-        <nav aria-label={t('setTitle')} className="w-56 shrink-0 border-r border-nv-border bg-nv-side p-2 overflow-y-auto">
+      <div className="flex flex-col @2xl:flex-row flex-1 min-h-0">
+        <nav aria-label={t('setTitle')} className="no-scrollbar flex @2xl:block gap-1 @2xl:gap-0 w-full @2xl:w-56 shrink-0 border-b @2xl:border-b-0 @2xl:border-r border-nv-border bg-nv-side p-2 overflow-x-auto @2xl:overflow-x-hidden @2xl:overflow-y-auto">
           {CATEGORIES.map((c) => {
             const active = !q && c.id === cat;
             return (
@@ -581,7 +581,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnip
                   setCat(c.id);
                 }}
                 aria-current={active ? 'page' : undefined}
-                className={`w-full flex items-center gap-2.5 h-8 px-2.5 rounded text-[13px] text-left transition-colors ${
+                className={`@2xl:w-full shrink-0 flex items-center gap-2.5 h-8 px-2.5 rounded text-[13px] text-left whitespace-nowrap transition-colors ${
                   active ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
                 }`}
               >
@@ -593,7 +593,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnip
           })}
         </nav>
 
-        <main className="flex-1 min-w-0 overflow-y-auto px-8 py-5">
+        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto px-3 @md:px-8 py-4 @md:py-5">
           <div className="max-w-[860px]">
             {matches ? (
               matches.length === 0 ? (

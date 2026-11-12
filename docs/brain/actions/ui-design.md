@@ -50,6 +50,14 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 ## Dosya türü simgeleri
 `FileTypeIcon.tsx`: uzantıya (ve `package.json`, `Dockerfile`, `.gitignore`… özel adlara) göre renkli rozet (TS, JS, PHP, PY, GO, RS… ~60 tür). Gezgin, sekmeler, palet ve arama sonuçlarında kullanılır. Yeni tür = `EXT`/`NAMES` tablosuna satır.
 
+## Duyarlı (responsive) kurallar
+- **Pencere:** Electron en az 980×660; web daha küçük olabilir. Tasarım 720×600'e kadar bozulmamalı.
+- **Paneller:** pencere < 1100 px iken sağ paneller (AI, önizleme) editörün **üstüne biner** (`absolute right-0`, gölge); kenar çubuğu en çok pencerenin %34'ü; AI paneli en çok %40 (üst sınır 720). Genişlikler yine sürüklenir.
+- **Konteyner sorguları:** panelin kendi genişliğine göre uyum için Tailwind `@container` + `@md:` `@lg:` `@2xl:` kullan (pencereye göre değil). Ayarlar sayfası: dar kapta kategori listesi üstte yatay sekme şeridi olur, kontrol etiketin altına iner; editör sekme çubuğu: kopyala/indir ve "Çalıştır" etiketi gizlenir.
+- **Taşma kuralları:** esnek çocuklarda `min-w-0`; kayan kaplarda `min-h-0` + `overflow-y-auto overflow-x-hidden`; etiket/düğme metni `whitespace-nowrap` + `truncate`; uzun içerik `break-words [overflow-wrap:anywhere]`; kod blokları kendi içinde yatay kayar.
+- **CSS katmanı:** `.icon-btn`, `.status-item` `@layer components` içindedir. Katmansız CSS Tailwind yardımcılarını (`hidden`, `w-*`) **ezer**; yeni özel sınıfları katmana koy.
+- **Menü:** kapalı öğe `aria-disabled` + soluk + `title` ipucu (neden kapalı); fare üzerinde gezinebilir. Uzun menü `max-h` ile kayar; menü çubuğu dar pencerede yatay kayar (tekerlek yatay çevrilir).
+
 ## Erişilebilirlik
 Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontrast ≥ 4.5:1. Metinler [[i18n]] ile 8 dilde.
 

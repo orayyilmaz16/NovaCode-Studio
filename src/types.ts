@@ -99,6 +99,34 @@ export interface Snippet {
   body: string;
 }
 
+export interface UpdateState {
+  status: 'idle' | 'checking' | 'available' | 'none' | 'downloading' | 'ready' | 'error' | 'unsupported';
+  current: string;
+  latest: string;
+  notes: string;
+  percent: number;
+  transferred: number;
+  total: number;
+  speed: number;
+  error: '' | 'network' | 'no-release' | 'checksum' | 'failed';
+  checkedAt: number;
+  supported: boolean;
+}
+
+export interface ReleaseInfo {
+  version: string;
+  name: string;
+  date: string;
+  notes: string;
+  url: string;
+}
+
+export interface WorkspaceInfo {
+  pm: 'npm' | 'pnpm' | 'yarn' | 'bun';
+  scripts: string[];
+  kinds: string[];
+}
+
 export type SecretKey = 'collabToken' | 'aiKey_anthropic' | 'aiKey_openai';
 
 export interface SearchHit {
@@ -163,6 +191,16 @@ export interface ElectronBridge {
     files: () => Promise<{ root: string; files: string[] }>;
     text: (opts: { query: string; regex?: boolean; caseSensitive?: boolean }) => Promise<{ results: SearchHit[]; truncated: boolean; error?: string }>;
   };
+  update: {
+    state: () => Promise<UpdateState>;
+    check: (opts?: { autoDownload?: boolean }) => Promise<UpdateState>;
+    download: () => Promise<UpdateState>;
+    install: () => Promise<{ success: boolean }>;
+    releases: () => Promise<{ success: boolean; error?: string; releases: ReleaseInfo[] }>;
+    onState: (callback: (s: UpdateState) => void) => () => void;
+  };
+  openLink: (url: string) => Promise<{ success: boolean }>;
+  detectWorkspace: () => Promise<WorkspaceInfo>;
   llm: {
     status: () => Promise<{ defaultId: string; models: LlmModelInfo[] }>;
     download: (id: string) => Promise<{ success: boolean; error?: string }>;
@@ -173,6 +211,7 @@ export interface ElectronBridge {
   ext: {
     search: (opts: { query: string; category?: 'Themes' | 'Snippets' | ''; offset?: number }) => Promise<{ success: boolean; total: number; items: import('./services/extensionsService').StoreItem[]; error?: string }>;
     list: () => Promise<import('./services/extensionsService').InstalledExt[]>;
+    details: (namespace: string, name: string) => Promise<{ success: boolean; error?: string; details?: import('./services/extensionsService').ExtDetails }>;
     install: (namespace: string, name: string) => Promise<{ success: boolean; error?: string; partial?: boolean }>;
     uninstall: (id: string) => Promise<{ success: boolean }>;
     checkUpdates: () => Promise<{ id: string; latest: string }[]>;

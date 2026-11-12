@@ -7,6 +7,8 @@ export interface MenuItem {
   onClick?: () => void;
   danger?: boolean;
   disabled?: boolean;
+  /** Kapalı öğenin neden kapalı olduğunu söyleyen ipucu (üzerine gelince görünür). */
+  hint?: string;
   separator?: boolean;
 }
 
@@ -71,7 +73,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
       ref={ref}
       role="menu"
       style={{ left: pos.left, top: pos.top }}
-      className="animate-menu fixed z-[70] min-w-[230px] py-1.5 rounded-lg border border-nv-border bg-nv-side shadow-[0_10px_32px_rgba(0,0,0,0.4)] text-[13px] select-none"
+      className="animate-menu fixed z-[70] min-w-[230px] max-w-[min(420px,92vw)] max-h-[calc(100vh-56px)] overflow-y-auto overflow-x-hidden py-1.5 rounded-lg border border-nv-border bg-nv-side shadow-[0_10px_32px_rgba(0,0,0,0.4)] text-[13px] select-none"
       onContextMenu={(e) => e.preventDefault()}
     >
       {items.map((it, i) =>
@@ -82,19 +84,22 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
             key={`${it.label}-${i}`}
             style={{ animationDelay: `${Math.min(i, 12) * 12}ms` }}
             role="menuitem"
-            disabled={it.disabled}
-            onMouseEnter={() => !it.disabled && setActive(i)}
+            aria-disabled={it.disabled || undefined}
+            title={it.disabled ? it.hint : undefined}
+            onMouseEnter={() => setActive(it.disabled ? -1 : i)}
             onClick={() => {
+              // Kapalı öğe tıklanabilir görünmez ama fare üzerinde gezinebilir (menü kapanmaz)
+              if (it.disabled) return;
               it.onClick?.();
               onClose();
             }}
-            className={`animate-menu-item w-full flex items-center gap-2.5 h-7 px-3 text-left transition-colors disabled:opacity-40 ${
-              active === i ? 'bg-nv-active text-zinc-50' : it.danger ? 'text-rose-400' : 'text-zinc-300'
+            className={`animate-menu-item w-full flex items-center gap-2.5 h-7 px-3 text-left transition-colors ${
+              it.disabled ? 'opacity-40 cursor-default hover:bg-nv-hover/40' : active === i ? 'bg-nv-active text-zinc-50' : it.danger ? 'text-rose-400' : 'text-zinc-300'
             }`}
           >
             <span className="w-4 shrink-0 flex items-center justify-center">{it.icon}</span>
-            <span className="flex-1 truncate">{it.label}</span>
-            {it.shortcut && <span className="text-[11px] text-zinc-500 font-mono">{it.shortcut}</span>}
+            <span className="flex-1 truncate whitespace-nowrap">{it.label}</span>
+            {it.shortcut && <span className="text-[11px] text-zinc-500 font-mono whitespace-nowrap shrink-0 pl-4">{it.shortcut}</span>}
           </button>
         )
       )}

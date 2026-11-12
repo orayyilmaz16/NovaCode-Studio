@@ -9,7 +9,11 @@
 - Projede ara (`Ctrl+Shift+F`): büyük/küçük harf ve düzenli ifade desteği, sonuca tıklayınca satıra gider.
 - Snippet hızlı yolları: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippet'ler artık imlecin olduğu yere eklenir.
 - Ayarlar: yeni "Yapay Zekâ" kategorisi; kısayol listesi güncellendi.
-- **Yerleşik yapay zekâ (anahtarsız, ücretsiz):** artık sunucu adresi ya da API anahtarı gerekmez. Panelden bir kez yerel model indirirsin (Hızlı ~1 GB / Güçlü ~4,4 GB), sonra sohbet ve ajan bu bilgisayarda, internetsiz çalışır; kodun ve mesajların dışarı çıkmaz. Ollama ve bulut sağlayıcılar isteğe bağlıdır.
+- **Güncelleme sistemi:** Yardım → Güncellemeleri denetle…; yeni sürüm bulunursa notlarıyla gösterilir, indirme yüzdesi durum çubuğunda ve pencerede görünür, bitince "Yeniden başlat ve güncelle". Sürüm notları (Yardım → Sürüm notları), açılışta otomatik denetim ve otomatik indirme ayarları.
+- **Eklentiler:** VS Code gibi ayrıntı sayfası (açıklama, değişiklikler, yayıncı, lisans, puan); ağ hatası giderildi (sistem proxy/VPN desteği, yeniden deneme, hatanın türü ve "Tekrar dene").
+- **Menüler:** projesi/dosyası açık olmadığında kapalı öğeler soluk görünür, üzerine gelince nedenini söyler; uzun menüler ve dar pencerede menü çubuğu kayar. Çalıştır menüsü açık klasörün `package.json` betiklerini ve proje türünü (Go, Rust, .NET, PHP…) algılar.
+- **Duyarlı tasarım:** dar pencerede paneller editörü ezmez (AI/önizleme paneli üstüne biner), ayarlar sayfası ve editör çubuğu dar genişliğe uyum sağlar, düğme/menü yazılarında taşma ve alta kayma giderildi; `Ctrl+Shift+L` paneli aç/kapatır.
+- Yerleşik yapay zekâ (anahtarsız, ücretsiz) artık sunucu adresi ya da API anahtarı gerekmez. Panelden bir kez yerel model indirirsin (Hızlı ~1 GB / Güçlü ~4,4 GB), sonra sohbet ve ajan bu bilgisayarda, internetsiz çalışır; kodun ve mesajların dışarı çıkmaz. Ollama ve bulut sağlayıcılar isteğe bağlıdır.
 - Ajan paneli yeniden tasarlandı: dengeli ve taşmasız yerleşim, sürükleyerek genişlik, otomatik büyüyen giriş kutusu, kaydırılabilir araç kartları, koyu/açık tema uyumu.
 - Üst menü çubuğu: Dosya, Düzenle, Seçim, Görünüm, Git, Çalıştır, Terminal, Yardım; animasyonlu açılır menüler. Çalıştır menüsü açık dosyayı türüne göre terminalde çalıştırır (`node`, `python`, `go run`, `php`…) ve `npm run dev/build`, `go run .`, `cargo run` gibi proje komutlarını sunar.
 - Eklenti mağazası (Open VSX): tema ve snippet eklentilerini ara, yükle, güncelle, kaldır (`Ctrl+Shift+X`). Kod çalıştıran eklentiler desteklenmez.
@@ -61,6 +65,10 @@
 - Search in project (`Ctrl+Shift+F`): match case and regex support, click a result to jump to the line.
 - Snippet quick triggers: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippets are now inserted at the cursor.
 - Settings: new "AI Assistant" category; shortcut list updated.
+- **Update system:** Help → Check for updates…; a new version is shown with its notes, download percentage appears in the status bar and the dialog, then "Restart and update". Release notes (Help → Release notes), startup auto-check and auto-download settings.
+- **Extensions:** VS Code-style details page (description, changelog, publisher, license, rating); network error fixed (system proxy/VPN support, retry, error type and "Try again").
+- **Menus:** when no file/folder is open, unavailable items are dimmed and explain why on hover; long menus and the menu bar scroll in narrow windows. The Run menu detects the open folder's `package.json` scripts and project type (Go, Rust, .NET, PHP…).
+- **Responsive design:** in narrow windows panels no longer crush the editor (AI/preview panel overlays), the settings page and editor bar adapt, button/menu text overflow and wrapping fixed; `Ctrl+Shift+L` toggles the panel.
 - **Built-in AI (no key, free):** no server address or API key needed anymore. Download a local model once from the panel (Fast ~1 GB / Strong ~4.4 GB); then chat and agent run on this computer, offline; your code and messages never leave it. Ollama and cloud providers remain optional.
 - Agent panel redesigned: balanced layout with no overflow, drag-to-resize width, auto-growing input, collapsible tool cards, dark/light theme fit.
 - Top menu bar: File, Edit, Selection, View, Git, Run, Terminal, Help, with animated dropdowns. The Run menu runs the active file in the terminal by type (`node`, `python`, `go run`, `php`…) and offers project commands like `npm run dev/build`, `go run .`, `cargo run`.

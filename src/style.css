@@ -208,6 +208,7 @@
   transition: none;
 }
 
+@layer components {
 /* Başlık çubuğu ve genel simge düğmeleri */
 .icon-btn {
   display: inline-flex;
@@ -230,18 +231,23 @@
   background: var(--active-overlay);
   color: var(--color-zinc-50);
 }
+}
 
 /* Durum çubuğu öğeleri */
+@layer components {
 .status-item {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   height: 100%;
   padding: 0 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: background-color 120ms ease;
 }
 button.status-item:hover {
   background: var(--active-overlay);
+}
 }
 
 /* ---------- Animasyonlar ---------- */
@@ -294,6 +300,8 @@ button.status-item:hover {
 .animate-panel-up { animation: panelUp 200ms var(--ease-out-soft) both; }
 .animate-tab-in { animation: tabIn 160ms var(--ease-out-soft) both; }
 .animate-menu { animation: menuIn 160ms var(--ease-out-soft) both; transform-origin: top left; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 .animate-menu-item { animation: menuItemIn 180ms var(--ease-out-soft) both; }
 .animate-splash-out { animation: splashOut 260ms ease forwards; }
 .animate-twinkle { animation: twinkle 3.2s ease-in-out infinite; transform-origin: center; }

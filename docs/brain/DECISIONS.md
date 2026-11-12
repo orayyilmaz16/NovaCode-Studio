@@ -2,6 +2,14 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 12.11.2026 (güncelleme sistemi, duyarlı tasarım, mağaza ağı)
+- **Güncelleme: `electron-updater` + GitHub Releases.** Neden: indirme yüzdesi, SHA-512 doğrulama, fark indirme ve `quitAndInstall` hazır; kendi sürümümüzü yazmak hata ve güvenlik riski. Bedeli: yeni bağımlılık; CI'nın `latest.yml` ve `.blockmap` yüklemesi şart. İndirme varsayılan olarak kullanıcı onayıyla; "açılışta denetle" açık, "otomatik indir" kapalı (GitHub'a giden: IP, sürüm; kişisel veri yok).
+- **Sürüm notları GitHub API'den markdown olarak alınır, HTML basılmaz.** Neden: electron-updater GitHub notlarını HTML verir; `Markdown.tsx` yalnız React öğeleri üretir (XSS yüzeyi yok).
+- **Eklenti ağı `net.request` (manuel yönlendirme denetimi), `net.fetch`/Node `fetch` değil.** Neden: sistem proxy/VPN'e uyum ("internet hatası"), ve `net.fetch` yönlendirme sonrası adresi bildirmediği için konak izin listesi doğrulanamıyor.
+- **VS Code Marketplace kullanılmıyor.** Neden: hizmet şartı yalnız Microsoft ürünlerine izin veriyor; Open VSX aynı eklentilerin çoğunu açık sunuyor.
+- **Sağ paneller dar pencerede editörün üstüne biner; ayarlar/editör çubuğu konteyner sorgusuyla uyum sağlar.** Neden: 980×720'de editör 50 px'e düşüyordu. Özel `.icon-btn` / `.status-item` `@layer components`'e taşındı (katmansız CSS Tailwind'i eziyordu).
+- **Kapalı menü öğeleri soluk + ipucu, fare üzerinde gezinilebilir; Çalıştır menüsü `package.json` betiklerini ve proje türünü algılar** (`workspace:detect`).
+
 ## 12.11.2026 (yerleşik model, menü, eklenti mağazası)
 - **Varsayılan sağlayıcı "Nova yerleşik": `node-llama-cpp` ile uygulama içinde yerel model; anahtar, sunucu adresi ve ücret yok.** Neden: kullanıcı/Masqot'a API maliyeti çıkmasın, veri cihazdan çıkmasın, ek kurulum (Ollama) gerekmesin. Yeni bağımlılık gerekçesi: Node için tek hazır llama.cpp bağlayıcısı, hazır ikililer (derleme yok), fonksiyon çağırma desteği. Bedeli: kurulum paketine ~110 MB (yalnız Windows x64 CPU+Vulkan; CUDA/arm64 hariç tutuldu) ve ilk kullanımda 1–4,4 GB model indirme.
 - **Yalnız Apache-2.0 modeller** (Qwen2.5-Coder 1,5B / 7B). Neden: 3B sürümü Qwen-research (ticari değil) lisanslı; Masqot ticari kuruluş. Hugging Face dosya adı/boyutu kodda sabit ve doğrulanır.

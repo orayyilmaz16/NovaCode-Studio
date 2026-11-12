@@ -38,11 +38,13 @@ import type { PaletteCommand } from './components/CommandPalette';
 const CommandPalette = lazy(() => import('./components/CommandPalette').then((m) => ({ default: m.CommandPalette })));
 import { goToLine, insertSnippetAtCursor, runEditorAction, hasEditor, copySelection, pasteClipboard } from './services/editorBridge';
 import { MenuBar, type MenuGroup } from './components/MenuBar';
+import { UpdateDialog, UpdateIndicator } from './components/UpdateDialog';
+import { checkForUpdates } from './services/updateService';
 import { sendTerminal, runCommandFor } from './services/terminalBridge';
 import { baseName, languageFromName } from './services/lang';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { t } from './i18n/uiText';
-import type { FileItem, ConsoleLog, GitStatus, Snippet } from './types';
+import type { FileItem, ConsoleLog, GitStatus, Snippet, WorkspaceInfo } from './types';
 
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -77,6 +79,15 @@ export function App() {
   const [sidebarWidth, setSidebarWidth] = useState(() => loadStoredNumber('nova.sidebarWidth', 256));
   const [terminalHeight, setTerminalHeight] = useState(() => loadStoredNumber('nova.terminalHeight', 208));
   const [previewWidth, setPreviewWidth] = useState(() => loadStoredNumber('nova.previewWidth', 560));
+  // Pencere genişliği: dar ekranda paneller editörü ezmesin (sağ paneller üstüne biner, kenar çubuğu daralır)
+  const [vw, setVw] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const on = () => setVw(window.innerWidth);
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  const compactRight = vw < 1100;
+  const sbW = Math.min(sidebarWidth, Math.max(180, Math.round(vw * 0.34)));
   const [aiWidth, setAiWidth] = useState(() => loadStoredNumber('nova.aiWidth', 380));
 
   useEffect(() => { saveStoredNumber('nova.sidebarWidth', sidebarWidth); }, [sidebarWidth]);
@@ -88,6 +99,8 @@ export function App() {
   // Ayarlar (gerçek zamanlı, tek kaynak: SettingsContext)
   const { values: settings, set: setSetting, userSnippets } = useSettings();
   const [palette, setPalette] = useState<null | '' | '>' | ':' | '$'>(null);
+  const [updateDlg, setUpdateDlg] = useState<null | 'update' | 'notes'>(null);
+  const [ws, setWs] = useState<WorkspaceInfo>({ pm: 'npm', scripts: [], kinds: [] });
   const { token: collabToken } = useCollabToken();
   const collabEnabled = settings.collabEnabled === true;
   const collabUrl = String(settings.collabUrl);
@@ -180,6 +193,21 @@ export function App() {
     };
   }, []);
 
+  // Çalışma alanı türü (Çalıştır menüsü): klasör değişince yeniden algıla
+  useEffect(() => {
+    if (!currentRootPath) { setWs({ pm: 'npm', scripts: [], kinds: [] }); return; }
+    void window.electronAPI?.detectWorkspace().then(setWs).catch(() => undefined);
+  }, [currentRootPath]);
+
+  // Güncelleme: açılıştan kısa süre sonra ve 6 saatte bir sessizce denetle (ayar açıksa; indirme yalnız ayarla otomatik)
+  useEffect(() => {
+    if (!window.electronAPI?.update || settings.updateAutoCheck === false) return;
+    const run = () => void checkForUpdates(settings.updateAutoDownload === true);
+    const first = window.setTimeout(run, 8000);
+    const every = window.setInterval(run, 6 * 60 * 60 * 1000);
+    return () => { window.clearTimeout(first); window.clearInterval(every); };
+  }, [settings.updateAutoCheck, settings.updateAutoDownload]);
+
   // Kısayol tuşları. Dinleyici tek sefer kurulur; her render'da güncel işleyiciye yönlenir.
   const shortcutHandler = useRef<(e: KeyboardEvent) => void>(() => {});
   useEffect(() => {
@@ -199,7 +227,7 @@ export function App() {
     if (key === 'g' && !e.shiftKey) { e.preventDefault(); setPalette(':'); return; }
     if (key === 'f' && e.shiftKey) { e.preventDefault(); pickSidebarForce('search'); return; }
     if (key === 'x' && e.shiftKey) { e.preventDefault(); pickSidebarForce('extensions'); return; }
-    if (key === 'l' && e.shiftKey) { e.preventDefault(); setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); return; }
+    if (key === 'l' && e.shiftKey) { e.preventDefault(); setShowLanding(false); setShowSettings(false); setShowRightPanel((v) => (v === 'ai' ? null : 'ai')); return; }
 
     if (key === 'q') { e.preventDefault(); handleQuit(); return; }
     if (key === 'b') { e.preventDefault(); setSidebarVisible((v) => !v); return; }
@@ -757,7 +785,27 @@ export function App() {
     setShowLanding(false);
     setShowSettings(true);
   };
-  const hasPkg = !!currentRootPath;
+  // Kapalı menü öğeleri: soluk görünür, üzerine gelince nedenini söyler
+  const F = { disabled: !activeFile, hint: !activeFile ? t('mnHintNoFile') : undefined };
+  const D = { disabled: !currentRootPath, hint: !currentRootPath ? t('mnHintNoFolder') : undefined };
+  const pmRun = (script: string) => (ws.pm === 'npm' ? `npm run ${script}` : `${ws.pm} run ${script}`);
+  const SCRIPT_ORDER = ['dev', 'start', 'build', 'test', 'lint', 'preview'];
+  const sortedScripts = [...ws.scripts].sort((a, b) => { const ia = SCRIPT_ORDER.indexOf(a); const ib = SCRIPT_ORDER.indexOf(b); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b); });
+  const has = (k: string) => ws.kinds.includes(k);
+  const projectRun: MenuGroup['items'] = !currentRootPath
+    ? [{ label: t('mnRunProject'), disabled: true, hint: t('mnHintNoFolder') }]
+    : ws.kinds.length === 0
+      ? [{ label: t('mnRunNoProject'), disabled: true, hint: t('mnRunNoProject') }]
+      : [
+          ...sortedScripts.slice(0, 14).map((sc) => ({ label: pmRun(sc), onClick: () => runInTerminal(pmRun(sc)) })),
+          ...(has('go') ? [{ separator: true }, { label: 'go run .', onClick: () => runInTerminal('go run .') }, { label: 'go build ./...', onClick: () => runInTerminal('go build ./...') }, { label: 'go test ./...', onClick: () => runInTerminal('go test ./...') }] : []),
+          ...(has('rust') ? [{ separator: true }, { label: 'cargo run', onClick: () => runInTerminal('cargo run') }, { label: 'cargo build', onClick: () => runInTerminal('cargo build') }, { label: 'cargo test', onClick: () => runInTerminal('cargo test') }] : []),
+          ...(has('dotnet') ? [{ separator: true }, { label: 'dotnet run', onClick: () => runInTerminal('dotnet run') }, { label: 'dotnet build', onClick: () => runInTerminal('dotnet build') }, { label: 'dotnet test', onClick: () => runInTerminal('dotnet test') }] : []),
+          ...(has('php') ? [{ separator: true }, { label: 'php -S localhost:8000', onClick: () => runInTerminal('php -S localhost:8000') }, { label: 'composer install', onClick: () => runInTerminal('composer install') }] : []),
+          ...(has('java') ? [{ separator: true }, { label: 'mvn package', onClick: () => runInTerminal('mvn package') }] : []),
+          ...(has('make') ? [{ separator: true }, { label: 'make', onClick: () => runInTerminal('make') }] : []),
+          ...(has('docker') ? [{ separator: true }, { label: 'docker compose up', onClick: () => runInTerminal('docker compose up') }] : [])
+        ];
   const act = runEditorAction;
   // Bazı etiketler kısayolu parantez içinde taşır; menüde kısayol ayrı sütunda gösterilir
   const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
@@ -768,39 +816,39 @@ export function App() {
       { label: t('openFolder'), shortcut: 'Ctrl+O', onClick: () => void handleOpenFolderDialog() },
       { label: t('openFiles'), shortcut: 'Ctrl+Shift+O', onClick: () => void handleOpenFileDialog() },
       { separator: true },
-      { label: t('cmdSave'), shortcut: 'Ctrl+S', disabled: !activeFile, onClick: () => { if (activeFile) void handleSaveFile(activeFile); } },
-      { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', disabled: !activeFile, onClick: () => { if (activeFileId) handleCloseTab(activeFileId); } },
+      { label: t('cmdSave'), shortcut: 'Ctrl+S', ...F, onClick: () => { if (activeFile) void handleSaveFile(activeFile); } },
+      { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', ...F, onClick: () => { if (activeFileId) handleCloseTab(activeFileId); } },
       { separator: true },
       { label: t('actSettings'), shortcut: 'Ctrl+,', onClick: () => { setShowLanding(false); setShowSettings(true); } },
       { separator: true },
       { label: t('quit'), shortcut: 'Ctrl+Q', danger: true, onClick: handleQuit }
     ] },
     { id: 'edit', label: t('mnEdit'), items: [
-      { label: t('mnUndo'), shortcut: 'Ctrl+Z', disabled: !activeFile, onClick: () => act('undo') },
-      { label: t('mnRedo'), shortcut: 'Ctrl+Y', disabled: !activeFile, onClick: () => act('redo') },
+      { label: t('mnUndo'), shortcut: 'Ctrl+Z', ...F, onClick: () => act('undo') },
+      { label: t('mnRedo'), shortcut: 'Ctrl+Y', ...F, onClick: () => act('redo') },
       { separator: true },
-      { label: t('mnCut'), shortcut: 'Ctrl+X', disabled: !activeFile, onClick: () => copySelection(true) },
-      { label: t('mnCopy'), shortcut: 'Ctrl+C', disabled: !activeFile, onClick: () => copySelection(false) },
-      { label: t('mnPaste'), shortcut: 'Ctrl+V', disabled: !activeFile, onClick: () => void pasteClipboard() },
+      { label: t('mnCut'), shortcut: 'Ctrl+X', ...F, onClick: () => copySelection(true) },
+      { label: t('mnCopy'), shortcut: 'Ctrl+C', ...F, onClick: () => copySelection(false) },
+      { label: t('mnPaste'), shortcut: 'Ctrl+V', ...F, onClick: () => void pasteClipboard() },
       { separator: true },
-      { label: t('cmdFind'), shortcut: 'Ctrl+F', disabled: !activeFile, onClick: () => act('actions.find') },
-      { label: t('cmdReplace'), shortcut: 'Ctrl+H', disabled: !activeFile, onClick: () => act('editor.action.startFindReplace') },
+      { label: t('cmdFind'), shortcut: 'Ctrl+F', ...F, onClick: () => act('actions.find') },
+      { label: t('cmdReplace'), shortcut: 'Ctrl+H', ...F, onClick: () => act('editor.action.startFindReplace') },
       { label: t('cmdFindInFiles'), shortcut: 'Ctrl+Shift+F', onClick: () => pickSidebarForce('search') },
       { separator: true },
-      { label: t('mnComment'), shortcut: 'Ctrl+/', disabled: !activeFile, onClick: () => act('editor.action.commentLine') },
-      { label: t('cmdFormat'), shortcut: 'Shift+Alt+F', disabled: !activeFile, onClick: () => act('editor.action.formatDocument') }
+      { label: t('mnComment'), shortcut: 'Ctrl+/', ...F, onClick: () => act('editor.action.commentLine') },
+      { label: t('cmdFormat'), shortcut: 'Shift+Alt+F', ...F, onClick: () => act('editor.action.formatDocument') }
     ] },
     { id: 'selection', label: t('mnSelection'), items: [
-      { label: t('mnSelectAll'), shortcut: 'Ctrl+A', disabled: !activeFile, onClick: () => act('editor.action.selectAll') },
-      { label: t('mnExpandLine'), disabled: !activeFile, onClick: () => act('expandLineSelection') },
-      { label: t('mnNextMatch'), shortcut: 'Ctrl+D', disabled: !activeFile, onClick: () => act('editor.action.addSelectionToNextFindMatch') },
+      { label: t('mnSelectAll'), shortcut: 'Ctrl+A', ...F, onClick: () => act('editor.action.selectAll') },
+      { label: t('mnExpandLine'), ...F, onClick: () => act('expandLineSelection') },
+      { label: t('mnNextMatch'), shortcut: 'Ctrl+D', ...F, onClick: () => act('editor.action.addSelectionToNextFindMatch') },
       { separator: true },
-      { label: t('mnCopyLineDown'), shortcut: 'Shift+Alt+↓', disabled: !activeFile, onClick: () => act('editor.action.copyLinesDownAction') },
-      { label: t('mnMoveLineUp'), shortcut: 'Alt+↑', disabled: !activeFile, onClick: () => act('editor.action.moveLinesUpAction') },
-      { label: t('mnMoveLineDown'), shortcut: 'Alt+↓', disabled: !activeFile, onClick: () => act('editor.action.moveLinesDownAction') },
+      { label: t('mnCopyLineDown'), shortcut: 'Shift+Alt+↓', ...F, onClick: () => act('editor.action.copyLinesDownAction') },
+      { label: t('mnMoveLineUp'), shortcut: 'Alt+↑', ...F, onClick: () => act('editor.action.moveLinesUpAction') },
+      { label: t('mnMoveLineDown'), shortcut: 'Alt+↓', ...F, onClick: () => act('editor.action.moveLinesDownAction') },
       { separator: true },
-      { label: t('mnCursorAbove'), shortcut: 'Ctrl+Alt+↑', disabled: !activeFile, onClick: () => act('editor.action.insertCursorAbove') },
-      { label: t('mnCursorBelow'), shortcut: 'Ctrl+Alt+↓', disabled: !activeFile, onClick: () => act('editor.action.insertCursorBelow') }
+      { label: t('mnCursorAbove'), shortcut: 'Ctrl+Alt+↑', ...F, onClick: () => act('editor.action.insertCursorAbove') },
+      { label: t('mnCursorBelow'), shortcut: 'Ctrl+Alt+↓', ...F, onClick: () => act('editor.action.insertCursorBelow') }
     ] },
     { id: 'view', label: t('mnView'), items: [
       { label: t('cpTitle'), shortcut: 'Ctrl+Shift+P', onClick: () => setPalette('>') },
@@ -815,7 +863,7 @@ export function App() {
       { label: plain(t('tbSidebar')), shortcut: 'Ctrl+B', onClick: () => setSidebarVisible((v) => !v) },
       { label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', onClick: () => setShowBottomTerminal((v) => !v) },
       { label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', onClick: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel((v) => (v === 'ai' ? null : 'ai')); } },
-      { label: t('tbPreview'), disabled: !isHtml, onClick: () => setShowRightPanel((v) => (v === 'preview' ? null : 'preview')) },
+      { label: t('tbPreview'), disabled: !isHtml, hint: !isHtml ? t('mnHintHtml') : undefined, onClick: () => setShowRightPanel((v) => (v === 'preview' ? null : 'preview')) },
       { separator: true },
       { label: t('mnZoomIn'), onClick: () => setSetting('uiZoom', Math.min(150, Number(settings.uiZoom || 100) + 10)) },
       { label: t('mnZoomOut'), onClick: () => setSetting('uiZoom', Math.max(80, Number(settings.uiZoom || 100) - 10)) },
@@ -824,37 +872,32 @@ export function App() {
     ] },
     { id: 'go', label: t('mnGo'), items: [
       { label: t('cmdQuickOpen'), shortcut: 'Ctrl+P', onClick: () => setPalette('') },
-      { label: t('cmdGoToLine'), shortcut: 'Ctrl+G', disabled: !activeFile, onClick: () => setPalette(':') },
-      { label: t('cmdGoToSymbol'), disabled: !activeFile, onClick: () => act('editor.action.quickOutline') },
+      { label: t('cmdGoToLine'), shortcut: 'Ctrl+G', ...F, onClick: () => setPalette(':') },
+      { label: t('cmdGoToSymbol'), ...F, onClick: () => act('editor.action.quickOutline') },
       { separator: true },
-      { label: t('mnNextTab'), shortcut: 'Ctrl+Tab', disabled: openFiles.length < 2, onClick: () => { const i = openFiles.findIndex((f) => f.id === activeFileId); setActiveFileId(openFiles[(i + 1) % openFiles.length].id); } },
-      { label: t('mnPrevTab'), shortcut: 'Ctrl+Shift+Tab', disabled: openFiles.length < 2, onClick: () => { const i = openFiles.findIndex((f) => f.id === activeFileId); setActiveFileId(openFiles[(i - 1 + openFiles.length) % openFiles.length].id); } }
+      { label: t('mnNextTab'), shortcut: 'Ctrl+Tab', disabled: openFiles.length < 2, hint: openFiles.length < 2 ? t('mnHintTwoTabs') : undefined, onClick: () => { const i = openFiles.findIndex((f) => f.id === activeFileId); setActiveFileId(openFiles[(i + 1) % openFiles.length].id); } },
+      { label: t('mnPrevTab'), shortcut: 'Ctrl+Shift+Tab', disabled: openFiles.length < 2, hint: openFiles.length < 2 ? t('mnHintTwoTabs') : undefined, onClick: () => { const i = openFiles.findIndex((f) => f.id === activeFileId); setActiveFileId(openFiles[(i - 1 + openFiles.length) % openFiles.length].id); } }
     ] },
     { id: 'run', label: t('mnRun'), items: [
-      { label: t('mnRunFile'), disabled: !activeFile, onClick: runActiveFile },
+      { label: t('mnRunFile'), ...F, onClick: runActiveFile },
       { separator: true },
-      { label: 'npm run dev', disabled: !hasPkg, onClick: () => runInTerminal('npm run dev') },
-      { label: 'npm run build', disabled: !hasPkg, onClick: () => runInTerminal('npm run build') },
-      { label: 'npm test', disabled: !hasPkg, onClick: () => runInTerminal('npm test') },
-      { separator: true },
-      { label: 'go run .', disabled: !hasPkg, onClick: () => runInTerminal('go run .') },
-      { label: 'cargo run', disabled: !hasPkg, onClick: () => runInTerminal('cargo run') },
-      { label: 'dotnet run', disabled: !hasPkg, onClick: () => runInTerminal('dotnet run') },
-      { label: 'php -S localhost:8000', disabled: !hasPkg, onClick: () => runInTerminal('php -S localhost:8000') }
+      ...projectRun
     ] },
     { id: 'terminal', label: t('mnTerminal'), items: [
-      { label: t('mnNewTerminal'), disabled: !currentRootPath, onClick: () => { setShowBottomTerminal(true); window.setTimeout(() => sendTerminal({ action: 'new' }), 80); } },
+      { label: t('mnNewTerminal'), ...D, onClick: () => { setShowBottomTerminal(true); window.setTimeout(() => sendTerminal({ action: 'new' }), 80); } },
       { label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', onClick: () => setShowBottomTerminal((v) => !v) },
       { label: t('termClear'), onClick: () => sendTerminal({ action: 'clear' }) },
       { separator: true },
-      { label: t('mnRunFile'), disabled: !activeFile, onClick: runActiveFile }
+      { label: t('mnRunFile'), ...F, onClick: runActiveFile }
     ] },
     { id: 'help', label: t('mnHelp'), items: [
       { label: t('mnWelcome'), onClick: () => { setShowSettings(false); setShowLanding(true); } },
       { label: t('mnShortcuts'), onClick: () => openSettingsAt('shortcuts') },
       { separator: true },
       { label: t('mnDocs'), onClick: () => openDocs('#readme') },
-      { label: t('mnReleaseNotes'), onClick: () => openDocs('/releases') },
+      { separator: true },
+      { label: t('mnCheckUpdates'), onClick: () => { setUpdateDlg('update'); void checkForUpdates(settings.updateAutoDownload === true); } },
+      { label: t('mnReleaseNotes'), onClick: () => setUpdateDlg('notes') },
       { label: t('mnReportIssue'), onClick: () => openDocs('/issues/new') },
       { separator: true },
       { label: t('mnAbout'), onClick: () => openSettingsAt('about') }
@@ -890,6 +933,8 @@ export function App() {
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-nv-editor text-zinc-300 font-sans relative">
       {/* Açılış animasyonu */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+
+      {updateDlg && <UpdateDialog initialTab={updateDlg} autoDownload={settings.updateAutoDownload === true} onClose={() => setUpdateDlg(null)} />}
 
       {palette !== null && (
         <Suspense fallback={null}>
@@ -971,7 +1016,7 @@ export function App() {
       </header>
 
       {/* Çalışma alanı */}
-      <div className={`flex flex-1 min-h-0 overflow-hidden ${sidebarRight ? 'flex-row-reverse' : ''}`}>
+      <div className={`relative flex flex-1 min-h-0 overflow-hidden ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
         <nav aria-label="Activity bar" className={`w-12 bg-nv-side ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border flex flex-col items-center justify-between select-none shrink-0`}>
@@ -1045,9 +1090,9 @@ export function App() {
         )}
 
         {/* Kenar çubuğu (kapanırken genişlik animasyonla daralır) */}
-        <div className="sidebar-shell h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? sidebarWidth : 0 }}>
+        <div className="sidebar-shell h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? sbW : 0 }}>
           {sbMounted && (
-            <div style={{ width: sidebarWidth }} className={`h-full ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border bg-nv-side`}>
+            <div style={{ width: sbW }} className={`h-full ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border bg-nv-side`}>
               {activeSidebarTab === 'files' && (
                 <div key="files" className="animate-sidebar-in h-full">
                   <FileTree
@@ -1185,9 +1230,9 @@ export function App() {
 
         {/* Sağ panel: önizleme veya yapay zekâ */}
         {!showLanding && showRightPanel === 'preview' && isHtml && (
-          <>
+          <div className={compactRight ? 'absolute right-0 top-0 bottom-0 z-30 flex shadow-[-14px_0_32px_rgba(0,0,0,0.4)]' : 'contents'}>
             <ResizeHandle direction="horizontal" title="Önizleme genişliği" onResize={(d) => setPreviewWidth((w) => clamp(w - d, 320, 1200))} />
-            <div style={{ width: previewWidth }} className="animate-fade-in h-full border-l border-nv-border shrink-0">
+            <div style={{ width: Math.min(previewWidth, compactRight ? vw - 56 : Math.round(vw * 0.5)) }} className="animate-fade-in h-full border-l border-nv-border bg-nv-side shrink-0 min-w-0">
               <Preview
                 htmlContent={activeFile?.content || ''}
                 cssContent={getFileContentByName('styles.css')}
@@ -1200,13 +1245,13 @@ export function App() {
                 }}
               />
             </div>
-          </>
+          </div>
         )}
 
         {!showLanding && showRightPanel === 'ai' && (
-          <>
+          <div className={compactRight ? 'absolute right-0 top-0 bottom-0 z-30 flex shadow-[-14px_0_32px_rgba(0,0,0,0.4)]' : 'contents'}>
           <ResizeHandle direction="horizontal" title={t('aiTitle')} onResize={(d) => setAiWidth((w) => clamp(w - d, 300, 720))} />
-          <div style={{ width: aiWidth }} className="animate-fade-in h-full shrink-0 min-w-0">
+          <div style={{ width: Math.min(aiWidth, compactRight ? vw - 56 : Math.round(vw * 0.4)) }} className="animate-fade-in h-full shrink-0 min-w-0">
             <Suspense fallback={null}>
             <AIAssistant
               activeFile={activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: activeFile.content } : null}
@@ -1215,7 +1260,7 @@ export function App() {
             />
             </Suspense>
           </div>
-          </>
+          </div>
         )}
       </div>
 
@@ -1240,7 +1285,8 @@ export function App() {
               <span>{auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}</span>
             </button>
           </div>
-          <div className="flex items-center h-full">
+          <div className="flex items-center h-full min-w-0 overflow-hidden">
+            <UpdateIndicator onOpen={() => setUpdateDlg('update')} />
             {activeFile?.isModified && <span className="status-item text-amber-300">{t('stUnsaved')}</span>}
             {activeFile && (
               <>

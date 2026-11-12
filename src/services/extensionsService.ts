@@ -25,6 +25,26 @@ export interface InstalledExt {
   partial?: boolean;
 }
 
+export interface ExtDetails {
+  id: string;
+  version: string;
+  displayName: string;
+  description: string;
+  publisher: string;
+  license: string;
+  repository: string;
+  homepage: string;
+  categories: string[];
+  tags: string[];
+  downloads: number;
+  rating: number | null;
+  reviews: number;
+  updated: string;
+  icon: string;
+  readme: string;
+  changelog: string;
+}
+
 export interface StoreItem {
   id: string;
   namespace: string;

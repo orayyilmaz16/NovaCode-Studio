@@ -15,7 +15,7 @@
 | `build` | `vite build` |
 | `preview` | `vite preview` |
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
-| `electron:build` | `vite build && electron-builder` |
+| `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
 | `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
@@ -26,38 +26,40 @@
 | Dosya | Satır |
 |---|---|
 | `electron-ai.cjs` | 458 |
-| `electron-ext.cjs` | 244 |
+| `electron-ext.cjs` | 340 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
 | `electron-llm.cjs` | 256 |
-| `electron-main.cjs` | 439 |
-| `electron-preload.cjs` | 120 |
-| `electron-search.cjs` | 74 |
+| `electron-main.cjs` | 440 |
+| `electron-preload.cjs` | 135 |
+| `electron-search.cjs` | 102 |
 | `electron-secrets.cjs` | 58 |
 | `electron-term.cjs` | 155 |
+| `electron-update.cjs` | 141 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1259 |
+| `src/App.tsx` | 1305 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 243 |
+| `src/types.ts` | 282 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
 | `src/components/AIAssistant.tsx` | 539 |
 | `src/components/CommandPalette.tsx` | 154 |
-| `src/components/EditorArea.tsx` | 349 |
-| `src/components/ExtensionsPanel.tsx` | 194 |
+| `src/components/EditorArea.tsx` | 350 |
+| `src/components/ExtensionsPanel.tsx` | 308 |
 | `src/components/FileTree.tsx` | 592 |
 | `src/components/FileTypeIcon.tsx` | 111 |
 | `src/components/GitPanel.tsx` | 608 |
 | `src/components/GithubAccount.tsx` | 132 |
 | `src/components/LandingPage.tsx` | 135 |
 | `src/components/Logo.tsx` | 34 |
-| `src/components/Menu.tsx` | 103 |
-| `src/components/MenuBar.tsx` | 59 |
+| `src/components/Markdown.tsx` | 73 |
+| `src/components/Menu.tsx` | 108 |
+| `src/components/MenuBar.tsx` | 65 |
 | `src/components/Preview.tsx` | 97 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
@@ -65,6 +67,7 @@
 | `src/components/SnippetsPanel.tsx` | 97 |
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 470 |
+| `src/components/UpdateDialog.tsx` | 153 |
 
 ### Servisler
 | Dosya | Satır |
@@ -73,13 +76,14 @@
 | `src/services/aiClient.ts` | 134 |
 | `src/services/editorBridge.ts` | 91 |
 | `src/services/editorTheme.ts` | 96 |
-| `src/services/extensionsService.ts` | 181 |
+| `src/services/extensionsService.ts` | 201 |
 | `src/services/lang.ts` | 12 |
 | `src/services/monacoShim.ts` | 28 |
 | `src/services/settings.ts` | 273 |
 | `src/services/snippetProvider.ts` | 64 |
 | `src/services/terminalBridge.ts` | 26 |
 | `src/services/terminalText.ts` | 148 |
+| `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
 | `src/services/useDictation.ts` | 69 |
 | `src/services/useGithubAuth.ts` | 32 |
@@ -87,7 +91,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1564 |
+| `src/i18n/uiText.ts` | 1753 |
 
 ### Betikler
 | Dosya | Satır |
@@ -115,9 +119,9 @@
 | Grup | Kanallar |
 |---|---|
 | ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
-| app | `app:quit` |
+| app | `app:openLink`, `app:quit` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
-| ext | `ext:checkUpdates`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
+| ext | `ext:checkUpdates`, `ext:details`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:branches`, `git:checkout`, `git:commit`, `git:createBranch`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:pull`, `git:push`, `git:stage`, `git:stageAll`, `git:status`, `git:sync`, `git:unstage` |
 | github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
@@ -126,15 +130,16 @@
 | secrets | `secrets:get`, `secrets:set` |
 | term | `term:input`, `term:start`, `term:stop` |
 | ui | `ui:setTheme` |
-| workspace | `workspace:open`, `workspace:recent` |
+| update | `update:check`, `update:download`, `update:install`, `update:releases`, `update:state` |
+| workspace | `workspace:detect`, `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`
 
 ## i18n
-- 503 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 566 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-79 ayar, 10 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+81 ayar, 10 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -204,6 +209,8 @@
 | Git ve GitHub | `gitFetchInterval` | Otomatik fetch aralığı | select | `60` | 30, 60, 120, 300 |
 | Ortak düzenleme | `collabEnabled` | Ortak düzenlemeyi aç | toggle | `false` |  |
 | Ortak düzenleme | `collabUrl` | Sunucu adresi | text | `""` | ≤200 karakter |
+| Hakkında ve yedek | `updateAutoCheck` | Açılışta güncellemeleri denetle | toggle | `true` |  |
+| Hakkında ve yedek | `updateAutoDownload` | Güncellemeyi otomatik indir | toggle | `false` |  |
 | Yapay Zekâ | `aiProvider` | Sağlayıcı | select | `"builtin"` | builtin, anthropic, openai, ollama |
 | Yapay Zekâ | `aiBuiltinModel` | Yerleşik model | select | `"qwen2.5-coder-1.5b"` | qwen2.5-coder-1.5b, qwen2.5-coder-7b |
 | Yapay Zekâ | `aiModel` | Model | text | `""` | ≤120 karakter |
@@ -243,6 +250,7 @@
 | [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: çoklu oturum, panel davranışı, istem, renklendirme |
 | [[testing]] | `docs/brain/actions/testing.md` | Değişikliği doğrulamak: tip, derleme, birim ve entegrasyon testleri, uygulamayı çalıştırma |
 | [[ui-design]] | `docs/brain/actions/ui-design.md` | Arayüz, tema, logo ve animasyon değişiklikleri |
+| [[updates]] | `docs/brain/actions/updates.md` | Uygulama güncelleme sistemi: denetle, indir (yüzde), yeniden başlat ve kur; sürüm notları; yayın hattı |
 | [[BRAIN]] | `docs/brain/BRAIN.md` | NovaCode Studio — Proje Beyni |
 | [[DECISIONS]] | `docs/brain/DECISIONS.md` | Karar günlüğü |
 | [[PROJECT]] | `docs/brain/PROJECT.md` | Proje: NovaCode Studio |

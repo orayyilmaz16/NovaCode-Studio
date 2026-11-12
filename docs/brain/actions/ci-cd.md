@@ -18,6 +18,9 @@ triggers: ["ci", "actions", "workflow", "audit", "pipeline", "deploy"]
 - Döngü koruması: aynı hata iki kez tekrarlanırsa dur ve raporla ([[AGENT]] §8).
 - CI yeşil olmadan "yayında" denmez.
 
+## Güncelleyici için yayın dosyaları
+`release-desktop` işi release'e `release/*.exe`, `release/*.blockmap` ve **`release/latest.yml`** yükler; `package.json` → `build.publish` (GitHub) ve `electron:build --publish never` gerekir. `latest.yml` eksikse kurulu uygulamalar güncelleme bulamaz. Ayrıntı: [[updates]].
+
 ## Sorun giderme
 1. `gh run list` / `gh run view <id> --log-failed | tail -n 30`.
 2. Kökü bul, tek düzeltme yap, doğrula. Üç doğrulama turunu aşma.

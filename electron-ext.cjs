@@ -5,7 +5,7 @@
 // - Yalnız https://open-vsx.org (API) ve Eclipse Foundation CDN'i (indirme yönlendirmesi) kullanılır; konak yönlendirme sonrası da denetlenir; kullanıcı verisi gönderilmez.
 // - .vsix diske AÇILMAZ: yalnız gereken girdiler bellekte okunur (zip-slip yok); boyut/girdi sınırları vardır.
 // - Kayıt dosyaları yalnız userData/extensions altına, doğrulanmış kimlikle yazılır.
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const zlib = require('zlib');
@@ -22,24 +22,85 @@ const dir = () => path.join(app.getPath('userData'), 'extensions');
 const fileFor = (id) => path.join(dir(), id + '.json');
 const validId = (ns, name) => ID_PART.test(ns) && ID_PART.test(name) && !ns.includes('..') && !name.includes('..');
 
+// Ağ: Chromium ağ yığını (net.request) kullanılır → sistem proxy ayarlarına, kurumsal sertifikalara ve VPN'e uyar.
+// Node'un düz fetch'i sistem proxy'sini görmez (bazı ağlarda "internet hatası"nın nedeni buydu).
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function classify(e) {
+  const m = String((e && e.message) || e);
+  if (/timeout|aborted|TimeoutError/i.test(m)) return 'timeout';
+  if (/^http-(\d+)/.test(m)) return 'http-' + m.match(/^http-(\d+)/)[1];
+  if (/ERR_INTERNET_DISCONNECTED|ENOTFOUND|ERR_NAME_NOT_RESOLVED|ERR_CONNECTION|ERR_PROXY|ECONN|ENETUNREACH|ERR_NETWORK|fetch failed|net::/i.test(m)) return 'offline';
+  return 'failed';
+}
+
+// GET: net.request ile; her yönlendirme TEK TEK denetlenir (yalnız https + izinli konak). (net.fetch yönlendirme sonrası adresi bildirmez.)
+function httpGet(url, { hosts, timeout = 25000, max = 5 * 1024 * 1024, headers = {} } = {}) {
+  return new Promise((resolve, reject) => {
+    const check = (u) => {
+      const x = new URL(u);
+      if (x.protocol !== 'https:' || x.username || x.password || !hosts.has(x.hostname)) throw new Error('izinsiz-adres');
+    };
+    try { check(url); } catch (e) { return reject(e); }
+    const req = net.request({ url, redirect: 'manual', method: 'GET' });
+    for (const [k, v] of Object.entries(headers)) req.setHeader(k, v);
+    let done = false;
+    const finish = (fn, val) => { if (done) return; done = true; clearTimeout(timer); fn(val); };
+    const timer = setTimeout(() => { try { req.abort(); } catch { /* kapalı */ } finish(reject, new Error('timeout')); }, timeout);
+    let hops = 0;
+    req.on('redirect', (_status, _method, redirectUrl) => {
+      try {
+        if (++hops > 5) throw new Error('cok-yonlendirme');
+        check(redirectUrl);
+        req.followRedirect();
+      } catch (e) { try { req.abort(); } catch { /* kapalı */ } finish(reject, e); }
+    });
+    req.on('response', (res) => {
+      const chunks = [];
+      let size = 0;
+      res.on('data', (c) => {
+        size += c.length;
+        if (size > max) { try { req.abort(); } catch { /* kapalı */ } finish(reject, new Error('cok-buyuk')); return; }
+        chunks.push(c);
+      });
+      res.on('end', () => finish(resolve, { status: res.statusCode, body: Buffer.concat(chunks) }));
+      res.on('error', (e) => finish(reject, e));
+    });
+    req.on('error', (e) => finish(reject, e));
+    req.end();
+  });
+}
+
+// Ağ hatasında bir kez daha dene (HTTP hataları yeniden denenmez)
+async function withRetry(fn, tries = 2) {
+  let last;
+  for (let i = 0; i < tries; i++) {
+    try { return await fn(); } catch (e) {
+      last = e;
+      if (!/timeout|net::|ERR_|ECONN|ENOTFOUND/i.test(String(e && e.message))) break;
+      if (i < tries - 1) await sleep(700);
+    }
+  }
+  throw last;
+}
+
 async function getJson(url) {
-  const res = await fetch(url, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(15000) });
-  if (new URL(res.url).hostname !== HOST) throw new Error('beklenmeyen-konak');
-  if (!res.ok) throw new Error('http-' + res.status);
-  return res.json();
+  const r = await withRetry(() => httpGet(url, { hosts: new Set([HOST]), headers: { accept: 'application/json' }, max: 4 * 1024 * 1024 }));
+  if (r.status < 200 || r.status >= 300) throw new Error('http-' + r.status);
+  return JSON.parse(r.body.toString('utf8'));
+}
+
+async function getText(url, max = 200 * 1024) {
+  const r = await withRetry(() => httpGet(url, { hosts: DOWNLOAD_HOSTS, max: 2 * 1024 * 1024 }), 1);
+  if (r.status < 200 || r.status >= 300) throw new Error('http-' + r.status);
+  return r.body.toString('utf8').slice(0, max);
 }
 
 async function getBuffer(url) {
-  const u = new URL(url);
-  if (u.protocol !== 'https:' || u.hostname !== HOST) throw new Error('izinsiz-adres');
-  const res = await fetch(url, { signal: AbortSignal.timeout(60000) });
-  const fin = new URL(res.url);
-  if (fin.protocol !== 'https:' || !DOWNLOAD_HOSTS.has(fin.hostname) || !res.ok) throw new Error('indirilemedi');
-  const len = Number(res.headers.get('content-length') || 0);
-  if (len > MAX_VSIX) throw new Error('cok-buyuk');
-  const buf = Buffer.from(await res.arrayBuffer());
-  if (buf.length > MAX_VSIX) throw new Error('cok-buyuk');
-  return buf;
+  if (new URL(url).hostname !== HOST) throw new Error('izinsiz-adres');
+  const r = await withRetry(() => httpGet(url, { hosts: DOWNLOAD_HOSTS, timeout: 90000, max: MAX_VSIX }));
+  if (r.status < 200 || r.status >= 300) throw new Error('http-' + r.status);
+  return r.body;
 }
 
 // ---------- Asgari ZIP okuyucu (yalnız bellekte; zip64 desteklenmez) ----------
@@ -215,13 +276,48 @@ function register() {
       const url = `${API}/-/search?query=${encodeURIComponent(q)}&size=20&offset=${offset}&sortBy=downloadCount&sortOrder=desc${cat ? '&category=' + cat : ''}`;
       const j = await getJson(url);
       return { success: true, total: Number(j.totalSize) || 0, items: (Array.isArray(j.extensions) ? j.extensions : []).slice(0, 20).map(mapItem) };
-    } catch { return { success: false, error: 'network', items: [], total: 0 }; }
+    } catch (e) { console.warn('Open VSX arama hatası:', e && e.message); return { success: false, error: classify(e), items: [], total: 0 }; }
+  });
+
+  // VS Code'daki ayrıntı sayfası: açıklama (README), değişiklikler, yayıncı, lisans, kategori, depo
+  ipcMain.handle('ext:details', async (_e, namespace, name) => {
+    try {
+      if (!validId(String(namespace), String(name))) return { success: false, error: 'invalid-id' };
+      const j = await getJson(`${API}/${encodeURIComponent(namespace)}/${encodeURIComponent(name)}`);
+      const f = j.files || {};
+      const safeUrl = (u) => (typeof u === 'string' && u.startsWith('https://') ? u : '');
+      const [readme, changelog] = await Promise.all([
+        f.readme ? getText(f.readme).catch(() => '') : '',
+        f.changelog ? getText(f.changelog).catch(() => '') : ''
+      ]);
+      return {
+        success: true,
+        details: {
+          id: `${namespace}.${name}`,
+          version: String(j.version || ''),
+          displayName: String(j.displayName || name),
+          description: String(j.description || '').slice(0, 500),
+          publisher: String(j.namespace || namespace),
+          license: String(j.license || ''),
+          repository: safeUrl(j.repository),
+          homepage: safeUrl(j.homepage),
+          categories: (Array.isArray(j.categories) ? j.categories : []).map(String).slice(0, 8),
+          tags: (Array.isArray(j.tags) ? j.tags : []).map(String).slice(0, 12),
+          downloads: Number(j.downloadCount) || 0,
+          rating: typeof j.averageRating === 'number' ? j.averageRating : null,
+          reviews: Number(j.reviewCount) || 0,
+          updated: String(j.timestamp || ''),
+          icon: f.icon && String(f.icon).startsWith('https://open-vsx.org/') ? f.icon : '',
+          readme, changelog
+        }
+      };
+    } catch (e) { return { success: false, error: classify(e) }; }
   });
 
   ipcMain.handle('ext:list', () => listInstalled());
 
   ipcMain.handle('ext:install', async (_e, namespace, name) => {
-    try { return await install(String(namespace), String(name)); } catch (err) { return { success: false, error: err && err.message === 'cok-buyuk' ? 'too-big' : 'failed' }; }
+    try { return await install(String(namespace), String(name)); } catch (err) { return { success: false, error: err && err.message === 'cok-buyuk' ? 'too-big' : classify(err) }; }
   });
 
   ipcMain.handle('ext:uninstall', (_e, id) => {

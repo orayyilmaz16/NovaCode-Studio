@@ -13,7 +13,10 @@ Yapay zekâ destekli, VS Code çizgisinde modern kod editörü. **Masaüstü (El
 | **Gerçek zamanlı dosya takibi** | Açılan klasör izlenir: dışarıdan değişen dosyalar ağaçta ve (kaydedilmemişse) açık sekmelerde anında yenilenir. Son açılan klasörler karşılama ekranında. |
 | **Git + GitHub** | GitHub hesabını uygulama içinden bağla (cihaz kodu akışı). Parça parça sahnele/geri al, commit, dal oluştur/geç, eşzamanla (fetch + fast-forward pull + push), Pull Request aç, depoyu GitHub'da yayınla, commit geçmişi, açık PR ve Actions durumu. Hesap bağlı değilken Git verisi kilitli. |
 | **Terminal** | VS Code gibi panel: birden çok terminal (PowerShell/CMD), oturum listesi, büyüt/küçült, satır içi istem (çalışma klasörü + Git dalı), renkli komutlar ve ANSI çıktı, ↑/↓ geçmiş, blok/çubuk imleç. Panel gizliyken oturumlar canlı kalır. |
-| **Önizleme ve AI** | HTML için canlı önizleme; kod açıklama/hata bulma/optimize etme asistanı. |
+| **Yapay zekâ** | Anahtarsız, ücretsiz yerleşik yerel model (ilk kullanımda tek seferlik indirme) + Ollama + Anthropic/OpenAI; Sor ve Ajan modları (onaylı dosya/komut araçları), görsel, dikte. Ayrıntı: `docs/brain/actions/ai-assistant.md`. |
+| **Menü çubuğu ve palet** | Dosya/Düzenle/Seçim/Görünüm/Gezin/Çalıştır/Terminal/Yardım menüleri (kapalı öğeler ipucu verir); `Ctrl+P`, `Ctrl+Shift+P`, `Ctrl+G`, `Ctrl+Shift+F`. Çalıştır menüsü projeyi algılar. |
+| **Eklentiler** | Open VSX mağazası: tema ve snippet eklentileri; ayrıntı sayfası, yükle/güncelle/kaldır (`Ctrl+Shift+X`). |
+| **Güncelleme** | Yardım → Güncellemeleri denetle: GitHub Releases'ten indirme yüzdesiyle güncelleme, sürüm notları, yeniden başlat ve güncelle. Ayrıntı: `docs/brain/actions/updates.md`. |
 | **Ayarlar** | VS Code tarzı tam sayfa ayarlar: arama, kategoriler, canlı editör önizlemesi. Aşağıya bak. |
 | **Ortak düzenleme** | Kendi sunucunda açık kaynak Yjs senkron sunucusu (`server/sync-server.mjs`); token şifreli saklanır. |
 

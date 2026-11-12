@@ -1535,6 +1535,195 @@ export const UI_TEXT = {
   aiErrStuck: {
     tr: "Model bu görevi tamamlayamadı. Daha net yaz, Güçlü modeli ya da Ollama'yı dene.", en: "The model could not complete this task. Be more specific, or try the Strong model or Ollama.", de: "Das Modell konnte die Aufgabe nicht abschließen. Formuliere genauer oder nutze das starke Modell bzw. Ollama.", ru: "Модель не смогла выполнить задачу. Уточни запрос или попробуй мощную модель либо Ollama.", ar: "تعذّر على النموذج إكمال المهمة. كن أكثر تحديداً أو جرّب النموذج القوي أو Ollama.", es: "El modelo no pudo completar la tarea. Sé más específico o prueba el modelo potente u Ollama.", fr: "Le modèle n’a pas pu terminer la tâche. Sois plus précis ou essaie le modèle puissant ou Ollama.", az: "Model bu tapşırığı tamamlaya bilmədi. Daha dəqiq yaz, güclü modeli və ya Ollama-nı sına.",
   },
+  mnHintNoFile: {
+    tr: "Önce bir dosya aç", en: "Open a file first", de: "Öffne zuerst eine Datei", ru: "Сначала открой файл", ar: "افتح ملفاً أولاً", es: "Abre un archivo primero", fr: "Ouvre d’abord un fichier", az: "Əvvəlcə fayl aç",
+  },
+  mnHintNoFolder: {
+    tr: "Önce bir klasör aç", en: "Open a folder first", de: "Öffne zuerst einen Ordner", ru: "Сначала открой папку", ar: "افتح مجلداً أولاً", es: "Abre una carpeta primero", fr: "Ouvre d’abord un dossier", az: "Əvvəlcə qovluq aç",
+  },
+  mnHintTwoTabs: {
+    tr: "En az iki açık sekme gerekir", en: "Needs at least two open tabs", de: "Mindestens zwei geöffnete Tabs nötig", ru: "Нужно минимум две открытые вкладки", ar: "يتطلب تبويبين مفتوحين على الأقل", es: "Se necesitan al menos dos pestañas abiertas", fr: "Au moins deux onglets ouverts requis", az: "Ən azı iki açıq vərəq lazımdır",
+  },
+  mnHintHtml: {
+    tr: "Yalnız HTML dosyalarında kullanılır", en: "Only for HTML files", de: "Nur für HTML-Dateien", ru: "Только для HTML-файлов", ar: "لملفات HTML فقط", es: "Solo para archivos HTML", fr: "Réservé aux fichiers HTML", az: "Yalnız HTML fayllarında",
+  },
+  mnRunProject: {
+    tr: "Proje komutları (önce klasör aç)", en: "Project commands (open a folder first)", de: "Projektbefehle (zuerst Ordner öffnen)", ru: "Команды проекта (сначала открой папку)", ar: "أوامر المشروع (افتح مجلداً أولاً)", es: "Comandos del proyecto (abre una carpeta)", fr: "Commandes du projet (ouvre un dossier)", az: "Layihə komandaları (əvvəlcə qovluq aç)",
+  },
+  mnRunNoProject: {
+    tr: "Bu klasörde tanınan bir proje yok", en: "No recognized project in this folder", de: "Kein erkanntes Projekt in diesem Ordner", ru: "В этой папке нет распознанного проекта", ar: "لا يوجد مشروع معروف في هذا المجلد", es: "No hay un proyecto reconocido en esta carpeta", fr: "Aucun projet reconnu dans ce dossier", az: "Bu qovluqda tanınan layihə yoxdur",
+  },
+  mnCheckUpdates: {
+    tr: "Güncellemeleri denetle…", en: "Check for updates…", de: "Nach Updates suchen…", ru: "Проверить обновления…", ar: "التحقق من التحديثات…", es: "Buscar actualizaciones…", fr: "Rechercher des mises à jour…", az: "Yenilikləri yoxla…",
+  },
+  updTitle: {
+    tr: "Güncelleme", en: "Update", de: "Update", ru: "Обновление", ar: "التحديث", es: "Actualización", fr: "Mise à jour", az: "Yeniləmə",
+  },
+  updTabUpdate: {
+    tr: "Güncelleme", en: "Update", de: "Update", ru: "Обновление", ar: "التحديث", es: "Actualización", fr: "Mise à jour", az: "Yeniləmə",
+  },
+  updTabNotes: {
+    tr: "Sürüm notları", en: "Release notes", de: "Versionshinweise", ru: "Примечания к выпуску", ar: "ملاحظات الإصدار", es: "Notas de la versión", fr: "Notes de version", az: "Buraxılış qeydləri",
+  },
+  updChecking: {
+    tr: "Güncellemeler denetleniyor…", en: "Checking for updates…", de: "Suche nach Updates…", ru: "Проверка обновлений…", ar: "جارٍ التحقق من التحديثات…", es: "Buscando actualizaciones…", fr: "Recherche de mises à jour…", az: "Yeniliklər yoxlanılır…",
+  },
+  updUpToDate: {
+    tr: "NovaCode Studio güncel (v{v})", en: "NovaCode Studio is up to date (v{v})", de: "NovaCode Studio ist aktuell (v{v})", ru: "NovaCode Studio обновлён (v{v})", ar: "NovaCode Studio محدّث (v{v})", es: "NovaCode Studio está actualizado (v{v})", fr: "NovaCode Studio est à jour (v{v})", az: "NovaCode Studio güncəldir (v{v})",
+  },
+  updAvailable: {
+    tr: "Yeni sürüm var: v{v}", en: "A new version is available: v{v}", de: "Neue Version verfügbar: v{v}", ru: "Доступна новая версия: v{v}", ar: "إصدار جديد متاح: v{v}", es: "Hay una nueva versión: v{v}", fr: "Nouvelle version disponible : v{v}", az: "Yeni versiya var: v{v}",
+  },
+  updCurrent: {
+    tr: "Şu anki sürüm: v{v}", en: "Current version: v{v}", de: "Aktuelle Version: v{v}", ru: "Текущая версия: v{v}", ar: "الإصدار الحالي: v{v}", es: "Versión actual: v{v}", fr: "Version actuelle : v{v}", az: "Cari versiya: v{v}",
+  },
+  updDownload: {
+    tr: "İndir ve güncelle", en: "Download and update", de: "Herunterladen und aktualisieren", ru: "Скачать и обновить", ar: "تنزيل وتحديث", es: "Descargar y actualizar", fr: "Télécharger et mettre à jour", az: "Yüklə və yenilə",
+  },
+  updDownloading: {
+    tr: "Güncelleme indiriliyor… %{p}", en: "Downloading update… {p}%", de: "Update wird geladen… {p} %", ru: "Загрузка обновления… {p}%", ar: "جارٍ تنزيل التحديث… {p}%", es: "Descargando actualización… {p}%", fr: "Téléchargement de la mise à jour… {p} %", az: "Yenilik yüklənir… {p}%",
+  },
+  updReady: {
+    tr: "Güncelleme hazır. Yeniden başlatınca kurulur.", en: "The update is ready. It installs when you restart.", de: "Das Update ist bereit. Es wird beim Neustart installiert.", ru: "Обновление готово. Установится при перезапуске.", ar: "التحديث جاهز. سيُثبَّت عند إعادة التشغيل.", es: "La actualización está lista. Se instala al reiniciar.", fr: "La mise à jour est prête. Elle s’installe au redémarrage.", az: "Yenilik hazırdır. Yenidən başladanda quraşdırılır.",
+  },
+  updRestart: {
+    tr: "Yeniden başlat ve güncelle", en: "Restart and update", de: "Neu starten und aktualisieren", ru: "Перезапустить и обновить", ar: "إعادة التشغيل والتحديث", es: "Reiniciar y actualizar", fr: "Redémarrer et mettre à jour", az: "Yenidən başlat və yenilə",
+  },
+  updLater: {
+    tr: "Daha sonra", en: "Later", de: "Später", ru: "Позже", ar: "لاحقاً", es: "Más tarde", fr: "Plus tard", az: "Sonra",
+  },
+  updClose: {
+    tr: "Kapat", en: "Close", de: "Schließen", ru: "Закрыть", ar: "إغلاق", es: "Cerrar", fr: "Fermer", az: "Bağla",
+  },
+  updCheckNow: {
+    tr: "Güncellemeleri denetle", en: "Check for updates", de: "Nach Updates suchen", ru: "Проверить обновления", ar: "التحقق من التحديثات", es: "Buscar actualizaciones", fr: "Rechercher des mises à jour", az: "Yenilikləri yoxla",
+  },
+  updRetry: {
+    tr: "Tekrar dene", en: "Try again", de: "Erneut versuchen", ru: "Повторить", ar: "أعد المحاولة", es: "Reintentar", fr: "Réessayer", az: "Yenidən cəhd et",
+  },
+  updErrNetwork: {
+    tr: "Güncelleme sunucusuna ulaşılamadı. İnternet bağlantını kontrol et.", en: "Could not reach the update server. Check your internet connection.", de: "Update-Server nicht erreichbar. Prüfe deine Internetverbindung.", ru: "Не удалось связаться с сервером обновлений. Проверь интернет.", ar: "تعذّر الوصول إلى خادم التحديث. تحقق من اتصالك بالإنترنت.", es: "No se pudo contactar con el servidor de actualizaciones. Revisa tu conexión.", fr: "Serveur de mise à jour inaccessible. Vérifie ta connexion internet.", az: "Yeniləmə serverinə çatmaq olmadı. İnternet bağlantını yoxla.",
+  },
+  updErrNoRelease: {
+    tr: "Yayınlanmış bir güncelleme dosyası bulunamadı.", en: "No published update file was found.", de: "Es wurde keine veröffentlichte Update-Datei gefunden.", ru: "Опубликованный файл обновления не найден.", ar: "لم يُعثر على ملف تحديث منشور.", es: "No se encontró ningún archivo de actualización publicado.", fr: "Aucun fichier de mise à jour publié n’a été trouvé.", az: "Dərc olunmuş yeniləmə faylı tapılmadı.",
+  },
+  updErrChecksum: {
+    tr: "İndirilen dosya doğrulanamadı (sağlama toplamı). Güncelleme kurulmadı; tekrar dene.", en: "The downloaded file failed verification (checksum). The update was not installed; try again.", de: "Die heruntergeladene Datei konnte nicht verifiziert werden (Prüfsumme). Das Update wurde nicht installiert; versuche es erneut.", ru: "Загруженный файл не прошёл проверку (контрольная сумма). Обновление не установлено; повтори.", ar: "فشل التحقق من الملف المنزَّل (المجموع الاختباري). لم يُثبَّت التحديث؛ حاول مجدداً.", es: "El archivo descargado no pasó la verificación (suma de comprobación). No se instaló; inténtalo de nuevo.", fr: "Le fichier téléchargé n’a pas passé la vérification (somme de contrôle). Mise à jour non installée ; réessaie.", az: "Yüklənən fayl yoxlanılmadı (nəzarət cəmi). Yenilik quraşdırılmadı; yenidən cəhd et.",
+  },
+  updErrFailed: {
+    tr: "Güncelleme tamamlanamadı. Daha sonra tekrar dene.", en: "The update could not be completed. Try again later.", de: "Das Update konnte nicht abgeschlossen werden. Versuche es später erneut.", ru: "Не удалось завершить обновление. Повтори позже.", ar: "تعذّر إكمال التحديث. حاول لاحقاً.", es: "No se pudo completar la actualización. Inténtalo más tarde.", fr: "La mise à jour n’a pas pu aboutir. Réessaie plus tard.", az: "Yeniləmə tamamlana bilmədi. Sonra yenidən cəhd et.",
+  },
+  updUnsupported: {
+    tr: "Geliştirme sürümünde otomatik güncelleme kapalıdır. Kurulu uygulamada çalışır.", en: "Automatic updates are off in development builds. They work in the installed app.", de: "Automatische Updates sind in Entwicklungsbuilds aus. In der installierten App funktionieren sie.", ru: "В сборке для разработки автообновление выключено. В установленном приложении оно работает.", ar: "التحديث التلقائي متوقف في نسخة التطوير. يعمل في التطبيق المثبّت.", es: "Las actualizaciones automáticas están desactivadas en compilaciones de desarrollo. Funcionan en la app instalada.", fr: "Les mises à jour automatiques sont désactivées en développement. Elles fonctionnent dans l’app installée.", az: "Hazırlıq versiyasında avtomatik yeniləmə söndürülüb. Quraşdırılmış tətbiqdə işləyir.",
+  },
+  updNoNotes: {
+    tr: "Bu sürüm için not yok.", en: "No notes for this release.", de: "Keine Hinweise für diese Version.", ru: "Для этого выпуска нет примечаний.", ar: "لا توجد ملاحظات لهذا الإصدار.", es: "No hay notas para esta versión.", fr: "Aucune note pour cette version.", az: "Bu buraxılış üçün qeyd yoxdur.",
+  },
+  updReleasesFailed: {
+    tr: "Sürüm notları alınamadı. İnternet bağlantını kontrol et.", en: "Could not load release notes. Check your internet connection.", de: "Versionshinweise konnten nicht geladen werden. Prüfe deine Internetverbindung.", ru: "Не удалось загрузить примечания. Проверь интернет.", ar: "تعذّر تحميل ملاحظات الإصدار. تحقق من الاتصال.", es: "No se pudieron cargar las notas. Revisa tu conexión.", fr: "Impossible de charger les notes de version. Vérifie ta connexion.", az: "Buraxılış qeydləri yüklənmədi. Bağlantını yoxla.",
+  },
+  updOpenGithub: {
+    tr: "GitHub'da aç", en: "Open on GitHub", de: "Auf GitHub öffnen", ru: "Открыть на GitHub", ar: "فتح على GitHub", es: "Abrir en GitHub", fr: "Ouvrir sur GitHub", az: "GitHub-da aç",
+  },
+  updInstalledTag: {
+    tr: "Kurulu", en: "Installed", de: "Installiert", ru: "Установлена", ar: "مثبّت", es: "Instalada", fr: "Installée", az: "Quraşdırılıb",
+  },
+  updLastChecked: {
+    tr: "Son denetim: {t}", en: "Last checked: {t}", de: "Zuletzt geprüft: {t}", ru: "Проверено: {t}", ar: "آخر تحقق: {t}", es: "Última comprobación: {t}", fr: "Dernière vérification : {t}", az: "Son yoxlama: {t}",
+  },
+  updPrivacy: {
+    tr: "Denetim github.com'a gider (IP adresi ve sürüm bilgisi; kişisel veri gönderilmez). Yalnız sen istediğinde veya \"açılışta denetle\" ayarı açıkken yapılır.", en: "The check contacts github.com (IP address and version info; no personal data is sent). It runs only when you ask or when \"check at startup\" is on.", de: "Die Prüfung kontaktiert github.com (IP-Adresse und Versionsinfo; keine persönlichen Daten). Sie läuft nur auf Wunsch oder bei aktivierter Startprüfung.", ru: "Проверка обращается к github.com (IP-адрес и версия; личные данные не передаются). Выполняется только по запросу или при включённой проверке при запуске.", ar: "يتصل التحقق بـ github.com (عنوان IP ومعلومات الإصدار؛ لا تُرسل بيانات شخصية). يتم فقط عند طلبك أو عند تفعيل التحقق عند البدء.", es: "La comprobación contacta con github.com (IP e información de versión; sin datos personales). Solo se hace si lo pides o si la comprobación al inicio está activa.", fr: "La vérification contacte github.com (IP et version ; aucune donnée personnelle). Elle n’a lieu que sur demande ou si la vérification au démarrage est activée.", az: "Yoxlama github.com ilə əlaqə qurur (IP ünvanı və versiya; şəxsi məlumat göndərilmir). Yalnız istəyəndə və ya \"açılışda yoxla\" açıq olanda edilir.",
+  },
+  updStatusAvail: {
+    tr: "Güncelleme var: v{v}", en: "Update available: v{v}", de: "Update verfügbar: v{v}", ru: "Доступно обновление: v{v}", ar: "تحديث متاح: v{v}", es: "Actualización disponible: v{v}", fr: "Mise à jour disponible : v{v}", az: "Yeniləmə var: v{v}",
+  },
+  updStatusProgress: {
+    tr: "Güncelleme indiriliyor: %{p}", en: "Downloading update: {p}%", de: "Update wird geladen: {p} %", ru: "Загрузка обновления: {p}%", ar: "جارٍ تنزيل التحديث: {p}%", es: "Descargando actualización: {p}%", fr: "Téléchargement de la mise à jour : {p} %", az: "Yenilik yüklənir: {p}%",
+  },
+  updStatusReady: {
+    tr: "Yeniden başlat ve güncelle", en: "Restart to update", de: "Neu starten zum Aktualisieren", ru: "Перезапустить для обновления", ar: "أعد التشغيل للتحديث", es: "Reiniciar para actualizar", fr: "Redémarrer pour mettre à jour", az: "Yeniləmək üçün yenidən başlat",
+  },
+  set_updateAutoCheck: {
+    tr: "Açılışta güncellemeleri denetle", en: "Check for updates at startup", de: "Beim Start nach Updates suchen", ru: "Проверять обновления при запуске", ar: "التحقق من التحديثات عند البدء", es: "Buscar actualizaciones al iniciar", fr: "Rechercher les mises à jour au démarrage", az: "Açılışda yenilikləri yoxla",
+  },
+  setDesc_updateAutoCheck: {
+    tr: "Uygulama açılırken ve 6 saatte bir GitHub'dan yeni sürüm var mı diye bakılır (IP ve sürüm bilgisi gider, kişisel veri gitmez).", en: "On startup and every 6 hours GitHub is asked whether a newer version exists (IP and version info are sent, no personal data).", de: "Beim Start und alle 6 Stunden wird bei GitHub nach einer neueren Version gefragt (IP und Versionsinfo, keine persönlichen Daten).", ru: "При запуске и каждые 6 часов проверяется наличие новой версии на GitHub (передаются IP и версия, личные данные — нет).", ar: "عند البدء وكل 6 ساعات يُسأل GitHub عن إصدار أحدث (يُرسل IP والإصدار دون بيانات شخصية).", es: "Al iniciar y cada 6 horas se consulta a GitHub si hay una versión nueva (se envían IP y versión, sin datos personales).", fr: "Au démarrage et toutes les 6 heures, GitHub est interrogé sur une version plus récente (IP et version, aucune donnée personnelle).", az: "Açılışda və hər 6 saatdan bir GitHub-dan yeni versiya soruşulur (IP və versiya gedir, şəxsi məlumat getmir).",
+  },
+  set_updateAutoDownload: {
+    tr: "Güncellemeyi otomatik indir", en: "Download updates automatically", de: "Updates automatisch laden", ru: "Скачивать обновления автоматически", ar: "تنزيل التحديثات تلقائياً", es: "Descargar actualizaciones automáticamente", fr: "Télécharger les mises à jour automatiquement", az: "Yenilikləri avtomatik yüklə",
+  },
+  setDesc_updateAutoDownload: {
+    tr: "Açıksa yeni sürüm bulununca arka planda indirilir; kurulum yine senin \"Yeniden başlat ve güncelle\" onayınla olur.", en: "If on, a new version is downloaded in the background; installing still needs your \"Restart and update\" confirmation.", de: "Wenn aktiv, wird eine neue Version im Hintergrund geladen; die Installation erfordert weiterhin deine Bestätigung.", ru: "Если включено, новая версия скачивается в фоне; установка по-прежнему требует твоего подтверждения.", ar: "عند التفعيل يُنزَّل الإصدار الجديد في الخلفية؛ ويبقى التثبيت بتأكيدك.", es: "Si está activo, la nueva versión se descarga en segundo plano; instalar sigue requiriendo tu confirmación.", fr: "Si activé, la nouvelle version est téléchargée en arrière-plan ; l’installation demande toujours ta confirmation.", az: "Açıqdırsa yeni versiya arxa planda yüklənir; quraşdırma yenə də sənin təsdiqinlə olur.",
+  },
+  extDetails: {
+    tr: "Eklenti ayrıntıları", en: "Extension details", de: "Erweiterungsdetails", ru: "Сведения о расширении", ar: "تفاصيل الإضافة", es: "Detalles de la extensión", fr: "Détails de l’extension", az: "Əlavə təfərrüatları",
+  },
+  extBack: {
+    tr: "Geri", en: "Back", de: "Zurück", ru: "Назад", ar: "رجوع", es: "Atrás", fr: "Retour", az: "Geri",
+  },
+  extReadme: {
+    tr: "Açıklama", en: "Details", de: "Beschreibung", ru: "Описание", ar: "الوصف", es: "Descripción", fr: "Description", az: "Təsvir",
+  },
+  extChangelog: {
+    tr: "Değişiklikler", en: "Changelog", de: "Änderungen", ru: "Изменения", ar: "التغييرات", es: "Cambios", fr: "Changements", az: "Dəyişikliklər",
+  },
+  extPublisher: {
+    tr: "Yayıncı", en: "Publisher", de: "Herausgeber", ru: "Издатель", ar: "الناشر", es: "Editor", fr: "Éditeur", az: "Naşir",
+  },
+  extLicense: {
+    tr: "Lisans", en: "License", de: "Lizenz", ru: "Лицензия", ar: "الترخيص", es: "Licencia", fr: "Licence", az: "Lisenziya",
+  },
+  extRepository: {
+    tr: "Depo", en: "Repository", de: "Repository", ru: "Репозиторий", ar: "المستودع", es: "Repositorio", fr: "Dépôt", az: "Depo",
+  },
+  extCategories: {
+    tr: "Kategoriler", en: "Categories", de: "Kategorien", ru: "Категории", ar: "الفئات", es: "Categorías", fr: "Catégories", az: "Kateqoriyalar",
+  },
+  extVersion: {
+    tr: "Sürüm", en: "Version", de: "Version", ru: "Версия", ar: "الإصدار", es: "Versión", fr: "Version", az: "Versiya",
+  },
+  extDownloadsLabel: {
+    tr: "İndirme", en: "Downloads", de: "Downloads", ru: "Загрузки", ar: "التنزيلات", es: "Descargas", fr: "Téléchargements", az: "Yükləmə",
+  },
+  extRatingLabel: {
+    tr: "Puan", en: "Rating", de: "Bewertung", ru: "Оценка", ar: "التقييم", es: "Valoración", fr: "Note", az: "Reytinq",
+  },
+  extUpdated: {
+    tr: "Güncelleme", en: "Last updated", de: "Aktualisiert", ru: "Обновлено", ar: "آخر تحديث", es: "Actualizado", fr: "Mis à jour", az: "Yenilənib",
+  },
+  extNoReadme: {
+    tr: "Bu eklenti için açıklama yok.", en: "This extension has no description.", de: "Für diese Erweiterung gibt es keine Beschreibung.", ru: "У этого расширения нет описания.", ar: "لا يوجد وصف لهذه الإضافة.", es: "Esta extensión no tiene descripción.", fr: "Cette extension n’a pas de description.", az: "Bu əlavə üçün təsvir yoxdur.",
+  },
+  extOffline: {
+    tr: "Open VSX'e ulaşılamadı. İnternet bağlantını, proxy/VPN ayarlarını ve güvenlik duvarını kontrol et.", en: "Could not reach Open VSX. Check your internet connection, proxy/VPN settings and firewall.", de: "Open VSX nicht erreichbar. Prüfe Internetverbindung, Proxy/VPN und Firewall.", ru: "Не удалось подключиться к Open VSX. Проверь интернет, прокси/VPN и брандмауэр.", ar: "تعذّر الوصول إلى Open VSX. تحقق من الإنترنت وإعدادات الوكيل/VPN وجدار الحماية.", es: "No se pudo conectar con Open VSX. Revisa tu conexión, el proxy/VPN y el cortafuegos.", fr: "Open VSX est inaccessible. Vérifie ta connexion, le proxy/VPN et le pare-feu.", az: "Open VSX-ə çatmaq olmadı. İnternet, proxy/VPN və firewall-u yoxla.",
+  },
+  extTimeout: {
+    tr: "Open VSX zamanında yanıt vermedi. Biraz sonra tekrar dene.", en: "Open VSX did not respond in time. Try again shortly.", de: "Open VSX hat nicht rechtzeitig geantwortet. Versuche es gleich erneut.", ru: "Open VSX не ответил вовремя. Повтори чуть позже.", ar: "لم يستجب Open VSX في الوقت المناسب. حاول بعد قليل.", es: "Open VSX no respondió a tiempo. Inténtalo en un momento.", fr: "Open VSX n’a pas répondu à temps. Réessaie dans un instant.", az: "Open VSX vaxtında cavab vermədi. Bir az sonra yenidən cəhd et.",
+  },
+  extHttp: {
+    tr: "Open VSX hata döndürdü (kod {c}). Daha sonra tekrar dene.", en: "Open VSX returned an error (code {c}). Try again later.", de: "Open VSX meldete einen Fehler (Code {c}). Versuche es später erneut.", ru: "Open VSX вернул ошибку (код {c}). Повтори позже.", ar: "أعاد Open VSX خطأً (الرمز {c}). حاول لاحقاً.", es: "Open VSX devolvió un error (código {c}). Inténtalo más tarde.", fr: "Open VSX a renvoyé une erreur (code {c}). Réessaie plus tard.", az: "Open VSX xəta qaytardı (kod {c}). Sonra yenidən cəhd et.",
+  },
+  edDownload: {
+    tr: "Dosyayı indir", en: "Download file", de: "Datei herunterladen", ru: "Скачать файл", ar: "تنزيل الملف", es: "Descargar archivo", fr: "Télécharger le fichier", az: "Faylı yüklə",
+  },
+  edRunPreview: {
+    tr: "Kodu çalıştır / önizle", en: "Run code / preview", de: "Code ausführen / Vorschau", ru: "Запустить код / предпросмотр", ar: "تشغيل الشيفرة / معاينة", es: "Ejecutar código / vista previa", fr: "Exécuter le code / aperçu", az: "Kodu işlət / önizlə",
+  },
+  edCollabTitle: {
+    tr: "Ortak düzenleme durumu", en: "Collaboration status", de: "Status der Zusammenarbeit", ru: "Состояние совместной работы", ar: "حالة التحرير المشترك", es: "Estado de colaboración", fr: "État de la collaboration", az: "Birgə redaktə vəziyyəti",
+  },
+  edCollabOn: {
+    tr: "Bağlı", en: "Connected", de: "Verbunden", ru: "Подключено", ar: "متصل", es: "Conectado", fr: "Connecté", az: "Qoşulub",
+  },
+  edCollabErr: {
+    tr: "Bağlantı hatası", en: "Connection error", de: "Verbindungsfehler", ru: "Ошибка соединения", ar: "خطأ في الاتصال", es: "Error de conexión", fr: "Erreur de connexion", az: "Bağlantı xətası",
+  },
+  edCollabConnecting: {
+    tr: "Bağlanıyor", en: "Connecting", de: "Verbinde", ru: "Подключение", ar: "جارٍ الاتصال", es: "Conectando", fr: "Connexion", az: "Qoşulur",
+  },
+  edCollabOff: {
+    tr: "Kapalı", en: "Off", de: "Aus", ru: "Выкл.", ar: "متوقف", es: "Apagado", fr: "Désactivé", az: "Söndürülüb",
+  },
 } satisfies Record<string, Dict>;
 
 export type UiTextKey = keyof typeof UI_TEXT;

@@ -147,6 +147,9 @@ jobs:
           name: NovaCode Studio v${{ needs.version.outputs.version }}
           body_path: release-notes/v${{ needs.version.outputs.version }}.md
           generate_release_notes: false
-          files: release/*.exe
+          files: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

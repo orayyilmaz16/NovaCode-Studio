@@ -23,5 +23,8 @@ triggers: ["test", "doğrula", "build", "tsc"]
 - **Canlı ayar testi:** DevTools protokolüyle ayarı değiştir (React uyumlu: `HTMLSelectElement.prototype.value` setter + `change` olayı), sonra etkisini ölç: `document.documentElement.dataset.theme`, CSS değişkeni, `monaco.editor.getEditors()[n].getRawOptions()`.
 - Görsel doğrulamada yalnız uygulamanın kendi içeriğini yakala (DevTools `Page.captureScreenshot`); ekran yakalama başka pencereleri içerebilir.
 
+## Arayüz doğrulama (ekran görüntüsü + ölçüm)
+Ayrı profille Electron: `NOVA_HEADLESS=1 npx electron . --remote-debugging-port=<p> --user-data-dir=<tmp> --disable-features=CalculateNativeWinOcclusion --disable-backgrounding-occluded-windows --disable-renderer-backgrounding` (ekran dışı pencere bu bayraklar olmadan çizilmez). `ws` paketiyle CDP'ye bağlan: `Emulation.setDeviceMetricsOverride` (1360×860, 980×660, 720×600), `Page.captureScreenshot`, `Runtime.evaluate`. Taşma ölçümü: kök kaptan `scrollWidth/clientWidth` ve `scrollHeight/clientHeight`. Yalnız uygulamanın kendi sayfası görüntülenir. Klasör açmak için profilin `recent-folders.json` dosyasına yol yaz ve karşılama sayfasındaki öğeye tıkla. Güncelleme akışı için sahte besleme: [[updates]].
+
 ## Çıktı
 Sonucu [[AGENT]] **Durum**'a tek satır yaz (ne doğrulandı, ne doğrulanamadı).

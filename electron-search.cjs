@@ -59,7 +59,35 @@ async function searchText(root, { query, regex = false, caseSensitive = false, m
   return { results, truncated };
 }
 
+// Çalışma alanı türü (Çalıştır menüsü için): package.json betikleri ve proje dosyaları
+function detectWorkspace(root) {
+  const has = (f) => fs.existsSync(path.join(root, f));
+  const kinds = [];
+  let scripts = [];
+  if (has('package.json')) {
+    kinds.push('node');
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+      scripts = Object.keys(pkg.scripts || {}).filter((n) => /^[\w:.-]{1,40}$/.test(n)).slice(0, 30);
+    } catch { /* bozuk package.json */ }
+  }
+  if (has('go.mod')) kinds.push('go');
+  if (has('Cargo.toml')) kinds.push('rust');
+  if (has('composer.json')) kinds.push('php');
+  if (has('pom.xml') || has('build.gradle') || has('build.gradle.kts')) kinds.push('java');
+  if (has('pyproject.toml') || has('requirements.txt') || has('main.py') || has('app.py')) kinds.push('python');
+  try { if (fs.readdirSync(root).some((f) => /\.(csproj|sln)$/i.test(f))) kinds.push('dotnet'); } catch { /* okunamadı */ }
+  if (has('Makefile')) kinds.push('make');
+  if (has('docker-compose.yml') || has('docker-compose.yaml')) kinds.push('docker');
+  const pm = has('pnpm-lock.yaml') ? 'pnpm' : has('yarn.lock') ? 'yarn' : has('bun.lockb') || has('bun.lock') ? 'bun' : 'npm';
+  return { pm, scripts, kinds };
+}
+
 function register({ getRoot }) {
+  ipcMain.handle('workspace:detect', () => {
+    const root = getRoot();
+    return root ? detectWorkspace(root) : { pm: 'npm', scripts: [], kinds: [] };
+  });
   ipcMain.handle('search:files', async () => {
     const root = getRoot();
     return root ? { root, files: await listFiles(root) } : { root: '', files: [] };

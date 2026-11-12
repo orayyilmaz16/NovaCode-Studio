@@ -179,10 +179,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   })();
 
   return (
-    <div className="flex flex-col flex-1 h-full bg-nv-editor overflow-hidden">
+    <div className="@container flex flex-col flex-1 h-full min-w-0 bg-nv-editor overflow-hidden">
       {/* Sekme çubuğu */}
       <div className="flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[35px] select-none">
-        <div role="tablist" className="flex items-stretch min-w-0 overflow-x-auto [scrollbar-width:none]">
+        <div role="tablist" className="flex items-stretch flex-1 min-w-0 overflow-x-auto [scrollbar-width:none]">
           {openFiles.map((file) => {
             const isActive = file.id === activeFileId;
             return (
@@ -244,10 +244,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
         {/* Eylem düğmeleri */}
         {activeFile && (
-          <div className="flex items-center gap-0.5 pl-3 pr-2 shrink-0">
+          <div className="flex items-center gap-0.5 pl-2 @md:pl-3 pr-2 shrink-0">
             {collab?.enabled && (
               <span
-                title="Ortak düzenleme durumu"
+                title={t('edCollabTitle')}
                 className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded mr-1 ${
                   collabStatus === 'synced'
                     ? 'text-emerald-300 bg-emerald-500/10'
@@ -257,27 +257,28 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                 }`}
               >
                 <Users size={11} />
-                {collabStatus === 'synced' ? 'Bağlı' : collabStatus === 'error' ? 'Bağlantı hatası' : collabStatus === 'connecting' ? 'Bağlanıyor' : 'Kapalı'}
+                <span className="hidden @lg:inline whitespace-nowrap">{collabStatus === 'synced' ? t('edCollabOn') : collabStatus === 'error' ? t('edCollabErr') : collabStatus === 'connecting' ? t('edCollabConnecting') : t('edCollabOff')}</span>
               </span>
             )}
             {onSaveFile && (
-              <button onClick={handleSave} title="Dosyayı Kaydet (Ctrl+S)" aria-label="Kaydet" className="icon-btn">
+              <button onClick={handleSave} title={`${t('cmdSave')} (Ctrl+S)`} aria-label={t('cmdSave')} className="icon-btn">
                 {savedEffect ? <Check size={15} className="text-emerald-400" /> : <Save size={15} />}
               </button>
             )}
-            <button onClick={handleCopy} title="Kodu Kopyala" aria-label="Kodu Kopyala" className="icon-btn">
+            <button onClick={handleCopy} title={t('mnCopy')} aria-label={t('mnCopy')} className="icon-btn hidden @md:flex">
               {copied ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
             </button>
-            <button onClick={handleDownload} title="Dosyayı İndir" aria-label="Dosyayı İndir" className="icon-btn">
+            <button onClick={handleDownload} title={t('edDownload')} aria-label={t('edDownload')} className="icon-btn hidden @md:flex">
               <Download size={15} />
             </button>
             <button
               onClick={onRunCode}
-              title="Kodu Çalıştır / Önizle"
-              className="ml-1 flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 h-6 rounded text-xs font-medium transition-colors cursor-pointer"
+              title={t('edRunPreview')}
+              aria-label={t('edRunPreview')}
+              className="ml-1 flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-2 @md:px-2.5 h-6 rounded text-xs font-medium whitespace-nowrap transition-colors cursor-pointer"
             >
               <Play size={11} className="fill-white" />
-              <span>Çalıştır</span>
+              <span className="hidden @md:inline">{t('mnRun')}</span>
             </button>
           </div>
         )}

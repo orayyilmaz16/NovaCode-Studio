@@ -23,8 +23,14 @@ Kenar çubuğunda **Eklentiler** (`Ctrl+Shift+X`, yapboz simgesi). İki sekme: *
 | Arayüz | `src/components/ExtensionsPanel.tsx` | Mağaza/yüklü listeleri |
 | Tema bağı | ayar `extTheme` (gizli), `EditorArea.tsx` | Etkin eklenti teması; yerleşik tema seçilince (`editorTheme`) temizlenir |
 
+## Ağ ve hata ayıklama
+- İstekler `net.request` ile yapılır (Chromium ağ yığını): **sistem proxy'si, VPN ve kurumsal sertifikalara uyar** (Node düz `fetch`'i proxy'yi görmez; bazı ağlarda "internet hatası"nın nedeni buydu). Her yönlendirme tek tek denetlenir (`httpGet`); `net.fetch` yönlendirme sonrası adresi bildirmediği için kullanılmaz.
+- Ağ hatasında bir kez yeniden denenir. Hata türleri arayüzde ayrılır: `offline` (internet/proxy/güvenlik duvarı), `timeout`, `http-<kod>`, `failed`; mağazada **Tekrar dene** düğmesi vardır. Günlükte (`Open VSX arama hatası:`) gerçek ileti görünür.
+- **Ayrıntı sayfası:** bir eklentiye tıklayınca VS Code'daki gibi açıklama (README), değişiklikler (changelog), yayıncı, sürüm, indirme, puan, lisans, kategori, depo bağlantısı, yükle/güncelle/kaldır ve tema uygula (`ext:details`; `Markdown.tsx` güvenli çizer).
+- **VS Code Marketplace (marketplace.visualstudio.com) kullanılmaz:** hizmet şartları yalnız Microsoft ürünlerine izin verir. Open VSX aynı eklentilerin çoğunu açık ve izinli sunar.
+
 ## Güvenlik ve KVKK
-- Yalnız `https://open-vsx.org` (API) ve indirme yönlendirmesi için `openvsx.eclipsecontent.org`; yönlendirme sonrası konak denetlenir. İstekte kişisel veri yok (arama sözcüğü ve IP hariç; Eclipse Foundation, AB/ABD altyapısı).
+- Yalnız `https://open-vsx.org` (API) ve indirme yönlendirmesi için `openvsx.eclipsecontent.org`; her yönlendirme adımında konak denetlenir. İstekte kişisel veri yok (arama sözcüğü ve IP hariç; Eclipse Foundation, AB/ABD altyapısı).
 - `.vsix` diske **açılmaz**; yalnız gereken girdiler bellekte okunur (zip-slip yok). Sınırlar: 30 MB paket, 5 MB girdi, 5000 girdi, 12 tema, 40 snippet dosyası.
 - Kimlik doğrulaması (`/^[A-Za-z0-9_.-]{1,80}$/`, `..` yok), kayıt yolu yalnız `userData/extensions`.
 - Renk değerleri `#RGB/#RRGGBB(AA)` regex'iyle süzülür.

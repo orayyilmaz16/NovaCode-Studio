@@ -21,7 +21,13 @@ export const MenuBar: React.FC<{ menus: MenuGroup[] }> = ({ menus }) => {
   const current = open ? menus.find((m) => m.id === open.id) : undefined;
 
   return (
-    <nav aria-label="Menu" className="app-no-drag flex items-center h-full pl-1 min-w-0">
+    <nav
+      aria-label="Menu"
+      className="no-scrollbar app-no-drag flex items-center h-full pl-1 min-w-0 shrink overflow-x-auto overflow-y-hidden"
+      // Dar pencerede başlıklar yatay kayar (fare tekerleği de yatay çevrilir)
+      onWheel={(e) => { if (e.deltaY) e.currentTarget.scrollLeft += e.deltaY; }}
+      onScroll={() => setOpen(null)}
+    >
       {menus.map((m) => (
         <button
           key={m.id}
@@ -35,7 +41,7 @@ export const MenuBar: React.FC<{ menus: MenuGroup[] }> = ({ menus }) => {
             openFor(m.id, e.currentTarget);
           }}
           onMouseEnter={(e) => { if (open && open.id !== m.id) openFor(m.id, e.currentTarget); }}
-          className={`h-6 px-2 rounded text-[12px] whitespace-nowrap transition-colors ${
+          className={`h-6 px-2 rounded text-[12px] whitespace-nowrap shrink-0 transition-colors ${
             open?.id === m.id ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
           }`}
         >

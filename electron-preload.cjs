@@ -16,6 +16,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     files: () => ipcRenderer.invoke('search:files'),
     text: (opts) => ipcRenderer.invoke('search:text', opts)
   },
+  update: {
+    state: () => ipcRenderer.invoke('update:state'),
+    check: (opts) => ipcRenderer.invoke('update:check', opts),
+    download: () => ipcRenderer.invoke('update:download'),
+    install: () => ipcRenderer.invoke('update:install'),
+    releases: () => ipcRenderer.invoke('update:releases'),
+    onState: (callback) => {
+      const listener = (_event, data) => callback(data);
+      ipcRenderer.on('update:state', listener);
+      return () => ipcRenderer.removeListener('update:state', listener);
+    }
+  },
+  openLink: (url) => ipcRenderer.invoke('app:openLink', url),
+  detectWorkspace: () => ipcRenderer.invoke('workspace:detect'),
   llm: {
     status: () => ipcRenderer.invoke('llm:status'),
     download: (id) => ipcRenderer.invoke('llm:download', id),
@@ -30,6 +44,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   ext: {
     search: (opts) => ipcRenderer.invoke('ext:search', opts),
     list: () => ipcRenderer.invoke('ext:list'),
+    details: (namespace, name) => ipcRenderer.invoke('ext:details', namespace, name),
     install: (namespace, name) => ipcRenderer.invoke('ext:install', namespace, name),
     uninstall: (id) => ipcRenderer.invoke('ext:uninstall', id),
     checkUpdates: () => ipcRenderer.invoke('ext:checkUpdates')
