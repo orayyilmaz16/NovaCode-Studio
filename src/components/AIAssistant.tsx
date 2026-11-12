@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Bot, Check, ChevronDown, ChevronRight, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Plus,
+  Bot, Check, ChevronDown, ChevronRight, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
   Settings as Cog, ShieldCheck, Sparkles, Square, Terminal as TermIcon, Trash2, Wrench, X, ArrowUp, Zap
 } from 'lucide-react';
 import { t, getUiLang } from '../i18n/uiText';
@@ -8,9 +8,10 @@ import { useSettings } from '../services/SettingsContext';
 import { getSelectedText, replaceSelection } from '../services/editorBridge';
 import { useDictation } from '../services/useDictation';
 import {
-  DEFAULT_MODEL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, saveSessions, splitParts, titleFrom, uid,
+  DEFAULT_MODEL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartTitle, splitParts, titleFrom, uid,
   type AiSession, type ChatMsg, type ToolCard
 } from '../services/aiClient';
+import { ChatSessions } from './ChatSessions';
 import type { AiEvent, AiProvider, LlmModelInfo, LlmProgress } from '../types';
 
 interface AIAssistantProps {
@@ -96,6 +97,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   });
   const [activeId, setActiveId] = useState<string>(() => sessions[0]?.id);
   const session = sessions.find((s) => s.id === activeId) ?? sessions[0];
+  const [renameId, setRenameId] = useState<string | null>(null);
+  const fileHintRef = useRef<string | undefined>(undefined);
+  fileHintRef.current = activeFile?.name;
   const [input, setInput] = useState('');
   const [images, setImages] = useState<Image[]>([]);
   const [busy, setBusy] = useState(false);
@@ -183,6 +187,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         setBusy(false);
       } else if (ev.type === 'done') {
         patchMsg(sessionId, msgId, (m) => ({ ...m, streaming: false, usage: ev.usage && (ev.usage.in || ev.usage.out) ? ev.usage : undefined }));
+        // Otomatik ad: ilk yanıttan sonra konu/dosya/dil bilgisiyle bir kez incelt (kullanıcı adı elle verdiyse dokunma; yerelde, veri gitmez)
+        setSessions((all) => all.map((s) => {
+          if (s.id !== sessionId || s.titleLocked || (s.autoLevel ?? 0) >= 2) return s;
+          const better = refineTitle(s, fileHintRef.current);
+          return { ...s, title: better || s.title, autoLevel: 2 };
+        }));
         runRef.current = null;
         setBusy(false);
       }
@@ -210,12 +220,41 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     setImages([]);
   };
 
-  const deleteSession = () => {
-    if (busy) return;
-    const rest = sessions.filter((s) => s.id !== session.id);
+  const deleteById = (id: string) => {
+    if (runRef.current?.sessionId === id) return; // yanıtı akan sohbet silinmez
+    const rest = sessions.filter((s) => s.id !== id);
     if (!rest.length) { const s = newSession('ask'); setSessions([s]); setActiveId(s.id); return; }
     setSessions(rest);
-    setActiveId(rest[0].id);
+    if (id === session.id) setActiveId([...rest].sort((a, b) => b.updatedAt - a.updatedAt)[0].id);
+  };
+  const deleteSession = () => { if (!busy) deleteById(session.id); };
+
+  // Ad: boş bırakılırsa otomatik adlandırma geri döner; dolu ise kilitlenir (otomatik ad bir daha dokunmaz)
+  const renameSession = (id: string, title: string) => {
+    setRenameId(null);
+    setSessions((all) => all.map((s) => {
+      if (s.id !== id) return s;
+      if (title) return { ...s, title, titleLocked: true };
+      const first = s.messages.find((m) => m.role === 'user')?.text ?? '';
+      return { ...s, title: first ? smartTitle(first, fileHintRef.current) || titleFrom(first) : '', titleLocked: false, autoLevel: first ? 1 : 0 };
+    }));
+  };
+  const pinSession = (id: string) => setSessions((all) => all.map((s) => (s.id === id ? { ...s, pinned: !s.pinned } : s)));
+  const clearUnpinned = () => {
+    if (busy) return;
+    setSessions((all) => all.filter((s) => s.pinned || s.id === session.id));
+  };
+  const exportSession = (id: string) => {
+    const s = sessions.find((x) => x.id === id);
+    if (!s) return;
+    const md = sessionToMarkdown(s, t('aiYou'), 'Nova');
+    const url = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8' }));
+    const a = document.createElement('a');
+    const slug = (s.title || 'chat').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'chat';
+    a.href = url;
+    a.download = `${slug}.md`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const buildContext = (): string => {
@@ -250,7 +289,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     const runId = uid();
     runRef.current = { runId, sessionId: session.id, msgId: botMsg.id };
     stick.current = true;
-    setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, title: s.title || titleFrom(userMsg.text), updatedAt: Date.now(), messages: [...history, botMsg] })));
+    setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, ...(s.title || s.titleLocked ? {} : { title: smartTitle(userMsg.text, fileHintRef.current) || titleFrom(userMsg.text), autoLevel: 1 as const }), updatedAt: Date.now(), messages: [...history, botMsg] })));
     const sent = provider === 'builtin' ? [] : images; // yerleşik model görsel okuyamaz
     setInput('');
     setImages([]);
@@ -330,21 +369,25 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
 
   return (
     <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden bg-nv-side border-l border-nv-border text-zinc-300">
-      {/* Başlık: oturum + eylemler */}
-      <div className="flex items-center gap-1 px-2 h-10 border-b border-nv-border shrink-0">
+      {/* Başlık: sohbet seçici + eylemler */}
+      <div className="relative flex items-center gap-1 px-2 h-10 border-b border-nv-border shrink-0">
         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0"><Sparkles size={13} className="text-white" /></div>
-        <div className="relative min-w-0 flex-1">
-          <select
-            value={session?.id}
-            onChange={(e) => !busy && setActiveId(e.target.value)}
-            aria-label={t('aiSessions')}
-            className="w-full appearance-none bg-transparent text-[12.5px] font-medium text-zinc-100 outline-none truncate pl-1 pr-5 h-7 cursor-pointer"
-          >
-            {sessions.map((s) => <option key={s.id} value={s.id} className="bg-zinc-800">{s.title || t('aiNewSession')}</option>)}
-          </select>
-          <ChevronDown size={12} className="absolute right-1 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
-        </div>
+        <ChatSessions
+          sessions={sessions}
+          activeId={session?.id}
+          busy={busy}
+          busyId={busy ? runRef.current?.sessionId : null}
+          renameId={renameId}
+          setRenameId={setRenameId}
+          onSelect={(id) => !busy && setActiveId(id)}
+          onRename={renameSession}
+          onPin={pinSession}
+          onDelete={deleteById}
+          onExport={exportSession}
+          onClearUnpinned={clearUnpinned}
+        />
         <button className={icoBtn} onClick={startNew} title={t('aiNewSession')} aria-label={t('aiNewSession')}><Plus size={15} /></button>
+        <button className={icoBtn} onClick={() => setRenameId(session.id)} title={t('aiRename')} aria-label={t('aiRename')}><Pencil size={14} /></button>
         <button className={icoBtn} onClick={deleteSession} disabled={busy} title={t('aiDeleteSession')} aria-label={t('aiDeleteSession')}><Trash2 size={14} /></button>
         <button className={icoBtn} onClick={onOpenSettings} title={t('aiOpenSettings')} aria-label={t('aiOpenSettings')}><Cog size={15} /></button>
       </div>

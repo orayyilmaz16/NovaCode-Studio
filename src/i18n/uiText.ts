@@ -984,13 +984,13 @@ export const UI_TEXT = {
     tr: "Nova AI", en: "Nova AI", de: "Nova KI", ru: "Nova ИИ", ar: "Nova AI", es: "Nova IA", fr: "Nova IA", az: "Nova AI",
   },
   aiSessions: {
-    tr: "Oturumlar", en: "Sessions", de: "Sitzungen", ru: "Сессии", ar: "الجلسات", es: "Sesiones", fr: "Sessions", az: "Sessiyalar",
+    tr: "Sohbetler", en: "Chats", de: "Chats", ru: "Чаты", ar: "المحادثات", es: "Chats", fr: "Chats", az: "Söhbətlər",
   },
   aiNewSession: {
-    tr: "Yeni oturum", en: "New session", de: "Neue Sitzung", ru: "Новая сессия", ar: "جلسة جديدة", es: "Nueva sesión", fr: "Nouvelle session", az: "Yeni sessiya",
+    tr: "Yeni sohbet", en: "New chat", de: "Neuer Chat", ru: "Новый чат", ar: "محادثة جديدة", es: "Nuevo chat", fr: "Nouveau chat", az: "Yeni söhbət",
   },
   aiDeleteSession: {
-    tr: "Oturumu sil", en: "Delete session", de: "Sitzung löschen", ru: "Удалить сессию", ar: "حذف الجلسة", es: "Eliminar sesión", fr: "Supprimer la session", az: "Sessiyanı sil",
+    tr: "Sohbeti sil", en: "Delete chat", de: "Chat löschen", ru: "Удалить чат", ar: "حذف المحادثة", es: "Eliminar chat", fr: "Supprimer le chat", az: "Söhbəti sil",
   },
   aiOpenSettings: {
     tr: "Yapay zekâ ayarları", en: "AI settings", de: "KI-Einstellungen", ru: "Настройки ИИ", ar: "إعدادات الذكاء الاصطناعي", es: "Ajustes de IA", fr: "Paramètres IA", az: "Süni intellekt ayarları",
@@ -1492,6 +1492,57 @@ export const UI_TEXT = {
   },
   updClose: {
     tr: "Kapat", en: "Close", de: "Schließen", ru: "Закрыть", ar: "إغلاق", es: "Cerrar", fr: "Fermer", az: "Bağla",
+  },
+  aiSessionSearch: {
+    tr: "Sohbetlerde ara…", en: "Search chats…", de: "Chats durchsuchen…", ru: "Поиск по чатам…", ar: "ابحث في المحادثات…", es: "Buscar chats…", fr: "Rechercher dans les chats…", az: "Söhbətlərdə axtar…",
+  },
+  aiSessionNone: {
+    tr: "Eşleşen sohbet yok", en: "No matching chats", de: "Keine passenden Chats", ru: "Чаты не найдены", ar: "لا توجد محادثات مطابقة", es: "No hay chats que coincidan", fr: "Aucun chat correspondant", az: "Uyğun söhbət yoxdur",
+  },
+  aiGroupPinned: {
+    tr: "Sabitlenenler", en: "Pinned", de: "Angeheftet", ru: "Закреплённые", ar: "المثبّتة", es: "Fijados", fr: "Épinglés", az: "Sancılanlar",
+  },
+  aiGroupToday: {
+    tr: "Bugün", en: "Today", de: "Heute", ru: "Сегодня", ar: "اليوم", es: "Hoy", fr: "Aujourd’hui", az: "Bu gün",
+  },
+  aiGroupYesterday: {
+    tr: "Dün", en: "Yesterday", de: "Gestern", ru: "Вчера", ar: "أمس", es: "Ayer", fr: "Hier", az: "Dünən",
+  },
+  aiGroupWeek: {
+    tr: "Bu hafta", en: "This week", de: "Diese Woche", ru: "На этой неделе", ar: "هذا الأسبوع", es: "Esta semana", fr: "Cette semaine", az: "Bu həftə",
+  },
+  aiGroupOlder: {
+    tr: "Daha eski", en: "Older", de: "Älter", ru: "Ранее", ar: "أقدم", es: "Anteriores", fr: "Plus ancien", az: "Daha köhnə",
+  },
+  aiRename: {
+    tr: "Yeniden adlandır", en: "Rename", de: "Umbenennen", ru: "Переименовать", ar: "إعادة تسمية", es: "Renombrar", fr: "Renommer", az: "Adını dəyiş",
+  },
+  aiRenamePlaceholder: {
+    tr: "Sohbet adı (boşsa otomatik)", en: "Chat name (empty = auto)", de: "Chat-Name (leer = automatisch)", ru: "Название чата (пусто = авто)", ar: "اسم المحادثة (فارغ = تلقائي)", es: "Nombre del chat (vacío = automático)", fr: "Nom du chat (vide = auto)", az: "Söhbət adı (boş = avtomatik)",
+  },
+  aiPin: {
+    tr: "Sabitle", en: "Pin", de: "Anheften", ru: "Закрепить", ar: "تثبيت", es: "Fijar", fr: "Épingler", az: "Sancı",
+  },
+  aiUnpin: {
+    tr: "Sabitlemeyi kaldır", en: "Unpin", de: "Lösen", ru: "Открепить", ar: "إلغاء التثبيت", es: "Desfijar", fr: "Désépingler", az: "Sancını qaldır",
+  },
+  aiExport: {
+    tr: "Markdown olarak dışa aktar", en: "Export as Markdown", de: "Als Markdown exportieren", ru: "Экспорт в Markdown", ar: "تصدير بصيغة Markdown", es: "Exportar como Markdown", fr: "Exporter en Markdown", az: "Markdown kimi ixrac et",
+  },
+  aiConfirmDelete: {
+    tr: "Silinsin mi?", en: "Delete?", de: "Löschen?", ru: "Удалить?", ar: "حذف؟", es: "¿Eliminar?", fr: "Supprimer ?", az: "Silinsin?",
+  },
+  aiMsgCount: {
+    tr: "{n} ileti", en: "{n} messages", de: "{n} Nachrichten", ru: "сообщений: {n}", ar: "{n} رسائل", es: "{n} mensajes", fr: "{n} messages", az: "{n} mesaj",
+  },
+  aiClearUnpinned: {
+    tr: "Sabitlenmemişleri sil", en: "Delete unpinned chats", de: "Nicht angeheftete löschen", ru: "Удалить незакреплённые", ar: "حذف غير المثبّتة", es: "Eliminar los no fijados", fr: "Supprimer les non épinglés", az: "Sancılmayanları sil",
+  },
+  aiSessionCount: {
+    tr: "{n} sohbet", en: "{n} chats", de: "{n} Chats", ru: "чатов: {n}", ar: "{n} محادثات", es: "{n} chats", fr: "{n} chats", az: "{n} söhbət",
+  },
+  aiYou: {
+    tr: "Sen", en: "You", de: "Du", ru: "Вы", ar: "أنت", es: "Tú", fr: "Toi", az: "Sən",
   },
   wcMinimize: {
     tr: "Küçült", en: "Minimize", de: "Minimieren", ru: "Свернуть", ar: "تصغير", es: "Minimizar", fr: "Réduire", az: "Kiçilt",
