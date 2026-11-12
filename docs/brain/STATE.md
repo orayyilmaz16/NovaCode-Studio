@@ -55,7 +55,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/components/AIAssistant.tsx` | 820 |
-| `src/components/BranchPicker.tsx` | 195 |
+| `src/components/BranchPicker.tsx` | 199 |
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
@@ -115,7 +115,7 @@
 | `src/i18n/uiText.ts` | 1606 |
 | `src/i18n/uiTextAi.ts` | 516 |
 | `src/i18n/uiTextDev.ts` | 126 |
-| `src/i18n/uiTextScm.ts` | 210 |
+| `src/i18n/uiTextScm.ts` | 213 |
 
 ### Betikler
 | Dosya | Satır |
@@ -171,7 +171,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 785 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 786 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 95 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

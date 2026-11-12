@@ -27,6 +27,7 @@ export const BranchPicker: React.FC<Props> = ({ repo, mode: initialMode, current
   const api = window.electronAPI;
   const [mode, setMode] = useState<PickerMode>(initialMode);
   const [refs, setRefs] = useState<GitRefs | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -37,7 +38,9 @@ export const BranchPicker: React.FC<Props> = ({ repo, mode: initialMode, current
 
   useEffect(() => {
     let off = false;
-    void api?.gitRefs(repo).then((r) => { if (!off) setRefs(r); });
+    // Eski ana süreç (uygulama yeniden başlatılmadı) bu kanalı bilmez: istek reddedilir; sonsuz yükleme yerine hata göster
+    const call = api?.gitRefs ? api.gitRefs(repo) : Promise.reject(new Error('unavailable'));
+    void call.then((r) => { if (off) return; if (r && r.success) setRefs(r); else setLoadError(true); }).catch(() => { if (!off) setLoadError(true); });
     return () => { off = true; };
   }, [api, repo]);
   useEffect(() => { inputRef.current?.focus(); }, [naming, mode]);
@@ -161,7 +164,8 @@ export const BranchPicker: React.FC<Props> = ({ repo, mode: initialMode, current
           </div>
         ) : (
           <div ref={listRef} className="max-h-[50vh] overflow-y-auto py-1" role="listbox">
-            {!refs && <div className="px-3 py-3 text-[12px] text-zinc-500"><Loader2 size={13} className="animate-spin inline" /></div>}
+            {!refs && !loadError && <div className="px-3 py-3 text-[12px] text-zinc-500"><Loader2 size={13} className="animate-spin inline" /></div>}
+            {!refs && loadError && <div className="px-3 py-3 text-[12px] text-rose-300 leading-relaxed">{t('bpError')}</div>}
             {refs && rows.length === 0 && <div className="px-3 py-3 text-[12px] text-zinc-500">{t('bpNoResults')}</div>}
             {rows.map((r, i) => {
               if (r.kind === 'header') {
