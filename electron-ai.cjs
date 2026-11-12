@@ -266,7 +266,13 @@ function loadProjectInstructions(root) {
   return '';
 }
 
-function buildSystem({ root, lang, agent, project }) {
+// Kullanıcının mod başına özel yönergesi (Ayarlar → Yapay Zekâ): kısa düz metin; sistem istemine eklenir.
+function cleanInstructions(x) {
+  const t = String(x || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, 1500);
+  return t ? `\n\n# Kullanıcı yönergeleri\n${t}` : '';
+}
+
+function buildSystem({ root, lang, agent, project, extra = '' }) {
   const langName = { tr: 'Türkçe', en: 'English', de: 'Deutsch', ru: 'русский', ar: 'العربية', es: 'español', fr: 'français', az: 'azərbaycanca' }[lang] || 'Türkçe';
   return [
     'Sen NovaCode Studio kod editörünün yapay zekâ asistanısın. Kısa, net ve doğru yanıt ver; emin olmadığını kesinmiş gibi sunma.',
@@ -276,7 +282,7 @@ function buildSystem({ root, lang, agent, project }) {
       ? 'AGENT modundasın: görevi bitirmek için araçları kullan (önce oku/ara, sonra değiştir). Değişikliklerden önce ilgili dosyayı oku. Yazma ve komut araçları kullanıcı onayı ister; reddedilirse alternatif öner. Bitirince ne yaptığını kısaca özetle.'
       : 'ASK modundasın: araç yok; verilen bağlamdan yanıtla ve gerekirse kod öner.',
     'Gizli bilgileri (anahtar, token, şifre) yanıtlarında tekrar etme; .env gibi dosyalara dokunma.'
-  ].join('\n') + project;
+  ].join('\n') + project + extra;
 }
 
 // ---------- IPC ----------
@@ -298,7 +304,7 @@ function register({ getWindow, getRoot }) {
       if (provider === 'builtin') {
         const rootDir = getRoot();
         const agentOn = req.mode === 'agent' && !!rootDir;
-        const system = buildSystem({ root: rootDir, lang: req.lang, agent: agentOn, project: agentOn || req.useProject ? loadProjectInstructions(rootDir) : '' });
+        const system = buildSystem({ root: rootDir, lang: req.lang, agent: agentOn, project: agentOn || req.useProject ? loadProjectInstructions(rootDir) : '', extra: cleanInstructions(req.instructions) });
         const msgs = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', text: String(m.text || '').slice(0, 60000) }));
         const last = msgs.pop();
         if (!last || last.role !== 'user') throw new Error('Geçersiz istek.');
@@ -328,7 +334,7 @@ function register({ getWindow, getRoot }) {
       if (!cfg.model) throw new Error('Model adı boş.');
       const root = getRoot();
       const agent = req.mode === 'agent' && !!root;
-      const system = buildSystem({ root, lang: req.lang, agent, project: agent || req.useProject ? loadProjectInstructions(root) : '' });
+      const system = buildSystem({ root, lang: req.lang, agent, project: agent || req.useProject ? loadProjectInstructions(root) : '', extra: cleanInstructions(req.instructions) });
 
       // Geçmiş + yeni kullanıcı iletisi (görseller yalnız son iletide)
       const messages = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m, i, arr) => {

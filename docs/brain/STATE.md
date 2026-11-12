@@ -28,7 +28,7 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 458 |
+| `electron-ai.cjs` | 464 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
@@ -45,12 +45,12 @@
 |---|---|
 | `src/App.tsx` | 1376 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 279 |
+| `src/types.ts` | 281 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 582 |
+| `src/components/AIAssistant.tsx` | 612 |
 | `src/components/ChatSessions.tsx` | 243 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/EditorArea.tsx` | 363 |
@@ -67,7 +67,7 @@
 | `src/components/Preview.tsx` | 317 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
-| `src/components/SettingsPage.tsx` | 610 |
+| `src/components/SettingsPage.tsx` | 616 |
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 485 |
 | `src/components/UpdateDialog.tsx` | 156 |
@@ -84,7 +84,7 @@
 | `src/services/lang.ts` | 12 |
 | `src/services/monacoShim.ts` | 28 |
 | `src/services/previewKind.ts` | 11 |
-| `src/services/settings.ts` | 247 |
+| `src/services/settings.ts` | 249 |
 | `src/services/terminalBridge.ts` | 32 |
 | `src/services/terminalText.ts` | 148 |
 | `src/services/updateService.ts` | 28 |
@@ -95,7 +95,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1939 |
+| `src/i18n/uiText.ts` | 1993 |
 
 ### Betikler
 | Dosya | Satır |
@@ -143,10 +143,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 628 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 646 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-93 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+101 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -235,10 +235,18 @@
 | Yapay Zekâ | `aiModel` | Model | text | `""` | ≤120 karakter |
 | Yapay Zekâ | `aiBaseUrl` | Özel adres | text | `""` | ≤200 karakter |
 | Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
+| Yapay Zekâ | `aiAskBuiltinModel` | Sohbet: yerleşik model | select | `""` | , qwen2.5-coder-1.5b, qwen2.5-coder-7b |
+| Yapay Zekâ | `aiAskModel` | Sohbet: model | text | `""` | ≤120 karakter |
 | Yapay Zekâ | `aiIncludeContext` | Açık dosyayı bağlam olarak gönder | toggle | `true` |  |
+| Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |
+| Yapay Zekâ | `aiAskInstructions` | Sohbet: özel yönerge | text | `""` | ≤600 karakter |
+| Yapay Zekâ | `aiAgentBuiltinModel` | Ajan: yerleşik model | select | `""` | , qwen2.5-coder-1.5b, qwen2.5-coder-7b |
+| Yapay Zekâ | `aiAgentModel` | Ajan: model | text | `""` | ≤120 karakter |
+| Yapay Zekâ | `aiAgentIncludeContext` | Ajan: açık dosyayı bağlam olarak gönder | toggle | `true` |  |
+| Yapay Zekâ | `aiAgentMaxTokens` | Ajan: en çok yanıt uzunluğu (token) | slider | `8192` | 1024–16000 |
 | Yapay Zekâ | `aiAutoApproveEdits` | Dosya düzenlemelerini otomatik onayla | toggle | `false` |  |
 | Yapay Zekâ | `aiAllowCommands` | Ajan komut çalıştırabilsin | toggle | `true` |  |
-| Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |
+| Yapay Zekâ | `aiAgentInstructions` | Ajan: özel yönerge | text | `""` | ≤600 karakter |
 | Yapay Zekâ | `aiVoiceEnabled` | Sesli dikteyi aç | toggle | `false` |  |
 | Yapay Zekâ | `aiVoiceLang` | Dikte dili | select | `"auto"` | auto, tr, en, de, ru, ar, es, fr, az |
 | Yapay Zekâ | `aiTranscribeUrl` | Yerel dikte sunucusu | text | `""` | ≤200 karakter |

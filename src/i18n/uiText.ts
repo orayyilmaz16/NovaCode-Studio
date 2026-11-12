@@ -894,7 +894,7 @@ export const UI_TEXT = {
     tr: "Yapay Zekâ", en: "AI Assistant", de: "KI-Assistent", ru: "ИИ-ассистент", ar: "المساعد الذكي", es: "Asistente IA", fr: "Assistant IA", az: "Süni intellekt",
   },
   optAiAsk: {
-    tr: "Sor", en: "Ask", de: "Fragen", ru: "Вопрос", ar: "اسأل", es: "Preguntar", fr: "Demander", az: "Soruş",
+    tr: "Sohbet", en: "Chat", de: "Chat", ru: "Чат", ar: "محادثة", es: "Chat", fr: "Chat", az: "Söhbət",
   },
   optAiAgent: {
     tr: "Ajan", en: "Agent", de: "Agent", ru: "Агент", ar: "وكيل", es: "Agente", fr: "Agent", az: "Agent",
@@ -996,7 +996,7 @@ export const UI_TEXT = {
     tr: "Yapay zekâ ayarları", en: "AI settings", de: "KI-Einstellungen", ru: "Настройки ИИ", ar: "إعدادات الذكاء الاصطناعي", es: "Ajustes de IA", fr: "Paramètres IA", az: "Süni intellekt ayarları",
   },
   aiModeAsk: {
-    tr: "Sor", en: "Ask", de: "Fragen", ru: "Вопрос", ar: "اسأل", es: "Preguntar", fr: "Demander", az: "Soruş",
+    tr: "Sohbet", en: "Chat", de: "Chat", ru: "Чат", ar: "محادثة", es: "Chat", fr: "Chat", az: "Söhbət",
   },
   aiModeAgent: {
     tr: "Ajan", en: "Agent", de: "Agent", ru: "Агент", ar: "وكيل", es: "Agente", fr: "Agent", az: "Agent",
@@ -1492,6 +1492,60 @@ export const UI_TEXT = {
   },
   updClose: {
     tr: "Kapat", en: "Close", de: "Schließen", ru: "Закрыть", ar: "إغلاق", es: "Cerrar", fr: "Fermer", az: "Bağla",
+  },
+  grpAiGeneral: {
+    tr: "Genel", en: "General", de: "Allgemein", ru: "Общие", ar: "عام", es: "General", fr: "Général", az: "Ümumi",
+  },
+  grpAiVoice: {
+    tr: "Ses", en: "Voice", de: "Sprache", ru: "Голос", ar: "الصوت", es: "Voz", fr: "Voix", az: "Səs",
+  },
+  optSameAsGeneral: {
+    tr: "Genel ayarla aynı", en: "Same as General", de: "Wie „Allgemein“", ru: "Как в «Общих»", ar: "مثل الإعدادات العامة", es: "Igual que General", fr: "Comme « Général »", az: "Ümumi ilə eyni",
+  },
+  set_aiAskBuiltinModel: {
+    tr: "Sohbet: yerleşik model", en: "Chat: built-in model", de: "Chat: integriertes Modell", ru: "Чат: встроенная модель", ar: "المحادثة: النموذج المدمج", es: "Chat: modelo integrado", fr: "Chat : modèle intégré", az: "Söhbət: daxili model",
+  },
+  setDesc_aiAskBuiltinModel: {
+    tr: "Yalnız Sohbet modunda kullanılacak yerleşik model. Hızlı model sohbet için genelde yeter.", en: "Built-in model used only in Chat mode. The fast model is usually enough for chat.", de: "Integriertes Modell nur im Chat-Modus. Das schnelle Modell reicht für Chat meist aus.", ru: "Встроенная модель только для режима чата. Для чата обычно хватает быстрой.", ar: "النموذج المدمج لوضع المحادثة فقط. النموذج السريع يكفي غالباً للمحادثة.", es: "Modelo integrado solo para el modo Chat. El rápido suele bastar para chatear.", fr: "Modèle intégré uniquement en mode Chat. Le modèle rapide suffit en général.", az: "Yalnız Söhbət rejimində istifadə olunan daxili model. Söhbət üçün sürətli model adətən kifayətdir.",
+  },
+  set_aiAskModel: {
+    tr: "Sohbet: model", en: "Chat: model", de: "Chat: Modell", ru: "Чат: модель", ar: "المحادثة: النموذج", es: "Chat: modelo", fr: "Chat : modèle", az: "Söhbət: model",
+  },
+  setDesc_aiAskModel: {
+    tr: "Yalnız Sohbet modu için model adı. Boşsa Genel ayardaki model kullanılır.", en: "Model name for Chat mode only. Empty = the General model.", de: "Modellname nur für den Chat-Modus. Leer = Modell aus „Allgemein“.", ru: "Название модели только для чата. Пусто = модель из «Общих».", ar: "اسم النموذج لوضع المحادثة فقط. فارغ = النموذج العام.", es: "Nombre del modelo solo para el modo Chat. Vacío = el modelo General.", fr: "Nom du modèle pour le mode Chat uniquement. Vide = modèle Général.", az: "Yalnız Söhbət rejimi üçün model adı. Boşdursa Ümumi model istifadə olunur.",
+  },
+  set_aiAskInstructions: {
+    tr: "Sohbet: özel yönerge", en: "Chat: custom instructions", de: "Chat: eigene Anweisungen", ru: "Чат: свои инструкции", ar: "المحادثة: تعليمات مخصصة", es: "Chat: instrucciones propias", fr: "Chat : instructions personnalisées", az: "Söhbət: xüsusi təlimat",
+  },
+  setDesc_aiAskInstructions: {
+    tr: "Sohbet modunda her istekte sistem istemine eklenir (ör. \"Kısa yanıtla\"). Seçili sağlayıcıya gider.", en: "Added to the system prompt of every Chat request (e.g. \"Answer briefly\"). Sent to the selected provider.", de: "Wird jeder Chat-Anfrage im Systemprompt hinzugefügt (z. B. „Antworte kurz“). Geht an den gewählten Anbieter.", ru: "Добавляется к системному промпту каждого запроса в чате (напр. «Отвечай кратко»). Уходит выбранному провайдеру.", ar: "تُضاف إلى موجّه النظام في كل طلب محادثة (مثل «أجب باختصار»). تُرسل إلى المزوّد المحدد.", es: "Se añade al prompt del sistema de cada petición de Chat (p. ej. «Responde breve»). Se envía al proveedor elegido.", fr: "Ajouté au prompt système de chaque requête Chat (ex. « Réponds brièvement »). Envoyé au fournisseur choisi.", az: "Söhbət rejimində hər sorğunun sistem təlimatına əlavə olunur (məs. «Qısa cavab ver»). Seçilmiş provayderə göndərilir.",
+  },
+  set_aiAgentBuiltinModel: {
+    tr: "Ajan: yerleşik model", en: "Agent: built-in model", de: "Agent: integriertes Modell", ru: "Агент: встроенная модель", ar: "الوكيل: النموذج المدمج", es: "Agente: modelo integrado", fr: "Agent : modèle intégré", az: "Agent: daxili model",
+  },
+  setDesc_aiAgentBuiltinModel: {
+    tr: "Yalnız Ajan modunda kullanılacak yerleşik model. Dosya düzenlemek için Güçlü model önerilir.", en: "Built-in model used only in Agent mode. The Strong model is recommended for editing files.", de: "Integriertes Modell nur im Agent-Modus. Zum Bearbeiten von Dateien wird das starke Modell empfohlen.", ru: "Встроенная модель только для режима агента. Для правки файлов рекомендуется сильная.", ar: "النموذج المدمج لوضع الوكيل فقط. يُنصح بالنموذج القوي لتعديل الملفات.", es: "Modelo integrado solo para el modo Agente. Se recomienda el potente para editar archivos.", fr: "Modèle intégré uniquement en mode Agent. Le modèle puissant est recommandé pour modifier des fichiers.", az: "Yalnız Agent rejimində istifadə olunan daxili model. Fayl redaktəsi üçün Güclü model tövsiyə olunur.",
+  },
+  set_aiAgentModel: {
+    tr: "Ajan: model", en: "Agent: model", de: "Agent: Modell", ru: "Агент: модель", ar: "الوكيل: النموذج", es: "Agente: modelo", fr: "Agent : modèle", az: "Agent: model",
+  },
+  setDesc_aiAgentModel: {
+    tr: "Yalnız Ajan modu için model adı (araç çağırmayı destekleyen bir model seç). Boşsa Genel ayardaki model kullanılır.", en: "Model name for Agent mode only (pick one that supports tool calling). Empty = the General model.", de: "Modellname nur für den Agent-Modus (eins mit Tool-Aufrufen wählen). Leer = Modell aus „Allgemein“.", ru: "Название модели только для агента (выберите с поддержкой вызова инструментов). Пусто = модель из «Общих».", ar: "اسم النموذج لوضع الوكيل فقط (اختر نموذجاً يدعم استدعاء الأدوات). فارغ = النموذج العام.", es: "Nombre del modelo solo para el modo Agente (elige uno con llamadas a herramientas). Vacío = el modelo General.", fr: "Nom du modèle pour le mode Agent uniquement (choisis-en un compatible avec les outils). Vide = modèle Général.", az: "Yalnız Agent rejimi üçün model adı (alət çağırışını dəstəkləyən seç). Boşdursa Ümumi model istifadə olunur.",
+  },
+  set_aiAgentIncludeContext: {
+    tr: "Ajan: açık dosyayı bağlam olarak gönder", en: "Agent: send the open file as context", de: "Agent: geöffnete Datei als Kontext senden", ru: "Агент: отправлять открытый файл как контекст", ar: "الوكيل: إرسال الملف المفتوح كسياق", es: "Agente: enviar el archivo abierto como contexto", fr: "Agent : envoyer le fichier ouvert comme contexte", az: "Agent: açıq faylı kontekst kimi göndər",
+  },
+  setDesc_aiAgentIncludeContext: {
+    tr: "Ajan zaten dosyaları araçlarla okur; kapatırsan yalnız yazdığın görev gider, daha az veri paylaşılır.", en: "The agent already reads files with tools; turn off to send only your task and share less data.", de: "Der Agent liest Dateien ohnehin mit Tools; ausschalten, um nur die Aufgabe zu senden und weniger Daten zu teilen.", ru: "Агент и так читает файлы инструментами; выключите, чтобы отправлялась только задача и меньше данных.", ar: "الوكيل يقرأ الملفات بالأدوات أصلاً؛ أوقفه لإرسال المهمة فقط ومشاركة بيانات أقل.", es: "El agente ya lee archivos con herramientas; desactívalo para enviar solo tu tarea y compartir menos datos.", fr: "L’agent lit déjà les fichiers avec des outils ; désactive pour n’envoyer que ta tâche et partager moins de données.", az: "Agent faylları alətlərlə onsuz da oxuyur; söndürsən yalnız tapşırığın gedir, daha az məlumat paylaşılır.",
+  },
+  set_aiAgentMaxTokens: {
+    tr: "Ajan: en çok yanıt uzunluğu (token)", en: "Agent: max response length (tokens)", de: "Agent: max. Antwortlänge (Token)", ru: "Агент: макс. длина ответа (токены)", ar: "الوكيل: أقصى طول للرد (رموز)", es: "Agente: longitud máxima de respuesta (tokens)", fr: "Agent : longueur max. de réponse (tokens)", az: "Agent: maksimum cavab uzunluğu (token)",
+  },
+  set_aiAgentInstructions: {
+    tr: "Ajan: özel yönerge", en: "Agent: custom instructions", de: "Agent: eigene Anweisungen", ru: "Агент: свои инструкции", ar: "الوكيل: تعليمات مخصصة", es: "Agente: instrucciones propias", fr: "Agent : instructions personnalisées", az: "Agent: xüsusi təlimat",
+  },
+  setDesc_aiAgentInstructions: {
+    tr: "Ajan modunda her istekte sistem istemine eklenir (ör. \"Değişiklikten önce test çalıştır\"). Proje yönergesine ek olarak çalışır. Seçili sağlayıcıya gider.", en: "Added to the system prompt of every Agent request (e.g. \"Run tests before finishing\"). Works in addition to project instructions. Sent to the selected provider.", de: "Wird jeder Agent-Anfrage im Systemprompt hinzugefügt (z. B. „Tests vor Abschluss ausführen“). Zusätzlich zu den Projektanweisungen. Geht an den gewählten Anbieter.", ru: "Добавляется к системному промпту каждого запроса агента (напр. «Запускай тесты перед завершением»). Работает вместе с инструкциями проекта. Уходит выбранному провайдеру.", ar: "تُضاف إلى موجّه النظام في كل طلب وكيل (مثل «شغّل الاختبارات قبل الإنهاء»). تعمل إضافةً إلى تعليمات المشروع. تُرسل إلى المزوّد المحدد.", es: "Se añade al prompt del sistema de cada petición del Agente (p. ej. «Ejecuta las pruebas antes de terminar»). Funciona junto con las instrucciones del proyecto. Se envía al proveedor elegido.", fr: "Ajouté au prompt système de chaque requête Agent (ex. « Lance les tests avant de finir »). S’ajoute aux instructions du projet. Envoyé au fournisseur choisi.", az: "Agent rejimində hər sorğunun sistem təlimatına əlavə olunur (məs. «Bitirməzdən əvvəl testləri işə sal»). Layihə təlimatına əlavə işləyir. Seçilmiş provayderə göndərilir.",
   },
   aiSessionSearch: {
     tr: "Sohbetlerde ara…", en: "Search chats…", de: "Chats durchsuchen…", ru: "Поиск по чатам…", ar: "ابحث في المحادثات…", es: "Buscar chats…", fr: "Rechercher dans les chats…", az: "Söhbətlərdə axtar…",
