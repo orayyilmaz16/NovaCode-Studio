@@ -28,12 +28,12 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 479 |
+| `electron-ai.cjs` | 532 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
 | `electron-llm.cjs` | 256 |
-| `electron-main.cjs` | 509 |
+| `electron-main.cjs` | 512 |
 | `electron-preload.cjs` | 152 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
@@ -45,12 +45,12 @@
 |---|---|
 | `src/App.tsx` | 1376 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 281 |
+| `src/types.ts` | 283 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 629 |
+| `src/components/AIAssistant.tsx` | 621 |
 | `src/components/ChatSessions.tsx` | 246 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/EditorArea.tsx` | 363 |
@@ -77,7 +77,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
-| `src/services/aiClient.ts` | 232 |
+| `src/services/aiClient.ts` | 230 |
 | `src/services/editorBridge.ts` | 80 |
 | `src/services/editorTheme.ts` | 96 |
 | `src/services/extensionsService.ts` | 220 |
@@ -89,13 +89,13 @@
 | `src/services/terminalText.ts` | 148 |
 | `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
-| `src/services/useDictation.ts` | 69 |
+| `src/services/useDictation.ts` | 67 |
 | `src/services/useGithubAuth.ts` | 32 |
 
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1996 |
+| `src/i18n/uiText.ts` | 1942 |
 
 ### Betikler
 | Dosya | Satır |
@@ -143,10 +143,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 647 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 629 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-101 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+92 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -230,27 +230,18 @@
 | Ortak düzenleme | `collabUrl` | Sunucu adresi | text | `""` | ≤200 karakter |
 | Hakkında ve yedek | `updateAutoCheck` | Açılışta güncellemeleri denetle | toggle | `true` |  |
 | Hakkında ve yedek | `updateAutoDownload` | Güncellemeyi otomatik indir | toggle | `true` |  |
-| Yapay Zekâ | `aiProvider` | Sağlayıcı | select | `"ollama"` | ollama |
-| Yapay Zekâ | `aiBuiltinModel` | Yerleşik model | select | `"qwen2.5-coder-1.5b"` | qwen2.5-coder-1.5b, qwen2.5-coder-7b |
-| Yapay Zekâ | `aiModel` | Model | text | `"qwen2.5-coder:7b"` | ≤120 karakter |
-| Yapay Zekâ | `aiBaseUrl` | Özel adres | text | `""` | ≤200 karakter |
 | Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
-| Yapay Zekâ | `aiAskBuiltinModel` | Sohbet: yerleşik model | select | `""` | , qwen2.5-coder-1.5b, qwen2.5-coder-7b |
-| Yapay Zekâ | `aiAskModel` | Sohbet: model | text | `""` | ≤120 karakter |
-| Yapay Zekâ | `aiIncludeContext` | Açık dosyayı bağlam olarak gönder | toggle | `true` |  |
+| Yapay Zekâ | `aiAskThinking` | Sohbet: düşünme seviyesi | select | `"balanced"` | fast, balanced, deep |
 | Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |
+| Yapay Zekâ | `aiIncludeContext` | Açık dosyayı bağlam olarak gönder | toggle | `true` |  |
 | Yapay Zekâ | `aiAskInstructions` | Sohbet: özel yönerge | text | `""` | ≤600 karakter |
-| Yapay Zekâ | `aiAgentBuiltinModel` | Ajan: yerleşik model | select | `""` | , qwen2.5-coder-1.5b, qwen2.5-coder-7b |
-| Yapay Zekâ | `aiAgentModel` | Ajan: model | text | `""` | ≤120 karakter |
-| Yapay Zekâ | `aiAgentIncludeContext` | Ajan: açık dosyayı bağlam olarak gönder | toggle | `true` |  |
+| Yapay Zekâ | `aiAgentThinking` | Ajan: düşünme seviyesi | select | `"deep"` | fast, balanced, deep |
 | Yapay Zekâ | `aiAgentMaxTokens` | Ajan: en çok yanıt uzunluğu (token) | slider | `8192` | 1024–16000 |
+| Yapay Zekâ | `aiAgentIncludeContext` | Ajan: açık dosyayı bağlam olarak gönder | toggle | `true` |  |
 | Yapay Zekâ | `aiAutoApproveEdits` | Dosya düzenlemelerini otomatik onayla | toggle | `false` |  |
 | Yapay Zekâ | `aiAllowCommands` | Ajan komut çalıştırabilsin | toggle | `true` |  |
 | Yapay Zekâ | `aiAgentInstructions` | Ajan: özel yönerge | text | `""` | ≤600 karakter |
 | Yapay Zekâ | `aiVoiceEnabled` | Sesli dikteyi aç | toggle | `false` |  |
-| Yapay Zekâ | `aiVoiceLang` | Dikte dili | select | `"auto"` | auto, tr, en, de, ru, ar, es, fr, az |
-| Yapay Zekâ | `aiTranscribeUrl` | Yerel dikte sunucusu | text | `"http://localhost:8080/v1"` | ≤200 karakter |
-| Yapay Zekâ | `aiTranscribeModel` | Dikte modeli | text | `"whisper-1"` | ≤80 karakter |
 
 ## GitHub Actions
 | Dosya | Ad | İşler |

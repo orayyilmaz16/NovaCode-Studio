@@ -7,7 +7,8 @@
 const { ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { exec } = require('child_process');
+const os = require('os');
+const { exec, spawn } = require('child_process');
 const { readSecret } = require('./electron-secrets.cjs');
 const search = require('./electron-search.cjs');
 
@@ -267,13 +268,66 @@ function loadProjectInstructions(root) {
   return '';
 }
 
+// ---------- Düşünme seviyesi (mod başına ayar) ----------
+// Yerel model (qwen2.5-coder) yerleşik "düşünme modu" sunmaz; seviye sıcaklığı ve sistem istemindeki çalışma biçimini değiştirir.
+const THINKING = {
+  fast: { temp: { ask: 0.5, agent: 0.3 }, text: 'Düşünme düzeyi: HIZLI. Doğrudan ve kısa yanıtla; gerekmedikçe uzun açıklama yazma.' },
+  balanced: { temp: { ask: 0.35, agent: 0.2 }, text: 'Düşünme düzeyi: DENGELİ. Gerekirse kısa bir plan yap, sonra net yanıtla.' },
+  deep: {
+    temp: { ask: 0.2, agent: 0.1 },
+    text: 'Düşünme düzeyi: DERİN. Yanıtlamadan önce sorunu adım adım düşün; uç durumları, olası hataları ve alternatifleri kontrol et; sonra sonucu ve kısa gerekçeyi ver. Düşünce sürecini uzun uzun yazma.',
+    agent: 'Derin çalışma: değişiklikten önce ilgili tüm dosyaları oku, etkilenen yerleri ara, sonra değiştir ve mümkünse sonucu doğrula (derleme/test).'
+  }
+};
+const thinkingOf = (x) => THINKING[x] || THINKING.balanced;
+
+// ---------- Yerel dikte (whisper.cpp): sabit adres, sabit model, uygulama başlatır ----------
+// Elle sunucu/model seçimi yoktur. Bileşenler %LOCALAPPDATA%\NovaWhisper altındadır (NOVA_WHISPER_DIR ile değiştirilebilir).
+const WHISPER_PORT = 8080;
+const WHISPER_ROOT = `http://127.0.0.1:${WHISPER_PORT}`;
+let whisperProc = null;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function whisperUp() {
+  try { await fetch(WHISPER_ROOT + '/', { signal: AbortSignal.timeout(1200) }); return true; } catch { return false; }
+}
+async function ensureWhisper() {
+  if (await whisperUp()) return true;
+  const dir = process.env.NOVA_WHISPER_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), 'NovaWhisper');
+  const exe = path.join(dir, 'bin', 'Release', process.platform === 'win32' ? 'whisper-server.exe' : 'whisper-server');
+  const model = path.join(dir, 'models', 'ggml-small.bin');
+  if (!fs.existsSync(exe) || !fs.existsSync(model)) return false;
+  if (!whisperProc) {
+    const env = { ...process.env };
+    const pk = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
+    const ff = path.join(dir, 'ffmpeg', 'bin'); // webm -> wav dönüşümü için
+    if (fs.existsSync(ff)) env[pk] = ff + path.delimiter + (env[pk] || '');
+    const threads = Math.max(2, Math.min(8, Math.floor(os.cpus().length / 2)));
+    // Yalnız bu bilgisayardan erişilir (127.0.0.1); ekran kartı belleği Ollama modeline kalır (--no-gpu)
+    const p = spawn(exe, ['--model', model, '--host', '127.0.0.1', '--port', String(WHISPER_PORT), '--inference-path', '/v1/audio/transcriptions', '--language', 'tr', '--threads', String(threads), '-bs', '5', '--convert', '--no-gpu'], { env, windowsHide: true, stdio: 'ignore' });
+    p.on('exit', () => { if (whisperProc === p) whisperProc = null; });
+    p.on('error', () => { if (whisperProc === p) whisperProc = null; });
+    whisperProc = p;
+  }
+  for (let i = 0; i < 48; i++) { // en çok ~36 sn: model yükleme
+    if (await whisperUp()) return true;
+    if (!whisperProc) return false;
+    await sleep(750);
+  }
+  return false;
+}
+function stopWhisper() {
+  try { if (whisperProc) whisperProc.kill(); } catch { /* kapanmış */ }
+  whisperProc = null;
+}
+
 // Kullanıcının mod başına özel yönergesi (Ayarlar → Yapay Zekâ): kısa düz metin; sistem istemine eklenir.
 function cleanInstructions(x) {
   const t = String(x || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, 1500);
   return t ? `\n\n# Kullanıcı yönergeleri\n${t}` : '';
 }
 
-function buildSystem({ root, lang, agent, project, extra = '' }) {
+function buildSystem({ root, lang, agent, project, extra = '', thinking }) {
+  const th = thinkingOf(thinking);
   const langName = { tr: 'Türkçe', en: 'English', de: 'Deutsch', ru: 'русский', ar: 'العربية', es: 'español', fr: 'français', az: 'azərbaycanca' }[lang] || 'Türkçe';
   // Türkçe duyarlılığı: doğal dil, dikteyle gelen hatalı yazımı anlama, teknik terim dengesi
   const trNote = lang === 'tr' ? [
@@ -284,6 +338,7 @@ function buildSystem({ root, lang, agent, project, extra = '' }) {
     'Sen NovaCode Studio kod editörünün yapay zekâ asistanısın. Kısa, net ve doğru yanıt ver; emin olmadığını kesinmiş gibi sunma.',
     `Kullanıcının arayüz dili: ${langName}. Aksi istenmedikçe bu dilde yanıtla. Kodu uygun dil etiketli kod bloğuna koy.`,
     ...trNote,
+    th.text + (agent && th.agent ? ' ' + th.agent : ''),
     root ? `Çalışma klasörü: ${path.basename(root)}` : 'Açık çalışma klasörü yok.',
     agent
       ? 'AGENT modundasın: görevi bitirmek için araçları kullan (önce oku/ara, sonra değiştir). Değişikliklerden önce ilgili dosyayı oku. Yazma ve komut araçları kullanıcı onayı ister; reddedilirse alternatif öner. Bitirince ne yaptığını kısaca özetle.'
@@ -311,7 +366,7 @@ function register({ getWindow, getRoot }) {
       if (provider === 'builtin') {
         const rootDir = getRoot();
         const agentOn = req.mode === 'agent' && !!rootDir;
-        const system = buildSystem({ root: rootDir, lang: req.lang, agent: agentOn, project: agentOn || req.useProject ? loadProjectInstructions(rootDir) : '', extra: cleanInstructions(req.instructions) });
+        const system = buildSystem({ root: rootDir, lang: req.lang, agent: agentOn, project: agentOn || req.useProject ? loadProjectInstructions(rootDir) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking });
         const msgs = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', text: String(m.text || '').slice(0, 60000) }));
         const last = msgs.pop();
         if (!last || last.role !== 'user') throw new Error('Geçersiz istek.');
@@ -337,11 +392,11 @@ function register({ getWindow, getRoot }) {
       if (!def) throw new Error('Bilinmeyen sağlayıcı.');
       const key = def.secret ? (await readSecret(def.secret)) : '';
       if (def.secret && !key) throw new Error('auth:nokey');
-      const cfg = { base: safeBase(provider, req.baseUrl), key, model: String(req.model || '').slice(0, 120), maxTokens: Math.min(Math.max(Number(req.maxTokens) || 4096, 256), 32000), temperature: req.mode === 'agent' ? 0.2 : 0.4 }; // düşük sıcaklık: kod ve Türkçe dilbilgisinde daha tutarlı
+      const cfg = { base: safeBase(provider, req.baseUrl), key, model: String(req.model || '').slice(0, 120), maxTokens: Math.min(Math.max(Number(req.maxTokens) || 4096, 256), 32000), temperature: thinkingOf(req.thinking).temp[req.mode === 'agent' ? 'agent' : 'ask'] }; // düşük sıcaklık: kod ve Türkçe dilbilgisinde daha tutarlı
       if (!cfg.model) throw new Error('Model adı boş.');
       const root = getRoot();
       const agent = req.mode === 'agent' && !!root;
-      const system = buildSystem({ root, lang: req.lang, agent, project: agent || req.useProject ? loadProjectInstructions(root) : '', extra: cleanInstructions(req.instructions) });
+      const system = buildSystem({ root, lang: req.lang, agent, project: agent || req.useProject ? loadProjectInstructions(root) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking });
 
       // Geçmiş + yeni kullanıcı iletisi (görseller yalnız son iletide)
       const messages = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m, i, arr) => {
@@ -417,19 +472,17 @@ function register({ getWindow, getRoot }) {
     return { success: !!resolve };
   });
 
-  // Dikte: ses kaydı OpenAI uyumlu transkripsiyon API'sine gider (3. parti; kullanıcı açık rızası arayüzde alınır).
+  // Dikte: ses yalnız bu bilgisayardaki whisper.cpp sunucusuna (sabit adres 127.0.0.1:8080, sabit model "small") gider;
+  // ses cihazdan çıkmaz. Renderer adres/model belirleyemez. Sunucu kapalıysa uygulama kendisi başlatır (ensureWhisper).
   ipcMain.handle('ai:transcribe', async (_e, req) => {
     try {
-      // Yerel sunucu (whisper.cpp / faster-whisper-server vb.) anahtarsız çalışır; uzak adres için OpenAI anahtarı gerekir.
-      const base = safeBase('openai', req.baseUrl);
-      const key = isLoopback(base) ? '' : await readSecret('aiKey_openai');
-      if (!key && !isLoopback(base)) return { success: false, error: 'nokey' };
       const buf = req && req.audio;
       if (!(buf instanceof ArrayBuffer || ArrayBuffer.isView(buf)) || buf.byteLength > MAX_AUDIO || buf.byteLength < 200) return { success: false, error: 'invalid-audio' };
+      if (!(await ensureWhisper())) return { success: false, error: 'no-whisper' };
       const mime = /^audio\/(webm|ogg|mp4|mpeg|wav)/.test(String(req.mime)) ? String(req.mime).split(';')[0] : 'audio/webm';
       const form = new FormData();
       form.append('file', new Blob([buf], { type: mime }), 'dictation.' + mime.split('/')[1]);
-      form.append('model', String(req.model || 'whisper-1').slice(0, 80));
+      form.append('model', 'whisper-1');
       if (req.lang && /^[a-z]{2}$/.test(req.lang)) form.append('language', req.lang);
       // Doğruluk: sıcaklık 0 + dilde bir başlangıç ipucu (Whisper "prompt"); Türkçede teknik sözcükler ve noktalama daha iyi çıkar
       form.append('temperature', '0');
@@ -439,8 +492,8 @@ function register({ getWindow, getRoot }) {
         en: 'This is a software development conversation. Terms: React, TypeScript, JavaScript, function, component, variable, commit, branch, API, Ollama, Electron.'
       };
       if (HINT[req.lang]) form.append('prompt', HINT[req.lang]);
-      const res = await fetch(base + '/audio/transcriptions', { method: 'POST', headers: key ? { authorization: 'Bearer ' + key } : {}, body: form, signal: AbortSignal.timeout(60000) });
-      if (!res.ok) return { success: false, error: res.status === 401 ? 'auth' : 'http' };
+      const res = await fetch(WHISPER_ROOT + '/v1/audio/transcriptions', { method: 'POST', body: form, signal: AbortSignal.timeout(90000) });
+      if (!res.ok) return { success: false, error: 'http' };
       const json = await res.json();
       return { success: true, text: String(json.text || '').slice(0, 20000) };
     } catch {
@@ -476,4 +529,4 @@ function register({ getWindow, getRoot }) {
   });
 }
 
-module.exports = { register };
+module.exports = { register, stopWhisper };

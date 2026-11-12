@@ -8,7 +8,7 @@ import { useSettings } from '../services/SettingsContext';
 import { getSelectedText, replaceSelection } from '../services/editorBridge';
 import { useDictation } from '../services/useDictation';
 import {
-  DEFAULT_MODEL, DEFAULT_TRANSCRIBE_URL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartTitle, splitParts, titleFrom, uid,
+  DEFAULT_MODEL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartTitle, splitParts, titleFrom, uid,
   type AiSession, type ChatMsg, type ToolCard
 } from '../services/aiClient';
 import { ChatSessions } from './ChatSessions';
@@ -23,8 +23,6 @@ interface AIAssistantProps {
 type Image = { mediaType: string; data: string; url: string };
 const SLASH_BUILTIN = ['new', 'ask', 'agent'] as const;
 const gb = (n: number) => (n / 1024 ** 3).toFixed(1);
-// Yüklü modeller arasında kod odaklı olanı tercih et; yoksa ilkini al.
-const pickOllamaModel = (models: string[]): string => models.find((m) => /coder|code/i.test(m)) ?? models[0] ?? '';
 
 // ---------- Küçük parçalar ----------
 const CodeBlock: React.FC<{ lang: string; code: string }> = ({ lang, code }) => {
@@ -85,7 +83,6 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const [ollamaTick, setOllamaTick] = useState(0);
   const [llm, setLlm] = useState<LlmModelInfo[]>([]);
   const [progress, setProgress] = useState<Record<string, LlmProgress>>({});
-  const ollamaBase = provider === 'ollama' ? String(values.aiBaseUrl || '').trim() || undefined : undefined;
 
   // Sohbet (ask) ve Ajan (agent) modlarının sohbetleri ayrıdır: her sohbet tek bir moda aittir, liste moda göre süzülür.
   const defMode: 'ask' | 'agent' = values.aiDefaultMode === 'agent' ? 'agent' : 'ask';
@@ -101,12 +98,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const modeSessions = useMemo(() => sessions.filter((s) => s.mode === mode && s.messages.length > 0), [sessions, mode]);
   const modeCount = (m: 'ask' | 'agent') => sessions.filter((s) => s.mode === m && s.messages.length > 0).length;
 
-  // Modele özel ayarlar: model, yerleşik model, bağlam, yanıt uzunluğu, özel yönerge (boşsa Genel ayar)
-  const builtinId = String((isAgent ? values.aiAgentBuiltinModel : values.aiAskBuiltinModel) || values.aiBuiltinModel || DEFAULT_MODEL.builtin);
-  const modelOverride = String((isAgent ? values.aiAgentModel : values.aiAskModel) || '').trim();
-  const model = provider === 'builtin'
-    ? builtinId
-    : modelOverride || String(values.aiModel || '').trim() || (provider === 'ollama' ? pickOllamaModel(ollama?.models ?? []) : '') || DEFAULT_MODEL[provider];
+  // Tek model: Ollama'daki qwen2.5-coder:7b (model/sunucu seçimi yok). Moda özel ayarlar: düşünme seviyesi, yanıt uzunluğu, bağlam, yönerge.
+  const builtinId = DEFAULT_MODEL.builtin;
+  const model = DEFAULT_MODEL.ollama;
   const modelLabel = provider === 'builtin' ? llm.find((m) => m.id === builtinId)?.label ?? builtinId : model;
   const [renameId, setRenameId] = useState<string | null>(null);
   const fileHintRef = useRef<string | undefined>(undefined);
@@ -176,9 +170,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   useEffect(() => {
     if (provider !== 'ollama' || !api) { setOllama(null); return; }
     let alive = true;
-    void api.ollamaModels(ollamaBase).then((r) => { if (alive) setOllama(r); }).catch(() => { if (alive) setOllama({ running: false, models: [] }); });
+    void api.ollamaModels().then((r) => { if (alive) setOllama(r); }).catch(() => { if (alive) setOllama({ running: false, models: [] }); });
     return () => { alive = false; };
-  }, [api, provider, ollamaBase, ollamaTick]);
+  }, [api, provider, ollamaTick]);
 
   useEffect(() => { void api?.commands().then(setCustom).catch(() => setCustom([])); }, [api, hasWorkspace]);
 
@@ -219,13 +213,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   }, [api, patchMsg, refreshLlm]);
 
   const dictation = useDictation({
-    // "Otomatik" arayüz dilini kullanır (kısa konuşmalarda dil algılama şaşabildiği için Türkçe arayüzde Türkçe sabitlenir)
-    lang: String(values.aiVoiceLang || 'auto') === 'auto' ? getUiLang() : String(values.aiVoiceLang),
-    model: String(values.aiTranscribeModel || 'whisper-1'),
-    baseUrl: String(values.aiTranscribeUrl || '').trim() || DEFAULT_TRANSCRIBE_URL,
+    // Dil arayüz dilidir (kısa konuşmalarda otomatik algılama şaşabildiği için sabit); model ve adres sabit, ayar yok
+    lang: getUiLang(),
     onText: (text) => setInput((v) => (v ? v + ' ' : '') + text),
     onError: (code) => {
-      setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, messages: [...s.messages, { id: uid(), role: 'assistant', text: '', error: code === 'mic' ? t('aiMicDenied') : code === 'nokey' ? t('aiVoiceNeedsKey') : t('aiErrGeneric') }] })));
+      setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, messages: [...s.messages, { id: uid(), role: 'assistant', text: '', error: code === 'mic' ? t('aiMicDenied') : code === 'no-whisper' ? t('aiVoiceNeedsKey') : t('aiErrGeneric') }] })));
     }
   });
 
@@ -344,7 +336,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
 
     const res = await api.run({
       runId, provider, model,
-      baseUrl: String(values.aiBaseUrl || '').trim() || undefined,
+      thinking: (['fast', 'balanced', 'deep'].includes(String(isAgent ? values.aiAgentThinking : values.aiAskThinking)) ? String(isAgent ? values.aiAgentThinking : values.aiAskThinking) : 'balanced') as 'fast' | 'balanced' | 'deep',
       maxTokens: Number(isAgent ? values.aiAgentMaxTokens : values.aiMaxTokens) || (isAgent ? 8192 : 4096),
       instructions: String((isAgent ? values.aiAgentInstructions : values.aiAskInstructions) || '').slice(0, 600) || undefined,
       mode, lang: getUiLang(),
@@ -401,7 +393,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   }
 
   const voiceOn = values.aiVoiceEnabled === true;
-  const isLocal = provider === 'builtin' || (provider === 'ollama' && (!ollamaBase || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(ollamaBase)));
+  const isLocal = true; // yalnız Ollama (yerel)
   const canSend = (!!input.trim() || images.length > 0) && !busy;
   const icoBtn = 'w-7 h-7 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover transition-colors disabled:opacity-40';
   const banner = 'mx-3 mt-2 p-2.5 rounded-lg border text-[11.5px] leading-snug';

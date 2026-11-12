@@ -479,7 +479,10 @@ require('./electron-search.cjs').register({ getRoot: () => workspaceRoot });
 require('./electron-ext.cjs').register();
 require('./electron-update.cjs').register({ getWindow: () => mainWindow });
 require('./electron-llm.cjs').register({ getWindow: () => mainWindow });
-require('./electron-ai.cjs').register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
+const aiModule = require('./electron-ai.cjs');
+aiModule.register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
+// Uygulamanın başlattığı yerel dikte sunucusu (whisper.cpp) uygulama kapanınca durdurulur
+app.on('will-quit', () => aiModule.stopWhisper());
 
 // Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
