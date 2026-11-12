@@ -1327,6 +1327,8 @@ export function App() {
             <AIAssistant
               activeFile={activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: activeFile.content } : null}
               hasWorkspace={!!currentRootPath}
+              rootPath={currentRootPath}
+              onOpenFile={(p) => void openFileAt(p)}
               onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }}
             />
             </Suspense>

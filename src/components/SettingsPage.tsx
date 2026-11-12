@@ -22,7 +22,8 @@ import {
   Trash2,
   Check
 } from 'lucide-react';
-import { t, type UiTextKey } from '../i18n/uiText';
+import { t, type TextKey, type UiTextKey } from '../i18n/uiText';
+import '../i18n/uiTextAi'; // AI ve ayar metinleri (gecikmeli yüklenen ek sözlük)
 import { useSettings } from '../services/SettingsContext';
 import { useUpdate } from '../services/updateService';
 import { BUILTIN_THEMES, extThemeName, listExtThemes, uninstallExt, useActiveEditorTheme, useExtensions, setMonacoForExtensions } from '../services/extensionsService';
@@ -54,7 +55,7 @@ const ICONS: Record<string, React.ReactNode> = {
   Info: <Info size={16} />
 };
 
-const tk = (key: string) => t(key as UiTextKey);
+const tk = (key: string) => t(key as TextKey);
 const optLabel = (o: SettingOption) => (o.labelKey ? tk(o.labelKey) : String(o.label ?? o.value));
 
 const field =
@@ -124,6 +125,8 @@ const Control: React.FC<{ def: SettingDef; value: SettingValue; onChange: (v: Se
           value={String(value)}
           onChange={(e) => {
             const hit = def.options?.find((o) => String(o.value) === e.target.value);
+            // Otonom ajan: dosyalar onaysız düzenlenir ve güvenli derleme/test komutları sorulmadan çalışır; açık onay iste
+            if (hit && def.id === 'aiAgentAutonomy' && hit.value === 'auto' && !window.confirm(t('aiAutonomyConfirm'))) return;
             if (hit) onChange(hit.value);
           }}
           className={`${field} min-w-[170px]`}
@@ -273,56 +276,6 @@ const TokenField: React.FC = () => {
     </div>
   );
 };
-
-// ---------- Yapay zekâ API anahtarları (ana süreçte şifreli; arayüze geri okunmaz) ----------
-const AI_KEYS: { id: 'aiKey_anthropic' | 'aiKey_openai'; label: UiTextKey }[] = [
-  { id: 'aiKey_anthropic', label: 'aiKeyAnthropic' },
-  { id: 'aiKey_openai', label: 'aiKeyOpenai' }
-];
-
-const AiKeyRow: React.FC<{ id: 'aiKey_anthropic' | 'aiKey_openai'; label: UiTextKey }> = ({ id, label }) => {
-  const [saved, setSaved] = useState<boolean | null>(null);
-  const [value, setValue] = useState('');
-  const [msg, setMsg] = useState<string | null>(null);
-  useEffect(() => {
-    void window.electronAPI?.secrets.get(id).then((r) => setSaved('value' in r && !!r.value));
-  }, [id]);
-  const save = async (v: string) => {
-    const res = await window.electronAPI?.secrets.set(id, v);
-    if (res?.success) { setSaved(v !== ''); setValue(''); setMsg(null); } else setMsg(t('aiKeyNoEncrypt'));
-  };
-  return (
-    <div className="flex flex-col @lg:flex-row items-start @lg:justify-between gap-2 @lg:gap-6 py-3 border-b border-nv-border/70">
-      <div className="min-w-0 flex-1">
-        <div className="text-[13px] text-zinc-100">{t(label)}</div>
-        <p className={`mt-1 text-[12px] ${saved ? 'text-emerald-400' : 'text-zinc-500'}`}>{saved === null ? '' : saved ? t('aiKeySet') : t('aiKeyNotSet')}</p>
-        {msg && <p className="mt-1 text-[12px] text-rose-400">{msg}</p>}
-      </div>
-      <div className="@lg:shrink-0 flex flex-wrap gap-2 max-w-full">
-        <input
-          type="password"
-          autoComplete="off"
-          aria-label={t(label)}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          maxLength={2048}
-          placeholder={saved ? '••••••••' : ''}
-          className={`${field} w-[220px] max-w-full font-mono`}
-        />
-        <button disabled={!value.trim()} onClick={() => void save(value.trim())} className="h-7 px-3 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-[12px] transition-colors">{t('aiKeySave')}</button>
-        {saved && <button onClick={() => void save('')} className="h-7 px-3 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-100 text-[12px] transition-colors">{t('aiKeyClear')}</button>}
-      </div>
-    </div>
-  );
-};
-
-const AiKeys: React.FC = () => (
-  <div className="mt-4">
-    <h3 className="text-[13px] text-zinc-200">{t('aiKeyTitle')}</h3>
-    <p className="mt-1 text-[12px] text-zinc-500 leading-relaxed max-w-[560px]">{t('aiKeyDesc')}</p>
-    {window.electronAPI ? AI_KEYS.map((k) => <AiKeyRow key={k.id} {...k} />) : <p className="mt-2 text-[12px] text-zinc-500">{t('aiDesktopOnly')}</p>}
-  </div>
-);
 
 // ---------- Eklentiler (ayarlara entegre): tema seçici + yüklü eklentiler ----------
 const ExtensionsSettings: React.FC<{ onOpenStore?: () => void }> = ({ onOpenStore }) => {

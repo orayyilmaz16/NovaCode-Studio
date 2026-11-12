@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowDown, Bot, Check, ChevronDown, ChevronRight, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
+  ArrowDown, Bot, Check, ChevronDown, ChevronRight, ClipboardCheck, FlaskConical, Hammer, Lock, ScanSearch, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
   Settings as Cog, ShieldCheck, Sparkles, Square, Terminal as TermIcon, Trash2, Wrench, X, ArrowUp, Zap
 } from 'lucide-react';
 import { t, getUiLang } from '../i18n/uiText';
+import '../i18n/uiTextAi'; // AI metinleri (gecikmeli yüklenen ek sözlük)
 import { useSettings } from '../services/SettingsContext';
 import { getSelectedText, replaceSelection } from '../services/editorBridge';
 import { useDictation } from '../services/useDictation';
@@ -12,12 +13,15 @@ import {
   type AiSession, type CategoryId, type ChatMsg, type ToolCard
 } from '../services/aiClient';
 import { ChatSessions } from './ChatSessions';
-import { ThinkingMenu, type ThinkingLevel } from './ThinkingMenu';
+import { ThinkingMenu, type Autonomy, type ThinkingLevel } from './ThinkingMenu';
 import type { AiEvent, AiProvider, LlmModelInfo, LlmProgress } from '../types';
 
 interface AIAssistantProps {
   activeFile?: { name: string; path?: string; language?: string; content?: string } | null;
   hasWorkspace: boolean;
+  /** Açık çalışma klasörü: ajanın değiştirdiği dosyalar bu köke göre açılır. */
+  rootPath?: string | null;
+  onOpenFile?: (path: string) => void;
   onOpenSettings: () => void;
 }
 
@@ -87,8 +91,64 @@ const ToolRow: React.FC<{ c: ToolCard }> = ({ c }) => {
   );
 };
 
+// Ajan çalışırken durum şeridi: adım, çalışan araç, geçen süre, durdur; onay beklerken uyarır
+const AgentStatus: React.FC<{ msg?: ChatMsg; startedAt: number; onStop: () => void }> = ({ msg, startedAt, onStop }) => {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const i = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(i); }, []);
+  const secs = Math.max(0, Math.floor((now - startedAt) / 1000));
+  const running = msg?.tools?.find((c) => c.status === 'running');
+  const waiting = !!msg?.approvals?.some((a) => !a.decided);
+  return (
+    <div className="mx-3 mb-1 flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-2.5 h-8 text-[11.5px] text-violet-100 shrink-0 animate-fade-in" role="status">
+      <span className={`w-2 h-2 rounded-full shrink-0 ${waiting ? 'bg-amber-400' : 'bg-violet-400 animate-pulse'}`} />
+      <span className="font-medium shrink-0">{waiting ? t('aiAgentWaitingApproval') : t('aiAgentWorking')}</span>
+      <span className="text-violet-300/80 shrink-0">· {t('aiAgentStepN').replace('{n}', String(msg?.tools?.length ?? 0))}</span>
+      <span className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-violet-200/70">{running ? `${running.name}${toolTarget(running.input) ? ' · ' + toolTarget(running.input) : ''}` : ''}</span>
+      <span className="font-mono text-[10.5px] text-violet-300/80 shrink-0">{Math.floor(secs / 60)}:{String(secs % 60).padStart(2, '0')}</span>
+      <button type="button" onClick={onStop} title={t('aiStop')} aria-label={t('aiStop')} className="w-6 h-6 rounded-md bg-rose-600/80 hover:bg-rose-500 text-white flex items-center justify-center shrink-0"><Square size={10} /></button>
+    </div>
+  );
+};
+
+// Ajan yanıtının altında özet: değişen dosyalar (tıklayınca editörde açılır), çalıştırılan komut sayısı ve son komutun (derleme/test) sonucu
+const FILE_TOOLS = new Set(['write_file', 'replace_in_file']);
+const AgentSummary: React.FC<{ tools: ToolCard[]; rootPath?: string | null; onOpenFile?: (p: string) => void }> = ({ tools, rootPath, onOpenFile }) => {
+  const files = [...new Set(tools.filter((c) => FILE_TOOLS.has(c.name) && c.status === 'ok' && typeof c.input.path === 'string').map((c) => String(c.input.path).replace(/^\.[\\/]/, '')))];
+  const cmds = tools.filter((c) => c.name === 'run_command');
+  const last = cmds[cmds.length - 1];
+  if (!files.length && !cmds.length) return null;
+  const sep = rootPath?.includes('\\') ? '\\' : '/';
+  const abs = (rel: string) => (rootPath ? `${rootPath.replace(/[\\/]+$/, '')}${sep}${rel.replace(/^[\\/]+/, '').split(/[\\/]/).join(sep)}` : rel);
+  return (
+    <div className="mt-2 rounded-lg border border-violet-500/25 bg-violet-500/5 p-2 space-y-1.5">
+      <div className="flex flex-wrap items-center gap-1.5 text-[10.5px]">
+        {files.length > 0 && <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-1.5 h-4 text-violet-200"><FileCode size={10} />{t('aiAgentChangedFiles').replace('{n}', String(files.length))}</span>}
+        {cmds.length > 0 && <span className="inline-flex items-center gap-1 rounded-full bg-zinc-700/50 px-1.5 h-4 text-zinc-300"><TermIcon size={10} />{cmds.length}</span>}
+        {last && last.status !== 'running' && (
+          <span className={`inline-flex items-center gap-1 rounded-full px-1.5 h-4 min-w-0 max-w-full ${last.status === 'ok' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'}`}>
+            {last.status === 'ok' ? <Check size={10} /> : <X size={10} />}<span className="truncate font-mono">{toolTarget(last.input)}</span>
+          </span>
+        )}
+      </div>
+      {files.map((f) => (
+        <button key={f} type="button" disabled={!onOpenFile} onClick={() => onOpenFile?.(abs(f))} title={`${t('aiAgentOpenFile')}: ${f}`} className="w-full flex items-center gap-1.5 rounded px-1.5 h-6 text-left text-[11px] font-mono text-zinc-300 hover:bg-white/5 hover:text-zinc-50 disabled:hover:bg-transparent transition-colors">
+          <FileCode size={11} className="shrink-0 text-violet-300" /><span className="truncate">{f}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// Ajan görev şablonları: derle / test / denetim / gözden geçir (etiket + ayrıntılı istem, arayüz dilinde)
+const TASKS = [
+  ['aiTaskBuild', 'aiTaskBuildP', Hammer],
+  ['aiTaskTest', 'aiTaskTestP', FlaskConical],
+  ['aiTaskCheck', 'aiTaskCheckP', ScanSearch],
+  ['aiTaskReview', 'aiTaskReviewP', ClipboardCheck]
+] as const;
+
 // ---------- Ana bileşen ----------
-export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspace, onOpenSettings }) => {
+export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspace, rootPath, onOpenFile, onOpenSettings }) => {
   const { values, set: setSetting } = useSettings();
   const api = window.electronAPI?.ai;
   const llmApi = window.electronAPI?.llm;
@@ -101,7 +161,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const [progress, setProgress] = useState<Record<string, LlmProgress>>({});
 
   // Sohbet (ask) ve Ajan (agent) modlarının sohbetleri ayrıdır: her sohbet tek bir moda aittir, liste moda göre süzülür.
-  const defMode: 'ask' | 'agent' = values.aiDefaultMode === 'agent' ? 'agent' : 'ask';
+  // Klasör açık değilse ajan modu kapalıdır: açılışta da Sohbet ile başlanır
+  const defMode: 'ask' | 'agent' = values.aiDefaultMode === 'agent' && hasWorkspace ? 'agent' : 'ask';
   const [sessions, setSessions] = useState<AiSession[]>(() => {
     const loaded = loadSessions();
     return loaded.some((s) => s.mode === defMode) ? loaded : [newSession(defMode), ...loaded];
@@ -121,6 +182,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const thinkingRaw = String(isAgent ? values.aiAgentThinking : values.aiAskThinking);
   const thinkingLevel: ThinkingLevel = (['fast', 'balanced', 'deep'] as const).find((x) => x === thinkingRaw) ?? 'balanced';
   const maxTokensNow = Number(isAgent ? values.aiAgentMaxTokens : values.aiMaxTokens) || (isAgent ? 8192 : 4096);
+  const autonomyRaw = String(values.aiAgentAutonomy);
+  const autonomy: Autonomy = (['ask', 'edits', 'auto'] as const).find((x) => x === autonomyRaw) ?? 'ask';
+  const maxStepsNow = Math.min(40, Math.max(6, Number(values.aiAgentMaxSteps) || 20));
+  const [runStart, setRunStart] = useState(0);
   const [renameId, setRenameId] = useState<string | null>(null);
   const fileHintRef = useRef<string | undefined>(undefined);
   fileHintRef.current = activeFile?.name;
@@ -287,6 +352,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     setInput(drafts.current[m]);
   };
 
+  // Klasör kapandıysa (veya hiç açılmadıysa) ajan sohbetindeyken Sohbet'e dön; ajan sohbetleri silinmez
+  useEffect(() => {
+    if (!hasWorkspace && mode === 'agent' && !busy) switchMode('ask');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasWorkspace, mode, busy]);
+
   const startNew = () => {
     // Etkin sohbet zaten boşsa yenisini açma: boş sohbet birikmez
     if (!session.messages.length) { setInput(''); setImages([]); taRef.current?.focus(); return; }
@@ -365,6 +436,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     if (slash) {
       const [, name, rest] = slash;
       if (name === 'new') { startNew(); return; }
+      if (name === 'agent' && !hasWorkspace) return; // ajan klasör açılmadan etkinleşmez
       if (name === 'ask' || name === 'agent') { switchMode(name); setInput(rest); return; }
       const c = custom.find((x) => x.name === name);
       if (c) text = c.template.includes('{{args}}') ? c.template.replace('{{args}}', rest) : `${c.template}\n\n${rest}`;
@@ -384,6 +456,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     setInput('');
     setImages([]);
     setBusy(true);
+    setRunStart(Date.now());
 
     const messages = history.filter((m) => m.text).map((m, i, arr) => {
       const last = i === arr.length - 1;
@@ -400,7 +473,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
       maxTokens: maxTokensNow,
       instructions: String((isAgent ? values.aiAgentInstructions : values.aiAskInstructions) || '').slice(0, 600) || undefined,
       mode, lang: getUiLang(),
-      autoApproveEdits: !!values.aiAutoApproveEdits,
+      autoApproveEdits: isAgent && autonomy !== 'ask',
+      autoSafeCommands: isAgent && autonomy === 'auto',
+      autonomy: isAgent ? autonomy : undefined,
+      maxSteps: isAgent ? maxStepsNow : undefined,
       allowCommands: values.aiAllowCommands !== false,
       useProject: true,
       messages
@@ -461,8 +537,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   return (
     <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden bg-nv-side border-l border-nv-border text-zinc-300">
       {/* Başlık: sohbet seçici + eylemler */}
-      <div className="relative flex items-center gap-1 px-2 h-10 border-b border-nv-border shrink-0">
-        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0"><Sparkles size={13} className="text-white" /></div>
+      <div className={`relative flex items-center gap-1 px-2 h-10 border-b shrink-0 transition-colors ${isAgent ? 'border-violet-500/30' : 'border-nv-border'}`}>
+        <div className={`w-6 h-6 rounded-md bg-gradient-to-br flex items-center justify-center shrink-0 transition-colors ${isAgent ? 'from-violet-500 to-fuchsia-500' : 'from-indigo-500 to-purple-500'}`}>{isAgent ? <Zap size={13} className="text-white" /> : <Sparkles size={13} className="text-white" />}</div>
         <ChatSessions
           sessions={modeSessions}
           current={session}
@@ -500,10 +576,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         <div className="grid grid-cols-2 gap-0.5 p-0.5 rounded-lg bg-nv-input/60" role="tablist">
           {(['ask', 'agent'] as const).map((m) => (
             <button
-              key={m} role="tab" aria-selected={mode === m} onClick={() => switchMode(m)} disabled={busy && mode !== m}
-              className={`h-6 rounded-md text-[12px] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 ${mode === m ? 'bg-nv-active text-zinc-50 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+              key={m} role="tab" aria-selected={mode === m} aria-disabled={m === 'agent' && !hasWorkspace} onClick={() => switchMode(m)}
+              disabled={(busy && mode !== m) || (m === 'agent' && !hasWorkspace)}
+              title={m === 'agent' && !hasWorkspace ? t('aiAgentNeedsFolder') : undefined}
+              className={`h-6 rounded-md text-[12px] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${mode === m ? (m === 'agent' ? 'bg-violet-500/25 text-violet-50 shadow-sm' : 'bg-nv-active text-zinc-50 shadow-sm') : 'text-zinc-400 hover:text-zinc-200'}`}
             >
-              {m === 'ask' ? <MessageSquare size={12} /> : <Zap size={12} />}{m === 'ask' ? t('aiModeAsk') : t('aiModeAgent')}
+              {m === 'ask' ? <MessageSquare size={12} /> : m === 'agent' && !hasWorkspace ? <Lock size={11} /> : <Zap size={12} />}{m === 'ask' ? t('aiModeAsk') : t('aiModeAgent')}
               {modeCount(m) > 0 && <span className="text-[10px] px-1 rounded-full bg-white/10 text-zinc-400">{modeCount(m)}</span>}
             </button>
           ))}
@@ -602,6 +680,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
                   <span className="flex items-center gap-1.5 text-zinc-500"><Loader2 size={12} className="animate-spin" />{t('aiThinking')}</span>
                 ) : null}
                 {m.tools && m.tools.length > 0 && <div className="mt-2 mb-1 space-y-1">{m.tools.map((c) => <ToolRow key={c.id} c={c} />)}</div>}
+                {m.tools && m.tools.length > 0 && <AgentSummary tools={m.tools} rootPath={rootPath} onOpenFile={onOpenFile} />}
                 {m.approvals?.map((a) => (
                   <div key={a.id} className="my-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5">
                     <div className="flex items-center gap-1.5 text-[11.5px] text-amber-200 font-semibold min-w-0"><ShieldCheck size={13} className="shrink-0" /><span className="truncate">{t('aiApprovalTitle')}: {a.summary}</span></div>
@@ -639,6 +718,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
       )}
       </div>
 
+      {/* Ajan çalışma durumu */}
+      {busy && isAgent && <AgentStatus msg={session?.messages[session.messages.length - 1]} startedAt={runStart} onStop={stop} />}
+
       {/* Eğik çizgi önerileri */}
       {slashList.length > 0 && (
         <div className="mx-3 mb-1 rounded-lg border border-zinc-700 bg-zinc-900 text-[11.5px] overflow-hidden shrink-0">
@@ -656,7 +738,20 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); void addFiles(e.dataTransfer.files); } }}
       >
-        <div className="rounded-xl border border-zinc-700/80 bg-nv-input/50 focus-within:border-indigo-500 transition-colors">
+        {isAgent && hasWorkspace && !busy && (
+          <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pb-1.5" aria-label={t('aiModeAgent')}>
+            <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 h-6 text-[11px] text-zinc-400" title={`${t('aiAutonomyLabel')}: ${autonomy === 'ask' ? t('optAutoAsk') : autonomy === 'edits' ? t('optAutoEdits') : t('optAutoFull')}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${autonomy === 'auto' ? 'bg-rose-400' : autonomy === 'edits' ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+              {autonomy === 'ask' ? t('optAutoAsk') : autonomy === 'edits' ? t('optAutoEdits') : t('optAutoFull')}
+            </span>
+            {TASKS.map(([label, prompt, Ico]) => (
+              <button key={label} type="button" onClick={() => quick(t(prompt))} title={t(prompt)} className="shrink-0 inline-flex items-center gap-1 rounded-full border border-violet-500/30 bg-violet-500/10 px-2 h-6 text-[11px] text-violet-100 hover:bg-violet-500/20 transition-colors">
+                <Ico size={11} />{t(label)}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className={`rounded-xl border border-zinc-700/80 bg-nv-input/50 transition-colors ${isAgent ? 'focus-within:border-violet-500' : 'focus-within:border-indigo-500'}`}>
           {images.length > 0 && (
             <div className="flex gap-1.5 px-2 pt-2 flex-wrap">
               {images.map((im, i) => (
@@ -694,6 +789,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
               onLevel={(l) => setSetting(isAgent ? 'aiAgentThinking' : 'aiAskThinking', l)}
               maxTokens={maxTokensNow}
               onMaxTokens={(n) => setSetting(isAgent ? 'aiAgentMaxTokens' : 'aiMaxTokens', n)}
+              agent={isAgent ? { autonomy, onAutonomy: (a) => setSetting('aiAgentAutonomy', a), maxSteps: maxStepsNow, onMaxSteps: (n) => setSetting('aiAgentMaxSteps', n) } : undefined}
               disabled={busy}
             />
             <button className="min-w-0 flex-1 text-left px-1.5 text-[10.5px] text-zinc-500 hover:text-zinc-300 truncate" onClick={onOpenSettings} title={t('aiOpenSettings')}>
@@ -702,7 +798,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
             {busy ? (
               <button className="w-7 h-7 rounded-lg bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center" onClick={stop} title={t('aiStop')} aria-label={t('aiStop')}><Square size={12} /></button>
             ) : (
-              <button className="w-7 h-7 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center disabled:opacity-40 disabled:hover:bg-indigo-600" disabled={!canSend} onClick={() => void send(input)} title={t('aiSend')} aria-label={t('aiSend')}><ArrowUp size={15} /></button>
+              <button className={`w-7 h-7 rounded-lg text-white flex items-center justify-center disabled:opacity-40 transition-colors ${isAgent ? 'bg-violet-600 hover:bg-violet-500 disabled:hover:bg-violet-600' : 'bg-indigo-600 hover:bg-indigo-500 disabled:hover:bg-indigo-600'}`} disabled={!canSend} onClick={() => void send(input)} title={t('aiSend')} aria-label={t('aiSend')}><ArrowUp size={15} /></button>
             )}
           </div>
         </div>
