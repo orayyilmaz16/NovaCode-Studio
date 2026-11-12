@@ -206,6 +206,12 @@ export const SCM_TEXT = {
   bpError: {
     tr: "Dal listesi alınamadı. Uygulamayı kapatıp yeniden başlat (güncelleme sonrası gerekir); sürerse klasörün bir Git deposu olduğundan emin ol.", en: "Could not load the branch list. Quit and restart the app (needed after an update); if it persists, make sure the folder is a Git repository.", de: "Branch-Liste konnte nicht geladen werden. App beenden und neu starten (nach einem Update nötig); falls es bleibt, prüfen, ob der Ordner ein Git-Repository ist.", ru: "Не удалось загрузить список веток. Закройте и перезапустите приложение (нужно после обновления); если не помогло, убедитесь, что папка — Git-репозиторий.", ar: "تعذّر تحميل قائمة الفروع. أغلق التطبيق وأعد تشغيله (مطلوب بعد التحديث)؛ وإن استمر الأمر فتأكد أن المجلد مستودع Git.", es: "No se pudo cargar la lista de ramas. Cierra y reinicia la app (necesario tras una actualización); si persiste, comprueba que la carpeta sea un repositorio Git.", fr: "Impossible de charger la liste des branches. Quittez et relancez l’application (nécessaire après une mise à jour) ; si cela persiste, vérifiez que le dossier est un dépôt Git.", az: "Budaq siyahısı yüklənmədi. Tətbiqi bağlayıb yenidən başlat (yeniləmədən sonra lazımdır); davam edərsə qovluğun Git deposu olduğunu yoxla.",
   },
+  scmLnCol: {
+    tr: "Sat {l}, Süt {c}", en: "Ln {l}, Col {c}", de: "Z {l}, Sp {c}", ru: "Стр {l}, Стб {c}", ar: "س {l}، ع {c}", es: "Ln {l}, Col {c}", fr: "Ln {l}, Col {c}", az: "Sət {l}, Süt {c}",
+  },
+  scmSelected: {
+    tr: "({n} seçili)", en: "({n} selected)", de: "({n} ausgewählt)", ru: "(выбрано {n})", ar: "({n} محدد)", es: "({n} seleccionados)", fr: "({n} sélectionnés)", az: "({n} seçilib)",
+  },
 } satisfies Record<string, Dict>;
 
 export type ScmTextKey = keyof typeof SCM_TEXT;

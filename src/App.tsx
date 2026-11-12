@@ -56,6 +56,7 @@ import { previewKind } from './services/previewKind';
 import type { FileItem, ConsoleLog, GitStatus } from './types';
 import type { PickerMode } from './components/BranchPicker';
 import { useProblems } from './services/problems';
+import { useCursor } from './services/cursorStore';
 import './i18n/uiTextScm';
 
 export function App() {
@@ -84,6 +85,7 @@ export function App() {
   const [noticeShown, setNoticeShown] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const problems = useProblems();
+  const cursor = useCursor();
 
   // Paneller
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions' | 'debug'>('files');
@@ -1548,6 +1550,12 @@ export function App() {
             {activeFile?.isModified && <span className="status-item text-amber-300">{t('stUnsaved')}</span>}
             {activeFile && (
               <>
+                {cursor && !activeFile.diff && (
+                  <button className="status-item" onClick={() => setPalette(':')} title={`${t('cmdGoToLine')} (Ctrl+G)`}>
+                    {t('scmLnCol').replace('{l}', String(cursor.line)).replace('{c}', String(cursor.col))}
+                    {cursor.selected > 0 && <span className="text-zinc-500">{t('scmSelected').replace('{n}', String(cursor.selected))}</span>}
+                  </button>
+                )}
                 <span className="status-item hidden @lg:inline-flex">{t('stSpaces').replace(/\d+/, String(tabSize))}</span>
                 <span className="status-item hidden @lg:inline-flex">UTF-8</span>
                 {lspEntry && (

@@ -5,6 +5,7 @@ import { FileTypeIcon } from './FileTypeIcon';
 import { bindDebugEditor } from '../services/debugEditor';
 import { bindLsp, setLspMonaco } from '../services/lspClient';
 import { setActiveEditor } from '../services/editorBridge';
+import { setCursor } from '../services/cursorStore';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
 import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink } from 'lucide-react';
 import { Logo } from './Logo';
@@ -445,6 +446,16 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               if (activeFile.content !== undefined && ed.getValue() !== activeFile.content) ed.setValue(activeFile.content);
               setEditorInstance(ed);
               setActiveEditor(ed);
+              const report = () => {
+                const p = ed.getPosition();
+                const sel = ed.getSelection();
+                const m = ed.getModel();
+                setCursor(p ? { line: p.lineNumber, col: p.column, selected: sel && m && !sel.isEmpty() ? m.getValueInRange(sel).length : 0 } : null);
+              };
+              report();
+              ed.onDidChangeCursorPosition(report);
+              ed.onDidChangeCursorSelection(report);
+              ed.onDidDispose(() => setCursor(null));
             }}
             onChange={(val) => onChangeContent(activeFile.id, val || '')}
             options={editorOptions}
