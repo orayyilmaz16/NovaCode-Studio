@@ -50,7 +50,8 @@
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 539 |
+| `src/components/AIAssistant.tsx` | 582 |
+| `src/components/ChatSessions.tsx` | 243 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/EditorArea.tsx` | 363 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
@@ -76,7 +77,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/services/SettingsContext.tsx` | 128 |
-| `src/services/aiClient.ts` | 139 |
+| `src/services/aiClient.ts` | 228 |
 | `src/services/editorBridge.ts` | 80 |
 | `src/services/editorTheme.ts` | 96 |
 | `src/services/extensionsService.ts` | 220 |
@@ -94,7 +95,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1888 |
+| `src/i18n/uiText.ts` | 1939 |
 
 ### Betikler
 | Dosya | Satır |
@@ -142,7 +143,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 611 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 628 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 93 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

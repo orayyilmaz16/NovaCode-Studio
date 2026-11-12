@@ -51,10 +51,16 @@ export interface AiSession {
   createdAt: number;
   updatedAt: number;
   messages: ChatMsg[];
+  /** Üste sabitlenir ve otomatik temizlikte silinmez. */
+  pinned?: boolean;
+  /** Kullanıcı adı elle verdiyse otomatik adlandırma o sohbete dokunmaz. */
+  titleLocked?: boolean;
+  /** Otomatik ad aşaması: 0 yok, 1 ilk mesajdan, 2 ilk yanıttan sonra inceltildi. */
+  autoLevel?: 0 | 1 | 2;
 }
 
 const KEY = 'nova.ai.sessions.v1';
-const MAX_SESSIONS = 30;
+const MAX_SESSIONS = 50;
 const MAX_MSGS = 100;
 
 export const uid = () => {
@@ -81,9 +87,12 @@ export function loadSessions(): AiSession[] {
         mode: (s.mode === 'agent' ? 'agent' : 'ask') as 'ask' | 'agent',
         createdAt: Number(s.createdAt) || Date.now(),
         updatedAt: Number(s.updatedAt) || Date.now(),
+        pinned: s.pinned === true,
+        titleLocked: s.titleLocked === true,
+        autoLevel: (s.autoLevel === 1 || s.autoLevel === 2 ? s.autoLevel : 0) as 0 | 1 | 2,
         messages: (s.messages as ChatMsg[]).slice(-MAX_MSGS).map((m) => ({ ...m, streaming: false }))
       }))
-      .slice(0, MAX_SESSIONS);
+      .slice(0, MAX_SESSIONS * 2);
   } catch {
     return [];
   }
@@ -91,8 +100,11 @@ export function loadSessions(): AiSession[] {
 
 export function saveSessions(list: AiSession[]) {
   try {
-    const trimmed = [...list].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, MAX_SESSIONS);
-    window.localStorage.setItem(KEY, JSON.stringify(trimmed));
+    // Sabitlenenler hiç düşmez; kalan kontenjan en yeni sohbetlere gider.
+    const byNew = [...list].sort((a, b) => b.updatedAt - a.updatedAt);
+    const pinned = byNew.filter((x) => x.pinned);
+    const rest = byNew.filter((x) => !x.pinned).slice(0, Math.max(5, MAX_SESSIONS - pinned.length));
+    window.localStorage.setItem(KEY, JSON.stringify([...pinned, ...rest]));
   } catch {
     /* depolama kapalı veya dolu */
   }
@@ -105,6 +117,83 @@ export function clearSessions() {
 export function titleFrom(text: string): string {
   const t = text.replace(/\s+/g, ' ').trim();
   return t.length > 40 ? t.slice(0, 40) + '…' : t;
+}
+
+// ---------- Otomatik adlandırma (tamamen yerelde, kural tabanlı: sohbet içeriği hiçbir yere gönderilmez) ----------
+const FILLER_START = /^(lütfen|merhaba|selam|selamlar|hey|hi|hello|hallo|hola|bonjour|salam|привет|здравствуйте|пожалуйста|please|bitte|por favor|s['’]il (vous|te) pla[iî]t|zəhmət olmasa|can you|could you|would you|will you|kannst du|könntest du|puedes|peux-tu|pouvez-vous|bana|şunu|bunu|bir)(?=[\s,!:;-]|$)[\s,!:;-]*/i;
+const FILLER_END = /[\s,]*(yapar mısın|eder misin|eder misiniz|yazar mısın|yapabilir misin|mısın|misin|musun|müsün|please|lütfen|bitte|por favor|пожалуйста)[?.!\s]*$/i;
+const GENERIC = /^(açıkla|acikla|explain|erkläre|объясни|explica|explique|izah et|düzelt|fix|hata|bug|test|refactor|yaz|write|help|yardım|merhaba|selam|hello|hi)$/i;
+const upperFirst = (x: string) => (x ? x.charAt(0).toLocaleUpperCase() + x.slice(1) : x);
+
+function clip(text: string, max = 44): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const sp = cut.lastIndexOf(' ');
+  return `${(sp > max * 0.5 ? cut.slice(0, sp) : cut).replace(/[\s,.;:-]+$/, '')}…`;
+}
+
+/** İlk iletiden kısa, konuyu anlatan bir ad üretir. Boş dönerse çağıran yedek kullanır. */
+export function smartTitle(text: string, fileHint?: string): string {
+  const hadCode = /```|^( {4}|	)\S/m.test(text);
+  let x = text
+    .replace(/```[\s\S]*?(```|$)/g, ' ')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/https?:\/\/\S+/g, ' ')
+    .replace(/^\/[\w-]+\s*/, '')
+    .replace(/[#*_>~|]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  x = (x.split(/(?<=[.!?…])\s/)[0] ?? '').trim();
+  for (let i = 0; i < 3; i++) x = x.replace(FILLER_START, '');
+  x = x.replace(FILLER_END, '').replace(/[?.!,:;\s]+$/, '').trim();
+  const words = x.split(' ').filter(Boolean);
+  const short = words.length < 3 || GENERIC.test(x);
+  if (x.length >= 3 && !(short && fileHint)) return upperFirst(clip(x));
+  if (fileHint) return clip(x.length >= 2 ? `${upperFirst(x)} · ${fileHint}` : fileHint, 44);
+  if (hadCode && x.length < 3) return '';
+  return x.length >= 2 ? upperFirst(x) : '';
+}
+
+/** İlk yanıttan sonra adı inceltir: ilk ileti belirsizse dosya adı, kod dili veya yanıtın konusu eklenir. */
+export function refineTitle(session: AiSession, fileHint?: string): string {
+  const user = session.messages.find((m) => m.role === 'user')?.text ?? '';
+  const bot = session.messages.find((m) => m.role === 'assistant' && m.text)?.text ?? '';
+  const base = smartTitle(user, fileHint);
+  const generic = base.split(' ').length < 3 || GENERIC.test(base);
+  if (!generic) return base;
+  const lang = /```([a-z][\w+#.-]*)/i.exec(bot)?.[1];
+  const topic = fileHint || lang;
+  if (base && topic && !base.toLowerCase().includes(topic.toLowerCase())) return clip(`${base} · ${topic}`, 44);
+  if (base) return base;
+  const first = bot.replace(/```[\s\S]*?(```|$)/g, ' ').replace(/[#*_>`~|]+/g, ' ').replace(/\s+/g, ' ').trim().split(/(?<=[.!?…])\s/)[0] ?? '';
+  return first.length >= 3 ? upperFirst(clip(first)) : topic ? clip(topic) : '';
+}
+
+export type DateGroup = 'today' | 'yesterday' | 'week' | 'older';
+export function dateGroup(ts: number, now = Date.now()): DateGroup {
+  const d0 = new Date(now); d0.setHours(0, 0, 0, 0);
+  const day = 86400000;
+  if (ts >= d0.getTime()) return 'today';
+  if (ts >= d0.getTime() - day) return 'yesterday';
+  if (ts >= d0.getTime() - 6 * day) return 'week';
+  return 'older';
+}
+
+export function relativeTime(ts: number, lang: string, now = Date.now()): string {
+  const diff = ts - now;
+  const abs = Math.abs(diff);
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto', style: 'short' });
+  if (abs < 60_000) return rtf.format(0, 'second');
+  if (abs < 3_600_000) return rtf.format(Math.round(diff / 60_000), 'minute');
+  if (abs < 86_400_000) return rtf.format(Math.round(diff / 3_600_000), 'hour');
+  if (abs < 30 * 86_400_000) return rtf.format(Math.round(diff / 86_400_000), 'day');
+  return new Date(ts).toLocaleDateString(lang);
+}
+
+export function sessionToMarkdown(s: AiSession, you: string, bot: string): string {
+  const lines = [`# ${s.title || 'NovaCode'}`, '', `_${new Date(s.createdAt).toLocaleString()}_`, ''];
+  for (const m of s.messages) if (m.text) lines.push(`## ${m.role === 'user' ? you : bot}`, '', m.text, '');
+  return lines.join('\n');
 }
 
 /** Yanıt metnini düz metin ve kod bloklarına ayırır (``` çitleri). */
