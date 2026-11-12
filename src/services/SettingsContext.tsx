@@ -36,7 +36,7 @@ export function useSettings(): SettingsApi {
   return v;
 }
 
-// Görünümü anında uygular: tema, vurgu rengi, yazı tipi, yakınlaştırma, hareket, dil, pencere başlık çubuğu.
+// Görünümü anında uygular: tema, vurgu rengi, yazı tipi, hareket (yakınlaştırma ve pencere rengi ayrı efektlerde).
 function applyAppearance(values: SettingsValues, mode: ResolvedMode) {
   const root = document.documentElement;
   root.dataset.theme = mode;
@@ -47,11 +47,14 @@ function applyAppearance(values: SettingsValues, mode: ResolvedMode) {
   const shades = accent[mode];
   ACCENT_VARS.forEach((n, i) => root.style.setProperty(`--color-indigo-${n}`, shades[i]));
 
-  const zoom = Math.min(1.5, Math.max(0.8, Number(values.uiZoom) / 100));
+}
+
+// Yakınlaştırma ayrı uygulanır: tema/renk gibi ucuz işlerle birlikte her seferinde yeniden çalışmasın.
+function applyZoom(percent: number) {
+  const zoom = Math.round(Math.min(150, Math.max(80, Number(percent) || 100))) / 100;
   const api = window.electronAPI?.ui;
   if (api) api.setZoom(zoom);
-  else root.style.zoom = String(zoom);
-  void api?.setTheme(mode);
+  else document.documentElement.style.zoom = String(zoom);
 }
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -75,7 +78,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     applyAppearance(values, mode);
-  }, [values.themeMode, values.accent, values.uiFont, values.uiZoom, values.animations, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [values.themeMode, values.accent, values.uiFont, values.animations, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pencere zemin rengi yalnız mod değişince
+  useEffect(() => { void window.electronAPI?.ui.setTheme(mode); }, [mode]);
+
+  // Ölçek: bir sonraki çizim karesinde tek sefer uygulanır (art arda değişiklikler birleşir, takılma olmaz)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => applyZoom(Number(values.uiZoom)));
+    return () => cancelAnimationFrame(id);
+  }, [values.uiZoom]);
 
   // Kalıcılık: kısa gecikmeyle (kaydırıcı sürüklerken her adımda yazma)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);

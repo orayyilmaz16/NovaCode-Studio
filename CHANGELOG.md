@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### tr
+- **Ölçek düzeltmesi:** Arayüz ölçeği kaydırıcısı sürüklerken yüzde değerinin kendi kendine gidip gelmesi ve takılma giderildi (değer bırakınca uygulanır, ok tuşları anında). Her ölçek değişiminde çıkan başlık çubuğu hatası kaldırıldı.
 - **Sohbet listesi yenilendi:** Açılır sohbet seçici; arama (başlık ve ileti metni), tarih grupları, sabitleme, yeniden adlandırma (çift tık / F2), Markdown dışa aktarma, onaylı silme ve "sabitlenmemişleri sil". Sohbetler ilk iletiden ve ilk yanıttan sonra konuya göre otomatik adlandırılır (tamamen yerelde, veri dışarı gitmez); adı elle verince kilitlenir.
 - **Özel pencere düğmeleri:** Küçült / büyüt-aşağı al / kapat düğmeleri artık başlık çubuğunun tasarımına uyumlu, kendi çizdiğimiz simgelerle geliyor (Windows/Linux; macOS sistem düğmelerini korur). Kapat düğmesi üzerine gelince kırmızı olur.
 - **Gerçek VS Code simgeleri:** Dosya simgeleri artık Material Icon Theme (MIT) ile geliyor; uzantıya ve dosya adına göre ~1.250 simge, gerektikçe yüklenir.
@@ -75,6 +76,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **Zoom fix:** The interface scale slider no longer jumps back and forth or lags while dragging (applied on release, arrow keys apply instantly). Removed the title bar error that fired on every scale change.
 - **Chat list revamp:** Dropdown chat picker with search (titles and message text), date groups, pinning, rename (double-click / F2), Markdown export, confirmed delete and "delete unpinned". Chats are auto-named from the first message and refined after the first reply (fully local, no data leaves the device); a manual name locks it.
 - **Custom window controls:** Minimize / maximize-restore / close now match the title bar design with our own icons (Windows/Linux; macOS keeps system buttons). Close turns red on hover.
 - **Real VS Code icons:** File icons now come from Material Icon Theme (MIT): ~1,250 icons matched by extension and file name, loaded on demand.
