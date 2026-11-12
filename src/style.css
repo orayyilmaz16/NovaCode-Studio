@@ -425,3 +425,9 @@ button.status-item:hover {
 .ab-item[aria-disabled="true"]:active svg {
   transform: none;
 }
+
+/* Hatalı / uyarılı satırlar (Sorunlar): satır zemini + sol çizgi; dalgalı alt çizgi Monaco'dan gelir */
+.nova-err-line { background: rgba(241, 76, 76, 0.09); }
+.nova-warn-line { background: rgba(204, 167, 0, 0.07); }
+.nova-err-bar { border-left: 3px solid #f14c4c; margin-left: 3px; }
+.nova-warn-bar { border-left: 3px solid #cca700; margin-left: 3px; }

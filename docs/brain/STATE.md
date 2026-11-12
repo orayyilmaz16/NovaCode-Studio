@@ -31,12 +31,12 @@
 | `electron-ai.cjs` | 691 |
 | `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
-| `electron-git.cjs` | 214 |
+| `electron-git.cjs` | 406 |
 | `electron-github.cjs` | 329 |
 | `electron-llm.cjs` | 256 |
 | `electron-lsp.cjs` | 271 |
 | `electron-main.cjs` | 520 |
-| `electron-preload.cjs` | 201 |
+| `electron-preload.cjs` | 221 |
 | `electron-pty.cjs` | 118 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
@@ -47,23 +47,24 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1459 |
+| `src/App.tsx` | 1569 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 340 |
+| `src/types.ts` | 409 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
 | `src/components/AIAssistant.tsx` | 820 |
+| `src/components/BranchPicker.tsx` | 195 |
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 378 |
+| `src/components/EditorArea.tsx` | 485 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
-| `src/components/FileTree.tsx` | 919 |
+| `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitPanel.tsx` | 608 |
+| `src/components/GitPanel.tsx` | 899 |
 | `src/components/GithubAccount.tsx` | 132 |
 | `src/components/LandingPage.tsx` | 135 |
 | `src/components/Logo.tsx` | 34 |
@@ -71,12 +72,13 @@
 | `src/components/Menu.tsx` | 115 |
 | `src/components/MenuBar.tsx` | 95 |
 | `src/components/Preview.tsx` | 317 |
+| `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
 | `src/components/SettingsPage.tsx` | 569 |
 | `src/components/SplashScreen.tsx` | 38 |
-| `src/components/Terminal.tsx` | 551 |
+| `src/components/Terminal.tsx` | 560 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/UpdateDialog.tsx` | 156 |
 | `src/components/WindowControls.tsx` | 48 |
@@ -91,11 +93,13 @@
 | `src/services/editorBridge.ts` | 80 |
 | `src/services/editorTheme.ts` | 96 |
 | `src/services/extensionsService.ts` | 220 |
+| `src/services/gitExplain.ts` | 18 |
 | `src/services/lang.ts` | 13 |
 | `src/services/lspClient.ts` | 190 |
 | `src/services/lspStore.ts` | 34 |
 | `src/services/monacoShim.ts` | 28 |
 | `src/services/previewKind.ts` | 11 |
+| `src/services/problems.ts` | 141 |
 | `src/services/ptyBus.ts` | 24 |
 | `src/services/settings.ts` | 249 |
 | `src/services/terminalBridge.ts` | 32 |
@@ -108,9 +112,10 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1605 |
+| `src/i18n/uiText.ts` | 1606 |
 | `src/i18n/uiTextAi.ts` | 516 |
 | `src/i18n/uiTextDev.ts` | 126 |
+| `src/i18n/uiTextScm.ts` | 210 |
 
 ### Betikler
 | Dosya | Satır |
@@ -129,7 +134,7 @@
 |---|---|
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/debug.test.cjs` | 112 |
-| `scripts/tests/git.test.cjs` | 84 |
+| `scripts/tests/git.test.cjs` | 163 |
 | `scripts/tests/lsp.test.cjs` | 97 |
 | `scripts/tests/pty.test.cjs` | 84 |
 | `scripts/tests/sync.test.cjs` | 58 |
@@ -150,7 +155,7 @@
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
 | ext | `ext:checkUpdates`, `ext:details`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDataUrl`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
-| git | `git:branches`, `git:checkout`, `git:commit`, `git:createBranch`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:pull`, `git:push`, `git:stage`, `git:stageAll`, `git:status`, `git:sync`, `git:unstage` |
+| git | `git:amend`, `git:branches`, `git:checkout`, `git:checkoutRef`, `git:commit`, `git:commitFiles`, `git:createBranch`, `git:createBranchFrom`, `git:createTag`, `git:deleteBranch`, `git:deleteTag`, `git:diffFile`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:merge`, `git:mergeAbort`, `git:mergeContinue`, `git:pull`, `git:push`, `git:pushTag`, `git:refs`, `git:resolve`, `git:stage`, `git:stageAll`, `git:stashApply`, `git:stashDrop`, `git:stashList`, `git:stashPop`, `git:stashPush`, `git:status`, `git:sync`, `git:undoCommit`, `git:unstage` |
 | github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
 | llm | `llm:cancel`, `llm:delete`, `llm:download`, `llm:status` |
 | lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
@@ -166,7 +171,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 719 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 785 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 95 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
@@ -297,6 +302,7 @@
 | [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
 | [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör davranışları, kalıcılık ve gizli değerler |
+| [[source-control]] | `docs/brain/actions/source-control.md` | Kaynak denetimi: fark sekmesi, dal/etiket seçici, birleştirme, stash, geçmiş; Sorunlar (hata/uyarı) sayacı ve renkleri |
 | [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: gerçek PTY (xterm.js) ve klasik boru terminali, çoklu oturum, panel davranışı |
 | [[testing]] | `docs/brain/actions/testing.md` | Değişikliği doğrulamak: tip, derleme, birim ve entegrasyon testleri, uygulamayı çalıştırma |
 | [[text-buffer]] | `docs/brain/actions/text-buffer.md` | Özel metin tamponu (piece table) ve ajanın edit_lines aracı |

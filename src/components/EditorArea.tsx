@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import Editor from '@monaco-editor/react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import Editor, { DiffEditor } from '@monaco-editor/react';
+import { bindProblemDecorations, normPath, setProblemsMonaco, useProblems } from '../services/problems';
 import { FileTypeIcon } from './FileTypeIcon';
 import { bindDebugEditor } from '../services/debugEditor';
 import { bindLsp, setLspMonaco } from '../services/lspClient';
 import { setActiveEditor } from '../services/editorBridge';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
-import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns } from 'lucide-react';
+import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink } from 'lucide-react';
 import { Logo } from './Logo';
 import { defineNovaThemes } from '../services/editorTheme';
 import { useSettings } from '../services/SettingsContext';
@@ -39,6 +40,47 @@ interface EditorAreaProps {
   rootPath?: string | null;
   rootName?: string;
   collab?: CollabConfig;
+  /** Fark sekmesinden gerçek dosyayı aç. */
+  onOpenPath?: (path: string) => void;
+}
+
+/**
+ * Monaco DiffEditor sarmalayıcı: @monaco-editor/react 4.7, yeni Monaco'da kapanırken modeli editörden önce yok edip
+ * "TextModel got disposed before DiffEditorWidget model got reset" hatası verir. Modelleri biz sıfırlayıp yok ederiz.
+ */
+const SafeDiff: React.FC<{ theme: string; beforeMount: (m: any) => void; language: string; original: string; modified: string; options: object }> = ({ theme, beforeMount, language, original, modified, options }) => {
+  const ed = useRef<any>(null);
+  useEffect(() => () => {
+    const e = ed.current;
+    ed.current = null;
+    try {
+      const m = e?.getModel?.();
+      e?.setModel?.(null);
+      m?.original?.dispose();
+      m?.modified?.dispose();
+    } catch { /* editör zaten kapanmış */ }
+  }, []);
+  return (
+    <DiffEditor
+      height="100%"
+      theme={theme}
+      beforeMount={beforeMount}
+      language={language}
+      original={original}
+      modified={modified}
+      keepCurrentOriginalModel
+      keepCurrentModifiedModel
+      onMount={(e) => { ed.current = e; }}
+      options={options as never}
+    />
+  );
+};
+
+/** Editör modelinin kimliği (Monaco Uri dizgesi): gerçek dosya file://, adsız dosya inmemory://untitled. */
+function fileModelPath(f: { id: string; path?: string }): string {
+  if (!f.path) return `inmemory://untitled/${encodeURIComponent(f.id)}`;
+  const p = f.path.split('\\').join('/').replace(/^\//, '');
+  return 'file:///' + encodeURI(p).replace(/[?#]/g, encodeURIComponent);
 }
 
 // Dosya türüne göre simge rengi (VS Code benzeri ayırt edicilik)
@@ -70,6 +112,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   rootPath,
   rootName,
   collab,
+  onOpenPath,
 }) => {
   // Ayarlar: yazı tipi, tema, imleç... değiştiği an editöre yansır (gerçek zamanlı)
   const { values } = useSettings();
@@ -78,8 +121,29 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   const [copied, setCopied] = React.useState(false);
   const [savedEffect, setSavedEffect] = React.useState(false);
   const [editorInstance, setEditorInstance] = useState<any>(null);
+  const [diffInline, setDiffInline] = useState(false);
+  const monacoRef = useRef<any>(null);
+  const problems = useProblems();
   const [collabStatus, setCollabStatus] = useState<'off' | 'connecting' | 'synced' | 'error'>('off');
   const activeFile = openFiles.find((f) => f.id === activeFileId);
+
+  // Açık her dosyanın modeli sekme değiştirince yaşar (Sorunlar sayacı tüm açık dosyaları görsün, geri al geçmişi korunsun);
+  // kapanan sekmenin modeli burada serbest bırakılır.
+  useEffect(() => {
+    const m = monacoRef.current;
+    if (!m) return;
+    const want = new Set(openFiles.filter((f) => !f.diff).map((f) => m.Uri.parse(fileModelPath(f)).toString()));
+    for (const model of m.editor.getModels()) {
+      const u = model.uri;
+      if ((u.scheme === 'file' || (u.scheme === 'inmemory' && u.authority === 'untitled')) && !want.has(u.toString())) model.dispose();
+    }
+  }, [openFiles]);
+
+  // Hatalı satırlar kırmızı, uyarılı satırlar sarı çizgiyle işaretlenir
+  useEffect(() => {
+    if (!editorInstance || !activeFile || activeFile.diff) return;
+    try { return bindProblemDecorations(editorInstance); } catch { return; }
+  }, [editorInstance, activeFile?.id, activeFile?.diff]);
 
   // Hata ayıklama: gutter'da kesme noktası (tıkla / F9) ve durulan satır vurgusu
   useEffect(() => {
@@ -183,8 +247,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
   const crumbs = (() => {
     if (!activeFile) return [] as string[];
-    if (!activeFile.path) return [activeFile.name];
-    const np = activeFile.path.split('\\').join('/');
+    const fp = activeFile.path ?? activeFile.diff?.filePath;
+    if (!fp) return [activeFile.name];
+    const np = fp.split('\\').join('/');
     const nr = (rootPath ?? '').split('\\').join('/').replace(/\/+$/, '');
     if (nr && np.toLowerCase().startsWith(nr.toLowerCase() + '/')) {
       return [rootName || nr.split('/').pop() || '', ...np.slice(nr.length + 1).split('/')].filter(Boolean);
@@ -200,6 +265,8 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
         <div role="tablist" className="flex items-end gap-px flex-1 min-w-0 overflow-x-auto pt-1 pl-1 [scrollbar-width:none]">
           {openFiles.map((file) => {
             const isActive = file.id === activeFileId;
+            const pc = file.path ? problems.byPath[normPath(file.path)] : undefined;
+            const nameTone = pc?.e ? 'text-rose-400' : pc?.w ? 'text-amber-300' : '';
             return (
               <div
                 key={file.id}
@@ -223,8 +290,8 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                     : 'border-transparent text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
                 }`}
               >
-                <FileTypeIcon name={file.name} size={14} />
-                <span className="truncate">{file.name}</span>
+                {file.diff ? <GitCompare size={14} className="shrink-0 text-indigo-400" /> : <FileTypeIcon name={file.name} size={14} />}
+                <span className={`truncate ${nameTone}`} title={pc ? `${pc.e} ✕ · ${pc.w} ⚠` : undefined}>{file.name}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -258,7 +325,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
         </div>
 
         {/* Eylem düğmeleri */}
-        {activeFile && (
+        {activeFile && !activeFile.diff && (
           <div className="flex items-center gap-0.5 pl-2 @md:pl-3 pr-2 shrink-0">
             {collab?.enabled && (
               <span
@@ -313,7 +380,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
       )}
 
       {/* Yol göstergesi */}
-      {activeFile && values.showBreadcrumbs !== false && (
+      {activeFile && !activeFile.diff && values.showBreadcrumbs !== false && (
         <div className="flex items-center gap-1 h-[22px] px-3 text-[12px] text-zinc-500 bg-nv-editor select-none overflow-hidden whitespace-nowrap" aria-label="Dosya yolu">
           {crumbs.map((c, i) => (
             <React.Fragment key={`${c}-${i}`}>
@@ -326,19 +393,59 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
       {/* Editör */}
       <div className="flex-1 w-full h-full relative">
-        {activeFile ? (
+        {activeFile?.diff ? (
+          <div className="flex flex-col h-full">
+            <div className="flex items-center gap-2 h-8 px-3 border-b border-nv-border text-[12px] text-zinc-400 bg-nv-editor shrink-0 select-none">
+              <GitCompare size={13} className="text-indigo-400 shrink-0" />
+              <span className="truncate text-zinc-300">{crumbs.join(' › ')}</span>
+              <span className="flex-1" />
+              <button onClick={() => setDiffInline((v) => !v)} className="icon-btn" title={diffInline ? t('scmDiffSide') : t('scmDiffInline')} aria-label={diffInline ? t('scmDiffSide') : t('scmDiffInline')}>
+                {diffInline ? <Columns size={14} /> : <Rows2 size={14} />}
+              </button>
+              {onOpenPath && (
+                <button onClick={() => onOpenPath(activeFile.diff!.filePath)} className="icon-btn" title={t('scmOpenFile')} aria-label={t('scmOpenFile')}>
+                  <ExternalLink size={14} />
+                </button>
+              )}
+            </div>
+            <div className="flex-1 min-h-0">
+              {activeFile.diff.note ? (
+                <div className="flex items-center justify-center h-full text-zinc-500 text-sm px-6 text-center">{activeFile.diff.note === 'binary' ? t('scmDiffBinary') : t('scmDiffTooLarge')}</div>
+              ) : (
+                <SafeDiff
+                  key={`${activeFile.id}:${diffInline ? 'i' : 's'}`}
+                  theme={theme}
+                  beforeMount={(m: any) => { defineNovaThemes(m); setMonacoForExtensions(m); setProblemsMonaco(m); }}
+                  language={activeFile.language || 'plaintext'}
+                  original={activeFile.diff.original}
+                  modified={activeFile.diff.modified}
+                  options={{ ...(editorOptions as object), readOnly: true, originalEditable: false, renderSideBySide: !diffInline, ignoreTrimWhitespace: false, automaticLayout: true, minimap: { enabled: false } }}
+                />
+              )}
+            </div>
+          </div>
+        ) : activeFile ? (
           <Editor
             key={activeFile.id}
             height="100%"
             theme={theme}
+            path={fileModelPath(activeFile)}
+            keepCurrentModel
             beforeMount={(monaco) => {
+              monacoRef.current = monaco;
               defineNovaThemes(monaco);
               setMonacoForExtensions(monaco);
               setLspMonaco(monaco);
+              setProblemsMonaco(monaco);
             }}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}
-            onMount={(ed) => { setEditorInstance(ed); setActiveEditor(ed); }}
+            onMount={(ed) => {
+              // Model sekmeler arasında yaşar: dışarıdan (diskten) yenilenen içerik varsa modele yansıt
+              if (activeFile.content !== undefined && ed.getValue() !== activeFile.content) ed.setValue(activeFile.content);
+              setEditorInstance(ed);
+              setActiveEditor(ed);
+            }}
             onChange={(val) => onChangeContent(activeFile.id, val || '')}
             options={editorOptions}
           />

@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   GitBranch,
   GitCommit,
+  GitMerge,
   GitPullRequest,
   UploadCloud,
   DownloadCloud,
   RefreshCw,
-  Check,
   AlertCircle,
   CircleDot,
   ExternalLink,
@@ -16,21 +16,43 @@ import {
   RefreshCcw,
   History,
   Loader2,
-  CloudUpload
+  CloudUpload,
+  ChevronDown,
+  ChevronRight,
+  MoreHorizontal,
+  FileText,
+  Tag,
+  Archive,
+  Check,
+  X
 } from 'lucide-react';
-import type { GitCommitInfo, GitFile, GitResult, GitStatus, GithubRepoInfo } from '../types';
+import type { FileItem, GitCommitFile, GitCommitInfo, GitFile, GitResult, GitStash, GitStatus, GithubRepoInfo } from '../types';
 import { t } from '../i18n/uiText';
+import '../i18n/uiTextScm';
 import { useGithubAuth } from '../services/useGithubAuth';
 import { useSettings } from '../services/SettingsContext';
+import { explainGit, splitPath } from '../services/gitExplain';
+import { languageFromName } from '../services/lang';
+import { FileTypeIcon } from './FileTypeIcon';
+import { PopupMenu, type MenuItem } from './Menu';
+import type { PickerMode } from './BranchPicker';
 
 interface GitPanelProps {
   status: GitStatus;
   currentRepoPath: string | null;
   onRefresh: () => void | Promise<void>;
   onLog?: (type: 'info' | 'error', text: string) => void;
+  /** Fark sekmesi aç (salt okunur). */
+  onOpenDiff: (item: FileItem) => void;
+  onOpenFile: (path: string) => void;
+  /** Dal/etiket seçiciyi aç (uygulama kabuğunda durur; durum çubuğuyla ortaktır). */
+  onPicker: (mode: PickerMode) => void;
+  /** Seçici gibi dış kaynaklı işlem sonuçları. */
+  notice?: { id: number; ok: boolean; text: string } | null;
 }
 
 type Feedback = { kind: 'ok' | 'err'; text: string } | null;
+type Ask = { kind: 'tag'; name: string; msg: string } | { kind: 'stash'; msg: string } | null;
 
 const STATUS_COLOR: Record<string, string> = {
   M: 'text-amber-400',
@@ -38,21 +60,17 @@ const STATUS_COLOR: Record<string, string> = {
   U: 'text-emerald-400',
   D: 'text-rose-400',
   R: 'text-sky-400',
-  C: 'text-sky-400'
+  C: 'text-sky-400',
+  '!': 'text-rose-400'
 };
-
-const splitPath = (p: string) => {
-  const i = Math.max(p.lastIndexOf('/'), p.lastIndexOf('\\'));
-  return i < 0 ? { dir: '', name: p } : { dir: p.slice(0, i + 1), name: p.slice(i + 1) };
+const NAME_COLOR: Record<string, string> = {
+  M: 'text-amber-200',
+  A: 'text-emerald-200',
+  U: 'text-emerald-200',
+  D: 'text-rose-300 line-through',
+  R: 'text-sky-200',
+  '!': 'text-rose-300'
 };
-
-// Git/GitHub hata kodlarını kullanıcı diline çevirir; bilinmeyenlerde git'in kendi mesajı gösterilir.
-function explain(res: Pick<GitResult, 'stderr'>): string {
-  const e = res.stderr || '';
-  if (e === 'diverged') return t('gitDiverged');
-  if (e === 'github-required') return t('gitLocked');
-  return e && e.length < 400 ? e : t('gitFailed');
-}
 
 const iconBtn = 'p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-transparent';
 const field = 'w-full bg-nv-editor border border-zinc-700/80 rounded px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-indigo-500';
@@ -60,30 +78,52 @@ const primaryBtn = 'w-full flex items-center justify-center gap-1.5 py-1.5 bg-in
 
 interface FileRowProps {
   f: GitFile;
-  side: 'staged' | 'unstaged';
+  side: 'staged' | 'unstaged' | 'conflict';
   busy: boolean;
+  onOpenDiff: (f: GitFile, side: 'staged' | 'unstaged') => void;
+  onOpenFile: (f: GitFile) => void;
   onStage: (f: GitFile) => void;
   onUnstage: (f: GitFile) => void;
   onDiscard: (f: GitFile) => void;
+  onResolve: (f: GitFile, side: 'ours' | 'theirs') => void;
 }
 
-const FileRow: React.FC<FileRowProps> = ({ f, side, busy, onStage, onUnstage, onDiscard }) => {
+const FileRow: React.FC<FileRowProps> = ({ f, side, busy, onOpenDiff, onOpenFile, onStage, onUnstage, onDiscard, onResolve }) => {
   const { dir, name } = splitPath(f.path);
-  const letter = side === 'staged' ? f.index : f.untracked ? 'U' : f.worktree;
+  const letter = side === 'conflict' ? '!' : side === 'staged' ? f.index : f.untracked ? 'U' : f.worktree;
   return (
-    <div className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-zinc-800/50 group" title={f.orig ? `${f.orig} → ${f.path}` : f.path}>
+    <div
+      className="flex items-center gap-1.5 pl-3 pr-2 h-[22px] rounded hover:bg-zinc-800/50 group cursor-pointer"
+      title={f.orig ? `${f.orig} → ${f.path}` : f.path}
+      onClick={() => (side === 'conflict' ? onOpenFile(f) : onOpenDiff(f, side))}
+    >
+      <FileTypeIcon name={name} size={15} />
       <span className="truncate flex-1 min-w-0">
-        <span className={f.conflict ? 'text-rose-300' : 'text-zinc-200'}>{name}</span>
-        {dir && <span className="text-zinc-600 ml-1.5">{dir}</span>}
-        {f.conflict && <span className="ml-1.5 text-[10px] text-rose-400">{t('gitConflict')}</span>}
+        <span className={NAME_COLOR[letter] ?? 'text-zinc-200'}>{name}</span>
+        {dir && <span className="text-zinc-600 ml-1.5 text-[11px]">{dir}</span>}
       </span>
-      <span className="hidden group-hover:flex items-center">
+      <span className="hidden group-hover:flex items-center" onClick={(e) => e.stopPropagation()}>
+        {side !== 'conflict' && letter !== 'D' && (
+          <button className={iconBtn} title={t('scmOpenFile')} aria-label={t('scmOpenFile')} onClick={() => onOpenFile(f)}>
+            <FileText size={12} />
+          </button>
+        )}
+        {side === 'conflict' && (
+          <>
+            <button className={iconBtn} title={t('scmAcceptOurs')} aria-label={t('scmAcceptOurs')} disabled={busy} onClick={() => onResolve(f, 'ours')}>
+              <Undo2 size={12} />
+            </button>
+            <button className={iconBtn} title={t('scmAcceptTheirs')} aria-label={t('scmAcceptTheirs')} disabled={busy} onClick={() => onResolve(f, 'theirs')}>
+              <DownloadCloud size={12} />
+            </button>
+          </>
+        )}
         {side === 'unstaged' && (
           <button className={iconBtn} title={t('gitDiscard')} aria-label={t('gitDiscard')} disabled={busy} onClick={() => onDiscard(f)}>
             <Undo2 size={12} />
           </button>
         )}
-        {side === 'unstaged' ? (
+        {side === 'unstaged' || side === 'conflict' ? (
           <button className={iconBtn} title={t('gitStage')} aria-label={t('gitStage')} disabled={busy} onClick={() => onStage(f)}>
             <Plus size={12} />
           </button>
@@ -98,7 +138,21 @@ const FileRow: React.FC<FileRowProps> = ({ f, side, busy, onStage, onUnstage, on
   );
 };
 
-export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onRefresh, onLog }) => {
+const Section: React.FC<{ title: string; count: number; open: boolean; onToggle: () => void; actions?: React.ReactNode; children: React.ReactNode }> = ({ title, count, open, onToggle, actions, children }) => (
+  <div className="py-1 border-b border-zinc-800/80">
+    <div className="group/sec flex items-center h-6 pr-2 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">
+      <button onClick={onToggle} aria-expanded={open} title={t('scmCollapse')} className="flex items-center gap-1 flex-1 min-w-0 pl-1.5 h-full text-left hover:text-zinc-200">
+        {open ? <ChevronDown size={13} className="shrink-0" /> : <ChevronRight size={13} className="shrink-0" />}
+        <span className="truncate">{title}</span>
+      </button>
+      <span className="hidden group-hover/sec:flex items-center">{actions}</span>
+      <span className="ml-1 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300 normal-case tracking-normal">{count}</span>
+    </div>
+    {open && <div className="px-1">{children}</div>}
+  </div>
+);
+
+export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onRefresh, onLog, onOpenDiff, onOpenFile, onPicker, notice }) => {
   const { auth } = useGithubAuth();
   const { values } = useSettings();
   const statusMs = Math.max(3, Number(values.gitStatusInterval) || 8) * 1000;
@@ -107,15 +161,18 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
-  const [branches, setBranches] = useState<string[]>([]);
-  const [newBranchOpen, setNewBranchOpen] = useState(false);
-  const [newBranch, setNewBranch] = useState('');
+  const [ask, setAsk] = useState<Ask>(null);
+  const [menu, setMenu] = useState<{ x: number; y: number; kind: 'more' | 'commit' } | null>(null);
+  const [open, setOpen] = useState<Record<string, boolean>>({ merge: true, staged: true, changes: true, stash: true });
   const [prOpen, setPrOpen] = useState(false);
   const [pr, setPr] = useState({ title: '', body: '', draft: false });
   const [pubOpen, setPubOpen] = useState(false);
   const [pub, setPub] = useState({ name: '', isPrivate: true });
   const [historyOpen, setHistoryOpen] = useState(false);
   const [commits, setCommits] = useState<GitCommitInfo[]>([]);
+  const [stashes, setStashes] = useState<GitStash[]>([]);
+  const [openCommit, setOpenCommit] = useState<string | null>(null);
+  const [commitFiles, setCommitFiles] = useState<Record<string, GitCommitFile[]>>({});
   const [repoInfo, setRepoInfo] = useState<GithubRepoInfo | null>(null);
   const refreshRef = useRef(onRefresh);
   refreshRef.current = onRefresh;
@@ -124,8 +181,9 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   const isRepo = status.isRepo;
   const hasRemote = status.hasRemote;
   const files: GitFile[] = status.files ?? [];
-  const staged = files.filter((f) => f.index);
-  const unstaged = files.filter((f) => f.worktree || f.untracked);
+  const conflicts = files.filter((f) => f.conflict);
+  const staged = files.filter((f) => !f.conflict && f.index);
+  const unstaged = files.filter((f) => !f.conflict && (f.worktree || f.untracked));
   const api = typeof window !== 'undefined' ? window.electronAPI : undefined;
 
   const say = useCallback(
@@ -138,6 +196,11 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
     [onLog]
   );
 
+  // Dış kaynaklı sonuç (dal seçici vb.) bu panelde de görünür
+  useEffect(() => {
+    if (notice) setFeedback({ kind: notice.ok ? 'ok' : 'err', text: notice.text });
+  }, [notice]);
+
   // Bir Git işlemini çalıştırır: meşgul göstergesi, hata çevirisi, sonra durumu yeniler.
   const run = async (label: string, fn: () => Promise<GitResult>, okText?: string): Promise<boolean> => {
     if (busy) return false;
@@ -147,7 +210,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       if (res.success) {
         if (okText) say('ok', okText);
       } else {
-        say('err', explain(res));
+        say('err', explainGit(res));
       }
       await refreshRef.current();
       return res.success;
@@ -212,15 +275,15 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
     };
   }, [currentRepoPath, isRepo, hasRemote, auth.connected]);
 
-  // 4) Dal listesi ve geçmiş, durum her yenilendiğinde tazelenir.
+  // 4) Geçmiş ve stash listesi, durum her yenilendiğinde tazelenir.
   useEffect(() => {
     if (!currentRepoPath || !isRepo || !api) return;
     let cancelled = false;
-    void api.gitBranches(currentRepoPath).then((r) => {
-      if (!cancelled && r.success) setBranches(r.branches);
-    });
     void api.gitLog(currentRepoPath).then((r) => {
       if (!cancelled && r.success) setCommits(r.commits);
+    });
+    void api.gitStashList(currentRepoPath).then((r) => {
+      if (!cancelled && r.success) setStashes(r.stashes);
     });
     return () => {
       cancelled = true;
@@ -251,6 +314,8 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   }
 
   const repo = currentRepoPath;
+  const sep = repo.includes('\\') ? '\\' : '/';
+  const absOf = (rel: string) => `${repo.replace(/[\\/]+$/, '')}${sep}${rel.split('/').join(sep)}`;
 
   if (!isRepo) {
     return (
@@ -266,29 +331,89 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
     );
   }
 
-  // ---- Eylemler ----
-  const doCommit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim() || staged.length === 0) return;
-    if (await run('commit', () => api.gitCommit(repo, message), t('gitCommitDone'))) setMessage('');
+  // ---- Fark sekmesi ----
+  const openFileDiff = async (req: { path: string; orig?: string; staged?: boolean; ref?: string }, title: string) => {
+    const res = await api.gitDiffFile(repo, req);
+    if (!res.success) {
+      say('err', explainGit(res));
+      return;
+    }
+    const name = splitPath(req.path).name;
+    const idKey = req.ref ? `commit:${req.ref}` : req.staged ? 'staged' : 'unstaged';
+    onOpenDiff({
+      id: `diff:${idKey}:${req.path}`,
+      name: title,
+      type: 'file',
+      language: languageFromName(name),
+      diff: {
+        original: res.original ?? '',
+        modified: res.modified ?? '',
+        filePath: absOf(req.path),
+        note: res.binary ? 'binary' : res.tooLarge ? 'tooLarge' : undefined,
+        source: req.ref ? undefined : { repo, path: req.path, orig: req.orig, staged: req.staged }
+      }
+    });
   };
+  const showDiff = (f: GitFile, side: 'staged' | 'unstaged') =>
+    openFileDiff({ path: f.path, orig: f.orig, staged: side === 'staged' }, t(side === 'staged' ? 'scmDiffStaged' : 'scmDiffWorking').replace('{n}', splitPath(f.path).name));
+  const showCommitDiff = (hash: string, cf: GitCommitFile) =>
+    openFileDiff({ path: cf.path, orig: cf.orig, ref: hash }, t('scmDiffCommit').replace('{n}', splitPath(cf.path).name).replace('{h}', hash));
 
-  const doCheckout = async (name: string) => {
-    if (name && name !== status.branch) await run('checkout', () => api.gitCheckout(repo, name));
-  };
-
-  const doCreateBranch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newBranch.trim()) return;
-    if (await run('branch', () => api.gitCreateBranch(repo, newBranch.trim()))) {
-      setNewBranch('');
-      setNewBranchOpen(false);
+  const toggleCommit = async (hash: string) => {
+    if (openCommit === hash) {
+      setOpenCommit(null);
+      return;
+    }
+    setOpenCommit(hash);
+    if (!commitFiles[hash]) {
+      const r = await api.gitCommitFiles(repo, hash);
+      if (r.success) setCommitFiles((m) => ({ ...m, [hash]: r.files }));
     }
   };
 
-  const doDiscard = async (list: GitFile[]) => {
-    if (!window.confirm(t('gitDiscardConfirm'))) return;
+  // ---- Eylemler ----
+  const doCommit = async (e?: React.FormEvent, thenPush = false) => {
+    e?.preventDefault();
+    if (!message.trim() || staged.length === 0) return;
+    const ok = await run('commit', () => api.gitCommit(repo, message), t('gitCommitDone'));
+    if (!ok) return;
+    setMessage('');
+    if (thenPush) await run('push', () => api.gitPush(repo), t('gitDone'));
+  };
+
+  const doAmend = async () => {
+    if (!window.confirm(t('scmAmendConfirm'))) return;
+    if (await run('commit', () => api.gitAmend(repo, message), t('gitCommitDone'))) setMessage('');
+  };
+
+  const doUndoCommit = async () => {
+    if (!window.confirm(t('scmUndoConfirm'))) return;
+    await run('undo', () => api.gitUndoCommit(repo));
+  };
+
+  const doDiscard = async (list: GitFile[], all = false) => {
+    if (!window.confirm(all ? t('scmDiscardAllConfirm') : t('gitDiscardConfirm'))) return;
     await run('discard', () => api.gitDiscard(repo, list.map((f) => ({ path: f.path, untracked: f.untracked }))));
+  };
+
+  const doSubmitAsk = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ask) return;
+    if (ask.kind === 'stash') {
+      if (await run('stash', () => api.gitStashPush(repo, ask.msg, true), t('scmStashDone'))) setAsk(null);
+      return;
+    }
+    const name = ask.name.trim();
+    if (!name) return;
+    if (await run('tag', () => api.gitCreateTag(repo, name, ask.msg), t('gitDone'))) {
+      setAsk(null);
+      if (hasRemote && window.confirm(t('scmTagPushAsk'))) await run('pushtag', () => api.gitPushTag(repo, name), t('gitDone'));
+    }
+  };
+
+  const doMergeAbort = async () => {
+    if (!window.confirm(t('scmMergeAbortConfirm'))) return;
+    await run('merge', () => api.gitMergeAbort(repo));
   };
 
   const doCreatePr = async (e: React.FormEvent) => {
@@ -333,29 +458,58 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   const canPr = !!hasRemote && !!status.branch && !status.detached && (!defaultBranch || defaultBranch !== status.branch);
   const canPublish = hasRemote === false;
   const isBusy = !!busy;
+  const tog = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
+  const rowProps = {
+    busy: isBusy,
+    onOpenDiff: (f: GitFile, side: 'staged' | 'unstaged') => void showDiff(f, side),
+    onOpenFile: (f: GitFile) => onOpenFile(absOf(f.path)),
+    onStage: (x: GitFile) => void run('stage', () => api.gitStage(repo, [x.path])),
+    onUnstage: (x: GitFile) => void run('unstage', () => api.gitUnstage(repo, [x.path])),
+    onDiscard: (x: GitFile) => void doDiscard([x]),
+    onResolve: (x: GitFile, side: 'ours' | 'theirs') => void run('resolve', () => api.gitResolve(repo, x.path, side))
+  };
+  const sectionBtn = 'p-0.5 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-700/70';
+
+  const moreItems: MenuItem[] = [
+    { label: t('gitPull'), icon: <DownloadCloud size={14} />, disabled: !hasRemote, onClick: () => void run('pull', () => api.gitPull(repo), t('gitDone')) },
+    { label: t('gitPush'), icon: <UploadCloud size={14} />, disabled: !hasRemote, onClick: () => void run('push', () => api.gitPush(repo), t('gitDone')) },
+    { label: t('scmFetch'), icon: <RefreshCw size={14} />, disabled: !hasRemote, onClick: () => void run('fetch', () => api.gitFetch(repo), t('gitDone')) },
+    { label: t('gitSync'), icon: <RefreshCcw size={14} />, disabled: !hasRemote, onClick: () => void run('sync', () => api.gitSync(repo), t('gitSyncDone')) },
+    { separator: true },
+    { label: t('gitNewBranch'), icon: <Plus size={14} />, onClick: () => onPicker('checkout') },
+    { label: t('bpCreateFrom'), icon: <GitBranch size={14} />, onClick: () => onPicker('from') },
+    { label: t('scmMerge'), icon: <GitMerge size={14} />, onClick: () => onPicker('merge') },
+    { label: t('scmDeleteBranch'), icon: <X size={14} />, onClick: () => onPicker('delete') },
+    { separator: true },
+    { label: t('scmNewTag'), icon: <Tag size={14} />, onClick: () => setAsk({ kind: 'tag', name: '', msg: '' }) },
+    { label: t('scmDeleteTag'), icon: <Tag size={14} />, onClick: () => onPicker('deleteTag') },
+    { separator: true },
+    { label: t('scmStash'), icon: <Archive size={14} />, disabled: files.length === 0, onClick: () => setAsk({ kind: 'stash', msg: '' }) },
+    { separator: true },
+    { label: t('scmUndoCommit'), icon: <Undo2 size={14} />, disabled: commits.length === 0, onClick: () => void doUndoCommit() },
+    { label: t('scmDiscardAll'), icon: <Undo2 size={14} />, danger: true, disabled: files.length === 0, onClick: () => void doDiscard(files, true) }
+  ];
+  const commitItems: MenuItem[] = [
+    { label: t('scmCommitPush'), icon: <UploadCloud size={14} />, disabled: !message.trim() || staged.length === 0 || !hasRemote, onClick: () => void doCommit(undefined, true) },
+    { label: t('scmAmend'), icon: <GitCommit size={14} />, disabled: commits.length === 0, onClick: () => void doAmend() },
+    { label: t('scmUndoCommit'), icon: <Undo2 size={14} />, disabled: commits.length === 0, onClick: () => void doUndoCommit() }
+  ];
 
   return (
     <div className="flex flex-col h-full bg-nv-side text-zinc-300 select-none text-xs overflow-y-auto">
-      {/* Başlık: dal seçici + eşzamanla */}
+      {/* Başlık: dal düğmesi + eşzamanla */}
       <div className="px-3 py-2.5 border-b border-zinc-800/80 space-y-2">
         <div className="flex items-center gap-1.5">
-          <GitBranch size={14} className="text-indigo-400 shrink-0" />
-          <select
-            value={status.detached ? '' : status.branch}
-            onChange={(e) => doCheckout(e.target.value)}
+          <button
+            onClick={() => onPicker('checkout')}
             disabled={isBusy}
-            aria-label={t('gitBranch')}
-            className="flex-1 min-w-0 bg-nv-editor border border-zinc-700/80 rounded px-1.5 py-1 text-indigo-300 font-mono text-[11px] outline-none focus:border-indigo-500"
+            title={t('scmBranchTip')}
+            aria-label={t('scmBranchTip')}
+            className="flex-1 min-w-0 flex items-center gap-1.5 bg-nv-editor border border-zinc-700/80 hover:border-indigo-500 rounded px-2 py-1 text-indigo-300 font-mono text-[11px] text-left"
           >
-            {status.detached && <option value="">{status.branch}</option>}
-            {branches.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
-          <button className={iconBtn} title={t('gitNewBranch')} aria-label={t('gitNewBranch')} onClick={() => setNewBranchOpen((v) => !v)}>
-            <Plus size={14} />
+            <GitBranch size={13} className="shrink-0" />
+            <span className="truncate flex-1">{status.branch}</span>
+            <ChevronDown size={12} className="shrink-0 text-zinc-500" />
           </button>
           <span title={t('gitLive')} className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
         </div>
@@ -379,32 +533,98 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             <button className={iconBtn} title={t('gitPush')} aria-label={t('gitPush')} disabled={isBusy || !hasRemote} onClick={() => run('push', () => api.gitPush(repo), t('gitDone'))}>
               <UploadCloud size={14} />
             </button>
-            <button className={iconBtn} title="Refresh" aria-label="Refresh" onClick={() => void onRefresh()}>
+            <button className={iconBtn} title={t('scmRefreshTip')} aria-label={t('scmRefreshTip')} onClick={() => void onRefresh()}>
               <RefreshCw size={13} />
+            </button>
+            <button
+              className={iconBtn}
+              title={t('scmMore')}
+              aria-label={t('scmMore')}
+              onClick={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                setMenu({ x: r.right - 200, y: r.bottom + 4, kind: 'more' });
+              }}
+            >
+              <MoreHorizontal size={14} />
             </button>
           </div>
         </div>
 
-        {newBranchOpen && (
-          <form onSubmit={doCreateBranch} className="flex gap-1.5">
-            <input value={newBranch} onChange={(e) => setNewBranch(e.target.value)} placeholder={t('gitBranchPlaceholder')} spellCheck={false} autoFocus className={`${field} font-mono`} />
-            <button type="submit" disabled={!newBranch.trim() || isBusy} className="px-2.5 rounded bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white">
-              {t('gitCreate')}
-            </button>
+        {hasRemote === false && <p className="text-[11px] text-amber-300/90 leading-relaxed">{t('gitNoRemote')}</p>}
+
+        {/* Birleştirme sürüyor */}
+        {status.merging && (
+          <div className="rounded border border-amber-700/50 bg-amber-950/25 p-2 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-amber-200 font-medium">
+              <GitMerge size={13} />
+              <span>{t('scmMerging')}</span>
+            </div>
+            {conflicts.length > 0 && <p className="text-[11px] text-amber-300/90 leading-relaxed">{t('scmMergeConflictMsg')}</p>}
+            <div className="flex gap-1.5">
+              <button
+                disabled={isBusy || conflicts.length > 0}
+                onClick={() => run('merge', () => api.gitMergeContinue(repo), t('scmMergedOk'))}
+                className="flex-1 flex items-center justify-center gap-1 py-1 rounded bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white"
+              >
+                <Check size={12} />
+                <span>{t('scmMergeContinue')}</span>
+              </button>
+              <button disabled={isBusy} onClick={() => void doMergeAbort()} className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 disabled:opacity-50">
+                {t('scmMergeAbort')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Etiket / stash için satır içi giriş (Electron'da prompt() yok) */}
+        {ask && (
+          <form onSubmit={doSubmitAsk} className="space-y-1.5">
+            {ask.kind === 'tag' && (
+              <input value={ask.name} onChange={(e) => setAsk({ ...ask, name: e.target.value })} placeholder={t('scmTagName')} spellCheck={false} autoFocus className={`${field} font-mono`} />
+            )}
+            <input
+              value={ask.msg}
+              onChange={(e) => setAsk({ ...ask, msg: e.target.value })}
+              placeholder={ask.kind === 'tag' ? t('scmTagMsg') : t('scmStashPrompt')}
+              autoFocus={ask.kind === 'stash'}
+              className={field}
+            />
+            <div className="flex gap-1.5">
+              <button type="submit" disabled={isBusy || (ask.kind === 'tag' && !ask.name.trim())} className="flex-1 px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white">
+                {t('gitCreate')}
+              </button>
+              <button type="button" onClick={() => setAsk(null)} className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300" aria-label="Cancel">
+                <X size={13} />
+              </button>
+            </div>
           </form>
         )}
-        {hasRemote === false && <p className="text-[11px] text-amber-300/90 leading-relaxed">{t('gitNoRemote')}</p>}
       </div>
 
       {/* Commit */}
-      <form onSubmit={doCommit} className="p-3 border-b border-zinc-800/80 space-y-2">
+      <form onSubmit={(e) => void doCommit(e)} className="p-3 border-b border-zinc-800/80 space-y-2">
         <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t('gitCommitPlaceholder')} className={`${field} resize-none h-16 font-sans`} />
-        <button type="submit" disabled={!message.trim() || staged.length === 0 || isBusy} className={primaryBtn}>
-          {busy === 'commit' ? <Loader2 size={14} className="animate-spin" /> : <GitCommit size={14} />}
-          <span>
-            {t('gitCommit')} ({staged.length})
-          </span>
-        </button>
+        <div className="flex">
+          <button type="submit" disabled={!message.trim() || staged.length === 0 || isBusy} className={`${primaryBtn} !rounded-r-none`}>
+            {busy === 'commit' ? <Loader2 size={14} className="animate-spin" /> : <GitCommit size={14} />}
+            <span>
+              {t('gitCommit')} ({staged.length})
+            </span>
+          </button>
+          <button
+            type="button"
+            disabled={isBusy}
+            title={t('scmMore')}
+            aria-label={t('scmMore')}
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              setMenu({ x: r.right - 220, y: r.bottom + 4, kind: 'commit' });
+            }}
+            className="px-1.5 rounded-r bg-indigo-700 hover:bg-indigo-600 disabled:bg-zinc-800 disabled:text-zinc-600 text-white border-l border-indigo-500/40"
+          >
+            <ChevronDown size={14} />
+          </button>
+        </div>
         {staged.length === 0 && unstaged.length > 0 && <p className="text-[11px] text-zinc-500">{t('gitNothingStaged')}</p>}
         {feedback && (
           <div
@@ -418,62 +638,102 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         )}
       </form>
 
+      {/* Çakışmalar */}
+      {conflicts.length > 0 && (
+        <Section
+          title={t('scmMergeChanges')}
+          count={conflicts.length}
+          open={!!open.merge}
+          onToggle={() => tog('merge')}
+          actions={
+            <button className={sectionBtn} title={t('gitStageAll')} aria-label={t('gitStageAll')} disabled={isBusy} onClick={() => run('stage', () => api.gitStage(repo, conflicts.map((f) => f.path)))}>
+              <Plus size={13} />
+            </button>
+          }
+        >
+          {conflicts.map((f) => (
+            <FileRow key={`c-${f.path}`} f={f} side="conflict" {...rowProps} />
+          ))}
+        </Section>
+      )}
+
       {/* Sahnelenenler */}
       {staged.length > 0 && (
-        <div className="p-2 border-b border-zinc-800/80">
-          <div className="flex items-center justify-between text-[11px] text-zinc-400 font-semibold px-2 py-1 uppercase tracking-wider">
-            <span>
-              {t('gitStaged')} · {staged.length}
-            </span>
-            <button className="normal-case font-normal text-zinc-500 hover:text-zinc-200" disabled={isBusy} onClick={() => run('unstage', () => api.gitUnstage(repo, staged.map((f) => f.path)))}>
-              {t('gitUnstageAll')}
+        <Section
+          title={t('gitStaged')}
+          count={staged.length}
+          open={!!open.staged}
+          onToggle={() => tog('staged')}
+          actions={
+            <button className={sectionBtn} title={t('gitUnstageAll')} aria-label={t('gitUnstageAll')} disabled={isBusy} onClick={() => run('unstage', () => api.gitUnstage(repo, staged.map((f) => f.path)))}>
+              <Minus size={13} />
             </button>
-          </div>
+          }
+        >
           {staged.map((f) => (
-            <FileRow
-              key={`s-${f.path}`}
-              f={f}
-              side="staged"
-              busy={isBusy}
-              onStage={(x) => run('stage', () => api.gitStage(repo, [x.path]))}
-              onUnstage={(x) => run('unstage', () => api.gitUnstage(repo, [x.path]))}
-              onDiscard={(x) => doDiscard([x])}
-            />
+            <FileRow key={`s-${f.path}`} f={f} side="staged" {...rowProps} />
           ))}
-        </div>
+        </Section>
       )}
 
       {/* Değişiklikler */}
-      <div className="p-2 border-b border-zinc-800/80">
-        <div className="flex items-center justify-between text-[11px] text-zinc-400 font-semibold px-2 py-1 uppercase tracking-wider">
-          <span>
-            {t('gitChanges')} · {unstaged.length}
-          </span>
-          {unstaged.length > 0 && (
-            <button className="normal-case font-normal text-zinc-500 hover:text-zinc-200" disabled={isBusy} onClick={() => run('stage', () => api.gitStageAll(repo))}>
-              {t('gitStageAll')}
-            </button>
-          )}
-        </div>
+      <Section
+        title={t('gitChanges')}
+        count={unstaged.length}
+        open={!!open.changes}
+        onToggle={() => tog('changes')}
+        actions={
+          unstaged.length > 0 ? (
+            <>
+              <button className={sectionBtn} title={t('scmDiscardAll')} aria-label={t('scmDiscardAll')} disabled={isBusy} onClick={() => void doDiscard(unstaged, true)}>
+                <Undo2 size={13} />
+              </button>
+              <button className={sectionBtn} title={t('gitStageAll')} aria-label={t('gitStageAll')} disabled={isBusy} onClick={() => run('stage', () => api.gitStageAll(repo))}>
+                <Plus size={13} />
+              </button>
+            </>
+          ) : null
+        }
+      >
         {unstaged.length === 0
-          ? staged.length === 0 && (
+          ? staged.length === 0 && conflicts.length === 0 && (
               <div className="p-3 text-center text-zinc-500">
                 <Check size={20} className="mx-auto mb-1 text-emerald-400 opacity-80" />
                 <p>{t('gitClean')}</p>
               </div>
             )
-          : unstaged.map((f) => (
-              <FileRow
-                key={`u-${f.path}`}
-                f={f}
-                side="unstaged"
-                busy={isBusy}
-                onStage={(x) => run('stage', () => api.gitStage(repo, [x.path]))}
-                onUnstage={(x) => run('unstage', () => api.gitUnstage(repo, [x.path]))}
-                onDiscard={(x) => doDiscard([x])}
-              />
-            ))}
-      </div>
+          : unstaged.map((f) => <FileRow key={`u-${f.path}`} f={f} side="unstaged" {...rowProps} />)}
+      </Section>
+
+      {/* Stash */}
+      {stashes.length > 0 && (
+        <Section title={t('scmStashes')} count={stashes.length} open={!!open.stash} onToggle={() => tog('stash')}>
+          {stashes.map((s) => (
+            <div key={s.index} className="group flex items-center gap-1.5 pl-3 pr-2 h-[22px] rounded hover:bg-zinc-800/50" title={`${s.message} · ${s.when}`}>
+              <Archive size={13} className="text-zinc-500 shrink-0" />
+              <span className="truncate flex-1 text-zinc-300">{s.message}</span>
+              <span className="hidden group-hover:flex items-center">
+                <button className={iconBtn} title={t('scmStashApply')} aria-label={t('scmStashApply')} disabled={isBusy} onClick={() => run('stash', () => api.gitStashApply(repo, s.index))}>
+                  <Plus size={12} />
+                </button>
+                <button className={iconBtn} title={t('scmStashPop')} aria-label={t('scmStashPop')} disabled={isBusy} onClick={() => run('stash', () => api.gitStashPop(repo, s.index))}>
+                  <DownloadCloud size={12} />
+                </button>
+                <button
+                  className={iconBtn}
+                  title={t('scmStashDrop')}
+                  aria-label={t('scmStashDrop')}
+                  disabled={isBusy}
+                  onClick={() => window.confirm(t('scmStashDropConfirm')) && void run('stash', () => api.gitStashDrop(repo, s.index))}
+                >
+                  <X size={12} />
+                </button>
+              </span>
+              <span className="text-[10px] text-zinc-600 shrink-0">{s.when}</span>
+            </div>
+          ))}
+        </Section>
+      )}
 
       {/* Pull request / yayınla */}
       {(canPr || canPublish) && (
@@ -582,7 +842,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         </div>
       )}
 
-      {/* Geçmiş */}
+      {/* Geçmiş: commit'e tıkla → dosyaları listelenir; dosyaya tıkla → fark */}
       <div className="p-2">
         <button onClick={() => setHistoryOpen((v) => !v)} className="w-full flex items-center gap-1.5 px-2 py-1 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider hover:text-zinc-200">
           <History size={12} />
@@ -594,15 +854,46 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             <div className="p-3 text-center text-zinc-600">{t('gitNoCommits')}</div>
           ) : (
             commits.map((c) => (
-              <div key={c.hash} className="px-2 py-1 rounded hover:bg-zinc-800/50" title={`${c.author} · ${c.when}`}>
-                <div className="truncate text-zinc-200">{c.subject}</div>
-                <div className="text-[10px] text-zinc-500 font-mono">
-                  {c.hash} · {c.author} · {c.when}
+              <div key={c.hash}>
+                <div
+                  onClick={() => void toggleCommit(c.hash)}
+                  className="px-2 py-1 rounded hover:bg-zinc-800/50 cursor-pointer"
+                  title={`${c.author} · ${c.when}`}
+                  role="button"
+                  aria-expanded={openCommit === c.hash}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="truncate text-zinc-200 flex-1">{c.subject}</span>
+                    {c.refs?.slice(0, 3).map((r) => (
+                      <span key={r} className="shrink-0 max-w-[90px] truncate px-1.5 rounded bg-indigo-500/15 text-indigo-300 text-[10px] font-mono">{r}</span>
+                    ))}
+                  </div>
+                  <div className="text-[10px] text-zinc-500 font-mono">
+                    {c.hash} · {c.author} · {c.when}
+                  </div>
                 </div>
+                {openCommit === c.hash &&
+                  (commitFiles[c.hash] ?? []).map((cf) => (
+                    <div
+                      key={`${c.hash}-${cf.path}`}
+                      onClick={() => void showCommitDiff(c.hash, cf)}
+                      title={cf.orig ? `${cf.orig} → ${cf.path}` : cf.path}
+                      className="flex items-center gap-1.5 pl-5 pr-2 h-[22px] rounded hover:bg-zinc-800/50 cursor-pointer"
+                    >
+                      <FileTypeIcon name={splitPath(cf.path).name} size={14} />
+                      <span className={`truncate flex-1 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>
+                        {splitPath(cf.path).name}
+                        <span className="text-zinc-600 ml-1.5 text-[11px]">{splitPath(cf.path).dir}</span>
+                      </span>
+                      <span className={`font-mono text-[10px] font-bold w-4 text-center ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
+                    </div>
+                  ))}
               </div>
             ))
           ))}
       </div>
+
+      {menu && <PopupMenu x={menu.x} y={menu.y} items={menu.kind === 'more' ? moreItems : commitItems} onClose={() => setMenu(null)} />}
     </div>
   );
 };

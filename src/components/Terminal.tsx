@@ -6,6 +6,9 @@ import { useSettings } from '../services/SettingsContext';
 import { commandToAnsi, parseAnsi, shortenPath, tokenizeCommand, TOKEN_COLOR } from '../services/terminalText';
 import { PopupMenu } from './Menu';
 import '../i18n/uiTextDev'; // gerçek terminal metinleri (gecikmeli yüklenen ek sözlük)
+import '../i18n/uiTextScm'; // Sorunlar sekmesi metinleri
+import { ProblemsPanel } from './ProblemsPanel';
+import { useProblems } from '../services/problems';
 import { dropPty, pushPtyData } from '../services/ptyBus';
 import type { PtyHandle } from './PtyView';
 
@@ -25,7 +28,7 @@ interface TerminalProps {
 }
 
 type ShellId = 'powershell' | 'cmd';
-type PanelTab = 'terminal' | 'log';
+type PanelTab = 'terminal' | 'log' | 'problems';
 
 interface Session {
   id: string;
@@ -185,8 +188,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const pendingRun = useRef<string | null>(null);
   useEffect(() => {
     const onBridge = (e: Event) => {
-      const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear'; command?: string; dir?: string }>).detail;
+      const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear' | 'tab'; command?: string; dir?: string; tab?: PanelTab }>).detail;
       if (!d) return;
+      if (d.action === 'tab') { if (d.tab === 'problems' || d.tab === 'terminal' || d.tab === 'log') setTab(d.tab); return; }
       // cd: etkin kabuğa uygun komut (CMD'de sürücü değiştirmek için /d gerekir); tırnak içeren yol reddedilir
       if (d.action === 'cd' && d.dir && !/["`$&|<>^%\r\n]/.test(d.dir)) {
         const cmd = active?.shell === 'cmd' ? `cd /d "${d.dir}"` : `Set-Location -LiteralPath "${d.dir}"`;
@@ -341,13 +345,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const clearActive = () => (tab === 'log' ? onClear() : active?.kind === 'pty' ? ptyHandles.current.get(active.id)?.clear() : active && patch(active.id, (s) => ({ ...s, output: '' })));
 
   // ---- Üst çubuk ----
-  const tabBtn = (id: PanelTab, label: string) => (
+  const problemCount = useProblems();
+  const tabBtn = (id: PanelTab, label: string, badge?: React.ReactNode) => (
     <button
       key={id}
       onClick={() => setTab(id)}
       className={`relative px-3 text-[11px] uppercase tracking-wide transition-colors ${tab === id ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
     >
       {label}
+      {badge}
       <span className={`absolute left-2 right-2 bottom-0 h-px bg-indigo-500 origin-left transition-transform duration-200 ${tab === id ? 'scale-x-100' : 'scale-x-0'}`} />
     </button>
   );
@@ -359,6 +365,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
       <div className="flex items-stretch justify-between h-9 pl-1 pr-2 border-b border-nv-border shrink-0 font-sans">
         <div className="flex items-stretch">
+          {tabBtn('problems', t('prbTab'), problemCount.errors + problemCount.warnings > 0 ? <span className={`ml-1.5 px-1.5 rounded-full text-[10px] normal-case ${problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200'}`}>{problemCount.errors + problemCount.warnings}</span> : null)}
           {tabBtn('terminal', t('termTab'))}
           {tabBtn('log', t('termLog'))}
         </div>
@@ -382,7 +389,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               </button>
             </div>
           )}
-          {(tab === 'log' || active) && (
+          {(tab === 'log' || (tab === 'terminal' && active)) && (
             <button onClick={clearActive} title={`${t('termClear')} (Ctrl+L)`} aria-label={t('termClear')} className="icon-btn">
               <Trash2 size={14} />
             </button>
@@ -418,7 +425,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               />
             </Suspense>
           ))}
-          {tab === 'log' ? (
+          {tab === 'problems' ? (
+            <ProblemsPanel rootPath={cwd ?? undefined} />
+          ) : tab === 'log' ? (
             <div className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
               {logs.length === 0 ? (
                 <div className="text-zinc-600">{t('termLogEmpty')}</div>

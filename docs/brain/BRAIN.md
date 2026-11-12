@@ -25,6 +25,7 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 |---|---|
 | [[release]] | Commit, sürüm, push, release |
 | [[git-github]] | Git paneli, GitHub hesabı, PR, eşzamanlama |
+| [[source-control]] | Fark sekmesi, dal/etiket seçici, merge, stash, geçmiş; Sorunlar sayacı ve hata renkleri |
 | [[ui-design]] | Arayüz, tema (koyu/açık), logo, animasyon |
 | [[settings]] | Ayarlar sistemi: yeni ayar, tema/font/editör |
 | [[i18n]] | Arayüze metin eklemek (8 dil) |

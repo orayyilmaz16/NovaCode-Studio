@@ -27,6 +27,7 @@ import { t, type UiTextKey } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
 import { FileTypeIcon } from './FileTypeIcon';
 import { PopupMenu, type MenuItem } from './Menu';
+import { useProblems } from '../services/problems';
 
 type Density = 'compact' | 'comfortable' | 'spacious';
 type SortMode = 'foldersFirst' | 'filesFirst' | 'mixed' | 'type';
@@ -174,6 +175,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   const compact = values.treeCompactFolders === true;
   const iconStyle: 'color' | 'minimal' = values.treeIconStyle === 'minimal' ? 'minimal' : 'color';
   const autoReveal = values.treeAutoReveal !== false;
+  const problems = useProblems();
   const gitOn = values.showGitDecorations !== false;
 
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -570,7 +572,8 @@ export const FileTree: React.FC<FileTreeProps> = ({
       const selected = !isFolder && item.id === activeFileId;
       const focused = focusedId === item.id;
       const renaming = renamingId === item.id;
-      const nameCls = decor && decor !== 'dir' ? GIT_NAME_COLOR[decor] ?? '' : '';
+      const pb = item.path ? problems.byPath[normGitPath(item.path)] : undefined;
+      const nameCls = pb?.e ? 'text-rose-400' : pb?.w ? 'text-amber-300' : decor && decor !== 'dir' ? GIT_NAME_COLOR[decor] ?? '' : '';
       const dropping = dropId === item.id;
 
       return (
@@ -647,6 +650,9 @@ export const FileTree: React.FC<FileTreeProps> = ({
               {isFolder ? folderIcon(open, iconStyle) : fileIcon(item.name, iconStyle)}
               <span className={`truncate flex-1 ml-0.5 ${nameCls}`}>{hl(node.label)}</span>
               {item.isModified && <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 shrink-0" />}
+              {pb && (pb.e || pb.w) ? (
+                <span className={`font-mono text-[11px] shrink-0 ${pb.e ? 'text-rose-400' : 'text-amber-300'}`} title={`${pb.e} ✕ · ${pb.w} ⚠`}>{isFolder ? '●' : pb.e || pb.w}</span>
+              ) : null}
               {decor === 'dir' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0" />}
               {decor && decor !== 'dir' && (
                 <span className={`font-mono text-[11px] shrink-0 w-3 text-center ${GIT_NAME_COLOR[decor]?.split(' ')[0] ?? 'text-zinc-400'}`}>{decor}</span>
