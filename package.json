@@ -21,7 +21,8 @@
     "brain": "node scripts/brain.mjs",
     "brain:check": "node scripts/brain.mjs --check",
     "version:check": "node scripts/check-version.mjs",
-    "sync": "node scripts/auto-commit.mjs"
+    "sync": "node scripts/auto-commit.mjs",
+    "icons:gen": "node scripts/gen-file-icons.mjs"
   },
   "build": {
     "appId": "com.orayyilmaz.novacode",
@@ -101,6 +102,7 @@
     "electron-updater": "6.8.11",
     "lib0": "0.2.119",
     "lucide-react": "^1.67.0",
+    "material-icon-theme": "^5.40.0",
     "monaco-editor": "^0.57.0",
     "node-llama-cpp": "3.22.3",
     "react": "^19.3.1",
