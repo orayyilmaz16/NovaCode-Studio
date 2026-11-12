@@ -3,6 +3,11 @@
 ## Unreleased
 
 ### tr
+
+### en
+
+## 1.3.0 - 12.11.2026
+### Türkçe
 - **Gerçek terminal (PTY):** Terminal artık xterm.js ile gerçek bir terminal (vim, htop, gerçek Ctrl+C, yeniden boyutlandırma, Ctrl+Tık ile dosya:satır bağlantısı). Eski terminal "klasik" olarak durur; ayar: Terminal modu.
 - **Hata ayıklayıcı (Node/JavaScript):** Kesme noktaları (oluğa tık / F9), F5/F10/F11/Shift+F11/Shift+F5, değişkenler, çağrı yığını, ifade değerlendirme. Yalnız açık klasördeki .js/.mjs/.cjs dosyaları.
 - **Dil sunucuları (LSP):** Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua, YAML için tamamlama, üzerine gelme, tanıma git ve hata işaretleri; bilgisayarındaki sunucuyla (yalnız PATH'ten). Durum çubuğunda sunucu durumu; ayar: Dil sunucuları.
@@ -49,7 +54,6 @@
 - Eklenti mağazası (Open VSX): tema eklentilerini ara, yükle, güncelle, kaldır (`Ctrl+Shift+X`). Kod çalıştıran eklentiler desteklenmez.
 - Dosya türü simgeleri: Gezgin, sekmeler, palet ve aramada TS, JS, PHP, PY, GO ve ~60 türe renkli rozet.
 - Yerel öncelikli: Ollama desteği (API anahtarı ve maliyet yok, veri bilgisayardan çıkmaz). Panel Ollama'yı ve yüklü modelleri algılar, model panelden seçilir; eksikse kurulum ipucu gösterir. Dikte için yerel Whisper sunucusu adresi girilebilir (anahtarsız).
-
 - Terminal: istemde çalışma klasörü (`PS C:\Users\...>`) ve Git dalı gösterilir; komutlar, bayraklar, metinler ve değişkenler renklendirilir; ANSI renkli çıktı ve kırmızı hata çıktısı desteklenir; ↑/↓ komut geçmişi, Ctrl+L temizleme.
 - GitHub: uygulama içinden hesap bağlama (cihaz kodu akışı), hesap oluşturma bağlantısı; token şifreli saklanır. Git push/pull/fetch bağlı hesapla kimlik doğrular.
 - Git: ahead/behind göstergesi, 8 sn'de bir canlı durum, açık PR sayısı ve son Actions koşuları GitHub'dan canlı gelir.
@@ -58,36 +62,29 @@
 - CI: sürüm işindeki push yarışı (non-fast-forward) giderildi; rebase + yeniden deneme eklendi, işlere zaman aşımı konuldu.
 - CI: çalışma zamanı bağımlılıkları için moderate, geliştirme araçları için high düzeyinde audit uygulanıyor.
 - Açık klasördeki dosya değişiklikleri artık gerçek zamanlı: dosya ağacı ve kaydedilmemiş değişikliği olmayan açık sekmeler diskten anında yenileniyor.
-
 - GitHub: "GitHub ile giriş yap" artık kodu önceden doldurulmuş GitHub yetkilendirme sayfasını doğrudan açar; izin kapsamı arayüzde açıkça gösterilir. Client ID, `package.json` içindeki `novaGithubClientId` alanından okunur (kullanıcıdan istenmez). Eski `safeStorage` API'si yerine asenkron sürüm kullanılır.
-
 - GitHub: Client ID giriş alanı kaldırıldı. GitHub hesabı bağlı değilken Git değişiklikleri, commit, push, pull ve fetch uygulamada kilitli kalır (ana süreçte de uygulanır).
-
 - Sürüm 1.2.0 — GitHub hesabıyla Git: sahnele/sahneden çıkar/geri al (parça parça), yalnız sahnelenenleri commit, dal listesi/oluşturma/geçiş, eşzamanla (fetch + fast-forward pull + push; ayrışmış dalda otomatik birleştirme yapmaz), Pull Request açma, GitHub'da depo yayınlama, commit geçmişi, `git init`.
 - Gerçek zamanlı takip: `.git` içindeki HEAD/index/refs değişimi (terminal dahil) anında panele yansır; dosya ağacında değişen (M), yeni (U), silinen (D) dosyalar renkli ve klasörlerde değişiklik işareti görünür.
 - Düzeltme: Git durum ayrıştırması (baştaki boşluklu/Türkçe karakterli dosya adları, yeniden adlandırma) sağlamlaştırıldı; yol doğrulama ile depo dışına çıkma engellendi.
 - CI: `package.json` sürümü son etiketten büyükse (bilinçli minor/major) sürüm işi onu olduğu gibi yayınlar.
-
 - Tasarım: arayüz baştan VS Code "Dark Modern" çizgisinde yenilendi (düz yüzeyler, cam/bulanıklık yok): özel başlık çubuğu, simge tabanlı etkinlik çubuğu (etkin göstergesi, Git sayı rozeti, GitHub avatarı), dosya türü renkli sekmeler ve yol göstergesi, VS Code tarzı alt panel sekmeleri, durum çubuğu (dal, ↑↓, GitHub hesabı), Ctrl+B ile kenar çubuğu aç/kapat, Nova Dark Monaco teması.
 - Marka: yeni NovaCode logosu (kod ayracı + yapay zekâ kıvılcımı), favicon ve uygulama simgesi (`public/logo.svg`, `public/icon.png`; yeniden üretmek için `npx electron scripts/make-icons.cjs`).
 - Hareket: logo çizim animasyonu, sade açılış ekranı, kenar çubuğu/panel/sekme geçişleri, simge etkileşimleri; `prefers-reduced-motion` ile kapatılır.
-
 - Logo arka plansız ve sadeleştirildi (gradient kod ayracı + yapay zekâ kıvılcımı); arayüz vurgu rengi logoya uyumlu indigo-menekşe oldu.
 - Karşılama ekranı VS Code "Welcome" düzeninde yenilendi: Başlangıç bağlantıları, Son açılan klasörler, Keşfet kartları, "Açılışta göster" seçeneği. Son klasörler yalnız yerelde tutulur.
 - Proje beyni: `docs/brain/` altında harita, proje bilgisi, karar günlüğü ve her aksiyon için bir oyun kitabı; `STATE.md` koddan otomatik üretilir (`npm run brain`), tutarlılık `npm run brain:check` ile denetlenir. Git modülü testleri `npm test` ile CI'da çalışır.
-
 - Ayarlar baştan yazıldı: gerçek zamanlı, VS Code tarzı tam sayfa (`Ctrl+,`), arama ve kategorilerle. Koyu / açık / sistem tema, 6 vurgu rengi, arayüz yazı tipi, yakınlaştırma, animasyon ve dil (anında); editör yazı tipi (hazır liste veya özel), boyut, satır yüksekliği, kalınlık, ligatür, sekme, kaydırma, imleç, mini harita, katlama, öneriler, cetvel vb. 30+ ayar; canlı Monaco önizlemesi.
 - Dosya ve terminal ayarları: otomatik kayıt (gecikme / odak değişimi), kayıtta boşluk temizleme ve son satır, terminal yazı boyutu/varsayılan kabuk/komut renklendirme, Git yenileme aralıkları. Ayarlar JSON olarak dışa/içe aktarılabilir.
 - Açık tema eklendi (Nova Light Monaco teması, terminal paleti dahil). Ortak düzenleme token'ı artık şifreli saklanır (eski düz metin token taşınıp silinir).
 - Düzeltme: dosya açık değilken sekme çubuğundaki gereksiz `+` düğmesi gizlendi.
 - Dökümantasyon: README yenilendi; `docs/brain/` içine `settings` aksiyonu, ayar tablosu (şemadan otomatik) ve karar günlüğü eklendi; `brain:check` ayar şemasını ve çevirileri de denetler.
-
 - Terminal VS Code gibi yenilendi: birden çok terminal (+ ▾ ile PowerShell/CMD seçimi), sağda oturum listesi, paneli büyüt/küçült/kapat, istem satırı çıktının sonunda satır içi, blok/çubuk/alt çizgi imleç, `Ctrl+C` ile satır iptali. Panel varsayılan kapalı; gizliyken oturumlar canlı kalır. Terminal kodu `electron-term.cjs` modülüne taşındı ve gerçek kabuklarla test edilir (`npm test`).
 - Gezgin VS Code son sürüme uyarlandı: "Açık düzenleyiciler" ve çalışma alanı bölümleri, satır içi oluşturma, F2 ile yeniden adlandırma, sağ tık menüsü, klavye gezinmesi, girinti kılavuzları, animasyonlu klasör açma. Alt klasörde dosya/klasör oluşturma ve klasör silme düzeltildi.
 - Yer kaplayan öğeler kaldırıldı (başlıktaki sürüm etiketi, anlamsız durum çubuğu öğeleri); durum çubuğu yalnız anlamlı bilgi gösterir. Yeni geçişler: açılır menüler, kenar çubuğu ve terminal paneli boyut animasyonu.
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
-### en
+### English
 - **Real terminal (PTY):** The terminal is now a real xterm.js terminal (vim, htop, real Ctrl+C, resizing, Ctrl+Click file:line links). The old terminal remains as "classic"; setting: Terminal mode.
 - **Debugger (Node/JavaScript):** Breakpoints (gutter click / F9), F5/F10/F11/Shift+F11/Shift+F5, variables, call stack, expression evaluation. Only .js/.mjs/.cjs files in the opened folder.
 - **Language servers (LSP):** Completion, hover, go to definition and error marks for Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua, YAML using a server on your computer (PATH only). Server status in the status bar; setting: Language servers.
@@ -134,7 +131,6 @@
 - Extension store (Open VSX): search, install, update and remove theme extensions (`Ctrl+Shift+X`). Extensions that run code are not supported.
 - File type icons: colored badges for TS, JS, PHP, PY, GO and ~60 types in the explorer, tabs, palette and search.
 - Local-first: Ollama support (no API key, no cost, data never leaves your computer). The panel detects Ollama and installed models and lets you pick a model; it shows setup hints when something is missing. For dictation you can set a local Whisper server address (no key needed).
-
 - The terminal was rebuilt VS Code-style: multiple terminals (+ ▾ to pick PowerShell/CMD), a session list on the right, maximize/restore/close, an inline prompt at the end of the output, block/bar/underline cursor, `Ctrl+C` cancels the line. The panel is closed by default and sessions stay alive while hidden. Terminal code moved to `electron-term.cjs` and is tested with real shells (`npm test`).
 - The Explorer follows the latest VS Code: "Open editors" and workspace sections, inline create, F2 rename, context menu, keyboard navigation, indent guides, animated folder expansion. Creating files/folders in subfolders and deleting folders were fixed.
 - Space-wasting elements were removed (version chip in the title bar, meaningless status bar items); the status bar shows only meaningful info. New transitions: popup menus, sidebar and terminal panel resize animation.
