@@ -23,6 +23,12 @@ Sağ panel (`Ctrl+Shift+L`, etkinlik çubuğundaki kıvılcım). Yalnız masaüs
 | İstemci | `src/services/aiClient.ts`, `useDictation.ts`, `editorBridge.ts` | Oturum deposu (localStorage), kayıt kancası, Monaco köprüsü (seçim/ekleme) |
 | Ayarlar | `settingsSchema.json` → kategori `ai`; anahtar alanları `SettingsPage.tsx` (`AiKeys`) | Sağlayıcı, model, özel adres, mod, bağlam, onaylar, dikte |
 
+## Karar (2026-11-12): sağlayıcı yalnız Ollama
+Arayüzde tek sağlayıcı **Ollama** (yerel, anahtarsız). `aiProvider` şemada gizli ve tek seçenekli; `AIAssistant.tsx` sağlayıcıyı `ollama`'ya sabitler. Varsayılan model `qwen2.5-coder:7b` (`DEFAULT_MODEL.ollama`, `aiModel` varsayılanı); model yüklü değilse panelde `ollama pull` uyarısı çıkar. Aşağıdaki yerleşik/Anthropic/OpenAI bölümleri **motorda durur ama arayüzden erişilemez** (gizli `aiBuiltinModel` vb. ayarları, API anahtarı bölümü kaldırıldı); tamamen silmek ayrı bir temizlik işidir.
+- **Dikte:** `aiTranscribeUrl` varsayılanı `http://localhost:8080/v1` (yerel whisper.cpp; boşsa da bu kullanılır). `aiVoiceLang` "Otomatik" = arayüz dili (Türkçe arayüzde `tr` sabit). Motor istekle `temperature=0`, `response_format=json` ve dile göre bir `prompt` ipucu (yazılım terimleri, noktalama) gönderir. Sunucu `--convert` ile çalışmalı (uygulama `webm` yollar) ve ffmpeg gerekir.
+- **Türkçe duyarlılığı:** arayüz dili `tr` ise sistem istemine Türkçe kuralları (ek/noktalama/harfler, sen–siz uyumu, teknik terim dengesi) ve "mesaj dikteyle yazılmış olabilir, hatalı yazımı bağlamdan anla" notu eklenir; sıcaklık Sohbet 0,4, Ajan 0,2.
+- **Boş sohbet:** hiçbir şey yazılmamış sohbet ne listede görünür ne `localStorage`'a yazılır (`loadSessions`/`saveSessions` boşları atar; başka sohbete geçince bellekten silinir; "yeni" etkin sohbet zaten boşsa yenisini açmaz). Sohbet ve Ajan listeleri ayrıdır (aşağıya bak).
+
 ## Sağlayıcılar
 `anthropic` (Messages API, `x-api-key`), `openai` (Chat Completions, OpenAI uyumlu), `ollama` (yerel, anahtarsız, `http://localhost:11434/v1`). Kanonik ileti biçimi Anthropic blokları; OpenAI için `toOpenAIMessages` çevirir. Özel taban adres yalnız `https://` veya yerel `http://` (`safeBase`). Varsayılan modeller `aiClient.ts` → `DEFAULT_MODEL`.
 

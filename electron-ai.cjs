@@ -221,6 +221,7 @@ async function callOpenAI(cfg, system, messages, tools, onText, signal) {
     method: 'POST', signal, headers,
     body: JSON.stringify({
       model: cfg.model, max_tokens: cfg.maxTokens, stream: true, stream_options: { include_usage: true },
+      ...(typeof cfg.temperature === 'number' ? { temperature: cfg.temperature } : {}),
       messages: toOpenAIMessages(system, messages),
       ...(tools ? { tools: tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.input_schema } })) } : {})
     })
@@ -274,9 +275,15 @@ function cleanInstructions(x) {
 
 function buildSystem({ root, lang, agent, project, extra = '' }) {
   const langName = { tr: 'Türkçe', en: 'English', de: 'Deutsch', ru: 'русский', ar: 'العربية', es: 'español', fr: 'français', az: 'azərbaycanca' }[lang] || 'Türkçe';
+  // Türkçe duyarlılığı: doğal dil, dikteyle gelen hatalı yazımı anlama, teknik terim dengesi
+  const trNote = lang === 'tr' ? [
+    'TÜRKÇE KURALLARI: Doğal, akıcı ve doğru Türkçe yaz (ünlü uyumu, ekler, noktalama; ç ğ ı İ ö ş ü harflerini eksiksiz kullan). Çeviri kokan kalıplardan kaçın, kısa ve net cümleler kur. Kullanıcı "sen" diyorsa sen, "siz" diyorsa siz de. Kod, komut ve dosya adlarını olduğu gibi bırak; yaygın teknik terimleri (commit, branch, API, bileşen, fonksiyon) gerektiğinde İngilizce kullan.',
+    'Kullanıcının mesajı sesli dikteyle yazılmış olabilir: noktalama, büyük/küçük harf ve ses benzerliğinden doğan yanlış sözcükleri (örn. "komit" = commit, "riakt" = React, "tayp skript" = TypeScript) bağlama göre anla. Emin değilsen tek kısa soruyla netleştir, tahmin yürütüp kod değiştirme.'
+  ] : [];
   return [
     'Sen NovaCode Studio kod editörünün yapay zekâ asistanısın. Kısa, net ve doğru yanıt ver; emin olmadığını kesinmiş gibi sunma.',
     `Kullanıcının arayüz dili: ${langName}. Aksi istenmedikçe bu dilde yanıtla. Kodu uygun dil etiketli kod bloğuna koy.`,
+    ...trNote,
     root ? `Çalışma klasörü: ${path.basename(root)}` : 'Açık çalışma klasörü yok.',
     agent
       ? 'AGENT modundasın: görevi bitirmek için araçları kullan (önce oku/ara, sonra değiştir). Değişikliklerden önce ilgili dosyayı oku. Yazma ve komut araçları kullanıcı onayı ister; reddedilirse alternatif öner. Bitirince ne yaptığını kısaca özetle.'
@@ -330,7 +337,7 @@ function register({ getWindow, getRoot }) {
       if (!def) throw new Error('Bilinmeyen sağlayıcı.');
       const key = def.secret ? (await readSecret(def.secret)) : '';
       if (def.secret && !key) throw new Error('auth:nokey');
-      const cfg = { base: safeBase(provider, req.baseUrl), key, model: String(req.model || '').slice(0, 120), maxTokens: Math.min(Math.max(Number(req.maxTokens) || 4096, 256), 32000) };
+      const cfg = { base: safeBase(provider, req.baseUrl), key, model: String(req.model || '').slice(0, 120), maxTokens: Math.min(Math.max(Number(req.maxTokens) || 4096, 256), 32000), temperature: req.mode === 'agent' ? 0.2 : 0.4 }; // düşük sıcaklık: kod ve Türkçe dilbilgisinde daha tutarlı
       if (!cfg.model) throw new Error('Model adı boş.');
       const root = getRoot();
       const agent = req.mode === 'agent' && !!root;
@@ -424,6 +431,14 @@ function register({ getWindow, getRoot }) {
       form.append('file', new Blob([buf], { type: mime }), 'dictation.' + mime.split('/')[1]);
       form.append('model', String(req.model || 'whisper-1').slice(0, 80));
       if (req.lang && /^[a-z]{2}$/.test(req.lang)) form.append('language', req.lang);
+      // Doğruluk: sıcaklık 0 + dilde bir başlangıç ipucu (Whisper "prompt"); Türkçede teknik sözcükler ve noktalama daha iyi çıkar
+      form.append('temperature', '0');
+      form.append('response_format', 'json');
+      const HINT = {
+        tr: 'Bu bir yazılım geliştirme konuşmasıdır. Türkçe, düzgün noktalama ve büyük harflerle yazılır. Terimler: React, TypeScript, JavaScript, fonksiyon, bileşen, değişken, commit, branch, API, Ollama, Electron, klasör, dosya, hata ayıklama.',
+        en: 'This is a software development conversation. Terms: React, TypeScript, JavaScript, function, component, variable, commit, branch, API, Ollama, Electron.'
+      };
+      if (HINT[req.lang]) form.append('prompt', HINT[req.lang]);
       const res = await fetch(base + '/audio/transcriptions', { method: 'POST', headers: key ? { authorization: 'Bearer ' + key } : {}, body: form, signal: AbortSignal.timeout(60000) });
       if (!res.ok) return { success: false, error: res.status === 401 ? 'auth' : 'http' };
       const json = await res.json();

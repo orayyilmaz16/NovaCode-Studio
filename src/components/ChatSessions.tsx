@@ -6,7 +6,10 @@ import { dateGroup, relativeTime, type AiSession, type DateGroup } from '../serv
 // Sohbet seçici: başlıkta ad + açılır liste (arama, tarih grupları, sabitleme, yeniden adlandırma, dışa aktarma, silme).
 // Açılır liste en yakın konumlu üst öğeye (panel başlığı) göre yayılır.
 interface Props {
+  /** Listelenecek (kaydedilmiş, dolu) sohbetler. */
   sessions: AiSession[];
+  /** Başlıkta gösterilen etkin sohbet; henüz boşsa listede yer almaz ama burada görünür. */
+  current?: AiSession;
   activeId: string;
   busy: boolean;
   /** Yanıt akan sohbet: silinemez. */
@@ -57,7 +60,7 @@ const RenameInput: React.FC<{ initial: string; onCommit: (v: string) => void; on
   );
 };
 
-export const ChatSessions: React.FC<Props> = ({ sessions, activeId, busy, busyId, renameId, setRenameId, onSelect, onRename, onPin, onDelete, onExport, onClearUnpinned }) => {
+export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, busy, busyId, renameId, setRenameId, onSelect, onRename, onPin, onDelete, onExport, onClearUnpinned }) => {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [hi, setHi] = useState(0);
@@ -65,7 +68,7 @@ export const ChatSessions: React.FC<Props> = ({ sessions, activeId, busy, busyId
   const boxRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const lang = getUiLang();
-  const active = sessions.find((s) => s.id === activeId) ?? sessions[0];
+  const active = current ?? sessions.find((s) => s.id === activeId) ?? sessions[0];
 
   const close = () => { setOpen(false); setQ(''); setConfirm(null); if (renameId) setRenameId(null); };
 

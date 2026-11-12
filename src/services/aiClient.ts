@@ -6,8 +6,11 @@ export const DEFAULT_MODEL: Record<AiProvider, string> = {
   builtin: 'qwen2.5-coder-1.5b',
   anthropic: 'claude-sonnet-5-5',
   openai: 'gpt-4o',
-  ollama: 'llama3.1'
+  ollama: 'qwen2.5-coder:7b'
 };
+
+/** Yerel Whisper dikte sunucusu (whisper.cpp, OpenAI uyumlu). Ayar boşsa bu kullanılır. */
+export const DEFAULT_TRANSCRIBE_URL = 'http://localhost:8080/v1';
 
 export const PROVIDER_LABEL: Record<AiProvider, string> = {
   builtin: 'Nova (yerleşik)',
@@ -80,7 +83,7 @@ export function loadSessions(): AiSession[] {
     const raw = JSON.parse(window.localStorage.getItem(KEY) || '[]');
     if (!Array.isArray(raw)) return [];
     return raw
-      .filter((s) => s && typeof s.id === 'string' && Array.isArray(s.messages))
+      .filter((s) => s && typeof s.id === 'string' && Array.isArray(s.messages) && s.messages.length > 0) // boş sohbetler saklanmaz
       .map((s) => ({
         id: String(s.id),
         title: String(s.title || '').slice(0, 80),
@@ -101,7 +104,8 @@ export function loadSessions(): AiSession[] {
 export function saveSessions(list: AiSession[]) {
   try {
     // Sabitlenenler hiç düşmez; kalan kontenjan en yeni sohbetlere gider.
-    const byNew = [...list].sort((a, b) => b.updatedAt - a.updatedAt);
+    // Boş (hiçbir şey yazılmamış) sohbetler hafızaya yazılmaz
+    const byNew = list.filter((x) => x.messages.length > 0).sort((a, b) => b.updatedAt - a.updatedAt);
     const pinned = byNew.filter((x) => x.pinned);
     const rest = byNew.filter((x) => !x.pinned).slice(0, Math.max(5, MAX_SESSIONS - pinned.length));
     window.localStorage.setItem(KEY, JSON.stringify([...pinned, ...rest]));
