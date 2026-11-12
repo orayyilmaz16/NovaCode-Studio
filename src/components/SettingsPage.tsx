@@ -8,6 +8,7 @@ import {
   SquareTerminal,
   GitBranch,
   Users,
+  Sparkles,
   Keyboard,
   Info,
   Search,
@@ -46,6 +47,7 @@ const ICONS: Record<string, React.ReactNode> = {
   SquareTerminal: <SquareTerminal size={16} />,
   GitBranch: <GitBranch size={16} />,
   Users: <Users size={16} />,
+  Sparkles: <Sparkles size={16} />,
   Keyboard: <Keyboard size={16} />,
   Info: <Info size={16} />
 };
@@ -355,6 +357,56 @@ const TokenField: React.FC = () => {
   );
 };
 
+// ---------- Yapay zekâ API anahtarları (ana süreçte şifreli; arayüze geri okunmaz) ----------
+const AI_KEYS: { id: 'aiKey_anthropic' | 'aiKey_openai'; label: UiTextKey }[] = [
+  { id: 'aiKey_anthropic', label: 'aiKeyAnthropic' },
+  { id: 'aiKey_openai', label: 'aiKeyOpenai' }
+];
+
+const AiKeyRow: React.FC<{ id: 'aiKey_anthropic' | 'aiKey_openai'; label: UiTextKey }> = ({ id, label }) => {
+  const [saved, setSaved] = useState<boolean | null>(null);
+  const [value, setValue] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  useEffect(() => {
+    void window.electronAPI?.secrets.get(id).then((r) => setSaved('value' in r && !!r.value));
+  }, [id]);
+  const save = async (v: string) => {
+    const res = await window.electronAPI?.secrets.set(id, v);
+    if (res?.success) { setSaved(v !== ''); setValue(''); setMsg(null); } else setMsg(t('aiKeyNoEncrypt'));
+  };
+  return (
+    <div className="flex items-start justify-between gap-6 py-3 border-b border-nv-border/70">
+      <div className="min-w-0 flex-1">
+        <div className="text-[13px] text-zinc-100">{t(label)}</div>
+        <p className={`mt-1 text-[12px] ${saved ? 'text-emerald-400' : 'text-zinc-500'}`}>{saved === null ? '' : saved ? t('aiKeySet') : t('aiKeyNotSet')}</p>
+        {msg && <p className="mt-1 text-[12px] text-rose-400">{msg}</p>}
+      </div>
+      <div className="shrink-0 flex gap-2">
+        <input
+          type="password"
+          autoComplete="off"
+          aria-label={t(label)}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          maxLength={2048}
+          placeholder={saved ? '••••••••' : ''}
+          className={`${field} w-[220px] font-mono`}
+        />
+        <button disabled={!value.trim()} onClick={() => void save(value.trim())} className="h-7 px-3 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-[12px] transition-colors">{t('aiKeySave')}</button>
+        {saved && <button onClick={() => void save('')} className="h-7 px-3 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-100 text-[12px] transition-colors">{t('aiKeyClear')}</button>}
+      </div>
+    </div>
+  );
+};
+
+const AiKeys: React.FC = () => (
+  <div className="mt-4">
+    <h3 className="text-[13px] text-zinc-200">{t('aiKeyTitle')}</h3>
+    <p className="mt-1 text-[12px] text-zinc-500 leading-relaxed max-w-[560px]">{t('aiKeyDesc')}</p>
+    {window.electronAPI ? AI_KEYS.map((k) => <AiKeyRow key={k.id} {...k} />) : <p className="mt-2 text-[12px] text-zinc-500">{t('aiDesktopOnly')}</p>}
+  </div>
+);
+
 // ---------- Kısayollar ve hakkında ----------
 const SHORTCUTS: [string, UiTextKey][] = [
   ['Ctrl+N', 'newFile'],
@@ -366,6 +418,11 @@ const SHORTCUTS: [string, UiTextKey][] = [
   ['Ctrl+,', 'actSettings'],
   ['Ctrl+W', 'closeTab'],
   ['Ctrl+Tab / Ctrl+Shift+Tab', 'scNextTab'],
+  ['Ctrl+P', 'cmdQuickOpen'],
+  ['Ctrl+Shift+P / F1', 'cpTitle'],
+  ['Ctrl+G', 'cmdGoToLine'],
+  ['Ctrl+Shift+F', 'cmdFindInFiles'],
+  ['Ctrl+Shift+L', 'cmdOpenAI'],
   ['Ctrl+L', 'scClearTerminal'],
   ['Ctrl+Q', 'quit']
 ];
@@ -560,6 +617,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnip
                     )}
                   </>
                 )}
+                {current.id === 'ai' && <AiKeys />}
                 {current.id === 'snippets' && <SnippetManager builtInCount={builtInSnippetCount} />}
                 {current.id === 'shortcuts' && <Shortcuts />}
                 {current.id === 'about' && <About />}

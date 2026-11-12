@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Editor from '@monaco-editor/react';
+import { setActiveEditor } from '../services/editorBridge';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
@@ -293,7 +294,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             }}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}
-            onMount={(ed) => setEditorInstance(ed)}
+            onMount={(ed) => { setEditorInstance(ed); setActiveEditor(ed); }}
             onChange={(val) => onChangeContent(activeFile.id, val || '')}
             options={editorOptions}
           />

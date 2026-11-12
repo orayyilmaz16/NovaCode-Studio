@@ -25,25 +25,28 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
+| `electron-ai.cjs` | 408 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
-| `electron-main.cjs` | 425 |
-| `electron-preload.cjs` | 85 |
-| `electron-secrets.cjs` | 46 |
+| `electron-main.cjs` | 437 |
+| `electron-preload.cjs` | 101 |
+| `electron-search.cjs` | 74 |
+| `electron-secrets.cjs` | 58 |
 | `electron-term.cjs` | 155 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1029 |
+| `src/App.tsx` | 1111 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 164 |
+| `src/types.ts` | 210 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 157 |
-| `src/components/EditorArea.tsx` | 333 |
+| `src/components/AIAssistant.tsx` | 408 |
+| `src/components/CommandPalette.tsx` | 153 |
+| `src/components/EditorArea.tsx` | 334 |
 | `src/components/FileTree.tsx` | 599 |
 | `src/components/GitPanel.tsx` | 608 |
 | `src/components/GithubAccount.tsx` | 132 |
@@ -52,7 +55,8 @@
 | `src/components/Menu.tsx` | 100 |
 | `src/components/Preview.tsx` | 97 |
 | `src/components/ResizeHandle.tsx` | 66 |
-| `src/components/SettingsPage.tsx` | 573 |
+| `src/components/SearchPanel.tsx` | 97 |
+| `src/components/SettingsPage.tsx` | 631 |
 | `src/components/SnippetsPanel.tsx` | 97 |
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 441 |
@@ -61,18 +65,22 @@
 | Dosya | Satır |
 |---|---|
 | `src/services/SettingsContext.tsx` | 137 |
+| `src/services/aiClient.ts` | 132 |
+| `src/services/editorBridge.ts` | 74 |
 | `src/services/editorTheme.ts` | 96 |
+| `src/services/lang.ts` | 12 |
 | `src/services/monacoShim.ts` | 28 |
 | `src/services/settings.ts` | 271 |
 | `src/services/snippetProvider.ts` | 58 |
 | `src/services/terminalText.ts` | 148 |
 | `src/services/useCollabToken.ts` | 67 |
+| `src/services/useDictation.ts` | 69 |
 | `src/services/useGithubAuth.ts` | 32 |
 
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 979 |
+| `src/i18n/uiText.ts` | 1288 |
 
 ### Betikler
 | Dosya | Satır |
@@ -99,23 +107,25 @@
 ## IPC kanalları
 | Grup | Kanallar |
 |---|---|
+| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:run`, `ai:transcribe` |
 | app | `app:quit` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:branches`, `git:checkout`, `git:commit`, `git:createBranch`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:pull`, `git:push`, `git:stage`, `git:stageAll`, `git:status`, `git:sync`, `git:unstage` |
 | github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
+| search | `search:files`, `search:text` |
 | secrets | `secrets:get`, `secrets:set` |
 | term | `term:input`, `term:start`, `term:stop` |
 | ui | `ui:setTheme` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `fs:watch-change`, `git:changed`, `github:auth`, `term:cwd`, `term:exit`, `term:output`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `term:cwd`, `term:exit`, `term:output`
 
 ## i18n
-- 308 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 411 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-65 ayar, 9 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+76 ayar, 10 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -184,6 +194,17 @@
 | Git ve GitHub | `gitFetchInterval` | Otomatik fetch aralığı | select | `60` | 30, 60, 120, 300 |
 | Ortak düzenleme | `collabEnabled` | Ortak düzenlemeyi aç | toggle | `false` |  |
 | Ortak düzenleme | `collabUrl` | Sunucu adresi | text | `""` | ≤200 karakter |
+| Yapay Zekâ | `aiProvider` | Sağlayıcı | select | `"anthropic"` | anthropic, openai, ollama |
+| Yapay Zekâ | `aiModel` | Model | text | `""` | ≤120 karakter |
+| Yapay Zekâ | `aiBaseUrl` | Özel adres | text | `""` | ≤200 karakter |
+| Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
+| Yapay Zekâ | `aiIncludeContext` | Açık dosyayı bağlam olarak gönder | toggle | `true` |  |
+| Yapay Zekâ | `aiAutoApproveEdits` | Dosya düzenlemelerini otomatik onayla | toggle | `false` |  |
+| Yapay Zekâ | `aiAllowCommands` | Ajan komut çalıştırabilsin | toggle | `true` |  |
+| Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |
+| Yapay Zekâ | `aiVoiceEnabled` | Sesli dikteyi aç | toggle | `false` |  |
+| Yapay Zekâ | `aiVoiceLang` | Dikte dili | select | `"auto"` | auto, tr, en, de, ru, ar, es, fr, az |
+| Yapay Zekâ | `aiTranscribeModel` | Dikte modeli | text | `"whisper-1"` | ≤80 karakter |
 
 ## GitHub Actions
 | Dosya | Ad | İşler |
@@ -197,11 +218,13 @@
 | [[AGENT]] | `AGENT.md` | AGENT.md — NovaCode Studio ajan sözleşmesi |
 | [[CHANGELOG]] | `CHANGELOG.md` | Changelog |
 | [[CLAUDE]] | `CLAUDE.md` | NovaCode Studio |
+| [[ai-assistant]] | `docs/brain/actions/ai-assistant.md` | Yapay zekâ asistanı: çoklu sağlayıcı, Ask/Agent modları, araçlar, oturumlar, görsel girdi, sesli dikte, özel komutlar |
 | [[brain-maintenance]] | `docs/brain/actions/brain-maintenance.md` | Proje beynini (docs/brain) güncel ve tutarlı tutmak |
 | [[ci-cd]] | `docs/brain/actions/ci-cd.md` | GitHub Actions, audit, bundle bütçesi ve yayın hattı |
 | [[git-github]] | `docs/brain/actions/git-github.md` | Git paneli, GitHub hesabı bağlama, PR, eşzamanlama ve canlı takip |
 | [[i18n]] | `docs/brain/actions/i18n.md` | Arayüze metin eklemek (8 dil zorunlu) |
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |
+| [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git, snippet hızlı yolları |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
 | [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör/snippet davranışları, kalıcılık ve gizli değerler |
 | [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: çoklu oturum, panel davranışı, istem, renklendirme |

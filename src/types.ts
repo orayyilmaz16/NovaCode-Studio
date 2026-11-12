@@ -99,13 +99,59 @@ export interface Snippet {
   body: string;
 }
 
+export type SecretKey = 'collabToken' | 'aiKey_anthropic' | 'aiKey_openai';
+
+export interface SearchHit {
+  path: string;
+  rel: string;
+  line: number;
+  text: string;
+}
+
+export type AiProvider = 'anthropic' | 'openai' | 'ollama';
+
+export interface AiRunRequest {
+  runId: string;
+  provider: AiProvider;
+  model: string;
+  baseUrl?: string;
+  maxTokens?: number;
+  mode: 'ask' | 'agent';
+  lang: string;
+  autoApproveEdits?: boolean;
+  allowCommands?: boolean;
+  useProject?: boolean;
+  messages: { role: 'user' | 'assistant'; text: string; images?: { mediaType: string; data: string }[] }[];
+}
+
+export type AiEvent = { runId: string } & (
+  | { type: 'text'; text: string }
+  | { type: 'tool'; id: string; name: string; input: Record<string, unknown> }
+  | { type: 'tool_result'; id: string; ok: boolean; text: string }
+  | { type: 'approval'; id: string; tool: string; summary: string; preview: string }
+  | { type: 'done'; usage?: { in: number; out: number }; changed?: string[]; cancelled?: boolean }
+  | { type: 'error'; error: string }
+);
+
 export interface ElectronBridge {
   isElectron: boolean;
   versions: { electron: string; chrome: string; node: string };
   ui: { setZoom: (factor: number) => void; setTheme: (mode: 'dark' | 'light') => Promise<{ success: boolean }> };
   secrets: {
-    get: (key: 'collabToken') => Promise<{ value: string } | { error: string }>;
-    set: (key: 'collabToken', value: string) => Promise<{ success: boolean; error?: string }>;
+    get: (key: SecretKey) => Promise<{ value: string } | { error: string }>;
+    set: (key: SecretKey, value: string) => Promise<{ success: boolean; error?: string }>;
+  };
+  search: {
+    files: () => Promise<{ root: string; files: string[] }>;
+    text: (opts: { query: string; regex?: boolean; caseSensitive?: boolean }) => Promise<{ results: SearchHit[]; truncated: boolean; error?: string }>;
+  };
+  ai: {
+    run: (req: AiRunRequest) => Promise<{ success: boolean; error?: string }>;
+    cancel: (runId: string) => Promise<{ success: boolean }>;
+    approve: (runId: string, id: string, allow: boolean) => Promise<{ success: boolean }>;
+    transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string; model?: string; baseUrl?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
+    commands: () => Promise<{ name: string; template: string }[]>;
+    onEvent: (callback: (ev: AiEvent) => void) => () => void;
   };
   quitApp: () => Promise<void>;
   openFolderDialog: () => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | { error: string } | null>;

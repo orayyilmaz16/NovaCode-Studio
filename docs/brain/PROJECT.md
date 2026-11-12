@@ -21,6 +21,9 @@ IPC kanallarının güncel listesi [[STATE]] içindedir. Her kanal `electron-pre
 - **Terminal:** `child_process` ile kalıcı kabuk oturumları; her komuttan sonra çalışma klasörü işareti okunur, arayüz istemi çizer. Ayrıntı: [[terminal]].
 - **Ortak düzenleme:** Yalnız kullanıcının girdiği `wss://` adresine dosya içeriği gider; varsayılan sunucu yok.
 
+## Yapay zekâ asistanı ve arama
+Sağ panelde Sor/Ajan modlu asistan (`AIAssistant.tsx`), motoru ana süreçte (`electron-ai.cjs`): Anthropic / OpenAI uyumlu / Ollama, akış, agent araç döngüsü (okuma/arama serbest, yazma ve komut onaylı), görsel girdi, sesli dikte, oturum geçmişi (cihazda), `.nova/` ile proje yönergesi ve özel komutlar. Komut paleti (`Ctrl+P`, `>`, `:`, `$`) ve proje araması (`electron-search.cjs`). Ayrıntı: [[ai-assistant]], [[search-palette]].
+
 ## Ayarlar
 Gerçek zamanlı, şema güdümlü ayar sistemi: `src/services/settingsSchema.json` (tek kaynak) → doğrulama, arayüz (`SettingsPage`) ve belge üretimi. Tema (koyu/açık/sistem), vurgu rengi, yazı tipleri, yakınlaştırma, dil, editör, snippet, kayıt, terminal, Git aralıkları, ortak düzenleme. Yerelde saklanır; token şifreli (`electron-secrets.cjs`). Ayrıntı: [[settings]].
 

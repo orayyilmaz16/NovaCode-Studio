@@ -7,6 +7,7 @@
     { "id": "files", "labelKey": "setCatFiles", "icon": "Files" },
     { "id": "terminal", "labelKey": "setCatTerminal", "icon": "SquareTerminal" },
     { "id": "git", "labelKey": "setCatGit", "icon": "GitBranch" },
+    { "id": "ai", "labelKey": "setCatAI", "icon": "Sparkles" },
     { "id": "collab", "labelKey": "setCatCollab", "icon": "Users" },
     { "id": "shortcuts", "labelKey": "setCatShortcuts", "icon": "Keyboard" },
     { "id": "about", "labelKey": "setCatAbout", "icon": "Info" }
@@ -106,6 +107,21 @@
       "options": [{ "value": 30, "label": "30 s" }, { "value": 60, "label": "1 dk" }, { "value": 120, "label": "2 dk" }, { "value": 300, "label": "5 dk" }] },
 
     { "id": "collabEnabled", "category": "collab", "type": "toggle", "default": false },
-    { "id": "collabUrl", "category": "collab", "type": "text", "default": "", "maxLength": 200, "placeholder": "wss://sunucun.example.com", "desc": true }
+    { "id": "collabUrl", "category": "collab", "type": "text", "default": "", "maxLength": 200, "placeholder": "wss://sunucun.example.com", "desc": true },
+
+    { "id": "aiProvider", "category": "ai", "type": "select", "default": "anthropic", "desc": true,
+      "options": [{ "value": "anthropic", "label": "Anthropic (Claude)" }, { "value": "openai", "label": "OpenAI / uyumlu" }, { "value": "ollama", "label": "Ollama (local)" }] },
+    { "id": "aiModel", "category": "ai", "type": "text", "default": "", "maxLength": 120, "placeholder": "claude-sonnet-5-5", "desc": true },
+    { "id": "aiBaseUrl", "category": "ai", "type": "text", "default": "", "maxLength": 200, "placeholder": "https://...", "desc": true },
+    { "id": "aiDefaultMode", "category": "ai", "type": "select", "default": "ask",
+      "options": [{ "value": "ask", "labelKey": "optAiAsk" }, { "value": "agent", "labelKey": "optAiAgent" }] },
+    { "id": "aiIncludeContext", "category": "ai", "type": "toggle", "default": true, "desc": true },
+    { "id": "aiAutoApproveEdits", "category": "ai", "type": "toggle", "default": false, "desc": true },
+    { "id": "aiAllowCommands", "category": "ai", "type": "toggle", "default": true, "desc": true },
+    { "id": "aiMaxTokens", "category": "ai", "type": "slider", "default": 4096, "min": 1024, "max": 16000, "step": 512 },
+    { "id": "aiVoiceEnabled", "category": "ai", "type": "toggle", "default": false, "desc": true },
+    { "id": "aiVoiceLang", "category": "ai", "type": "select", "default": "auto",
+      "options": [{ "value": "auto", "labelKey": "optAuto" }, { "value": "tr", "label": "Türkçe" }, { "value": "en", "label": "English" }, { "value": "de", "label": "Deutsch" }, { "value": "ru", "label": "Русский" }, { "value": "ar", "label": "العربية" }, { "value": "es", "label": "Español" }, { "value": "fr", "label": "Français" }, { "value": "az", "label": "Azərbaycanca" }] },
+    { "id": "aiTranscribeModel", "category": "ai", "type": "text", "default": "whisper-1", "maxLength": 80, "desc": true }
   ]
 }

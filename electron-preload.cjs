@@ -12,6 +12,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
     get: (key) => ipcRenderer.invoke('secrets:get', key),
     set: (key, value) => ipcRenderer.invoke('secrets:set', key, value)
   },
+  search: {
+    files: () => ipcRenderer.invoke('search:files'),
+    text: (opts) => ipcRenderer.invoke('search:text', opts)
+  },
+  ai: {
+    run: (req) => ipcRenderer.invoke('ai:run', req),
+    cancel: (runId) => ipcRenderer.invoke('ai:cancel', runId),
+    approve: (runId, id, allow) => ipcRenderer.invoke('ai:approve', runId, id, allow),
+    transcribe: (req) => ipcRenderer.invoke('ai:transcribe', req),
+    commands: () => ipcRenderer.invoke('ai:commands'),
+    onEvent: (callback) => {
+      const listener = (_event, data) => callback(data);
+      ipcRenderer.on('ai:event', listener);
+      return () => ipcRenderer.removeListener('ai:event', listener);
+    }
+  },
   quitApp: () => ipcRenderer.invoke('app:quit'),
   openFolderDialog: () => ipcRenderer.invoke('dialog:openFolder'),
   recentFolders: () => ipcRenderer.invoke('workspace:recent'),

@@ -950,6 +950,315 @@ export const UI_TEXT = {
   expCloseEditor: {
     tr: "Düzenleyiciyi kapat", en: "Close editor", de: "Editor schließen", ru: "Закрыть редактор", ar: "إغلاق المحرر", es: "Cerrar editor", fr: "Fermer l’éditeur", az: "Redaktoru bağla",
   },
+  actSearch: {
+    tr: "Ara", en: "Search", de: "Suchen", ru: "Поиск", ar: "بحث", es: "Buscar", fr: "Rechercher", az: "Axtar",
+  },
+  setCatAI: {
+    tr: "Yapay Zekâ", en: "AI Assistant", de: "KI-Assistent", ru: "ИИ-ассистент", ar: "المساعد الذكي", es: "Asistente IA", fr: "Assistant IA", az: "Süni intellekt",
+  },
+  optAiAsk: {
+    tr: "Sor", en: "Ask", de: "Fragen", ru: "Вопрос", ar: "اسأل", es: "Preguntar", fr: "Demander", az: "Soruş",
+  },
+  optAiAgent: {
+    tr: "Ajan", en: "Agent", de: "Agent", ru: "Агент", ar: "وكيل", es: "Agente", fr: "Agent", az: "Agent",
+  },
+  set_aiProvider: {
+    tr: "Sağlayıcı", en: "Provider", de: "Anbieter", ru: "Провайдер", ar: "المزوّد", es: "Proveedor", fr: "Fournisseur", az: "Provayder",
+  },
+  setDesc_aiProvider: {
+    tr: "Kodun ve sohbetin bu sağlayıcıya gönderilir (yurt dışı aktarım olabilir). Ollama yerel çalışır, veri cihazdan çıkmaz.", en: "Your code and chat are sent to this provider (may be a cross-border transfer). Ollama runs locally and nothing leaves your device.", de: "Code und Chat werden an diesen Anbieter gesendet (ggf. Drittlandübermittlung). Ollama läuft lokal, nichts verlässt dein Gerät.", ru: "Код и чат отправляются этому провайдеру (возможна трансграничная передача). Ollama работает локально, данные не покидают устройство.", ar: "يُرسل الكود والمحادثة إلى هذا المزوّد (قد يكون نقلاً عبر الحدود). يعمل Ollama محلياً ولا تغادر البيانات جهازك.", es: "Tu código y el chat se envían a este proveedor (puede haber transferencia internacional). Ollama funciona en local y nada sale de tu dispositivo.", fr: "Ton code et le chat sont envoyés à ce fournisseur (transfert hors UE possible). Ollama fonctionne en local, rien ne quitte ton appareil.", az: "Kodun və söhbətin bu provayderə göndərilir (xaricə ötürmə ola bilər). Ollama lokal işləyir, məlumat cihazdan çıxmır.",
+  },
+  set_aiModel: {
+    tr: "Model", en: "Model", de: "Modell", ru: "Модель", ar: "النموذج", es: "Modelo", fr: "Modèle", az: "Model",
+  },
+  setDesc_aiModel: {
+    tr: "Boş bırakırsan sağlayıcının varsayılan modeli kullanılır.", en: "Leave empty to use the provider default model.", de: "Leer lassen, um das Standardmodell des Anbieters zu nutzen.", ru: "Оставь пустым, чтобы использовать модель по умолчанию.", ar: "اتركه فارغاً لاستخدام النموذج الافتراضي للمزوّد.", es: "Déjalo vacío para usar el modelo predeterminado del proveedor.", fr: "Laisse vide pour utiliser le modèle par défaut du fournisseur.", az: "Boş buraxsan provayderin standart modeli işlədilir.",
+  },
+  set_aiBaseUrl: {
+    tr: "Özel adres", en: "Custom endpoint", de: "Eigener Endpunkt", ru: "Свой адрес", ar: "عنوان مخصص", es: "Endpoint personalizado", fr: "Point d’accès personnalisé", az: "Xüsusi ünvan",
+  },
+  setDesc_aiBaseUrl: {
+    tr: "İsteğe bağlı. Yalnız https:// (yerelde http://localhost) kabul edilir. API anahtarın bu adrese gönderilir; güvendiğin bir adres gir.", en: "Optional. Only https:// (or http://localhost) is accepted. Your API key is sent to this address; use one you trust.", de: "Optional. Nur https:// (oder http://localhost). Dein API-Schlüssel wird an diese Adresse gesendet; nutze nur vertrauenswürdige.", ru: "Необязательно. Только https:// (или http://localhost). Ключ API отправляется на этот адрес — используй доверенный.", ar: "اختياري. يُقبل https:// فقط (أو http://localhost). يُرسل مفتاح API إلى هذا العنوان، فاستخدم عنواناً موثوقاً.", es: "Opcional. Solo https:// (o http://localhost). Tu clave API se envía a esta dirección; usa una de confianza.", fr: "Facultatif. Seulement https:// (ou http://localhost). Ta clé API est envoyée à cette adresse ; choisis-en une de confiance.", az: "İstəyə bağlı. Yalnız https:// (və ya http://localhost). API açarın bu ünvana göndərilir; etibar etdiyin ünvan yaz.",
+  },
+  set_aiDefaultMode: {
+    tr: "Varsayılan mod", en: "Default mode", de: "Standardmodus", ru: "Режим по умолчанию", ar: "الوضع الافتراضي", es: "Modo predeterminado", fr: "Mode par défaut", az: "Standart rejim",
+  },
+  set_aiIncludeContext: {
+    tr: "Açık dosyayı bağlam olarak gönder", en: "Send the open file as context", de: "Geöffnete Datei als Kontext senden", ru: "Отправлять открытый файл как контекст", ar: "إرسال الملف المفتوح كسياق", es: "Enviar el archivo abierto como contexto", fr: "Envoyer le fichier ouvert comme contexte", az: "Açıq faylı kontekst kimi göndər",
+  },
+  setDesc_aiIncludeContext: {
+    tr: "Seçili kod (yoksa dosyanın başı) her mesajla sağlayıcıya gider. Kapatırsan yalnız yazdığın metin gider.", en: "The selected code (or the start of the file) goes to the provider with each message. If off, only what you type is sent.", de: "Der markierte Code (sonst der Dateianfang) wird mit jeder Nachricht gesendet. Aus: nur dein Text.", ru: "Выделенный код (или начало файла) уходит с каждым сообщением. Если выключено — только твой текст.", ar: "يُرسل الكود المحدد (أو بداية الملف) مع كل رسالة. عند الإيقاف يُرسل نصك فقط.", es: "El código seleccionado (o el inicio del archivo) se envía con cada mensaje. Si lo desactivas, solo lo que escribes.", fr: "Le code sélectionné (ou le début du fichier) part avec chaque message. Désactivé : seulement ton texte.", az: "Seçilmiş kod (yoxsa faylın başı) hər mesajla göndərilir. Söndürsən yalnız yazdığın mətn gedər.",
+  },
+  set_aiAutoApproveEdits: {
+    tr: "Dosya düzenlemelerini otomatik onayla", en: "Auto-approve file edits", de: "Dateiänderungen automatisch genehmigen", ru: "Автоматически одобрять правки файлов", ar: "الموافقة تلقائياً على تعديلات الملفات", es: "Aprobar ediciones de archivos automáticamente", fr: "Approuver automatiquement les modifications", az: "Fayl dəyişikliklərini avtomatik təsdiqlə",
+  },
+  setDesc_aiAutoApproveEdits: {
+    tr: "Ajan modunda dosya yazma ve düzenleme sorulmadan yapılır. Komut çalıştırma her zaman onay ister. Önerilmez.", en: "In Agent mode, file writes and edits happen without asking. Running commands always asks. Not recommended.", de: "Im Agent-Modus werden Dateien ohne Rückfrage geschrieben. Befehle fragen immer nach. Nicht empfohlen.", ru: "В режиме агента файлы меняются без вопросов. Команды всегда требуют подтверждения. Не рекомендуется.", ar: "في وضع الوكيل تُكتب الملفات وتُعدَّل دون سؤال. تشغيل الأوامر يطلب الموافقة دائماً. غير موصى به.", es: "En modo Agente, los archivos se escriben sin preguntar. Los comandos siempre piden confirmación. No recomendado.", fr: "En mode Agent, les fichiers sont modifiés sans demander. Les commandes demandent toujours. Déconseillé.", az: "Agent rejimində fayllar soruşulmadan dəyişir. Komandalar həmişə təsdiq istəyir. Tövsiyə olunmur.",
+  },
+  set_aiAllowCommands: {
+    tr: "Ajan komut çalıştırabilsin", en: "Let the agent run commands", de: "Agent darf Befehle ausführen", ru: "Разрешить агенту запускать команды", ar: "السماح للوكيل بتشغيل الأوامر", es: "Permitir que el agente ejecute comandos", fr: "Autoriser l’agent à exécuter des commandes", az: "Agent komanda işlədə bilsin",
+  },
+  setDesc_aiAllowCommands: {
+    tr: "Her komut çalışmadan önce onayına sunulur.", en: "Every command is shown for your approval before it runs.", de: "Jeder Befehl wird vor der Ausführung zur Genehmigung angezeigt.", ru: "Каждая команда показывается на подтверждение перед запуском.", ar: "يُعرض كل أمر للموافقة قبل تشغيله.", es: "Cada comando se muestra para tu aprobación antes de ejecutarse.", fr: "Chaque commande t’est soumise avant son exécution.", az: "Hər komanda işləməzdən əvvəl təsdiqinə təqdim olunur.",
+  },
+  set_aiMaxTokens: {
+    tr: "En çok yanıt uzunluğu (token)", en: "Max response length (tokens)", de: "Max. Antwortlänge (Token)", ru: "Макс. длина ответа (токены)", ar: "أقصى طول للرد (رموز)", es: "Longitud máxima de respuesta (tokens)", fr: "Longueur max. de réponse (tokens)", az: "Maks. cavab uzunluğu (token)",
+  },
+  set_aiVoiceEnabled: {
+    tr: "Sesli dikteyi aç", en: "Enable voice dictation", de: "Sprachdiktat aktivieren", ru: "Включить голосовой ввод", ar: "تفعيل الإملاء الصوتي", es: "Activar dictado por voz", fr: "Activer la dictée vocale", az: "Səsli diktəni aç",
+  },
+  setDesc_aiVoiceEnabled: {
+    tr: "Mikrofon kaydın metne çevrilmek üzere OpenAI uyumlu bir hizmete gönderilir (3. parti, yurt dışı olabilir). Kayıt diske yazılmaz. Rıza vermek için aç; istediğin an kapatırsın.", en: "Your microphone recording is sent to an OpenAI-compatible service for transcription (third party, possibly abroad). Audio is never saved to disk. Turn on to consent; turn off any time.", de: "Deine Aufnahme wird zur Transkription an einen OpenAI-kompatiblen Dienst gesendet (Drittanbieter, ggf. Ausland). Audio wird nie gespeichert. Einschalten = Einwilligung; jederzeit ausschaltbar.", ru: "Запись с микрофона отправляется в OpenAI-совместимый сервис для расшифровки (третья сторона, возможно за рубежом). Аудио не сохраняется на диск. Включение = согласие; можно выключить в любой момент.", ar: "يُرسل تسجيل الميكروفون إلى خدمة متوافقة مع OpenAI للتفريغ النصي (طرف ثالث، وربما خارج البلاد). لا يُحفظ الصوت على القرص. التفعيل يعني الموافقة ويمكنك الإيقاف في أي وقت.", es: "La grabación del micrófono se envía a un servicio compatible con OpenAI para transcribirla (tercero, posiblemente en el extranjero). El audio nunca se guarda en disco. Activar = consentimiento; puedes desactivarlo cuando quieras.", fr: "L’enregistrement du micro est envoyé à un service compatible OpenAI pour transcription (tiers, éventuellement à l’étranger). L’audio n’est jamais enregistré sur disque. Activer = consentement ; désactivable à tout moment.", az: "Mikrofon yazısı mətnə çevrilmək üçün OpenAI uyğun xidmətə göndərilir (3-cü tərəf, xaricdə ola bilər). Səs diskə yazılmır. Aç = razılıq; istədiyin vaxt söndürərsən.",
+  },
+  set_aiVoiceLang: {
+    tr: "Dikte dili", en: "Dictation language", de: "Diktiersprache", ru: "Язык диктовки", ar: "لغة الإملاء", es: "Idioma de dictado", fr: "Langue de dictée", az: "Dikta dili",
+  },
+  set_aiTranscribeModel: {
+    tr: "Dikte modeli", en: "Dictation model", de: "Diktiermodell", ru: "Модель диктовки", ar: "نموذج الإملاء", es: "Modelo de dictado", fr: "Modèle de dictée", az: "Dikta modeli",
+  },
+  setDesc_aiTranscribeModel: {
+    tr: "Dikte, OpenAI anahtarın ve (varsa) özel adresinle çalışır.", en: "Dictation uses your OpenAI key and (if set) your custom endpoint.", de: "Das Diktat nutzt deinen OpenAI-Schlüssel und (falls gesetzt) deinen eigenen Endpunkt.", ru: "Диктовка использует твой ключ OpenAI и (если задан) твой адрес.", ar: "يستخدم الإملاء مفتاح OpenAI الخاص بك وعنوانك المخصص إن وُجد.", es: "El dictado usa tu clave de OpenAI y (si existe) tu endpoint personalizado.", fr: "La dictée utilise ta clé OpenAI et (si défini) ton point d’accès personnalisé.", az: "Dikta OpenAI açarın və (varsa) xüsusi ünvanınla işləyir.",
+  },
+  aiKeyTitle: {
+    tr: "API anahtarları", en: "API keys", de: "API-Schlüssel", ru: "Ключи API", ar: "مفاتيح API", es: "Claves API", fr: "Clés API", az: "API açarları",
+  },
+  aiKeyDesc: {
+    tr: "Anahtarlar yalnız ana süreçte şifreli saklanır; arayüze geri okunmaz, dışa aktarılan ayarlara girmez.", en: "Keys are stored encrypted in the main process only; they are never read back into the UI and not included in exports.", de: "Schlüssel werden nur im Hauptprozess verschlüsselt gespeichert; sie werden nie in die UI zurückgelesen und nicht exportiert.", ru: "Ключи хранятся в зашифрованном виде только в главном процессе, не возвращаются в интерфейс и не попадают в экспорт.", ar: "تُخزَّن المفاتيح مشفّرة في العملية الرئيسية فقط، ولا تُقرأ ثانية في الواجهة ولا تدخل في التصدير.", es: "Las claves se guardan cifradas solo en el proceso principal; no se leen de vuelta en la interfaz ni se exportan.", fr: "Les clés sont stockées chiffrées uniquement dans le processus principal ; elles ne sont jamais relues dans l’interface ni exportées.", az: "Açarlar yalnız əsas prosesdə şifrəli saxlanır; interfeysə geri oxunmur və ixraca daxil edilmir.",
+  },
+  aiKeyAnthropic: {
+    tr: "Anthropic API anahtarı", en: "Anthropic API key", de: "Anthropic-API-Schlüssel", ru: "Ключ API Anthropic", ar: "مفتاح API لـ Anthropic", es: "Clave API de Anthropic", fr: "Clé API Anthropic", az: "Anthropic API açarı",
+  },
+  aiKeyOpenai: {
+    tr: "OpenAI API anahtarı (sohbet + dikte)", en: "OpenAI API key (chat + dictation)", de: "OpenAI-API-Schlüssel (Chat + Diktat)", ru: "Ключ API OpenAI (чат + диктовка)", ar: "مفتاح API لـ OpenAI (محادثة + إملاء)", es: "Clave API de OpenAI (chat + dictado)", fr: "Clé API OpenAI (chat + dictée)", az: "OpenAI API açarı (söhbət + dikta)",
+  },
+  aiKeySet: {
+    tr: "Kayıtlı", en: "Saved", de: "Gespeichert", ru: "Сохранён", ar: "محفوظ", es: "Guardada", fr: "Enregistrée", az: "Saxlanıb",
+  },
+  aiKeyNotSet: {
+    tr: "Kayıtlı değil", en: "Not set", de: "Nicht gesetzt", ru: "Не задан", ar: "غير محفوظ", es: "No guardada", fr: "Non définie", az: "Saxlanmayıb",
+  },
+  aiKeySave: {
+    tr: "Kaydet", en: "Save", de: "Speichern", ru: "Сохранить", ar: "حفظ", es: "Guardar", fr: "Enregistrer", az: "Saxla",
+  },
+  aiKeyClear: {
+    tr: "Sil", en: "Remove", de: "Entfernen", ru: "Удалить", ar: "حذف", es: "Eliminar", fr: "Supprimer", az: "Sil",
+  },
+  aiKeyNoEncrypt: {
+    tr: "Bu cihazda şifreli depo yok; anahtar kaydedilemedi.", en: "Encrypted storage is unavailable on this device; the key was not saved.", de: "Verschlüsselter Speicher ist auf diesem Gerät nicht verfügbar; Schlüssel nicht gespeichert.", ru: "Зашифрованное хранилище недоступно; ключ не сохранён.", ar: "التخزين المشفّر غير متاح على هذا الجهاز؛ لم يُحفظ المفتاح.", es: "No hay almacenamiento cifrado en este dispositivo; la clave no se guardó.", fr: "Le stockage chiffré est indisponible ; la clé n’a pas été enregistrée.", az: "Bu cihazda şifrəli saxlama yoxdur; açar saxlanmadı.",
+  },
+  aiTitle: {
+    tr: "Nova AI", en: "Nova AI", de: "Nova KI", ru: "Nova ИИ", ar: "Nova AI", es: "Nova IA", fr: "Nova IA", az: "Nova AI",
+  },
+  aiSessions: {
+    tr: "Oturumlar", en: "Sessions", de: "Sitzungen", ru: "Сессии", ar: "الجلسات", es: "Sesiones", fr: "Sessions", az: "Sessiyalar",
+  },
+  aiNewSession: {
+    tr: "Yeni oturum", en: "New session", de: "Neue Sitzung", ru: "Новая сессия", ar: "جلسة جديدة", es: "Nueva sesión", fr: "Nouvelle session", az: "Yeni sessiya",
+  },
+  aiDeleteSession: {
+    tr: "Oturumu sil", en: "Delete session", de: "Sitzung löschen", ru: "Удалить сессию", ar: "حذف الجلسة", es: "Eliminar sesión", fr: "Supprimer la session", az: "Sessiyanı sil",
+  },
+  aiOpenSettings: {
+    tr: "Yapay zekâ ayarları", en: "AI settings", de: "KI-Einstellungen", ru: "Настройки ИИ", ar: "إعدادات الذكاء الاصطناعي", es: "Ajustes de IA", fr: "Paramètres IA", az: "Süni intellekt ayarları",
+  },
+  aiModeAsk: {
+    tr: "Sor", en: "Ask", de: "Fragen", ru: "Вопрос", ar: "اسأل", es: "Preguntar", fr: "Demander", az: "Soruş",
+  },
+  aiModeAgent: {
+    tr: "Ajan", en: "Agent", de: "Agent", ru: "Агент", ar: "وكيل", es: "Agente", fr: "Agent", az: "Agent",
+  },
+  aiWelcome: {
+    tr: "Merhaba! Kodunu açıklayabilir, hata bulabilir, refactor edebilir; Ajan modunda projeni okuyup dosyaları düzenleyebilirim. Görsel ekleyebilir, mikrofonla konuşabilirsin. Ctrl+Shift+L ile beni aç.", en: "Hi! I can explain code, find bugs and refactor; in Agent mode I can read your project and edit files. You can attach images and talk with the mic. Open me with Ctrl+Shift+L.", de: "Hallo! Ich kann Code erklären, Fehler finden und refaktorieren; im Agent-Modus lese ich dein Projekt und bearbeite Dateien. Du kannst Bilder anhängen und per Mikrofon sprechen. Öffne mich mit Strg+Umschalt+L.", ru: "Привет! Я объясню код, найду ошибки и сделаю рефакторинг; в режиме агента читаю проект и правлю файлы. Можно прикреплять изображения и говорить в микрофон. Открой меня через Ctrl+Shift+L.", ar: "مرحباً! يمكنني شرح الكود وإيجاد الأخطاء وإعادة الهيكلة؛ وفي وضع الوكيل أقرأ مشروعك وأعدّل الملفات. يمكنك إرفاق صور والتحدث بالميكروفون. افتحني بـ Ctrl+Shift+L.", es: "¡Hola! Puedo explicar código, encontrar errores y refactorizar; en modo Agente leo tu proyecto y edito archivos. Puedes adjuntar imágenes y hablar con el micrófono. Ábreme con Ctrl+Shift+L.", fr: "Salut ! Je peux expliquer du code, trouver des bugs et refactoriser ; en mode Agent, je lis ton projet et modifie des fichiers. Tu peux joindre des images et parler au micro. Ouvre-moi avec Ctrl+Shift+L.", az: "Salam! Kodu izah edə, xəta tapa, refaktor edə bilərəm; Agent rejimində layihəni oxuyub faylları redaktə edirəm. Şəkil əlavə edə, mikrofonla danışa bilərsən. Ctrl+Shift+L ilə aç.",
+  },
+  aiQuickExplain: {
+    tr: "Açıkla", en: "Explain", de: "Erklären", ru: "Объяснить", ar: "اشرح", es: "Explicar", fr: "Expliquer", az: "İzah et",
+  },
+  aiQuickBugs: {
+    tr: "Hata bul", en: "Find bugs", de: "Fehler finden", ru: "Найти ошибки", ar: "ابحث عن أخطاء", es: "Buscar errores", fr: "Trouver des bugs", az: "Xəta tap",
+  },
+  aiQuickRefactor: {
+    tr: "Refactor", en: "Refactor", de: "Refaktorieren", ru: "Рефакторинг", ar: "إعادة هيكلة", es: "Refactorizar", fr: "Refactoriser", az: "Refaktor",
+  },
+  aiQuickTests: {
+    tr: "Test yaz", en: "Write tests", de: "Tests schreiben", ru: "Написать тесты", ar: "اكتب اختبارات", es: "Escribir pruebas", fr: "Écrire des tests", az: "Test yaz",
+  },
+  aiPlaceholderAsk: {
+    tr: "Bir şey sor… (/ komutlar, Enter gönderir)", en: "Ask something… (/ commands, Enter sends)", de: "Frag etwas… (/ Befehle, Enter sendet)", ru: "Спроси что-нибудь… (/ команды, Enter — отправить)", ar: "اسأل شيئاً… (/ أوامر، Enter للإرسال)", es: "Pregunta algo… (/ comandos, Enter envía)", fr: "Pose une question… (/ commandes, Entrée envoie)", az: "Nəsə soruş… (/ komandalar, Enter göndərir)",
+  },
+  aiPlaceholderAgent: {
+    tr: "Ajana bir görev ver… (projeyi okur, onayınla düzenler)", en: "Give the agent a task… (reads your project, edits with your approval)", de: "Gib dem Agent eine Aufgabe… (liest dein Projekt, ändert mit deiner Genehmigung)", ru: "Дай агенту задачу… (читает проект, правит с твоего одобрения)", ar: "أعطِ الوكيل مهمة… (يقرأ مشروعك ويعدّل بموافقتك)", es: "Dale una tarea al agente… (lee tu proyecto y edita con tu aprobación)", fr: "Donne une tâche à l’agent… (lit ton projet, modifie avec ton accord)", az: "Agentə tapşırıq ver… (layihəni oxuyur, təsdiqinlə redaktə edir)",
+  },
+  aiSend: {
+    tr: "Gönder", en: "Send", de: "Senden", ru: "Отправить", ar: "إرسال", es: "Enviar", fr: "Envoyer", az: "Göndər",
+  },
+  aiStop: {
+    tr: "Durdur", en: "Stop", de: "Stopp", ru: "Остановить", ar: "إيقاف", es: "Detener", fr: "Arrêter", az: "Dayandır",
+  },
+  aiAttach: {
+    tr: "Görsel ekle (veya yapıştır)", en: "Attach image (or paste)", de: "Bild anhängen (oder einfügen)", ru: "Прикрепить изображение (или вставить)", ar: "إرفاق صورة (أو لصقها)", es: "Adjuntar imagen (o pegar)", fr: "Joindre une image (ou coller)", az: "Şəkil əlavə et (və ya yapışdır)",
+  },
+  aiRemove: {
+    tr: "Kaldır", en: "Remove", de: "Entfernen", ru: "Убрать", ar: "إزالة", es: "Quitar", fr: "Retirer", az: "Çıxar",
+  },
+  aiMicStart: {
+    tr: "Sesli dikte", en: "Voice dictation", de: "Sprachdiktat", ru: "Голосовой ввод", ar: "إملاء صوتي", es: "Dictado por voz", fr: "Dictée vocale", az: "Səsli dikta",
+  },
+  aiMicStop: {
+    tr: "Kaydı bitir", en: "Stop recording", de: "Aufnahme beenden", ru: "Остановить запись", ar: "إنهاء التسجيل", es: "Detener grabación", fr: "Arrêter l’enregistrement", az: "Yazını bitir",
+  },
+  aiMicDenied: {
+    tr: "Mikrofona erişilemedi. Sistem izinlerini kontrol et.", en: "Could not access the microphone. Check system permissions.", de: "Kein Zugriff auf das Mikrofon. Prüfe die Systemberechtigungen.", ru: "Нет доступа к микрофону. Проверь разрешения системы.", ar: "تعذّر الوصول إلى الميكروفون. تحقق من أذونات النظام.", es: "No se pudo acceder al micrófono. Revisa los permisos del sistema.", fr: "Impossible d’accéder au micro. Vérifie les autorisations système.", az: "Mikrofona çatmaq mümkün olmadı. Sistem icazələrini yoxla.",
+  },
+  aiVoiceConsent: {
+    tr: "Mikrofon düğmesine basmak sesli dikteyi açar: kaydın metne çevrilmek üzere OpenAI uyumlu bir hizmete gönderilir (3. parti). Ayarlardan kapatabilirsin.", en: "Pressing the mic enables voice dictation: your recording is sent to an OpenAI-compatible service to be transcribed (third party). You can turn it off in settings.", de: "Ein Klick aufs Mikrofon aktiviert das Diktat: Deine Aufnahme wird zur Transkription an einen OpenAI-kompatiblen Dienst gesendet (Drittanbieter). In den Einstellungen abschaltbar.", ru: "Нажатие на микрофон включает диктовку: запись отправляется в OpenAI-совместимый сервис для расшифровки (третья сторона). Можно отключить в настройках.", ar: "الضغط على الميكروفون يفعّل الإملاء: يُرسل تسجيلك إلى خدمة متوافقة مع OpenAI لتحويله إلى نص (طرف ثالث). يمكنك إيقافه من الإعدادات.", es: "Pulsar el micrófono activa el dictado: tu grabación se envía a un servicio compatible con OpenAI para transcribirla (tercero). Puedes desactivarlo en ajustes.", fr: "Appuyer sur le micro active la dictée : ton enregistrement est envoyé à un service compatible OpenAI pour transcription (tiers). Désactivable dans les paramètres.", az: "Mikrofona basmaq diktanı açır: yazın mətnə çevrilmək üçün OpenAI uyğun xidmətə göndərilir (3-cü tərəf). Ayarlardan söndürə bilərsən.",
+  },
+  aiVoiceNeedsKey: {
+    tr: "Dikte için ayarlardan bir OpenAI API anahtarı eklemelisin.", en: "Add an OpenAI API key in settings to use dictation.", de: "Für das Diktat musst du in den Einstellungen einen OpenAI-API-Schlüssel hinzufügen.", ru: "Для диктовки добавь ключ API OpenAI в настройках.", ar: "أضف مفتاح OpenAI API من الإعدادات لاستخدام الإملاء.", es: "Añade una clave API de OpenAI en ajustes para usar el dictado.", fr: "Ajoute une clé API OpenAI dans les paramètres pour la dictée.", az: "Dikta üçün ayarlarda OpenAI API açarı əlavə et.",
+  },
+  aiNoKey: {
+    tr: "Bu sağlayıcı için API anahtarı yok.", en: "No API key for this provider.", de: "Kein API-Schlüssel für diesen Anbieter.", ru: "Нет ключа API для этого провайдера.", ar: "لا يوجد مفتاح API لهذا المزوّد.", es: "No hay clave API para este proveedor.", fr: "Aucune clé API pour ce fournisseur.", az: "Bu provayder üçün API açarı yoxdur.",
+  },
+  aiDesktopOnly: {
+    tr: "Yapay zekâ asistanı yalnız masaüstü uygulamasında çalışır (API anahtarı güvenli saklanabilsin diye).", en: "The AI assistant works only in the desktop app (so API keys can be stored safely).", de: "Der KI-Assistent läuft nur in der Desktop-App (damit API-Schlüssel sicher gespeichert werden).", ru: "ИИ-ассистент работает только в настольном приложении (для безопасного хранения ключей).", ar: "يعمل المساعد الذكي في تطبيق سطح المكتب فقط (لحفظ مفاتيح API بأمان).", es: "El asistente de IA solo funciona en la app de escritorio (para guardar las claves de forma segura).", fr: "L’assistant IA ne fonctionne que dans l’app de bureau (pour stocker les clés en sécurité).", az: "Süni intellekt köməkçisi yalnız masaüstü tətbiqdə işləyir (API açarı təhlükəsiz saxlanılsın deyə).",
+  },
+  aiAgentNeedsFolder: {
+    tr: "Ajan modu için önce bir klasör aç.", en: "Open a folder first to use Agent mode.", de: "Öffne zuerst einen Ordner für den Agent-Modus.", ru: "Для режима агента сначала открой папку.", ar: "افتح مجلداً أولاً لاستخدام وضع الوكيل.", es: "Abre primero una carpeta para usar el modo Agente.", fr: "Ouvre d’abord un dossier pour le mode Agent.", az: "Agent rejimi üçün əvvəlcə qovluq aç.",
+  },
+  aiThinking: {
+    tr: "Düşünüyor…", en: "Thinking…", de: "Denkt nach…", ru: "Думаю…", ar: "يفكّر…", es: "Pensando…", fr: "Réflexion…", az: "Düşünür…",
+  },
+  aiCopy: {
+    tr: "Kopyala", en: "Copy", de: "Kopieren", ru: "Копировать", ar: "نسخ", es: "Copiar", fr: "Copier", az: "Kopyala",
+  },
+  aiCopied: {
+    tr: "Kopyalandı", en: "Copied", de: "Kopiert", ru: "Скопировано", ar: "تم النسخ", es: "Copiado", fr: "Copié", az: "Kopyalandı",
+  },
+  aiInsert: {
+    tr: "Editöre ekle", en: "Insert in editor", de: "In Editor einfügen", ru: "Вставить в редактор", ar: "إدراج في المحرر", es: "Insertar en el editor", fr: "Insérer dans l’éditeur", az: "Redaktora əlavə et",
+  },
+  aiApprovalTitle: {
+    tr: "Onay gerekli", en: "Approval needed", de: "Genehmigung erforderlich", ru: "Нужно подтверждение", ar: "مطلوب موافقة", es: "Se requiere aprobación", fr: "Approbation requise", az: "Təsdiq lazımdır",
+  },
+  aiApprove: {
+    tr: "İzin ver", en: "Allow", de: "Erlauben", ru: "Разрешить", ar: "سماح", es: "Permitir", fr: "Autoriser", az: "İcazə ver",
+  },
+  aiDeny: {
+    tr: "Reddet", en: "Deny", de: "Ablehnen", ru: "Отклонить", ar: "رفض", es: "Denegar", fr: "Refuser", az: "Rədd et",
+  },
+  aiApproved: {
+    tr: "İzin verildi", en: "Allowed", de: "Erlaubt", ru: "Разрешено", ar: "تم السماح", es: "Permitido", fr: "Autorisé", az: "İcazə verildi",
+  },
+  aiDenied: {
+    tr: "Reddedildi", en: "Denied", de: "Abgelehnt", ru: "Отклонено", ar: "تم الرفض", es: "Denegado", fr: "Refusé", az: "Rədd edildi",
+  },
+  aiErrAuth: {
+    tr: "API anahtarı reddedildi. Ayarlardan anahtarı kontrol et.", en: "The API key was rejected. Check the key in settings.", de: "Der API-Schlüssel wurde abgelehnt. Prüfe ihn in den Einstellungen.", ru: "Ключ API отклонён. Проверь ключ в настройках.", ar: "تم رفض مفتاح API. تحقق منه في الإعدادات.", es: "Se rechazó la clave API. Revísala en ajustes.", fr: "La clé API a été refusée. Vérifie-la dans les paramètres.", az: "API açarı rədd edildi. Ayarlarda yoxla.",
+  },
+  aiErrRate: {
+    tr: "İstek sınırına ulaşıldı. Biraz bekleyip tekrar dene.", en: "Rate limit reached. Wait a moment and try again.", de: "Anfragelimit erreicht. Warte kurz und versuche es erneut.", ru: "Достигнут лимит запросов. Подожди и повтори.", ar: "تم بلوغ حد الطلبات. انتظر قليلاً وحاول مجدداً.", es: "Límite de solicitudes alcanzado. Espera un momento e inténtalo de nuevo.", fr: "Limite de requêtes atteinte. Patiente un instant puis réessaie.", az: "Sorğu limitinə çatıldı. Bir az gözləyib yenidən cəhd et.",
+  },
+  aiErrGeneric: {
+    tr: "İstek tamamlanamadı", en: "The request could not be completed", de: "Anfrage fehlgeschlagen", ru: "Не удалось выполнить запрос", ar: "تعذّر إكمال الطلب", es: "No se pudo completar la solicitud", fr: "La requête a échoué", az: "Sorğu tamamlana bilmədi",
+  },
+  aiUsage: {
+    tr: "{in} giriş / {out} çıkış token", en: "{in} in / {out} out tokens", de: "{in} Eingabe- / {out} Ausgabe-Token", ru: "{in} вх. / {out} исх. токенов", ar: "{in} رمز إدخال / {out} رمز إخراج", es: "{in} tokens de entrada / {out} de salida", fr: "{in} jetons en entrée / {out} en sortie", az: "{in} giriş / {out} çıxış token",
+  },
+  aiPrivacy: {
+    tr: "Mesajların ve (açıksa) seçili kodun {provider} sağlayıcısına gönderilir.", en: "Your messages and (if enabled) the selected code are sent to {provider}.", de: "Deine Nachrichten und (falls aktiv) der markierte Code werden an {provider} gesendet.", ru: "Твои сообщения и (если включено) выделенный код отправляются в {provider}.", ar: "تُرسل رسائلك والكود المحدد (إن كان مفعلاً) إلى {provider}.", es: "Tus mensajes y (si está activado) el código seleccionado se envían a {provider}.", fr: "Tes messages et (si activé) le code sélectionné sont envoyés à {provider}.", az: "Mesajların və (açıqsa) seçilmiş kod {provider} provayderinə göndərilir.",
+  },
+  aiSlashNew: {
+    tr: "Yeni oturum aç", en: "Start a new session", de: "Neue Sitzung starten", ru: "Начать новую сессию", ar: "بدء جلسة جديدة", es: "Iniciar una nueva sesión", fr: "Démarrer une nouvelle session", az: "Yeni sessiya başlat",
+  },
+  aiSlashAsk: {
+    tr: "Sor moduna geç", en: "Switch to Ask mode", de: "Zum Fragen-Modus wechseln", ru: "Перейти в режим «Вопрос»", ar: "التبديل إلى وضع السؤال", es: "Cambiar al modo Preguntar", fr: "Passer en mode Demander", az: "Soruş rejiminə keç",
+  },
+  aiSlashAgent: {
+    tr: "Ajan moduna geç", en: "Switch to Agent mode", de: "Zum Agent-Modus wechseln", ru: "Перейти в режим агента", ar: "التبديل إلى وضع الوكيل", es: "Cambiar al modo Agente", fr: "Passer en mode Agent", az: "Agent rejiminə keç",
+  },
+  cpTitle: {
+    tr: "Komut paleti / dosya ara", en: "Command palette / search files", de: "Befehlspalette / Dateisuche", ru: "Палитра команд / поиск файлов", ar: "لوحة الأوامر / بحث الملفات", es: "Paleta de comandos / buscar archivos", fr: "Palette de commandes / recherche de fichiers", az: "Komanda paneli / fayl axtar",
+  },
+  cpPlaceholder: {
+    tr: "Dosya adı yaz… ( > komut, : satır, $ snippet )", en: "Type a file name… ( > commands, : line, $ snippet )", de: "Dateiname eingeben… ( > Befehle, : Zeile, $ Snippet )", ru: "Введи имя файла… ( > команды, : строка, $ сниппет )", ar: "اكتب اسم ملف… ( > أوامر، : سطر، $ مقتطف )", es: "Escribe un archivo… ( > comandos, : línea, $ fragmento )", fr: "Tape un nom de fichier… ( > commandes, : ligne, $ snippet )", az: "Fayl adı yaz… ( > komanda, : sətir, $ snippet )",
+  },
+  cpNoResults: {
+    tr: "Sonuç yok", en: "No results", de: "Keine Ergebnisse", ru: "Нет результатов", ar: "لا توجد نتائج", es: "Sin resultados", fr: "Aucun résultat", az: "Nəticə yoxdur",
+  },
+  cpGoLineN: {
+    tr: "{n}. satıra git", en: "Go to line {n}", de: "Gehe zu Zeile {n}", ru: "Перейти к строке {n}", ar: "الانتقال إلى السطر {n}", es: "Ir a la línea {n}", fr: "Aller à la ligne {n}", az: "{n}-ci sətrə keç",
+  },
+  cpGoLineHint: {
+    tr: "Bir satır numarası yaz", en: "Type a line number", de: "Zeilennummer eingeben", ru: "Введи номер строки", ar: "اكتب رقم السطر", es: "Escribe un número de línea", fr: "Tape un numéro de ligne", az: "Sətir nömrəsi yaz",
+  },
+  cpHintFiles: {
+    tr: "Dosya", en: "Files", de: "Dateien", ru: "Файлы", ar: "ملفات", es: "Archivos", fr: "Fichiers", az: "Fayllar",
+  },
+  cpHintCommands: {
+    tr: "komutlar", en: "commands", de: "Befehle", ru: "команды", ar: "أوامر", es: "comandos", fr: "commandes", az: "komandalar",
+  },
+  cpHintLine: {
+    tr: "satıra git", en: "go to line", de: "Zeile", ru: "строка", ar: "سطر", es: "línea", fr: "ligne", az: "sətir",
+  },
+  cpHintSnippets: {
+    tr: "snippet ekle", en: "insert snippet", de: "Snippet", ru: "сниппет", ar: "مقتطف", es: "fragmento", fr: "snippet", az: "snippet əlavə et",
+  },
+  cmdQuickOpen: {
+    tr: "Dosyaya git…", en: "Go to file…", de: "Gehe zu Datei…", ru: "Перейти к файлу…", ar: "الانتقال إلى ملف…", es: "Ir al archivo…", fr: "Aller au fichier…", az: "Fayla keç…",
+  },
+  cmdGoToLine: {
+    tr: "Satıra git…", en: "Go to line…", de: "Gehe zu Zeile…", ru: "Перейти к строке…", ar: "الانتقال إلى سطر…", es: "Ir a la línea…", fr: "Aller à la ligne…", az: "Sətrə keç…",
+  },
+  cmdGoToSymbol: {
+    tr: "Sembole git (dosya içinde)", en: "Go to symbol in file", de: "Gehe zu Symbol in Datei", ru: "Перейти к символу в файле", ar: "الانتقال إلى رمز في الملف", es: "Ir al símbolo del archivo", fr: "Aller au symbole du fichier", az: "Fayldakı simvola keç",
+  },
+  cmdFindInFiles: {
+    tr: "Projede ara", en: "Search in project", de: "Im Projekt suchen", ru: "Поиск по проекту", ar: "بحث في المشروع", es: "Buscar en el proyecto", fr: "Rechercher dans le projet", az: "Layihədə axtar",
+  },
+  cmdFind: {
+    tr: "Dosyada bul", en: "Find in file", de: "In Datei suchen", ru: "Найти в файле", ar: "بحث في الملف", es: "Buscar en el archivo", fr: "Rechercher dans le fichier", az: "Faylda tap",
+  },
+  cmdReplace: {
+    tr: "Dosyada değiştir", en: "Replace in file", de: "In Datei ersetzen", ru: "Заменить в файле", ar: "استبدال في الملف", es: "Reemplazar en el archivo", fr: "Remplacer dans le fichier", az: "Faylda əvəz et",
+  },
+  cmdFormat: {
+    tr: "Belgeyi biçimlendir", en: "Format document", de: "Dokument formatieren", ru: "Форматировать документ", ar: "تنسيق المستند", es: "Dar formato al documento", fr: "Formater le document", az: "Sənədi formatla",
+  },
+  cmdInsertSnippet: {
+    tr: "Snippet ekle…", en: "Insert snippet…", de: "Snippet einfügen…", ru: "Вставить сниппет…", ar: "إدراج مقتطف…", es: "Insertar fragmento…", fr: "Insérer un snippet…", az: "Snippet əlavə et…",
+  },
+  cmdSave: {
+    tr: "Kaydet", en: "Save", de: "Speichern", ru: "Сохранить", ar: "حفظ", es: "Guardar", fr: "Enregistrer", az: "Saxla",
+  },
+  cmdCloseTab: {
+    tr: "Sekmeyi kapat", en: "Close tab", de: "Tab schließen", ru: "Закрыть вкладку", ar: "إغلاق التبويب", es: "Cerrar pestaña", fr: "Fermer l’onglet", az: "Vərəqi bağla",
+  },
+  cmdOpenAI: {
+    tr: "Yapay zekâ asistanını aç", en: "Open AI assistant", de: "KI-Assistent öffnen", ru: "Открыть ИИ-ассистента", ar: "فتح المساعد الذكي", es: "Abrir asistente de IA", fr: "Ouvrir l’assistant IA", az: "Süni intellekt köməkçisini aç",
+  },
+  cmdToggleTheme: {
+    tr: "Açık/koyu temayı değiştir", en: "Toggle light/dark theme", de: "Hell/Dunkel umschalten", ru: "Переключить светлую/тёмную тему", ar: "تبديل السمة الفاتحة/الداكنة", es: "Alternar tema claro/oscuro", fr: "Basculer thème clair/sombre", az: "Açıq/tünd temanı dəyiş",
+  },
+  searchPlaceholder: {
+    tr: "Projede ara (en az 2 harf)", en: "Search project (min. 2 chars)", de: "Im Projekt suchen (min. 2 Zeichen)", ru: "Поиск по проекту (мин. 2 символа)", ar: "بحث في المشروع (حرفان على الأقل)", es: "Buscar en el proyecto (mín. 2 caracteres)", fr: "Rechercher (min. 2 caractères)", az: "Layihədə axtar (min. 2 simvol)",
+  },
+  searchCase: {
+    tr: "Büyük/küçük harf duyarlı", en: "Match case", de: "Groß-/Kleinschreibung", ru: "Учитывать регистр", ar: "مطابقة حالة الأحرف", es: "Coincidir mayúsculas", fr: "Respecter la casse", az: "Böyük/kiçik hərf həssas",
+  },
+  searchRegex: {
+    tr: "Düzenli ifade", en: "Regular expression", de: "Regulärer Ausdruck", ru: "Регулярное выражение", ar: "تعبير نمطي", es: "Expresión regular", fr: "Expression régulière", az: "Requlyar ifadə",
+  },
+  searchBadRegex: {
+    tr: "Geçersiz düzenli ifade", en: "Invalid regular expression", de: "Ungültiger regulärer Ausdruck", ru: "Неверное регулярное выражение", ar: "تعبير نمطي غير صالح", es: "Expresión regular no válida", fr: "Expression régulière invalide", az: "Yanlış requlyar ifadə",
+  },
+  searchNoFolder: {
+    tr: "Aramak için önce bir klasör aç.", en: "Open a folder to search.", de: "Öffne zum Suchen einen Ordner.", ru: "Чтобы искать, открой папку.", ar: "افتح مجلداً للبحث.", es: "Abre una carpeta para buscar.", fr: "Ouvre un dossier pour rechercher.", az: "Axtarmaq üçün qovluq aç.",
+  },
+  searchCount: {
+    tr: "{f} dosyada {n} sonuç", en: "{n} results in {f} files", de: "{n} Treffer in {f} Dateien", ru: "{n} результатов в {f} файлах", ar: "{n} نتيجة في {f} ملفات", es: "{n} resultados en {f} archivos", fr: "{n} résultats dans {f} fichiers", az: "{f} faylda {n} nəticə",
+  },
+  searchTruncated: {
+    tr: "liste kısaltıldı", en: "list truncated", de: "Liste gekürzt", ru: "список сокращён", ar: "تم اختصار القائمة", es: "lista recortada", fr: "liste tronquée", az: "siyahı qısaldıldı",
+  },
 } satisfies Record<string, Dict>;
 
 export type UiTextKey = keyof typeof UI_TEXT;

@@ -3,6 +3,13 @@
 ## Unreleased
 
 ### tr
+- Yapay zekâ asistanı baştan yazıldı: Anthropic, OpenAI uyumlu ve Ollama (yerel) desteği, gerçek zamanlı akış, **Sor** ve **Ajan** modları (ajan projeyi okur/arar, dosya yazma ve komut çalıştırma için onay ister), görsel ekleme/yapıştırma, çoklu oturum geçmişi (yalnız cihazda), `/` komutları ve proje yönergeleri (`.nova/instructions.md`, `.nova/commands/*.md`). API anahtarı şifreli saklanır, arayüze geri okunmaz.
+- Sesli dikte: mikrofonla konuş, metin sohbet kutusuna yazılsın (OpenAI uyumlu transkripsiyon; açık rıza ayarı, varsayılan kapalı).
+- Komut paleti: `Ctrl+P` dosyaya git, `Ctrl+Shift+P` / `F1` komutlar, `Ctrl+G` satıra git, `$` snippet ekle; üst çubuktaki arama kutusu paleti açar.
+- Projede ara (`Ctrl+Shift+F`): büyük/küçük harf ve düzenli ifade desteği, sonuca tıklayınca satıra gider.
+- Snippet hızlı yolları: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippet'ler artık imlecin olduğu yere eklenir.
+- Ayarlar: yeni "Yapay Zekâ" kategorisi; kısayol listesi güncellendi.
+
 - Terminal: istemde çalışma klasörü (`PS C:\Users\...>`) ve Git dalı gösterilir; komutlar, bayraklar, metinler ve değişkenler renklendirilir; ANSI renkli çıktı ve kırmızı hata çıktısı desteklenir; ↑/↓ komut geçmişi, Ctrl+L temizleme.
 - GitHub: uygulama içinden hesap bağlama (cihaz kodu akışı), hesap oluşturma bağlantısı; token şifreli saklanır. Git push/pull/fetch bağlı hesapla kimlik doğrular.
 - Git: ahead/behind göstergesi, 8 sn'de bir canlı durum, açık PR sayısı ve son Actions koşuları GitHub'dan canlı gelir.
@@ -42,6 +49,13 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- AI assistant rewritten: Anthropic, OpenAI-compatible and Ollama (local) support, real-time streaming, **Ask** and **Agent** modes (the agent reads/searches your project and asks for approval before writing files or running commands), image attach/paste, multiple sessions (stored on this device only), `/` commands and project instructions (`.nova/instructions.md`, `.nova/commands/*.md`). API keys are stored encrypted and never read back into the UI.
+- Voice dictation: speak into the mic and the text lands in the chat box (OpenAI-compatible transcription; explicit-consent setting, off by default).
+- Command palette: `Ctrl+P` go to file, `Ctrl+Shift+P` / `F1` commands, `Ctrl+G` go to line, `$` insert snippet; the search box in the title bar opens it.
+- Search in project (`Ctrl+Shift+F`): match case and regex support, click a result to jump to the line.
+- Snippet quick triggers: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippets are now inserted at the cursor.
+- Settings: new "AI Assistant" category; shortcut list updated.
+
 - The terminal was rebuilt VS Code-style: multiple terminals (+ ▾ to pick PowerShell/CMD), a session list on the right, maximize/restore/close, an inline prompt at the end of the output, block/bar/underline cursor, `Ctrl+C` cancels the line. The panel is closed by default and sessions stay alive while hidden. Terminal code moved to `electron-term.cjs` and is tested with real shells (`npm test`).
 - The Explorer follows the latest VS Code: "Open editors" and workspace sections, inline create, F2 rename, context menu, keyboard navigation, indent guides, animated folder expansion. Creating files/folders in subfolders and deleting folders were fixed.
 - Space-wasting elements were removed (version chip in the title bar, meaningless status bar items); the status bar shows only meaningful info. New transitions: popup menus, sidebar and terminal panel resize animation.

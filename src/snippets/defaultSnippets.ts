@@ -104,5 +104,24 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(\`Sunucu http://localhost:\${PORT} üzerinde çalışıyor\`);
 });`
-  }
+  },
+  ...quick('clg', 'console.log', 'Konsola yazdır', ['javascript', 'typescript'], 'console.log(value);'),
+  ...quick('afn', 'Ok fonksiyonu', 'Arrow function', ['javascript', 'typescript'], 'const name = (params) => {\n  \n};'),
+  ...quick('tryc', 'try / catch', 'Hata yakalama bloğu', ['javascript', 'typescript'], 'try {\n  \n} catch (err) {\n  console.error(err);\n}'),
+  ...quick('forof', 'for...of', 'Dizi döngüsü', ['javascript', 'typescript'], 'for (const item of items) {\n  \n}'),
+  ...quick('rfc', 'React bileşeni', 'Fonksiyonel React bileşeni', ['typescript'], 'export function Component() {\n  return (\n    <div>\n      \n    </div>\n  );\n}'),
+  ...quick('ust', 'useState', 'React useState kancası', ['typescript'], 'const [state, setState] = useState();'),
+  ...quick('uef', 'useEffect', 'React useEffect kancası', ['typescript'], 'useEffect(() => {\n  \n  return () => {};\n}, []);'),
+  ...quick('def', 'Python fonksiyonu', 'Fonksiyon tanımı', ['python'], 'def name(args):\n    pass'),
+  ...quick('ifmain', 'Python main', 'if __name__ == "__main__"', ['python'], 'if __name__ == "__main__":\n    main()'),
+  ...quick('flexc', 'Flex ortala', 'Flex ile ortalama', ['css'], 'display: flex;\nalign-items: center;\njustify-content: center;'),
+  ...quick('gridc', 'Responsive grid', 'Otomatik sütunlu grid', ['css'], 'display: grid;\ngrid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\ngap: 1rem;'),
+  ...quick('sect', 'HTML bölüm', 'Section + başlık', ['html'], '<section class="">\n  <h2></h2>\n  <p></p>\n</section>'),
+  ...quick('sel', 'SQL SELECT', 'Temel sorgu', ['sql'], 'SELECT column\nFROM table\nWHERE condition\nLIMIT 100;'),
+  ...quick('todo', 'TODO notu', 'Yapılacak notu', ['*'], 'TODO: ')
 ];
+
+// Hızlı yol: kısa tetikleyici (yazıp Tab/Enter); her dil için ayrı kayıt üretir.
+function quick(prefix: string, label: string, description: string, languages: string[], body: string): Snippet[] {
+  return languages.map((language) => ({ id: `q-${prefix}-${language}`, label, prefix, description, language, body }));
+}

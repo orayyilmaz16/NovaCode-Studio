@@ -31,9 +31,13 @@ import { useCollabToken } from './services/useCollabToken';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 import { SnippetsPanel } from './components/SnippetsPanel';
+import { SearchPanel } from './components/SearchPanel';
+import { CommandPalette, type PaletteCommand } from './components/CommandPalette';
+import { goToLine, insertSnippetAtCursor, runEditorAction, hasEditor } from './services/editorBridge';
+import { baseName, languageFromName } from './services/lang';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { t } from './i18n/uiText';
-import type { FileItem, ConsoleLog, GitStatus } from './types';
+import type { FileItem, ConsoleLog, GitStatus, Snippet } from './types';
 
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -56,7 +60,7 @@ export function App() {
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
 
   // Paneller
-  const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'git' | 'snippets'>('files');
+  const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'snippets'>('files');
   // Önizleme varsayılan olarak kapalı; yalnız HTML dosyasında düğmesi görünür.
   const [showRightPanel, setShowRightPanel] = useState<'preview' | 'ai' | null>(null);
   const [showBottomTerminal, setShowBottomTerminal] = useState(false);
@@ -75,7 +79,8 @@ export function App() {
 
   // Ortak düzenleme (kendi sunucun, açık kaynak Yjs). Ayarlar tarayıcıda saklanır.
   // Ayarlar (gerçek zamanlı, tek kaynak: SettingsContext)
-  const { values: settings, set: setSetting } = useSettings();
+  const { values: settings, set: setSetting, userSnippets } = useSettings();
+  const [palette, setPalette] = useState<null | '' | '>' | ':' | '$'>(null);
   const { token: collabToken } = useCollabToken();
   const collabEnabled = settings.collabEnabled === true;
   const collabUrl = String(settings.collabUrl);
@@ -177,9 +182,16 @@ export function App() {
   }, []);
 
   shortcutHandler.current = (e: KeyboardEvent) => {
+    if (e.key === 'F1') { e.preventDefault(); setPalette('>'); return; }
     const mod = e.ctrlKey || e.metaKey;
     if (!mod) return;
     const key = e.key.toLowerCase();
+
+    // Komut paleti ve arama (VS Code ile aynı): Ctrl+P dosya, Ctrl+Shift+P komut, Ctrl+G satır, Ctrl+Shift+F proje araması
+    if (key === 'p') { e.preventDefault(); setPalette(e.shiftKey ? '>' : ''); return; }
+    if (key === 'g' && !e.shiftKey) { e.preventDefault(); setPalette(':'); return; }
+    if (key === 'f' && e.shiftKey) { e.preventDefault(); pickSidebarForce('search'); return; }
+    if (key === 'l' && e.shiftKey) { e.preventDefault(); setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); return; }
 
     if (key === 'q') { e.preventDefault(); handleQuit(); return; }
     if (key === 'b') { e.preventDefault(); setSidebarVisible((v) => !v); return; }
@@ -629,6 +641,10 @@ export function App() {
 
   const handleInsertSnippet = (snippetBody: string) => {
     if (!activeFileId) return;
+    if (hasEditor() && insertSnippetAtCursor(snippetBody.replace(/[\\$}]/g, '\\$&'))) {
+      addLog('info', 'Kod parçası (snippet) imlece eklendi.');
+      return;
+    }
     const current = openFiles.find((f) => f.id === activeFileId);
     const updated = (current?.content || '') + '\n' + snippetBody;
     handleContentChange(activeFileId, updated);
@@ -678,7 +694,7 @@ export function App() {
   const isHtml = activeFile?.language === 'html';
 
   // Etkinlik çubuğu: etkin sekmeye tekrar basmak kenar çubuğunu kapatır (VS Code davranışı)
-  const pickSidebar = (tab: 'files' | 'git' | 'snippets') => {
+  const pickSidebar = (tab: 'files' | 'search' | 'git' | 'snippets') => {
     if (!showLanding && activeSidebarTab === tab && sidebarVisible) {
       setSidebarVisible(false);
       return;
@@ -690,12 +706,71 @@ export function App() {
     if (tab === 'git') refreshGitStatus();
   };
 
+  // Kısayoldan açılışta (ör. Ctrl+Shift+F) sekme zaten açıksa kapatmaz
+  const pickSidebarForce = (tab: 'files' | 'search' | 'git' | 'snippets') => {
+    setShowLanding(false);
+    setShowSettings(false);
+    setActiveSidebarTab(tab);
+    setSidebarVisible(true);
+  };
+
+  const openFileAt = async (path: string, line?: number) => {
+    setShowLanding(false);
+    setShowSettings(false);
+    const name = baseName(path);
+    await handleSelectFile({ id: path, name, path, type: 'file', language: languageFromName(name) });
+    if (line) window.setTimeout(() => goToLine(line), 150);
+  };
+
+  const insertSnippetObject = (sn: Snippet) => {
+    const isBuiltIn = builtInSnippets.some((b) => b.id === sn.id);
+    // Hazır snippet'ler düz koddur; \ $ } kaçırılır (snippetProvider ile aynı kural)
+    const tpl = isBuiltIn ? sn.body.replace(/[\\$}]/g, '\\$&') : sn.body;
+    if (!insertSnippetAtCursor(tpl)) handleInsertSnippet(sn.body);
+  };
+
+  const paletteCommands: PaletteCommand[] = [
+    { id: 'quickOpen', label: t('cmdQuickOpen'), shortcut: 'Ctrl+P', run: () => setPalette('') },
+    { id: 'goLine', label: t('cmdGoToLine'), shortcut: 'Ctrl+G', run: () => setPalette(':') },
+    { id: 'goSymbol', label: t('cmdGoToSymbol'), run: () => runEditorAction('editor.action.quickOutline') },
+    { id: 'findInFiles', label: t('cmdFindInFiles'), shortcut: 'Ctrl+Shift+F', run: () => pickSidebarForce('search') },
+    { id: 'find', label: t('cmdFind'), shortcut: 'Ctrl+F', run: () => runEditorAction('actions.find') },
+    { id: 'replace', label: t('cmdReplace'), shortcut: 'Ctrl+H', run: () => runEditorAction('editor.action.startFindReplace') },
+    { id: 'format', label: t('cmdFormat'), run: () => runEditorAction('editor.action.formatDocument') },
+    { id: 'insertSnippet', label: t('cmdInsertSnippet'), run: () => setPalette('$') },
+    { id: 'newFile', label: t('newFile'), shortcut: 'Ctrl+N', run: handleNewUntitled },
+    { id: 'openFolder', label: t('openFolder'), shortcut: 'Ctrl+O', run: () => void handleOpenFolderDialog() },
+    { id: 'save', label: t('cmdSave'), shortcut: 'Ctrl+S', run: () => { const f = openFiles.find((x) => x.id === activeFileId); if (f) void handleSaveFile(f); } },
+    { id: 'closeTab', label: t('cmdCloseTab'), shortcut: 'Ctrl+W', run: () => { if (activeFileId) handleCloseTab(activeFileId); } },
+    { id: 'sidebar', label: t('tbSidebar'), shortcut: 'Ctrl+B', run: () => setSidebarVisible((v) => !v) },
+    { id: 'terminal', label: t('tbTerminal'), shortcut: 'Ctrl+`', run: () => setShowBottomTerminal((v) => !v) },
+    { id: 'git', label: t('actGit'), run: () => pickSidebarForce('git') },
+    { id: 'snippets', label: t('actSnippets'), run: () => pickSidebarForce('snippets') },
+    { id: 'ai', label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', run: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); } },
+    { id: 'settings', label: t('actSettings'), shortcut: 'Ctrl+,', run: () => { setShowLanding(false); setShowSettings(true); } },
+    { id: 'theme', label: t('cmdToggleTheme'), run: () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light') }
+  ];
+
   const barBtn = (active: boolean) => ({ 'data-active': active, className: 'ab-item' }) as const;
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-nv-editor text-zinc-300 font-sans relative">
       {/* Açılış animasyonu */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+
+      {palette !== null && (
+        <CommandPalette
+          initial={palette}
+          rootPath={currentRootPath}
+          commands={paletteCommands}
+          snippets={[...userSnippets, ...builtInSnippets]}
+          fallbackFiles={getAllFiles(files).map((f) => f.path ?? f.name)}
+          onOpenFile={(p) => void openFileAt(p)}
+          onGoToLine={goToLine}
+          onInsertSnippet={insertSnippetObject}
+          onClose={() => setPalette(null)}
+        />
+      )}
 
       {/* Başlık çubuğu */}
       <header className="app-drag relative flex items-center justify-between h-9 bg-nv-side border-b border-nv-border select-none shrink-0">
@@ -706,8 +781,8 @@ export function App() {
 
         {/* Orta: komut merkezi görünümlü proje alanı */}
         <button
-          onClick={() => (currentRootPath ? pickSidebar('files') : handleOpenFolderDialog())}
-          title={currentRootPath || t('openFolder')}
+          onClick={() => setPalette('')}
+          title={`${t('cpTitle')} (Ctrl+P)`}
           className="app-no-drag absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 h-6 w-[min(44vw,460px)] rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
         >
           <Search size={12} className="text-zinc-500 shrink-0" />
@@ -768,6 +843,9 @@ export function App() {
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} title={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
               <Files size={24} strokeWidth={1.5} />
+            </button>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} title={`${t('actSearch')} (Ctrl+Shift+F)`} aria-label={t('actSearch')} onClick={() => pickSidebar('search')}>
+              <Search size={24} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} title={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
               <GitBranch size={24} strokeWidth={1.5} />
@@ -858,6 +936,11 @@ export function App() {
                     onOpenFolder={handleOpenFolderDialog}
                     onOpenFiles={handleOpenFileDialog}
                   />
+                </div>
+              )}
+              {activeSidebarTab === 'search' && (
+                <div key="search" className="animate-sidebar-in h-full">
+                  <SearchPanel hasFolder={!!currentRootPath} onOpenResult={(p, line) => void openFileAt(p, line)} />
                 </div>
               )}
               {activeSidebarTab === 'git' && (
@@ -980,10 +1063,9 @@ export function App() {
         {!showLanding && showRightPanel === 'ai' && (
           <div className="animate-fade-in w-80 h-full border-l border-nv-border shrink-0">
             <AIAssistant
-              currentCode={activeFile?.content || ''}
-              onApplyCode={(c) => {
-                if (activeFileId) handleContentChange(activeFileId, c);
-              }}
+              activeFile={activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: activeFile.content } : null}
+              hasWorkspace={!!currentRootPath}
+              onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }}
             />
           </div>
         )}

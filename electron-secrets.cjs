@@ -6,7 +6,7 @@ const { app, ipcMain, safeStorage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const ALLOWED = new Set(['collabToken']);
+const ALLOWED = new Set(['collabToken', 'aiKey_anthropic', 'aiKey_openai']);
 const MAX_LEN = 2048;
 
 const fileFor = (key) => path.join(app.getPath('userData'), `secret-${key}.bin`);
@@ -16,6 +16,18 @@ async function canEncrypt() {
     return await safeStorage.isAsyncEncryptionAvailable();
   } catch {
     return false;
+  }
+}
+
+// Ana süreç içi okuma (renderer'a geçmez): AI sağlayıcı anahtarları için.
+async function readSecret(key) {
+  if (!ALLOWED.has(key)) return '';
+  try {
+    if (!(await canEncrypt()) || !fs.existsSync(fileFor(key))) return '';
+    const { result } = await safeStorage.decryptStringAsync(fs.readFileSync(fileFor(key)));
+    return result;
+  } catch {
+    return '';
   }
 }
 
@@ -43,4 +55,4 @@ function register() {
   });
 }
 
-module.exports = { register };
+module.exports = { register, readSecret };

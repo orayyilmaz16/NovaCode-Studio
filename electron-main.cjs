@@ -10,6 +10,7 @@ const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 let mainWindow;
 let activeWatcher = null;
 let activeGitWatcher = null;
+let workspaceRoot = ''; // açık çalışma klasörü (arama ve yapay zekâ araçları yalnız bunun içinde çalışır)
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -33,6 +34,12 @@ function createWindow() {
       webSecurity: true
     },
     autoHideMenuBar: true,
+  });
+
+  // Dikte için yalnız mikrofon izni (uygulamanın kendi sayfasına); diğer tüm izinler reddedilir.
+  mainWindow.webContents.session.setPermissionRequestHandler((wc, permission, cb, details) => {
+    const types = (details && details.mediaTypes) || [];
+    cb(permission === 'media' && types.length > 0 && types.every((m) => m === 'audio') && wc === mainWindow.webContents);
   });
 
   if (isDev) {
@@ -218,6 +225,7 @@ async function openWorkspace(folderPath) {
     throw new Error('Seçilen klasör bulunamadı veya erişilemiyor.');
   }
   startFileWatcher(folderPath);
+  workspaceRoot = folderPath;
   pushRecent(folderPath);
   return {
     rootPath: folderPath,
@@ -396,6 +404,10 @@ gitModule.register({ runGit: runGitCommand, github, isValidPath });
 // Entegre terminal: çoklu kabuk oturumları (electron-term.cjs)
 // ----------------------------------------------------
 require('./electron-term.cjs').register({ getWindow: () => mainWindow, isValidPath });
+
+// Arama (Ctrl+P / Ctrl+Shift+F) ve yapay zekâ asistanı (electron-ai.cjs)
+require('./electron-search.cjs').register({ getRoot: () => workspaceRoot });
+require('./electron-ai.cjs').register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
 
 // Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();

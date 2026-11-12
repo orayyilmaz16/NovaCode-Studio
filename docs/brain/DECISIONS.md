@@ -2,6 +2,16 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 12.11.2026 (yapay zekâ asistanı, palet, arama)
+- **Çoklu sağlayıcı: Anthropic + OpenAI uyumlu + Ollama (yerel); kullanıcı kendi API anahtarını getirir.** Neden: tek sağlayıcıya bağımlılık yok, yerel model seçeneğiyle veri cihazdan çıkabilir; Masqot tarafında anahtar/maliyet yönetimi gerekmez. Sağlayıcı değişimi ayardadır.
+- **AI motoru ana süreçte (`electron-ai.cjs`), anahtar renderer'a geçmez.** Neden: XSS/eklenti yüzeyinden anahtar sızmasın; `safeStorage` ile şifreli. Web sürümünde panel devre dışı.
+- **Agent araçları çalışma klasörüne kilitli; yazma onaylı, komut her zaman onaylı.** Neden: LLM çıktısına güvenilmez; `realpath` ile sembolik bağ kaçışı, gizli dosya (`.env`, anahtar) reddi. `aiAutoApproveEdits` yalnız yazma için ve varsayılan kapalı.
+- **Dikte: mikrofon kaydı + OpenAI uyumlu transkripsiyon.** Neden: Electron'da tarayıcı konuşma tanıma Google anahtarı olmadan çalışmaz. Ses 3. partiye gittiği için `aiVoiceEnabled` açık rıza ayarı (varsayılan kapalı), ses diske yazılmaz. Yerel Whisper ileride KVKK açısından daha temiz alternatif.
+- **Sohbet oturumları yalnız cihazda (`localStorage`), görseller kaydedilmez.** Neden: veri minimizasyonu; sunucuya hiçbir şey eşitlenmez.
+- **Yapay zekâ paneli kısayolu `Ctrl+Shift+L`.** Neden: `Ctrl+L` terminalde "temizle".
+- **Oturum eklentisi = dosya tabanlı:** `.nova/instructions.md` / `AGENTS.md` (proje yönergesi) ve `.nova/commands/*.md` (eğik çizgi komutları). Neden: ek bağımlılık/eklenti API'si olmadan sürümlenebilir, ekiple paylaşılabilir. Tam eklenti sistemi ileride ayrı karar.
+- **Komut paleti VS Code önekleriyle** (`>` komut, `:` satır, `$` snippet); proje araması ana süreçte (`electron-search.cjs`), yeni bağımlılık yok.
+
 ## 10.11.2026 (terminal ve gezgin)
 - **Terminal çoklu ve kimlikli oturumlar** (`electron-term.cjs`, `id`, en çok 12). Neden: VS Code deneyimi (birden çok terminal, oturum listesi); eski tasarım kabuk adına bağlıydı. Terminal kodu ana süreçten ayrı modüle taşındı ve gerçek kabuklarla test edilir.
 - **İstem satırı çıktının sonunda satır içi**, ayrı giriş çubuğu kaldırıldı. Neden: gerçek terminal hissi ve daha az yer.
