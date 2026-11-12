@@ -42,7 +42,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1371 |
+| `src/App.tsx` | 1372 |
 | `src/main.tsx` | 21 |
 | `src/types.ts` | 271 |
 
@@ -51,7 +51,7 @@
 |---|---|
 | `src/components/AIAssistant.tsx` | 539 |
 | `src/components/CommandPalette.tsx` | 165 |
-| `src/components/EditorArea.tsx` | 342 |
+| `src/components/EditorArea.tsx` | 363 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 919 |
 | `src/components/FileTypeIcon.tsx` | 111 |
