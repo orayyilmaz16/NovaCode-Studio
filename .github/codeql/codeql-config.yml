@@ -1,0 +1,6 @@
+name: NovaCode CodeQL
+# public/vs = Monaco editor dosyalari (ucuncu taraf, build ciktisi); kendi kodumuz degil
+paths-ignore:
+  - public/vs/**
+  - dist/**
+  - release/**

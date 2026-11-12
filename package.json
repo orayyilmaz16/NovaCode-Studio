@@ -115,6 +115,8 @@
   "overrides": {
     "monaco-editor": {
       "dompurify": "$dompurify"
-    }
+    },
+    "minimatch@^9": "11.0.1",
+    "minimatch@^10": "11.0.1"
   }
 }
