@@ -602,7 +602,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
                     )}
                   </>
                 )}
-                {current.id === 'ai' && <AiKeys />}
                 {current.id === 'extensions' && <ExtensionsSettings onOpenStore={onOpenExtensions} />}
                 {current.id === 'shortcuts' && <Shortcuts />}
                 {current.id === 'about' && <About />}

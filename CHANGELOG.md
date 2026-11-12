@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### tr
+- **Yalnız Ollama, Türkçe odaklı:** Sağlayıcı yalnız Ollama (yerel); varsayılan model `qwen2.5-coder:7b`, model yüklü değilse uyarı çıkar. Dikte adresi varsayılan `http://localhost:8080/v1`; Türkçe için dil sabitlenir, sıcaklık 0 ve teknik sözcük ipucu gönderilir. Sohbet istemi Türkçe dilbilgisi ve dikteyle gelen hatalı yazımı anlama kurallarıyla güçlendirildi. Hiçbir şey yazılmamış sohbet listeye ve hafızaya kaydedilmez.
 - **Sohbet ve Ajan ayrıldı:** İki modun sohbet listeleri artık ayrı (sekmeye basınca o modun son sohbeti açılır, sekmede sohbet sayısı görünür, taslak mod başına saklanır). Ayarlar → Yapay Zekâ Genel / Sohbet / Ajan / Ses alt başlıklarına ayrıldı; her moda ayrı model, yerleşik model, bağlam, yanıt uzunluğu ve özel yönerge verilebilir.
 - **Ölçek düzeltmesi:** Arayüz ölçeği kaydırıcısı sürüklerken yüzde değerinin kendi kendine gidip gelmesi ve takılma giderildi (değer bırakınca uygulanır, ok tuşları anında). Her ölçek değişiminde çıkan başlık çubuğu hatası kaldırıldı.
 - **Sohbet listesi yenilendi:** Açılır sohbet seçici; arama (başlık ve ileti metni), tarih grupları, sabitleme, yeniden adlandırma (çift tık / F2), Markdown dışa aktarma, onaylı silme ve "sabitlenmemişleri sil". Sohbetler ilk iletiden ve ilk yanıttan sonra konuya göre otomatik adlandırılır (tamamen yerelde, veri dışarı gitmez); adı elle verince kilitlenir.
@@ -77,6 +78,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **Ollama only, Turkish-focused:** The provider is Ollama only (local); default model `qwen2.5-coder:7b`, with a warning if it is not installed. The dictation URL defaults to `http://localhost:8080/v1`; Turkish is pinned, temperature 0 with a technical-term hint. The chat prompt gained Turkish grammar and dictation-error rules. Chats with nothing typed are neither listed nor stored.
 - **Chat and Agent split:** The two modes now have separate chat lists (the tab opens that mode's last chat, shows a chat count, drafts are kept per mode). Settings → AI is grouped into General / Chat / Agent / Voice; each mode gets its own model, built-in model, context, response length and custom instructions.
 - **Zoom fix:** The interface scale slider no longer jumps back and forth or lags while dragging (applied on release, arrow keys apply instantly). Removed the title bar error that fired on every scale change.
 - **Chat list revamp:** Dropdown chat picker with search (titles and message text), date groups, pinning, rename (double-click / F2), Markdown export, confirmed delete and "delete unpinned". Chats are auto-named from the first message and refined after the first reply (fully local, no data leaves the device); a manual name locks it.

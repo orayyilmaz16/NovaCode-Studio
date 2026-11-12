@@ -127,23 +127,23 @@
     { "id": "updateAutoCheck", "category": "about", "type": "toggle", "default": true, "desc": true },
     { "id": "updateAutoDownload", "category": "about", "type": "toggle", "default": true, "desc": true },
 
-    { "id": "aiProvider", "category": "ai", "group": "grpAiGeneral", "type": "select", "default": "builtin", "desc": true,
-      "options": [{ "value": "builtin", "labelKey": "optAiBuiltin" }, { "value": "anthropic", "label": "Anthropic (Claude)" }, { "value": "openai", "label": "OpenAI / uyumlu" }, { "value": "ollama", "label": "Ollama (local)" }] },
-    { "id": "aiBuiltinModel", "category": "ai", "group": "grpAiGeneral", "type": "select", "default": "qwen2.5-coder-1.5b", "desc": true,
+    { "id": "aiProvider", "category": "ai", "group": "grpAiGeneral", "type": "select", "default": "ollama", "hidden": true,
+      "options": [{ "value": "ollama", "label": "Ollama (local)" }] },
+    { "id": "aiBuiltinModel", "hidden": true, "category": "ai", "group": "grpAiGeneral", "type": "select", "default": "qwen2.5-coder-1.5b", "desc": true,
       "options": [{ "value": "qwen2.5-coder-1.5b", "labelKey": "optAiModelFast" }, { "value": "qwen2.5-coder-7b", "labelKey": "optAiModelStrong" }] },
-    { "id": "aiModel", "category": "ai", "group": "grpAiGeneral", "type": "text", "default": "", "maxLength": 120, "placeholder": "qwen2.5-coder:7b", "desc": true },
+    { "id": "aiModel", "category": "ai", "group": "grpAiGeneral", "type": "text", "default": "qwen2.5-coder:7b", "maxLength": 120, "placeholder": "qwen2.5-coder:7b", "desc": true },
     { "id": "aiBaseUrl", "category": "ai", "group": "grpAiGeneral", "type": "text", "default": "", "maxLength": 200, "placeholder": "https://...", "desc": true },
     { "id": "aiDefaultMode", "category": "ai", "group": "grpAiGeneral", "type": "select", "default": "ask",
       "options": [{ "value": "ask", "labelKey": "optAiAsk" }, { "value": "agent", "labelKey": "optAiAgent" }] },
 
-    { "id": "aiAskBuiltinModel", "category": "ai", "group": "aiModeAsk", "type": "select", "default": "", "desc": true, "showWhen": { "id": "aiProvider", "equals": "builtin" },
+    { "id": "aiAskBuiltinModel", "hidden": true, "category": "ai", "group": "aiModeAsk", "type": "select", "default": "", "desc": true, "showWhen": { "id": "aiProvider", "equals": "builtin" },
       "options": [{ "value": "", "labelKey": "optSameAsGeneral" }, { "value": "qwen2.5-coder-1.5b", "labelKey": "optAiModelFast" }, { "value": "qwen2.5-coder-7b", "labelKey": "optAiModelStrong" }] },
     { "id": "aiAskModel", "category": "ai", "group": "aiModeAsk", "type": "text", "default": "", "maxLength": 120, "placeholder": "qwen2.5-coder:7b", "desc": true },
     { "id": "aiIncludeContext", "category": "ai", "group": "aiModeAsk", "type": "toggle", "default": true, "desc": true },
     { "id": "aiMaxTokens", "category": "ai", "group": "aiModeAsk", "type": "slider", "default": 4096, "min": 1024, "max": 16000, "step": 512 },
     { "id": "aiAskInstructions", "category": "ai", "group": "aiModeAsk", "type": "text", "default": "", "maxLength": 600, "desc": true },
 
-    { "id": "aiAgentBuiltinModel", "category": "ai", "group": "aiModeAgent", "type": "select", "default": "", "desc": true, "showWhen": { "id": "aiProvider", "equals": "builtin" },
+    { "id": "aiAgentBuiltinModel", "hidden": true, "category": "ai", "group": "aiModeAgent", "type": "select", "default": "", "desc": true, "showWhen": { "id": "aiProvider", "equals": "builtin" },
       "options": [{ "value": "", "labelKey": "optSameAsGeneral" }, { "value": "qwen2.5-coder-1.5b", "labelKey": "optAiModelFast" }, { "value": "qwen2.5-coder-7b", "labelKey": "optAiModelStrong" }] },
     { "id": "aiAgentModel", "category": "ai", "group": "aiModeAgent", "type": "text", "default": "", "maxLength": 120, "placeholder": "qwen2.5-coder:7b", "desc": true },
     { "id": "aiAgentIncludeContext", "category": "ai", "group": "aiModeAgent", "type": "toggle", "default": true, "desc": true },
@@ -155,7 +155,7 @@
     { "id": "aiVoiceEnabled", "category": "ai", "group": "grpAiVoice", "type": "toggle", "default": false, "desc": true },
     { "id": "aiVoiceLang", "category": "ai", "group": "grpAiVoice", "type": "select", "default": "auto",
       "options": [{ "value": "auto", "labelKey": "optAuto" }, { "value": "tr", "label": "Türkçe" }, { "value": "en", "label": "English" }, { "value": "de", "label": "Deutsch" }, { "value": "ru", "label": "Русский" }, { "value": "ar", "label": "العربية" }, { "value": "es", "label": "Español" }, { "value": "fr", "label": "Français" }, { "value": "az", "label": "Azərbaycanca" }] },
-    { "id": "aiTranscribeUrl", "category": "ai", "group": "grpAiVoice", "type": "text", "default": "", "maxLength": 200, "placeholder": "http://localhost:8080/v1", "desc": true },
+    { "id": "aiTranscribeUrl", "category": "ai", "group": "grpAiVoice", "type": "text", "default": "http://localhost:8080/v1", "maxLength": 200, "placeholder": "http://localhost:8080/v1", "desc": true },
     { "id": "aiTranscribeModel", "category": "ai", "group": "grpAiVoice", "type": "text", "default": "whisper-1", "maxLength": 80, "desc": true }
   ]
 }

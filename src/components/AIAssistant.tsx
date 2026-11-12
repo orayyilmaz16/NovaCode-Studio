@@ -8,7 +8,7 @@ import { useSettings } from '../services/SettingsContext';
 import { getSelectedText, replaceSelection } from '../services/editorBridge';
 import { useDictation } from '../services/useDictation';
 import {
-  DEFAULT_MODEL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartTitle, splitParts, titleFrom, uid,
+  DEFAULT_MODEL, DEFAULT_TRANSCRIBE_URL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartTitle, splitParts, titleFrom, uid,
   type AiSession, type ChatMsg, type ToolCard
 } from '../services/aiClient';
 import { ChatSessions } from './ChatSessions';
@@ -78,7 +78,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const { values, set: setSetting } = useSettings();
   const api = window.electronAPI?.ai;
   const llmApi = window.electronAPI?.llm;
-  const provider = (['builtin', 'anthropic', 'openai', 'ollama'].includes(String(values.aiProvider)) ? values.aiProvider : 'builtin') as AiProvider;
+  // Sağlayıcı yalnız Ollama (yerel): anahtar yok, kod ve sohbet cihazdan çıkmaz. Diğer sağlayıcı kodu motorda duruyor ama arayüzden seçilemez.
+  const provider = 'ollama' as AiProvider;
 
   const [ollama, setOllama] = useState<{ running: boolean; models: string[] } | null>(null);
   const [ollamaTick, setOllamaTick] = useState(0);
@@ -96,7 +97,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const session = sessions.find((s) => s.id === activeId) ?? sessions[0];
   const mode = session?.mode ?? 'ask';
   const isAgent = mode === 'agent';
-  const modeSessions = useMemo(() => sessions.filter((s) => s.mode === mode), [sessions, mode]);
+  // Listede yalnız bu modun DOLU sohbetleri görünür; hiçbir şey yazılmamış sohbet listeye ve hafızaya girmez
+  const modeSessions = useMemo(() => sessions.filter((s) => s.mode === mode && s.messages.length > 0), [sessions, mode]);
   const modeCount = (m: 'ask' | 'agent') => sessions.filter((s) => s.mode === m && s.messages.length > 0).length;
 
   // Modele özel ayarlar: model, yerleşik model, bağlam, yanıt uzunluğu, özel yönerge (boşsa Genel ayar)
@@ -120,8 +122,16 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const fileRef = useRef<HTMLInputElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
-  // Kalıcılık (yalnız bu cihaz)
+  // Kalıcılık (yalnız bu cihaz; boş sohbetler yazılmaz)
   useEffect(() => { saveSessions(sessions); }, [sessions]);
+
+  // Başka sohbete geçilince, içine hiçbir şey yazılmamış eski sohbet bellekten de silinir
+  useEffect(() => {
+    setSessions((all) => {
+      const keep = all.filter((s) => s.messages.length > 0 || s.id === activeId);
+      return keep.length === all.length ? all : keep;
+    });
+  }, [activeId]);
 
   // Kullanıcı en alttaysa yeni çıktıyı izle; yukarı kaydırdıysa yerinde bırak
   const onScroll = () => {
@@ -209,9 +219,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   }, [api, patchMsg, refreshLlm]);
 
   const dictation = useDictation({
-    lang: String(values.aiVoiceLang || 'auto'),
+    // "Otomatik" arayüz dilini kullanır (kısa konuşmalarda dil algılama şaşabildiği için Türkçe arayüzde Türkçe sabitlenir)
+    lang: String(values.aiVoiceLang || 'auto') === 'auto' ? getUiLang() : String(values.aiVoiceLang),
     model: String(values.aiTranscribeModel || 'whisper-1'),
-    baseUrl: String(values.aiTranscribeUrl || '').trim() || (provider === 'openai' ? String(values.aiBaseUrl || '') : ''),
+    baseUrl: String(values.aiTranscribeUrl || '').trim() || DEFAULT_TRANSCRIBE_URL,
     onText: (text) => setInput((v) => (v ? v + ' ' : '') + text),
     onError: (code) => {
       setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, messages: [...s.messages, { id: uid(), role: 'assistant', text: '', error: code === 'mic' ? t('aiMicDenied') : code === 'nokey' ? t('aiVoiceNeedsKey') : t('aiErrGeneric') }] })));
@@ -236,6 +247,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   };
 
   const startNew = () => {
+    // Etkin sohbet zaten boşsa yenisini açma: boş sohbet birikmez
+    if (!session.messages.length) { setInput(''); setImages([]); taRef.current?.focus(); return; }
     const s = newSession(mode);
     setSessions((all) => [s, ...all]);
     setActiveId(s.id);
@@ -400,6 +413,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0"><Sparkles size={13} className="text-white" /></div>
         <ChatSessions
           sessions={modeSessions}
+          current={session}
           activeId={session?.id}
           busy={busy}
           busyId={busy ? runRef.current?.sessionId : null}
@@ -439,6 +453,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
           <span className="min-w-0">{!ollama.running ? t('aiOllamaDown') : t('aiOllamaNoModels')}</span>
           <button className="h-6 px-2 rounded bg-amber-500/20 hover:bg-amber-500/30 shrink-0" onClick={() => setOllamaTick((n) => n + 1)}>{t('aiRecheck')}</button>
         </div>
+      )}
+      {provider === 'ollama' && ollama?.running && ollama.models.length > 0 && !ollama.models.some((m) => m === model || (!model.includes(':') && m.split(':')[0] === model)) && (
+        <div className={`${banner} border-amber-500/40 bg-amber-500/10 text-amber-100 shrink-0`}>{t('aiOllamaModelMissing').split('{m}').join(model)}</div>
       )}
       {!hasKey && (
         <div className={`${banner} border-amber-500/40 bg-amber-500/10 text-amber-100 flex items-center justify-between gap-2 shrink-0`}>
