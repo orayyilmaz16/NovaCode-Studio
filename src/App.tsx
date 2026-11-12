@@ -1028,7 +1028,7 @@ export function App() {
 
       {/* Başlık çubuğu */}
       <header
-        className="app-drag relative grid items-center h-9 bg-nv-side border-b border-nv-border select-none shrink-0"
+        className="chrome-header app-drag relative grid items-center h-[38px] select-none shrink-0"
         // Üç bölge: sol (logo + menü) · orta (arama, pencereye göre ortalı) · sağ (düğmeler; pencere denetimlerinden önce biter)
         style={{ gridTemplateColumns: `minmax(0,1fr) minmax(130px,min(${compactMenu ? 460 : 360}px,calc(100% - ${isElectron ? 600 : 328}px))) minmax(0,1fr)` }}
       >
@@ -1042,7 +1042,7 @@ export function App() {
           <button
             onClick={() => setPalette('')}
             title={`${t('cpTitle')} (Ctrl+P)`}
-            className="w-full min-w-0 flex items-center justify-center gap-2 h-6 px-2 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
+            className="cmd-pill w-full min-w-0 flex items-center justify-center gap-2 h-[26px] px-3 text-[12px] text-zinc-300"
           >
             <Search size={12} className="text-zinc-500 shrink-0" />
             <span className="truncate min-w-0">
@@ -1116,19 +1116,19 @@ export function App() {
       <div className={`relative flex flex-1 min-h-0 overflow-hidden ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
-        <nav aria-label="Activity bar" className={`w-12 bg-nv-side ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border flex flex-col items-center justify-between select-none shrink-0`}>
+        <nav aria-label="Activity bar" className={`w-[var(--ab-w)] bg-nv-side ${sidebarRight ? 'border-l' : 'border-r'} border-nv-border flex flex-col items-center justify-between py-1 select-none shrink-0`}>
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} title={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
-              <Files size={24} strokeWidth={1.5} />
+              <Files size={22} strokeWidth={1.6} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} {...dis(!currentRootPath, `${t('actSearch')} — ${t('mnHintNoFolder')}`)} title={currentRootPath ? `${t('actSearch')} (Ctrl+Shift+F)` : `${t('actSearch')} — ${t('mnHintNoFolder')}`} aria-label={t('actSearch')} onClick={() => { if (currentRootPath) pickSidebar('search'); }}>
-              <Search size={24} strokeWidth={1.5} />
+              <Search size={22} strokeWidth={1.6} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} title={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
-              <Puzzle size={24} strokeWidth={1.5} />
+              <Puzzle size={22} strokeWidth={1.6} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} title={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
-              <GitBranch size={24} strokeWidth={1.5} />
+              <GitBranch size={22} strokeWidth={1.6} />
               {changeCount > 0 && (
                 <span className="absolute bottom-2 right-1.5 min-w-4 h-4 px-1 rounded-full bg-indigo-500 text-white text-[10px] leading-4 text-center font-semibold">
                   {changeCount > 99 ? '99+' : changeCount}
@@ -1142,7 +1142,7 @@ export function App() {
               setShowSettings(false);
               setShowLanding(!showLanding);
             }}>
-              <House size={24} strokeWidth={1.5} />
+              <House size={22} strokeWidth={1.6} />
             </button>
             <button
               {...barBtn(false)}
@@ -1153,7 +1153,7 @@ export function App() {
               {auth.connected && auth.profile?.avatarUrl ? (
                 <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="w-6 h-6 rounded-full ring-1 ring-zinc-700" />
               ) : (
-                <UserRound size={24} strokeWidth={1.5} />
+                <UserRound size={22} strokeWidth={1.6} />
               )}
             </button>
             <button
@@ -1165,7 +1165,7 @@ export function App() {
                 setShowSettings((v) => !v);
               }}
             >
-              <Settings size={24} strokeWidth={1.5} />
+              <Settings size={22} strokeWidth={1.6} />
             </button>
           </div>
         </nav>
@@ -1347,8 +1347,8 @@ export function App() {
 
       {/* Durum çubuğu: yalnız anlamlı bilgiler */}
       {settings.statusBarVisible !== false && (
-        <footer className="h-[22px] bg-nv-side border-t border-nv-border flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
-          <div className="flex items-center h-full">
+        <footer className="chrome-footer @container h-[26px] px-1.5 flex items-center justify-between gap-2 text-[12px] text-zinc-400 select-none shrink-0">
+          <div className="flex items-center h-full min-w-0 overflow-hidden">
             {gitStatus.isRepo && (
               <button className="status-item" onClick={() => pickSidebar('git')} title={t('actGit')}>
                 <GitBranch size={12} />
@@ -1371,8 +1371,8 @@ export function App() {
             {activeFile?.isModified && <span className="status-item text-amber-300">{t('stUnsaved')}</span>}
             {activeFile && (
               <>
-                <span className="status-item">{t('stSpaces').replace(/\d+/, String(tabSize))}</span>
-                <span className="status-item">UTF-8</span>
+                <span className="status-item hidden @lg:inline-flex">{t('stSpaces').replace(/\d+/, String(tabSize))}</span>
+                <span className="status-item hidden @lg:inline-flex">UTF-8</span>
                 <span className="status-item">{activeFile.language ? activeFile.language : t('stPlain')}</span>
               </>
             )}

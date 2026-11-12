@@ -70,6 +70,13 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 - **CSS katmanı:** `.icon-btn`, `.status-item` `@layer components` içindedir. Katmansız CSS Tailwind yardımcılarını (`hidden`, `w-*`) **ezer**; yeni özel sınıfları katmana koy.
 - **Menü:** kapalı öğe `aria-disabled` + soluk + `title` ipucu (neden kapalı); fare üzerinde gezinebilir. Uzun menü `max-h` ile kayar; menü çubuğu dar pencerede yatay kayar (tekerlek yatay çevrilir).
 
+## Yumuşak çerçeve (üst çubuk, kenar çubuğu, alt çubuk)
+- **Kenarlıklar:** `--color-nv-border` yarı saydamdır (koyu `rgba(255,255,255,.075)`, açık `rgba(0,0,0,.09)`); tüm paneller ve ayırıcılar birlikte yumuşar. Katı renk kenarlık ekleme.
+- **Üst/alt çubuk:** `.chrome-header` / `.chrome-footer` (hafif degrade + ince kenarlık, `@layer components`). Arama kutusu `.cmd-pill` (yuvarlak, üzerine gelince vurgu rengine yaklaşır). Başlık 38 px, alt çubuk 26 px.
+- **Etkinlik çubuğu:** `.ab-item` yuvarlak "hap" zemin (`::after`, hover ve etkin durumda dolar) + yan gösterge (`::before`); simgeler 22 px / çizgi 1,6. Genişlik `--ab-w` (48 px; pencere < 760 px iken 42 px): **sabit `w-12` kullanma**.
+- **Durum çubuğu:** `.status-item` hap biçimli (20 px, `border-radius: 7px`). Alt çubuk `@container`: ikincil bilgiler (girinti, UTF-8) `hidden @lg:inline-flex` ile dar genişlikte gizlenir.
+- **Simge düğmeleri:** `.icon-btn` 28×26, `border-radius: 8px`.
+
 ## Erişilebilirlik
 Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontrast ≥ 4.5:1. Metinler [[i18n]] ile 8 dilde.
 
