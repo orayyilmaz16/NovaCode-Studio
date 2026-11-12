@@ -151,6 +151,7 @@ export interface ElectronBridge {
     approve: (runId: string, id: string, allow: boolean) => Promise<{ success: boolean }>;
     transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string; model?: string; baseUrl?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
     commands: () => Promise<{ name: string; template: string }[]>;
+    ollamaModels: (baseUrl?: string) => Promise<{ running: boolean; models: string[] }>;
     onEvent: (callback: (ev: AiEvent) => void) => () => void;
   };
   quitApp: () => Promise<void>;

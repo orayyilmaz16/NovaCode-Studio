@@ -25,6 +25,10 @@ const PROVIDERS = {
 
 const runs = new Map(); // runId -> { abort: AbortController, pending: Map<id, resolve> }
 
+function isLoopback(base) {
+  try { return ['localhost', '127.0.0.1', '[::1]'].includes(new URL(base).hostname); } catch { return false; }
+}
+
 function safeBase(provider, custom) {
   const def = PROVIDERS[provider];
   if (!def) throw new Error('Bilinmeyen sağlayıcı.');
@@ -372,22 +376,37 @@ function register({ getWindow, getRoot }) {
   // Dikte: ses kaydı OpenAI uyumlu transkripsiyon API'sine gider (3. parti; kullanıcı açık rızası arayüzde alınır).
   ipcMain.handle('ai:transcribe', async (_e, req) => {
     try {
-      const key = await readSecret('aiKey_openai');
-      if (!key) return { success: false, error: 'nokey' };
+      // Yerel sunucu (whisper.cpp / faster-whisper-server vb.) anahtarsız çalışır; uzak adres için OpenAI anahtarı gerekir.
+      const base = safeBase('openai', req.baseUrl);
+      const key = isLoopback(base) ? '' : await readSecret('aiKey_openai');
+      if (!key && !isLoopback(base)) return { success: false, error: 'nokey' };
       const buf = req && req.audio;
       if (!(buf instanceof ArrayBuffer || ArrayBuffer.isView(buf)) || buf.byteLength > MAX_AUDIO || buf.byteLength < 200) return { success: false, error: 'invalid-audio' };
       const mime = /^audio\/(webm|ogg|mp4|mpeg|wav)/.test(String(req.mime)) ? String(req.mime).split(';')[0] : 'audio/webm';
-      const base = safeBase('openai', req.baseUrl);
       const form = new FormData();
       form.append('file', new Blob([buf], { type: mime }), 'dictation.' + mime.split('/')[1]);
       form.append('model', String(req.model || 'whisper-1').slice(0, 80));
       if (req.lang && /^[a-z]{2}$/.test(req.lang)) form.append('language', req.lang);
-      const res = await fetch(base + '/audio/transcriptions', { method: 'POST', headers: { authorization: 'Bearer ' + key }, body: form, signal: AbortSignal.timeout(60000) });
+      const res = await fetch(base + '/audio/transcriptions', { method: 'POST', headers: key ? { authorization: 'Bearer ' + key } : {}, body: form, signal: AbortSignal.timeout(60000) });
       if (!res.ok) return { success: false, error: res.status === 401 ? 'auth' : 'http' };
       const json = await res.json();
       return { success: true, text: String(json.text || '').slice(0, 20000) };
     } catch {
       return { success: false, error: 'failed' };
+    }
+  });
+
+  // Ollama durumu ve yüklü modeller (yerel; anahtar yok). /v1 ekini atıp yerel API'ye sorar.
+  ipcMain.handle('ai:ollamaModels', async (_e, baseUrl) => {
+    try {
+      const root = safeBase('ollama', baseUrl).replace(/\/v1$/, '');
+      const res = await fetch(root + '/api/tags', { signal: AbortSignal.timeout(2500) });
+      if (!res.ok) return { running: false, models: [] };
+      const json = await res.json();
+      const models = (Array.isArray(json.models) ? json.models : []).map((m) => String(m.name || '')).filter(Boolean).slice(0, 100);
+      return { running: true, models };
+    } catch {
+      return { running: false, models: [] };
     }
   });
 

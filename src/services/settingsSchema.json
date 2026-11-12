@@ -109,9 +109,9 @@
     { "id": "collabEnabled", "category": "collab", "type": "toggle", "default": false },
     { "id": "collabUrl", "category": "collab", "type": "text", "default": "", "maxLength": 200, "placeholder": "wss://sunucun.example.com", "desc": true },
 
-    { "id": "aiProvider", "category": "ai", "type": "select", "default": "anthropic", "desc": true,
+    { "id": "aiProvider", "category": "ai", "type": "select", "default": "ollama", "desc": true,
       "options": [{ "value": "anthropic", "label": "Anthropic (Claude)" }, { "value": "openai", "label": "OpenAI / uyumlu" }, { "value": "ollama", "label": "Ollama (local)" }] },
-    { "id": "aiModel", "category": "ai", "type": "text", "default": "", "maxLength": 120, "placeholder": "claude-sonnet-5-5", "desc": true },
+    { "id": "aiModel", "category": "ai", "type": "text", "default": "", "maxLength": 120, "placeholder": "qwen2.5-coder:7b", "desc": true },
     { "id": "aiBaseUrl", "category": "ai", "type": "text", "default": "", "maxLength": 200, "placeholder": "https://...", "desc": true },
     { "id": "aiDefaultMode", "category": "ai", "type": "select", "default": "ask",
       "options": [{ "value": "ask", "labelKey": "optAiAsk" }, { "value": "agent", "labelKey": "optAiAgent" }] },
@@ -122,6 +122,7 @@
     { "id": "aiVoiceEnabled", "category": "ai", "type": "toggle", "default": false, "desc": true },
     { "id": "aiVoiceLang", "category": "ai", "type": "select", "default": "auto",
       "options": [{ "value": "auto", "labelKey": "optAuto" }, { "value": "tr", "label": "Türkçe" }, { "value": "en", "label": "English" }, { "value": "de", "label": "Deutsch" }, { "value": "ru", "label": "Русский" }, { "value": "ar", "label": "العربية" }, { "value": "es", "label": "Español" }, { "value": "fr", "label": "Français" }, { "value": "az", "label": "Azərbaycanca" }] },
+    { "id": "aiTranscribeUrl", "category": "ai", "type": "text", "default": "", "maxLength": 200, "placeholder": "http://localhost:8080/v1", "desc": true },
     { "id": "aiTranscribeModel", "category": "ai", "type": "text", "default": "whisper-1", "maxLength": 80, "desc": true }
   ]
 }

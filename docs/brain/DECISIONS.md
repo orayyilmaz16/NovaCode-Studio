@@ -2,6 +2,10 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 12.11.2026 (yerel öncelikli yapay zekâ)
+- **Varsayılan sağlayıcı Ollama (yerel, anahtarsız, ücretsiz).** Neden: Masqot/kullanıcıya API maliyeti çıkmasın, veri cihazdan çıkmasın (KVKK yükü yok). Bulut sağlayıcılar isteğe bağlı kalır. Panel Ollama'yı ve yüklü modelleri algılar, eksikse kurulum ipucu verir.
+- **Dikte için yerel OpenAI uyumlu Whisper sunucusu (`aiTranscribeUrl`).** Neden: yerel adreste anahtar ve 3. parti yok. Sunucu kurulumu kullanıcıdadır; uygulama içi (transformers.js) Whisper ileride ayrı karar (yeni bağımlılık + ~75 MB model indirme).
+
 ## 12.11.2026 (yapay zekâ asistanı, palet, arama)
 - **Çoklu sağlayıcı: Anthropic + OpenAI uyumlu + Ollama (yerel); kullanıcı kendi API anahtarını getirir.** Neden: tek sağlayıcıya bağımlılık yok, yerel model seçeneğiyle veri cihazdan çıkabilir; Masqot tarafında anahtar/maliyet yönetimi gerekmez. Sağlayıcı değişimi ayardadır.
 - **AI motoru ana süreçte (`electron-ai.cjs`), anahtar renderer'a geçmez.** Neden: XSS/eklenti yüzeyinden anahtar sızmasın; `safeStorage` ile şifreli. Web sürümünde panel devre dışı.

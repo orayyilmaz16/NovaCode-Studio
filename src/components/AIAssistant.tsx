@@ -18,6 +18,8 @@ interface AIAssistantProps {
 }
 
 type Image = { mediaType: string; data: string; url: string };
+// Yüklü modeller arasında kod odaklı olanı tercih et; yoksa ilkini al.
+const pickOllamaModel = (models: string[]): string => models.find((m) => /coder|code/i.test(m)) ?? models[0] ?? '';
 const SLASH_BUILTIN = ['new', 'ask', 'agent'] as const;
 
 const CodeBlock: React.FC<{ lang: string; code: string }> = ({ lang, code }) => {
@@ -62,7 +64,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const { values, set: setSetting } = useSettings();
   const api = window.electronAPI?.ai;
   const provider = (['anthropic', 'openai', 'ollama'].includes(String(values.aiProvider)) ? values.aiProvider : 'anthropic') as AiProvider;
-  const model = String(values.aiModel || '').trim() || DEFAULT_MODEL[provider];
+  const [ollama, setOllama] = useState<{ running: boolean; models: string[] } | null>(null);
+  const [ollamaTick, setOllamaTick] = useState(0);
+  const ollamaBase = provider === 'ollama' ? String(values.aiBaseUrl || '').trim() || undefined : undefined;
+  const model = String(values.aiModel || '').trim() || (provider === 'ollama' ? pickOllamaModel(ollama?.models ?? []) : '') || DEFAULT_MODEL[provider];
 
   const [sessions, setSessions] = useState<AiSession[]>(() => {
     const loaded = loadSessions();
@@ -92,6 +97,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     });
     return () => { alive = false; };
   }, [provider, busy]);
+
+  // Ollama: çalışıyor mu, hangi modeller yüklü (yerel istek, anahtar yok)
+  useEffect(() => {
+    if (provider !== 'ollama' || !api) { setOllama(null); return; }
+    let alive = true;
+    void api.ollamaModels(ollamaBase).then((r) => { if (alive) setOllama(r); }).catch(() => { if (alive) setOllama({ running: false, models: [] }); });
+    return () => { alive = false; };
+  }, [api, provider, ollamaBase, ollamaTick]);
 
   useEffect(() => { void api?.commands().then(setCustom).catch(() => setCustom([])); }, [api, hasWorkspace]);
 
@@ -127,7 +140,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const dictation = useDictation({
     lang: String(values.aiVoiceLang || 'auto'),
     model: String(values.aiTranscribeModel || 'whisper-1'),
-    baseUrl: provider === 'openai' ? String(values.aiBaseUrl || '') : '',
+    baseUrl: String(values.aiTranscribeUrl || '').trim() || (provider === 'openai' ? String(values.aiBaseUrl || '') : ''),
     onText: (text) => setInput((v) => (v ? v + ' ' : '') + text),
     onError: (code) => {
       setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, messages: [...s.messages, { id: uid(), role: 'assistant', text: '', error: code === 'mic' ? t('aiMicDenied') : code === 'nokey' ? t('aiVoiceNeedsKey') : t('aiErrGeneric') }] })));
@@ -284,8 +297,27 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
             </button>
           ))}
         </div>
-        <span className="truncate text-zinc-500" title={model}>{PROVIDER_LABEL[provider]} · {model}</span>
+        {provider === 'ollama' && ollama && ollama.models.length > 0 ? (
+          <select
+            value={ollama.models.includes(model) ? model : ''}
+            onChange={(e) => setSetting('aiModel', e.target.value)}
+            aria-label={t('set_aiModel')}
+            className="min-w-0 flex-1 bg-transparent text-zinc-300 outline-none truncate"
+          >
+            {!ollama.models.includes(model) && <option value="" className="bg-zinc-800">{model}</option>}
+            {ollama.models.map((m) => <option key={m} value={m} className="bg-zinc-800">{m}</option>)}
+          </select>
+        ) : (
+          <span className="truncate text-zinc-500" title={model}>{PROVIDER_LABEL[provider]} · {model}</span>
+        )}
       </div>
+
+      {provider === 'ollama' && ollama && (!ollama.running || ollama.models.length === 0) && (
+        <div className="m-2 p-2 rounded border border-amber-500/40 bg-amber-500/10 text-[11px] text-amber-200 flex items-center justify-between gap-2">
+          <span>{!ollama.running ? t('aiOllamaDown') : t('aiOllamaNoModels')}</span>
+          <button className="px-2 h-6 rounded bg-amber-500/20 hover:bg-amber-500/30 shrink-0" onClick={() => setOllamaTick((n) => n + 1)}>{t('aiRecheck')}</button>
+        </div>
+      )}
 
       {!hasKey && (
         <div className="m-2 p-2 rounded border border-amber-500/40 bg-amber-500/10 text-[11px] text-amber-200 flex items-center justify-between gap-2">
@@ -401,7 +433,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
           </div>
         </div>
         {!voiceOn && <p className="mt-1 text-[10px] text-zinc-500">{t('aiVoiceConsent')}</p>}
-        <p className="mt-1 text-[10px] text-zinc-600">{t('aiPrivacy').replace('{provider}', PROVIDER_LABEL[provider])}</p>
+        <p className="mt-1 text-[10px] text-zinc-600">
+          {provider === 'ollama' && (!ollamaBase || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(ollamaBase)) ? t('aiPrivacyLocal') : t('aiPrivacy').replace('{provider}', PROVIDER_LABEL[provider])}
+        </p>
       </div>
     </div>
   );

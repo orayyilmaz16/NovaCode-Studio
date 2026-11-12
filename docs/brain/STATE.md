@@ -25,11 +25,11 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 408 |
+| `electron-ai.cjs` | 427 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
 | `electron-main.cjs` | 437 |
-| `electron-preload.cjs` | 101 |
+| `electron-preload.cjs` | 102 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
 | `electron-term.cjs` | 155 |
@@ -39,12 +39,12 @@
 |---|---|
 | `src/App.tsx` | 1111 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 210 |
+| `src/types.ts` | 211 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 408 |
+| `src/components/AIAssistant.tsx` | 442 |
 | `src/components/CommandPalette.tsx` | 153 |
 | `src/components/EditorArea.tsx` | 334 |
 | `src/components/FileTree.tsx` | 599 |
@@ -80,7 +80,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1288 |
+| `src/i18n/uiText.ts` | 1306 |
 
 ### Betikler
 | Dosya | Satır |
@@ -107,7 +107,7 @@
 ## IPC kanalları
 | Grup | Kanallar |
 |---|---|
-| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:run`, `ai:transcribe` |
+| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
 | app | `app:quit` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
@@ -122,10 +122,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `term:cwd`, `term:exit`, `term:output`
 
 ## i18n
-- 411 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 417 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-76 ayar, 10 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+77 ayar, 10 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -194,7 +194,7 @@
 | Git ve GitHub | `gitFetchInterval` | Otomatik fetch aralığı | select | `60` | 30, 60, 120, 300 |
 | Ortak düzenleme | `collabEnabled` | Ortak düzenlemeyi aç | toggle | `false` |  |
 | Ortak düzenleme | `collabUrl` | Sunucu adresi | text | `""` | ≤200 karakter |
-| Yapay Zekâ | `aiProvider` | Sağlayıcı | select | `"anthropic"` | anthropic, openai, ollama |
+| Yapay Zekâ | `aiProvider` | Sağlayıcı | select | `"ollama"` | anthropic, openai, ollama |
 | Yapay Zekâ | `aiModel` | Model | text | `""` | ≤120 karakter |
 | Yapay Zekâ | `aiBaseUrl` | Özel adres | text | `""` | ≤200 karakter |
 | Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
@@ -204,6 +204,7 @@
 | Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |
 | Yapay Zekâ | `aiVoiceEnabled` | Sesli dikteyi aç | toggle | `false` |  |
 | Yapay Zekâ | `aiVoiceLang` | Dikte dili | select | `"auto"` | auto, tr, en, de, ru, ar, es, fr, az |
+| Yapay Zekâ | `aiTranscribeUrl` | Yerel dikte sunucusu | text | `""` | ≤200 karakter |
 | Yapay Zekâ | `aiTranscribeModel` | Dikte modeli | text | `"whisper-1"` | ≤80 karakter |
 
 ## GitHub Actions

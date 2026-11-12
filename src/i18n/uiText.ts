@@ -1016,9 +1016,6 @@ export const UI_TEXT = {
   set_aiTranscribeModel: {
     tr: "Dikte modeli", en: "Dictation model", de: "Diktiermodell", ru: "Модель диктовки", ar: "نموذج الإملاء", es: "Modelo de dictado", fr: "Modèle de dictée", az: "Dikta modeli",
   },
-  setDesc_aiTranscribeModel: {
-    tr: "Dikte, OpenAI anahtarın ve (varsa) özel adresinle çalışır.", en: "Dictation uses your OpenAI key and (if set) your custom endpoint.", de: "Das Diktat nutzt deinen OpenAI-Schlüssel und (falls gesetzt) deinen eigenen Endpunkt.", ru: "Диктовка использует твой ключ OpenAI и (если задан) твой адрес.", ar: "يستخدم الإملاء مفتاح OpenAI الخاص بك وعنوانك المخصص إن وُجد.", es: "El dictado usa tu clave de OpenAI y (si existe) tu endpoint personalizado.", fr: "La dictée utilise ta clé OpenAI et (si défini) ton point d’accès personnalisé.", az: "Dikta OpenAI açarın və (varsa) xüsusi ünvanınla işləyir.",
-  },
   aiKeyTitle: {
     tr: "API anahtarları", en: "API keys", de: "API-Schlüssel", ru: "Ключи API", ar: "مفاتيح API", es: "Claves API", fr: "Clés API", az: "API açarları",
   },
@@ -1111,9 +1108,6 @@ export const UI_TEXT = {
   },
   aiVoiceConsent: {
     tr: "Mikrofon düğmesine basmak sesli dikteyi açar: kaydın metne çevrilmek üzere OpenAI uyumlu bir hizmete gönderilir (3. parti). Ayarlardan kapatabilirsin.", en: "Pressing the mic enables voice dictation: your recording is sent to an OpenAI-compatible service to be transcribed (third party). You can turn it off in settings.", de: "Ein Klick aufs Mikrofon aktiviert das Diktat: Deine Aufnahme wird zur Transkription an einen OpenAI-kompatiblen Dienst gesendet (Drittanbieter). In den Einstellungen abschaltbar.", ru: "Нажатие на микрофон включает диктовку: запись отправляется в OpenAI-совместимый сервис для расшифровки (третья сторона). Можно отключить в настройках.", ar: "الضغط على الميكروفون يفعّل الإملاء: يُرسل تسجيلك إلى خدمة متوافقة مع OpenAI لتحويله إلى نص (طرف ثالث). يمكنك إيقافه من الإعدادات.", es: "Pulsar el micrófono activa el dictado: tu grabación se envía a un servicio compatible con OpenAI para transcribirla (tercero). Puedes desactivarlo en ajustes.", fr: "Appuyer sur le micro active la dictée : ton enregistrement est envoyé à un service compatible OpenAI pour transcription (tiers). Désactivable dans les paramètres.", az: "Mikrofona basmaq diktanı açır: yazın mətnə çevrilmək üçün OpenAI uyğun xidmətə göndərilir (3-cü tərəf). Ayarlardan söndürə bilərsən.",
-  },
-  aiVoiceNeedsKey: {
-    tr: "Dikte için ayarlardan bir OpenAI API anahtarı eklemelisin.", en: "Add an OpenAI API key in settings to use dictation.", de: "Für das Diktat musst du in den Einstellungen einen OpenAI-API-Schlüssel hinzufügen.", ru: "Для диктовки добавь ключ API OpenAI в настройках.", ar: "أضف مفتاح OpenAI API من الإعدادات لاستخدام الإملاء.", es: "Añade una clave API de OpenAI en ajustes para usar el dictado.", fr: "Ajoute une clé API OpenAI dans les paramètres pour la dictée.", az: "Dikta üçün ayarlarda OpenAI API açarı əlavə et.",
   },
   aiNoKey: {
     tr: "Bu sağlayıcı için API anahtarı yok.", en: "No API key for this provider.", de: "Kein API-Schlüssel für diesen Anbieter.", ru: "Нет ключа API для этого провайдера.", ar: "لا يوجد مفتاح API لهذا المزوّد.", es: "No hay clave API para este proveedor.", fr: "Aucune clé API pour ce fournisseur.", az: "Bu provayder üçün API açarı yoxdur.",
@@ -1258,6 +1252,30 @@ export const UI_TEXT = {
   },
   searchTruncated: {
     tr: "liste kısaltıldı", en: "list truncated", de: "Liste gekürzt", ru: "список сокращён", ar: "تم اختصار القائمة", es: "lista recortada", fr: "liste tronquée", az: "siyahı qısaldıldı",
+  },
+  aiOllamaDown: {
+    tr: "Ollama çalışmıyor. ollama.com adresinden kur ve başlat; her şey bu bilgisayarda, ücretsiz çalışır.", en: "Ollama is not running. Install and start it from ollama.com; everything runs on this computer, free of charge.", de: "Ollama läuft nicht. Installiere und starte es von ollama.com; alles läuft lokal und kostenlos auf diesem Computer.", ru: "Ollama не запущена. Установи и запусти её с ollama.com; всё работает на этом компьютере бесплатно.", ar: "Ollama لا يعمل. ثبّته وشغّله من ollama.com؛ كل شيء يعمل على هذا الحاسوب مجاناً.", es: "Ollama no está en ejecución. Instálalo e inícialo desde ollama.com; todo funciona en este equipo, gratis.", fr: "Ollama n’est pas lancé. Installe-le et démarre-le depuis ollama.com ; tout tourne sur cet ordinateur, gratuitement.", az: "Ollama işləmir. ollama.com saytından quraşdır və başlat; hər şey bu kompüterdə pulsuz işləyir.",
+  },
+  aiOllamaNoModels: {
+    tr: "Yüklü model yok. Terminalde şunu çalıştır: ollama pull qwen2.5-coder:7b", en: "No models installed. Run this in a terminal: ollama pull qwen2.5-coder:7b", de: "Keine Modelle installiert. Führe im Terminal aus: ollama pull qwen2.5-coder:7b", ru: "Нет установленных моделей. Выполни в терминале: ollama pull qwen2.5-coder:7b", ar: "لا توجد نماذج مثبّتة. شغّل في الطرفية: ollama pull qwen2.5-coder:7b", es: "No hay modelos instalados. Ejecuta en una terminal: ollama pull qwen2.5-coder:7b", fr: "Aucun modèle installé. Exécute dans un terminal : ollama pull qwen2.5-coder:7b", az: "Quraşdırılmış model yoxdur. Terminalda işlət: ollama pull qwen2.5-coder:7b",
+  },
+  aiRecheck: {
+    tr: "Yeniden dene", en: "Check again", de: "Erneut prüfen", ru: "Проверить снова", ar: "أعد المحاولة", es: "Volver a comprobar", fr: "Revérifier", az: "Yenidən yoxla",
+  },
+  aiPrivacyLocal: {
+    tr: "Yerel model: mesajların ve kodun bu bilgisayardan çıkmaz.", en: "Local model: your messages and code never leave this computer.", de: "Lokales Modell: Nachrichten und Code verlassen diesen Computer nicht.", ru: "Локальная модель: сообщения и код не покидают этот компьютер.", ar: "نموذج محلي: لا تغادر رسائلك وكودك هذا الحاسوب.", es: "Modelo local: tus mensajes y código no salen de este equipo.", fr: "Modèle local : tes messages et ton code ne quittent pas cet ordinateur.", az: "Lokal model: mesajların və kodun bu kompüterdən çıxmır.",
+  },
+  set_aiTranscribeUrl: {
+    tr: "Yerel dikte sunucusu", en: "Local dictation server", de: "Lokaler Diktier-Server", ru: "Локальный сервер диктовки", ar: "خادم الإملاء المحلي", es: "Servidor de dictado local", fr: "Serveur de dictée local", az: "Yerli dikta serveri",
+  },
+  setDesc_aiTranscribeUrl: {
+    tr: "OpenAI uyumlu bir yerel Whisper sunucusunun adresi (ör. whisper.cpp veya faster-whisper-server). Yerel adreste API anahtarı gerekmez ve ses bilgisayarından çıkmaz. Boşsa OpenAI kullanılır.", en: "Address of a local OpenAI-compatible Whisper server (e.g. whisper.cpp or faster-whisper-server). No API key is needed for a local address and audio never leaves your computer. If empty, OpenAI is used.", de: "Adresse eines lokalen OpenAI-kompatiblen Whisper-Servers (z. B. whisper.cpp oder faster-whisper-server). Für lokale Adressen ist kein API-Schlüssel nötig, Audio verlässt den Computer nicht. Leer = OpenAI.", ru: "Адрес локального OpenAI-совместимого сервера Whisper (например, whisper.cpp или faster-whisper-server). Для локального адреса ключ API не нужен, звук не покидает компьютер. Пусто — используется OpenAI.", ar: "عنوان خادم Whisper محلي متوافق مع OpenAI (مثل whisper.cpp أو faster-whisper-server). لا حاجة لمفتاح API للعنوان المحلي ولا يغادر الصوت حاسوبك. إذا تُرك فارغاً يُستخدم OpenAI.", es: "Dirección de un servidor Whisper local compatible con OpenAI (p. ej. whisper.cpp o faster-whisper-server). Con una dirección local no hace falta clave API y el audio no sale del equipo. Vacío = OpenAI.", fr: "Adresse d’un serveur Whisper local compatible OpenAI (ex. whisper.cpp ou faster-whisper-server). Aucune clé API pour une adresse locale et l’audio ne quitte pas l’ordinateur. Vide = OpenAI.", az: "OpenAI uyğun yerli Whisper serverinin ünvanı (məs. whisper.cpp və ya faster-whisper-server). Yerli ünvan üçün API açarı lazım deyil, səs kompüterdən çıxmır. Boşdursa OpenAI istifadə olunur.",
+  },
+  aiVoiceNeedsKey: {
+    tr: "Dikte için ayarlardan yerel dikte sunucusu adresi gir (ücretsiz) veya bir OpenAI API anahtarı ekle.", en: "For dictation, enter a local dictation server address in settings (free) or add an OpenAI API key.", de: "Für das Diktat gib in den Einstellungen einen lokalen Diktier-Server an (kostenlos) oder füge einen OpenAI-API-Schlüssel hinzu.", ru: "Для диктовки укажи в настройках адрес локального сервера (бесплатно) или добавь ключ API OpenAI.", ar: "للإملاء أدخل عنوان خادم إملاء محلي في الإعدادات (مجاناً) أو أضف مفتاح OpenAI API.", es: "Para dictar, indica en ajustes la dirección de un servidor local (gratis) o añade una clave API de OpenAI.", fr: "Pour la dictée, saisis l’adresse d’un serveur local dans les paramètres (gratuit) ou ajoute une clé API OpenAI.", az: "Dikta üçün ayarlarda yerli server ünvanı daxil et (pulsuz) və ya OpenAI API açarı əlavə et.",
+  },
+  setDesc_aiTranscribeModel: {
+    tr: "Dikte modeli adı (OpenAI için whisper-1; yerel sunucuda sunucunun model adı).", en: "Dictation model name (whisper-1 for OpenAI; the server’s model name for a local server).", de: "Name des Diktiermodells (whisper-1 für OpenAI; bei lokalem Server dessen Modellname).", ru: "Имя модели диктовки (whisper-1 для OpenAI; для локального сервера — имя модели сервера).", ar: "اسم نموذج الإملاء (whisper-1 لـ OpenAI، أو اسم النموذج على الخادم المحلي).", es: "Nombre del modelo de dictado (whisper-1 para OpenAI; el del servidor si es local).", fr: "Nom du modèle de dictée (whisper-1 pour OpenAI ; celui du serveur en local).", az: "Dikta modelinin adı (OpenAI üçün whisper-1; yerli serverdə serverin model adı).",
   },
 } satisfies Record<string, Dict>;
 

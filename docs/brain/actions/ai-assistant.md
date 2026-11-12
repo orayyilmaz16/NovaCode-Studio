@@ -23,6 +23,15 @@ Sağ panel (`Ctrl+Shift+L`, etkinlik çubuğundaki kıvılcım). Yalnız masaüs
 ## Sağlayıcılar
 `anthropic` (Messages API, `x-api-key`), `openai` (Chat Completions, OpenAI uyumlu), `ollama` (yerel, anahtarsız, `http://localhost:11434/v1`). Kanonik ileti biçimi Anthropic blokları; OpenAI için `toOpenAIMessages` çevirir. Özel taban adres yalnız `https://` veya yerel `http://` (`safeBase`). Varsayılan modeller `aiClient.ts` → `DEFAULT_MODEL`.
 
+## Yerel ve ücretsiz kullanım (varsayılan)
+Varsayılan sağlayıcı **Ollama**: API anahtarı yok, maliyet yok, kod ve mesajlar bilgisayardan çıkmaz.
+1. [ollama.com](https://ollama.com)'dan Ollama'yı kur ve başlat.
+2. Terminalde bir model indir. Kod için öneri: `ollama pull qwen2.5-coder:7b` (zayıf bilgisayarda `qwen2.5-coder:3b`). Görsel için görüntü destekli model (ör. `llama3.2-vision`, `qwen2.5vl`).
+3. Panel `ai:ollamaModels` ile çalışıp çalışmadığını ve yüklü modelleri algılar; model üst çubuktan seçilir (boşsa "coder" içeren ilk model otomatik seçilir). Çalışmıyorsa/model yoksa panelde kurulum ipucu çıkar.
+4. **Bağlam uzunluğu:** Ollama varsayılanı kısadır (~4K); Ajan modu için `OLLAMA_CONTEXT_LENGTH=16384` ortam değişkeniyle başlat. OpenAI uyumlu uç nokta istek başına bağlam ayarı kabul etmez.
+5. Araç çağırma (Ajan modu) modele bağlıdır; araç desteklemeyen modelde Sor modunu kullan.
+6. **Yerel dikte:** whisper.cpp server veya faster-whisper-server gibi OpenAI uyumlu bir sunucu çalıştır, adresini Ayarlar → Yapay Zekâ → *Yerel dikte sunucusu*'na yaz (ör. `http://localhost:8080/v1`). Yerel adreste anahtar istenmez, ses bilgisayardan çıkmaz. Adres boşsa OpenAI anahtarı gerekir.
+
 ## Modlar
 - **Sor (ask):** araç yok; açık dosya/seçim bağlam olarak gider (`aiIncludeContext`).
 - **Ajan (agent):** klasör açık olmalı. Araçlar: `list_dir`, `read_file`, `search_text`, `write_file`, `replace_in_file`, `run_command`. En çok 20 adım. Proje yönergesi: `<kök>/.nova/instructions.md` veya `AGENTS.md` (8 KB'a kadar) sistem istemine eklenir.
@@ -34,13 +43,13 @@ Sağ panel (`Ctrl+Shift+L`, etkinlik çubuğundaki kıvılcım). Yalnız masaüs
 - Mikrofon izni yalnız `audio` ve yalnız ana pencereye (`setPermissionRequestHandler`).
 
 ## Dikte
-`useDictation` MediaRecorder → `ai:transcribe` → `{base}/audio/transcriptions` (OpenAI anahtarı). Ses diske yazılmaz; en çok 120 sn / 25 MB. İlk mikrofon tıklaması `aiVoiceEnabled` ayarını açar (açık rıza metni arayüzde görünür); kapatılabilir.
+`useDictation` MediaRecorder → `ai:transcribe` → `{base}/audio/transcriptions` (`aiTranscribeUrl` yerelse anahtarsız; değilse OpenAI anahtarı). Ses diske yazılmaz; en çok 120 sn / 25 MB. İlk mikrofon tıklaması `aiVoiceEnabled` ayarını açar (açık rıza metni arayüzde görünür); kapatılabilir.
 
 ## Özel komutlar (oturum eklentisi)
 `<kök>/.nova/commands/<ad>.md` → `/ad argümanlar`. `{{args}}` yer tutucudur; yoksa argümanlar şablonun sonuna eklenir. Yerleşik: `/new`, `/ask`, `/agent`.
 
 ## KVKK
-Kullanıcı kodu ve mesajlar seçilen sağlayıcıya gider (yurt dışı aktarım olabilir; Ollama hariç). Amaç: kullanıcının istediği yardım; hukuki sebep: kullanıcının açık talebi/rızası (kendi anahtarıyla bilinçli kullanım). Sohbet geçmişi yalnız cihazda (`nova.ai.sessions.v1`, en çok 30 oturum × 100 ileti, görseller kaydedilmez). Ayarlardaki açıklamalar ve panel altındaki gizlilik notu bu aktarımı açıkça belirtir. Yeni bir veri akışı eklenirse bu bölüm ve [[security-kvkk]] güncellenir.
+Varsayılan Ollama ile hiçbir veri bilgisayardan çıkmaz (3. parti yok). Bulut sağlayıcı seçilirse kullanıcı kodu ve mesajlar o sağlayıcıya gider (yurt dışı aktarım olabilir). Amaç: kullanıcının istediği yardım; hukuki sebep: kullanıcının açık talebi/rızası (kendi anahtarıyla bilinçli kullanım). Sohbet geçmişi yalnız cihazda (`nova.ai.sessions.v1`, en çok 30 oturum × 100 ileti, görseller kaydedilmez). Ayarlardaki açıklamalar ve panel altındaki gizlilik notu bu aktarımı açıkça belirtir. Yeni bir veri akışı eklenirse bu bölüm ve [[security-kvkk]] güncellenir.
 
 ## Doğrulama
 `npx tsc --noEmit`, `npm run brain:check`. Motoru Electron dışında sınamak için `electron` modülünü taklit edip sahte OpenAI uyumlu sunucuya karşı `ai:run` çağır (araç turu, yol kaçışı, gizli dosya, onay, https dışı adres). Gerçek sağlayıcıyla deneme için ayarlardan anahtar gir.

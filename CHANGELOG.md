@@ -9,6 +9,7 @@
 - Projede ara (`Ctrl+Shift+F`): büyük/küçük harf ve düzenli ifade desteği, sonuca tıklayınca satıra gider.
 - Snippet hızlı yolları: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippet'ler artık imlecin olduğu yere eklenir.
 - Ayarlar: yeni "Yapay Zekâ" kategorisi; kısayol listesi güncellendi.
+- Yerel öncelikli: varsayılan sağlayıcı artık Ollama (API anahtarı ve maliyet yok, veri bilgisayardan çıkmaz). Panel Ollama'yı ve yüklü modelleri algılar, model panelden seçilir; eksikse kurulum ipucu gösterir. Dikte için yerel Whisper sunucusu adresi girilebilir (anahtarsız).
 
 - Terminal: istemde çalışma klasörü (`PS C:\Users\...>`) ve Git dalı gösterilir; komutlar, bayraklar, metinler ve değişkenler renklendirilir; ANSI renkli çıktı ve kırmızı hata çıktısı desteklenir; ↑/↓ komut geçmişi, Ctrl+L temizleme.
 - GitHub: uygulama içinden hesap bağlama (cihaz kodu akışı), hesap oluşturma bağlantısı; token şifreli saklanır. Git push/pull/fetch bağlı hesapla kimlik doğrular.
@@ -55,6 +56,7 @@
 - Search in project (`Ctrl+Shift+F`): match case and regex support, click a result to jump to the line.
 - Snippet quick triggers: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippets are now inserted at the cursor.
 - Settings: new "AI Assistant" category; shortcut list updated.
+- Local-first: the default provider is now Ollama (no API key, no cost, data never leaves your computer). The panel detects Ollama and installed models and lets you pick a model; it shows setup hints when something is missing. For dictation you can set a local Whisper server address (no key needed).
 
 - The terminal was rebuilt VS Code-style: multiple terminals (+ ▾ to pick PowerShell/CMD), a session list on the right, maximize/restore/close, an inline prompt at the end of the output, block/bar/underline cursor, `Ctrl+C` cancels the line. The panel is closed by default and sessions stay alive while hidden. Terminal code moved to `electron-term.cjs` and is tested with real shells (`npm test`).
 - The Explorer follows the latest VS Code: "Open editors" and workspace sections, inline create, F2 rename, context menu, keyboard navigation, indent guides, animated folder expansion. Creating files/folders in subfolders and deleting folders were fixed.
