@@ -96,7 +96,76 @@ export function fileTypeInfo(name: string): Badge {
   return EXT[ext] ?? { label: ext ? ext.slice(0, 3).toUpperCase() : 'TXT', bg: '#5f5f5f', title: ext ? ext.toUpperCase() : 'Dosya' };
 }
 
+// VS Code benzeri dile özgü simgeler (16x16, satır içi SVG). Burada olmayan türler rozet olarak çizilir.
+const sq = (bg: string, label: string, fg: string) => (
+  <>
+    <rect x="1" y="1" width="14" height="14" rx="2" fill={bg} />
+    <text x="14" y="14" textAnchor="end" fontFamily="Segoe UI, Arial, sans-serif" fontWeight="700" fontSize="8.5" fill={fg}>{label}</text>
+  </>
+);
+const atom = (
+  <g fill="none" stroke="#61dafb" strokeWidth="1">
+    <ellipse cx="8" cy="8" rx="7" ry="2.8" />
+    <ellipse cx="8" cy="8" rx="7" ry="2.8" transform="rotate(60 8 8)" />
+    <ellipse cx="8" cy="8" rx="7" ry="2.8" transform="rotate(120 8 8)" />
+    <circle cx="8" cy="8" r="1.2" fill="#61dafb" stroke="none" />
+  </g>
+);
+const GLYPHS: Record<string, { title: string; node: React.ReactNode }> = {
+  js: { title: 'JavaScript', node: sq('#f7df1e', 'JS', '#1f1f1f') },
+  mjs: { title: 'JavaScript (ESM)', node: sq('#f7df1e', 'JS', '#1f1f1f') },
+  cjs: { title: 'JavaScript (CJS)', node: sq('#f7df1e', 'JS', '#1f1f1f') },
+  ts: { title: 'TypeScript', node: sq('#3178c6', 'TS', '#ffffff') },
+  jsx: { title: 'React (JSX)', node: atom },
+  tsx: { title: 'React (TSX)', node: atom },
+  py: {
+    title: 'Python',
+    node: (
+      <>
+        <path fill="#3b7bb5" d="M7.9 1C5 1 5.2 2.3 5.2 2.3v1.4H8v.4H4S2 3.9 2 7s1.7 3 1.7 3h1V8.6s-.1-1.7 1.7-1.7h2.8s1.6 0 1.6-1.6V2.6S11.1 1 7.9 1z" />
+        <path fill="#ffd43b" d="M8.1 15c2.9 0 2.7-1.3 2.7-1.3v-1.4H8v-.4h4s2 .2 2-2.9-1.7-3-1.7-3h-1v1.4s.1 1.7-1.7 1.7H6.8s-1.6 0-1.6 1.6v2.7S4.9 15 8.1 15z" />
+        <circle cx="6.2" cy="2.5" r=".6" fill="#fff" />
+        <circle cx="9.8" cy="13.5" r=".6" fill="#fff" />
+      </>
+    ),
+  },
+  php: {
+    title: 'PHP',
+    node: (
+      <>
+        <ellipse cx="8" cy="8" rx="7.5" ry="4.8" fill="#777bb4" />
+        <text x="8" y="8.2" textAnchor="middle" dominantBaseline="central" fontFamily="Segoe UI, Arial, sans-serif" fontWeight="700" fontStyle="italic" fontSize="6.2" fill="#fff">php</text>
+      </>
+    ),
+  },
+  sql: {
+    title: 'SQL',
+    node: (
+      <g fill="none" stroke="#8fb4d8" strokeWidth="1.2">
+        <ellipse cx="8" cy="3.8" rx="5" ry="2" />
+        <path d="M3 3.8v8.4c0 1.1 2.2 2 5 2s5-.9 5-2V3.8" />
+        <path d="M3 8c0 1.1 2.2 2 5 2s5-.9 5-2" />
+      </g>
+    ),
+  },
+  html: { title: 'HTML', node: <path d="M5.5 4 1.5 8l4 4M10.5 4l4 4-4 4" fill="none" stroke="#e44d26" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /> },
+  htm: { title: 'HTML', node: <path d="M5.5 4 1.5 8l4 4M10.5 4l4 4-4 4" fill="none" stroke="#e44d26" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /> },
+  css: { title: 'CSS', node: <path d="M6 2 5 14M11 2l-1 12M2.5 5.8h11.5M2 10.2h11.5" fill="none" stroke="#42a5f5" strokeWidth="1.5" strokeLinecap="round" /> },
+  json: { title: 'JSON', node: <path d="M6 2.5C4.5 2.5 4.5 4 4.5 5.5S4 7.8 2.5 8c1.5.2 2 .5 2 2.5s0 3 1.5 3M10 2.5c1.5 0 1.5 1.5 1.5 3s.5 2.3 2 2.5c-1.5.2-2 .5-2 2.5s0 3-1.5 3" fill="none" stroke="#cbcb41" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /> },
+};
+
 export const FileTypeIcon: React.FC<{ name: string; size?: number; className?: string }> = ({ name, size = 15, className = '' }) => {
+  const lower = name.toLowerCase();
+  const ext = lower.includes('.') ? lower.split('.').pop()! : '';
+  const g = !NAMES[lower] && GLYPHS[ext];
+  if (g) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 16 16" role="img" aria-label={g.title} className={`shrink-0 ${className}`}>
+        <title>{g.title}</title>
+        {g.node}
+      </svg>
+    );
+  }
   const b = fileTypeInfo(name);
   const fs = b.label.length <= 1 ? 11 : b.label.length === 2 ? 9 : 7;
   return (
