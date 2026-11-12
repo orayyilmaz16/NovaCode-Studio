@@ -3,7 +3,7 @@ import Editor from '@monaco-editor/react';
 import { FileTypeIcon } from './FileTypeIcon';
 import { setActiveEditor } from '../services/editorBridge';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
-import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight } from 'lucide-react';
+import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns } from 'lucide-react';
 import { Logo } from './Logo';
 import { defineNovaThemes } from '../services/editorTheme';
 import { useSettings } from '../services/SettingsContext';
@@ -26,6 +26,10 @@ interface EditorAreaProps {
   onChangeContent: (id: string, content: string) => void;
   onSaveFile?: (file: FileItem) => void;
   onRunCode: () => void;
+  /** Aktif dosya HTML/web ise önizleme düğmesi görünür. */
+  canPreview?: boolean;
+  previewOpen?: boolean;
+  onTogglePreview?: () => void;
   onNewFile?: () => void;
   onOpenFolder?: () => void;
   onOpenFiles?: () => void;
@@ -55,6 +59,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   onChangeContent,
   onSaveFile,
   onRunCode,
+  canPreview,
+  previewOpen,
+  onTogglePreview,
   onNewFile,
   onOpenFolder,
   onOpenFiles,
@@ -173,9 +180,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
   return (
     <div className="@container flex flex-col flex-1 h-full min-w-0 bg-nv-editor overflow-hidden">
-      {/* Sekme çubuğu */}
-      <div className="flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[35px] select-none">
-        <div role="tablist" className="flex items-stretch flex-1 min-w-0 overflow-x-auto [scrollbar-width:none]">
+      {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
+      {openFiles.length > 0 && (
+      <div className="animate-tabbar-in flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[35px] select-none">
+        <div role="tablist" className="flex items-end gap-px flex-1 min-w-0 overflow-x-auto pt-1 pl-1 [scrollbar-width:none]">
           {openFiles.map((file) => {
             const isActive = file.id === activeFileId;
             return (
@@ -195,10 +203,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                   if (e.button === 1) onCloseTab(file.id);
                 }}
                 title={file.path || file.name}
-                className={`animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 min-w-[96px] max-w-[200px] cursor-pointer border-r border-nv-border text-[13px] transition-colors ${
+                className={`animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] cursor-pointer rounded-t-lg border border-b-0 text-[13px] transition-[background-color,color,border-color] duration-150 ${
                   isActive
-                    ? 'bg-nv-editor text-zinc-100 shadow-[inset_0_1px_0_var(--color-indigo-500)]'
-                    : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
+                    ? 'bg-nv-editor text-zinc-100 border-nv-border shadow-[inset_0_1px_0_var(--color-indigo-500)]'
+                    : 'border-transparent text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
                 }`}
               >
                 <FileTypeIcon name={file.name} size={14} />
@@ -264,6 +272,18 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             <button onClick={handleDownload} title={t('edDownload')} aria-label={t('edDownload')} className="icon-btn hidden @md:flex">
               <Download size={15} />
             </button>
+            {canPreview && onTogglePreview && (
+              <button
+                onClick={onTogglePreview}
+                title={t('tbPreview')}
+                aria-label={t('tbPreview')}
+                aria-pressed={previewOpen}
+                data-active={previewOpen}
+                className="icon-btn"
+              >
+                <Columns size={15} />
+              </button>
+            )}
             <button
               onClick={onRunCode}
               title={t('edRunPreview')}
@@ -276,6 +296,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
           </div>
         )}
       </div>
+      )}
 
       {/* Yol göstergesi */}
       {activeFile && values.showBreadcrumbs !== false && (

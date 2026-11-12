@@ -275,6 +275,12 @@ button.status-item:hover {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
+@keyframes tabBarIn {
+  from { opacity: 0; max-height: 0; transform: translateY(-6px); }
+  to { opacity: 1; max-height: 40px; transform: none; }
+}
+.animate-tabbar-in { animation: tabBarIn 220ms var(--ease-out-soft) both; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .animate-tabbar-in, .animate-tab-in { animation: none; } }
 @keyframes tabIn {
   from { opacity: 0; transform: translateY(-3px); }
   to { opacity: 1; transform: none; }

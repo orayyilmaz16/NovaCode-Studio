@@ -866,8 +866,6 @@ export function App() {
       { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', ...F, onClick: () => { if (activeFileId) handleCloseTab(activeFileId); } },
       { separator: true },
       { label: t('actSettings'), shortcut: 'Ctrl+,', onClick: () => { setShowLanding(false); setShowSettings(true); } },
-      { separator: true },
-      { label: t('quit'), shortcut: 'Ctrl+Q', danger: true, onClick: handleQuit }
     ] },
     { id: 'edit', label: t('mnEdit'), items: [
       { label: t('mnUndo'), shortcut: 'Ctrl+Z', ...F, onClick: () => act('undo') },
@@ -1260,6 +1258,9 @@ export function App() {
                 onChangeContent={handleContentChange}
                 onSaveFile={handleSaveFile}
                 onRunCode={handleRunCode}
+                canPreview={previewable}
+                previewOpen={showRightPanel === 'preview'}
+                onTogglePreview={() => setShowRightPanel((v) => (v === 'preview' ? null : 'preview'))}
                 collab={{ enabled: collabEnabled && collabUrlValid, url: collabUrl.trim(), token: collabToken, room: currentRootPath || '' }}
               />
             )}
