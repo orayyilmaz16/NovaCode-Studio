@@ -11,6 +11,7 @@ const os = require('os');
 const { exec, spawn } = require('child_process');
 const { readSecret } = require('./electron-secrets.cjs');
 const search = require('./electron-search.cjs');
+const { TextBuffer } = require('./electron-textbuffer.cjs');
 
 const MAX_STEPS = 20;
 const MAX_READ = 200 * 1024;
@@ -69,6 +70,7 @@ const TOOLS = [
   { name: 'read_file', description: 'Dosya içeriğini okur (satır numaralı). İsteğe bağlı start_line/end_line.', input_schema: { type: 'object', properties: { path: { type: 'string' }, start_line: { type: 'integer' }, end_line: { type: 'integer' } }, required: ['path'] } },
   { name: 'search_text', description: 'Projede metin arar (büyük/küçük harf duyarsız). Eşleşen dosya:satır döner.', input_schema: { type: 'object', properties: { query: { type: 'string' }, regex: { type: 'boolean' } }, required: ['query'] } },
   { name: 'write_file', description: 'Dosyayı tamamen yazar/oluşturur. Kullanıcı onayı gerekir.', input_schema: { type: 'object', properties: { path: { type: 'string' }, content: { type: 'string' } }, required: ['path', 'content'] } },
+  { name: 'edit_lines', description: 'Dosyada satır aralıklarını değiştirir. Satır numaraları read_file çıktısındaki gibidir (1 tabanlı, uçlar dahil). Birden çok düzenleme ÖZGÜN numaralara göre atomik uygulanır (biri geçersizse hiçbiri uygulanmaz). Araya ekleme için end_line = start_line - 1; silmek için text boş. Çok satırlı değişiklikte replace_in_file yerine bunu tercih et. Kullanıcı onayı gerekir.', input_schema: { type: 'object', properties: { path: { type: 'string' }, edits: { type: 'array', items: { type: 'object', properties: { start_line: { type: 'integer' }, end_line: { type: 'integer' }, text: { type: 'string' } }, required: ['start_line', 'end_line', 'text'] } } }, required: ['path', 'edits'] } },
   { name: 'replace_in_file', description: 'Dosyada tek bir benzersiz metni değiştirir (old, dosyada tam bir kez geçmeli). Kullanıcı onayı gerekir.', input_schema: { type: 'object', properties: { path: { type: 'string' }, old: { type: 'string' }, new: { type: 'string' } }, required: ['path', 'old', 'new'] } },
   { name: 'run_command', description: 'Çalışma klasöründe kabuk komutu çalıştırır (60 sn; derleme/test komutlarında 180 sn sınır). Kullanıcı onayı gerekir; otonom modda yalnız güvenli derleme/test/lint komutları (npm run build|test|lint, npx tsc --noEmit, cargo/go/dotnet build|test, pytest) onaysız çalışır. Her komutu ayrı çağır, && | ; kullanma.', input_schema: { type: 'object', properties: { command: { type: 'string' } }, required: ['command'] } }
 ];
@@ -99,7 +101,7 @@ function isRiskyPath(root, file) {
     || /(^|\/)(vite|webpack|rollup|esbuild|tsup|next|nuxt|svelte|babel|jest|vitest|eslint|postcss|tailwind)\.config\./.test(rel) || base.startsWith('.babelrc');
 }
 
-const FILE_EDIT_TOOLS = new Set(['write_file', 'replace_in_file']);
+const FILE_EDIT_TOOLS = new Set(['write_file', 'replace_in_file', 'edit_lines']);
 const clip = (s, n = MAX_OUT) => (s.length > n ? s.slice(0, n) + `\n…(${s.length - n} karakter kesildi)` : s);
 
 async function runTool(name, input, ctx) {
@@ -137,6 +139,39 @@ async function runTool(name, input, ctx) {
       ctx.changed.add(file);
       if (isRiskyPath(root, file)) ctx.riskyTouched = true;
       return `Yazıldı: ${path.relative(root, file)}`;
+    }
+    case 'edit_lines': {
+      const file = resolveInRoot(root, input.path);
+      const rawEdits = Array.isArray(input.edits) ? input.edits.slice(0, 50) : [];
+      if (!rawEdits.length) throw new Error('edits boş olamaz.');
+      const st = fs.statSync(file);
+      if (!st.isFile() || st.size > 2 * 1024 * 1024) throw new Error('Dosya değil veya çok büyük.');
+      const src = fs.readFileSync(file, 'utf8');
+      const edits = rawEdits.map((e) => ({ startLine: Number(e.start_line), endLine: Number(e.end_line), text: String(e.text ?? '') }));
+      const orig = new TextBuffer(src);
+      const buf = new TextBuffer(src);
+      try { buf.applyLineEdits(edits); } catch (err) { throw new Error(err.message); } // geçersiz/çakışan düzenleme: dosya değişmez
+      const rel = path.relative(root, file);
+      const sorted = [...edits].sort((a, b) => a.startLine - b.startLine);
+      const preview = sorted.map((e) => {
+        const old = [];
+        for (let n = e.startLine; n <= e.endLine; n++) old.push('- ' + orig.getLine(n));
+        const neu = e.text === '' ? [] : e.text.split(/\r\n|\r|\n/).map((l) => '+ ' + l);
+        return `@@ satır ${e.startLine}${e.endLine >= e.startLine ? '-' + e.endLine : ' (öncesine ekleme)'} @@\n${[...old, ...neu].join('\n')}`;
+      }).join('\n');
+      const ok = autoApproveEdits || (await approve({ tool: name, summary: `Satır düzenle: ${rel} (${edits.length} düzenleme)`, preview: clip(preview, 4000) }));
+      if (!ok) return 'Kullanıcı reddetti.';
+      fs.writeFileSync(file, buf.getText(), 'utf8');
+      ctx.changed.add(file);
+      if (isRiskyPath(root, file)) ctx.riskyTouched = true;
+      // Doğrulama için ilk düzenlemenin yeni satır numaralarıyla çevresini göster (model sonucu kontrol edebilsin)
+      const first = sorted[0];
+      const newCount = first.text === '' ? 0 : first.text.split(/\r\n|\r|\n/).length;
+      const from = Math.max(1, first.startLine - 2);
+      const to = Math.min(buf.lineCount, first.startLine + Math.max(newCount, 1) + 1);
+      const ctxLines = [];
+      for (let n = from; n <= to; n++) ctxLines.push(`${n}: ${buf.getLine(n)}`);
+      return `Düzenlendi: ${rel} — ${edits.length} düzenleme, ${orig.lineCount} → ${buf.lineCount} satır.\n${clip(ctxLines.join('\n'), 1200)}`;
     }
     case 'replace_in_file': {
       const file = resolveInRoot(root, input.path);
@@ -443,7 +478,7 @@ function buildSystem({ root, lang, agent, project, extra = '', thinking, autonom
     th.text + (agent && th.agent ? ' ' + th.agent : '') + (agent ? auto : ''),
     root ? `Çalışma klasörü: ${path.basename(root)}` : 'Açık çalışma klasörü yok.',
     agent
-      ? 'AGENT modundasın: görevi bitirmek için araçları kullan (önce oku/ara, sonra değiştir). Değişikliklerden önce ilgili dosyayı oku. Yazma ve komut araçları kullanıcı onayı ister; reddedilirse alternatif öner. Bitirince ne yaptığını kısaca özetle.'
+      ? 'AGENT modundasın: görevi bitirmek için araçları kullan (önce oku/ara, sonra değiştir). Değişikliklerden önce ilgili dosyayı oku. Çok satırlı değişiklikte edit_lines aracını (read_file çıktısındaki satır numaralarıyla), tek benzersiz metin değişikliğinde replace_in_file aracını kullan; düzenlemeden sonra dönen satırlarla sonucu kontrol et. Yazma ve komut araçları kullanıcı onayı ister; reddedilirse alternatif öner. Bitirince ne yaptığını kısaca özetle.'
       : 'ASK modundasın: araç yok; verilen bağlamdan yanıtla ve gerekirse kod öner.',
     'Gizli bilgileri (anahtar, token, şifre) yanıtlarında tekrar etme; .env gibi dosyalara dokunma.'
   ].join('\n') + project + extra;
@@ -556,7 +591,7 @@ function register({ getWindow, getRoot }) {
         const results = [];
         for (const u of uses) {
           if (run.abort.signal.aborted) break;
-          emit({ type: 'tool', id: u.id, name: u.name, input: u.name === 'write_file' ? { path: u.input.path, bytes: String(u.input.content || '').length } : u.input });
+          emit({ type: 'tool', id: u.id, name: u.name, input: u.name === 'write_file' ? { path: u.input.path, bytes: String(u.input.content || '').length } : u.name === 'edit_lines' ? { path: u.input.path, edits: Array.isArray(u.input.edits) ? u.input.edits.length : 0 } : u.input });
           let out; let isError = false;
           try { out = await runTool(u.name, u.input, ctx); } catch (err) { out = 'Hata: ' + err.message; isError = true; }
           // Komut hata koduyla bittiyse (derleme/test başarısız) kart kırmızı görünsün; model çıktıyı yine okur
@@ -653,4 +688,4 @@ function register({ getWindow, getRoot }) {
   });
 }
 
-module.exports = { register, stopWhisper };
+module.exports = { register, stopWhisper, _test: { runTool, isSafeCommand, extractToolCalls } };

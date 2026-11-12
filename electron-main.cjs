@@ -137,6 +137,7 @@ function languageFromExt(ext) {
     js: 'javascript', jsx: 'javascript', mjs: 'javascript', cjs: 'javascript',
     ts: 'typescript', tsx: 'typescript', html: 'html', htm: 'html',
     css: 'css', scss: 'css', sass: 'css', less: 'css', json: 'json',
+    cs: 'csharp', php: 'php', rb: 'ruby', lua: 'lua',
     md: 'markdown', markdown: 'markdown', py: 'python', rs: 'rust', go: 'go',
     c: 'cpp', cpp: 'cpp', h: 'cpp', hpp: 'cpp', java: 'java', sql: 'sql',
     sh: 'shell', bash: 'shell', zsh: 'shell', ps1: 'shell', yaml: 'yaml', yml: 'yaml'
@@ -473,16 +474,23 @@ gitModule.register({ runGit: runGitCommand, github, isValidPath: withinWorkspace
 // Entegre terminal: çoklu kabuk oturumları (electron-term.cjs)
 // ----------------------------------------------------
 require('./electron-term.cjs').register({ getWindow: () => mainWindow, isValidPath });
+// Gerçek terminal (PTY, xterm.js ile): çalışma klasörü dışında oturum açılamaz (electron-pty.cjs)
+const ptyModule = require('./electron-pty.cjs');
+ptyModule.register({ getWindow: () => mainWindow, isValidPath: withinWorkspace });
 
 // Arama (Ctrl+P / Ctrl+Shift+F) ve yapay zekâ asistanı (electron-ai.cjs)
 require('./electron-search.cjs').register({ getRoot: () => workspaceRoot });
 require('./electron-ext.cjs').register();
 require('./electron-update.cjs').register({ getWindow: () => mainWindow });
 require('./electron-llm.cjs').register({ getWindow: () => mainWindow });
+const debugModule = require('./electron-debug.cjs');
+debugModule.register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
+const lspModule = require('./electron-lsp.cjs');
+lspModule.register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
 const aiModule = require('./electron-ai.cjs');
 aiModule.register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
 // Uygulamanın başlattığı yerel dikte sunucusu (whisper.cpp) uygulama kapanınca durdurulur
-app.on('will-quit', () => aiModule.stopWhisper());
+app.on('will-quit', () => { aiModule.stopWhisper(); void debugModule.stopAll(); ptyModule.stopAll(); void lspModule.stopAll(); });
 
 // Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();

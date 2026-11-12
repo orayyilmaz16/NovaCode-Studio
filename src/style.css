@@ -275,6 +275,32 @@ button.status-item:hover {
 }
 }
 
+/* ---------- Hata ayıklama: editör kenar boşluğu ve durulan satır ---------- */
+.dbg-bp {
+  background: #e51400;
+  border-radius: 50%;
+  width: 10px !important;
+  height: 10px !important;
+  margin: 5px 0 0 5px;
+}
+.dbg-bp-unverified {
+  background: transparent;
+  border: 1.5px solid #e51400;
+}
+.dbg-arrow::before {
+  content: "";
+  display: block;
+  margin: 3px 0 0 3px;
+  width: 0;
+  height: 0;
+  border-left: 9px solid #fcc400;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+.dbg-line {
+  background: rgba(252, 196, 0, 0.16);
+}
+
 /* ---------- Animasyonlar ---------- */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }

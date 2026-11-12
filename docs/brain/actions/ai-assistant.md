@@ -9,6 +9,9 @@ triggers: ["yapay zeka", "ai", "asistan", "agent", "ajan", "dikte", "ses", "clau
 
 Sağ panel; **üst çubukta arama kutusunun yanındaki küçük yıldız simgesiyle** (veya `Ctrl+Shift+L`) açılıp kapanır (`App.tsx` → `toggleAI`, `aiOpen`); sol etkinlik çubuğunda AI düğmesi yoktur. Yalnız masaüstü uygulamasında çalışır: API anahtarı şifreli saklanabilsin diye web sürümünde panel bilgi mesajı gösterir.
 
+## edit_lines aracı
+Ajan satır aralığını `edit_lines` ile değiştirebilir (piece table, atomik, onay önizlemesi diff ile). Ayrıntı: [[text-buffer]].
+
 ## Panel düzeni
 Üstte sohbet seçici (`ChatSessions.tsx`: açılır liste, arama, tarih grupları, sabitleme, yeniden adlandırma, Markdown dışa aktarma, silme) + eylemler, altında Sor/Ajan geçişi, uyarı kartları (kurulum, Ollama, anahtar), kaydırılan ileti alanı (`min-h-0`, yatay taşma yok; kod blokları kendi içinde kayar), altta otomatik büyüyen giriş kutusu (en çok ~8 satır) ve araç çubuğu (görsel, mikrofon, model etiketi, gönder/durdur). Genişlik sürüklenerek 300–720 px ayarlanır (`nova.aiWidth`). Kullanıcı en alttaysa akış izlenir, yukarı kaydırdıysa yerinde kalır.
 

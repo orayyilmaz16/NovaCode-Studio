@@ -112,7 +112,7 @@ const AgentStatus: React.FC<{ msg?: ChatMsg; startedAt: number; onStop: () => vo
 };
 
 // Ajan yanıtının altında özet: değişen dosyalar (tıklayınca editörde açılır), çalıştırılan komut sayısı ve son komutun (derleme/test) sonucu
-const FILE_TOOLS = new Set(['write_file', 'replace_in_file']);
+const FILE_TOOLS = new Set(['write_file', 'replace_in_file', 'edit_lines']);
 const AgentSummary: React.FC<{ tools: ToolCard[]; rootPath?: string | null; onOpenFile?: (p: string) => void }> = ({ tools, rootPath, onOpenFile }) => {
   const files = [...new Set(tools.filter((c) => FILE_TOOLS.has(c.name) && c.status === 'ok' && typeof c.input.path === 'string').map((c) => String(c.input.path).replace(/^\.[\\/]/, '')))];
   const cmds = tools.filter((c) => c.name === 'run_command');
