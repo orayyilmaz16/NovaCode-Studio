@@ -155,6 +155,8 @@ export interface AiRunRequest {
   autoApproveEdits?: boolean;
   allowCommands?: boolean;
   useProject?: boolean;
+  /** Düşünme seviyesi (hızlı / dengeli / derin): sıcaklık ve çalışma biçimini ayarlar. */
+  thinking?: 'fast' | 'balanced' | 'deep';
   /** Moda özel kullanıcı yönergesi (en çok ~1500 karakter, sistem istemine eklenir). */
   instructions?: string;
   messages: { role: 'user' | 'assistant'; text: string; images?: { mediaType: string; data: string }[] }[];
@@ -210,7 +212,7 @@ export interface ElectronBridge {
     run: (req: AiRunRequest) => Promise<{ success: boolean; error?: string }>;
     cancel: (runId: string) => Promise<{ success: boolean }>;
     approve: (runId: string, id: string, allow: boolean) => Promise<{ success: boolean }>;
-    transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string; model?: string; baseUrl?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
+    transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
     commands: () => Promise<{ name: string; template: string }[]>;
     ollamaModels: (baseUrl?: string) => Promise<{ running: boolean; models: string[] }>;
     onEvent: (callback: (ev: AiEvent) => void) => () => void;

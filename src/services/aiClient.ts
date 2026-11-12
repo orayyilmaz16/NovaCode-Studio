@@ -9,8 +9,6 @@ export const DEFAULT_MODEL: Record<AiProvider, string> = {
   ollama: 'qwen2.5-coder:7b'
 };
 
-/** Yerel Whisper dikte sunucusu (whisper.cpp, OpenAI uyumlu). Ayar boşsa bu kullanılır. */
-export const DEFAULT_TRANSCRIBE_URL = 'http://localhost:8080/v1';
 
 export const PROVIDER_LABEL: Record<AiProvider, string> = {
   builtin: 'Nova (yerleşik)',

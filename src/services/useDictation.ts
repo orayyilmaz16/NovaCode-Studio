@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// Sesli dikte: mikrofon kaydı → ana süreç → OpenAI uyumlu transkripsiyon API'si (3. parti; açık rıza arayüzde alınır).
+// Sesli dikte: mikrofon kaydı → ana süreç → bu bilgisayardaki whisper.cpp sunucusu (sabit adres/model; ses cihazdan çıkmaz, açık rıza arayüzde alınır).
 // Ses diske yazılmaz; kayıt bitince bellekten gönderilir ve atılır. En fazla 120 sn.
 export type DictationState = 'idle' | 'recording' | 'transcribing';
 
-export function useDictation(opts: { lang: string; model: string; baseUrl: string; onText: (text: string) => void; onError: (code: string) => void }) {
+export function useDictation(opts: { lang: string; onText: (text: string) => void; onError: (code: string) => void }) {
   const [state, setState] = useState<DictationState>('idle');
   const rec = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
@@ -43,9 +43,7 @@ export function useDictation(opts: { lang: string; model: string; baseUrl: strin
           const res = await window.electronAPI!.ai.transcribe({
             audio: await blob.arrayBuffer(),
             mime: blob.type,
-            lang: o.lang === 'auto' ? undefined : o.lang,
-            model: o.model || undefined,
-            baseUrl: o.baseUrl || undefined
+            lang: o.lang === 'auto' ? undefined : o.lang
           });
           if (res.success && res.text) o.onText(res.text.trim());
           else if (!res.success) o.onError(res.error || 'failed');

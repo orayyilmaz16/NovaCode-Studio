@@ -899,24 +899,6 @@ export const UI_TEXT = {
   optAiAgent: {
     tr: "Ajan", en: "Agent", de: "Agent", ru: "Агент", ar: "وكيل", es: "Agente", fr: "Agent", az: "Agent",
   },
-  set_aiProvider: {
-    tr: "Sağlayıcı", en: "Provider", de: "Anbieter", ru: "Провайдер", ar: "المزوّد", es: "Proveedor", fr: "Fournisseur", az: "Provayder",
-  },
-  setDesc_aiProvider: {
-    tr: "Kodun ve sohbetin bu sağlayıcıya gönderilir (yurt dışı aktarım olabilir). Ollama yerel çalışır, veri cihazdan çıkmaz.", en: "Your code and chat are sent to this provider (may be a cross-border transfer). Ollama runs locally and nothing leaves your device.", de: "Code und Chat werden an diesen Anbieter gesendet (ggf. Drittlandübermittlung). Ollama läuft lokal, nichts verlässt dein Gerät.", ru: "Код и чат отправляются этому провайдеру (возможна трансграничная передача). Ollama работает локально, данные не покидают устройство.", ar: "يُرسل الكود والمحادثة إلى هذا المزوّد (قد يكون نقلاً عبر الحدود). يعمل Ollama محلياً ولا تغادر البيانات جهازك.", es: "Tu código y el chat se envían a este proveedor (puede haber transferencia internacional). Ollama funciona en local y nada sale de tu dispositivo.", fr: "Ton code et le chat sont envoyés à ce fournisseur (transfert hors UE possible). Ollama fonctionne en local, rien ne quitte ton appareil.", az: "Kodun və söhbətin bu provayderə göndərilir (xaricə ötürmə ola bilər). Ollama lokal işləyir, məlumat cihazdan çıxmır.",
-  },
-  set_aiModel: {
-    tr: "Model", en: "Model", de: "Modell", ru: "Модель", ar: "النموذج", es: "Modelo", fr: "Modèle", az: "Model",
-  },
-  setDesc_aiModel: {
-    tr: "Boş bırakırsan sağlayıcının varsayılan modeli kullanılır.", en: "Leave empty to use the provider default model.", de: "Leer lassen, um das Standardmodell des Anbieters zu nutzen.", ru: "Оставь пустым, чтобы использовать модель по умолчанию.", ar: "اتركه فارغاً لاستخدام النموذج الافتراضي للمزوّد.", es: "Déjalo vacío para usar el modelo predeterminado del proveedor.", fr: "Laisse vide pour utiliser le modèle par défaut du fournisseur.", az: "Boş buraxsan provayderin standart modeli işlədilir.",
-  },
-  set_aiBaseUrl: {
-    tr: "Özel adres", en: "Custom endpoint", de: "Eigener Endpunkt", ru: "Свой адрес", ar: "عنوان مخصص", es: "Endpoint personalizado", fr: "Point d’accès personnalisé", az: "Xüsusi ünvan",
-  },
-  setDesc_aiBaseUrl: {
-    tr: "İsteğe bağlı. Yalnız https:// (yerelde http://localhost) kabul edilir. API anahtarın bu adrese gönderilir; güvendiğin bir adres gir.", en: "Optional. Only https:// (or http://localhost) is accepted. Your API key is sent to this address; use one you trust.", de: "Optional. Nur https:// (oder http://localhost). Dein API-Schlüssel wird an diese Adresse gesendet; nutze nur vertrauenswürdige.", ru: "Необязательно. Только https:// (или http://localhost). Ключ API отправляется на этот адрес — используй доверенный.", ar: "اختياري. يُقبل https:// فقط (أو http://localhost). يُرسل مفتاح API إلى هذا العنوان، فاستخدم عنواناً موثوقاً.", es: "Opcional. Solo https:// (o http://localhost). Tu clave API se envía a esta dirección; usa una de confianza.", fr: "Facultatif. Seulement https:// (ou http://localhost). Ta clé API est envoyée à cette adresse ; choisis-en une de confiance.", az: "İstəyə bağlı. Yalnız https:// (və ya http://localhost). API açarın bu ünvana göndərilir; etibar etdiyin ünvan yaz.",
-  },
   set_aiDefaultMode: {
     tr: "Varsayılan mod", en: "Default mode", de: "Standardmodus", ru: "Режим по умолчанию", ar: "الوضع الافتراضي", es: "Modo predeterminado", fr: "Mode par défaut", az: "Standart rejim",
   },
@@ -945,13 +927,7 @@ export const UI_TEXT = {
     tr: "Sesli dikteyi aç", en: "Enable voice dictation", de: "Sprachdiktat aktivieren", ru: "Включить голосовой ввод", ar: "تفعيل الإملاء الصوتي", es: "Activar dictado por voz", fr: "Activer la dictée vocale", az: "Səsli diktəni aç",
   },
   setDesc_aiVoiceEnabled: {
-    tr: "Mikrofon kaydın metne çevrilmek üzere OpenAI uyumlu bir hizmete gönderilir (3. parti, yurt dışı olabilir). Kayıt diske yazılmaz. Rıza vermek için aç; istediğin an kapatırsın.", en: "Your microphone recording is sent to an OpenAI-compatible service for transcription (third party, possibly abroad). Audio is never saved to disk. Turn on to consent; turn off any time.", de: "Deine Aufnahme wird zur Transkription an einen OpenAI-kompatiblen Dienst gesendet (Drittanbieter, ggf. Ausland). Audio wird nie gespeichert. Einschalten = Einwilligung; jederzeit ausschaltbar.", ru: "Запись с микрофона отправляется в OpenAI-совместимый сервис для расшифровки (третья сторона, возможно за рубежом). Аудио не сохраняется на диск. Включение = согласие; можно выключить в любой момент.", ar: "يُرسل تسجيل الميكروفون إلى خدمة متوافقة مع OpenAI للتفريغ النصي (طرف ثالث، وربما خارج البلاد). لا يُحفظ الصوت على القرص. التفعيل يعني الموافقة ويمكنك الإيقاف في أي وقت.", es: "La grabación del micrófono se envía a un servicio compatible con OpenAI para transcribirla (tercero, posiblemente en el extranjero). El audio nunca se guarda en disco. Activar = consentimiento; puedes desactivarlo cuando quieras.", fr: "L’enregistrement du micro est envoyé à un service compatible OpenAI pour transcription (tiers, éventuellement à l’étranger). L’audio n’est jamais enregistré sur disque. Activer = consentement ; désactivable à tout moment.", az: "Mikrofon yazısı mətnə çevrilmək üçün OpenAI uyğun xidmətə göndərilir (3-cü tərəf, xaricdə ola bilər). Səs diskə yazılmır. Aç = razılıq; istədiyin vaxt söndürərsən.",
-  },
-  set_aiVoiceLang: {
-    tr: "Dikte dili", en: "Dictation language", de: "Diktiersprache", ru: "Язык диктовки", ar: "لغة الإملاء", es: "Idioma de dictado", fr: "Langue de dictée", az: "Dikta dili",
-  },
-  set_aiTranscribeModel: {
-    tr: "Dikte modeli", en: "Dictation model", de: "Diktiermodell", ru: "Модель диктовки", ar: "نموذج الإملاء", es: "Modelo de dictado", fr: "Modèle de dictée", az: "Dikta modeli",
+    tr: "Mikrofon kaydın yalnız bu bilgisayardaki dikte bileşenine (Whisper) gider, cihazdan çıkmaz. Kayıt diske yazılmaz. Rıza vermek için aç; istediğin an kapatırsın.", en: "Your microphone recording goes only to the dictation component on this computer (Whisper) and never leaves the device. The recording is not saved to disk. Turn on to consent; turn off any time.", de: "Deine Mikrofonaufnahme geht nur an die Diktatkomponente auf diesem Computer (Whisper) und verlässt das Gerät nicht. Die Aufnahme wird nicht auf der Festplatte gespeichert. Zum Einwilligen einschalten; jederzeit ausschaltbar.", ru: "Запись с микрофона уходит только в компонент диктовки на этом компьютере (Whisper) и не покидает устройство. Запись не сохраняется на диск. Включите, чтобы дать согласие; отключить можно в любой момент.", ar: "يذهب تسجيل الميكروفون فقط إلى مكوّن الإملاء على هذا الكمبيوتر (Whisper) ولا يغادر الجهاز. لا يُحفظ التسجيل على القرص. فعّل للموافقة، ويمكنك الإيقاف في أي وقت.", es: "La grabación del micrófono va solo al componente de dictado de este equipo (Whisper) y no sale del dispositivo. La grabación no se guarda en disco. Actívalo para dar tu consentimiento; puedes desactivarlo cuando quieras.", fr: "L’enregistrement du micro va uniquement au composant de dictée de cet ordinateur (Whisper) et ne quitte pas l’appareil. L’enregistrement n’est pas écrit sur le disque. Active pour consentir ; désactive à tout moment.", az: "Mikrofon yazısı yalnız bu kompüterdəki diktə komponentinə (Whisper) gedir və cihazdan çıxmır. Yazı diskə yazılmır. Razılıq üçün aç; istənilən vaxt söndürə bilərsən.",
   },
   aiKeyTitle: {
     tr: "API anahtarları", en: "API keys", de: "API-Schlüssel", ru: "Ключи API", ar: "مفاتيح API", es: "Claves API", fr: "Clés API", az: "API açarları",
@@ -1044,7 +1020,7 @@ export const UI_TEXT = {
     tr: "Mikrofona erişilemedi. Sistem izinlerini kontrol et.", en: "Could not access the microphone. Check system permissions.", de: "Kein Zugriff auf das Mikrofon. Prüfe die Systemberechtigungen.", ru: "Нет доступа к микрофону. Проверь разрешения системы.", ar: "تعذّر الوصول إلى الميكروفون. تحقق من أذونات النظام.", es: "No se pudo acceder al micrófono. Revisa los permisos del sistema.", fr: "Impossible d’accéder au micro. Vérifie les autorisations système.", az: "Mikrofona çatmaq mümkün olmadı. Sistem icazələrini yoxla.",
   },
   aiVoiceConsent: {
-    tr: "Mikrofon düğmesine basmak sesli dikteyi açar: kaydın metne çevrilmek üzere OpenAI uyumlu bir hizmete gönderilir (3. parti). Ayarlardan kapatabilirsin.", en: "Pressing the mic enables voice dictation: your recording is sent to an OpenAI-compatible service to be transcribed (third party). You can turn it off in settings.", de: "Ein Klick aufs Mikrofon aktiviert das Diktat: Deine Aufnahme wird zur Transkription an einen OpenAI-kompatiblen Dienst gesendet (Drittanbieter). In den Einstellungen abschaltbar.", ru: "Нажатие на микрофон включает диктовку: запись отправляется в OpenAI-совместимый сервис для расшифровки (третья сторона). Можно отключить в настройках.", ar: "الضغط على الميكروفون يفعّل الإملاء: يُرسل تسجيلك إلى خدمة متوافقة مع OpenAI لتحويله إلى نص (طرف ثالث). يمكنك إيقافه من الإعدادات.", es: "Pulsar el micrófono activa el dictado: tu grabación se envía a un servicio compatible con OpenAI para transcribirla (tercero). Puedes desactivarlo en ajustes.", fr: "Appuyer sur le micro active la dictée : ton enregistrement est envoyé à un service compatible OpenAI pour transcription (tiers). Désactivable dans les paramètres.", az: "Mikrofona basmaq diktanı açır: yazın mətnə çevrilmək üçün OpenAI uyğun xidmətə göndərilir (3-cü tərəf). Ayarlardan söndürə bilərsən.",
+    tr: "Mikrofon düğmesine basmak sesli dikteyi açar: kaydın yalnız bu bilgisayarda metne çevrilir, cihazdan çıkmaz. Ayarlardan kapatabilirsin.", en: "Pressing the mic turns on voice dictation: your recording is converted to text on this computer only and never leaves the device. You can turn it off in Settings.", de: "Ein Klick aufs Mikrofon aktiviert das Sprachdiktat: Die Aufnahme wird nur auf diesem Computer in Text umgewandelt und verlässt das Gerät nicht. In den Einstellungen abschaltbar.", ru: "Нажатие на микрофон включает голосовой ввод: запись преобразуется в текст только на этом компьютере и не покидает устройство. Отключить можно в настройках.", ar: "الضغط على الميكروفون يفعّل الإملاء الصوتي: يُحوَّل تسجيلك إلى نص على هذا الكمبيوتر فقط ولا يغادر الجهاز. يمكنك إيقافه من الإعدادات.", es: "Pulsar el micrófono activa el dictado por voz: tu grabación se convierte en texto solo en este equipo y no sale del dispositivo. Puedes desactivarlo en Ajustes.", fr: "Appuyer sur le micro active la dictée vocale : ton enregistrement est converti en texte uniquement sur cet ordinateur et ne quitte pas l’appareil. Tu peux la désactiver dans les Réglages.", az: "Mikrofona basmaq səsli diktəni açır: yazın yalnız bu kompüterdə mətnə çevrilir və cihazdan çıxmır. Ayarlardan söndürə bilərsən.",
   },
   aiNoKey: {
     tr: "Bu sağlayıcı için API anahtarı yok.", en: "No API key for this provider.", de: "Kein API-Schlüssel für diesen Anbieter.", ru: "Нет ключа API для этого провайдера.", ar: "لا يوجد مفتاح API لهذا المزوّد.", es: "No hay clave API para este proveedor.", fr: "Aucune clé API pour ce fournisseur.", az: "Bu provayder üçün API açarı yoxdur.",
@@ -1196,15 +1172,6 @@ export const UI_TEXT = {
   aiPrivacyLocal: {
     tr: "Yerel model: mesajların ve kodun bu bilgisayardan çıkmaz.", en: "Local model: your messages and code never leave this computer.", de: "Lokales Modell: Nachrichten und Code verlassen diesen Computer nicht.", ru: "Локальная модель: сообщения и код не покидают этот компьютер.", ar: "نموذج محلي: لا تغادر رسائلك وكودك هذا الحاسوب.", es: "Modelo local: tus mensajes y código no salen de este equipo.", fr: "Modèle local : tes messages et ton code ne quittent pas cet ordinateur.", az: "Lokal model: mesajların və kodun bu kompüterdən çıxmır.",
   },
-  set_aiTranscribeUrl: {
-    tr: "Yerel dikte sunucusu", en: "Local dictation server", de: "Lokaler Diktier-Server", ru: "Локальный сервер диктовки", ar: "خادم الإملاء المحلي", es: "Servidor de dictado local", fr: "Serveur de dictée local", az: "Yerli dikta serveri",
-  },
-  setDesc_aiTranscribeUrl: {
-    tr: "OpenAI uyumlu bir yerel Whisper sunucusunun adresi (ör. whisper.cpp veya faster-whisper-server). Yerel adreste API anahtarı gerekmez ve ses bilgisayarından çıkmaz. Boşsa OpenAI kullanılır.", en: "Address of a local OpenAI-compatible Whisper server (e.g. whisper.cpp or faster-whisper-server). No API key is needed for a local address and audio never leaves your computer. If empty, OpenAI is used.", de: "Adresse eines lokalen OpenAI-kompatiblen Whisper-Servers (z. B. whisper.cpp oder faster-whisper-server). Für lokale Adressen ist kein API-Schlüssel nötig, Audio verlässt den Computer nicht. Leer = OpenAI.", ru: "Адрес локального OpenAI-совместимого сервера Whisper (например, whisper.cpp или faster-whisper-server). Для локального адреса ключ API не нужен, звук не покидает компьютер. Пусто — используется OpenAI.", ar: "عنوان خادم Whisper محلي متوافق مع OpenAI (مثل whisper.cpp أو faster-whisper-server). لا حاجة لمفتاح API للعنوان المحلي ولا يغادر الصوت حاسوبك. إذا تُرك فارغاً يُستخدم OpenAI.", es: "Dirección de un servidor Whisper local compatible con OpenAI (p. ej. whisper.cpp o faster-whisper-server). Con una dirección local no hace falta clave API y el audio no sale del equipo. Vacío = OpenAI.", fr: "Adresse d’un serveur Whisper local compatible OpenAI (ex. whisper.cpp ou faster-whisper-server). Aucune clé API pour une adresse locale et l’audio ne quitte pas l’ordinateur. Vide = OpenAI.", az: "OpenAI uyğun yerli Whisper serverinin ünvanı (məs. whisper.cpp və ya faster-whisper-server). Yerli ünvan üçün API açarı lazım deyil, səs kompüterdən çıxmır. Boşdursa OpenAI istifadə olunur.",
-  },
-  setDesc_aiTranscribeModel: {
-    tr: "Dikte modeli adı (OpenAI için whisper-1; yerel sunucuda sunucunun model adı).", en: "Dictation model name (whisper-1 for OpenAI; the server’s model name for a local server).", de: "Name des Diktiermodells (whisper-1 für OpenAI; bei lokalem Server dessen Modellname).", ru: "Имя модели диктовки (whisper-1 для OpenAI; для локального сервера — имя модели сервера).", ar: "اسم نموذج الإملاء (whisper-1 لـ OpenAI، أو اسم النموذج على الخادم المحلي).", es: "Nombre del modelo de dictado (whisper-1 para OpenAI; el del servidor si es local).", fr: "Nom du modèle de dictée (whisper-1 pour OpenAI ; celui du serveur en local).", az: "Dikta modelinin adı (OpenAI üçün whisper-1; yerli serverdə serverin model adı).",
-  },
   extTitle: {
     tr: "Eklentiler", en: "Extensions", de: "Erweiterungen", ru: "Расширения", ar: "الإضافات", es: "Extensiones", fr: "Extensions", az: "Əlavələr",
   },
@@ -1268,21 +1235,6 @@ export const UI_TEXT = {
   set_extTheme: {
     tr: "Eklenti teması", en: "Extension theme", de: "Erweiterungs-Theme", ru: "Тема расширения", ar: "سمة الإضافة", es: "Tema de extensión", fr: "Thème d’extension", az: "Əlavə teması",
   },
-  optAiBuiltin: {
-    tr: "Nova yerleşik (ücretsiz, çevrimdışı)", en: "Nova built-in (free, offline)", de: "Nova integriert (kostenlos, offline)", ru: "Nova встроенный (бесплатно, офлайн)", ar: "Nova المدمج (مجاني، بدون إنترنت)", es: "Nova integrado (gratis, sin conexión)", fr: "Nova intégré (gratuit, hors ligne)", az: "Nova daxili (pulsuz, oflayn)",
-  },
-  optAiModelFast: {
-    tr: "Hızlı (1,5 B, ~1 GB)", en: "Fast (1.5B, ~1 GB)", de: "Schnell (1,5 B, ~1 GB)", ru: "Быстрая (1,5 B, ~1 ГБ)", ar: "سريع (1.5B، ~1 غ.ب)", es: "Rápido (1,5 B, ~1 GB)", fr: "Rapide (1,5 B, ~1 Go)", az: "Sürətli (1,5 B, ~1 GB)",
-  },
-  optAiModelStrong: {
-    tr: "Güçlü (7 B, ~4,4 GB)", en: "Strong (7B, ~4.4 GB)", de: "Stark (7 B, ~4,4 GB)", ru: "Мощная (7 B, ~4,4 ГБ)", ar: "قوي (7B، ~4.4 غ.ب)", es: "Potente (7 B, ~4,4 GB)", fr: "Puissant (7 B, ~4,4 Go)", az: "Güclü (7 B, ~4,4 GB)",
-  },
-  set_aiBuiltinModel: {
-    tr: "Yerleşik model", en: "Built-in model", de: "Integriertes Modell", ru: "Встроенная модель", ar: "النموذج المدمج", es: "Modelo integrado", fr: "Modèle intégré", az: "Daxili model",
-  },
-  setDesc_aiBuiltinModel: {
-    tr: "Yerleşik sağlayıcı seçiliyken kullanılır. Güçlü model daha iyi kod yazar ve ajan görevlerinde daha güvenilirdir ama ~8 GB RAM ister.", en: "Used when the built-in provider is selected. The strong model writes better code and is more reliable for agent tasks but needs ~8 GB RAM.", de: "Wird genutzt, wenn der integrierte Anbieter gewählt ist. Das starke Modell schreibt besseren Code und ist bei Agent-Aufgaben zuverlässiger, braucht aber ~8 GB RAM.", ru: "Используется при выборе встроенного провайдера. Мощная модель пишет лучший код и надёжнее в задачах агента, но требует ~8 ГБ ОЗУ.", ar: "يُستخدم عند اختيار المزوّد المدمج. النموذج القوي يكتب شيفرة أفضل وأكثر موثوقية لمهام الوكيل لكنه يحتاج ~8 غ.ب من الذاكرة.", es: "Se usa con el proveedor integrado. El modelo potente escribe mejor código y es más fiable en tareas de agente, pero necesita ~8 GB de RAM.", fr: "Utilisé avec le fournisseur intégré. Le modèle puissant écrit un meilleur code et est plus fiable pour l’agent, mais demande ~8 Go de RAM.", az: "Daxili provayder seçiləndə istifadə olunur. Güclü model daha yaxşı kod yazır və agent tapşırıqlarında etibarlıdır, amma ~8 GB RAM tələb edir.",
-  },
   aiBuiltinTitle: {
     tr: "Yerleşik yapay zekâyı kur", en: "Set up the built-in AI", de: "Integrierte KI einrichten", ru: "Настроить встроенный ИИ", ar: "إعداد الذكاء الاصطناعي المدمج", es: "Configurar la IA integrada", fr: "Configurer l’IA intégrée", az: "Daxili süni intellekti qur",
   },
@@ -1323,7 +1275,7 @@ export const UI_TEXT = {
     tr: "Yerleşik model henüz indirilmedi. Yukarıdaki karttan indirebilirsin.", en: "The built-in model has not been downloaded yet. You can download it from the card above.", de: "Das integrierte Modell wurde noch nicht geladen. Du kannst es über die Karte oben laden.", ru: "Встроенная модель ещё не скачана. Скачай её в карточке выше.", ar: "لم يُنزَّل النموذج المدمج بعد. يمكنك تنزيله من البطاقة أعلاه.", es: "El modelo integrado aún no se ha descargado. Puedes descargarlo desde la tarjeta de arriba.", fr: "Le modèle intégré n’est pas encore téléchargé. Tu peux le télécharger depuis la carte ci-dessus.", az: "Daxili model hələ yüklənməyib. Yuxarıdakı kartdan yükləyə bilərsən.",
   },
   aiVoiceNeedsKey: {
-    tr: "Dikte için Ayarlar → Yapay Zekâ'dan yerel bir dikte sunucusu adresi gir (ücretsiz) veya OpenAI API anahtarı ekle. Uygulama içi dikte henüz yok.", en: "For dictation, enter a local dictation server address in Settings → AI Assistant (free) or add an OpenAI API key. Built-in dictation is not available yet.", de: "Für das Diktat gib in den Einstellungen einen lokalen Diktier-Server an (kostenlos) oder füge einen OpenAI-Schlüssel hinzu. Integriertes Diktat gibt es noch nicht.", ru: "Для диктовки укажи в настройках адрес локального сервера (бесплатно) или добавь ключ OpenAI. Встроенной диктовки пока нет.", ar: "للإملاء أدخل عنوان خادم إملاء محلي في الإعدادات (مجاناً) أو أضف مفتاح OpenAI. الإملاء المدمج غير متاح بعد.", es: "Para dictar, indica en ajustes un servidor local (gratis) o añade una clave de OpenAI. El dictado integrado aún no está disponible.", fr: "Pour la dictée, saisis un serveur local dans les paramètres (gratuit) ou ajoute une clé OpenAI. La dictée intégrée n’existe pas encore.", az: "Dikta üçün ayarlarda yerli server ünvanı (pulsuz) daxil et və ya OpenAI açarı əlavə et. Daxili dikta hələ yoxdur.",
+    tr: "Dikte bileşeni (Whisper) bulunamadı. %LOCALAPPDATA%\\NovaWhisper klasöründe kurulu olmalı.", en: "Dictation component (Whisper) not found. It must be installed in %LOCALAPPDATA%\\NovaWhisper.", de: "Diktatkomponente (Whisper) nicht gefunden. Sie muss in %LOCALAPPDATA%\\NovaWhisper installiert sein.", ru: "Компонент диктовки (Whisper) не найден. Он должен быть установлен в %LOCALAPPDATA%\\NovaWhisper.", ar: "لم يُعثر على مكوّن الإملاء (Whisper). يجب تثبيته في %LOCALAPPDATA%\\NovaWhisper.", es: "No se encontró el componente de dictado (Whisper). Debe estar instalado en %LOCALAPPDATA%\\NovaWhisper.", fr: "Composant de dictée (Whisper) introuvable. Il doit être installé dans %LOCALAPPDATA%\\NovaWhisper.", az: "Diktə komponenti (Whisper) tapılmadı. O, %LOCALAPPDATA%\\NovaWhisper qovluğunda quraşdırılmalıdır.",
   },
   mnFile: {
     tr: "Dosya", en: "File", de: "Datei", ru: "Файл", ar: "ملف", es: "Archivo", fr: "Fichier", az: "Fayl",
@@ -1502,38 +1454,11 @@ export const UI_TEXT = {
   grpAiVoice: {
     tr: "Ses", en: "Voice", de: "Sprache", ru: "Голос", ar: "الصوت", es: "Voz", fr: "Voix", az: "Səs",
   },
-  optSameAsGeneral: {
-    tr: "Genel ayarla aynı", en: "Same as General", de: "Wie „Allgemein“", ru: "Как в «Общих»", ar: "مثل الإعدادات العامة", es: "Igual que General", fr: "Comme « Général »", az: "Ümumi ilə eyni",
-  },
-  set_aiAskBuiltinModel: {
-    tr: "Sohbet: yerleşik model", en: "Chat: built-in model", de: "Chat: integriertes Modell", ru: "Чат: встроенная модель", ar: "المحادثة: النموذج المدمج", es: "Chat: modelo integrado", fr: "Chat : modèle intégré", az: "Söhbət: daxili model",
-  },
-  setDesc_aiAskBuiltinModel: {
-    tr: "Yalnız Sohbet modunda kullanılacak yerleşik model. Hızlı model sohbet için genelde yeter.", en: "Built-in model used only in Chat mode. The fast model is usually enough for chat.", de: "Integriertes Modell nur im Chat-Modus. Das schnelle Modell reicht für Chat meist aus.", ru: "Встроенная модель только для режима чата. Для чата обычно хватает быстрой.", ar: "النموذج المدمج لوضع المحادثة فقط. النموذج السريع يكفي غالباً للمحادثة.", es: "Modelo integrado solo para el modo Chat. El rápido suele bastar para chatear.", fr: "Modèle intégré uniquement en mode Chat. Le modèle rapide suffit en général.", az: "Yalnız Söhbət rejimində istifadə olunan daxili model. Söhbət üçün sürətli model adətən kifayətdir.",
-  },
-  set_aiAskModel: {
-    tr: "Sohbet: model", en: "Chat: model", de: "Chat: Modell", ru: "Чат: модель", ar: "المحادثة: النموذج", es: "Chat: modelo", fr: "Chat : modèle", az: "Söhbət: model",
-  },
-  setDesc_aiAskModel: {
-    tr: "Yalnız Sohbet modu için model adı. Boşsa Genel ayardaki model kullanılır.", en: "Model name for Chat mode only. Empty = the General model.", de: "Modellname nur für den Chat-Modus. Leer = Modell aus „Allgemein“.", ru: "Название модели только для чата. Пусто = модель из «Общих».", ar: "اسم النموذج لوضع المحادثة فقط. فارغ = النموذج العام.", es: "Nombre del modelo solo para el modo Chat. Vacío = el modelo General.", fr: "Nom du modèle pour le mode Chat uniquement. Vide = modèle Général.", az: "Yalnız Söhbət rejimi üçün model adı. Boşdursa Ümumi model istifadə olunur.",
-  },
   set_aiAskInstructions: {
     tr: "Sohbet: özel yönerge", en: "Chat: custom instructions", de: "Chat: eigene Anweisungen", ru: "Чат: свои инструкции", ar: "المحادثة: تعليمات مخصصة", es: "Chat: instrucciones propias", fr: "Chat : instructions personnalisées", az: "Söhbət: xüsusi təlimat",
   },
   setDesc_aiAskInstructions: {
     tr: "Sohbet modunda her istekte sistem istemine eklenir (ör. \"Kısa yanıtla\"). Seçili sağlayıcıya gider.", en: "Added to the system prompt of every Chat request (e.g. \"Answer briefly\"). Sent to the selected provider.", de: "Wird jeder Chat-Anfrage im Systemprompt hinzugefügt (z. B. „Antworte kurz“). Geht an den gewählten Anbieter.", ru: "Добавляется к системному промпту каждого запроса в чате (напр. «Отвечай кратко»). Уходит выбранному провайдеру.", ar: "تُضاف إلى موجّه النظام في كل طلب محادثة (مثل «أجب باختصار»). تُرسل إلى المزوّد المحدد.", es: "Se añade al prompt del sistema de cada petición de Chat (p. ej. «Responde breve»). Se envía al proveedor elegido.", fr: "Ajouté au prompt système de chaque requête Chat (ex. « Réponds brièvement »). Envoyé au fournisseur choisi.", az: "Söhbət rejimində hər sorğunun sistem təlimatına əlavə olunur (məs. «Qısa cavab ver»). Seçilmiş provayderə göndərilir.",
-  },
-  set_aiAgentBuiltinModel: {
-    tr: "Ajan: yerleşik model", en: "Agent: built-in model", de: "Agent: integriertes Modell", ru: "Агент: встроенная модель", ar: "الوكيل: النموذج المدمج", es: "Agente: modelo integrado", fr: "Agent : modèle intégré", az: "Agent: daxili model",
-  },
-  setDesc_aiAgentBuiltinModel: {
-    tr: "Yalnız Ajan modunda kullanılacak yerleşik model. Dosya düzenlemek için Güçlü model önerilir.", en: "Built-in model used only in Agent mode. The Strong model is recommended for editing files.", de: "Integriertes Modell nur im Agent-Modus. Zum Bearbeiten von Dateien wird das starke Modell empfohlen.", ru: "Встроенная модель только для режима агента. Для правки файлов рекомендуется сильная.", ar: "النموذج المدمج لوضع الوكيل فقط. يُنصح بالنموذج القوي لتعديل الملفات.", es: "Modelo integrado solo para el modo Agente. Se recomienda el potente para editar archivos.", fr: "Modèle intégré uniquement en mode Agent. Le modèle puissant est recommandé pour modifier des fichiers.", az: "Yalnız Agent rejimində istifadə olunan daxili model. Fayl redaktəsi üçün Güclü model tövsiyə olunur.",
-  },
-  set_aiAgentModel: {
-    tr: "Ajan: model", en: "Agent: model", de: "Agent: Modell", ru: "Агент: модель", ar: "الوكيل: النموذج", es: "Agente: modelo", fr: "Agent : modèle", az: "Agent: model",
-  },
-  setDesc_aiAgentModel: {
-    tr: "Yalnız Ajan modu için model adı (araç çağırmayı destekleyen bir model seç). Boşsa Genel ayardaki model kullanılır.", en: "Model name for Agent mode only (pick one that supports tool calling). Empty = the General model.", de: "Modellname nur für den Agent-Modus (eins mit Tool-Aufrufen wählen). Leer = Modell aus „Allgemein“.", ru: "Название модели только для агента (выберите с поддержкой вызова инструментов). Пусто = модель из «Общих».", ar: "اسم النموذج لوضع الوكيل فقط (اختر نموذجاً يدعم استدعاء الأدوات). فارغ = النموذج العام.", es: "Nombre del modelo solo para el modo Agente (elige uno con llamadas a herramientas). Vacío = el modelo General.", fr: "Nom du modèle pour le mode Agent uniquement (choisis-en un compatible avec les outils). Vide = modèle Général.", az: "Yalnız Agent rejimi üçün model adı (alət çağırışını dəstəkləyən seç). Boşdursa Ümumi model istifadə olunur.",
   },
   set_aiAgentIncludeContext: {
     tr: "Ajan: açık dosyayı bağlam olarak gönder", en: "Agent: send the open file as context", de: "Agent: geöffnete Datei als Kontext senden", ru: "Агент: отправлять открытый файл как контекст", ar: "الوكيل: إرسال الملف المفتوح كسياق", es: "Agente: enviar el archivo abierto como contexto", fr: "Agent : envoyer le fichier ouvert comme contexte", az: "Agent: açıq faylı kontekst kimi göndər",
@@ -1549,6 +1474,27 @@ export const UI_TEXT = {
   },
   setDesc_aiAgentInstructions: {
     tr: "Ajan modunda her istekte sistem istemine eklenir (ör. \"Değişiklikten önce test çalıştır\"). Proje yönergesine ek olarak çalışır. Seçili sağlayıcıya gider.", en: "Added to the system prompt of every Agent request (e.g. \"Run tests before finishing\"). Works in addition to project instructions. Sent to the selected provider.", de: "Wird jeder Agent-Anfrage im Systemprompt hinzugefügt (z. B. „Tests vor Abschluss ausführen“). Zusätzlich zu den Projektanweisungen. Geht an den gewählten Anbieter.", ru: "Добавляется к системному промпту каждого запроса агента (напр. «Запускай тесты перед завершением»). Работает вместе с инструкциями проекта. Уходит выбранному провайдеру.", ar: "تُضاف إلى موجّه النظام في كل طلب وكيل (مثل «شغّل الاختبارات قبل الإنهاء»). تعمل إضافةً إلى تعليمات المشروع. تُرسل إلى المزوّد المحدد.", es: "Se añade al prompt del sistema de cada petición del Agente (p. ej. «Ejecuta las pruebas antes de terminar»). Funciona junto con las instrucciones del proyecto. Se envía al proveedor elegido.", fr: "Ajouté au prompt système de chaque requête Agent (ex. « Lance les tests avant de finir »). S’ajoute aux instructions du projet. Envoyé au fournisseur choisi.", az: "Agent rejimində hər sorğunun sistem təlimatına əlavə olunur (məs. «Bitirməzdən əvvəl testləri işə sal»). Layihə təlimatına əlavə işləyir. Seçilmiş provayderə göndərilir.",
+  },
+  set_aiAskThinking: {
+    tr: "Sohbet: düşünme seviyesi", en: "Chat: thinking level", de: "Chat: Denktiefe", ru: "Чат: уровень размышления", ar: "المحادثة: مستوى التفكير", es: "Chat: nivel de razonamiento", fr: "Chat : niveau de réflexion", az: "Söhbət: düşünmə səviyyəsi",
+  },
+  setDesc_aiAskThinking: {
+    tr: "Hızlı: kısa ve doğrudan yanıt. Dengeli: gerekirse kısa plan. Derin: adım adım düşünür, daha yavaş ama daha doğru. Yerel modelde gerçek düşünme modu yoktur; seviye yanıt biçimini ve kararlılığı ayarlar.", en: "Fast: short, direct answers. Balanced: a short plan when needed. Deep: thinks step by step, slower but more accurate. The local model has no real thinking mode; this level tunes the answer style and consistency.", de: "Schnell: kurze, direkte Antworten. Ausgewogen: bei Bedarf ein kurzer Plan. Tief: denkt Schritt für Schritt, langsamer, aber genauer. Das lokale Modell hat keinen echten Denkmodus; die Stufe steuert Antwortstil und Konsistenz.", ru: "Быстро: короткие прямые ответы. Баланс: при необходимости краткий план. Глубоко: рассуждает пошагово, медленнее, но точнее. У локальной модели нет настоящего режима размышления; уровень настраивает стиль и стабильность ответа.", ar: "سريع: ردود قصيرة ومباشرة. متوازن: خطة قصيرة عند الحاجة. عميق: يفكر خطوة بخطوة، أبطأ لكنه أدق. النموذج المحلي لا يملك وضع تفكير حقيقياً؛ هذا المستوى يضبط أسلوب الرد وثباته.", es: "Rápido: respuestas cortas y directas. Equilibrado: un plan breve si hace falta. Profundo: piensa paso a paso, más lento pero más preciso. El modelo local no tiene un modo de razonamiento real; este nivel ajusta el estilo y la consistencia.", fr: "Rapide : réponses courtes et directes. Équilibré : un court plan si besoin. Approfondi : réfléchit pas à pas, plus lent mais plus précis. Le modèle local n’a pas de vrai mode de réflexion ; ce niveau règle le style et la constance.", az: "Sürətli: qısa və birbaşa cavab. Balanslı: lazım olduqda qısa plan. Dərin: addım-addım düşünür, daha yavaş, amma daha dəqiq. Lokal modeldə real düşünmə rejimi yoxdur; bu səviyyə cavab üslubunu və sabitliyi tənzimləyir.",
+  },
+  set_aiAgentThinking: {
+    tr: "Ajan: düşünme seviyesi", en: "Agent: thinking level", de: "Agent: Denktiefe", ru: "Агент: уровень размышления", ar: "الوكيل: مستوى التفكير", es: "Agente: nivel de razonamiento", fr: "Agent : niveau de réflexion", az: "Agent: düşünmə səviyyəsi",
+  },
+  setDesc_aiAgentThinking: {
+    tr: "Derin seviyede ajan değişiklikten önce ilgili dosyaları okur, etkilenen yerleri arar ve sonucu doğrulamaya çalışır; daha yavaştır ama daha güvenlidir.", en: "At the Deep level the agent reads the relevant files, searches affected places and tries to verify the result before finishing; slower but safer.", de: "Auf der Stufe „Tief“ liest der Agent die betroffenen Dateien, sucht betroffene Stellen und versucht, das Ergebnis zu prüfen; langsamer, aber sicherer.", ru: "На уровне «Глубоко» агент читает нужные файлы, ищет затронутые места и пытается проверить результат; медленнее, но надёжнее.", ar: "في المستوى «عميق» يقرأ الوكيل الملفات ذات الصلة ويبحث عن الأماكن المتأثرة ويحاول التحقق من النتيجة؛ أبطأ لكنه أكثر أماناً.", es: "En el nivel Profundo el agente lee los archivos relevantes, busca los lugares afectados e intenta verificar el resultado; más lento pero más seguro.", fr: "Au niveau Approfondi, l’agent lit les fichiers concernés, cherche les endroits touchés et tente de vérifier le résultat ; plus lent mais plus sûr.", az: "Dərin səviyyədə agent aidiyyatı olan faylları oxuyur, təsirlənən yerləri axtarır və nəticəni yoxlamağa çalışır; daha yavaş, amma daha etibarlıdır.",
+  },
+  optThinkFast: {
+    tr: "Hızlı", en: "Fast", de: "Schnell", ru: "Быстро", ar: "سريع", es: "Rápido", fr: "Rapide", az: "Sürətli",
+  },
+  optThinkBalanced: {
+    tr: "Dengeli", en: "Balanced", de: "Ausgewogen", ru: "Баланс", ar: "متوازن", es: "Equilibrado", fr: "Équilibré", az: "Balanslı",
+  },
+  optThinkDeep: {
+    tr: "Derin", en: "Deep", de: "Tief", ru: "Глубоко", ar: "عميق", es: "Profundo", fr: "Approfondi", az: "Dərin",
   },
   aiSessionSearch: {
     tr: "Sohbetlerde ara…", en: "Search chats…", de: "Chats durchsuchen…", ru: "Поиск по чатам…", ar: "ابحث في المحادثات…", es: "Buscar chats…", fr: "Rechercher dans les chats…", az: "Söhbətlərdə axtar…",
