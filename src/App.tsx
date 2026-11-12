@@ -266,7 +266,7 @@ export function App() {
     if (key === 'g' && !e.shiftKey) { e.preventDefault(); setPalette(':'); return; }
     if (key === 'f' && e.shiftKey) { e.preventDefault(); if (currentRootPath) pickSidebarForce('search'); return; }
     if (key === 'x' && e.shiftKey) { e.preventDefault(); pickSidebarForce('extensions'); return; }
-    if (key === 'l' && e.shiftKey) { e.preventDefault(); setShowLanding(false); setShowSettings(false); setShowRightPanel((v) => (v === 'ai' ? null : 'ai')); return; }
+    if (key === 'l' && e.shiftKey) { e.preventDefault(); toggleAI(); return; }
 
     if (key === 'q') { e.preventDefault(); handleQuit(); return; }
     if (key === 'b') { e.preventDefault(); setSidebarVisible((v) => !v); return; }
@@ -772,6 +772,14 @@ export function App() {
   const activeFile = openFiles.find((f) => f.id === activeFileId);
   const isElectron = !!window.electronAPI?.isElectron;
   const projectName = currentRootPath ? currentRootName : '';
+  // Yapay zekâ paneli: üst çubuktaki simgeyle (ve Ctrl+Shift+L) açılıp kapanır; panel sağda yerleşik kalır
+  const aiOpen = !showLanding && showRightPanel === 'ai';
+  const toggleAI = () => {
+    if (aiOpen) { setShowRightPanel(null); return; }
+    setShowLanding(false);
+    setShowSettings(false);
+    setShowRightPanel('ai');
+  };
   const sidebarShown = sidebarVisible && !showLanding;
   const sidebarRight = settings.sidebarPosition === 'right';
   const tabSize = Number(settings.tabSize) || 2;
@@ -906,7 +914,7 @@ export function App() {
       { separator: true },
       { label: plain(t('tbSidebar')), shortcut: 'Ctrl+B', onClick: () => setSidebarVisible((v) => !v) },
       { label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', ...D, onClick: () => setShowBottomTerminal((v) => !v) },
-      { label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', onClick: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel((v) => (v === 'ai' ? null : 'ai')); } },
+      { label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', onClick: () => { toggleAI(); } },
       { label: t('tbPreview'), disabled: !canPreview, hint: !canPreview ? t('mnHintHtml') : undefined, onClick: () => setShowRightPanel((v) => (v === 'preview' ? null : 'preview')) },
       { separator: true },
       { label: t('mnZoomIn'), onClick: () => setSetting('uiZoom', Math.min(150, Number(settings.uiZoom || 100) + 10)) },
@@ -1029,21 +1037,33 @@ export function App() {
           <MenuBar menus={menus} compact={compactMenu} />
         </div>
 
-        {/* Orta: komut merkezi görünümlü arama / proje alanı */}
-        <button
-          onClick={() => setPalette('')}
-          title={`${t('cpTitle')} (Ctrl+P)`}
-          className="app-no-drag w-full min-w-0 flex items-center justify-center gap-2 h-6 px-2 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
-        >
-          <Search size={12} className="text-zinc-500 shrink-0" />
-          <span className="truncate min-w-0">
-            {showLanding
-              ? t('actHome')
-              : activeFile
-                ? `${activeFile.name}${activeFile.isModified ? ' •' : ''}${projectName ? ` — ${projectName}` : ''}`
-                : projectName || 'NovaCode Studio'}
-          </span>
-        </button>
+        {/* Orta: komut merkezi görünümlü arama / proje alanı + yanında yapay zekâ paneli simgesi */}
+        <div className="app-no-drag flex items-center gap-1 min-w-0">
+          <button
+            onClick={() => setPalette('')}
+            title={`${t('cpTitle')} (Ctrl+P)`}
+            className="w-full min-w-0 flex items-center justify-center gap-2 h-6 px-2 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
+          >
+            <Search size={12} className="text-zinc-500 shrink-0" />
+            <span className="truncate min-w-0">
+              {showLanding
+                ? t('actHome')
+                : activeFile
+                  ? `${activeFile.name}${activeFile.isModified ? ' •' : ''}${projectName ? ` — ${projectName}` : ''}`
+                  : projectName || 'NovaCode Studio'}
+            </span>
+          </button>
+          <button
+            onClick={toggleAI}
+            title={`${t('actAI')} (Ctrl+Shift+L)`}
+            aria-label={t('actAI')}
+            aria-pressed={aiOpen}
+            data-active={aiOpen}
+            className="icon-btn shrink-0 !w-7 !h-6 text-violet-300 hover:!text-violet-100"
+          >
+            <Sparkles size={14} />
+          </button>
+        </div>
 
         <div className="flex items-center justify-end h-full min-w-0">
         <div className="app-no-drag flex items-center justify-end gap-0.5 min-w-0 pr-2">
@@ -1114,18 +1134,6 @@ export function App() {
                   {changeCount > 99 ? '99+' : changeCount}
                 </span>
               )}
-            </button>
-            <button
-              {...barBtn(!showLanding && showRightPanel === 'ai')}
-              title={t('actAI')}
-              aria-label={t('actAI')}
-              onClick={() => {
-                setShowLanding(false);
-    setShowSettings(false);
-                setShowRightPanel(showRightPanel === 'ai' ? null : 'ai');
-              }}
-            >
-              <Sparkles size={24} strokeWidth={1.5} />
             </button>
           </div>
 
