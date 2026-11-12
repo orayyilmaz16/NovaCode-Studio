@@ -529,7 +529,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
 
   if (!api) {
     return (
-      <div className="flex flex-col h-full bg-nv-side border-l border-nv-border p-4 text-[12px] text-zinc-400">
+      <div className="flex flex-col h-full bg-nv-side p-4 text-[12px] text-zinc-400">
         <div className="flex items-center gap-2 mb-2 text-zinc-200"><Sparkles size={15} className="text-purple-400" />{t('aiTitle')}</div>
         {t('aiDesktopOnly')}
       </div>
@@ -543,7 +543,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const banner = 'mx-3 mt-2 p-2.5 rounded-lg border text-[11.5px] leading-snug';
 
   return (
-    <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden bg-nv-side border-l border-nv-border text-zinc-300">
+    <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden bg-nv-side text-zinc-300">
       {/* Başlık: sohbet seçici + eylemler */}
       <div className={`relative flex items-center gap-1 px-2 h-10 border-b shrink-0 transition-colors ${isAgent ? 'border-violet-500/30' : 'border-nv-border'}`}>
         <div className={`w-6 h-6 rounded-md bg-gradient-to-br flex items-center justify-center shrink-0 transition-colors ${isAgent ? 'from-violet-500 to-fuchsia-500' : 'from-indigo-500 to-purple-500'}`}>{isAgent ? <Zap size={13} className="text-white" /> : <Sparkles size={13} className="text-white" />}</div>
