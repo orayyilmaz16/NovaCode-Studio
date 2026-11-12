@@ -24,7 +24,7 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 | `feat!:` / `BREAKING CHANGE:` | major (1.1.1 → 2.0.0) |
 | yalnız `docs:`/`ci:`/`test:` | sürüm artmaz |
 
-Sürüm elle artırılmaz; CI hesaplar. Elle sürüm değiştirmek gerekiyorsa (ör. 1.1.0 gibi bilinçli bir sürüm) `package.json` ve `package-lock.json` düzenlenip etiketlenir; CI ilk çalıştırmada o sürümü olduğu gibi yayınlar.
+Sürüm elle artırılmaz; CI hesaplar. İstisna: `package.json` sürümü son `vX.Y.Z` etiketinden büyükse (bilinçli minor/major, ör. `npm version minor --no-git-tag-version`) CI o sürümü olduğu gibi yayınlar ve etiketler. Elle sürüm değiştirmek gerekiyorsa (ör. 1.1.0 gibi bilinçli bir sürüm) `package.json` ve `package-lock.json` düzenlenip etiketlenir; CI ilk çalıştırmada o sürümü olduğu gibi yayınlar.
 
 ### Sürüm notları (TR + EN)
 - Her kullanıcıya görünen değişiklikte `CHANGELOG.md` içindeki `## Unreleased` bölümüne iki dilde madde yaz:
@@ -112,6 +112,10 @@ Belirt: veri, amaç, hukuki sebep, saklama süresi, yurt dışı aktarım. Gizli
 | `SECURITY.md` | Güvenlik açığı bildirim süreci (insanlara dönük) | Bildiren kişi, ekip |
 | `CHANGELOG.md` | Sürüm notları TR/EN; `## Unreleased` bekleyen maddeler | CI, kullanıcı |
 | `release-notes/vX.Y.Z.md` | CI'ın ürettiği release gövdesi (elle düzenlenmez) | GitHub Release |
+| `docs/brain/BRAIN.md` | **Proje beyni** haritası: okuma sırası, aksiyon tablosu, haberleşme kuralları | Her oturum |
+| `docs/brain/actions/*.md` | Aksiyon başına oyun kitabı (`reads`/`writes` ile haberleşir): release, git-github, ui-design, i18n, security-kvkk, terminal, ci-cd, testing, brain-maintenance | İlgili işte |
+| `docs/brain/PROJECT.md`, `DECISIONS.md` | Mimari ve tarihli karar günlüğü | İhtiyaç olunca |
+| `docs/brain/STATE.md` | Koddan **otomatik** üretilen durum (`npm run brain`; hook her turda günceller) | Görev başında |
 | Hafıza (`memory/`) | Kullanıcı tercihleri ve bağlam; repo kuralını kopyalamaz, işaret eder | Claude |
 
 Kurallar:
@@ -132,4 +136,14 @@ Kurallar:
 ## Durum
 - 04.11.2026: CLAUDE.md, AGENT.md, release skill ve .claudeignore oluşturuldu.
 - 08.11.2026: Repo güvenliği: Dependabot alerts + security updates, private vulnerability reporting, secret scanning açık. SECURITY.md, issue/PR şablonları, CODEOWNERS eklendi (dal `chore/repo-security`). PR #5 (auto-merge akışı) bekliyor; ruleset onun birleşmesinden sonra açılacak.
+- 10.11.2026: v1.2.0 hazırlığı: GitHub hesabıyla Git (sahneleme, dal, eşzamanla, PR, yayınlama, canlı takip), VS Code çizgisinde yeni arayüz + arka plansız logo + karşılama ekranı, proje beyni (`docs/brain/`, `scripts/brain.mjs`, hook `auto-commit.mjs` her turda STATE'i yeniler). Testler `npm test`, beyin denetimi `npm run brain:check` (CI'da).
+- 12.11.2026 (6): Önizleme yeniden yazıldı (HTML/SVG/MD, sandbox, canlı yenileme, localhost yakalama), Çalıştır menüsü sadeleşti (npm yok) + `run`/`extensions` ayar kategorileri, tema seçici, eklenti otomatik güncelleme, güncelleme kanalları (dev/stable), otomatik CI/CD (hook→`auto/*` PR→auto-merge, `check-version`, `ci-failure` issue, Dependabot aynı-major), IPC okuma kısıtları. CDP ile uçtan uca sınandı. Açık: `quitAndInstall` ve gerçek GitHub güncelleme akışı sınanmadı (v1.1.2 yayınında `latest.yml` yok; ilk gerçek yayın doğrular); uygulama içi (çevrimdışı) Whisper yok; 7B ajan kalitesi; NSIS boyutu yeniden ölçülmedi; Gezgin klavye kes/yapıştır ve sanal liste yok; Dependabot major PR #1–#4 elle.
+- 12.11.2026 (5): Ayarlar artık üst katmanda ayrı pencere (modal, ekran içi, Esc); Gezgin yenilendi (filtre, sıralama, gizli dosya, klasör sıkıştırma, simge stili, otomatik göster, sürükle-bırak taşıma, bağlam menüsü: gezginde göster/terminalde aç, görünüm menüsü, son açılanlar); menüler portal; dosya IPC'leri çalışma klasörüne kısıtlandı. Açık: Gezgin klavye ile taşıma (kes/yapıştır) yok; Gezgin çok büyük ağaçlarda sanal liste kullanmıyor.
+- 12.11.2026 (4): Snippet özelliği kaldırıldı (eklentiler yalnız tema); başlık çubuğu üç bölgeli ızgara + ortalı arama + kompakt "Menü"; projesiz/dosyasız kapalı düğmeler (`dis()`); UpdateDialog bilgi simgesi. Açık: Karşılama/Gezgin boş durum düğmeleri dar kenar çubuğunda ayrıntılı gözden geçirilmedi.
+- 12.11.2026 (3): Güncelleme sistemi (`electron-updater`, `electron-update.cjs`, `UpdateDialog`; sahte beslemeyle denetim→indirme %0-100→hazır sınandı; `quitAndInstall` ve gerçek GitHub yayını SINANMADI), eklenti ağı `net.request` + ayrıntı sayfası (gerçek Open VSX), menü kapalı öğe/ipucu/kaydırma, Çalıştır menüsü algılama, duyarlı tasarım (CDP ile 3 boyutta tarandı), `@layer components` düzeltmesi. CI release'e `latest.yml` yükler (ilk gerçek yayında doğrulanmalı). Açık: NSIS paketi/`asarUnpack` doğrulaması, 7B ajan, uygulama içi Whisper.
+- 12.11.2026 (2): Varsayılan AI artık yerleşik yerel model (`node-llama-cpp`, anahtarsız/ücretsiz; 1,5B gerçek modelle Ask+iptal sınandı, ajan 1,5B'de salt-okunur ve zayıf; 7B ajan kalitesi SINANMADI). Üst menü çubuğu, eklenti mağazası (Open VSX, gerçek API'ye karşı sınandı), dosya simgeleri, ajan paneli yeniden tasarımı (CDP ile ekran görüntüsünde taşma ölçüldü). Paket bütçesi: yjs dinamik import + lazy paneller ile 564 KB. Açık: 7B ile ajan denemesi, kurulum paketinde yerleşik model yükleme (asarUnpack) doğrulaması, uygulama içi Whisper dikte, `electron-builder` ile NSIS çıktısı boyutu.
+- 12.11.2026: Yapay zekâ asistanı (çoklu sağlayıcı, Ask/Agent, araçlar, oturumlar, görsel, dikte), komut paleti (Ctrl+P / > / : / $), proje araması, hızlı snippet'ler eklendi. Varsayılan sağlayıcı Ollama (yerel, anahtarsız). Açık: gerçek Ollama modeliyle canlı deneme (bu makinede Ollama kurulu değil; motor sahte sunucuyla sınandı), yerel Whisper sunucusuyla dikte canlı denenmedi, Anthropic yolu canlı denenmedi, arayüz elle gözden geçirilmedi, yerel Whisper seçeneği.
+- 10.11.2026: Terminal (çoklu oturum, `electron-term.cjs`, panel varsayılan kapalı) ve Gezgin (bölümler, satır içi oluştur/yeniden adlandır, bağlam menüsü) VS Code'a uyarlandı; 10 yeni yerleşim/terminal ayarı. UI testleri `NOVA_HEADLESS=1` ile ekran dışı pencerede.
+- 10.11.2026: Ayarlar sistemi (şema güdümlü, gerçek zamanlı, tam sayfa; açık tema, snippet, otomatik kayıt, şifreli token). Yeni ayar eklemek için `docs/brain/actions/settings.md`. Doğrulama ayrı profille yapıldı (`--user-data-dir`); kullanıcının açık penceresinde ayar değiştirme.
+- 10.11.2026: Açık: gerçek hesapla uçtan uca GitHub giriş/PR denemesi; eski panellerde kalan sabit Türkçe metinler (i18n borcu); `minimatch` (dev) Dependabot hatası electron-builder güncellemesini bekliyor.
 - 08.11.2026: Her güncelleme patch sürüm alır (CI). TR+EN sürüm notları `CHANGELOG.md` Unreleased → `release-notes/`. CI'da `version` işindeki bozuk `if:` satırı düzeltildi. Açık: ilk `v1.1.0` release'inin CI'da yeşil geçmesi; 8 dil i18n kapsamı yalnız yeni metinlerde.

@@ -1,0 +1,329 @@
+// GitHub kimlik doğrulama (OAuth Device Flow) ve canlı GitHub verisi.
+// - Client secret gerekmez; masaüstü uygulamaları için GitHub'ın önerdiği akıştır.
+// - Erişim token'ı yalnız ana süreçte tutulur, Electron safeStorage ile şifrelenip diske yazılır.
+//   Renderer'a token ASLA gönderilmez; yalnız profil (login, ad, avatar) gider.
+// - Ağ istekleri yalnız github.com ve api.github.com adreslerine yapılır.
+const { app, ipcMain, safeStorage, shell } = require('electron');
+const path = require('path');
+const fs = require('fs');
+
+const GITHUB_SCOPES = 'repo read:user';
+const ALLOWED_OPEN = ['https://github.com/', 'https://docs.github.com/'];
+
+let session = { token: null, profile: null };
+let pollAbort = null;
+
+const tokenFile = () => path.join(app.getPath('userData'), 'github-token.bin');
+const configFile = () => path.join(app.getPath('userData'), 'github-config.json');
+
+// ---- Client ID: ortam değişkeni veya kullanıcının kaydettiği değer (koda gömülmez) ----
+function getClientId() {
+  if (process.env.NOVA_GITHUB_CLIENT_ID) return process.env.NOVA_GITHUB_CLIENT_ID.trim();
+  try {
+    const cfg = JSON.parse(fs.readFileSync(configFile(), 'utf8'));
+    if (typeof cfg.clientId === 'string' && cfg.clientId.trim()) return cfg.clientId.trim();
+  } catch { /* yapılandırma yok */ }
+  // Uygulama sahibi, herkese açık (gizli olmayan) Client ID'yi package.json içine bir kez yazar.
+  try {
+    const id = require('./package.json').novaGithubClientId;
+    return typeof id === 'string' ? id.trim() : '';
+  } catch {
+    return '';
+  }
+}
+
+function saveClientId(id) {
+  fs.writeFileSync(configFile(), JSON.stringify({ clientId: id }), { mode: 0o600 });
+}
+
+// ---- Token saklama (şifreli) ----
+async function canEncrypt() {
+  try {
+    return await safeStorage.isAsyncEncryptionAvailable();
+  } catch {
+    return false;
+  }
+}
+
+async function persistToken(token) {
+  if (!(await canEncrypt())) return false; // şifreleyemiyorsak diske yazmayız
+  fs.writeFileSync(tokenFile(), await safeStorage.encryptStringAsync(token), { mode: 0o600 });
+  return true;
+}
+
+async function loadToken() {
+  try {
+    if (!(await canEncrypt()) || !fs.existsSync(tokenFile())) return null;
+    const { result } = await safeStorage.decryptStringAsync(fs.readFileSync(tokenFile()));
+    return result;
+  } catch {
+    return null;
+  }
+}
+
+function clearToken() {
+  session = { token: null, profile: null };
+  try { fs.rmSync(tokenFile(), { force: true }); } catch { /* yok */ }
+}
+
+// ---- HTTP yardımcıları ----
+async function ghFetch(url, init = {}) {
+  const u = new URL(url);
+  if (u.protocol !== 'https:' || !['github.com', 'api.github.com'].includes(u.hostname)) {
+    throw new Error('İzin verilmeyen adres.');
+  }
+  const res = await fetch(url, {
+    ...init,
+    headers: { Accept: 'application/json', 'User-Agent': 'NovaCode-Studio', ...(init.headers || {}) },
+    signal: init.signal || AbortSignal.timeout(15000)
+  });
+  return res;
+}
+
+async function api(pathname, { method = 'GET', body } = {}) {
+  if (!session.token) throw new Error('GitHub hesabı bağlı değil.');
+  const res = await ghFetch(`https://api.github.com${pathname}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(body ? { 'Content-Type': 'application/json' } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('GitHub oturumu geçersiz. Tekrar bağlanın.');
+  }
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const j = await res.json();
+      detail = [j.message, ...(j.errors || []).map((e) => e.message || e.code)].filter(Boolean).join(' ');
+    } catch { /* gövde yok */ }
+    const err = new Error(detail || `GitHub API hatası (${res.status}).`);
+    err.status = res.status;
+    throw err;
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+async function loadProfile() {
+  const u = await api('/user');
+  session.profile = { login: u.login, name: u.name || '', avatarUrl: u.avatar_url || '' };
+  return session.profile;
+}
+
+// Git komutlarına geçici kimlik bilgisi: argüman değil ortam değişkeni (süreç listesinde görünmez),
+// yalnız github.com adresleri için, diske yazılmaz.
+function gitAuthEnv() {
+  if (!session.token) return {};
+  const basic = Buffer.from(`x-access-token:${session.token}`).toString('base64');
+  return {
+    GIT_CONFIG_COUNT: '1',
+    GIT_CONFIG_KEY_0: 'http.https://github.com/.extraheader',
+    GIT_CONFIG_VALUE_0: `Authorization: Basic ${basic}`
+  };
+}
+
+function parseRemote(url) {
+  const m = /github\.com[:/]([^/\s]+)\/([^/\s]+?)(?:\.git)?\/?$/.exec(url || '');
+  return m ? { owner: m[1], repo: m[2] } : null;
+}
+
+function register({ getWindow, runGit, isValidPath }) {
+  const notify = (payload) => {
+    const w = getWindow();
+    if (w && !w.isDestroyed()) w.webContents.send('github:auth', payload);
+  };
+
+  // Uygulama açılışında kayıtlı oturumu sessizce geri yükle.
+  const restore = async () => {
+    const token = await loadToken();
+    if (!token) return;
+    session.token = token;
+    try {
+      notify({ state: 'connected', profile: await loadProfile() });
+    } catch {
+      /* ağ yoksa token saklı kalır; sonraki durum sorgusunda tekrar denenir */
+    }
+  };
+  app.whenReady().then(restore);
+
+  ipcMain.handle('github:status', async () => {
+    if (session.token && !session.profile) {
+      try { await loadProfile(); } catch { /* çevrimdışı */ }
+    }
+    return {
+      connected: !!session.token && !!session.profile,
+      profile: session.profile,
+      hasClientId: !!getClientId(),
+      canStoreToken: await canEncrypt()
+    };
+  });
+
+  // Cihaz akışı: kod al, tarayıcıyı aç, kullanıcı onaylayana kadar arka planda sorgula.
+  ipcMain.handle('github:login', async () => {
+    const clientId = getClientId();
+    if (!clientId) return { success: false, error: 'client-id-missing' };
+    if (pollAbort) pollAbort.abort();
+    const abort = (pollAbort = new AbortController());
+    try {
+      const res = await ghFetch('https://github.com/login/device/code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: clientId, scope: GITHUB_SCOPES })
+      });
+      const d = await res.json();
+      if (!res.ok || !d.device_code) return { success: false, error: d.error_description || 'Kod alınamadı.' };
+
+      // Kod önceden doldurulmuş sayfa: oturum yoksa GitHub giriş/kayıt ekranına, varsa doğrudan yetkilendirmeye gider.
+      const target = new URL(d.verification_uri);
+      target.searchParams.set('user_code', d.user_code);
+      shell.openExternal(target.toString()).catch(() => {});
+
+      (async () => {
+        let interval = Math.max(5, d.interval || 5);
+        const deadline = Date.now() + (d.expires_in || 900) * 1000;
+        while (!abort.signal.aborted && Date.now() < deadline) {
+          await new Promise((r) => setTimeout(r, interval * 1000));
+          if (abort.signal.aborted) return;
+          try {
+            const tr = await ghFetch('https://github.com/login/oauth/access_token', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                client_id: clientId,
+                device_code: d.device_code,
+                grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+              })
+            });
+            const t = await tr.json();
+            if (t.access_token) {
+              session.token = t.access_token;
+              const stored = await persistToken(t.access_token);
+              notify({ state: 'connected', profile: await loadProfile(), stored });
+              return;
+            }
+            if (t.error === 'slow_down') interval += 5;
+            else if (t.error === 'access_denied') return notify({ state: 'error', error: 'denied' });
+            else if (t.error === 'expired_token') break;
+            else if (t.error && t.error !== 'authorization_pending') return notify({ state: 'error', error: t.error });
+          } catch {
+            /* geçici ağ hatası: sorgulamaya devam */
+          }
+        }
+        if (!abort.signal.aborted) notify({ state: 'error', error: 'expired' });
+      })();
+
+      return { success: true, userCode: d.user_code, verificationUri: d.verification_uri, expiresIn: d.expires_in };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle('github:cancel', async () => {
+    if (pollAbort) pollAbort.abort();
+    return { success: true };
+  });
+
+  ipcMain.handle('github:logout', async () => {
+    if (pollAbort) pollAbort.abort();
+    clearToken();
+    notify({ state: 'disconnected' });
+    return { success: true };
+  });
+
+  ipcMain.handle('github:openExternal', async (_e, url) => {
+    if (typeof url === 'string' && ALLOWED_OPEN.some((p) => url.startsWith(p))) {
+      await shell.openExternal(url);
+      return { success: true };
+    }
+    return { success: false };
+  });
+
+  const NOT_CONNECTED = { success: false, error: 'github-required' };
+
+  // Geçerli dal için Pull Request açar. Önce dalı uzak depoya gönderir.
+  ipcMain.handle('github:createPr', async (_e, repoPath, input) => {
+    if (!session.token) return NOT_CONNECTED;
+    if (!isValidPath(repoPath) || !input || typeof input.title !== 'string') return { success: false, error: 'invalid-input' };
+    const title = input.title.trim();
+    const body = typeof input.body === 'string' ? input.body : '';
+    if (!title || title.length > 256 || body.length > 65536) return { success: false, error: 'invalid-input' };
+    const remote = await runGit(['remote', 'get-url', 'origin'], repoPath);
+    const parsed = remote.success ? parseRemote(remote.stdout) : null;
+    if (!parsed) return { success: false, error: 'no-remote' };
+    const branch = (await runGit(['branch', '--show-current'], repoPath)).stdout;
+    if (!branch) return { success: false, error: 'detached' };
+    try {
+      const base = `/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}`;
+      const repo = await api(base);
+      if (repo.default_branch === branch) return { success: false, error: 'on-default-branch' };
+      const pushed = await runGit(['push', '--set-upstream', 'origin', 'HEAD'], repoPath, { auth: true });
+      if (!pushed.success) return { success: false, error: 'push-failed', detail: pushed.stderr };
+      const pr = await api(`${base}/pulls`, {
+        method: 'POST',
+        body: { title, body, head: branch, base: repo.default_branch, draft: !!input.draft }
+      });
+      return { success: true, url: pr.html_url, number: pr.number };
+    } catch (err) {
+      return { success: false, error: /already exists/i.test(err.message) ? 'pr-exists' : 'api-failed', detail: err.message };
+    }
+  });
+
+  // Yerel depoyu GitHub'da yeni bir depo olarak yayınlar (origin ekler ve gönderir).
+  ipcMain.handle('github:publishRepo', async (_e, repoPath, input) => {
+    if (!session.token) return NOT_CONNECTED;
+    if (!isValidPath(repoPath) || !input || typeof input.name !== 'string' || !/^[A-Za-z0-9._-]{1,100}$/.test(input.name)) {
+      return { success: false, error: 'invalid-input' };
+    }
+    const existing = await runGit(['remote', 'get-url', 'origin'], repoPath);
+    if (existing.success) return { success: false, error: 'has-remote' };
+    const hasCommit = (await runGit(['rev-parse', '--verify', 'HEAD'], repoPath)).success;
+    if (!hasCommit) return { success: false, error: 'no-commits' };
+    try {
+      const repo = await api('/user/repos', { method: 'POST', body: { name: input.name, private: input.isPrivate !== false } });
+      await runGit(['remote', 'add', 'origin', repo.clone_url], repoPath);
+      const pushed = await runGit(['push', '--set-upstream', 'origin', 'HEAD'], repoPath, { auth: true });
+      if (!pushed.success) return { success: false, error: 'push-failed', detail: pushed.stderr, url: repo.html_url };
+      return { success: true, url: repo.html_url };
+    } catch (err) {
+      return { success: false, error: /already exists/i.test(err.message) ? 'repo-exists' : 'api-failed', detail: err.message };
+    }
+  });
+
+  // Açık deponun GitHub'daki canlı durumu: açık PR sayısı, son Actions koşuları.
+  ipcMain.handle('github:repoInfo', async (_e, repoPath) => {
+    if (!session.token || !isValidPath(repoPath)) return { available: false };
+    const remote = await runGit(['remote', 'get-url', 'origin'], repoPath);
+    const parsed = remote.success ? parseRemote(remote.stdout) : null;
+    if (!parsed) return { available: false };
+    try {
+      const base = `/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}`;
+      const [repo, runs, pulls] = await Promise.all([
+        api(base),
+        api(`${base}/actions/runs?per_page=3`).catch(() => ({ workflow_runs: [] })),
+        api(`${base}/pulls?state=open&per_page=5`).catch(() => [])
+      ]);
+      return {
+        available: true,
+        fullName: repo.full_name,
+        url: repo.html_url,
+        defaultBranch: repo.default_branch,
+        stars: repo.stargazers_count,
+        openIssues: repo.open_issues_count,
+        runs: (runs.workflow_runs || []).map((r) => ({
+          id: r.id, name: r.name, status: r.status, conclusion: r.conclusion, url: r.html_url, branch: r.head_branch
+        })),
+        pulls: pulls.map((p) => ({ number: p.number, title: p.title, url: p.html_url, author: p.user?.login }))
+      };
+    } catch (err) {
+      return { available: false, error: err.message };
+    }
+  });
+}
+
+const isConnected = () => !!session.token;
+
+module.exports = { register, gitAuthEnv, isConnected };

@@ -1,41 +1,382 @@
 @import "tailwindcss";
 
+/*
+ * NovaCode tasarım dili: VS Code "Dark Modern" benzeri, düz yüzeyler (cam/bulanıklık yok).
+ * Tailwind paleti burada yeniden tanımlanır; bileşenler zinc-* ve indigo-* sınıflarını kullanmaya devam eder.
+ */
+@theme {
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Code", "Cascadia Mono", "Fira Code", Consolas, "Courier New", monospace;
+
+  /* Nötr yüzeyler ve metin */
+  --color-zinc-50: #f8f8f8;
+  --color-zinc-100: #e7e7e7;
+  --color-zinc-200: #d4d4d4;
+  --color-zinc-300: #cccccc;
+  --color-zinc-400: #9d9d9d;
+  --color-zinc-500: #858585;
+  --color-zinc-600: #5a5a5a;
+  --color-zinc-700: #3c3c3c;
+  --color-zinc-800: #2b2b2b;
+  --color-zinc-900: #1f1f1f;
+  --color-zinc-950: #181818;
+
+  /* Vurgu: logodaki indigo-menekşe (ikincil: turkuaz) */
+  --color-indigo-200: #d2d5ff;
+  --color-indigo-300: #aeb4ff;
+  --color-indigo-400: #8b93ff;
+  --color-indigo-500: #6d75f5;
+  --color-indigo-600: #5359e0;
+  --color-indigo-700: #4146b8;
+
+  /* Uygulama yüzeyleri */
+  --color-nv-editor: #1f1f1f;
+  --color-nv-side: #181818;
+  --color-nv-input: #313131;
+  --color-nv-hover: #2a2d2e;
+  --color-nv-active: color-mix(in srgb, var(--color-indigo-500) 30%, var(--color-nv-side));
+  --color-nv-border: #2b2b2b;
+
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/*
+ * Koyu (varsayılan) ve açık mod. Bileşenler zinc-*, indigo-* ve nv-* jetonlarını kullandığı için
+ * yalnız bu değişkenleri değiştirmek tüm arayüzü dönüştürür. Mod, <html data-theme="dark|light"> ile seçilir.
+ */
+:root {
+  color-scheme: dark;
+  --hover-overlay: rgba(255, 255, 255, 0.08);
+  --active-overlay: rgba(255, 255, 255, 0.12);
+  --selection: #3b4080;
+  --scroll-thumb: rgba(121, 121, 121, 0.4);
+  --scroll-thumb-hover: rgba(100, 100, 100, 0.7);
+  --on-strong: #ffffff;
+  /* Terminal ANSI paleti (16 renk) */
+  --ansi-0: #3b4252; --ansi-1: #f7768e; --ansi-2: #9ece6a; --ansi-3: #e0af68;
+  --ansi-4: #7aa2f7; --ansi-5: #bb9af7; --ansi-6: #7dcfff; --ansi-7: #c0caf5;
+  --ansi-8: #565f89; --ansi-9: #ff899d; --ansi-10: #b9f27c; --ansi-11: #ffc777;
+  --ansi-12: #94b8ff; --ansi-13: #d0b3ff; --ansi-14: #a4daff; --ansi-15: #ffffff;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-zinc-50: #111111;
+  --color-zinc-100: #1f1f1f;
+  --color-zinc-200: #2b2b2b;
+  --color-zinc-300: #3b3b3b;
+  --color-zinc-400: #585858;
+  --color-zinc-500: #6e6e6e;
+  --color-zinc-600: #a0a0a0;
+  --color-zinc-700: #d0d0d0;
+  --color-zinc-800: #e6e6e6;
+  --color-zinc-900: #f3f3f3;
+  --color-zinc-950: #f8f8f8;
+  --color-nv-editor: #ffffff;
+  --color-nv-side: #f8f8f8;
+  --color-nv-input: #ececec;
+  --color-nv-hover: #eaeaea;
+  --color-nv-active: color-mix(in srgb, var(--color-indigo-500) 18%, var(--color-nv-side));
+  --color-nv-border: #e2e2e2;
+  --hover-overlay: rgba(0, 0, 0, 0.06);
+  --active-overlay: rgba(0, 0, 0, 0.1);
+  --selection: #cfd4ff;
+  --scroll-thumb: rgba(100, 100, 100, 0.35);
+  --scroll-thumb-hover: rgba(80, 80, 80, 0.6);
+  --on-strong: #111111;
+  --ansi-0: #3b3b3b; --ansi-1: #c72e4a; --ansi-2: #2e7d32; --ansi-3: #9a6700;
+  --ansi-4: #0b5cad; --ansi-5: #7b3fc4; --ansi-6: #0e7490; --ansi-7: #555555;
+  --ansi-8: #6e6e6e; --ansi-9: #d6455d; --ansi-10: #3a8f3f; --ansi-11: #b26b00;
+  --ansi-12: #1f6fd0; --ansi-13: #8f56d6; --ansi-14: #1488a6; --ansi-15: #1f1f1f;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
   }
-  
-  /* Custom scrollbar */
+
+  html,
+  body {
+    background: var(--color-nv-editor);
+    color: var(--color-zinc-300);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--selection);
+    color: inherit;
+  }
+
+  /* Klavye odağı: ince, tutarlı halka (yalnız klavyeyle gezerken) */
+  :focus-visible {
+    outline: 1px solid var(--color-indigo-500);
+    outline-offset: -1px;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 1px solid var(--color-indigo-500);
+  }
+
+  /* VS Code tarzı kaydırma çubuğu */
   ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
+    width: 10px;
+    height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0f111a;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #23283b;
-    border-radius: 4px;
+    background: var(--scroll-thumb);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3b4363;
+    background: var(--scroll-thumb-hover);
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }
 
+/* ---------- Başlık çubuğu: sürükleme alanı ---------- */
+.app-drag {
+  -webkit-app-region: drag;
+}
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* ---------- Etkinlik çubuğu ---------- */
+.ab-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: var(--color-zinc-500);
+  transition: color 140ms var(--ease-out-soft);
+}
+.ab-item svg {
+  transition: transform 160ms var(--ease-out-soft);
+}
+.ab-item:hover {
+  color: var(--color-zinc-50);
+}
+.ab-item:hover svg {
+  transform: scale(1.1);
+}
+.ab-item:active svg {
+  transform: scale(0.92);
+}
+.ab-item[data-active="true"] {
+  color: var(--color-zinc-50);
+}
+/* Etkin öğenin solundaki gösterge çubuğu kayarak belirir */
+.ab-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: var(--color-zinc-50);
+  border-radius: 0 2px 2px 0;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 220ms var(--ease-out-soft);
+}
+.ab-item[data-active="true"]::before {
+  transform: scaleY(1);
+}
+
+/* Kenar çubuğu ve terminal paneli: açılıp kapanırken boyut yumuşakça değişir.
+   Kenarı sürüklerken (data-resizing) gecikme olmaması için geçiş kapatılır. */
+.sidebar-shell {
+  transition: width 190ms var(--ease-out-soft);
+}
+.terminal-shell {
+  transition: height 200ms var(--ease-out-soft), border-top-width 200ms;
+}
+:root[data-resizing] .sidebar-shell,
+:root[data-resizing] .terminal-shell {
+  transition: none;
+}
+
+@layer components {
+/* Başlık çubuğu ve genel simge düğmeleri */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  border-radius: 5px;
+  color: var(--color-zinc-400);
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms var(--ease-out-soft);
+}
+.icon-btn:hover {
+  background: var(--hover-overlay);
+  color: var(--color-zinc-50);
+}
+.icon-btn:active {
+  transform: scale(0.94);
+}
+.icon-btn[data-active="true"] {
+  background: var(--active-overlay);
+  color: var(--color-zinc-50);
+}
+/* Kapalı (aria-disabled) düğmeler: soluk, imleç varsayılan; fare yine üzerinde gezinebilir ve ipucunu görür */
+.icon-btn[aria-disabled="true"] {
+  opacity: 0.35;
+  cursor: default;
+}
+.icon-btn[aria-disabled="true"]:hover {
+  background: transparent;
+  color: var(--color-zinc-400);
+}
+.icon-btn[aria-disabled="true"]:active {
+  transform: none;
+}
+}
+
+/* Durum çubuğu öğeleri */
+@layer components {
+.status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  padding: 0 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 120ms ease;
+}
+button.status-item:hover {
+  background: var(--active-overlay);
+}
+}
+
+/* ---------- Animasyonlar ---------- */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes panelUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes drawStroke {
+  from { stroke-dashoffset: 60; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes starIn {
+  from { opacity: 0; transform: scale(0.2) rotate(-70deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes menuIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes menuItemIn {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes splashOut {
+  to { opacity: 0; }
+}
+@keyframes loadBar {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+@keyframes twinkle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
 }
 
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.08); }
+.animate-fade-in { animation: fadeIn 220ms var(--ease-out-soft) both; }
+.animate-sidebar-in { animation: slideInLeft 180ms var(--ease-out-soft) both; }
+.animate-panel-up { animation: panelUp 200ms var(--ease-out-soft) both; }
+.animate-tab-in { animation: tabIn 160ms var(--ease-out-soft) both; }
+.animate-menu { animation: menuIn 160ms var(--ease-out-soft) both; transform-origin: top left; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.animate-menu-item { animation: menuItemIn 180ms var(--ease-out-soft) both; }
+.animate-splash-out { animation: splashOut 260ms ease forwards; }
+.animate-twinkle { animation: twinkle 3.2s ease-in-out infinite; transform-origin: center; }
+
+.logo-bracket {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: drawStroke 600ms 120ms var(--ease-out-soft) forwards;
+}
+.logo-star {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: starIn 650ms 280ms var(--ease-out-soft) both;
+}
+.logo-star-small {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: starIn 650ms 520ms var(--ease-out-soft) both;
+}
+.load-bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 40%;
+  background: var(--color-indigo-400);
+  animation: loadBar 1100ms var(--ease-out-soft) infinite;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Ayarlardan "Animasyonlar" kapatılırsa (data-motion="off") tüm hareket durur */
+:root[data-motion="off"] *,
+:root[data-motion="off"] *::before,
+:root[data-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+:root[data-motion="off"] .logo-bracket {
+  stroke-dashoffset: 0;
 }
 
-.animate-pulse-glow {
-  animation: pulseGlow 3s ease-in-out infinite;
+/* Hareketi azaltmak isteyen kullanıcılar için tüm animasyonlar kapanır */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .logo-bracket {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Etkinlik çubuğu: kapalı öğe (katmansız .ab-item kurallarını ezmek için katman dışında) */
+.ab-item[aria-disabled="true"] {
+  opacity: 0.35;
+  cursor: default;
+}
+.ab-item[aria-disabled="true"]:hover {
+  color: var(--color-zinc-500);
+}
+.ab-item[aria-disabled="true"]:hover svg,
+.ab-item[aria-disabled="true"]:active svg {
+  transform: none;
 }

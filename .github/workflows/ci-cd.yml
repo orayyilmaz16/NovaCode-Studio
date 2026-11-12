@@ -40,6 +40,15 @@ jobs:
       - name: Senkron sunucusu sözdizimi
         run: node --check server/sync-server.mjs
 
+      - name: Git modülü testleri
+        run: npm test
+
+      - name: Proje beyni tutarlılığı (md bağlantıları, IPC, i18n)
+        run: npm run brain:check
+
+      - name: Sürüm denetimi (package.json ↔ lock ↔ etiket ↔ CHANGELOG ↔ güncelleyici)
+        run: node scripts/check-version.mjs
+
       - name: Güvenlik açığı taraması (high+ build'i durdurur)
         run: npm audit --audit-level=high
 
@@ -141,6 +150,9 @@ jobs:
           name: NovaCode Studio v${{ needs.version.outputs.version }}
           body_path: release-notes/v${{ needs.version.outputs.version }}.md
           generate_release_notes: false
-          files: release/*.exe
+          files: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

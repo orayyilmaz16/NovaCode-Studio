@@ -24,8 +24,8 @@ Amaç: en az token ile güvenli, tutarlı commit + sürüm + push.
 4. **Taslak göster** (kısa):
    ```
    Sürüm: 1.0.0 → 1.1.0 (minor)
-   Commit: feat: add snippet search to SnippetsPanel
-   Dosyalar: src/components/SnippetsPanel.tsx, ...
+   Commit: feat: add search box to FileTree
+   Dosyalar: src/components/FileTree.tsx, ...
    ```
 5. **Onay bekle.** Onay yoksa hiçbir git yazma komutu çalıştırma.
 6. **Uygula** (onay sonrası)

@@ -34,3 +34,6 @@ Thumbs.db
 *.key
 *.pfx
 coverage
+
+# Güncelleyici testi (yalnız yerel)
+dev-app-update.yml

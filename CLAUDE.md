@@ -9,12 +9,13 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 - `npm run electron:build` — Windows NSIS kurulum (`release/`)
 
 ## Harita (önce buraya bak, tüm repoyu tarama)
-- `electron-main.cjs`, `electron-preload.cjs` — ana süreç, dosya sistemi, watcher, IPC, sandbox
+- **Proje beyni:** `docs/brain/BRAIN.md` — okuma sırası, aksiyon oyun kitapları (`docs/brain/actions/`), karar günlüğü; `docs/brain/STATE.md` koddan otomatik üretilir (`npm run brain`, doğrulama `npm run brain:check`). İşe başlarken uygun aksiyon dosyasını oku, bitince `writes` listesini güncelle.
+- `electron-main.cjs`, `electron-preload.cjs`, `electron-git.cjs`, `electron-github.cjs` — ana süreç, dosya sistemi, watcher, IPC, git/GitHub, terminal, sandbox
+- `electron-ai.cjs` (AI motoru + ajan araçları), `electron-llm.cjs` (yerleşik yerel model, `node-llama-cpp`), `electron-ext.cjs` (eklenti mağazası, Open VSX), `electron-search.cjs` (dosya/metin arama) — ayrıntı: `docs/brain/actions/ai-assistant.md`, `extensions.md`, `search-palette.md`
 - `src/App.tsx` — kabuk, durum yönetimi
-- `src/components/` — EditorArea, FileTree, GitPanel, Terminal, AIAssistant, Preview, SnippetsPanel, LandingPage, SplashScreen
+- `src/components/` — EditorArea, FileTree, GitPanel, Terminal, AIAssistant, Preview, LandingPage, SplashScreen
 - `server/sync-server.mjs` — açık kaynak Yjs senkron sunucusu (kendi sunucunda, `NOVA_SYNC_TOKEN` zorunlu, `npm run sync:server`)
 - `src/services/monacoShim.ts` — y-monaco için global Monaco köprüsü (vite alias)
-- `src/snippets/defaultSnippets.ts` — hazır snippet'ler
 - `.github/workflows/ci-cd.yml` — audit + build + Windows release
 
 ## Kurallar
@@ -29,7 +30,7 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 
 ## Git ve sürüm (ayrıntı: `AGENT.md`, `.claude/skills/nova-release/SKILL.md`)
 - Conventional Commits. Sürüm SemVer, tek kaynak `package.json`.
-- **Commit/push otomatiktir (kullanıcı onayıyla kuruldu):** her Claude turu bitince `scripts/auto-commit.mjs` (Stop hook, `.claude/settings.json`) değişiklikleri `chore(auto): ...` mesajıyla `origin main`'e push eder. Gizli dosya, `dist/`, `release/` atlanır; gizli dosya varsa o tur commit edilmez. Kullanıcı bu otomatik commit/push için kalıcı izin verdi (2026-11-06).
+- **Commit/push otomatiktir (kullanıcı onayıyla kuruldu):** her Claude turu bitince `scripts/auto-commit.mjs` (Stop hook, `.claude/settings.json`) değişiklikleri `chore(auto): ...` mesajıyla `origin main`'e push eder. Gizli dosya, `dist/`, `release/` atlanır; gizli dosya varsa o tur commit edilmez. Kullanıcı bu otomatik commit/push için kalıcı izin verdi (2026-11-06). `auto/*` dalındaysa dalda kalır, PR açar ve CI yeşilse auto-merge eder (`--force` yok, çakışmada durur).
 - **Sürüm, etiket ve GitHub Release otomatiktir (kullanıcı talimatıyla, 2026-11-08):** her güncelleme CI'da (`version` işi, `scripts/bump-version.mjs`) PATCH sürüm alır, `vX.Y.Z` etiketi atılır ve Türkçe + İngilizce notlarla GitHub Release çıkarılır. Kırıcı değişiklik (`feat!:` / `BREAKING CHANGE:`) MAJOR artırır; yalnız `docs:`/`ci:`/`test:` değişiklikleri sürüm çıkarmaz.
 - **Sürüm notu yazma kuralı:** Her kullanıcıya görünen değişiklikte `CHANGELOG.md` içindeki `## Unreleased` bölümüne `### tr` ve `### en` altında madde ekle. Tam akış ve derleme adımları: `AGENT.md` §3–4.
 - **Güvenlik/kalite taraması otomatik:** `ci-cd.yml` (tip, hijyen, npm audit high, build, bundle bütçesi) ve `security.yml` (CodeQL, gitleaks, dependency review, haftalık npm audit) her push/PR'da çalışır. `chore(auto)` commit'leri sürüm artırmaz.

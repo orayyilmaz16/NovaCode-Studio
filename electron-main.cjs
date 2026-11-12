@@ -1,12 +1,18 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execFile, execFileSync, spawn } = require('child_process');
+const { execFile } = require('child_process');
+const github = require('./electron-github.cjs');
+const secrets = require('./electron-secrets.cjs');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
 let mainWindow;
 let activeWatcher = null;
+let activeGitWatcher = null;
+const approvedFiles = new Set(); // diyalogla açılan dosyalar (çalışma klasörü dışında olabilir); yalnız bunlara yazılabilir
+const approvalKey = (p) => path.resolve(p).toLowerCase();
+let workspaceRoot = ''; // açık çalışma klasörü (arama ve yapay zekâ araçları yalnız bunun içinde çalışır)
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -14,17 +20,28 @@ function createWindow() {
     height: 860,
     minWidth: 980,
     minHeight: 660,
-    backgroundColor: '#0d1017',
+    backgroundColor: '#181818',
     title: 'NovaCode Studio',
+    // Uygulama simgesi: geliştirmede public/, paketli uygulamada dist/ içinden
+    icon: path.join(__dirname, isDev ? 'public' : 'dist', 'icon.png'),
+    // Özel başlık çubuğu: pencere düğmeleri (küçült/büyüt/kapat) sistem tarafından arayüzün üstüne çizilir
+    titleBarStyle: 'hidden',
+    titleBarOverlay: { color: '#181818', symbolColor: '#cccccc', height: 36 },
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.cjs'),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
-      webSecurity: false
+      webSecurity: true
     },
     autoHideMenuBar: true,
+  });
+
+  // Dikte için yalnız mikrofon izni (uygulamanın kendi sayfasına); diğer tüm izinler reddedilir.
+  mainWindow.webContents.session.setPermissionRequestHandler((wc, permission, cb, details) => {
+    const types = (details && details.mediaTypes) || [];
+    cb(permission === 'media' && types.length > 0 && types.every((m) => m === 'audio') && wc === mainWindow.webContents);
   });
 
   if (isDev) {
@@ -34,6 +51,12 @@ function createWindow() {
   }
 
   mainWindow.once('ready-to-show', () => {
+    // NOVA_HEADLESS=1: otomatik testler için pencere ekran dışında, odaksız açılır (render sürer, kullanıcı görmez/etkilemez).
+    if (process.env.NOVA_HEADLESS === '1') {
+      mainWindow.setPosition(-3200, -3200);
+      mainWindow.showInactive();
+      return;
+    }
     mainWindow.show();
     mainWindow.focus();
   });
@@ -52,6 +75,10 @@ function createWindow() {
 }
 
 function stopFileWatcher() {
+  if (activeGitWatcher) {
+    try { activeGitWatcher.close(); } catch (e) { /* zaten kapalı */ }
+    activeGitWatcher = null;
+  }
   if (activeWatcher) {
     try { activeWatcher.close(); } catch (e) { /* zaten kapalı */ }
     activeWatcher = null;
@@ -138,6 +165,25 @@ function startFileWatcher(rootPath) {
       }
     });
     activeWatcher = watcher;
+
+    // .git içindeki HEAD/index/refs değişimleri: terminalde veya başka araçta yapılan commit, checkout,
+    // fetch anında arayüze yansır (nesne dosyaları yok sayılır).
+    const gitDir = path.join(rootPath, '.git');
+    if (fs.existsSync(gitDir) && fs.statSync(gitDir).isDirectory()) {
+      let gitTimer;
+      activeGitWatcher = fs.watch(gitDir, { recursive: true }, (_t, filename) => {
+        const f = filename ? String(filename).split('\\').join('/') : '';
+        if (!/^(HEAD|index|MERGE_HEAD|ORIG_HEAD|FETCH_HEAD|packed-refs|refs\/.*)$/.test(f) || f.endsWith('.lock')) return;
+        clearTimeout(gitTimer);
+        gitTimer = setTimeout(() => {
+          if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('git:changed', { rootPath });
+        }, 150);
+      });
+      activeGitWatcher.on('error', () => {
+        try { activeGitWatcher && activeGitWatcher.close(); } catch (e) { /* kapalı */ }
+        activeGitWatcher = null;
+      });
+    }
   } catch (e) {
     console.warn('File watcher could not be attached:', e);
   }
@@ -154,6 +200,42 @@ ipcMain.handle('app:quit', () => {
   app.quit();
 });
 
+// Son açılan klasörler: yalnız kullanıcının seçtiği klasör yolları, yerelde (userData) saklanır; hiçbir yere gönderilmez.
+const RECENT_MAX = 8;
+const recentFile = () => path.join(app.getPath('userData'), 'recent-folders.json');
+
+function readRecent() {
+  try {
+    const list = JSON.parse(fs.readFileSync(recentFile(), 'utf8'));
+    return Array.isArray(list) ? list.filter((p) => typeof p === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function pushRecent(folderPath) {
+  const list = [folderPath, ...readRecent().filter((p) => p !== folderPath)].slice(0, RECENT_MAX);
+  try {
+    fs.writeFileSync(recentFile(), JSON.stringify(list), { mode: 0o600 });
+  } catch (e) {
+    console.warn('Son klasörler kaydedilemedi:', e);
+  }
+}
+
+async function openWorkspace(folderPath) {
+  if (!isValidPath(folderPath) || !fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
+    throw new Error('Seçilen klasör bulunamadı veya erişilemiyor.');
+  }
+  startFileWatcher(folderPath);
+  workspaceRoot = folderPath;
+  pushRecent(folderPath);
+  return {
+    rootPath: folderPath,
+    rootName: path.basename(folderPath),
+    tree: await scanDirectory(folderPath)
+  };
+}
+
 ipcMain.handle('dialog:openFolder', async () => {
   try {
     const result = await dialog.showOpenDialog(mainWindow || undefined, {
@@ -161,20 +243,25 @@ ipcMain.handle('dialog:openFolder', async () => {
       title: 'Çalışma Alanı Klasörü Seçin'
     });
     if (result.canceled || !result.filePaths.length) return null;
-
-    const folderPath = result.filePaths[0];
-    if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
-      throw new Error('Seçilen klasör bulunamadı veya erişilemiyor.');
-    }
-    startFileWatcher(folderPath);
-
-    return {
-      rootPath: folderPath,
-      rootName: path.basename(folderPath),
-      tree: await scanDirectory(folderPath)
-    };
+    return await openWorkspace(result.filePaths[0]);
   } catch (err) {
     console.error('Klasör açılamadı:', err);
+    return { error: err.message || 'Klasör açılamadı.' };
+  }
+});
+
+ipcMain.handle('workspace:recent', async () =>
+  readRecent()
+    .filter((p) => fs.existsSync(p))
+    .map((p) => ({ path: p, name: path.basename(p) }))
+);
+
+// Yalnız daha önce diyalogla seçilmiş (son klasörler listesindeki) yollar açılır: rastgele yol açılamaz.
+ipcMain.handle('workspace:open', async (_event, folderPath) => {
+  if (!isValidPath(folderPath) || !readRecent().includes(folderPath)) return { error: 'not-recent' };
+  try {
+    return await openWorkspace(folderPath);
+  } catch (err) {
     return { error: err.message || 'Klasör açılamadı.' };
   }
 });
@@ -190,6 +277,7 @@ ipcMain.handle('dialog:openFiles', async () => {
   for (const filePath of result.filePaths) {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
+      approvedFiles.add(approvalKey(filePath));
       const name = path.basename(filePath);
       const ext = path.extname(name).toLowerCase().replace('.', '');
       files.push({
@@ -205,21 +293,53 @@ ipcMain.handle('dialog:openFiles', async () => {
   return files;
 });
 
+// Yeniden adlandırma ve sürükle-bırak taşıma: iki yol da açık çalışma klasörünün İÇİNDE olmalı; hedef varsa üzerine yazılmaz.
+const withinWorkspace = (p) => {
+  if (!workspaceRoot || !isValidPath(p)) return false;
+  const rel = path.relative(path.resolve(workspaceRoot), path.resolve(p));
+  return !rel.startsWith('..') && !path.isAbsolute(rel);
+};
+const insideWorkspace = (p) => {
+  if (!workspaceRoot || !isValidPath(p)) return false;
+  const rel = path.relative(path.resolve(workspaceRoot), path.resolve(p));
+  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+};
+// Önizleme için yerel varlık (görsel/yazı tipi) → data URL. Yalnız çalışma klasörü (veya diyalogla açılmış dosya), izinli uzantılar, en çok 4 MB.
+const DATA_MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', ico: 'image/x-icon', bmp: 'image/bmp', woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf', otf: 'font/otf' };
+ipcMain.handle('fs:readDataUrl', async (_event, filePath) => {
+  try {
+    if (!isValidPath(filePath) || !(insideWorkspace(filePath) || approvedFiles.has(approvalKey(filePath)))) return { success: false, error: 'outside' };
+    const mime = DATA_MIME[path.extname(filePath).slice(1).toLowerCase()];
+    if (!mime) return { success: false, error: 'type' };
+    const st = fs.statSync(filePath);
+    if (!st.isFile() || st.size > 4 * 1024 * 1024) return { success: false, error: 'size' };
+    return { success: true, dataUrl: `data:${mime};base64,${fs.readFileSync(filePath).toString('base64')}` };
+  } catch {
+    return { success: false, error: 'read' };
+  }
+});
+
 ipcMain.handle('fs:readDir', async (_event, dirPath) => {
-  if (!isValidPath(dirPath) || !fs.existsSync(dirPath)) return [];
+  if (!withinWorkspace(dirPath) || !fs.existsSync(dirPath)) return [];
   return scanDirectory(dirPath);
 });
 
+// Okuma: çalışma klasörü içi veya kullanıcının "Dosya Aç" diyaloğuyla seçtiği dosyalar (rastgele yol okunamaz)
 ipcMain.handle('fs:readFile', async (_event, filePath) => {
   try {
+    if (!(withinWorkspace(filePath) || (isValidPath(filePath) && approvedFiles.has(approvalKey(filePath))))) throw new Error('Yol çalışma klasörü dışında.');
     return fs.readFileSync(filePath, 'utf8');
   } catch (err) {
     throw new Error('Dosya okunamadı: ' + err.message);
   }
 });
 
+// Yazma/silme/oluşturma: yol açık çalışma klasörünün içinde olmalı (yazma için ayrıca diyalogla açılmış dosyalar da olabilir).
+const OUTSIDE = { success: false, error: 'Yol çalışma klasörü dışında.' };
+const writable = (p) => insideWorkspace(p) || (isValidPath(p) && approvedFiles.has(approvalKey(p)));
 ipcMain.handle('fs:writeFile', async (_event, filePath, content) => {
   try {
+    if (!writable(filePath) || typeof content !== 'string') return OUTSIDE;
     fs.writeFileSync(filePath, content, 'utf8');
     return { success: true };
   } catch (err) {
@@ -229,6 +349,7 @@ ipcMain.handle('fs:writeFile', async (_event, filePath, content) => {
 
 ipcMain.handle('fs:createFile', async (_event, filePath) => {
   try {
+    if (!insideWorkspace(filePath)) return OUTSIDE;
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(filePath, '', 'utf8');
     }
@@ -240,6 +361,7 @@ ipcMain.handle('fs:createFile', async (_event, filePath) => {
 
 ipcMain.handle('fs:createFolder', async (_event, folderPath) => {
   try {
+    if (!insideWorkspace(folderPath)) return OUTSIDE;
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
@@ -251,6 +373,7 @@ ipcMain.handle('fs:createFolder', async (_event, folderPath) => {
 
 ipcMain.handle('fs:deleteItem', async (_event, targetPath) => {
   try {
+    if (!insideWorkspace(targetPath)) return OUTSIDE; // kök klasörün kendisi de silinemez
     if (fs.existsSync(targetPath)) {
       fs.rmSync(targetPath, { recursive: true, force: true });
     }
@@ -262,6 +385,10 @@ ipcMain.handle('fs:deleteItem', async (_event, targetPath) => {
 
 ipcMain.handle('fs:renameItem', async (_event, oldPath, newPath) => {
   try {
+    if (!insideWorkspace(oldPath) || !insideWorkspace(newPath)) return { success: false, error: 'Yol çalışma klasörü dışında.' };
+    if (path.resolve(newPath).toLowerCase().startsWith(path.resolve(oldPath).toLowerCase() + path.sep)) return { success: false, error: 'Klasör kendi içine taşınamaz.' };
+    const samePathDifferentCase = path.resolve(oldPath).toLowerCase() === path.resolve(newPath).toLowerCase();
+    if (!samePathDifferentCase && fs.existsSync(newPath)) return { success: false, error: 'Aynı adlı bir öğe zaten var.' };
     fs.renameSync(oldPath, newPath);
     return { success: true };
   } catch (err) {
@@ -269,158 +396,78 @@ ipcMain.handle('fs:renameItem', async (_event, oldPath, newPath) => {
   }
 });
 
+// Dosya gezgininde göster (Windows Gezgini / Finder): yalnız çalışma klasörü içindeki var olan yollar
+ipcMain.handle('app:reveal', async (_event, target) => {
+  try {
+    if (!isValidPath(target) || !fs.existsSync(target)) return { success: false };
+    const root = workspaceRoot ? path.resolve(workspaceRoot) : '';
+    const t = path.resolve(target);
+    if (root && t !== root && !insideWorkspace(t)) return { success: false };
+    shell.showItemInFolder(t);
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+});
+
 // ----------------------------------------------------
 // IPC Handlers: Real Git Integration
 // ----------------------------------------------------
 // Kabuk kullanılmaz (execFile): argümanlar doğrudan git'e gider, enjeksiyon olmaz.
-function runGitCommand(args, cwd) {
+function runGitCommand(args, cwd, { auth = false, raw = false, timeout = 120000 } = {}) {
   return new Promise((resolve) => {
     if (!isValidPath(cwd) || !fs.existsSync(cwd)) {
       resolve({ success: false, stdout: '', stderr: 'Geçersiz depo yolu.' });
       return;
     }
-    execFile('git', args, { cwd, windowsHide: true, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
+    // GIT_TERMINAL_PROMPT=0: kimlik sorusunda sonsuza dek beklemek yerine hata ver.
+    const env = { ...process.env, GIT_TERMINAL_PROMPT: '0', LC_ALL: 'C', ...(auth ? github.gitAuthEnv() : {}) };
+    execFile('git', args, { cwd, env, timeout, windowsHide: true, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
       resolve({
         success: !error,
-        stdout: stdout ? stdout.trim() : '',
+        stdout: stdout ? (raw ? stdout : stdout.trim()) : '',
         stderr: stderr ? stderr.trim() : (error ? error.message : '')
       });
     });
   });
 }
 
-ipcMain.handle('git:status', async (_event, repoPath) => {
-  if (!isValidPath(repoPath)) return { isRepo: false };
-  const check = await runGitCommand(['rev-parse', '--is-inside-work-tree'], repoPath);
-  if (!check.success || check.stdout !== 'true') {
-    return { isRepo: false };
-  }
+const gitModule = require('./electron-git.cjs');
+secrets.register();
 
-  const [branchRes, statusRes] = await Promise.all([
-    runGitCommand(['branch', '--show-current'], repoPath),
-    runGitCommand(['status', '--short'], repoPath)
-  ]);
-
-  const changes = statusRes.stdout
-    ? statusRes.stdout.split('\n').filter(Boolean).map(line => {
-        const code = line.substring(0, 2).trim();
-        const file = line.substring(3).trim();
-        return { code, file };
-      })
-    : [];
-
-  return {
-    isRepo: true,
-    branch: branchRes.stdout || 'main',
-    changes
-  };
-});
-
-ipcMain.handle('git:commit', async (_event, repoPath, message) => {
-  if (typeof message !== 'string' || !message.trim() || message.length > 500) {
-    return { success: false, stdout: '', stderr: 'Geçersiz commit mesajı.' };
-  }
-  await runGitCommand(['add', '.'], repoPath);
-  return runGitCommand(['commit', '-m', message], repoPath);
-});
-
-ipcMain.handle('git:push', async (_event, repoPath) => {
-  return runGitCommand(['push'], repoPath);
-});
-
-ipcMain.handle('git:pull', async (_event, repoPath) => {
-  return runGitCommand(['pull'], repoPath);
-});
-
-// ----------------------------------------------------
-// IPC Handlers: Gerçek shell (PowerShell / CMD), kalıcı oturumlar
-// ----------------------------------------------------
-// PTY değil, stdin/stdout borusu: çoğu komut çalışır, renkli/tam ekran programlar çalışmaz.
-// Her shell bir kez başlar ve sekme değişince kapanmaz; böylece tekrar açmak anında olur.
-const shells = new Map(); // name -> { proc, cwd }
-let cachedPwsh = null;
-
-function hasPwsh() {
-  if (cachedPwsh !== null) return cachedPwsh;
-  if (process.platform !== 'win32') return (cachedPwsh = false);
-  try { execFileSync('where.exe', ['pwsh'], { windowsHide: true, stdio: 'ignore' }); cachedPwsh = true; }
-  catch { cachedPwsh = false; }
-  return cachedPwsh;
-}
-
-function stopShell(name) {
-  const entry = shells.get(name);
-  if (entry) {
-    try { entry.proc.kill(); } catch (e) {}
-    shells.delete(name);
-  }
-}
-
-function sendTerm(channel, payload) {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send(channel, payload);
-  }
-}
-
-ipcMain.handle('term:start', async (_event, shellName, cwd) => {
-  const name = shellName === 'cmd' ? 'cmd' : 'powershell';
-  if (!isValidPath(cwd) || !fs.existsSync(cwd)) {
-    return { success: false, error: 'Çalışma klasörü yok. Önce bir klasör açın.' };
-  }
-  const existing = shells.get(name);
-  if (existing && existing.cwd === cwd && existing.proc.exitCode === null) {
-    return { success: true, shell: name, reused: true };
-  }
-  stopShell(name);
-
-  const isCmd = name === 'cmd';
-  const command = isCmd ? 'cmd.exe' : (process.platform === 'win32' ? (hasPwsh() ? 'pwsh.exe' : 'powershell.exe') : 'bash');
-  const args = isCmd
-    ? ['/Q']
-    : process.platform === 'win32'
-      ? ['-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', '-']
-      : [];
-  let proc;
+// Pencere başlık çubuğu (özel) renkleri: yalnız önceden tanımlı iki tema kabul edilir.
+const TITLEBAR = {
+  dark: { color: '#181818', symbolColor: '#cccccc', height: 36 },
+  light: { color: '#f8f8f8', symbolColor: '#3b3b3b', height: 36 }
+};
+ipcMain.handle('ui:setTheme', async (_event, mode) => {
+  if (mode !== 'dark' && mode !== 'light') return { success: false };
   try {
-    proc = spawn(command, args, { cwd, windowsHide: true, env: process.env });
-  } catch (err) {
-    return { success: false, error: err.message };
+    if (mainWindow && !mainWindow.isDestroyed() && typeof mainWindow.setTitleBarOverlay === 'function') {
+      mainWindow.setTitleBarOverlay(TITLEBAR[mode]);
+      mainWindow.setBackgroundColor(mode === 'dark' ? '#1f1f1f' : '#ffffff');
+    }
+  } catch (e) {
+    console.warn('Başlık çubuğu rengi ayarlanamadı:', e);
   }
-  shells.set(name, { proc, cwd });
-
-  // Türkçe karakterler için çıktı kodlamasını UTF-8'e al (Windows varsayılanı OEM kod sayfası).
-  if (isCmd) {
-    proc.stdin.write('chcp 65001 >nul\r\n');
-  } else if (process.platform === 'win32') {
-    proc.stdin.write('[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8\n');
-  }
-  proc.stdout.on('data', (chunk) => sendTerm('term:output', { shell: name, text: chunk.toString('utf8') }));
-  proc.stderr.on('data', (chunk) => sendTerm('term:output', { shell: name, text: chunk.toString('utf8') }));
-  proc.on('error', (err) => sendTerm('term:output', { shell: name, text: `\n[shell hatası] ${err.message}\n` }));
-  proc.on('exit', (code) => {
-    if (shells.get(name)?.proc === proc) shells.delete(name);
-    sendTerm('term:exit', { shell: name, code });
-  });
-  return { success: true, shell: command };
-});
-
-ipcMain.handle('term:input', async (_event, shellName, line) => {
-  const entry = shells.get(shellName === 'cmd' ? 'cmd' : 'powershell');
-  if (!entry || typeof line !== 'string' || line.length > 10000) {
-    return { success: false, error: 'Shell çalışmıyor.' };
-  }
-  entry.proc.stdin.write(line + '\n');
   return { success: true };
 });
 
-ipcMain.handle('term:stop', async (_event, shellName) => {
-  stopShell(shellName === 'cmd' ? 'cmd' : 'powershell');
-  return { success: true };
-});
+// Depo yolu = açık çalışma klasörü (veya içi); rastgele klasörde git/GitHub işlemi yapılamaz
+github.register({ getWindow: () => mainWindow, runGit: runGitCommand, isValidPath: withinWorkspace });
+gitModule.register({ runGit: runGitCommand, github, isValidPath: withinWorkspace });
 
-app.on('before-quit', () => {
-  for (const name of [...shells.keys()]) stopShell(name);
-});
+// ----------------------------------------------------
+// Entegre terminal: çoklu kabuk oturumları (electron-term.cjs)
+// ----------------------------------------------------
+require('./electron-term.cjs').register({ getWindow: () => mainWindow, isValidPath });
+
+// Arama (Ctrl+P / Ctrl+Shift+F) ve yapay zekâ asistanı (electron-ai.cjs)
+require('./electron-search.cjs').register({ getRoot: () => workspaceRoot });
+require('./electron-ext.cjs').register();
+require('./electron-update.cjs').register({ getWindow: () => mainWindow });
+require('./electron-llm.cjs').register({ getWindow: () => mainWindow });
+require('./electron-ai.cjs').register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
 
 // Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
