@@ -26,14 +26,16 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[release]] | Commit, sürüm, push, release |
 | [[git-github]] | Git paneli, GitHub hesabı, PR, eşzamanlama |
 | [[ui-design]] | Arayüz, tema (koyu/açık), logo, animasyon |
-| [[settings]] | Ayarlar sistemi: yeni ayar, tema/font/editör/snippet |
+| [[settings]] | Ayarlar sistemi: yeni ayar, tema/font/editör |
 | [[i18n]] | Arayüze metin eklemek (8 dil) |
 | [[security-kvkk]] | IPC, dosya sistemi, token, kişisel veri |
 | [[terminal]] | Entegre terminal (PowerShell/CMD) |
 | [[ai-assistant]] | Yapay zekâ paneli: sağlayıcılar, Ask/Agent, araçlar, oturumlar, görsel, dikte, özel komutlar |
+| [[explorer]] | Gezgin: filtre, sıralama, sürükle-bırak taşıma, görünüm seçenekleri, güvenlik |
 | [[updates]] | Güncelleme sistemi: denetle, indir (yüzde), yeniden başlat ve kur; yayın hattı |
-| [[extensions]] | Eklenti mağazası (Open VSX): tema/snippet yükleme, güncelleme |
-| [[search-palette]] | Komut paleti (Ctrl+P, `>`, `:`, `$`), proje araması, snippet hızlı yolları |
+| [[preview]] | Önizleme (HTML/SVG/MD, localhost), Çalıştır (F5), çalıştırma ayarları |
+| [[extensions]] | Eklenti mağazası (Open VSX): tema yükleme, güncelleme |
+| [[search-palette]] | Komut paleti (Ctrl+P, `>`, `:`), proje araması |
 | [[ci-cd]] | GitHub Actions, audit, bundle bütçesi |
 | [[testing]] | Doğrulama: tsc, build, birim ve entegrasyon testleri |
 | [[brain-maintenance]] | Bu beyni güncel tutmak |

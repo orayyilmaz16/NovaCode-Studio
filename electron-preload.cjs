@@ -29,7 +29,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
   },
   openLink: (url) => ipcRenderer.invoke('app:openLink', url),
-  detectWorkspace: () => ipcRenderer.invoke('workspace:detect'),
+  revealInFolder: (target) => ipcRenderer.invoke('app:reveal', target),
   llm: {
     status: () => ipcRenderer.invoke('llm:status'),
     download: (id) => ipcRenderer.invoke('llm:download', id),
@@ -69,6 +69,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openFileDialog: () => ipcRenderer.invoke('dialog:openFiles'),
   readDirectory: (dirPath) => ipcRenderer.invoke('fs:readDir', dirPath),
   readFile: (filePath) => ipcRenderer.invoke('fs:readFile', filePath),
+  readDataUrl: (filePath) => ipcRenderer.invoke('fs:readDataUrl', filePath),
   writeFile: (filePath, content) => ipcRenderer.invoke('fs:writeFile', filePath, content),
   createFile: (filePath) => ipcRenderer.invoke('fs:createFile', filePath),
   createFolder: (folderPath) => ipcRenderer.invoke('fs:createFolder', folderPath),

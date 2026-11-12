@@ -2,6 +2,18 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 12.11.2026 (Ayarlar penceresi, Gezgin)
+- **Ayarlar ana alanı değiştirmek yerine uygulamanın üstünde ayrı bir pencere (modal) olarak açılır.** Neden: kullanıcı "arka plan siyah, ayarlar ayrı açılsın, ekrandan çıkmasın" istedi; ana görünüm kaybolmuyor, boyut ekranla sınırlı. Tek z-index ölçeği dokümante edildi ([[ui-design]]).
+- **Açılır menüler portal ile `document.body`'ye çizilir.** Neden: Gezgin'in görünüm menüsü kenar çubuğunun `overflow-hidden`'ı tarafından kırpılıyordu.
+- **Gezgin görünüm seçenekleri ayar olarak saklanır ve ayarlar sayfasıyla ortaktır** (menü ↔ ayar tek kaynak). Neden: özelleştirme kalıcı olsun, iki yerde tutarsızlık olmasın.
+- **Dosya IPC'leri çalışma klasörüne kısıtlandı (silme/oluşturma/taşıma/yazma) ve taşımada üzerine yazma engellendi.** Neden: `fs:deleteItem` renderer'dan gelen herhangi bir yolu özyinelemeli siliyordu (CLAUDE.md kural 4); sürükle-bırak taşıma eklenirken aynı yüzey sıkılaştırıldı. Etki: çalışma klasörü dışındaki dosyalar yalnız "Dosya Aç" diyaloğuyla seçilmişse yazılabilir.
+- **Sürükle-bırak taşıma Gezgin içinde (HTML5 DnD), ek bağımlılık yok.**
+
+## 12.11.2026 (başlık çubuğu, kapalı düğmeler, snippet kaldırıldı)
+- **Kod parçacığı (snippet) özelliği tamamen kaldırıldı:** kenar çubuğu paneli, ayar kategorisi ve yönetici, hazır snippet'ler, palet `$` modu, Monaco sağlayıcısı, eklenti snippet katkısı, tipler ve metinler. Neden: gereksiz bulundu, ürünü sadeleştirir; Monaco'nun kendi tamamlaması sürer. Sonuç: eklenti mağazası yalnız **tema** destekler; eski `userSnippets` verisi bir sonraki kayıtta `localStorage`'dan silinir (şema artık yazmaz). Geri almak = yeni karar.
+- **Başlık çubuğu üç bölgeli ızgara; arama kutusu pencereye göre ortalı; menü < 1280 px'te "Menü" düğmesine toplanır.** Neden: esnek (`flex`) düzende arama kutusu menü genişliğine göre kayıyor ve dar pencerede düğmelerle çakışıyordu.
+- **Projesiz/dosyasız işe yaramayan düğmeler `aria-disabled` ile soluk ama hoverlanabilir.** Neden: `disabled` fare olaylarını yutuyordu (ipucu/menü kaydırma çalışmıyordu); kullanıcı "kapalı ama üzerine gelebileyim" istedi.
+
 ## 12.11.2026 (güncelleme sistemi, duyarlı tasarım, mağaza ağı)
 - **Güncelleme: `electron-updater` + GitHub Releases.** Neden: indirme yüzdesi, SHA-512 doğrulama, fark indirme ve `quitAndInstall` hazır; kendi sürümümüzü yazmak hata ve güvenlik riski. Bedeli: yeni bağımlılık; CI'nın `latest.yml` ve `.blockmap` yüklemesi şart. İndirme varsayılan olarak kullanıcı onayıyla; "açılışta denetle" açık, "otomatik indir" kapalı (GitHub'a giden: IP, sürüm; kişisel veri yok).
 - **Sürüm notları GitHub API'den markdown olarak alınır, HTML basılmaz.** Neden: electron-updater GitHub notlarını HTML verir; `Markdown.tsx` yalnız React öğeleri üretir (XSS yüzeyi yok).

@@ -2,7 +2,7 @@
 import { useSyncExternalStore } from 'react';
 import type { UpdateState } from '../types';
 
-const initial: UpdateState = { status: 'idle', current: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '', latest: '', notes: '', percent: 0, transferred: 0, total: 0, speed: 0, error: '', checkedAt: 0, supported: false };
+const initial: UpdateState = { status: 'idle', current: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '', latest: '', notes: '', percent: 0, transferred: 0, total: 0, speed: 0, error: '', checkedAt: 0, supported: false, channel: 'dev', releaseUrl: '' };
 let state: UpdateState = initial;
 const listeners = new Set<() => void>();
 let started = false;

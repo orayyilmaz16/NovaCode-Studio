@@ -326,9 +326,6 @@ export const UI_TEXT = {
   actGit: {
     tr: "Kaynak Denetimi", en: "Source Control", de: "Quellcodeverwaltung", ru: "Система управления версиями", ar: "التحكم بالمصدر", es: "Control de código fuente", fr: "Gestion de versions", az: "Mənbə nəzarəti",
   },
-  actSnippets: {
-    tr: "Kod Parçacıkları", en: "Snippets", de: "Snippets", ru: "Сниппеты", ar: "المقتطفات", es: "Fragmentos", fr: "Extraits", az: "Kod parçaları",
-  },
   actAI: {
     tr: "Yapay Zekâ Asistanı", en: "AI Assistant", de: "KI-Assistent", ru: "ИИ-ассистент", ar: "مساعد الذكاء الاصطناعي", es: "Asistente de IA", fr: "Assistant IA", az: "Süni intellekt köməkçisi",
   },
@@ -407,9 +404,6 @@ export const UI_TEXT = {
   setCatEditor: {
     tr: "Editör", en: "Editor", de: "Editor", ru: "Редактор", ar: "المحرر", es: "Editor", fr: "Éditeur", az: "Redaktor",
   },
-  setCatSnippets: {
-    tr: "Snippet ve tamamlama", en: "Snippets & completion", de: "Snippets & Vervollständigung", ru: "Сниппеты и автодополнение", ar: "المقتطفات والإكمال", es: "Snippets y autocompletado", fr: "Snippets et complétion", az: "Snippet və tamamlama",
-  },
   setCatFiles: {
     tr: "Dosyalar ve kayıt", en: "Files & saving", de: "Dateien & Speichern", ru: "Файлы и сохранение", ar: "الملفات والحفظ", es: "Archivos y guardado", fr: "Fichiers et enregistrement", az: "Fayllar və yadda saxlama",
   },
@@ -445,9 +439,6 @@ export const UI_TEXT = {
   },
   setResetAll: {
     tr: "Tüm ayarları sıfırla", en: "Reset all settings", de: "Alle Einstellungen zurücksetzen", ru: "Сбросить все настройки", ar: "إعادة تعيين كل الإعدادات", es: "Restablecer todos los ajustes", fr: "Réinitialiser tous les paramètres", az: "Bütün parametrləri sıfırla",
-  },
-  setResetAllConfirm: {
-    tr: "Tüm ayarlar varsayılana dönecek (özel snippet'ler korunur). Devam edilsin mi?", en: "All settings will return to defaults (your custom snippets are kept). Continue?", de: "Alle Einstellungen werden auf Standard zurückgesetzt (eigene Snippets bleiben). Fortfahren?", ru: "Все настройки вернутся к значениям по умолчанию (ваши сниппеты сохранятся). Продолжить?", ar: "ستعود كل الإعدادات إلى الافتراضي (تبقى مقتطفاتك المخصصة). هل تريد المتابعة؟", es: "Todos los ajustes volverán a sus valores por defecto (se conservan tus snippets). ¿Continuar?", fr: "Tous les paramètres reviendront aux valeurs par défaut (vos snippets sont conservés). Continuer ?", az: "Bütün parametrlər standarta qayıdacaq (xüsusi snippetlər qalır). Davam edilsin?",
   },
   setExport: {
     tr: "Ayarları dışa aktar", en: "Export settings", de: "Einstellungen exportieren", ru: "Экспорт настроек", ar: "تصدير الإعدادات", es: "Exportar ajustes", fr: "Exporter les paramètres", az: "Parametrləri ixrac et",
@@ -653,12 +644,6 @@ export const UI_TEXT = {
   set_rulers: {
     tr: "Cetvel sütunları", en: "Ruler columns", de: "Lineal-Spalten", ru: "Колонки линейки", ar: "أعمدة المسطرة", es: "Columnas de regla", fr: "Colonnes de règle", az: "Xətkeş sütunları",
   },
-  set_defaultSnippetsInEditor: {
-    tr: "Hazır snippet'leri otomatik tamamlamada göster", en: "Show built-in snippets in completion", de: "Integrierte Snippets in Vervollständigung zeigen", ru: "Показывать встроенные сниппеты в автодополнении", ar: "إظهار المقتطفات المدمجة في الإكمال", es: "Mostrar snippets integrados en el autocompletado", fr: "Afficher les snippets intégrés dans la complétion", az: "Hazır snippetləri tamamlamada göstər",
-  },
-  set_snippetSuggestions: {
-    tr: "Snippet önerilerinin konumu", en: "Snippet suggestion position", de: "Position der Snippet-Vorschläge", ru: "Положение подсказок сниппетов", ar: "موضع اقتراحات المقتطفات", es: "Posición de sugerencias de snippets", fr: "Position des suggestions de snippets", az: "Snippet təkliflərinin yeri",
-  },
   set_autoSave: {
     tr: "Otomatik kaydet", en: "Auto save", de: "Automatisch speichern", ru: "Автосохранение", ar: "الحفظ التلقائي", es: "Guardado automático", fr: "Enregistrement automatique", az: "Avtomatik yadda saxla",
   },
@@ -728,12 +713,6 @@ export const UI_TEXT = {
   setDesc_rulers: {
     tr: "Dikey cetvel çizgisi sütunları, virgülle (örn: 80, 120).", en: "Vertical ruler columns, comma-separated (e.g. 80, 120).", de: "Spalten für vertikale Lineale, kommagetrennt (z. B. 80, 120).", ru: "Колонки вертикальных линеек через запятую (напр. 80, 120).", ar: "أعمدة خطوط المسطرة العمودية مفصولة بفواصل (مثل 80, 120).", es: "Columnas de reglas verticales separadas por comas (p. ej. 80, 120).", fr: "Colonnes des règles verticales, séparées par des virgules (ex. 80, 120).", az: "Şaquli xətkeş sütunları, vergüllə (məs. 80, 120).",
   },
-  setDesc_defaultSnippetsInEditor: {
-    tr: "Kapatırsan yalnız kendi snippet'lerin tamamlamada çıkar.", en: "If off, only your own snippets appear in completion.", de: "Wenn aus, erscheinen nur Ihre eigenen Snippets.", ru: "Если выключено, в автодополнении только ваши сниппеты.", ar: "عند الإيقاف تظهر مقتطفاتك الخاصة فقط في الإكمال.", es: "Si se desactiva, solo aparecen tus snippets en el autocompletado.", fr: "Si désactivé, seuls vos snippets apparaissent.", az: "Söndürülərsə yalnız öz snippetləriniz görünür.",
-  },
-  setDesc_snippetSuggestions: {
-    tr: "Snippet önerilerinin diğer önerilere göre sırası.", en: "Where snippet suggestions appear relative to other suggestions.", de: "Position der Snippet-Vorschläge relativ zu anderen Vorschlägen.", ru: "Где показывать сниппеты относительно других подсказок.", ar: "موضع اقتراحات المقتطفات بالنسبة لباقي الاقتراحات.", es: "Dónde aparecen los snippets respecto a otras sugerencias.", fr: "Où apparaissent les snippets par rapport aux autres suggestions.", az: "Snippet təkliflərinin digər təkliflərə nisbətən yeri.",
-  },
   setDesc_autoSave: {
     tr: "Gecikmeden sonra: yazmayı bırakınca; odak değişince: başka pencereye geçince.", en: "After delay: when you stop typing; on focus change: when you leave the window.", de: "Nach Verzögerung: wenn Sie aufhören zu tippen; bei Fokuswechsel: beim Verlassen des Fensters.", ru: "После задержки — когда перестали печатать; при потере фокуса — при уходе из окна.", ar: "بعد تأخير: عند التوقف عن الكتابة؛ عند تغيير التركيز: عند مغادرة النافذة.", es: "Tras un retraso: al dejar de escribir; al cambiar el foco: al salir de la ventana.", fr: "Après un délai : quand vous arrêtez de taper ; au changement de focus : en quittant la fenêtre.", az: "Gecikmədən sonra: yazmağı dayandırdıqda; fokus dəyişəndə: pəncərədən çıxdıqda.",
   },
@@ -757,48 +736,6 @@ export const UI_TEXT = {
   },
   setDesc_collabToken: {
     tr: "Cihazda şifreli saklanır (kayıt: ana süreç, düz metin yok).", en: "Stored encrypted on this device (main process, never plain text).", de: "Verschlüsselt auf diesem Gerät gespeichert (Hauptprozess, nie im Klartext).", ru: "Хранится на устройстве в зашифрованном виде (основной процесс, не в открытом виде).", ar: "يُخزَّن مشفرًا على هذا الجهاز (العملية الرئيسية، لا نص عادي).", es: "Se guarda cifrado en este dispositivo (proceso principal, nunca en texto plano).", fr: "Stocké chiffré sur cet appareil (processus principal, jamais en clair).", az: "Bu cihazda şifrələnmiş saxlanılır (əsas proses, açıq mətn yoxdur).",
-  },
-  snipUser: {
-    tr: "Özel snippet'lerim", en: "My snippets", de: "Meine Snippets", ru: "Мои сниппеты", ar: "مقتطفاتي", es: "Mis snippets", fr: "Mes snippets", az: "Xüsusi snippetlərim",
-  },
-  snipAdd: {
-    tr: "Snippet ekle", en: "Add snippet", de: "Snippet hinzufügen", ru: "Добавить сниппет", ar: "إضافة مقتطف", es: "Añadir snippet", fr: "Ajouter un snippet", az: "Snippet əlavə et",
-  },
-  snipEdit: {
-    tr: "Düzenle", en: "Edit", de: "Bearbeiten", ru: "Изменить", ar: "تعديل", es: "Editar", fr: "Modifier", az: "Redaktə et",
-  },
-  snipPrefix: {
-    tr: "Tetikleyici (boşluksuz)", en: "Trigger (no spaces)", de: "Auslöser (ohne Leerzeichen)", ru: "Триггер (без пробелов)", ar: "المُشغّل (بدون مسافات)", es: "Disparador (sin espacios)", fr: "Déclencheur (sans espaces)", az: "Tətik (boşluqsuz)",
-  },
-  snipDescription: {
-    tr: "Açıklama", en: "Description", de: "Beschreibung", ru: "Описание", ar: "الوصف", es: "Descripción", fr: "Description", az: "Təsvir",
-  },
-  snipLanguage: {
-    tr: "Dil", en: "Language", de: "Sprache", ru: "Язык", ar: "اللغة", es: "Idioma", fr: "Langage", az: "Dil",
-  },
-  snipLanguageAll: {
-    tr: "Tüm diller", en: "All languages", de: "Alle Sprachen", ru: "Все языки", ar: "كل اللغات", es: "Todos los idiomas", fr: "Tous les langages", az: "Bütün dillər",
-  },
-  snipBody: {
-    tr: "İçerik", en: "Body", de: "Inhalt", ru: "Содержимое", ar: "المحتوى", es: "Contenido", fr: "Contenu", az: "Məzmun",
-  },
-  snipSave: {
-    tr: "Snippet'i kaydet", en: "Save snippet", de: "Snippet speichern", ru: "Сохранить сниппет", ar: "حفظ المقتطف", es: "Guardar snippet", fr: "Enregistrer le snippet", az: "Snippeti saxla",
-  },
-  snipDelete: {
-    tr: "Sil", en: "Delete", de: "Löschen", ru: "Удалить", ar: "حذف", es: "Eliminar", fr: "Supprimer", az: "Sil",
-  },
-  snipEmpty: {
-    tr: "Henüz özel snippet yok.", en: "No custom snippets yet.", de: "Noch keine eigenen Snippets.", ru: "Своих сниппетов пока нет.", ar: "لا توجد مقتطفات مخصصة بعد.", es: "Aún no hay snippets personalizados.", fr: "Aucun snippet personnalisé pour l’instant.", az: "Hələ xüsusi snippet yoxdur.",
-  },
-  snipHelp: {
-    tr: "Sekme duraklarını $1, $2 veya ${1:varsayılan} ile yaz; $0 son imleç konumudur. Yazarken tetikleyiciyi yazıp Tab/Enter'a bas.", en: "Use tab stops like $1, $2 or ${1:default}; $0 is the final cursor position. Type the trigger and press Tab/Enter.", de: "Tabstopps wie $1, $2 oder ${1:Standard}; $0 ist die Endposition. Auslöser tippen und Tab/Enter drücken.", ru: "Используйте позиции $1, $2 или ${1:по умолчанию}; $0 — конечная позиция. Введите триггер и нажмите Tab/Enter.", ar: "استخدم نقاط التوقف مثل $1 و$2 أو ${1:افتراضي}؛ $0 موضع المؤشر النهائي. اكتب المُشغّل واضغط Tab/Enter.", es: "Usa paradas como $1, $2 o ${1:valor}; $0 es la posición final. Escribe el disparador y pulsa Tab/Enter.", fr: "Utilisez des arrêts $1, $2 ou ${1:défaut} ; $0 est la position finale. Tapez le déclencheur puis Tab/Entrée.", az: "Tab dayanacaqlarını $1, $2 və ya ${1:ilkin} kimi yazın; $0 son kursor yeridir. Tətiki yazıb Tab/Enter basın.",
-  },
-  snipBuiltinCount: {
-    tr: "{n} hazır snippet de kullanılabilir.", en: "{n} built-in snippets are also available.", de: "{n} integrierte Snippets sind ebenfalls verfügbar.", ru: "Также доступно {n} встроенных сниппетов.", ar: "تتوفر أيضًا {n} مقتطفات مدمجة.", es: "También hay {n} snippets integrados.", fr: "{n} snippets intégrés sont aussi disponibles.", az: "{n} hazır snippet də mövcuddur.",
-  },
-  snipInvalid: {
-    tr: "Tetikleyici ve içerik zorunlu; tetikleyicide boşluk olmamalı.", en: "Trigger and body are required; the trigger cannot contain spaces.", de: "Auslöser und Inhalt sind Pflicht; der Auslöser darf keine Leerzeichen enthalten.", ru: "Триггер и содержимое обязательны; в триггере не должно быть пробелов.", ar: "المُشغّل والمحتوى مطلوبان؛ ولا يجوز أن يحتوي المُشغّل على مسافات.", es: "Disparador y contenido son obligatorios; el disparador no puede tener espacios.", fr: "Le déclencheur et le contenu sont obligatoires ; pas d’espaces dans le déclencheur.", az: "Tətik və məzmun məcburidir; tətikdə boşluq olmamalıdır.",
   },
   scSave: {
     tr: "Kaydet", en: "Save", de: "Speichern", ru: "Сохранить", ar: "حفظ", es: "Guardar", fr: "Enregistrer", az: "Yadda saxla",
@@ -1172,9 +1109,6 @@ export const UI_TEXT = {
   cpTitle: {
     tr: "Komut paleti / dosya ara", en: "Command palette / search files", de: "Befehlspalette / Dateisuche", ru: "Палитра команд / поиск файлов", ar: "لوحة الأوامر / بحث الملفات", es: "Paleta de comandos / buscar archivos", fr: "Palette de commandes / recherche de fichiers", az: "Komanda paneli / fayl axtar",
   },
-  cpPlaceholder: {
-    tr: "Dosya adı yaz… ( > komut, : satır, $ snippet )", en: "Type a file name… ( > commands, : line, $ snippet )", de: "Dateiname eingeben… ( > Befehle, : Zeile, $ Snippet )", ru: "Введи имя файла… ( > команды, : строка, $ сниппет )", ar: "اكتب اسم ملف… ( > أوامر، : سطر، $ مقتطف )", es: "Escribe un archivo… ( > comandos, : línea, $ fragmento )", fr: "Tape un nom de fichier… ( > commandes, : ligne, $ snippet )", az: "Fayl adı yaz… ( > komanda, : sətir, $ snippet )",
-  },
   cpNoResults: {
     tr: "Sonuç yok", en: "No results", de: "Keine Ergebnisse", ru: "Нет результатов", ar: "لا توجد نتائج", es: "Sin resultados", fr: "Aucun résultat", az: "Nəticə yoxdur",
   },
@@ -1192,9 +1126,6 @@ export const UI_TEXT = {
   },
   cpHintLine: {
     tr: "satıra git", en: "go to line", de: "Zeile", ru: "строка", ar: "سطر", es: "línea", fr: "ligne", az: "sətir",
-  },
-  cpHintSnippets: {
-    tr: "snippet ekle", en: "insert snippet", de: "Snippet", ru: "сниппет", ar: "مقتطف", es: "fragmento", fr: "snippet", az: "snippet əlavə et",
   },
   cmdQuickOpen: {
     tr: "Dosyaya git…", en: "Go to file…", de: "Gehe zu Datei…", ru: "Перейти к файлу…", ar: "الانتقال إلى ملف…", es: "Ir al archivo…", fr: "Aller au fichier…", az: "Fayla keç…",
@@ -1216,9 +1147,6 @@ export const UI_TEXT = {
   },
   cmdFormat: {
     tr: "Belgeyi biçimlendir", en: "Format document", de: "Dokument formatieren", ru: "Форматировать документ", ar: "تنسيق المستند", es: "Dar formato al documento", fr: "Formater le document", az: "Sənədi formatla",
-  },
-  cmdInsertSnippet: {
-    tr: "Snippet ekle…", en: "Insert snippet…", de: "Snippet einfügen…", ru: "Вставить сниппет…", ar: "إدراج مقتطف…", es: "Insertar fragmento…", fr: "Insérer un snippet…", az: "Snippet əlavə et…",
   },
   cmdSave: {
     tr: "Kaydet", en: "Save", de: "Speichern", ru: "Сохранить", ar: "حفظ", es: "Guardar", fr: "Enregistrer", az: "Saxla",
@@ -1286,14 +1214,8 @@ export const UI_TEXT = {
   extSearchPlaceholder: {
     tr: "Eklenti ara (Open VSX)", en: "Search extensions (Open VSX)", de: "Erweiterungen suchen (Open VSX)", ru: "Поиск расширений (Open VSX)", ar: "ابحث عن إضافات (Open VSX)", es: "Buscar extensiones (Open VSX)", fr: "Rechercher des extensions (Open VSX)", az: "Əlavə axtar (Open VSX)",
   },
-  extAll: {
-    tr: "Tümü", en: "All", de: "Alle", ru: "Все", ar: "الكل", es: "Todas", fr: "Toutes", az: "Hamısı",
-  },
   extThemes: {
     tr: "Temalar", en: "Themes", de: "Themes", ru: "Темы", ar: "السمات", es: "Temas", fr: "Thèmes", az: "Temalar",
-  },
-  extSnippets: {
-    tr: "Snippet'ler", en: "Snippets", de: "Snippets", ru: "Сниппеты", ar: "المقتطفات", es: "Fragmentos", fr: "Snippets", az: "Snippet-lər",
   },
   extInstall: {
     tr: "Yükle", en: "Install", de: "Installieren", ru: "Установить", ar: "تثبيت", es: "Instalar", fr: "Installer", az: "Quraşdır",
@@ -1310,9 +1232,6 @@ export const UI_TEXT = {
   extCheckUpdates: {
     tr: "Güncellemeleri denetle", en: "Check for updates", de: "Nach Updates suchen", ru: "Проверить обновления", ar: "التحقق من التحديثات", es: "Buscar actualizaciones", fr: "Rechercher des mises à jour", az: "Yenilikləri yoxla",
   },
-  extNoInstalled: {
-    tr: "Henüz eklenti yok. Mağaza sekmesinden tema veya snippet eklentisi yükleyebilirsin.", en: "No extensions yet. Install a theme or snippet extension from the Store tab.", de: "Noch keine Erweiterungen. Installiere im Store-Tab ein Theme oder Snippets.", ru: "Расширений пока нет. Установи тему или сниппеты во вкладке «Магазин».", ar: "لا توجد إضافات بعد. ثبّت سمة أو مقتطفات من تبويب المتجر.", es: "Aún no hay extensiones. Instala un tema o fragmentos desde la pestaña Tienda.", fr: "Aucune extension. Installe un thème ou des snippets depuis l’onglet Boutique.", az: "Hələ əlavə yoxdur. Mağaza vərəqindən tema və ya snippet əlavəsi quraşdır.",
-  },
   extNetworkErr: {
     tr: "Mağazaya ulaşılamadı. İnternet bağlantını kontrol et.", en: "Could not reach the store. Check your internet connection.", de: "Store nicht erreichbar. Prüfe deine Internetverbindung.", ru: "Не удалось подключиться к магазину. Проверь интернет.", ar: "تعذّر الوصول إلى المتجر. تحقق من اتصالك بالإنترنت.", es: "No se pudo conectar con la tienda. Revisa tu conexión a internet.", fr: "Boutique inaccessible. Vérifie ta connexion internet.", az: "Mağazaya çatmaq olmadı. İnternet bağlantını yoxla.",
   },
@@ -1321,12 +1240,6 @@ export const UI_TEXT = {
   },
   extResetTheme: {
     tr: "Varsayılan temaya dön", en: "Back to default theme", de: "Zurück zum Standard-Theme", ru: "Вернуть тему по умолчанию", ar: "العودة إلى السمة الافتراضية", es: "Volver al tema predeterminado", fr: "Revenir au thème par défaut", az: "Standart temaya qayıt",
-  },
-  extErrRunsCode: {
-    tr: "Bu eklenti kod çalıştırıyor; NovaCode yalnız tema ve snippet eklentilerini destekler.", en: "This extension runs code; NovaCode only supports theme and snippet extensions.", de: "Diese Erweiterung führt Code aus; NovaCode unterstützt nur Theme- und Snippet-Erweiterungen.", ru: "Это расширение выполняет код; NovaCode поддерживает только темы и сниппеты.", ar: "هذه الإضافة تشغّل شيفرة؛ يدعم NovaCode إضافات السمات والمقتطفات فقط.", es: "Esta extensión ejecuta código; NovaCode solo admite extensiones de temas y fragmentos.", fr: "Cette extension exécute du code ; NovaCode ne gère que les thèmes et snippets.", az: "Bu əlavə kod işlədir; NovaCode yalnız tema və snippet əlavələrini dəstəkləyir.",
-  },
-  extErrNothing: {
-    tr: "Bu eklentide desteklenen bir içerik (tema/snippet) yok.", en: "This extension has no supported content (theme/snippet).", de: "Diese Erweiterung enthält nichts Unterstütztes (Theme/Snippet).", ru: "В этом расширении нет поддерживаемого содержимого (тема/сниппеты).", ar: "لا يحتوي هذا الامتداد على محتوى مدعوم (سمة/مقتطف).", es: "Esta extensión no tiene contenido compatible (tema/fragmento).", fr: "Cette extension n’a aucun contenu pris en charge (thème/snippet).", az: "Bu əlavədə dəstəklənən məzmun (tema/snippet) yoxdur.",
   },
   extErrTooBig: {
     tr: "Eklenti çok büyük (30 MB sınırı).", en: "The extension is too large (30 MB limit).", de: "Die Erweiterung ist zu groß (Limit 30 MB).", ru: "Расширение слишком большое (лимит 30 МБ).", ar: "الإضافة كبيرة جداً (الحد 30 ميغابايت).", es: "La extensión es demasiado grande (límite de 30 MB).", fr: "L’extension est trop volumineuse (limite de 30 Mo).", az: "Əlavə çox böyükdür (30 MB limiti).",
@@ -1337,23 +1250,14 @@ export const UI_TEXT = {
   extInstalledOk: {
     tr: "Eklenti yüklendi.", en: "Extension installed.", de: "Erweiterung installiert.", ru: "Расширение установлено.", ar: "تم تثبيت الإضافة.", es: "Extensión instalada.", fr: "Extension installée.", az: "Əlavə quraşdırıldı.",
   },
-  extPartial: {
-    tr: "Yüklendi: tema/snippet kısmı çalışır, eklentinin kod kısmı çalışmaz.", en: "Installed: the theme/snippet part works; the extension’s code part does not run.", de: "Installiert: Theme/Snippet-Teil funktioniert, der Code-Teil läuft nicht.", ru: "Установлено: тема/сниппеты работают, кодовая часть расширения не запускается.", ar: "تم التثبيت: يعمل جزء السمة/المقتطف ولا يعمل جزء الشيفرة.", es: "Instalada: funciona la parte de tema/fragmentos; la parte de código no se ejecuta.", fr: "Installée : la partie thème/snippets fonctionne, la partie code ne s’exécute pas.", az: "Quraşdırıldı: tema/snippet hissəsi işləyir, kod hissəsi işləmir.",
-  },
   extDownloads: {
     tr: "{n} indirme", en: "{n} downloads", de: "{n} Downloads", ru: "{n} загрузок", ar: "{n} تنزيل", es: "{n} descargas", fr: "{n} téléchargements", az: "{n} yükləmə",
   },
   extThemeCount: {
     tr: "{n} tema", en: "{n} themes", de: "{n} Themes", ru: "{n} тем", ar: "{n} سمات", es: "{n} temas", fr: "{n} thèmes", az: "{n} tema",
   },
-  extSnippetCount: {
-    tr: "{n} snippet", en: "{n} snippets", de: "{n} Snippets", ru: "{n} сниппетов", ar: "{n} مقتطفات", es: "{n} fragmentos", fr: "{n} snippets", az: "{n} snippet",
-  },
   extLoadMore: {
     tr: "Daha fazla", en: "Load more", de: "Mehr laden", ru: "Показать ещё", ar: "عرض المزيد", es: "Cargar más", fr: "Charger plus", az: "Daha çox",
-  },
-  extNote: {
-    tr: "Kaynak: Open VSX (açık kaynak). Yalnız tema ve snippet eklentileri desteklenir; arama ve indirme sırasında open-vsx.org ile iletişim kurulur, kişisel veri gönderilmez.", en: "Source: Open VSX (open source). Only theme and snippet extensions are supported; searching and downloading contacts open-vsx.org, no personal data is sent.", de: "Quelle: Open VSX (Open Source). Nur Theme- und Snippet-Erweiterungen werden unterstützt; Suche und Download kontaktieren open-vsx.org, es werden keine persönlichen Daten gesendet.", ru: "Источник: Open VSX (открытый код). Поддерживаются только темы и сниппеты; поиск и загрузка обращаются к open-vsx.org, личные данные не передаются.", ar: "المصدر: Open VSX (مفتوح المصدر). تُدعم إضافات السمات والمقتطفات فقط؛ يتصل البحث والتنزيل بـ open-vsx.org دون إرسال بيانات شخصية.", es: "Fuente: Open VSX (código abierto). Solo se admiten extensiones de temas y fragmentos; la búsqueda y descarga contactan con open-vsx.org sin enviar datos personales.", fr: "Source : Open VSX (open source). Seuls les thèmes et snippets sont pris en charge ; la recherche et le téléchargement contactent open-vsx.org sans données personnelles.", az: "Mənbə: Open VSX (açıq mənbə). Yalnız tema və snippet əlavələri dəstəklənir; axtarış və yükləmə open-vsx.org ilə əlaqə qurur, şəxsi məlumat göndərilmir.",
   },
   extDesktopOnly: {
     tr: "Eklenti mağazası yalnız masaüstü uygulamasında çalışır.", en: "The extension store works only in the desktop app.", de: "Der Erweiterungs-Store funktioniert nur in der Desktop-App.", ru: "Магазин расширений работает только в настольном приложении.", ar: "يعمل متجر الإضافات في تطبيق سطح المكتب فقط.", es: "La tienda de extensiones solo funciona en la app de escritorio.", fr: "La boutique d’extensions ne fonctionne que dans l’app de bureau.", az: "Əlavə mağazası yalnız masaüstü tətbiqdə işləyir.",
@@ -1544,9 +1448,6 @@ export const UI_TEXT = {
   mnHintTwoTabs: {
     tr: "En az iki açık sekme gerekir", en: "Needs at least two open tabs", de: "Mindestens zwei geöffnete Tabs nötig", ru: "Нужно минимум две открытые вкладки", ar: "يتطلب تبويبين مفتوحين على الأقل", es: "Se necesitan al menos dos pestañas abiertas", fr: "Au moins deux onglets ouverts requis", az: "Ən azı iki açıq vərəq lazımdır",
   },
-  mnHintHtml: {
-    tr: "Yalnız HTML dosyalarında kullanılır", en: "Only for HTML files", de: "Nur für HTML-Dateien", ru: "Только для HTML-файлов", ar: "لملفات HTML فقط", es: "Solo para archivos HTML", fr: "Réservé aux fichiers HTML", az: "Yalnız HTML fayllarında",
-  },
   mnRunProject: {
     tr: "Proje komutları (önce klasör aç)", en: "Project commands (open a folder first)", de: "Projektbefehle (zuerst Ordner öffnen)", ru: "Команды проекта (сначала открой папку)", ar: "أوامر المشروع (افتح مجلداً أولاً)", es: "Comandos del proyecto (abre una carpeta)", fr: "Commandes du projet (ouvre un dossier)", az: "Layihə komandaları (əvvəlcə qovluq aç)",
   },
@@ -1567,9 +1468,6 @@ export const UI_TEXT = {
   },
   updChecking: {
     tr: "Güncellemeler denetleniyor…", en: "Checking for updates…", de: "Suche nach Updates…", ru: "Проверка обновлений…", ar: "جارٍ التحقق من التحديثات…", es: "Buscando actualizaciones…", fr: "Recherche de mises à jour…", az: "Yeniliklər yoxlanılır…",
-  },
-  updUpToDate: {
-    tr: "NovaCode Studio güncel (v{v})", en: "NovaCode Studio is up to date (v{v})", de: "NovaCode Studio ist aktuell (v{v})", ru: "NovaCode Studio обновлён (v{v})", ar: "NovaCode Studio محدّث (v{v})", es: "NovaCode Studio está actualizado (v{v})", fr: "NovaCode Studio est à jour (v{v})", az: "NovaCode Studio güncəldir (v{v})",
   },
   updAvailable: {
     tr: "Yeni sürüm var: v{v}", en: "A new version is available: v{v}", de: "Neue Version verfügbar: v{v}", ru: "Доступна новая версия: v{v}", ar: "إصدار جديد متاح: v{v}", es: "Hay una nueva versión: v{v}", fr: "Nouvelle version disponible : v{v}", az: "Yeni versiya var: v{v}",
@@ -1723,6 +1621,231 @@ export const UI_TEXT = {
   },
   edCollabOff: {
     tr: "Kapalı", en: "Off", de: "Aus", ru: "Выкл.", ar: "متوقف", es: "Apagado", fr: "Désactivé", az: "Söndürülüb",
+  },
+  setResetAllConfirm: {
+    tr: "Tüm ayarlar varsayılana dönecek. Devam edilsin mi?", en: "All settings will return to defaults. Continue?", de: "Alle Einstellungen werden auf Standard zurückgesetzt. Fortfahren?", ru: "Все настройки вернутся к значениям по умолчанию. Продолжить?", ar: "ستعود جميع الإعدادات إلى الافتراضي. هل تريد المتابعة؟", es: "Todos los ajustes volverán a los valores predeterminados. ¿Continuar?", fr: "Tous les paramètres reviendront aux valeurs par défaut. Continuer ?", az: "Bütün ayarlar standart qiymətlərə qayıdacaq. Davam edilsin?",
+  },
+  cpPlaceholder: {
+    tr: "Dosya adı yaz… ( > komut, : satır )", en: "Type a file name… ( > commands, : line )", de: "Dateiname eingeben… ( > Befehle, : Zeile )", ru: "Введи имя файла… ( > команды, : строка )", ar: "اكتب اسم ملف… ( > أوامر، : سطر )", es: "Escribe un archivo… ( > comandos, : línea )", fr: "Tape un nom de fichier… ( > commandes, : ligne )", az: "Fayl adı yaz… ( > komanda, : sətir )",
+  },
+  extNoInstalled: {
+    tr: "Henüz eklenti yok. Mağaza sekmesinden bir tema eklentisi yükleyebilirsin.", en: "No extensions yet. Install a theme extension from the Store tab.", de: "Noch keine Erweiterungen. Installiere im Store-Tab ein Theme.", ru: "Расширений пока нет. Установи тему во вкладке «Магазин».", ar: "لا توجد إضافات بعد. ثبّت سمة من تبويب المتجر.", es: "Aún no hay extensiones. Instala un tema desde la pestaña Tienda.", fr: "Aucune extension. Installe un thème depuis l’onglet Boutique.", az: "Hələ əlavə yoxdur. Mağaza vərəqindən tema əlavəsi quraşdır.",
+  },
+  extErrRunsCode: {
+    tr: "Bu eklenti kod çalıştırıyor; NovaCode yalnız tema eklentilerini destekler.", en: "This extension runs code; NovaCode only supports theme extensions.", de: "Diese Erweiterung führt Code aus; NovaCode unterstützt nur Theme-Erweiterungen.", ru: "Это расширение выполняет код; NovaCode поддерживает только темы.", ar: "هذه الإضافة تشغّل شيفرة؛ يدعم NovaCode إضافات السمات فقط.", es: "Esta extensión ejecuta código; NovaCode solo admite extensiones de temas.", fr: "Cette extension exécute du code ; NovaCode ne gère que les thèmes.", az: "Bu əlavə kod işlədir; NovaCode yalnız tema əlavələrini dəstəkləyir.",
+  },
+  extErrNothing: {
+    tr: "Bu eklentide desteklenen bir içerik (tema) yok.", en: "This extension has no supported content (theme).", de: "Diese Erweiterung enthält nichts Unterstütztes (Theme).", ru: "В этом расширении нет поддерживаемого содержимого (тема).", ar: "لا يحتوي هذا الامتداد على محتوى مدعوم (سمة).", es: "Esta extensión no tiene contenido compatible (tema).", fr: "Cette extension n’a aucun contenu pris en charge (thème).", az: "Bu əlavədə dəstəklənən məzmun (tema) yoxdur.",
+  },
+  extPartial: {
+    tr: "Yüklendi: tema kısmı çalışır, eklentinin kod kısmı çalışmaz.", en: "Installed: the theme part works; the extension’s code part does not run.", de: "Installiert: Der Theme-Teil funktioniert, der Code-Teil läuft nicht.", ru: "Установлено: тема работает, кодовая часть расширения не запускается.", ar: "تم التثبيت: تعمل السمة ولا يعمل جزء الشيفرة.", es: "Instalada: el tema funciona; la parte de código no se ejecuta.", fr: "Installée : le thème fonctionne, la partie code ne s’exécute pas.", az: "Quraşdırıldı: tema işləyir, kod hissəsi işləmir.",
+  },
+  extNote: {
+    tr: "Kaynak: Open VSX (açık kaynak). Yalnız tema eklentileri desteklenir; arama ve indirme sırasında open-vsx.org ile iletişim kurulur, kişisel veri gönderilmez.", en: "Source: Open VSX (open source). Only theme extensions are supported; searching and downloading contacts open-vsx.org, no personal data is sent.", de: "Quelle: Open VSX (Open Source). Nur Theme-Erweiterungen werden unterstützt; Suche und Download kontaktieren open-vsx.org, es werden keine persönlichen Daten gesendet.", ru: "Источник: Open VSX (открытый код). Поддерживаются только темы; поиск и загрузка обращаются к open-vsx.org, личные данные не передаются.", ar: "المصدر: Open VSX (مفتوح المصدر). تُدعم إضافات السمات فقط؛ يتصل البحث والتنزيل بـ open-vsx.org دون إرسال بيانات شخصية.", es: "Fuente: Open VSX (código abierto). Solo se admiten extensiones de temas; la búsqueda y descarga contactan con open-vsx.org sin enviar datos personales.", fr: "Source : Open VSX (open source). Seuls les thèmes sont pris en charge ; la recherche et le téléchargement contactent open-vsx.org sans données personnelles.", az: "Mənbə: Open VSX (açıq mənbə). Yalnız tema əlavələri dəstəklənir; axtarış və yükləmə open-vsx.org ilə əlaqə qurur, şəxsi məlumat göndərilmir.",
+  },
+  mnMenu: {
+    tr: "Menü", en: "Menu", de: "Menü", ru: "Меню", ar: "القائمة", es: "Menú", fr: "Menu", az: "Menyu",
+  },
+  expFilter: {
+    tr: "Filtrele", en: "Filter", de: "Filtern", ru: "Фильтр", ar: "تصفية", es: "Filtrar", fr: "Filtrer", az: "Süz",
+  },
+  expFilterPlaceholder: {
+    tr: "Dosya ve klasör ara…", en: "Filter files and folders…", de: "Dateien und Ordner filtern…", ru: "Фильтр файлов и папок…", ar: "تصفية الملفات والمجلدات…", es: "Filtrar archivos y carpetas…", fr: "Filtrer fichiers et dossiers…", az: "Fayl və qovluqları süz…",
+  },
+  expFilterClear: {
+    tr: "Filtreyi temizle", en: "Clear filter", de: "Filter löschen", ru: "Очистить фильтр", ar: "مسح التصفية", es: "Borrar filtro", fr: "Effacer le filtre", az: "Süzgəci təmizlə",
+  },
+  expNoMatches: {
+    tr: "Eşleşen öğe yok.", en: "No matching items.", de: "Keine passenden Einträge.", ru: "Совпадений нет.", ar: "لا توجد عناصر مطابقة.", es: "No hay elementos coincidentes.", fr: "Aucun élément correspondant.", az: "Uyğun element yoxdur.",
+  },
+  expReveal: {
+    tr: "Dosya gezgininde göster", en: "Reveal in File Explorer", de: "Im Datei-Explorer anzeigen", ru: "Показать в проводнике", ar: "إظهار في مستكشف الملفات", es: "Mostrar en el Explorador", fr: "Afficher dans l’Explorateur", az: "Fayl idarəçisində göstər",
+  },
+  expOpenInTerminal: {
+    tr: "Terminalde aç", en: "Open in terminal", de: "Im Terminal öffnen", ru: "Открыть в терминале", ar: "فتح في الطرفية", es: "Abrir en la terminal", fr: "Ouvrir dans le terminal", az: "Terminalda aç",
+  },
+  expSortBy: {
+    tr: "Sırala", en: "Sort by", de: "Sortieren nach", ru: "Сортировка", ar: "الفرز حسب", es: "Ordenar por", fr: "Trier par", az: "Sırala",
+  },
+  expViewOptions: {
+    tr: "Görünüm seçenekleri", en: "View options", de: "Anzeigeoptionen", ru: "Параметры вида", ar: "خيارات العرض", es: "Opciones de vista", fr: "Options d’affichage", az: "Görünüş seçimləri",
+  },
+  expRecent: {
+    tr: "Son açılanlar", en: "Recent", de: "Zuletzt geöffnet", ru: "Недавние", ar: "الأخيرة", es: "Recientes", fr: "Récents", az: "Son açılanlar",
+  },
+  expEmptyFolder: {
+    tr: "Bu klasör boş.", en: "This folder is empty.", de: "Dieser Ordner ist leer.", ru: "Эта папка пуста.", ar: "هذا المجلد فارغ.", es: "Esta carpeta está vacía.", fr: "Ce dossier est vide.", az: "Bu qovluq boşdur.",
+  },
+  expCloseAll: {
+    tr: "Tümünü kapat", en: "Close all", de: "Alle schließen", ru: "Закрыть все", ar: "إغلاق الكل", es: "Cerrar todo", fr: "Tout fermer", az: "Hamısını bağla",
+  },
+  expCloseAllConfirm: {
+    tr: "Kaydedilmemiş değişiklikler var. Yine de tüm sekmeler kapatılsın mı?", en: "There are unsaved changes. Close all tabs anyway?", de: "Es gibt ungespeicherte Änderungen. Trotzdem alle Tabs schließen?", ru: "Есть несохранённые изменения. Всё равно закрыть все вкладки?", ar: "توجد تغييرات غير محفوظة. هل تريد إغلاق كل التبويبات؟", es: "Hay cambios sin guardar. ¿Cerrar todas las pestañas igualmente?", fr: "Des modifications ne sont pas enregistrées. Fermer tous les onglets quand même ?", az: "Yadda saxlanmamış dəyişikliklər var. Yenə də bütün vərəqlər bağlansın?",
+  },
+  optSpacious: {
+    tr: "Geniş", en: "Spacious", de: "Großzügig", ru: "Просторный", ar: "واسع", es: "Amplio", fr: "Aéré", az: "Geniş",
+  },
+  optSortFoldersFirst: {
+    tr: "Klasörler önce", en: "Folders first", de: "Ordner zuerst", ru: "Сначала папки", ar: "المجلدات أولاً", es: "Carpetas primero", fr: "Dossiers d’abord", az: "Əvvəlcə qovluqlar",
+  },
+  optSortFilesFirst: {
+    tr: "Dosyalar önce", en: "Files first", de: "Dateien zuerst", ru: "Сначала файлы", ar: "الملفات أولاً", es: "Archivos primero", fr: "Fichiers d’abord", az: "Əvvəlcə fayllar",
+  },
+  optSortMixed: {
+    tr: "Karışık (ada göre)", en: "Mixed (by name)", de: "Gemischt (nach Name)", ru: "Вперемешку (по имени)", ar: "مختلط (حسب الاسم)", es: "Mezclado (por nombre)", fr: "Mélangé (par nom)", az: "Qarışıq (ada görə)",
+  },
+  optSortType: {
+    tr: "Türe göre", en: "By type", de: "Nach Typ", ru: "По типу", ar: "حسب النوع", es: "Por tipo", fr: "Par type", az: "Növə görə",
+  },
+  optIconColor: {
+    tr: "Renkli (dosya türü)", en: "Colored (file type)", de: "Farbig (Dateityp)", ru: "Цветные (тип файла)", ar: "ملوّنة (نوع الملف)", es: "Color (tipo de archivo)", fr: "Colorées (type de fichier)", az: "Rəngli (fayl növü)",
+  },
+  optIconMinimal: {
+    tr: "Sade (tek renk)", en: "Minimal (single color)", de: "Schlicht (einfarbig)", ru: "Минимальные (один цвет)", ar: "بسيطة (لون واحد)", es: "Minimalistas (un color)", fr: "Sobres (une couleur)", az: "Sadə (tək rəng)",
+  },
+  set_treeSort: {
+    tr: "Gezgin sıralaması", en: "Explorer sort order", de: "Sortierung im Explorer", ru: "Сортировка в проводнике", ar: "ترتيب المستكشف", es: "Orden del explorador", fr: "Tri de l’explorateur", az: "Gəzgin sıralaması",
+  },
+  set_treeShowHidden: {
+    tr: "Gizli dosyaları göster", en: "Show hidden files", de: "Versteckte Dateien anzeigen", ru: "Показывать скрытые файлы", ar: "إظهار الملفات المخفية", es: "Mostrar archivos ocultos", fr: "Afficher les fichiers cachés", az: "Gizli faylları göstər",
+  },
+  setDesc_treeShowHidden: {
+    tr: "Adı noktayla başlayan dosya ve klasörler (.env, .gitignore…) ağaçta görünür. Kapatırsan gizlenir; diskten silinmez.", en: "Files and folders starting with a dot (.env, .gitignore…) appear in the tree. Turning it off only hides them; nothing is deleted.", de: "Dateien und Ordner mit Punkt am Anfang (.env, .gitignore…) erscheinen im Baum. Ausschalten blendet sie nur aus.", ru: "Файлы и папки, начинающиеся с точки (.env, .gitignore…), видны в дереве. Выключение лишь скрывает их.", ar: "تظهر الملفات والمجلدات التي تبدأ بنقطة (.env، .gitignore…) في الشجرة. الإيقاف يخفيها فقط.", es: "Los archivos y carpetas que empiezan por punto (.env, .gitignore…) aparecen en el árbol. Desactivar solo los oculta.", fr: "Les fichiers et dossiers commençant par un point (.env, .gitignore…) apparaissent dans l’arbre. Désactiver ne fait que les masquer.", az: "Nöqtə ilə başlayan fayl və qovluqlar (.env, .gitignore…) ağacda görünür. Söndürmək yalnız gizlədir.",
+  },
+  set_treeCompactFolders: {
+    tr: "Klasörleri sıkıştır", en: "Compact folders", de: "Ordner komprimieren", ru: "Сжимать папки", ar: "ضغط المجلدات", es: "Compactar carpetas", fr: "Compacter les dossiers", az: "Qovluqları sıxlaşdır",
+  },
+  setDesc_treeCompactFolders: {
+    tr: "İçinde tek klasör olan klasör zinciri tek satırda gösterilir (ör. src / components / ui).", en: "A chain of folders that each hold a single folder is shown on one line (e.g. src / components / ui).", de: "Eine Kette von Ordnern mit je einem Unterordner wird in einer Zeile gezeigt (z. B. src / components / ui).", ru: "Цепочка папок с единственной вложенной папкой показывается в одной строке (например, src / components / ui).", ar: "تُعرض سلسلة المجلدات التي يحتوي كل منها على مجلد واحد في سطر واحد (مثل src / components / ui).", es: "Una cadena de carpetas con una sola subcarpeta se muestra en una línea (p. ej., src / components / ui).", fr: "Une chaîne de dossiers ne contenant chacun qu’un dossier s’affiche sur une ligne (ex. src / components / ui).", az: "Hər birində yalnız bir qovluq olan qovluq zənciri tək sətirdə göstərilir (məs. src / components / ui).",
+  },
+  set_treeIconStyle: {
+    tr: "Dosya simgesi stili", en: "File icon style", de: "Stil der Dateisymbole", ru: "Стиль значков файлов", ar: "نمط أيقونات الملفات", es: "Estilo de iconos de archivo", fr: "Style des icônes de fichier", az: "Fayl nişanı üslubu",
+  },
+  set_treeAutoReveal: {
+    tr: "Etkin dosyayı Gezgin'de göster", en: "Reveal the active file in Explorer", de: "Aktive Datei im Explorer anzeigen", ru: "Показывать активный файл в проводнике", ar: "إظهار الملف النشط في المستكشف", es: "Mostrar el archivo activo en el Explorador", fr: "Afficher le fichier actif dans l’Explorateur", az: "Aktiv faylı Gəzgində göstər",
+  },
+  setDesc_treeAutoReveal: {
+    tr: "Bir sekmeye geçince ya da dosya açınca Gezgin ilgili klasörleri açar ve dosyaya kaydırır.", en: "When you switch tabs or open a file, Explorer expands its folders and scrolls to it.", de: "Beim Wechseln des Tabs oder Öffnen einer Datei klappt der Explorer die Ordner auf und scrollt dorthin.", ru: "При переключении вкладки или открытии файла проводник раскрывает папки и прокручивает к файлу.", ar: "عند تبديل التبويب أو فتح ملف يفتح المستكشف المجلدات ويمرّر إليه.", es: "Al cambiar de pestaña o abrir un archivo, el Explorador abre sus carpetas y se desplaza hasta él.", fr: "En changeant d’onglet ou en ouvrant un fichier, l’Explorateur déplie ses dossiers et y défile.", az: "Vərəq dəyişəndə və ya fayl açılanda Gəzgin qovluqları açıb fayla sürüşdürür.",
+  },
+  updUpToDate: {
+    tr: "Son sürümdesiniz (v{v})", en: "You are on the latest version (v{v})", de: "Du hast die neueste Version (v{v})", ru: "У вас последняя версия (v{v})", ar: "أنت على أحدث إصدار (v{v})", es: "Tienes la última versión (v{v})", fr: "Vous avez la dernière version (v{v})", az: "Ən son versiyadasınız (v{v})",
+  },
+  updDevNote: {
+    tr: "Bu bir geliştirme sürümü (kaynak koddan çalışıyor): burada kurulum yapılmaz, yalnız son yayınla karşılaştırılır. Kurulu uygulamada güncelleme otomatik indirilir ve kurulur.", en: "This is a development build (running from source): nothing is installed here, it is only compared with the latest release. In the installed app updates download and install automatically.", de: "Dies ist ein Entwicklungs-Build (läuft aus dem Quellcode): hier wird nichts installiert, nur mit der neuesten Version verglichen. In der installierten App werden Updates automatisch geladen und installiert.", ru: "Это сборка для разработки (запуск из исходников): здесь ничего не устанавливается, только сравнение с последним выпуском. В установленном приложении обновления скачиваются и ставятся автоматически.", ar: "هذه نسخة تطوير (تعمل من الشيفرة المصدرية): لا يتم التثبيت هنا، بل المقارنة مع آخر إصدار فقط. في التطبيق المثبّت تُنزَّل التحديثات وتُثبَّت تلقائياً.", es: "Esta es una compilación de desarrollo (se ejecuta desde el código): aquí no se instala nada, solo se compara con la última versión. En la app instalada las actualizaciones se descargan e instalan solas.", fr: "Ceci est une version de développement (exécutée depuis le code source) : rien n’est installé ici, on compare seulement avec la dernière version. Dans l’app installée, les mises à jour se téléchargent et s’installent automatiquement.", az: "Bu hazırlıq versiyasıdır (mənbə koddan işləyir): burada quraşdırma edilmir, yalnız son buraxılışla müqayisə olunur. Quraşdırılmış tətbiqdə yeniliklər avtomatik yüklənir və quraşdırılır.",
+  },
+  updOpenRelease: {
+    tr: "Yayın sayfasını aç", en: "Open release page", de: "Release-Seite öffnen", ru: "Открыть страницу выпуска", ar: "فتح صفحة الإصدار", es: "Abrir página de la versión", fr: "Ouvrir la page de la version", az: "Buraxılış səhifəsini aç",
+  },
+  updChannelLabel: {
+    tr: "Güncelleme kanalı", en: "Update channel", de: "Update-Kanal", ru: "Канал обновлений", ar: "قناة التحديث", es: "Canal de actualización", fr: "Canal de mise à jour", az: "Yeniləmə kanalı",
+  },
+  updChannelStable: {
+    tr: "Kararlı (kurulu uygulama)", en: "Stable (installed app)", de: "Stabil (installierte App)", ru: "Стабильный (установленное приложение)", ar: "مستقر (تطبيق مثبّت)", es: "Estable (app instalada)", fr: "Stable (app installée)", az: "Sabit (quraşdırılmış tətbiq)",
+  },
+  updChannelDev: {
+    tr: "Geliştirme (kaynak koddan)", en: "Development (from source)", de: "Entwicklung (aus dem Quellcode)", ru: "Разработка (из исходников)", ar: "تطوير (من الشيفرة المصدرية)", es: "Desarrollo (desde el código)", fr: "Développement (depuis le code source)", az: "Hazırlıq (mənbə koddan)",
+  },
+  mnHintHtml: {
+    tr: "Önizlenebilir bir dosya aç (HTML, SVG, Markdown; CSS/JS için aynı klasörde index.html)", en: "Open a previewable file (HTML, SVG, Markdown; for CSS/JS an index.html in the same folder)", de: "Öffne eine Datei mit Vorschau (HTML, SVG, Markdown; bei CSS/JS eine index.html im selben Ordner)", ru: "Откройте файл с предпросмотром (HTML, SVG, Markdown; для CSS/JS — index.html в той же папке)", ar: "افتح ملفاً قابلاً للمعاينة (HTML وSVG وMarkdown؛ لـ CSS/JS ملف index.html في المجلد نفسه)", es: "Abre un archivo con vista previa (HTML, SVG, Markdown; para CSS/JS un index.html en la misma carpeta)", fr: "Ouvre un fichier prévisualisable (HTML, SVG, Markdown ; pour CSS/JS un index.html dans le même dossier)", az: "Önizlənə bilən fayl aç (HTML, SVG, Markdown; CSS/JS üçün eyni qovluqda index.html)",
+  },
+  mnThemePicker: {
+    tr: "Renk temasını seç…", en: "Select color theme…", de: "Farbdesign auswählen…", ru: "Выбрать цветовую тему…", ar: "اختيار سمة الألوان…", es: "Seleccionar tema de color…", fr: "Choisir le thème de couleur…", az: "Rəng temasını seç…",
+  },
+  mnRunSettings: {
+    tr: "Çalıştırma ve önizleme ayarları…", en: "Run and preview settings…", de: "Einstellungen für Ausführen und Vorschau…", ru: "Настройки запуска и предпросмотра…", ar: "إعدادات التشغيل والمعاينة…", es: "Ajustes de ejecución y vista previa…", fr: "Paramètres d’exécution et d’aperçu…", az: "İşlətmə və önizləmə ayarları…",
+  },
+  cpThemePlaceholder: {
+    tr: "Tema ara (ok tuşlarıyla gezin: canlı önizleme, Enter uygular, Esc geri alır)", en: "Search themes (arrow keys: live preview, Enter applies, Esc reverts)", de: "Themes suchen (Pfeiltasten: Live-Vorschau, Enter übernimmt, Esc macht rückgängig)", ru: "Поиск тем (стрелки: живой просмотр, Enter — применить, Esc — отмена)", ar: "ابحث عن سمة (الأسهم: معاينة مباشرة، Enter للتطبيق، Esc للتراجع)", es: "Buscar temas (flechas: vista previa en vivo, Enter aplica, Esc revierte)", fr: "Rechercher des thèmes (flèches : aperçu en direct, Entrée applique, Échap annule)", az: "Tema axtar (oxlar: canlı önizləmə, Enter tətbiq edir, Esc geri qaytarır)",
+  },
+  pvRefresh: {
+    tr: "Yenile", en: "Refresh", de: "Aktualisieren", ru: "Обновить", ar: "تحديث", es: "Actualizar", fr: "Actualiser", az: "Yenilə",
+  },
+  pvConsole: {
+    tr: "Konsol", en: "Console", de: "Konsole", ru: "Консоль", ar: "وحدة التحكم", es: "Consola", fr: "Console", az: "Konsol",
+  },
+  pvClear: {
+    tr: "Temizle", en: "Clear", de: "Leeren", ru: "Очистить", ar: "مسح", es: "Borrar", fr: "Effacer", az: "Təmizlə",
+  },
+  pvNoPreview: {
+    tr: "Bu dosya türü için önizleme yok. HTML, SVG ve Markdown dosyaları önizlenir.", en: "No preview for this file type. HTML, SVG and Markdown files can be previewed.", de: "Für diesen Dateityp gibt es keine Vorschau. HTML-, SVG- und Markdown-Dateien lassen sich anzeigen.", ru: "Для этого типа файла предпросмотра нет. Доступны HTML, SVG и Markdown.", ar: "لا توجد معاينة لهذا النوع من الملفات. تُعاين ملفات HTML وSVG وMarkdown.", es: "No hay vista previa para este tipo de archivo. Se pueden previsualizar HTML, SVG y Markdown.", fr: "Pas d’aperçu pour ce type de fichier. HTML, SVG et Markdown sont prévisualisables.", az: "Bu fayl növü üçün önizləmə yoxdur. HTML, SVG və Markdown fayllarına baxmaq olar.",
+  },
+  pvNoIndex: {
+    tr: "Önizlemek için bu klasörde bir index.html gerekir. Bir HTML dosyası açıp önizle.", en: "Previewing needs an index.html in this folder. Open an HTML file and preview it.", de: "Für die Vorschau wird eine index.html in diesem Ordner benötigt. Öffne eine HTML-Datei.", ru: "Для предпросмотра нужен index.html в этой папке. Откройте HTML-файл.", ar: "تحتاج المعاينة إلى ملف index.html في هذا المجلد. افتح ملف HTML.", es: "La vista previa necesita un index.html en esta carpeta. Abre un archivo HTML.", fr: "L’aperçu nécessite un index.html dans ce dossier. Ouvre un fichier HTML.", az: "Önizləmə üçün bu qovluqda index.html lazımdır. HTML faylı aç.",
+  },
+  pvBuildFailed: {
+    tr: "Önizleme hazırlanamadı. Dosyayı kaydedip yenilemeyi dene.", en: "The preview could not be built. Try saving the file and refreshing.", de: "Die Vorschau konnte nicht erstellt werden. Speichere die Datei und aktualisiere.", ru: "Не удалось подготовить предпросмотр. Сохраните файл и обновите.", ar: "تعذّر إعداد المعاينة. احفظ الملف وحدّث.", es: "No se pudo preparar la vista previa. Guarda el archivo y actualiza.", fr: "L’aperçu n’a pas pu être préparé. Enregistre le fichier et actualise.", az: "Önizləmə hazırlanmadı. Faylı saxla və yenilə.",
+  },
+  pvLocalServer: {
+    tr: "Çalışan sunucu", en: "Running server", de: "Laufender Server", ru: "Запущенный сервер", ar: "الخادم قيد التشغيل", es: "Servidor en ejecución", fr: "Serveur en cours", az: "İşləyən server",
+  },
+  pvOpenServer: {
+    tr: "Önizle", en: "Preview", de: "Vorschau", ru: "Просмотр", ar: "معاينة", es: "Previsualizar", fr: "Prévisualiser", az: "Önizlə",
+  },
+  pvBackToFile: {
+    tr: "Dosya önizlemesine dön", en: "Back to file preview", de: "Zurück zur Dateivorschau", ru: "Вернуться к просмотру файла", ar: "العودة إلى معاينة الملف", es: "Volver a la vista del archivo", fr: "Retour à l’aperçu du fichier", az: "Fayl önizləməsinə qayıt",
+  },
+  pvUrlPlaceholder: {
+    tr: "Yerel sunucu adresi", en: "Local server address", de: "Adresse des lokalen Servers", ru: "Адрес локального сервера", ar: "عنوان الخادم المحلي", es: "Dirección del servidor local", fr: "Adresse du serveur local", az: "Yerli server ünvanı",
+  },
+  pvBadUrl: {
+    tr: "Yalnız yerel adresler önizlenir (http://localhost:PORT veya 127.0.0.1).", en: "Only local addresses can be previewed (http://localhost:PORT or 127.0.0.1).", de: "Nur lokale Adressen sind erlaubt (http://localhost:PORT oder 127.0.0.1).", ru: "Допускаются только локальные адреса (http://localhost:PORT или 127.0.0.1).", ar: "تُعاين العناوين المحلية فقط (http://localhost:PORT أو 127.0.0.1).", es: "Solo se pueden previsualizar direcciones locales (http://localhost:PORT o 127.0.0.1).", fr: "Seules les adresses locales sont prévisualisables (http://localhost:PORT ou 127.0.0.1).", az: "Yalnız yerli ünvanlar önizlənir (http://localhost:PORT və ya 127.0.0.1).",
+  },
+  setCatRun: {
+    tr: "Çalıştır ve önizleme", en: "Run & preview", de: "Ausführen & Vorschau", ru: "Запуск и предпросмотр", ar: "التشغيل والمعاينة", es: "Ejecutar y vista previa", fr: "Exécuter et aperçu", az: "İşlət və önizlə",
+  },
+  setCatExtensions: {
+    tr: "Eklentiler", en: "Extensions", de: "Erweiterungen", ru: "Расширения", ar: "الإضافات", es: "Extensiones", fr: "Extensions", az: "Əlavələr",
+  },
+  set_previewAutoOpen: {
+    tr: "HTML açılınca önizlemeyi otomatik aç", en: "Open the preview automatically for HTML files", de: "Vorschau bei HTML-Dateien automatisch öffnen", ru: "Автоматически открывать предпросмотр для HTML", ar: "فتح المعاينة تلقائياً لملفات HTML", es: "Abrir la vista previa automáticamente para HTML", fr: "Ouvrir automatiquement l’aperçu pour les fichiers HTML", az: "HTML açılanda önizləməni avtomatik aç",
+  },
+  setDesc_previewAutoOpen: {
+    tr: "Bir HTML dosyası ilk kez etkin olunca önizleme paneli açılır (pencere 1100 px'ten genişse ve başka bir sağ panel açık değilse). Sunucu veya localhost gerekmez; yerel CSS/JS/görseller otomatik yüklenir.", en: "When an HTML file first becomes active the preview panel opens (if the window is wider than 1100 px and no other right panel is open). No server or localhost needed; local CSS/JS/images load automatically.", de: "Wird eine HTML-Datei erstmals aktiv, öffnet sich die Vorschau (bei Fensterbreite über 1100 px und ohne anderes rechtes Panel). Kein Server nötig; lokale CSS/JS/Bilder werden automatisch geladen.", ru: "Когда HTML-файл впервые становится активным, открывается предпросмотр (если окно шире 1100 px и нет другой правой панели). Сервер не нужен; локальные CSS/JS/изображения загружаются сами.", ar: "عند تنشيط ملف HTML لأول مرة تُفتح لوحة المعاينة (إذا كان عرض النافذة أكبر من 1100 بكسل ولا توجد لوحة يمنى أخرى). لا حاجة لخادم؛ تُحمَّل ملفات CSS/JS/الصور المحلية تلقائياً.", es: "Cuando un archivo HTML se activa por primera vez se abre la vista previa (si la ventana supera 1100 px y no hay otro panel derecho). No hace falta servidor; el CSS/JS/imágenes locales se cargan solos.", fr: "Quand un fichier HTML devient actif pour la première fois, l’aperçu s’ouvre (si la fenêtre dépasse 1100 px et qu’aucun autre panneau droit n’est ouvert). Aucun serveur requis ; CSS/JS/images locaux chargés automatiquement.", az: "HTML faylı ilk dəfə aktiv olanda önizləmə paneli açılır (pəncərə 1100 px-dən genişdirsə və başqa sağ panel açıq deyilsə). Server lazım deyil; yerli CSS/JS/şəkillər avtomatik yüklənir.",
+  },
+  set_runSaveBefore: {
+    tr: "Çalıştırmadan önce kaydet", en: "Save before running", de: "Vor dem Ausführen speichern", ru: "Сохранять перед запуском", ar: "الحفظ قبل التشغيل", es: "Guardar antes de ejecutar", fr: "Enregistrer avant d’exécuter", az: "İşlətməzdən əvvəl saxla",
+  },
+  setDesc_runSaveBefore: {
+    tr: "Kaydedilmemiş dosya, Çalıştır (F5) ile terminalde çalıştırılmadan önce diske kaydedilir.", en: "An unsaved file is saved to disk before Run (F5) executes it in the terminal.", de: "Eine ungespeicherte Datei wird vor Ausführen (F5) im Terminal gespeichert.", ru: "Несохранённый файл сохраняется на диск перед запуском (F5) в терминале.", ar: "يُحفظ الملف غير المحفوظ على القرص قبل تشغيله (F5) في الطرفية.", es: "Un archivo sin guardar se guarda en disco antes de ejecutarlo (F5) en la terminal.", fr: "Un fichier non enregistré est sauvegardé avant l’exécution (F5) dans le terminal.", az: "Saxlanmamış fayl F5 ilə terminalda işlədilməzdən əvvəl diskə saxlanır.",
+  },
+  set_runClearTerminal: {
+    tr: "Çalıştırmadan önce terminali temizle", en: "Clear the terminal before running", de: "Terminal vor dem Ausführen leeren", ru: "Очищать терминал перед запуском", ar: "مسح الطرفية قبل التشغيل", es: "Limpiar la terminal antes de ejecutar", fr: "Effacer le terminal avant d’exécuter", az: "İşlətməzdən əvvəl terminalı təmizlə",
+  },
+  set_runCommandNode: {
+    tr: "JavaScript çalıştırma komutu", en: "JavaScript run command", de: "JavaScript-Startbefehl", ru: "Команда запуска JavaScript", ar: "أمر تشغيل JavaScript", es: "Comando para ejecutar JavaScript", fr: "Commande d’exécution JavaScript", az: "JavaScript işlətmə komandası",
+  },
+  setDesc_runCommandNode: {
+    tr: "Boşsa yerleşik komut kullanılır (node). Dile özel komutlar şablondur: {file} dosya yolunu, {dir} klasörünü yerleştirir. Değişiklik anında geçerli olur; komut her zaman senin terminalinde çalışır.", en: "If empty the built-in command (node) is used. Per-language commands are templates: {file} inserts the file path, {dir} its folder. Changes apply instantly; the command always runs in your own terminal.", de: "Leer = eingebauter Befehl (node). Sprachbefehle sind Vorlagen: {file} fügt den Dateipfad ein, {dir} den Ordner. Änderungen gelten sofort; der Befehl läuft stets in deinem Terminal.", ru: "Пусто — встроенная команда (node). Команды по языкам — шаблоны: {file} подставляет путь к файлу, {dir} — папку. Изменения применяются сразу; команда всегда выполняется в вашем терминале.", ar: "إذا تُرك فارغاً يُستخدم الأمر المدمج (node). أوامر اللغات قوالب: {file} يدرج مسار الملف و{dir} مجلده. تُطبَّق التغييرات فوراً؛ ويعمل الأمر دائماً في طرفيتك.", es: "Si está vacío se usa el comando integrado (node). Los comandos por lenguaje son plantillas: {file} inserta la ruta del archivo y {dir} su carpeta. Los cambios se aplican al instante; el comando siempre se ejecuta en tu propia terminal.", fr: "Si vide, la commande intégrée (node) est utilisée. Les commandes par langage sont des modèles : {file} insère le chemin du fichier, {dir} son dossier. Les changements s’appliquent immédiatement ; la commande s’exécute toujours dans ton terminal.", az: "Boşdursa daxili komanda (node) işlədilir. Dilə məxsus komandalar şablondur: {file} fayl yolunu, {dir} qovluğu yerləşdirir. Dəyişiklik dərhal qüvvəyə minir; komanda həmişə sənin terminalında işləyir.",
+  },
+  set_runCommandTs: {
+    tr: "TypeScript çalıştırma komutu", en: "TypeScript run command", de: "TypeScript-Startbefehl", ru: "Команда запуска TypeScript", ar: "أمر تشغيل TypeScript", es: "Comando para ejecutar TypeScript", fr: "Commande d’exécution TypeScript", az: "TypeScript işlətmə komandası",
+  },
+  set_runCommandPython: {
+    tr: "Python çalıştırma komutu", en: "Python run command", de: "Python-Startbefehl", ru: "Команда запуска Python", ar: "أمر تشغيل Python", es: "Comando para ejecutar Python", fr: "Commande d’exécution Python", az: "Python işlətmə komandası",
+  },
+  set_runCommandGo: {
+    tr: "Go çalıştırma komutu", en: "Go run command", de: "Go-Startbefehl", ru: "Команда запуска Go", ar: "أمر تشغيل Go", es: "Comando para ejecutar Go", fr: "Commande d’exécution Go", az: "Go işlətmə komandası",
+  },
+  set_runCommandPhp: {
+    tr: "PHP çalıştırma komutu", en: "PHP run command", de: "PHP-Startbefehl", ru: "Команда запуска PHP", ar: "أمر تشغيل PHP", es: "Comando para ejecutar PHP", fr: "Commande d’exécution PHP", az: "PHP işlətmə komandası",
+  },
+  set_extAutoUpdate: {
+    tr: "Eklentileri otomatik güncelle", en: "Update extensions automatically", de: "Erweiterungen automatisch aktualisieren", ru: "Обновлять расширения автоматически", ar: "تحديث الإضافات تلقائياً", es: "Actualizar extensiones automáticamente", fr: "Mettre à jour les extensions automatiquement", az: "Əlavələri avtomatik yenilə",
+  },
+  setDesc_extAutoUpdate: {
+    tr: "Açılıştan kısa süre sonra ve 6 saatte bir yüklü eklentiler için Open VSX'te yeni sürüm aranır ve sessizce yüklenir (arama sözcüğü yok; yalnız IP ve eklenti kimliği gider).", en: "Shortly after startup and every 6 hours Open VSX is checked for newer versions of installed extensions and they are installed silently (no search terms; only IP and extension ID are sent).", de: "Kurz nach dem Start und alle 6 Stunden wird Open VSX nach neueren Versionen installierter Erweiterungen gefragt, die still installiert werden (keine Suchbegriffe; nur IP und Erweiterungs-ID).", ru: "Вскоре после запуска и каждые 6 часов Open VSX проверяется на новые версии установленных расширений, которые ставятся тихо (без поисковых слов; передаются только IP и ID расширения).", ar: "بعد البدء بقليل وكل 6 ساعات يُفحص Open VSX عن إصدارات أحدث للإضافات المثبّتة وتُثبَّت بصمت (دون كلمات بحث؛ يُرسل فقط IP ومعرّف الإضافة).", es: "Poco después de iniciar y cada 6 horas se consulta Open VSX por versiones nuevas de las extensiones instaladas y se instalan en silencio (sin términos de búsqueda; solo IP e ID de la extensión).", fr: "Peu après le démarrage et toutes les 6 heures, Open VSX est interrogé sur les nouvelles versions des extensions installées, installées en silence (aucun terme de recherche ; seulement IP et identifiant).", az: "Açılışdan az sonra və hər 6 saatdan bir quraşdırılmış əlavələr üçün Open VSX-də yeni versiya axtarılır və səssiz quraşdırılır (axtarış sözü yoxdur; yalnız IP və əlavə kimliyi gedir).",
+  },
+  setExtThemePick: {
+    tr: "Renk teması", en: "Color theme", de: "Farbdesign", ru: "Цветовая тема", ar: "سمة الألوان", es: "Tema de color", fr: "Thème de couleur", az: "Rəng teması",
+  },
+  setExtThemePickDesc: {
+    tr: "Yerleşik ve eklentilerden gelen temalar tek listede. Seçim anında editöre ve önizlemeye uygulanır.", en: "Built-in and extension themes in one list. Your choice applies instantly to the editor and the preview.", de: "Integrierte und Erweiterungs-Themes in einer Liste. Die Auswahl gilt sofort für Editor und Vorschau.", ru: "Встроенные темы и темы расширений в одном списке. Выбор сразу применяется к редактору и предпросмотру.", ar: "السمات المدمجة وسمات الإضافات في قائمة واحدة. يُطبَّق اختيارك فوراً على المحرر والمعاينة.", es: "Temas integrados y de extensiones en una sola lista. Tu elección se aplica al instante al editor y a la vista previa.", fr: "Thèmes intégrés et d’extensions dans une seule liste. Ton choix s’applique immédiatement à l’éditeur et à l’aperçu.", az: "Daxili və əlavə temaları tək siyahıda. Seçim dərhal redaktora və önizləməyə tətbiq olunur.",
+  },
+  setExtBuiltin: {
+    tr: "Yerleşik", en: "Built-in", de: "Integriert", ru: "Встроенные", ar: "مدمجة", es: "Integrados", fr: "Intégrés", az: "Daxili",
+  },
+  setExtOpenStore: {
+    tr: "Mağazayı aç", en: "Open store", de: "Store öffnen", ru: "Открыть магазин", ar: "فتح المتجر", es: "Abrir tienda", fr: "Ouvrir la boutique", az: "Mağazanı aç",
   },
 } satisfies Record<string, Dict>;
 

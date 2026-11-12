@@ -1,7 +1,6 @@
 // Ayarlar çekirdeği: şema, varsayılanlar, doğrulama, kalıcılık (yalnız yerel) ve türetilmiş değerler.
 // Şema tek kaynaktır: settingsSchema.json. Yeni ayar = şemaya satır + i18n etiketi (bkz. docs/brain/actions/settings.md).
 import schemaJson from './settingsSchema.json';
-import type { Snippet } from '../types';
 
 export type SettingValue = string | number | boolean;
 export type SettingsValues = Record<string, SettingValue>;
@@ -41,7 +40,6 @@ const BY_ID = new Map(SCHEMA.map((s) => [s.id, s]));
 export const DEFAULTS: SettingsValues = Object.fromEntries(SCHEMA.map((s) => [s.id, s.default]));
 
 export const STORAGE_KEY = 'nova.settings.v1';
-const MAX_SNIPPETS = 200;
 
 // ---------- Doğrulama ----------
 export function sanitizeValue(def: SettingDef, raw: unknown): SettingValue {
@@ -72,31 +70,8 @@ export function sanitizeAll(raw: unknown): SettingsValues {
   return out;
 }
 
-export function sanitizeSnippets(raw: unknown): Snippet[] {
-  if (!Array.isArray(raw)) return [];
-  const out: Snippet[] = [];
-  for (const r of raw.slice(0, MAX_SNIPPETS)) {
-    if (!r || typeof r !== 'object') continue;
-    const o = r as Record<string, unknown>;
-    const prefix = typeof o.prefix === 'string' ? o.prefix.trim().slice(0, 40) : '';
-    const body = typeof o.body === 'string' ? o.body.slice(0, 20000) : '';
-    if (!prefix || !body || /\s/.test(prefix)) continue;
-    const description = typeof o.description === 'string' ? o.description.slice(0, 120) : '';
-    out.push({
-      id: typeof o.id === 'string' && o.id ? o.id.slice(0, 60) : `u-${out.length}-${prefix}`,
-      label: description || prefix,
-      prefix,
-      description,
-      language: typeof o.language === 'string' && /^[\w*-]{1,30}$/.test(o.language) ? o.language : '*',
-      body
-    });
-  }
-  return out;
-}
-
 export interface StoredSettings {
   values: SettingsValues;
-  userSnippets: Snippet[];
 }
 
 // ---------- Kalıcılık (yalnız bu cihazda, localStorage) ----------
@@ -105,7 +80,7 @@ export function loadSettings(): StoredSettings {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const j = JSON.parse(raw);
-      return { values: sanitizeAll(j.values), userSnippets: sanitizeSnippets(j.userSnippets) };
+      return { values: sanitizeAll(j.values) };
     }
     // İlk açılış: eski anahtarlardan taşı (token hariç; o ayrıca şifreli depoya taşınır)
     const legacy: Record<string, unknown> = {};
@@ -113,15 +88,15 @@ export function loadSettings(): StoredSettings {
     if (lsGet('nova.collab.enabled') !== null) legacy.collabEnabled = lsGet('nova.collab.enabled') === '1';
     if (lsGet('nova.collab.url') !== null) legacy.collabUrl = lsGet('nova.collab.url');
     if (lsGet('nova.welcome') !== null) legacy.welcomeOnStartup = lsGet('nova.welcome') !== '0';
-    return { values: sanitizeAll(legacy), userSnippets: [] };
+    return { values: sanitizeAll(legacy) };
   } catch {
-    return { values: { ...DEFAULTS }, userSnippets: [] };
+    return { values: { ...DEFAULTS } };
   }
 }
 
 export function saveSettings(s: StoredSettings) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, values: s.values, userSnippets: s.userSnippets }));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, values: s.values }));
   } catch {
     /* depolama kapalı: ayarlar bu oturumda kalır */
   }
@@ -131,7 +106,7 @@ export function parseImport(text: string): StoredSettings | null {
   try {
     const j = JSON.parse(text);
     if (!j || typeof j !== 'object' || !('values' in j)) return null;
-    return { values: sanitizeAll(j.values), userSnippets: sanitizeSnippets(j.userSnippets) };
+    return { values: sanitizeAll(j.values) };
   } catch {
     return null;
   }
@@ -262,7 +237,6 @@ export function toMonacoOptions(v: SettingsValues): Record<string, unknown> {
     autoClosingBrackets: String(v.autoClosingBrackets),
     quickSuggestions: b('quickSuggestions'),
     suggestOnTriggerCharacters: b('suggestOnTriggerCharacters'),
-    snippetSuggestions: String(v.snippetSuggestions),
     parameterHints: { enabled: b('parameterHints') },
     hover: { enabled: b('hover') },
     rulers,

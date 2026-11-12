@@ -3,20 +3,31 @@
 ## Unreleased
 
 ### tr
+- **Önizleme yenilendi:** `.html`, `.svg` ve `.md` dosyası açılınca localhost gerekmeden önizleme kendiliğinden açılır (ayar: Çalıştır ve önizleme). Yerel CSS/JS/görsel/yazı tipleri diskten gömülür, yazdıkça (kaydetmeden) ve diskte değişince canlı yenilenir; sandbox içinde çalışır, konsol çıktısı ve hata rozeti görünür. Terminalde çalışan yerel sunucu (`localhost`) algılanır ve tek tıkla önizlenir.
+- **Çalıştır menüsü sadeleşti:** npm/cargo/dotnet komutları kaldırıldı; "Açık dosyayı çalıştır (F5)", "Önizleme" ve yeni **Çalıştır ve önizleme** ayarları (kaydet-önce, terminali temizle, dil başına özel komut şablonu `{file}`/`{dir}`) var.
+- **Eklentiler ayarlara entegre:** Ayarlar → Eklentiler'de yerleşik + eklenti temaları tek listede, seçim anında uygulanır; `Ctrl+Shift+P` → "Renk temasını seç…" ile ok tuşlarıyla canlı önizleme (Esc geri alır). Yüklü eklentiler açılışta ve 6 saatte bir otomatik güncellenir (ayar: kapatılabilir).
+- **Güncelleme:** "Güncellemeleri denetle" otomatik denetler; yeniyse "Son sürümdesiniz", varsa aşamalarıyla gösterir, ayar açıksa kendiliğinden indirir. Geliştirme ortamı GitHub'daki son yayınla karşılaştırır ve yayın sayfasını açar; kurulu uygulama gerçek güncellemeyi uygular.
+- **Otomatik CI/CD:** oturum sonunda değişiklikler `auto/*` dalına gönderilir, PR açılır ve CI yeşilse otomatik birleştirilir; CI'da sürüm denetimi (`npm run version:check`), CI hatasında otomatik `ci-failure` issue'su, Dependabot'un aynı-major güncellemelerinde otomatik birleştirme.
+- **Güvenlik:** dosya okuma/listeleme ve git/GitHub işlemleri yalnız açık çalışma klasöründe yapılır; önizleme için disk okuma yalnız izinli uzantılarla ve ≤4 MB.
 - Yapay zekâ asistanı baştan yazıldı: Anthropic, OpenAI uyumlu ve Ollama (yerel) desteği, gerçek zamanlı akış, **Sor** ve **Ajan** modları (ajan projeyi okur/arar, dosya yazma ve komut çalıştırma için onay ister), görsel ekleme/yapıştırma, çoklu oturum geçmişi (yalnız cihazda), `/` komutları ve proje yönergeleri (`.nova/instructions.md`, `.nova/commands/*.md`). API anahtarı şifreli saklanır, arayüze geri okunmaz.
 - Sesli dikte: mikrofonla konuş, metin sohbet kutusuna yazılsın (OpenAI uyumlu transkripsiyon; açık rıza ayarı, varsayılan kapalı).
-- Komut paleti: `Ctrl+P` dosyaya git, `Ctrl+Shift+P` / `F1` komutlar, `Ctrl+G` satıra git, `$` snippet ekle; üst çubuktaki arama kutusu paleti açar.
+- Komut paleti: `Ctrl+P` dosyaya git, `Ctrl+Shift+P` / `F1` komutlar, `Ctrl+G` satıra git; üst çubuktaki arama kutusu paleti açar.
 - Projede ara (`Ctrl+Shift+F`): büyük/küçük harf ve düzenli ifade desteği, sonuca tıklayınca satıra gider.
-- Snippet hızlı yolları: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippet'ler artık imlecin olduğu yere eklenir.
 - Ayarlar: yeni "Yapay Zekâ" kategorisi; kısayol listesi güncellendi.
+- **Ayarlar ayrı pencerede:** Ayarlar artık uygulamanın üstünde, arka planı karartarak ayrı bir pencere olarak açılır (ekrandan taşmaz, `Esc` ile kapanır); altındaki görünüm kaybolmaz.
+- **Gezgin yenilendi:** her zaman görünen araç çubuğu, filtre (`Ctrl+F`), sıralama, gizli dosyaları gizle, klasörleri sıkıştır, sade/renkli simge stili, satır yüksekliği (3 seçenek), etkin dosyayı otomatik göster, sürükle-bırak ile dosya/klasör taşıma, "Dosya gezgininde göster" ve "Terminalde aç", "Tümünü kapat", son açılan klasörler ve daha şık boş durumlar. Görünüm seçenekleri (…) menüsünden ve Ayarlar'dan değiştirilir.
+- **Güvenlik:** silme, oluşturma, taşıma ve yazma işlemleri yalnız açık çalışma klasörünün içinde yapılır; taşıma hedefin üzerine yazmaz.
+- **Başlık çubuğu:** arama kutusu pencereye göre tam ortada; dar pencerede (<1280 px) menü başlıkları tek "Menü" düğmesinde toplanır ve düğmeler çakışmaz.
+- **Kapalı düğmeler:** proje/dosya yokken işe yaramayan düğmeler (HTML önizleme, Terminal, Ara) soluk görünür, üzerine gelince nedenini söyler; klasör/dosya açılınca etkinleşir.
+- **Kaldırıldı:** kod parçacıkları (snippet) özelliği (panel, ayarlar, palet modu); eklenti mağazası yalnız tema destekler.
 - **Güncelleme sistemi:** Yardım → Güncellemeleri denetle…; yeni sürüm bulunursa notlarıyla gösterilir, indirme yüzdesi durum çubuğunda ve pencerede görünür, bitince "Yeniden başlat ve güncelle". Sürüm notları (Yardım → Sürüm notları), açılışta otomatik denetim ve otomatik indirme ayarları.
 - **Eklentiler:** VS Code gibi ayrıntı sayfası (açıklama, değişiklikler, yayıncı, lisans, puan); ağ hatası giderildi (sistem proxy/VPN desteği, yeniden deneme, hatanın türü ve "Tekrar dene").
-- **Menüler:** projesi/dosyası açık olmadığında kapalı öğeler soluk görünür, üzerine gelince nedenini söyler; uzun menüler ve dar pencerede menü çubuğu kayar. Çalıştır menüsü açık klasörün `package.json` betiklerini ve proje türünü (Go, Rust, .NET, PHP…) algılar.
+- **Menüler:** projesi/dosyası açık olmadığında kapalı öğeler soluk görünür, üzerine gelince nedenini söyler; uzun menüler ve dar pencerede menü çubuğu kayar.
 - **Duyarlı tasarım:** dar pencerede paneller editörü ezmez (AI/önizleme paneli üstüne biner), ayarlar sayfası ve editör çubuğu dar genişliğe uyum sağlar, düğme/menü yazılarında taşma ve alta kayma giderildi; `Ctrl+Shift+L` paneli aç/kapatır.
 - Yerleşik yapay zekâ (anahtarsız, ücretsiz) artık sunucu adresi ya da API anahtarı gerekmez. Panelden bir kez yerel model indirirsin (Hızlı ~1 GB / Güçlü ~4,4 GB), sonra sohbet ve ajan bu bilgisayarda, internetsiz çalışır; kodun ve mesajların dışarı çıkmaz. Ollama ve bulut sağlayıcılar isteğe bağlıdır.
 - Ajan paneli yeniden tasarlandı: dengeli ve taşmasız yerleşim, sürükleyerek genişlik, otomatik büyüyen giriş kutusu, kaydırılabilir araç kartları, koyu/açık tema uyumu.
-- Üst menü çubuğu: Dosya, Düzenle, Seçim, Görünüm, Git, Çalıştır, Terminal, Yardım; animasyonlu açılır menüler. Çalıştır menüsü açık dosyayı türüne göre terminalde çalıştırır (`node`, `python`, `go run`, `php`…) ve `npm run dev/build`, `go run .`, `cargo run` gibi proje komutlarını sunar.
-- Eklenti mağazası (Open VSX): tema ve snippet eklentilerini ara, yükle, güncelle, kaldır (`Ctrl+Shift+X`). Kod çalıştıran eklentiler desteklenmez.
+- Üst menü çubuğu: Dosya, Düzenle, Seçim, Görünüm, Git, Çalıştır, Terminal, Yardım; animasyonlu açılır menüler. Çalıştır menüsü açık dosyayı türüne göre terminalde çalıştırır (`node`, `python`, `go run`, `php`…).
+- Eklenti mağazası (Open VSX): tema eklentilerini ara, yükle, güncelle, kaldır (`Ctrl+Shift+X`). Kod çalıştıran eklentiler desteklenmez.
 - Dosya türü simgeleri: Gezgin, sekmeler, palet ve aramada TS, JS, PHP, PY, GO ve ~60 türe renkli rozet.
 - Yerel öncelikli: Ollama desteği (API anahtarı ve maliyet yok, veri bilgisayardan çıkmaz). Panel Ollama'yı ve yüklü modelleri algılar, model panelden seçilir; eksikse kurulum ipucu gösterir. Dikte için yerel Whisper sunucusu adresi girilebilir (anahtarsız).
 
@@ -47,7 +58,6 @@
 - Proje beyni: `docs/brain/` altında harita, proje bilgisi, karar günlüğü ve her aksiyon için bir oyun kitabı; `STATE.md` koddan otomatik üretilir (`npm run brain`), tutarlılık `npm run brain:check` ile denetlenir. Git modülü testleri `npm test` ile CI'da çalışır.
 
 - Ayarlar baştan yazıldı: gerçek zamanlı, VS Code tarzı tam sayfa (`Ctrl+,`), arama ve kategorilerle. Koyu / açık / sistem tema, 6 vurgu rengi, arayüz yazı tipi, yakınlaştırma, animasyon ve dil (anında); editör yazı tipi (hazır liste veya özel), boyut, satır yüksekliği, kalınlık, ligatür, sekme, kaydırma, imleç, mini harita, katlama, öneriler, cetvel vb. 30+ ayar; canlı Monaco önizlemesi.
-- Özel snippet'ler (tetikleyici, dil, Monaco sözdizimi) otomatik tamamlamada çıkar; hazır snippet'ler açılıp kapatılabilir.
 - Dosya ve terminal ayarları: otomatik kayıt (gecikme / odak değişimi), kayıtta boşluk temizleme ve son satır, terminal yazı boyutu/varsayılan kabuk/komut renklendirme, Git yenileme aralıkları. Ayarlar JSON olarak dışa/içe aktarılabilir.
 - Açık tema eklendi (Nova Light Monaco teması, terminal paleti dahil). Ortak düzenleme token'ı artık şifreli saklanır (eski düz metin token taşınıp silinir).
 - Düzeltme: dosya açık değilken sekme çubuğundaki gereksiz `+` düğmesi gizlendi.
@@ -59,12 +69,23 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **Preview overhaul:** opening an `.html`, `.svg` or `.md` file opens a preview automatically, no localhost needed (setting: Run & preview). Local CSS/JS/images/fonts are inlined from disk, refreshed live as you type (unsaved) and when files change on disk; sandboxed, with console output and an error badge. A local dev server (`localhost`) started in the terminal is detected and previewed in one click.
+- **Simpler Run menu:** npm/cargo/dotnet commands removed; "Run active file (F5)", "Preview" and new **Run & preview** settings (save first, clear terminal, per-language command template `{file}`/`{dir}`).
+- **Extensions built into settings:** Settings → Extensions lists built-in + extension themes in one list, applied instantly; `Ctrl+Shift+P` → "Select color theme…" gives live preview with arrow keys (Esc reverts). Installed extensions auto-update at startup and every 6 hours (can be turned off).
+- **Updates:** "Check for updates" checks automatically; shows "You're up to date" or the stages of an available update, and downloads automatically if enabled. The dev environment compares with the latest GitHub release and opens the release page; installed apps apply the real update.
+- **Autonomous CI/CD:** at the end of a session changes go to an `auto/*` branch, a PR is opened and auto-merged when CI is green; CI version check (`npm run version:check`), automatic `ci-failure` issue on CI failure, auto-merge for same-major Dependabot bumps.
+- **Security:** file read/list and git/GitHub operations are limited to the open workspace; disk reads for preview use an extension allowlist and ≤4 MB.
 - AI assistant rewritten: Anthropic, OpenAI-compatible and Ollama (local) support, real-time streaming, **Ask** and **Agent** modes (the agent reads/searches your project and asks for approval before writing files or running commands), image attach/paste, multiple sessions (stored on this device only), `/` commands and project instructions (`.nova/instructions.md`, `.nova/commands/*.md`). API keys are stored encrypted and never read back into the UI.
 - Voice dictation: speak into the mic and the text lands in the chat box (OpenAI-compatible transcription; explicit-consent setting, off by default).
-- Command palette: `Ctrl+P` go to file, `Ctrl+Shift+P` / `F1` commands, `Ctrl+G` go to line, `$` insert snippet; the search box in the title bar opens it.
+- Command palette: `Ctrl+P` go to file, `Ctrl+Shift+P` / `F1` commands, `Ctrl+G` go to line; the search box in the title bar opens it.
 - Search in project (`Ctrl+Shift+F`): match case and regex support, click a result to jump to the line.
-- Snippet quick triggers: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippets are now inserted at the cursor.
 - Settings: new "AI Assistant" category; shortcut list updated.
+- **Settings in its own window:** Settings now opens on top of the app as a separate window with a darkened backdrop (never overflows the screen, closes with `Esc`); the view underneath is preserved.
+- **Explorer revamp:** an always-visible toolbar, filter (`Ctrl+F`), sorting, hide hidden files, compact folders, minimal/colored icon style, row height (3 options), auto-reveal the active file, drag-and-drop file/folder moving, "Reveal in File Explorer" and "Open in terminal", "Close all", recent folders and nicer empty states. View options live in the (…) menu and in Settings.
+- **Security:** delete, create, move and write operations only happen inside the open workspace folder; moving never overwrites the destination.
+- **Title bar:** the search box is exactly centered in the window; in narrow windows (<1280 px) the menu titles collapse into a single "Menu" button and buttons no longer collide.
+- **Disabled buttons:** buttons that do nothing without a project/file (HTML preview, Terminal, Search) look dimmed and explain why on hover; they activate once a folder/file is open.
+- **Removed:** the code snippets feature (panel, settings, palette mode); the extension store supports themes only.
 - **Update system:** Help → Check for updates…; a new version is shown with its notes, download percentage appears in the status bar and the dialog, then "Restart and update". Release notes (Help → Release notes), startup auto-check and auto-download settings.
 - **Extensions:** VS Code-style details page (description, changelog, publisher, license, rating); network error fixed (system proxy/VPN support, retry, error type and "Try again").
 - **Menus:** when no file/folder is open, unavailable items are dimmed and explain why on hover; long menus and the menu bar scroll in narrow windows. The Run menu detects the open folder's `package.json` scripts and project type (Go, Rust, .NET, PHP…).
@@ -72,7 +93,7 @@
 - **Built-in AI (no key, free):** no server address or API key needed anymore. Download a local model once from the panel (Fast ~1 GB / Strong ~4.4 GB); then chat and agent run on this computer, offline; your code and messages never leave it. Ollama and cloud providers remain optional.
 - Agent panel redesigned: balanced layout with no overflow, drag-to-resize width, auto-growing input, collapsible tool cards, dark/light theme fit.
 - Top menu bar: File, Edit, Selection, View, Git, Run, Terminal, Help, with animated dropdowns. The Run menu runs the active file in the terminal by type (`node`, `python`, `go run`, `php`…) and offers project commands like `npm run dev/build`, `go run .`, `cargo run`.
-- Extension store (Open VSX): search, install, update and remove theme and snippet extensions (`Ctrl+Shift+X`). Extensions that run code are not supported.
+- Extension store (Open VSX): search, install, update and remove theme extensions (`Ctrl+Shift+X`). Extensions that run code are not supported.
 - File type icons: colored badges for TS, JS, PHP, PY, GO and ~60 types in the explorer, tabs, palette and search.
 - Local-first: Ollama support (no API key, no cost, data never leaves your computer). The panel detects Ollama and installed models and lets you pick a model; it shows setup hints when something is missing. For dictation you can set a local Whisper server address (no key needed).
 
@@ -81,7 +102,6 @@
 - Space-wasting elements were removed (version chip in the title bar, meaningless status bar items); the status bar shows only meaningful info. New transitions: popup menus, sidebar and terminal panel resize animation.
 - 10 new settings: sidebar position, activity/status bar, breadcrumbs, open editors, tree density and guides, terminal line height/scrollback/cursor.
 - Settings were rebuilt: real-time, VS Code-style full page (`Ctrl+,`) with search and categories. Dark / light / system theme, 6 accent colors, UI font, zoom, animations and language (instant); editor font (preset list or custom), size, line height, weight, ligatures, tabs, wrapping, cursor, minimap, folding, suggestions, rulers and more, 30+ settings; live Monaco preview.
-- Custom snippets (trigger, language, Monaco syntax) appear in autocomplete; built-in snippets can be toggled.
 - File and terminal settings: auto save (delay / focus change), trim whitespace and final newline on save, terminal font size / default shell / command coloring, Git refresh intervals. Settings can be exported/imported as JSON.
 - Light theme added (Nova Light Monaco theme, terminal palette included). The collaboration token is now stored encrypted (an old plain-text token is migrated and deleted).
 - Fix: the unnecessary `+` button in the tab bar is hidden when no file is open.

@@ -10,6 +10,8 @@ const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 let mainWindow;
 let activeWatcher = null;
 let activeGitWatcher = null;
+const approvedFiles = new Set(); // diyalogla açılan dosyalar (çalışma klasörü dışında olabilir); yalnız bunlara yazılabilir
+const approvalKey = (p) => path.resolve(p).toLowerCase();
 let workspaceRoot = ''; // açık çalışma klasörü (arama ve yapay zekâ araçları yalnız bunun içinde çalışır)
 
 function createWindow() {
@@ -275,6 +277,7 @@ ipcMain.handle('dialog:openFiles', async () => {
   for (const filePath of result.filePaths) {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
+      approvedFiles.add(approvalKey(filePath));
       const name = path.basename(filePath);
       const ext = path.extname(name).toLowerCase().replace('.', '');
       files.push({
@@ -290,21 +293,53 @@ ipcMain.handle('dialog:openFiles', async () => {
   return files;
 });
 
+// Yeniden adlandırma ve sürükle-bırak taşıma: iki yol da açık çalışma klasörünün İÇİNDE olmalı; hedef varsa üzerine yazılmaz.
+const withinWorkspace = (p) => {
+  if (!workspaceRoot || !isValidPath(p)) return false;
+  const rel = path.relative(path.resolve(workspaceRoot), path.resolve(p));
+  return !rel.startsWith('..') && !path.isAbsolute(rel);
+};
+const insideWorkspace = (p) => {
+  if (!workspaceRoot || !isValidPath(p)) return false;
+  const rel = path.relative(path.resolve(workspaceRoot), path.resolve(p));
+  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+};
+// Önizleme için yerel varlık (görsel/yazı tipi) → data URL. Yalnız çalışma klasörü (veya diyalogla açılmış dosya), izinli uzantılar, en çok 4 MB.
+const DATA_MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', ico: 'image/x-icon', bmp: 'image/bmp', woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf', otf: 'font/otf' };
+ipcMain.handle('fs:readDataUrl', async (_event, filePath) => {
+  try {
+    if (!isValidPath(filePath) || !(insideWorkspace(filePath) || approvedFiles.has(approvalKey(filePath)))) return { success: false, error: 'outside' };
+    const mime = DATA_MIME[path.extname(filePath).slice(1).toLowerCase()];
+    if (!mime) return { success: false, error: 'type' };
+    const st = fs.statSync(filePath);
+    if (!st.isFile() || st.size > 4 * 1024 * 1024) return { success: false, error: 'size' };
+    return { success: true, dataUrl: `data:${mime};base64,${fs.readFileSync(filePath).toString('base64')}` };
+  } catch {
+    return { success: false, error: 'read' };
+  }
+});
+
 ipcMain.handle('fs:readDir', async (_event, dirPath) => {
-  if (!isValidPath(dirPath) || !fs.existsSync(dirPath)) return [];
+  if (!withinWorkspace(dirPath) || !fs.existsSync(dirPath)) return [];
   return scanDirectory(dirPath);
 });
 
+// Okuma: çalışma klasörü içi veya kullanıcının "Dosya Aç" diyaloğuyla seçtiği dosyalar (rastgele yol okunamaz)
 ipcMain.handle('fs:readFile', async (_event, filePath) => {
   try {
+    if (!(withinWorkspace(filePath) || (isValidPath(filePath) && approvedFiles.has(approvalKey(filePath))))) throw new Error('Yol çalışma klasörü dışında.');
     return fs.readFileSync(filePath, 'utf8');
   } catch (err) {
     throw new Error('Dosya okunamadı: ' + err.message);
   }
 });
 
+// Yazma/silme/oluşturma: yol açık çalışma klasörünün içinde olmalı (yazma için ayrıca diyalogla açılmış dosyalar da olabilir).
+const OUTSIDE = { success: false, error: 'Yol çalışma klasörü dışında.' };
+const writable = (p) => insideWorkspace(p) || (isValidPath(p) && approvedFiles.has(approvalKey(p)));
 ipcMain.handle('fs:writeFile', async (_event, filePath, content) => {
   try {
+    if (!writable(filePath) || typeof content !== 'string') return OUTSIDE;
     fs.writeFileSync(filePath, content, 'utf8');
     return { success: true };
   } catch (err) {
@@ -314,6 +349,7 @@ ipcMain.handle('fs:writeFile', async (_event, filePath, content) => {
 
 ipcMain.handle('fs:createFile', async (_event, filePath) => {
   try {
+    if (!insideWorkspace(filePath)) return OUTSIDE;
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(filePath, '', 'utf8');
     }
@@ -325,6 +361,7 @@ ipcMain.handle('fs:createFile', async (_event, filePath) => {
 
 ipcMain.handle('fs:createFolder', async (_event, folderPath) => {
   try {
+    if (!insideWorkspace(folderPath)) return OUTSIDE;
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
@@ -336,6 +373,7 @@ ipcMain.handle('fs:createFolder', async (_event, folderPath) => {
 
 ipcMain.handle('fs:deleteItem', async (_event, targetPath) => {
   try {
+    if (!insideWorkspace(targetPath)) return OUTSIDE; // kök klasörün kendisi de silinemez
     if (fs.existsSync(targetPath)) {
       fs.rmSync(targetPath, { recursive: true, force: true });
     }
@@ -347,10 +385,28 @@ ipcMain.handle('fs:deleteItem', async (_event, targetPath) => {
 
 ipcMain.handle('fs:renameItem', async (_event, oldPath, newPath) => {
   try {
+    if (!insideWorkspace(oldPath) || !insideWorkspace(newPath)) return { success: false, error: 'Yol çalışma klasörü dışında.' };
+    if (path.resolve(newPath).toLowerCase().startsWith(path.resolve(oldPath).toLowerCase() + path.sep)) return { success: false, error: 'Klasör kendi içine taşınamaz.' };
+    const samePathDifferentCase = path.resolve(oldPath).toLowerCase() === path.resolve(newPath).toLowerCase();
+    if (!samePathDifferentCase && fs.existsSync(newPath)) return { success: false, error: 'Aynı adlı bir öğe zaten var.' };
     fs.renameSync(oldPath, newPath);
     return { success: true };
   } catch (err) {
     return { success: false, error: err.message };
+  }
+});
+
+// Dosya gezgininde göster (Windows Gezgini / Finder): yalnız çalışma klasörü içindeki var olan yollar
+ipcMain.handle('app:reveal', async (_event, target) => {
+  try {
+    if (!isValidPath(target) || !fs.existsSync(target)) return { success: false };
+    const root = workspaceRoot ? path.resolve(workspaceRoot) : '';
+    const t = path.resolve(target);
+    if (root && t !== root && !insideWorkspace(t)) return { success: false };
+    shell.showItemInFolder(t);
+    return { success: true };
+  } catch {
+    return { success: false };
   }
 });
 
@@ -397,8 +453,9 @@ ipcMain.handle('ui:setTheme', async (_event, mode) => {
   return { success: true };
 });
 
-github.register({ getWindow: () => mainWindow, runGit: runGitCommand, isValidPath });
-gitModule.register({ runGit: runGitCommand, github, isValidPath });
+// Depo yolu = açık çalışma klasörü (veya içi); rastgele klasörde git/GitHub işlemi yapılamaz
+github.register({ getWindow: () => mainWindow, runGit: runGitCommand, isValidPath: withinWorkspace });
+gitModule.register({ runGit: runGitCommand, github, isValidPath: withinWorkspace });
 
 // ----------------------------------------------------
 // Entegre terminal: çoklu kabuk oturumları (electron-term.cjs)

@@ -90,15 +90,6 @@ export interface GithubRepoInfo {
   pulls?: { number: number; title: string; url: string; author?: string }[];
 }
 
-export interface Snippet {
-  id: string;
-  label: string;
-  prefix: string;
-  description: string;
-  language: string;
-  body: string;
-}
-
 export interface UpdateState {
   status: 'idle' | 'checking' | 'available' | 'none' | 'downloading' | 'ready' | 'error' | 'unsupported';
   current: string;
@@ -111,6 +102,9 @@ export interface UpdateState {
   error: '' | 'network' | 'no-release' | 'checksum' | 'failed';
   checkedAt: number;
   supported: boolean;
+  /** 'stable' = kurulu uygulama (gerçek güncelleme); 'dev' = kaynaktan çalışan sürüm (yalnız yayınla karşılaştırır). */
+  channel: 'stable' | 'dev';
+  releaseUrl: string;
 }
 
 export interface ReleaseInfo {
@@ -119,12 +113,6 @@ export interface ReleaseInfo {
   date: string;
   notes: string;
   url: string;
-}
-
-export interface WorkspaceInfo {
-  pm: 'npm' | 'pnpm' | 'yarn' | 'bun';
-  scripts: string[];
-  kinds: string[];
 }
 
 export type SecretKey = 'collabToken' | 'aiKey_anthropic' | 'aiKey_openai';
@@ -200,7 +188,7 @@ export interface ElectronBridge {
     onState: (callback: (s: UpdateState) => void) => () => void;
   };
   openLink: (url: string) => Promise<{ success: boolean }>;
-  detectWorkspace: () => Promise<WorkspaceInfo>;
+  revealInFolder: (target: string) => Promise<{ success: boolean }>;
   llm: {
     status: () => Promise<{ defaultId: string; models: LlmModelInfo[] }>;
     download: (id: string) => Promise<{ success: boolean; error?: string }>;
@@ -209,7 +197,7 @@ export interface ElectronBridge {
     onProgress: (callback: (p: LlmProgress) => void) => () => void;
   };
   ext: {
-    search: (opts: { query: string; category?: 'Themes' | 'Snippets' | ''; offset?: number }) => Promise<{ success: boolean; total: number; items: import('./services/extensionsService').StoreItem[]; error?: string }>;
+    search: (opts: { query: string; category?: 'Themes' | ''; offset?: number }) => Promise<{ success: boolean; total: number; items: import('./services/extensionsService').StoreItem[]; error?: string }>;
     list: () => Promise<import('./services/extensionsService').InstalledExt[]>;
     details: (namespace: string, name: string) => Promise<{ success: boolean; error?: string; details?: import('./services/extensionsService').ExtDetails }>;
     install: (namespace: string, name: string) => Promise<{ success: boolean; error?: string; partial?: boolean }>;
@@ -232,6 +220,7 @@ export interface ElectronBridge {
   openFileDialog: () => Promise<FileItem[]>;
   readDirectory: (dirPath: string) => Promise<FileItem[]>;
   readFile: (filePath: string) => Promise<string>;
+  readDataUrl: (filePath: string) => Promise<{ success: boolean; dataUrl?: string; error?: string }>;
   writeFile: (filePath: string, content: string) => Promise<{ success: boolean; error?: string }>;
   createFile: (filePath: string) => Promise<{ success: boolean; error?: string }>;
   createFolder: (folderPath: string) => Promise<{ success: boolean; error?: string }>;

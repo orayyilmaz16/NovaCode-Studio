@@ -25,7 +25,7 @@ IPC kanallarının güncel listesi [[STATE]] içindedir. Her kanal `electron-pre
 Sağ panelde Sor/Ajan modlu asistan (`AIAssistant.tsx`), motoru ana süreçte (`electron-ai.cjs`): Anthropic / OpenAI uyumlu / Ollama, akış, agent araç döngüsü (okuma/arama serbest, yazma ve komut onaylı), görsel girdi, sesli dikte, oturum geçmişi (cihazda), `.nova/` ile proje yönergesi ve özel komutlar. Komut paleti (`Ctrl+P`, `>`, `:`, `$`) ve proje araması (`electron-search.cjs`). Ayrıntı: [[ai-assistant]], [[search-palette]].
 
 ## Ayarlar
-Gerçek zamanlı, şema güdümlü ayar sistemi: `src/services/settingsSchema.json` (tek kaynak) → doğrulama, arayüz (`SettingsPage`) ve belge üretimi. Tema (koyu/açık/sistem), vurgu rengi, yazı tipleri, yakınlaştırma, dil, editör, snippet, kayıt, terminal, Git aralıkları, ortak düzenleme. Yerelde saklanır; token şifreli (`electron-secrets.cjs`). Ayrıntı: [[settings]].
+Gerçek zamanlı, şema güdümlü ayar sistemi: `src/services/settingsSchema.json` (tek kaynak) → doğrulama, arayüz (`SettingsPage`) ve belge üretimi. Tema (koyu/açık/sistem), vurgu rengi, yazı tipleri, yakınlaştırma, dil, editör, kayıt, terminal, Git aralıkları, ortak düzenleme. Yerelde saklanır; token şifreli (`electron-secrets.cjs`). Ayrıntı: [[settings]].
 
 ## Arayüz
 VS Code "Dark Modern" çizgisi: düz yüzeyler, cam/bulanıklık yok. Tasarım jetonları `src/style.css` (`@theme`). Marka: arka plansız gradient logo (`public/logo.svg`). Ayrıntı: [[ui-design]].

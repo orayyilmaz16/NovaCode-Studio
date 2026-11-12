@@ -2,13 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { FileTypeIcon } from './FileTypeIcon';
 import { setActiveEditor } from '../services/editorBridge';
-import { extThemeName, setMonacoForExtensions, useExtensions } from '../services/extensionsService';
+import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
 import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight } from 'lucide-react';
 import { Logo } from './Logo';
 import { defineNovaThemes } from '../services/editorTheme';
 import { useSettings } from '../services/SettingsContext';
-import { resolveEditorTheme, toMonacoOptions } from '../services/settings';
-import { registerSnippetProvider, setSnippetSource } from '../services/snippetProvider';
+import { toMonacoOptions } from '../services/settings';
 import type { FileItem } from '../types';
 import { t } from '../i18n/uiText';
 
@@ -63,16 +62,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   rootName,
   collab,
 }) => {
-  // Ayarlar: yazı tipi, tema, imleç, snippet... değiştiği an editöre yansır (gerçek zamanlı)
-  const { values, userSnippets, mode } = useSettings();
-  const { installed: installedExts } = useExtensions();
-  const extTheme = String(values.extTheme || '');
-  const extActive = !!extTheme && installedExts.some((e) => e.themes.some((th) => extThemeName(e.id, th.label) === extTheme));
-  const theme = extActive ? extTheme : resolveEditorTheme(values.editorTheme, mode);
+  // Ayarlar: yazı tipi, tema, imleç... değiştiği an editöre yansır (gerçek zamanlı)
+  const { values } = useSettings();
+  const theme = useActiveEditorTheme();
   const editorOptions = useMemo(() => toMonacoOptions(values), [values]);
-  useEffect(() => {
-    setSnippetSource({ user: userSnippets, includeBuiltIn: values.defaultSnippetsInEditor === true });
-  }, [userSnippets, values.defaultSnippetsInEditor]);
   const [copied, setCopied] = React.useState(false);
   const [savedEffect, setSavedEffect] = React.useState(false);
   const [editorInstance, setEditorInstance] = useState<any>(null);
@@ -306,7 +299,6 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             beforeMount={(monaco) => {
               defineNovaThemes(monaco);
               setMonacoForExtensions(monaco);
-              registerSnippetProvider(monaco);
             }}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}

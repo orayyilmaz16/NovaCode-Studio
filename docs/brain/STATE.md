@@ -20,68 +20,69 @@
 | `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
+| `version:check` | `node scripts/check-version.mjs` |
+| `sync` | `node scripts/auto-commit.mjs` |
 
 ## Dosya haritası
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
 | `electron-ai.cjs` | 458 |
-| `electron-ext.cjs` | 340 |
+| `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
 | `electron-llm.cjs` | 256 |
-| `electron-main.cjs` | 440 |
-| `electron-preload.cjs` | 135 |
-| `electron-search.cjs` | 102 |
+| `electron-main.cjs` | 497 |
+| `electron-preload.cjs` | 136 |
+| `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
 | `electron-term.cjs` | 155 |
-| `electron-update.cjs` | 141 |
+| `electron-update.cjs` | 164 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1305 |
+| `src/App.tsx` | 1361 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 282 |
+| `src/types.ts` | 271 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
 | `src/components/AIAssistant.tsx` | 539 |
-| `src/components/CommandPalette.tsx` | 154 |
-| `src/components/EditorArea.tsx` | 350 |
-| `src/components/ExtensionsPanel.tsx` | 308 |
-| `src/components/FileTree.tsx` | 592 |
+| `src/components/CommandPalette.tsx` | 165 |
+| `src/components/EditorArea.tsx` | 342 |
+| `src/components/ExtensionsPanel.tsx` | 302 |
+| `src/components/FileTree.tsx` | 919 |
 | `src/components/FileTypeIcon.tsx` | 111 |
 | `src/components/GitPanel.tsx` | 608 |
 | `src/components/GithubAccount.tsx` | 132 |
 | `src/components/LandingPage.tsx` | 135 |
 | `src/components/Logo.tsx` | 34 |
 | `src/components/Markdown.tsx` | 73 |
-| `src/components/Menu.tsx` | 108 |
-| `src/components/MenuBar.tsx` | 65 |
-| `src/components/Preview.tsx` | 97 |
+| `src/components/Menu.tsx` | 115 |
+| `src/components/MenuBar.tsx` | 95 |
+| `src/components/Preview.tsx` | 317 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
-| `src/components/SettingsPage.tsx` | 640 |
-| `src/components/SnippetsPanel.tsx` | 97 |
+| `src/components/SettingsPage.tsx` | 589 |
 | `src/components/SplashScreen.tsx` | 38 |
-| `src/components/Terminal.tsx` | 470 |
-| `src/components/UpdateDialog.tsx` | 153 |
+| `src/components/Terminal.tsx` | 485 |
+| `src/components/UpdateDialog.tsx` | 156 |
 
 ### Servisler
 | Dosya | Satır |
 |---|---|
-| `src/services/SettingsContext.tsx` | 138 |
+| `src/services/SettingsContext.tsx` | 128 |
 | `src/services/aiClient.ts` | 134 |
-| `src/services/editorBridge.ts` | 91 |
+| `src/services/editorBridge.ts` | 80 |
 | `src/services/editorTheme.ts` | 96 |
-| `src/services/extensionsService.ts` | 201 |
+| `src/services/extensionsService.ts` | 220 |
 | `src/services/lang.ts` | 12 |
 | `src/services/monacoShim.ts` | 28 |
-| `src/services/settings.ts` | 273 |
-| `src/services/snippetProvider.ts` | 64 |
-| `src/services/terminalBridge.ts` | 26 |
+| `src/services/previewKind.ts` | 11 |
+| `src/services/settings.ts` | 247 |
+| `src/services/terminalBridge.ts` | 32 |
 | `src/services/terminalText.ts` | 148 |
 | `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
@@ -91,16 +92,17 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1753 |
+| `src/i18n/uiText.ts` | 1876 |
 
 ### Betikler
 | Dosya | Satır |
 |---|---|
-| `scripts/auto-commit.mjs` | 116 |
+| `scripts/auto-commit.mjs` | 216 |
 | `scripts/brain.mjs` | 295 |
 | `scripts/bump-version.mjs` | 130 |
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
+| `scripts/check-version.mjs` | 74 |
 | `scripts/make-icons.cjs` | 29 |
 
 ### Testler
@@ -119,10 +121,10 @@
 | Grup | Kanallar |
 |---|---|
 | ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
-| app | `app:openLink`, `app:quit` |
+| app | `app:openLink`, `app:quit`, `app:reveal` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
 | ext | `ext:checkUpdates`, `ext:details`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
-| fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
+| fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDataUrl`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:branches`, `git:checkout`, `git:commit`, `git:createBranch`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:pull`, `git:push`, `git:stage`, `git:stageAll`, `git:status`, `git:sync`, `git:unstage` |
 | github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
 | llm | `llm:cancel`, `llm:delete`, `llm:download`, `llm:status` |
@@ -131,15 +133,15 @@
 | term | `term:input`, `term:start`, `term:stop` |
 | ui | `ui:setTheme` |
 | update | `update:check`, `update:download`, `update:install`, `update:releases`, `update:state` |
-| workspace | `workspace:detect`, `workspace:open`, `workspace:recent` |
+| workspace | `workspace:open`, `workspace:recent` |
 
 **Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`
 
 ## i18n
-- 566 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 607 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-81 ayar, 10 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+93 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -186,8 +188,6 @@
 | Editör | `hover` | Üzerine gelince bilgi | toggle | `true` |  |
 | Editör | `rulers` | Cetvel sütunları | text | `""` | ≤40 karakter |
 | Editör | `showBreadcrumbs` | Dosya yolu göstergesi (breadcrumb) | toggle | `true` |  |
-| Snippet ve tamamlama | `defaultSnippetsInEditor` | Hazır snippet'leri otomatik tamamlamada göster | toggle | `true` |  |
-| Snippet ve tamamlama | `snippetSuggestions` | Snippet önerilerinin konumu | select | `"inline"` | top, inline, bottom, none |
 | Dosyalar ve kayıt | `autoSave` | Otomatik kaydet | select | `"off"` | off, afterDelay, onFocusChange |
 | Dosyalar ve kayıt | `autoSaveDelay` | Otomatik kayıt gecikmesi | slider | `1000` | 500–5000 ms |
 | Dosyalar ve kayıt | `trimTrailingWhitespace` | Kayıtta satır sonu boşluklarını sil | toggle | `false` |  |
@@ -195,8 +195,22 @@
 | Dosyalar ve kayıt | `welcomeOnStartup` | Açılışta karşılama sayfasını göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showGitDecorations` | Dosya ağacında Git durumunu göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showOpenEditors` | Gezginde "Açık düzenleyiciler" | toggle | `true` |  |
-| Dosyalar ve kayıt | `treeDensity` | Ağaç satır yüksekliği | select | `"compact"` | compact, comfortable |
+| Dosyalar ve kayıt | `treeDensity` | Ağaç satır yüksekliği | select | `"compact"` | compact, comfortable, spacious |
 | Dosyalar ve kayıt | `treeIndentGuides` | Girinti kılavuz çizgileri (ağaç) | toggle | `true` |  |
+| Dosyalar ve kayıt | `treeSort` | Gezgin sıralaması | select | `"foldersFirst"` | foldersFirst, filesFirst, mixed, type |
+| Dosyalar ve kayıt | `treeShowHidden` | Gizli dosyaları göster | toggle | `true` |  |
+| Dosyalar ve kayıt | `treeCompactFolders` | Klasörleri sıkıştır | toggle | `false` |  |
+| Dosyalar ve kayıt | `treeIconStyle` | Dosya simgesi stili | select | `"color"` | color, minimal |
+| Dosyalar ve kayıt | `treeAutoReveal` | Etkin dosyayı Gezgin'de göster | toggle | `true` |  |
+| Çalıştır ve önizleme | `previewAutoOpen` | HTML açılınca önizlemeyi otomatik aç | toggle | `true` |  |
+| Çalıştır ve önizleme | `runSaveBefore` | Çalıştırmadan önce kaydet | toggle | `true` |  |
+| Çalıştır ve önizleme | `runClearTerminal` | Çalıştırmadan önce terminali temizle | toggle | `false` |  |
+| Çalıştır ve önizleme | `runCommandNode` | JavaScript çalıştırma komutu | text | `""` | ≤200 karakter |
+| Çalıştır ve önizleme | `runCommandTs` | TypeScript çalıştırma komutu | text | `""` | ≤200 karakter |
+| Çalıştır ve önizleme | `runCommandPython` | Python çalıştırma komutu | text | `""` | ≤200 karakter |
+| Çalıştır ve önizleme | `runCommandGo` | Go çalıştırma komutu | text | `""` | ≤200 karakter |
+| Çalıştır ve önizleme | `runCommandPhp` | PHP çalıştırma komutu | text | `""` | ≤200 karakter |
+| Eklentiler | `extAutoUpdate` | Eklentileri otomatik güncelle | toggle | `true` |  |
 | Terminal | `terminalFontSize` | Terminal yazı boyutu | slider | `12` | 10–20 px |
 | Terminal | `defaultShell` | Varsayılan kabuk | select | `"powershell"` | powershell, cmd |
 | Terminal | `terminalColorInput` | Komutları renklendir | toggle | `true` |  |
@@ -210,7 +224,7 @@
 | Ortak düzenleme | `collabEnabled` | Ortak düzenlemeyi aç | toggle | `false` |  |
 | Ortak düzenleme | `collabUrl` | Sunucu adresi | text | `""` | ≤200 karakter |
 | Hakkında ve yedek | `updateAutoCheck` | Açılışta güncellemeleri denetle | toggle | `true` |  |
-| Hakkında ve yedek | `updateAutoDownload` | Güncellemeyi otomatik indir | toggle | `false` |  |
+| Hakkında ve yedek | `updateAutoDownload` | Güncellemeyi otomatik indir | toggle | `true` |  |
 | Yapay Zekâ | `aiProvider` | Sağlayıcı | select | `"builtin"` | builtin, anthropic, openai, ollama |
 | Yapay Zekâ | `aiBuiltinModel` | Yerleşik model | select | `"qwen2.5-coder-1.5b"` | qwen2.5-coder-1.5b, qwen2.5-coder-7b |
 | Yapay Zekâ | `aiModel` | Model | text | `""` | ≤120 karakter |
@@ -229,6 +243,8 @@
 | Dosya | Ad | İşler |
 |---|---|---|
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `release-desktop` (Windows Kurulum (.exe) ve Release) |
+| `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
+| `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
 | `.github/workflows/security.yml` | Güvenlik Taraması | `codeql` (CodeQL), `secrets` (Gizli anahtar taraması (gitleaks)), `dependency-review` (Bağımlılık incelemesi), `audit-weekly` (Haftalık npm audit) |
 
 ## Md haritası
@@ -240,13 +256,15 @@
 | [[ai-assistant]] | `docs/brain/actions/ai-assistant.md` | Yapay zekâ asistanı: çoklu sağlayıcı, Ask/Agent modları, araçlar, oturumlar, görsel girdi, sesli dikte, özel komutlar |
 | [[brain-maintenance]] | `docs/brain/actions/brain-maintenance.md` | Proje beynini (docs/brain) güncel ve tutarlı tutmak |
 | [[ci-cd]] | `docs/brain/actions/ci-cd.md` | GitHub Actions, audit, bundle bütçesi ve yayın hattı |
-| [[extensions]] | `docs/brain/actions/extensions.md` | Eklenti mağazası (Open VSX): arama, yükleme, güncelleme, kaldırma; tema ve snippet katkıları |
+| [[explorer]] | `docs/brain/actions/explorer.md` | Gezgin (dosya ağacı): görünüm seçenekleri, filtre, sürükle-bırak taşıma, bağlam menüsü, simge stilleri, güvenlik kuralları |
+| [[extensions]] | `docs/brain/actions/extensions.md` | Eklenti mağazası (Open VSX): arama, yükleme, güncelleme, kaldırma; tema katkısı |
 | [[git-github]] | `docs/brain/actions/git-github.md` | Git paneli, GitHub hesabı bağlama, PR, eşzamanlama ve canlı takip |
 | [[i18n]] | `docs/brain/actions/i18n.md` | Arayüze metin eklemek (8 dil zorunlu) |
+| [[preview]] | `docs/brain/actions/preview.md` | HTML/SVG/Markdown önizleme, yerel sunucu önizleme, Çalıştır (F5) ve çalıştırma ayarları |
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |
-| [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git, snippet hızlı yolları |
+| [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
-| [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör/snippet davranışları, kalıcılık ve gizli değerler |
+| [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör davranışları, kalıcılık ve gizli değerler |
 | [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: çoklu oturum, panel davranışı, istem, renklendirme |
 | [[testing]] | `docs/brain/actions/testing.md` | Değişikliği doğrulamak: tip, derleme, birim ve entegrasyon testleri, uygulamayı çalıştırma |
 | [[ui-design]] | `docs/brain/actions/ui-design.md` | Arayüz, tema, logo ve animasyon değişiklikleri |

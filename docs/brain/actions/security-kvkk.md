@@ -25,10 +25,13 @@ Veri nedir? Amaç? Hukuki sebep? Saklama süresi? Yurt dışına aktarım var m�
 | PR / depo yayınlama | PR başlığı-gövdesi, depo adı, commit'ler | Kullanıcının istediği işlem | GitHub'da | GitHub (ABD) |
 | Ortak düzenleme | Dosya içeriği | Kullanıcının ayarladığı sunucuya senkron | Kullanıcının sunucusunda | Kullanıcının seçimi |
 | Son klasörler | Klasör yolları | Kolay erişim | Yerelde (`userData`) | Yok |
-| Ayarlar | Tercihler, özel snippet'ler | Kişiselleştirme | Yerelde (`localStorage`); dışa aktarım kullanıcının dosyası | Yok |
+| Ayarlar | Tercihler | Kişiselleştirme | Yerelde (`localStorage`); dışa aktarım kullanıcının dosyası | Yok |
 | Ortak düzenleme token'ı | Sunucu token'ı | Kullanıcının sunucusuna kimlik | Yerelde, şifreli (`safeStorage`); düz metin yok | Yok (yalnız kullanıcının sunucusuna gider) |
 
 Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmadan yükleme.
+
+## Dosya sistemi IPC kuralları (güncel)
+Ana süreçte yazan/silen/taşıyan her işleyici yolu doğrular: `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:renameItem` yalnız açık çalışma klasörünün **içinde**; `fs:writeFile` çalışma klasörü içinde veya kullanıcının "Dosya Aç" diyaloğuyla seçtiği dosyalarda; taşıma/yeniden adlandırma hedefin üzerine yazmaz. Yeni dosya IPC'si eklerken `insideWorkspace()` / `writable()` kullan. Ayrıntı: [[explorer]].
 
 ## Dış istek envanteri (güncel)
 | Servis | Ne zaman | Ne gider | Not |
@@ -42,3 +45,6 @@ Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmad
 
 ## Çıktı
 Raporda ayrıca belirt; karar alındıysa [[DECISIONS]]. Güvenlik açığı bildirimi süreci: [[SECURITY]].
+
+## IPC yol kuralları (2026-11)
+`fs:readFile` / `fs:readDir` / `fs:readDataUrl` ve git/GitHub depo yolları `withinWorkspace` ile yalnız açık çalışma klasöründe (veya "Dosya Aç" ile onaylanan dosyada) çalışır; yıkıcı işlemler `insideWorkspace` (kök hariç). Önizleme sandbox'ında `allow-same-origin` açılmaz.

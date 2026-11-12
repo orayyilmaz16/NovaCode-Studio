@@ -1,0 +1,60 @@
+name: CI hata bildirimi (otomatik issue)
+
+# CI/CD iş akışı main'de veya bir auto/ dalında BAŞARISIZ olursa tek bir issue açılır/güncellenir;
+# aynı dal sonradan yeşil olunca issue kendiliğinden kapanır. İnsan müdahalesi gerekmez.
+on:
+  workflow_run:
+    workflows: ["CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    name: Issue aç / güncelle / kapat
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event.workflow_run.head_branch == 'main' || startsWith(github.event.workflow_run.head_branch, 'auto/')
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const branch = run.head_branch;
+            const title = `CI başarısız: ${branch}`;
+            const label = 'ci-failure';
+            const { owner, repo } = context.repo;
+
+            // Etiket yoksa oluştur (varsa hatayı yok say)
+            try { await github.rest.issues.createLabel({ owner, repo, name: label, color: 'b60205', description: 'Otomatik: CI başarısız' }); } catch (e) { /* var */ }
+
+            const open = await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', labels: label, per_page: 100 });
+            const existing = open.find((i) => i.title === title);
+
+            if (run.conclusion === 'success') {
+              if (existing) {
+                await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `✅ CI bu dalda yeşile döndü: ${run.html_url}\nOtomatik kapatıldı.` });
+                await github.rest.issues.update({ owner, repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
+              }
+              return;
+            }
+            if (run.conclusion !== 'failure' && run.conclusion !== 'timed_out') return; // iptal/atlama: sessiz geç
+
+            const body = [
+              `**CI başarısız oldu.**`,
+              ``,
+              `- Dal: \`${branch}\``,
+              `- Commit: ${run.head_sha.slice(0, 7)}`,
+              `- Koşu: ${run.html_url}`,
+              ``,
+              `Bu issue, aynı dalda CI yeşile dönünce otomatik kapanır. Ayrıntı için koşu günlüğüne bak; ` +
+              `en sık nedenler: tip hatası, \`npm audit\` (high+), paket boyutu bütçesi, beyin/i18n tutarlılığı.`,
+            ].join('\n');
+
+            if (existing) {
+              await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Yine başarısız: ${run.html_url} (${run.head_sha.slice(0, 7)})` });
+            } else {
+              await github.rest.issues.create({ owner, repo, title, body, labels: [label] });
+            }

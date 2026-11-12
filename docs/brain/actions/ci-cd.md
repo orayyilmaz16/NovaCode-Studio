@@ -25,3 +25,8 @@ triggers: ["ci", "actions", "workflow", "audit", "pipeline", "deploy"]
 1. `gh run list` / `gh run view <id> --log-failed | tail -n 30`.
 2. Kökü bul, tek düzeltme yap, doğrula. Üç doğrulama turunu aşma.
 3. Karar ve kalıcı ders → [[DECISIONS]].
+
+## Otomasyon (2026-11)
+- `scripts/auto-commit.mjs` (Stop hook): `auto/*` dalında kalır, `origin/main`'i birleştirir (çakışmada durur), açık PR yoksa açar ve `gh pr merge --auto --squash --delete-branch` ile CI yeşilse birleştirir; kapıları (`check-version`, tsc, `brain --check`) PR gövdesine yazar. `NOVA_AUTO_DRY=1` = kuru çalıştırma. `npm run sync` aynı betik.
+- `scripts/check-version.mjs` (`npm run version:check`): semver, lock eşleşmesi, son etiketle karşılaştırma, CHANGELOG Unreleased tr/en, `__APP_VERSION__`, `build.publish`. CI'da "Sürüm denetimi" adımı.
+- `ci-failure-issue.yml`: main/auto/* CI hatasında `ci-failure` issue'su açar/günceller, yeşilde kapatır. `dependabot-automerge.yml`: yalnız aynı-major güncellemeleri otomatik birleştirir; major'lar elle.

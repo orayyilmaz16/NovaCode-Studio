@@ -1,4 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Check } from 'lucide-react';
 
 export interface MenuItem {
   label?: string;
@@ -9,6 +11,8 @@ export interface MenuItem {
   disabled?: boolean;
   /** Kapalı öğenin neden kapalı olduğunu söyleyen ipucu (üzerine gelince görünür). */
   hint?: string;
+  /** İşaretli seçenek (✓): görünüm seçenekleri menüleri için. */
+  checked?: boolean;
   separator?: boolean;
 }
 
@@ -68,7 +72,8 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
     };
   }, [active, actionable, items, onClose]);
 
-  return (
+  // Menü document.body'ye çizilir: kenar çubuğu/panel gibi taşmayı kırpan (overflow-hidden) ata öğelerden etkilenmez
+  return createPortal(
     <div
       ref={ref}
       role="menu"
@@ -83,7 +88,8 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
           <button
             key={`${it.label}-${i}`}
             style={{ animationDelay: `${Math.min(i, 12) * 12}ms` }}
-            role="menuitem"
+            role={it.checked !== undefined ? 'menuitemcheckbox' : 'menuitem'}
+            aria-checked={it.checked}
             aria-disabled={it.disabled || undefined}
             title={it.disabled ? it.hint : undefined}
             onMouseEnter={() => setActive(it.disabled ? -1 : i)}
@@ -97,12 +103,13 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
               it.disabled ? 'opacity-40 cursor-default hover:bg-nv-hover/40' : active === i ? 'bg-nv-active text-zinc-50' : it.danger ? 'text-rose-400' : 'text-zinc-300'
             }`}
           >
-            <span className="w-4 shrink-0 flex items-center justify-center">{it.icon}</span>
+            <span className="w-4 shrink-0 flex items-center justify-center">{it.checked ? <Check size={13} /> : it.icon}</span>
             <span className="flex-1 truncate whitespace-nowrap">{it.label}</span>
             {it.shortcut && <span className="text-[11px] text-zinc-500 font-mono whitespace-nowrap shrink-0 pl-4">{it.shortcut}</span>}
           </button>
         )
       )}
-    </div>
+    </div>,
+    document.body
   );
 };

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUpCircle, Check, Download, ExternalLink, Loader2, Palette, Puzzle, RefreshCw, Search as SearchIcon, Star, Trash2, Braces } from 'lucide-react';
+import { ArrowLeft, ArrowUpCircle, Check, Download, ExternalLink, Loader2, Palette, Puzzle, RefreshCw, Search as SearchIcon, Star, Trash2 } from 'lucide-react';
 import { t, type UiTextKey } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
 import { checkUpdates, extThemeName, installExt, uninstallExt, useExtensions, type ExtDetails, type StoreItem } from '../services/extensionsService';
 import { Markdown } from './Markdown';
 
 type Tab = 'installed' | 'store';
-type Cat = 'Themes' | 'Snippets';
+type Cat = 'Themes';
 type Ref = { id: string; namespace: string; name: string; icon: string; displayName: string };
 
 const fmt = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}K` : String(n));
@@ -29,7 +29,7 @@ export const ExtensionsPanel: React.FC = () => {
   const { installed, updates, busy, checking } = useExtensions();
   const api = window.electronAPI?.ext;
   const [tab, setTab] = useState<Tab>('installed');
-  const [cat, setCat] = useState<Cat>('Themes');
+  const cat: Cat = 'Themes'; // yalnız tema eklentileri desteklenir
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<StoreItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -62,7 +62,7 @@ export const ExtensionsPanel: React.FC = () => {
     if (tab !== 'store' || detail) return;
     const id = setTimeout(() => void search(0), 400);
     return () => clearTimeout(id);
-  }, [tab, query, cat, search, detail]);
+  }, [tab, query, search, detail]);
 
   useEffect(() => { void checkUpdates(); }, []);
 
@@ -88,7 +88,6 @@ export const ExtensionsPanel: React.FC = () => {
 
   const isInstalled = (id: string) => installed.some((e) => e.id === id);
   const seg = (on: boolean) => `flex-1 h-6 text-[12px] rounded transition-colors ${on ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover'}`;
-  const chip = (on: boolean) => `px-2 h-5 rounded-full text-[11px] border whitespace-nowrap transition-colors ${on ? 'border-indigo-500 text-indigo-300 bg-nv-active' : 'border-zinc-700 text-zinc-400 hover:bg-nv-hover'}`;
 
   // ---------- Ayrıntı görünümü ----------
   if (detail) {
@@ -192,10 +191,6 @@ export const ExtensionsPanel: React.FC = () => {
               <SearchIcon size={12} className="text-zinc-500 shrink-0" />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('extSearchPlaceholder')} aria-label={t('extSearchPlaceholder')} className="flex-1 min-w-0 bg-transparent outline-none text-zinc-200" />
             </div>
-            <div className="flex gap-1.5 flex-wrap">
-              <button className={chip(cat === 'Themes')} onClick={() => setCat('Themes')}>{t('extThemes')}</button>
-              <button className={chip(cat === 'Snippets')} onClick={() => setCat('Snippets')}>{t('extSnippets')}</button>
-            </div>
           </>
         )}
         {tab === 'installed' && (
@@ -230,7 +225,6 @@ export const ExtensionsPanel: React.FC = () => {
                     <div className="text-zinc-500 truncate">{e.id}</div>
                     <div className="text-zinc-400 flex gap-2 mt-0.5 flex-wrap">
                       {e.themes.length > 0 && <span className="flex items-center gap-1 whitespace-nowrap"><Palette size={11} />{t('extThemeCount').replace('{n}', String(e.themes.length))}</span>}
-                      {e.snippets.length > 0 && <span className="flex items-center gap-1 whitespace-nowrap"><Braces size={11} />{t('extSnippetCount').replace('{n}', String(e.snippets.reduce((n, g) => n + g.items.length, 0)))}</span>}
                     </div>
                   </div>
                 </button>

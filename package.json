@@ -19,7 +19,9 @@
     "sync:server": "node server/sync-server.mjs",
     "test": "node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs",
     "brain": "node scripts/brain.mjs",
-    "brain:check": "node scripts/brain.mjs --check"
+    "brain:check": "node scripts/brain.mjs --check",
+    "version:check": "node scripts/check-version.mjs",
+    "sync": "node scripts/auto-commit.mjs"
   },
   "build": {
     "appId": "com.orayyilmaz.novacode",

@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import type { Snippet } from '../types';
 import { setUiLang } from '../i18n/uiText';
 import {
   ACCENTS,
@@ -9,7 +8,6 @@ import {
   loadSettings,
   parseImport,
   resolveMode,
-  sanitizeSnippets,
   saveSettings,
   getDef,
   sanitizeValue,
@@ -20,14 +18,12 @@ import {
 
 export interface SettingsApi {
   values: SettingsValues;
-  userSnippets: Snippet[];
   /** Sistem temasına göre çözümlenmiş mod (koyu/açık). */
   mode: ResolvedMode;
   set: (id: string, value: SettingValue) => void;
   reset: (id: string) => void;
   resetAll: () => void;
   isModified: (id: string) => boolean;
-  setUserSnippets: (list: Snippet[]) => void;
   exportJson: () => string;
   importJson: (text: string) => boolean;
 }
@@ -61,7 +57,7 @@ function applyAppearance(values: SettingsValues, mode: ResolvedMode) {
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stored, setStored] = useState(loadSettings);
   const [prefersDark, setPrefersDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true);
-  const { values, userSnippets } = stored;
+  const { values } = stored;
 
   // Sistem teması değişince ("Sistem" modunda) anında izle
   useEffect(() => {
@@ -102,14 +98,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const resetAll = useCallback(() => {
-    setStored((s) => ({ values: { ...DEFAULTS }, userSnippets: s.userSnippets }));
+    setStored({ values: { ...DEFAULTS } });
   }, []);
 
-  const setUserSnippets = useCallback((list: Snippet[]) => {
-    setStored((s) => ({ ...s, userSnippets: sanitizeSnippets(list) }));
-  }, []);
-
-  const exportJson = useCallback(() => JSON.stringify({ v: 1, values, userSnippets }, null, 2), [values, userSnippets]);
+  const exportJson = useCallback(() => JSON.stringify({ v: 1, values }, null, 2), [values]);
 
   const importJson = useCallback((text: string) => {
     const parsed = parseImport(text);
@@ -121,17 +113,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const api = useMemo<SettingsApi>(
     () => ({
       values,
-      userSnippets,
       mode,
       set,
       reset,
       resetAll,
       isModified: (id) => values[id] !== DEFAULTS[id],
-      setUserSnippets,
       exportJson,
       importJson
     }),
-    [values, userSnippets, mode, set, reset, resetAll, setUserSnippets, exportJson, importJson]
+    [values, mode, set, reset, resetAll, exportJson, importJson]
   );
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;

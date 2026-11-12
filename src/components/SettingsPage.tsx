@@ -3,12 +3,13 @@ import Editor from '@monaco-editor/react';
 import {
   Palette,
   Type,
-  BookOpen,
   Files,
   SquareTerminal,
   GitBranch,
   Users,
   Sparkles,
+  Play,
+  Puzzle,
   Keyboard,
   Info,
   Search,
@@ -21,12 +22,12 @@ import {
   Trash2,
   Check
 } from 'lucide-react';
-import type { Snippet } from '../types';
 import { t, type UiTextKey } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
+import { useUpdate } from '../services/updateService';
+import { BUILTIN_THEMES, extThemeName, listExtThemes, uninstallExt, useActiveEditorTheme, useExtensions, setMonacoForExtensions } from '../services/extensionsService';
 import { saveCollabToken, useCollabToken } from '../services/useCollabToken';
 import { defineNovaThemes } from '../services/editorTheme';
-import { registerSnippetProvider, setSnippetSource } from '../services/snippetProvider';
 import {
   ACCENTS,
   CATEGORIES,
@@ -42,12 +43,13 @@ import {
 const ICONS: Record<string, React.ReactNode> = {
   Palette: <Palette size={16} />,
   Type: <Type size={16} />,
-  BookOpen: <BookOpen size={16} />,
   Files: <Files size={16} />,
   SquareTerminal: <SquareTerminal size={16} />,
   GitBranch: <GitBranch size={16} />,
   Users: <Users size={16} />,
   Sparkles: <Sparkles size={16} />,
+  Play: <Play size={16} />,
+  Puzzle: <Puzzle size={16} />,
   Keyboard: <Keyboard size={16} />,
   Info: <Info size={16} />
 };
@@ -178,7 +180,7 @@ const Row: React.FC<{ def: SettingDef }> = ({ def }) => {
   );
 };
 
-// ---------- Canlı editör önizlemesi: tüm editör ayarları, tema ve snippet'ler anında görünür ----------
+// ---------- Canlı editör önizlemesi: tüm editör ayarları, tema anında görünür ----------
 const SAMPLE = `function greet(name: string) {
   const message = \`Hello, \${name}!\`;
   if (name !== '' && name.length >= 2) {
@@ -189,11 +191,9 @@ const SAMPLE = `function greet(name: string) {
 `;
 
 const EditorPreview: React.FC = () => {
-  const { values, userSnippets, mode } = useSettings();
+  const { values } = useSettings();
+  const editorThemeName = useActiveEditorTheme();
   const options = useMemo(() => ({ ...toMonacoOptions(values), scrollBeyondLastLine: false }), [values]);
-  useEffect(() => {
-    setSnippetSource({ user: userSnippets, includeBuiltIn: values.defaultSnippetsInEditor === true });
-  }, [userSnippets, values.defaultSnippetsInEditor]);
   return (
     <div className="mb-5">
       <div className="text-[11px] uppercase tracking-wider text-zinc-500 mb-1.5">{t('setPreview')}</div>
@@ -201,120 +201,15 @@ const EditorPreview: React.FC = () => {
         <Editor
           height="100%"
           language="typescript"
-          theme={resolveEditorTheme(values.editorTheme, mode)}
+          theme={editorThemeName}
           defaultValue={SAMPLE}
           beforeMount={(monaco) => {
             defineNovaThemes(monaco);
-            registerSnippetProvider(monaco);
+            setMonacoForExtensions(monaco);
           }}
           options={options}
         />
       </div>
-    </div>
-  );
-};
-
-// ---------- Snippet yöneticisi ----------
-const LANGS = ['javascript', 'typescript', 'html', 'css', 'json', 'python', 'markdown', 'java', 'cpp', 'go', 'rust', 'sql', 'shell', 'yaml', 'plaintext'];
-const blank: Snippet = { id: '', label: '', prefix: '', description: '', language: '*', body: '' };
-
-const SnippetManager: React.FC<{ builtInCount: number }> = ({ builtInCount }) => {
-  const { userSnippets, setUserSnippets } = useSettings();
-  const [draft, setDraft] = useState<Snippet | null>(null);
-  const [error, setError] = useState(false);
-
-  const save = () => {
-    if (!draft) return;
-    const prefix = draft.prefix.trim();
-    if (!prefix || /\s/.test(prefix) || !draft.body.trim()) return setError(true);
-    const item: Snippet = { ...draft, prefix, label: draft.description.trim() || prefix, id: draft.id || `u-${Date.now()}` };
-    setUserSnippets(draft.id ? userSnippets.map((s) => (s.id === draft.id ? item : s)) : [...userSnippets, item]);
-    setDraft(null);
-    setError(false);
-  };
-
-  return (
-    <div className="mt-6">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-[14px] text-zinc-100">{t('snipUser')}</h3>
-        {!draft && (
-          <button onClick={() => setDraft({ ...blank })} className="flex items-center gap-1.5 h-7 px-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[12px] transition-colors">
-            <Plus size={13} />
-            {t('snipAdd')}
-          </button>
-        )}
-      </div>
-      <p className="text-[12px] text-zinc-500 mb-3">{t('snipBuiltinCount').replace('{n}', String(builtInCount))}</p>
-
-      {draft && (
-        <div className="mb-4 p-3 rounded border border-nv-border bg-nv-side space-y-2.5 animate-fade-in">
-          <div className="grid grid-cols-2 gap-2.5">
-            <label className="text-[12px] text-zinc-400 space-y-1">
-              <span>{t('snipPrefix')}</span>
-              <input value={draft.prefix} onChange={(e) => setDraft({ ...draft, prefix: e.target.value })} maxLength={40} spellCheck={false} className={`${field} w-full font-mono`} />
-            </label>
-            <label className="text-[12px] text-zinc-400 space-y-1">
-              <span>{t('snipLanguage')}</span>
-              <select value={draft.language} onChange={(e) => setDraft({ ...draft, language: e.target.value })} className={`${field} w-full`}>
-                <option value="*">{t('snipLanguageAll')}</option>
-                {LANGS.map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <label className="block text-[12px] text-zinc-400 space-y-1">
-            <span>{t('snipDescription')}</span>
-            <input value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} maxLength={120} className={`${field} w-full`} />
-          </label>
-          <label className="block text-[12px] text-zinc-400 space-y-1">
-            <span>{t('snipBody')}</span>
-            <textarea
-              value={draft.body}
-              onChange={(e) => setDraft({ ...draft, body: e.target.value })}
-              spellCheck={false}
-              rows={7}
-              className="w-full bg-nv-input border border-zinc-700 rounded p-2 text-[12px] text-zinc-200 outline-none focus:border-indigo-500 font-mono resize-y"
-            />
-          </label>
-          <p className="text-[11px] text-zinc-500 leading-relaxed">{t('snipHelp')}</p>
-          {error && <p className="text-[12px] text-rose-400">{t('snipInvalid')}</p>}
-          <div className="flex gap-2">
-            <button onClick={save} className="h-7 px-3 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[12px] transition-colors">
-              {t('snipSave')}
-            </button>
-            <button
-              onClick={() => {
-                setDraft(null);
-                setError(false);
-              }}
-              className="h-7 px-3 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[12px] transition-colors"
-            >
-              {t('ghCancel')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {userSnippets.length === 0 && !draft ? (
-        <p className="text-[13px] text-zinc-500">{t('snipEmpty')}</p>
-      ) : (
-        userSnippets.map((s) => (
-          <div key={s.id} className="group flex items-center gap-3 py-2 border-b border-nv-border/70 last:border-0">
-            <code className="px-1.5 py-0.5 rounded bg-nv-input text-[12px] text-indigo-300 font-mono">{s.prefix}</code>
-            <span className="flex-1 min-w-0 truncate text-[13px] text-zinc-300">{s.description || s.body.split('\n')[0]}</span>
-            <span className="text-[11px] text-zinc-500">{s.language === '*' ? t('snipLanguageAll') : s.language}</span>
-            <button className="icon-btn" title={t('snipEdit')} aria-label={t('snipEdit')} onClick={() => setDraft(s)}>
-              <Pencil size={13} />
-            </button>
-            <button className="icon-btn" title={t('snipDelete')} aria-label={t('snipDelete')} onClick={() => setUserSnippets(userSnippets.filter((x) => x.id !== s.id))}>
-              <Trash2 size={13} />
-            </button>
-          </div>
-        ))
-      )}
     </div>
   );
 };
@@ -407,6 +302,57 @@ const AiKeys: React.FC = () => (
   </div>
 );
 
+// ---------- Eklentiler (ayarlara entegre): tema seçici + yüklü eklentiler ----------
+const ExtensionsSettings: React.FC<{ onOpenStore?: () => void }> = ({ onOpenStore }) => {
+  const { values, set } = useSettings();
+  const { installed, updates } = useExtensions();
+  const themes = listExtThemes(installed);
+  const extTheme = String(values.extTheme || '');
+  const extActive = themes.some((th) => th.id === extTheme);
+  const current = extActive ? extTheme : String(values.editorTheme || 'auto');
+  // Seçim anında uygulanır (editör ve önizleme gerçek zamanlı değişir)
+  const pick = (v: string) => { if (themes.some((th) => th.id === v)) set('extTheme', v); else set('editorTheme', v); };
+  return (
+    <div className="mt-4 space-y-4">
+      <div className="flex flex-col @lg:flex-row items-start @lg:justify-between gap-2 @lg:gap-6 py-3 border-b border-nv-border/70">
+        <div className="min-w-0 flex-1">
+          <div className="text-[13px] text-zinc-100">{t('setExtThemePick')}</div>
+          <p className="mt-1 text-[12px] text-zinc-500 leading-relaxed max-w-[520px]">{t('setExtThemePickDesc')}</p>
+        </div>
+        <select value={current} onChange={(e) => pick(e.target.value)} aria-label={t('setExtThemePick')} className={`${field} w-[240px] max-w-full`}>
+          <optgroup label={t('setExtBuiltin')}>{BUILTIN_THEMES.map((b) => <option key={b.id} value={b.id}>{b.label}</option>)}</optgroup>
+          {themes.length > 0 && <optgroup label={t('extTitle')}>{themes.map((th) => <option key={th.id} value={th.id}>{th.label} — {th.ext}</option>)}</optgroup>}
+        </select>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <h3 className="text-[13px] text-zinc-200">{t('extInstalled')} ({installed.length})</h3>
+          {onOpenStore && <button onClick={onOpenStore} className="h-7 px-3 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[12px] whitespace-nowrap transition-colors">{t('setExtOpenStore')}</button>}
+        </div>
+        {installed.length === 0 ? (
+          <p className="text-[12px] text-zinc-500">{t('extNoInstalled')}</p>
+        ) : (
+          <ul className="divide-y divide-nv-border/70 rounded border border-nv-border/70">
+            {installed.map((e) => (
+              <li key={e.id} className="flex items-center gap-3 px-3 py-2 min-w-0">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13px] text-zinc-100 truncate">{e.displayName} <span className="text-zinc-500 text-[11.5px]">{e.version}</span>{updates[e.id] && <span className="ml-2 text-[10.5px] px-1.5 py-0.5 rounded-full bg-indigo-500/25 text-indigo-200">{t('extUpdateTo').replace('{v}', updates[e.id])}</span>}</div>
+                  <div className="text-[11.5px] text-zinc-500 truncate">{e.id} · {t('extThemeCount').replace('{n}', String(e.themes.length))}</div>
+                </div>
+                <button
+                  onClick={() => { if (e.themes.some((th) => extThemeName(e.id, th.label) === extTheme)) set('extTheme', ''); void uninstallExt(e.id); }}
+                  className="h-7 px-2.5 rounded text-[12px] text-zinc-400 hover:text-rose-300 hover:bg-nv-hover whitespace-nowrap transition-colors"
+                >{t('extUninstall')}</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // ---------- Kısayollar ve hakkında ----------
 const SHORTCUTS: [string, UiTextKey][] = [
   ['Ctrl+N', 'newFile'],
@@ -444,6 +390,7 @@ const About: React.FC = () => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const versions = window.electronAPI?.versions;
+  const update = useUpdate();
 
   const doExport = () => {
     const blob = new Blob([exportJson()], { type: 'application/json' });
@@ -464,6 +411,7 @@ const About: React.FC = () => {
 
   const info: [string, string][] = [
     [t('aboutVersion'), `NovaCode Studio ${__APP_VERSION__}`],
+    [t('updChannelLabel'), update.channel === 'stable' ? t('updChannelStable') : t('updChannelDev')],
     ...(versions
       ? ([
           ['Electron', versions.electron],
@@ -513,10 +461,11 @@ const About: React.FC = () => {
 // ---------- Sayfa ----------
 interface SettingsPageProps {
   onClose: () => void;
-  builtInSnippetCount: number;
+  /** Eklentiler ayar bölümündeki \"Mağazayı aç\": ayarları kapatır ve eklentiler panelini açar. */
+  onOpenExtensions?: () => void;
 }
 
-export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnippetCount }) => {
+export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExtensions }) => {
   const { values, isModified } = useSettings();
   // Menüden (Yardım → Kısayollar/Hakkında) belirli kategoriyle açılabilir; bir kez okunur ve silinir.
   const [cat, setCat] = useState(() => {
@@ -614,7 +563,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnip
             ) : (
               <section key={current.id} className="animate-fade-in">
                 <h2 className="text-[20px] font-light text-zinc-100 mb-3">{tk(current.labelKey)}</h2>
-                {(current.id === 'editor' || current.id === 'snippets') && <EditorPreview />}
+                {current.id === 'editor' && <EditorPreview />}
                 {rows.map((d) => (
                   <Row key={d.id} def={d} />
                 ))}
@@ -627,7 +576,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnip
                   </>
                 )}
                 {current.id === 'ai' && <AiKeys />}
-                {current.id === 'snippets' && <SnippetManager builtInCount={builtInSnippetCount} />}
+                {current.id === 'extensions' && <ExtensionsSettings onOpenStore={onOpenExtensions} />}
                 {current.id === 'shortcuts' && <Shortcuts />}
                 {current.id === 'about' && <About />}
               </section>

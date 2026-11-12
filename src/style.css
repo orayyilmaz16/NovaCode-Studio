@@ -231,6 +231,18 @@
   background: var(--active-overlay);
   color: var(--color-zinc-50);
 }
+/* Kapalı (aria-disabled) düğmeler: soluk, imleç varsayılan; fare yine üzerinde gezinebilir ve ipucunu görür */
+.icon-btn[aria-disabled="true"] {
+  opacity: 0.35;
+  cursor: default;
+}
+.icon-btn[aria-disabled="true"]:hover {
+  background: transparent;
+  color: var(--color-zinc-400);
+}
+.icon-btn[aria-disabled="true"]:active {
+  transform: none;
+}
 }
 
 /* Durum çubuğu öğeleri */
@@ -354,4 +366,17 @@ button.status-item:hover {
   .logo-bracket {
     stroke-dashoffset: 0;
   }
+}
+
+/* Etkinlik çubuğu: kapalı öğe (katmansız .ab-item kurallarını ezmek için katman dışında) */
+.ab-item[aria-disabled="true"] {
+  opacity: 0.35;
+  cursor: default;
+}
+.ab-item[aria-disabled="true"]:hover {
+  color: var(--color-zinc-500);
+}
+.ab-item[aria-disabled="true"]:hover svg,
+.ab-item[aria-disabled="true"]:active svg {
+  transform: none;
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, ArrowUpCircle, CheckCircle2, Download, ExternalLink, Loader2, RefreshCw, X } from 'lucide-react';
+import { AlertTriangle, ArrowUpCircle, CheckCircle2, Download, ExternalLink, Info, Loader2, RefreshCw, X } from 'lucide-react';
 import { t } from '../i18n/uiText';
 import { Markdown } from './Markdown';
 import { checkForUpdates, downloadUpdate, formatBytes, installUpdate, useUpdate } from '../services/updateService';
@@ -49,6 +49,7 @@ export const UpdateDialog: React.FC<{ initialTab: Tab; autoDownload: boolean; on
                 <div className="w-10 h-10 rounded-xl bg-nv-active flex items-center justify-center shrink-0">
                   {u.status === 'checking' || u.status === 'downloading' ? <Loader2 size={20} className="animate-spin text-indigo-300" />
                     : u.status === 'error' ? <AlertTriangle size={20} className="text-amber-300" />
+                    : u.status === 'unsupported' ? <Info size={20} className="text-sky-300" />
                     : u.status === 'available' || u.status === 'ready' ? <ArrowUpCircle size={20} className="text-indigo-300" />
                     : <CheckCircle2 size={20} className="text-emerald-400" />}
                 </div>
@@ -88,13 +89,15 @@ export const UpdateDialog: React.FC<{ initialTab: Tab; autoDownload: boolean; on
               )}
 
               <div className="flex flex-wrap gap-2 pt-1">
-                {u.status === 'available' && <button className={primary} onClick={() => void downloadUpdate()}><Download size={14} />{t('updDownload')}</button>}
+                {u.status === 'available' && u.channel === 'stable' && <button className={primary} onClick={() => void downloadUpdate()}><Download size={14} />{t('updDownload')}</button>}
+                {u.status === 'available' && u.channel === 'dev' && u.releaseUrl && <button className={primary} onClick={() => void window.electronAPI?.openLink(u.releaseUrl)}><ExternalLink size={14} />{t('updOpenRelease')}</button>}
                 {u.status === 'ready' && <button className={primary} onClick={() => void installUpdate()}><RefreshCw size={14} />{t('updRestart')}</button>}
-                {(u.status === 'idle' || u.status === 'none' || u.status === 'error') && u.supported && (
+                {(u.status === 'idle' || u.status === 'none' || u.status === 'error') && (u.supported || u.channel === 'dev') && (
                   <button className={primary} onClick={() => void checkForUpdates(autoDownload)}><RefreshCw size={14} />{u.status === 'error' ? t('updRetry') : t('updCheckNow')}</button>
                 )}
                 <button className={ghost} onClick={onClose}>{u.status === 'available' || u.status === 'ready' ? t('updLater') : t('updClose')}</button>
               </div>
+              {u.channel === 'dev' && <p className="text-[11.5px] text-sky-300/90 leading-snug">{t('updDevNote')}</p>}
               <p className="text-[10.5px] text-zinc-500 leading-snug">{t('updPrivacy')}</p>
             </div>
           )}

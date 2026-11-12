@@ -1,8 +1,8 @@
-// Eklenti mağazası istemcisi: yüklü eklenti deposu, Monaco tema dönüştürücü, snippet katkısı.
-// Kapsam: VS Code temaları ve snippet'leri. Kod çalıştıran eklentiler (eklenti sunucusu) desteklenmez.
+// Eklenti mağazası istemcisi: yüklü eklenti deposu ve VS Code teması → Monaco teması dönüştürücü.
+// Kapsam: yalnız VS Code temaları. Kod çalıştıran eklentiler (eklenti sunucusu) ve snippet'ler desteklenmez.
 import { useSyncExternalStore } from 'react';
-import { setExtensionSnippets } from './snippetProvider';
-import type { Snippet } from '../types';
+import { useSettings } from './SettingsContext';
+import { resolveEditorTheme } from './settings';
 
 export interface ExtTheme {
   label: string;
@@ -21,7 +21,6 @@ export interface InstalledExt {
   icon: string;
   installedAt: number;
   themes: ExtTheme[];
-  snippets: { language: string; items: { name: string; prefix: string; body: string; description: string }[] }[];
   partial?: boolean;
 }
 
@@ -133,15 +132,6 @@ export function setMonacoForExtensions(monaco: unknown) {
 
 function syncDerived() {
   defineAll();
-  const list: Snippet[] = [];
-  for (const ext of state.installed) {
-    ext.snippets.forEach((g, gi) =>
-      g.items.forEach((it, ii) =>
-        list.push({ id: `ext-${ext.id}-${gi}-${ii}`, label: it.name, prefix: it.prefix, description: it.description || ext.displayName, language: g.language, body: it.body })
-      )
-    );
-  }
-  setExtensionSnippets(list);
 }
 
 // ---------- Eylemler ----------
@@ -189,6 +179,35 @@ export async function uninstallExt(id: string) {
 }
 
 let started = false;
+/** Yerleşik editör temaları (ayarlar ve tema seçici ortak kullanır). */
+export const BUILTIN_THEMES: { id: string; label: string }[] = [
+  { id: 'auto', label: 'Nova (otomatik)' }, { id: 'nova-dark', label: 'Nova Dark' }, { id: 'nova-light', label: 'Nova Light' },
+  { id: 'vs-dark', label: 'VS Dark' }, { id: 'vs', label: 'VS Light' }, { id: 'hc-black', label: 'High Contrast' }
+];
+
+/** Tüm yüklü eklenti temalarının düz listesi (ad: Monaco tema kimliği). */
+export function listExtThemes(installed: InstalledExt[]) {
+  return installed.flatMap((e) => e.themes.map((th) => ({ id: extThemeName(e.id, th.label), label: th.label, ext: e.displayName, uiTheme: th.uiTheme })));
+}
+
+/** Yüklü eklentileri sessizce güncelle (ayar: extAutoUpdate). Ağ yoksa sessizce vazgeçer. */
+export async function autoUpdateExtensions() {
+  await checkUpdates();
+  for (const id of Object.keys(state.updates)) {
+    const e = state.installed.find((x) => x.id === id);
+    if (e) await installExt(e);
+  }
+}
+
+/** Etkin editör teması: eklenti teması seçiliyse onun Monaco kimliği, değilse yerleşik tema. */
+export function useActiveEditorTheme(): string {
+  const { values, mode } = useSettings();
+  const { installed } = useExtensions();
+  const extTheme = String(values.extTheme || '');
+  const active = !!extTheme && listExtThemes(installed).some((th) => th.id === extTheme);
+  return active ? extTheme : resolveEditorTheme(values.editorTheme, mode);
+}
+
 export function useExtensions() {
   if (!started) {
     started = true;

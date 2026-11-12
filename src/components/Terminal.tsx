@@ -103,6 +103,10 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     if (!api?.onTermOutput || !api?.onTermExit) return;
     const offOut = api.onTermOutput(({ id, text, stream }) => {
       const colored = stream === 'stderr' ? `${ESC}[38;5;1m${text}${ESC}[0m` : text;
+      // Geliştirme sunucusu adresi (ör. Vite: Local: http://localhost:5173/) → önizleme panelinde tek tıkla açılır
+      const plain = text.replace(/\x1b\[[0-9;]*[A-Za-z]/g, '');
+      const m = /https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\]):\d{2,5}[^\s'")>]*/i.exec(plain);
+      if (m) window.dispatchEvent(new CustomEvent('nova:localhost', { detail: m[0] }));
       patch(id, (s) => ({ ...s, output: (s.output + colored).slice(-scrollbackRef.current) }));
     });
     const offCwd = api.onTermCwd?.(({ id, cwd: next }) => {
@@ -139,8 +143,19 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const pendingRun = useRef<string | null>(null);
   useEffect(() => {
     const onBridge = (e: Event) => {
-      const d = (e as CustomEvent<{ action: 'run' | 'new' | 'clear'; command?: string }>).detail;
+      const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear'; command?: string; dir?: string }>).detail;
       if (!d) return;
+      // cd: etkin kabuğa uygun komut (CMD'de sürücü değiştirmek için /d gerekir); tırnak içeren yol reddedilir
+      if (d.action === 'cd' && d.dir && !/["`$&|<>^%\r\n]/.test(d.dir)) {
+        const cmd = active?.shell === 'cmd' ? `cd /d "${d.dir}"` : `Set-Location -LiteralPath "${d.dir}"`;
+        setTab('terminal');
+        if (active?.running) void runLine(cmd);
+        else {
+          pendingRun.current = cmd;
+          if (visible && sessions.length === 0 && cwd) { autoOpened.current = true; void createSession(defaultShell); }
+        }
+        return;
+      }
       if (d.action === 'new') void createSession(defaultShell);
       else if (d.action === 'clear') clearActive();
       else if (d.action === 'run' && d.command) {

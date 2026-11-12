@@ -1,6 +1,6 @@
 // Eklenti mağazası (ana süreç): Open VSX (open-vsx.org) arama/indirme, .vsix ayrıştırma, yükleme/güncelleme/kaldırma.
 // Kapsam (dürüst sınır): VS Code eklenti sunucusu YOK; kod çalıştıran eklentiler çalışmaz ve yüklenmez.
-// Desteklenen katkılar: renk temaları (contributes.themes) ve kod parçaları (contributes.snippets).
+// Desteklenen katkı: renk temaları (contributes.themes). Kod parçaları (snippet) ve kod çalıştıran eklentiler desteklenmez.
 // Güvenlik:
 // - Yalnız https://open-vsx.org (API) ve Eclipse Foundation CDN'i (indirme yönlendirmesi) kullanılır; konak yönlendirme sonrası da denetlenir; kullanıcı verisi gönderilmez.
 // - .vsix diske AÇILMAZ: yalnız gereken girdiler bellekte okunur (zip-slip yok); boyut/girdi sınırları vardır.
@@ -205,25 +205,8 @@ function parseVsix(buf) {
       if (data) themes.push({ label: String(th.label || th.id || 'Theme').slice(0, 80), uiTheme: ['vs', 'vs-dark', 'hc-black', 'hc-light'].includes(th.uiTheme) ? th.uiTheme : 'vs-dark', ...data });
     } catch { /* bozuk tema atlanır */ }
   }
-  const snippets = [];
-  for (const sn of (Array.isArray(c.snippets) ? c.snippets : []).slice(0, 40)) {
-    if (!sn || typeof sn.path !== 'string' || typeof sn.language !== 'string') continue;
-    try {
-      const txt = zipRead(buf, entries, path.posix.normalize(path.posix.join('extension', sn.path)));
-      if (!txt) continue;
-      const obj = parseJsonc(txt);
-      const items = [];
-      for (const [name, v] of Object.entries(obj).slice(0, 400)) {
-        if (!v || typeof v !== 'object' || v.prefix == null) continue;
-        const body = Array.isArray(v.body) ? v.body.join('\n') : String(v.body ?? '');
-        const prefixes = (Array.isArray(v.prefix) ? v.prefix : [v.prefix]).map(String).filter((p) => p && !/\s/.test(p)).slice(0, 4);
-        for (const prefix of prefixes) items.push({ name: name.slice(0, 80), prefix: prefix.slice(0, 40), body: body.slice(0, 20000), description: String(v.description || '').slice(0, 120) });
-      }
-      if (items.length) snippets.push({ language: sn.language.replace(/[^\w*-]/g, '').slice(0, 30), items });
-    } catch { /* bozuk dosya atlanır */ }
-  }
   const runsCode = !!(pkg.main || pkg.browser);
-  return { themes, snippets, runsCode, version: String(pkg.version || '0.0.0').slice(0, 40) };
+  return { themes, runsCode, version: String(pkg.version || '0.0.0').slice(0, 40) };
 }
 
 const semverGt = (a, b) => {
@@ -259,10 +242,10 @@ async function install(namespace, name) {
   const url = info && info.files && info.files.download;
   if (typeof url !== 'string') return { success: false, error: 'no-download' };
   const parsed = parseVsix(await getBuffer(url));
-  if (parsed.themes.length === 0 && parsed.snippets.length === 0) return { success: false, error: parsed.runsCode ? 'runs-code' : 'nothing-supported' };
+  if (parsed.themes.length === 0) return { success: false, error: parsed.runsCode ? 'runs-code' : 'nothing-supported' };
   const id = `${namespace}.${name}`;
   fs.mkdirSync(dir(), { recursive: true });
-  const record = { id, namespace, name, version: parsed.version, displayName: String(info.displayName || name).slice(0, 100), description: String(info.description || '').slice(0, 300), icon: info.files.icon && String(info.files.icon).startsWith('https://open-vsx.org/') ? info.files.icon : '', installedAt: Date.now(), themes: parsed.themes, snippets: parsed.snippets, partial: parsed.runsCode };
+  const record = { id, namespace, name, version: parsed.version, displayName: String(info.displayName || name).slice(0, 100), description: String(info.description || '').slice(0, 300), icon: info.files.icon && String(info.files.icon).startsWith('https://open-vsx.org/') ? info.files.icon : '', installedAt: Date.now(), themes: parsed.themes, partial: parsed.runsCode };
   fs.writeFileSync(fileFor(id), JSON.stringify(record), { mode: 0o600 });
   return { success: true, id, partial: parsed.runsCode };
 }
@@ -271,7 +254,7 @@ function register() {
   ipcMain.handle('ext:search', async (_e, opts) => {
     try {
       const q = String((opts && opts.query) || '').slice(0, 100);
-      const cat = ['Themes', 'Snippets'].includes(opts && opts.category) ? opts.category : '';
+      const cat = 'Themes'; // yalnız tema eklentileri desteklenir
       const offset = Math.max(0, Math.min(1000, Number(opts && opts.offset) || 0));
       const url = `${API}/-/search?query=${encodeURIComponent(q)}&size=20&offset=${offset}&sortBy=downloadCount&sortOrder=desc${cat ? '&category=' + cat : ''}`;
       const j = await getJson(url);

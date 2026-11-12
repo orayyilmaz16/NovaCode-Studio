@@ -1,4 +1,4 @@
-// Etkin Monaco düzenleyicisine köprü: komut paleti, yapay zekâ ve snippet ekleme düzenleyiciye buradan ulaşır.
+// Etkin Monaco düzenleyicisine köprü: komut paleti, menüler ve yapay zekâ düzenleyiciye buradan ulaşır.
 // Düzenleyici EditorArea içinde kaydedilir; yoksa işlevler sessizce boş döner.
 type Ed = {
   getModel: () => { getValueInRange: (r: unknown) => string; getLanguageId: () => string } | null;
@@ -41,17 +41,6 @@ export function replaceSelection(text: string): boolean {
   } catch {
     return false;
   }
-}
-
-/** Monaco snippet sözdizimiyle imlece ekler ($1, ${1:ad}). */
-export function insertSnippetAtCursor(template: string): boolean {
-  if (!editor) return false;
-  try {
-    editor.focus();
-    const ctl = editor.getContribution('snippetController2');
-    if (ctl?.insert) { ctl.insert(template); return true; }
-  } catch { /* düz eklemeye düş */ }
-  return replaceSelection(template.replace(/\$\{\d+:([^}]*)\}|\$\d+/g, (_m, d) => d ?? ''));
 }
 
 export function goToLine(line: number) {

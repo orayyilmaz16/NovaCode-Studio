@@ -50,6 +50,18 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 ## Dosya türü simgeleri
 `FileTypeIcon.tsx`: uzantıya (ve `package.json`, `Dockerfile`, `.gitignore`… özel adlara) göre renkli rozet (TS, JS, PHP, PY, GO, RS… ~60 tür). Gezgin, sekmeler, palet ve arama sonuçlarında kullanılır. Yeni tür = `EXT`/`NAMES` tablosuna satır.
 
+## Başlık çubuğu ve düğme durumları
+- **Üç bölgeli ızgara:** sol (logo + menü) · orta (arama/proje kutusu) · sağ (düğmeler). Orta sütun `minmax(130px, min(360|460px, 100% − yan ihtiyaç))`; yan bölgeler `1fr` olduğu için arama kutusu **pencereye göre tam ortada** kalır (ölçüm: sapma 0, 720–1360 px). Sağ bölge pencere denetimlerinden önce biter (`paddingRight` 146 px, Electron).
+- **Kompakt menü:** pencere < 1280 px iken menü başlıkları tek **Menü** düğmesinde toplanır (düğme → grup listesi → grubun menüsü); aksi halde 8 başlık yan yana. Dar kapta başlıklar yatay kayar.
+- **Kapalı düğme kuralı:** projesiz/dosyasız işe yaramayan düğme **soluk** (`aria-disabled`, opaklık .35) görünür, **tıklayınca bir şey yapmaz**, ama fare üzerinde gezinebilir ve `title` ipucu nedenini söyler ("Önce bir klasör aç", "Yalnız HTML dosyalarında kullanılır"). Gerçek `disabled` kullanılmaz (fare olaylarını yutar). Şu an: *Önizleme* (HTML dosyası yoksa), *Terminal* ve *Ara* (klasör yoksa); menülerde aynı kural (`F`/`D` yardımcıları). Klasör/dosya açılınca otomatik etkinleşir. Kısayollar (`Ctrl+\`` , `Ctrl+Shift+F`) de aynı koşula uyar.
+- Yeni düğme eklerken: işe yaraması bir duruma bağlıysa `dis(koşul, ipucu)` (App.tsx) kullan; CSS `.icon-btn[aria-disabled]` / `.ab-item[aria-disabled]` (`style.css`).
+
+## Katman sırası (z-index) ve Ayarlar penceresi
+- **Ayarlar ayrı bir pencere olarak açılır** (modal): arkaplan %65 siyah, pencere `min(1120px,100%) × min(780px,100%)` — ekranın dışına taşmaz (1360 px'te 1120×780, 720 px'te 681×561 ölçüldü), uygulamanın üstünde durur; altındaki görünüm (editör/karşılama) korunur. `Esc`, dışa tıklama veya ✕ kapatır; `Ctrl+,` aç/kapa. Kategoriler, kontroller ve tema aynı ayar sistemidir ([[settings]]); içerik `@container` ile pencere genişliğine uyar.
+- **Tek z-index ölçeği** (yeni katman eklerken buraya uy, keyfi sayı yazma): `1` yapışkan başlıklar · `10` yerel üst katmanlar (panel içi) · `30` sağ paneller (dar pencerede editör üstü) · `50` açılış ekranı · `70` açılır menüler (portal ile `document.body`) · `150` Ayarlar penceresi · `200` komut paleti · `210` güncelleme penceresi.
+- **Açılır menüler `document.body`'ye çizilir (portal):** kenar çubuğu gibi `overflow-hidden` ata öğeler menüyü kırpamaz.
+- Modal arkaplanına `app-no-drag` verilir (başlık çubuğunun sürükleme alanı tıklamayı yutmasın).
+
 ## Duyarlı (responsive) kurallar
 - **Pencere:** Electron en az 980×660; web daha küçük olabilir. Tasarım 720×600'e kadar bozulmamalı.
 - **Paneller:** pencere < 1100 px iken sağ paneller (AI, önizleme) editörün **üstüne biner** (`absolute right-0`, gölge); kenar çubuğu en çok pencerenin %34'ü; AI paneli en çok %40 (üst sınır 720). Genişlikler yine sürüklenir.

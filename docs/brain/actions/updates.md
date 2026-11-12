@@ -33,3 +33,7 @@ Kullanıcı yüzü: **Yardım → Güncellemeleri denetle…** ve **Sürüm notl
 
 ## KVKK
 Denetim ve notlar `github.com` / `api.github.com`'a gider: IP, uygulama sürümü, platform (kişisel veri yok). Yalnız kullanıcı isteğiyle veya "açılışta denetle" açıkken. Ayar açıklamaları ve pencere altındaki not bunu belirtir. Envanter: [[security-kvkk]].
+
+## Kanallar ve otomatik davranış
+- `channel`: paketli uygulama = `stable` (electron-updater, gerçek güncelleme); geliştirme = `dev` (GitHub `/releases/latest` ile `semverGt` karşılaştırması, `releaseUrl` ile yayın sayfası açılır). `none` → "Son sürümdesiniz (v{v})".
+- `updateAutoDownload` varsayılanı artık **açık**; kurulum yine kullanıcı onayıyla. Menüden denetim aşamaları (denetleniyor → bulundu → indiriyor) pencerede görünür.
