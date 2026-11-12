@@ -58,10 +58,12 @@ export function App() {
   const handleSaveFileRef = useRef<(f: FileItem) => Promise<void>>(async () => {});
   const refreshGitStatusRef = useRef<() => Promise<void>>(async () => {});
   openFilesRef.current = openFiles;
+  const rootPathRef = useRef<string | null>(null);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
 
   // Yerel Proje ve Git Durumu
   const [currentRootPath, setCurrentRootPath] = useState<string | null>(null);
+  rootPathRef.current = currentRootPath;
   const [currentRootName, setCurrentRootName] = useState<string>('NovaCode-Studio');
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
 
@@ -154,7 +156,8 @@ export function App() {
     if (!api?.onFileChanged) return;
     const unsubscribe = api.onFileChanged(async ({ filename, rootPath, changed }) => {
       try {
-        if (rootPath) {
+        // Yalnız şu an açık olan klasörün değişiklikleri işlenir (yeniden başlatmada eski izleyici ağacı sızdırmasın).
+        if (rootPath && rootPath === rootPathRef.current) {
           const updatedTree = await api.readDirectory(rootPath);
           setFiles(updatedTree);
           refreshGitStatus(rootPath);
@@ -354,6 +357,13 @@ export function App() {
   // Gerçek Klasör ve Dosya Seçimi
   // ----------------------------------------------------
   const applyWorkspace = (result: { rootPath: string; rootName: string; tree: FileItem[] }) => {
+    // Başka bir klasöre geçilirken eski projenin kaydedilmiş sekmeleri kapanır (kaydedilmemişler korunur).
+    if (rootPathRef.current && rootPathRef.current !== result.rootPath) {
+      const kept = openFilesRef.current.filter((f) => f.isModified || !f.path);
+      setOpenFiles(kept);
+      setActiveFileId((cur) => (kept.some((f) => f.id === cur) ? cur : kept[0]?.id ?? null));
+    }
+    rootPathRef.current = result.rootPath;
     setCurrentRootPath(result.rootPath);
     setCurrentRootName(result.rootName);
     setFiles(result.tree);
