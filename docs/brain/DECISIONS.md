@@ -3,6 +3,8 @@
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
 ## 12.11.2026 (AI kod tamamlama)
+- **Copilot tarzı ✦ menüsü ve çaba ön ayarları.** "Düşünme seviyesi" burada ön ayardır (gecikme, uzunluk, bağlam, sıcaklık birlikte), ardından tek tek ayarlanır. Neden: tek model var, Copilot'taki gibi seviye modeli değiştirmez, çaba/bağlamı değiştirir. Ayarlar hem menüde hem Ayarlar sayfasında (tek kaynak: settingsSchema).
+- **Ana süreç eski kalırsa (yeniden başlatılmadı) sessiz kalma:** menü nedeni söyler.
 - **Satır içi tamamlama yalnız yerel Ollama ile, ham FIM.** Neden: kod bu bilgisayardan çıkmasın (KVKK), ek bağımlılık yok. Öneri tek blokla sınırlı (model fazladan fonksiyon uyduruyordu). Bkz. [[ai-assistant]].
 
 ## 12.11.2026 (kaynak denetimi ve Sorunlar)

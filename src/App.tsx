@@ -34,6 +34,7 @@ import { useCollabToken } from './services/useCollabToken';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
+const CompletionMenu = lazy(() => import('./components/CompletionMenu').then((m) => ({ default: m.CompletionMenu })));
 const BranchPicker = lazy(() => import('./components/BranchPicker').then((m) => ({ default: m.BranchPicker })));
 const DebugPanel = lazy(() => import('./components/DebugPanel').then((m) => ({ default: m.DebugPanel })));
 const ExtensionsPanel = lazy(() => import('./components/ExtensionsPanel').then((m) => ({ default: m.ExtensionsPanel })));
@@ -88,6 +89,7 @@ export function App() {
   const problems = useProblems();
   const cursor = useCursor();
   const compState = useCompletionState();
+  const [compMenu, setCompMenu] = useState<{ x: number; y: number } | null>(null);
 
   // Paneller
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions' | 'debug'>('files');
@@ -1502,6 +1504,12 @@ export function App() {
         )}
       </div>
 
+      {compMenu && (
+        <Suspense fallback={null}>
+          <CompletionMenu anchor={compMenu} language={activeFile && !activeFile.diff ? activeFile.language : undefined} onClose={() => setCompMenu(null)} onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }} />
+        </Suspense>
+      )}
+
       {picker && currentRootPath && gitStatus.isRepo && (
         <Suspense fallback={null}>
           <BranchPicker repo={currentRootPath} mode={picker} current={gitStatus.branch} onClose={() => setPicker(null)} onResult={(r) => pushGitNotice(r.ok, r.text)} />
@@ -1560,10 +1568,16 @@ export function App() {
                 )}
                 <span className="status-item hidden @lg:inline-flex">{t('stSpaces').replace(/\d+/, String(tabSize))}</span>
                 <span className="status-item hidden @lg:inline-flex">UTF-8</span>
-                {compState !== 'off' && !activeFile.diff && (
-                  <span className="status-item" title={compState === 'busy' ? t('aiCompBusy') : compState === 'unavailable' ? t('aiCompUnavailable') : t('aiCompReady')} aria-label={t('aiCompReady')}>
-                    <Sparkles size={12} className={compState === 'busy' ? 'text-indigo-400 animate-pulse' : compState === 'unavailable' ? 'text-zinc-600' : 'text-indigo-300'} />
-                  </span>
+                {!activeFile.diff && (
+                  <button
+                    className="status-item"
+                    title={compState === 'busy' ? t('aiCompBusy') : compState === 'unavailable' ? t('aiCompUnavailable') : t('aiCompReady')}
+                    aria-label={t('set_aiCompletion')}
+                    aria-haspopup="dialog"
+                    onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setCompMenu({ x: r.left + r.width / 2, y: r.top }); }}
+                  >
+                    <Sparkles size={12} className={compState === 'off' ? 'text-zinc-600' : compState === 'busy' ? 'text-indigo-400 animate-pulse' : compState === 'unavailable' ? 'text-rose-400' : 'text-indigo-300'} />
+                  </button>
                 )}
                 {lspEntry && (
                   <span className="status-item" title={lspTip}>

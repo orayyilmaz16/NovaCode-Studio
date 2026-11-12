@@ -28,7 +28,7 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 747 |
+| `electron-ai.cjs` | 760 |
 | `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 406 |
@@ -47,7 +47,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1584 |
+| `src/App.tsx` | 1598 |
 | `src/main.tsx` | 21 |
 | `src/types.ts` | 411 |
 
@@ -59,8 +59,9 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
+| `src/components/CompletionMenu.tsx` | 192 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 503 |
+| `src/components/EditorArea.tsx` | 525 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -76,7 +77,7 @@
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
-| `src/components/SettingsPage.tsx` | 569 |
+| `src/components/SettingsPage.tsx` | 570 |
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 560 |
 | `src/components/ThinkingMenu.tsx` | 146 |
@@ -88,7 +89,7 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
-| `src/services/aiCompletion.ts` | 93 |
+| `src/services/aiCompletion.ts` | 150 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
@@ -114,8 +115,9 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1606 |
+| `src/i18n/uiText.ts` | 1607 |
 | `src/i18n/uiTextAi.ts` | 525 |
+| `src/i18n/uiTextComp.ts` | 104 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
 
@@ -134,7 +136,7 @@
 ### Testler
 | Dosya | Satır |
 |---|---|
-| `scripts/tests/ai-complete.test.cjs` | 76 |
+| `scripts/tests/ai-complete.test.cjs` | 94 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/debug.test.cjs` | 112 |
 | `scripts/tests/git.test.cjs` | 163 |
@@ -174,10 +176,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 794 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 825 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-97 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+107 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -264,7 +266,17 @@
 | Hakkında ve yedek | `updateAutoCheck` | Açılışta güncellemeleri denetle | toggle | `true` |  |
 | Hakkında ve yedek | `updateAutoDownload` | Güncellemeyi otomatik indir | toggle | `true` |  |
 | Yapay Zekâ | `aiCompletion` | AI kod tamamlama (hayalet metin) | toggle | `true` |  |
+| Yapay Zekâ | `aiCompletionTrigger` | Öneri tetikleme | select | `"auto"` | auto, manual |
+| Yapay Zekâ | `aiCompletionEffort` | Düşünme seviyesi / çaba | select | `"balanced"` | fast, balanced, deep |
+| Yapay Zekâ | `aiCompletionLength` | Öneri biçimi | select | `"block"` | line, block, long |
 | Yapay Zekâ | `aiCompletionDelay` | Tamamlama gecikmesi (ms) | slider | `450` | 200–1500 |
+| Yapay Zekâ | `aiCompletionMaxTokens` | Öneri uzunluğu üst sınırı (token) | slider | `80` | 16–256 |
+| Yapay Zekâ | `aiCompletionPrefix` | İmleçten önceki bağlam (karakter) | slider | `6000` | 500–12000 |
+| Yapay Zekâ | `aiCompletionSuffix` | İmleçten sonraki bağlam (karakter) | slider | `2000` | 0–4000 |
+| Yapay Zekâ | `aiCompletionTemperature` | Yaratıcılık (sıcaklık) | slider | `0.1` | 0–1 |
+| Yapay Zekâ | `aiCompletionCount` | Alternatif öneri sayısı | slider | `1` | 1–3 |
+| Yapay Zekâ | `aiCompletionToolbar` | Öneri araç çubuğunu göster | toggle | `true` |  |
+| Yapay Zekâ | `aiCompletionOffLangs` | Kapalı diller | text | `""` | ≤200 karakter |
 | Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
 | Yapay Zekâ | `aiAskThinking` | Sohbet: düşünme seviyesi | select | `"balanced"` | fast, balanced, deep |
 | Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |

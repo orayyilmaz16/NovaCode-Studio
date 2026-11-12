@@ -110,7 +110,7 @@ function ipcSection() {
 const LANGS = ["tr", "en", "de", "ru", "ar", "es", "fr", "az"];
 let i18nKeys = 0;
 // Metinler iki dosyada: uiText.ts (ana paket) ve uiTextAi.ts (AI paneli + ayarlar, gecikmeli yüklenir)
-const readUiTexts = () => ["src/i18n/uiText.ts", "src/i18n/uiTextAi.ts", "src/i18n/uiTextDev.ts", "src/i18n/uiTextScm.ts"].filter(exists).map(read).join("\n").replace(/\r\n/g, "\n");
+const readUiTexts = () => ["src/i18n/uiText.ts", "src/i18n/uiTextAi.ts", "src/i18n/uiTextDev.ts", "src/i18n/uiTextScm.ts", "src/i18n/uiTextComp.ts"].filter(exists).map(read).join("\n").replace(/\r\n/g, "\n");
 if (exists("src/i18n/uiText.ts")) {
   const ui = readUiTexts();
   for (const m of ui.matchAll(/^  (\w+): \{\n([\s\S]*?)\n  \},/gm)) {
