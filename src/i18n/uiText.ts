@@ -7,6 +7,7 @@ export type UiLang = (typeof UI_LANGS)[number];
 import type { AiTextKey } from './uiTextAi';
 import type { DevTextKey } from './uiTextDev';
 import type { ScmTextKey } from './uiTextScm';
+import type { CompTextKey } from './uiTextComp';
 
 type Dict = Record<UiLang, string>;
 
@@ -1598,7 +1599,7 @@ const EXTRA: Record<string, Dict> = {};
 export function registerTexts(extra: Record<string, Dict>): void {
   Object.assign(EXTRA, extra);
 }
-export type TextKey = UiTextKey | AiTextKey | DevTextKey | ScmTextKey;
+export type TextKey = UiTextKey | AiTextKey | DevTextKey | ScmTextKey | CompTextKey;
 
 export function t(key: TextKey): string {
   const e = (UI_TEXT as Record<string, Dict>)[key] ?? EXTRA[key];

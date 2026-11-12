@@ -12,7 +12,7 @@ Ayarlar **gerçek zamanlıdır**: değiştiği an arayüze, editöre ve terminal
 > **Not:** Ayarlar sayfası artık uygulamanın üstünde ayrı bir pencere (modal) olarak açılır; ayrıntı ve katman sırası: [[ui-design]] → *Katman sırası ve Ayarlar penceresi*. Gezgin seçenekleri (`tree*`) için bkz. [[explorer]].
 
 ## Yeni ayarlar (12.11.2026)
-`terminalMode` (terminal: pty/classic), `lspEnabled` (editor: dil sunucuları, varsayılan açık).
+`terminalMode` (terminal: pty/classic), `lspEnabled` (editor: dil sunucuları, varsayılan açık), `aiCompletion*` (ai kategorisi, grup `grpAiCompletion`: 12 ayar, bkz. [[ai-assistant]]).
 
 ## Mimari
 | Parça | Dosya | Görev |

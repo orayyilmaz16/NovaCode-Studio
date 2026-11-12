@@ -119,7 +119,14 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   // Ayarlar: yazı tipi, tema, imleç... değiştiği an editöre yansır (gerçek zamanlı)
   const { values } = useSettings();
   const theme = useActiveEditorTheme();
-  const editorOptions = useMemo(() => toMonacoOptions(values), [values]);
+  const editorOptions = useMemo(
+    () => ({
+      ...toMonacoOptions(values),
+      // Copilot tarzı satır içi öneri: önizleme araç çubuğu (kabul / kelime / satır / sonraki), klasik öneri listesiyle birlikte çalışır
+      inlineSuggest: { enabled: values.aiCompletion !== false, showToolbar: (values.aiCompletionToolbar === false ? 'onHover' : 'always') as 'onHover' | 'always', suppressSuggestions: false }
+    }),
+    [values]
+  );
   const [copied, setCopied] = React.useState(false);
   const [savedEffect, setSavedEffect] = React.useState(false);
   const [editorInstance, setEditorInstance] = useState<any>(null);
@@ -143,8 +150,21 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
   // AI kod tamamlama ayarları (açık/kapalı, gecikme) anında yansır
   useEffect(() => {
-    setCompletionConfig({ enabled: values.aiCompletion !== false, delay: Number(values.aiCompletionDelay) || 450 });
-  }, [values.aiCompletion, values.aiCompletionDelay]);
+    const num = (v: unknown, d: number) => (Number.isFinite(Number(v)) && v !== '' && v !== undefined ? Number(v) : d);
+    const len = String(values.aiCompletionLength);
+    setCompletionConfig({
+      enabled: values.aiCompletion !== false,
+      trigger: values.aiCompletionTrigger === 'manual' ? 'manual' : 'auto',
+      delay: num(values.aiCompletionDelay, 450),
+      maxTokens: num(values.aiCompletionMaxTokens, 80),
+      prefixChars: num(values.aiCompletionPrefix, 6000),
+      suffixChars: num(values.aiCompletionSuffix, 2000),
+      temperature: num(values.aiCompletionTemperature, 0.1),
+      count: num(values.aiCompletionCount, 1),
+      length: len === 'line' || len === 'long' ? len : 'block',
+      offLangs: String(values.aiCompletionOffLangs ?? '').split(/[,\s]+/).map((x) => x.trim().toLowerCase()).filter(Boolean)
+    });
+  }, [values.aiCompletion, values.aiCompletionTrigger, values.aiCompletionDelay, values.aiCompletionMaxTokens, values.aiCompletionPrefix, values.aiCompletionSuffix, values.aiCompletionTemperature, values.aiCompletionCount, values.aiCompletionLength, values.aiCompletionOffLangs]);
 
   // Hatalı satırlar kırmızı, uyarılı satırlar sarı çizgiyle işaretlenir
   useEffect(() => {
@@ -448,7 +468,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             }}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}
-            onMount={(ed) => {
+            onMount={(ed, mon) => {
+              // Öneriyi satır satır kabul et (Tab = tümü, Ctrl+→ = kelime Monaco'da hazır)
+              ed.addCommand(mon.KeyMod.CtrlCmd | mon.KeyMod.Alt | mon.KeyCode.RightArrow, () => ed.trigger('nova', 'editor.action.inlineSuggest.acceptNextLine', {}), 'inlineSuggestionVisible');
               // Model sekmeler arasında yaşar: dışarıdan (diskten) yenilenen içerik varsa modele yansıt
               if (activeFile.content !== undefined && ed.getValue() !== activeFile.content) ed.setValue(activeFile.content);
               setEditorInstance(ed);

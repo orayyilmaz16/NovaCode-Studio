@@ -290,7 +290,7 @@ export interface ElectronBridge {
     approve: (runId: string, id: string, allow: boolean) => Promise<{ success: boolean }>;
     transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
     commands: () => Promise<{ name: string; template: string }[]>;
-    complete: (req: { id: string; prefix: string; suffix: string; fileName?: string }) => Promise<{ success: boolean; text?: string; error?: string; skipped?: string }>;
+    complete: (req: { id: string; prefix: string; suffix: string; fileName?: string; maxTokens?: number; temperature?: number; prefixChars?: number; suffixChars?: number; count?: number }) => Promise<{ success: boolean; text?: string; alternatives?: string[]; error?: string; skipped?: string }>;
     completeCancel: (id: string) => Promise<{ success: boolean }>;
     ollamaModels: (baseUrl?: string) => Promise<{ running: boolean; models: string[] }>;
     onEvent: (callback: (ev: AiEvent) => void) => () => void;
