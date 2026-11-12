@@ -453,20 +453,14 @@ function runGitCommand(args, cwd, { auth = false, raw = false, timeout = 120000 
 const gitModule = require('./electron-git.cjs');
 secrets.register();
 
-// Pencere başlık çubuğu (özel) renkleri: yalnız önceden tanımlı iki tema kabul edilir.
-const TITLEBAR = {
-  dark: { color: '#181818', symbolColor: '#cccccc', height: 36 },
-  light: { color: '#f8f8f8', symbolColor: '#3b3b3b', height: 36 }
-};
+// Başlık çubuğunu arayüz kendisi çizer (WindowControls); burada yalnız pencere zemin rengi temaya uydurulur.
+// Yalnız önceden tanımlı iki tema kabul edilir. (setTitleBarOverlay özel çubukta olmadığı için çağrılmaz.)
 ipcMain.handle('ui:setTheme', async (_event, mode) => {
   if (mode !== 'dark' && mode !== 'light') return { success: false };
   try {
-    if (mainWindow && !mainWindow.isDestroyed() && typeof mainWindow.setTitleBarOverlay === 'function') {
-      mainWindow.setTitleBarOverlay(TITLEBAR[mode]);
-      mainWindow.setBackgroundColor(mode === 'dark' ? '#1f1f1f' : '#ffffff');
-    }
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setBackgroundColor(mode === 'dark' ? '#1f1f1f' : '#ffffff');
   } catch (e) {
-    console.warn('Başlık çubuğu rengi ayarlanamadı:', e);
+    console.warn('Pencere zemin rengi ayarlanamadı:', e);
   }
   return { success: true };
 });

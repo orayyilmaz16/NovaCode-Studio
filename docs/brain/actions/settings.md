@@ -35,7 +35,7 @@ Doğrulama kuralları şemadan gelir: bilinmeyen anahtar atılır, seçenek dı�
 ## Tema ve görünüm
 - `<html data-theme="dark|light">`; `themeMode: system` iken `prefers-color-scheme` canlı izlenir. Koyu/açık fark `src/style.css` içindeki jeton değişkenleridir ([[ui-design]]).
 - Vurgu rengi: `ACCENTS` tablosu (koyu/açık için ayrı tonlar); `--color-indigo-200…700` değişkenleri satır içi uygulanır.
-- Yakınlaştırma: Electron'da `webFrame.setZoomFactor` (preload `ui.setZoom`), webde CSS `zoom`.
+- Yakınlaştırma: Electron'da `webFrame.setZoomFactor` (preload `ui.setZoom`, aynı değeri tekrar uygulamaz), webde CSS `zoom`. `applyZoom` ayrı efekttedir ve `requestAnimationFrame` ile tek sefer uygulanır. **Kaydırıcı `uiZoom` için sürüklerken değil bırakınca uygular** (`SliderControl`): aksi halde sayfa ölçeklenince kaydırıcı fare altında kayar, değer gidip gelir ve arayüz takılır. Pencere zemin rengi (`ui:setTheme`) yalnız mod değişince gider; başlık çubuğunu arayüz çizdiği için `setTitleBarOverlay` çağrılmaz.
 - Pencere başlık çubuğu rengi: `ui:setTheme` (yalnız `dark|light` kabul edilir).
 - Animasyonlar kapalıysa `data-motion="off"` tüm geçişleri durdurur.
 

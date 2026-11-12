@@ -5,7 +5,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   versions: { electron: process.versions.electron, chrome: process.versions.chrome, node: process.versions.node },
   ui: {
     // Arayüz yakınlaştırma (0.8–1.5): tüm uygulamayı eşit ölçekler
-    setZoom: (factor) => webFrame.setZoomFactor(Math.min(1.5, Math.max(0.8, Number(factor) || 1))),
+    setZoom: (factor) => {
+      const z = Math.round(Math.min(1.5, Math.max(0.8, Number(factor) || 1)) * 100) / 100;
+      if (Math.abs(webFrame.getZoomFactor() - z) > 0.001) webFrame.setZoomFactor(z); // aynı değeri tekrar uygulama: gereksiz yeniden yerleşim olmasın
+    },
     setTheme: (mode) => ipcRenderer.invoke('ui:setTheme', mode)
   },
   secrets: {

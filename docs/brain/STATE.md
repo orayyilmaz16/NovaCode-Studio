@@ -33,8 +33,8 @@
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
 | `electron-llm.cjs` | 256 |
-| `electron-main.cjs` | 515 |
-| `electron-preload.cjs` | 149 |
+| `electron-main.cjs` | 509 |
+| `electron-preload.cjs` | 152 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
 | `electron-term.cjs` | 155 |
@@ -67,7 +67,7 @@
 | `src/components/Preview.tsx` | 317 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
-| `src/components/SettingsPage.tsx` | 589 |
+| `src/components/SettingsPage.tsx` | 610 |
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 485 |
 | `src/components/UpdateDialog.tsx` | 156 |
@@ -76,7 +76,7 @@
 ### Servisler
 | Dosya | Satır |
 |---|---|
-| `src/services/SettingsContext.tsx` | 128 |
+| `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 228 |
 | `src/services/editorBridge.ts` | 80 |
 | `src/services/editorTheme.ts` | 96 |

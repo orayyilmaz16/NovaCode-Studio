@@ -75,6 +75,44 @@ const Toggle: React.FC<{ checked: boolean; onChange: (v: boolean) => void; label
   </button>
 );
 
+// Kaydırıcı. Ölçek (uiZoom) gibi tüm pencereyi yeniden yerleştiren ayarlar sürüklerken değil, bırakınca uygulanır:
+// aksi halde sayfa ölçeklenince kaydırıcı fare altında kayar, değer sürekli gidip gelir ve arayüz takılır.
+const SliderControl: React.FC<{ def: SettingDef; value: number; onChange: (v: SettingValue) => void; label: string }> = ({ def, value, onChange, label }) => {
+  const deferred = def.id === 'uiZoom';
+  const [draft, setDraft] = useState(value);
+  const dragging = useRef(false);
+  useEffect(() => { if (!dragging.current) setDraft(value); }, [value]);
+  const commit = (v: number) => { dragging.current = false; if (v !== value) onChange(v); };
+  const shown = deferred ? draft : value;
+  return (
+    <div className="flex items-center gap-3 min-w-[240px]">
+      <input
+        type="range"
+        aria-label={label}
+        min={def.min}
+        max={def.max}
+        step={def.step}
+        value={shown}
+        onPointerDown={() => { dragging.current = true; }}
+        onPointerUp={(e) => commit(Number(e.currentTarget.value))}
+        onPointerCancel={(e) => commit(Number(e.currentTarget.value))}
+        onBlur={(e) => { if (dragging.current) commit(Number(e.currentTarget.value)); }}
+        onChange={(e) => {
+          const v = Number(e.target.value);
+          if (!deferred) return onChange(v);
+          setDraft(v);
+          if (!dragging.current) onChange(v); // klavye (ok tuşları) anında uygular
+        }}
+        className="flex-1 accent-indigo-500"
+      />
+      <span className="w-16 text-right font-mono text-[12px] text-zinc-400">
+        {shown}
+        {def.unit ? ` ${def.unit}` : ''}
+      </span>
+    </div>
+  );
+};
+
 const Control: React.FC<{ def: SettingDef; value: SettingValue; onChange: (v: SettingValue) => void; label: string }> = ({ def, value, onChange, label }) => {
   switch (def.type) {
     case 'toggle':
@@ -98,24 +136,7 @@ const Control: React.FC<{ def: SettingDef; value: SettingValue; onChange: (v: Se
         </select>
       );
     case 'slider':
-      return (
-        <div className="flex items-center gap-3 min-w-[240px]">
-          <input
-            type="range"
-            aria-label={label}
-            min={def.min}
-            max={def.max}
-            step={def.step}
-            value={Number(value)}
-            onChange={(e) => onChange(Number(e.target.value))}
-            className="flex-1 accent-indigo-500"
-          />
-          <span className="w-16 text-right font-mono text-[12px] text-zinc-400">
-            {Number(value)}
-            {def.unit ? ` ${def.unit}` : ''}
-          </span>
-        </div>
-      );
+      return <SliderControl def={def} value={Number(value)} onChange={onChange} label={label} />;
     case 'text':
       return (
         <input
