@@ -63,6 +63,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
   },
   quitApp: () => ipcRenderer.invoke('app:quit'),
+  // Özel pencere düğmeleri (macOS'ta sistemin trafik ışıkları kullanılır)
+  platform: process.platform,
+  windowControls: {
+    minimize: () => ipcRenderer.invoke('win:minimize'),
+    toggleMaximize: () => ipcRenderer.invoke('win:toggle-maximize'),
+    close: () => ipcRenderer.invoke('win:close'),
+    isMaximized: () => ipcRenderer.invoke('win:is-maximized'),
+    onMaximized: (cb) => {
+      const h = (_e, v) => cb(!!v);
+      ipcRenderer.on('win:maximized', h);
+      return () => ipcRenderer.removeListener('win:maximized', h);
+    }
+  },
   openFolderDialog: () => ipcRenderer.invoke('dialog:openFolder'),
   recentFolders: () => ipcRenderer.invoke('workspace:recent'),
   openRecentFolder: (folderPath) => ipcRenderer.invoke('workspace:open', folderPath),

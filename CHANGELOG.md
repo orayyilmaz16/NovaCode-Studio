@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### tr
+- **Özel pencere düğmeleri:** Küçült / büyüt-aşağı al / kapat düğmeleri artık başlık çubuğunun tasarımına uyumlu, kendi çizdiğimiz simgelerle geliyor (Windows/Linux; macOS sistem düğmelerini korur). Kapat düğmesi üzerine gelince kırmızı olur.
 - **Gerçek VS Code simgeleri:** Dosya simgeleri artık Material Icon Theme (MIT) ile geliyor; uzantıya ve dosya adına göre ~1.250 simge, gerektikçe yüklenir.
 - **Dosya simgeleri VS Code tarzı:** JS/TS yazılı kare, Python yılanı, PHP oval rozeti, SQL veritabanı, React atomu, HTML/CSS/JSON simgeleri; diğer türler rozet olarak kaldı.
 - **Sekme çubuğu ve önizleme:** Açık sekme yokken sekme çubuğu hiç görünmez; sekme açılınca yumuşak animasyonla gelir, sekmeler VS Code tarzı yuvarlak köşeli ve kenarlıklıdır. HTML/web dosyasında Kaydet/Çalıştır yanında önizlemeyi açıp kapatan düğme var. Dosya menüsünden "Çık" kaldırıldı (Ctrl+Q çalışır).
@@ -73,6 +74,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **Custom window controls:** Minimize / maximize-restore / close now match the title bar design with our own icons (Windows/Linux; macOS keeps system buttons). Close turns red on hover.
 - **Real VS Code icons:** File icons now come from Material Icon Theme (MIT): ~1,250 icons matched by extension and file name, loaded on demand.
 - **VS Code-style file icons:** JS/TS lettered squares, Python snake, PHP oval, SQL database, React atom, HTML/CSS/JSON glyphs; other types keep the badge.
 - **Tab bar and preview:** The tab bar is hidden when no tab is open and slides in smoothly when one opens; tabs are VS Code-style with rounded corners and borders. HTML/web files get a preview toggle next to Save/Run. "Quit" removed from the File menu (Ctrl+Q still works).

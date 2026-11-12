@@ -33,8 +33,8 @@
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
 | `electron-llm.cjs` | 256 |
-| `electron-main.cjs` | 498 |
-| `electron-preload.cjs` | 136 |
+| `electron-main.cjs` | 515 |
+| `electron-preload.cjs` | 149 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
 | `electron-term.cjs` | 155 |
@@ -43,9 +43,9 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1372 |
+| `src/App.tsx` | 1376 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 271 |
+| `src/types.ts` | 279 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -70,6 +70,7 @@
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 485 |
 | `src/components/UpdateDialog.tsx` | 156 |
+| `src/components/WindowControls.tsx` | 48 |
 
 ### Servisler
 | Dosya | Satır |
@@ -93,7 +94,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1876 |
+| `src/i18n/uiText.ts` | 1888 |
 
 ### Betikler
 | Dosya | Satır |
@@ -135,12 +136,13 @@
 | term | `term:input`, `term:start`, `term:stop` |
 | ui | `ui:setTheme` |
 | update | `update:check`, `update:download`, `update:install`, `update:releases`, `update:state` |
+| win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 607 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 611 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 93 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

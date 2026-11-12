@@ -24,9 +24,9 @@ function createWindow() {
     title: 'NovaCode Studio',
     // Uygulama simgesi: geliştirmede public/, paketli uygulamada dist/ içinden
     icon: path.join(__dirname, isDev ? 'public' : 'dist', 'icon.png'),
-    // Özel başlık çubuğu: pencere düğmeleri (küçült/büyüt/kapat) sistem tarafından arayüzün üstüne çizilir
-    titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#181818', symbolColor: '#cccccc', height: 36 },
+    // Özel başlık çubuğu: Windows/Linux'ta küçült/büyüt/kapat düğmelerini arayüz kendisi çizer (tasarıma uyumlu);
+    // macOS'ta sistemin trafik ışıkları kalır.
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' } : { frame: false }),
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.cjs'),
@@ -49,6 +49,12 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
+
+  const sendMax = () => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('win:maximized', mainWindow.isMaximized());
+  };
+  mainWindow.on('maximize', sendMax);
+  mainWindow.on('unmaximize', sendMax);
 
   mainWindow.once('ready-to-show', () => {
     // NOVA_HEADLESS=1: otomatik testler için pencere ekran dışında, odaksız açılır (render sürer, kullanıcı görmez/etkilemez).
@@ -199,6 +205,17 @@ function isValidPath(p) {
 ipcMain.handle('app:quit', () => {
   app.quit();
 });
+
+// Özel pencere düğmeleri: yalnız ana pencerenin kendi sayfasından gelen çağrılar kabul edilir.
+const fromMain = (e) => mainWindow && !mainWindow.isDestroyed() && e.sender === mainWindow.webContents;
+ipcMain.handle('win:minimize', (e) => { if (fromMain(e)) mainWindow.minimize(); });
+ipcMain.handle('win:toggle-maximize', (e) => {
+  if (!fromMain(e)) return false;
+  if (mainWindow.isMaximized()) mainWindow.unmaximize(); else mainWindow.maximize();
+  return mainWindow.isMaximized();
+});
+ipcMain.handle('win:close', (e) => { if (fromMain(e)) mainWindow.close(); });
+ipcMain.handle('win:is-maximized', (e) => (fromMain(e) ? mainWindow.isMaximized() : false));
 
 // Son açılan klasörler: yalnız kullanıcının seçtiği klasör yolları, yerelde (userData) saklanır; hiçbir yere gönderilmez.
 const RECENT_MAX = 8;

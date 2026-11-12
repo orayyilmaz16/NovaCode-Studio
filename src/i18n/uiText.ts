@@ -1493,6 +1493,18 @@ export const UI_TEXT = {
   updClose: {
     tr: "Kapat", en: "Close", de: "Schließen", ru: "Закрыть", ar: "إغلاق", es: "Cerrar", fr: "Fermer", az: "Bağla",
   },
+  wcMinimize: {
+    tr: "Küçült", en: "Minimize", de: "Minimieren", ru: "Свернуть", ar: "تصغير", es: "Minimizar", fr: "Réduire", az: "Kiçilt",
+  },
+  wcMaximize: {
+    tr: "Büyüt", en: "Maximize", de: "Maximieren", ru: "Развернуть", ar: "تكبير", es: "Maximizar", fr: "Agrandir", az: "Böyüt",
+  },
+  wcRestore: {
+    tr: "Aşağı al", en: "Restore Down", de: "Verkleinern", ru: "Восстановить", ar: "استعادة", es: "Restaurar", fr: "Restaurer", az: "Aşağı al",
+  },
+  wcClose: {
+    tr: "Kapat", en: "Close", de: "Schließen", ru: "Закрыть", ar: "إغلاق", es: "Cerrar", fr: "Fermer", az: "Bağla",
+  },
   updCheckNow: {
     tr: "Güncellemeleri denetle", en: "Check for updates", de: "Nach Updates suchen", ru: "Проверить обновления", ar: "التحقق من التحديثات", es: "Buscar actualizaciones", fr: "Rechercher des mises à jour", az: "Yenilikləri yoxla",
   },
