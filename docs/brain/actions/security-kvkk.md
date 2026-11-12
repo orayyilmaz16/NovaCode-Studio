@@ -30,5 +30,14 @@ Veri nedir? Amaç? Hukuki sebep? Saklama süresi? Yurt dışına aktarım var m�
 
 Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmadan yükleme.
 
+## Dış istek envanteri (güncel)
+| Servis | Ne zaman | Ne gider | Not |
+|---|---|---|---|
+| Hugging Face | Yerleşik model indirme (tek sefer) | Yalnız dosya isteği (IP) | Kullanıcı verisi yok; konak denetimli |
+| Open VSX / Eclipse CDN | Eklenti arama/indirme | Arama sözcüğü, IP | Kullanıcı verisi yok; konak denetimli |
+| Seçilen AI sağlayıcı (Anthropic/OpenAI/Ollama uzak) | Kullanıcı sohbet gönderince | Mesaj, bağlam kodu | Varsayılan yerleşik: hiçbiri |
+| Dikte (OpenAI uyumlu) | Mikrofon kullanılınca ve açık rıza varsa | Ses | Yerel adreste yerelde kalır |
+| GitHub | Git/GitHub paneli | Kimlik doğrulama, repo işlemleri | Kullanıcı eylemiyle |
+
 ## Çıktı
 Raporda ayrıca belirt; karar alındıysa [[DECISIONS]]. Güvenlik açığı bildirimi süreci: [[SECURITY]].

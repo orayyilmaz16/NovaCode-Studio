@@ -93,7 +93,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const def = getDef(id);
     if (!def) return;
     const v = sanitizeValue(def, value);
-    setStored((s) => (s.values[id] === v ? s : { ...s, values: { ...s.values, [id]: v } }));
+    // Yerleşik editör teması seçilince eklenti teması bırakılır
+    setStored((s) => (s.values[id] === v ? s : { ...s, values: { ...s.values, [id]: v, ...(id === 'editorTheme' ? { extTheme: '' } : {}) } }));
   }, []);
 
   const reset = useCallback((id: string) => {

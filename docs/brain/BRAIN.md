@@ -31,6 +31,7 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[security-kvkk]] | IPC, dosya sistemi, token, kişisel veri |
 | [[terminal]] | Entegre terminal (PowerShell/CMD) |
 | [[ai-assistant]] | Yapay zekâ paneli: sağlayıcılar, Ask/Agent, araçlar, oturumlar, görsel, dikte, özel komutlar |
+| [[extensions]] | Eklenti mağazası (Open VSX): tema/snippet yükleme, güncelleme |
 | [[search-palette]] | Komut paleti (Ctrl+P, `>`, `:`, `$`), proje araması, snippet hızlı yolları |
 | [[ci-cd]] | GitHub Actions, audit, bundle bütçesi |
 | [[testing]] | Doğrulama: tsc, build, birim ve entegrasyon testleri |

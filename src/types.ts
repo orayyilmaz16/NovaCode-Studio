@@ -108,7 +108,25 @@ export interface SearchHit {
   text: string;
 }
 
-export type AiProvider = 'anthropic' | 'openai' | 'ollama';
+export type AiProvider = 'builtin' | 'anthropic' | 'openai' | 'ollama';
+
+export interface LlmModelInfo {
+  id: string;
+  label: string;
+  tier: 'fast' | 'strong';
+  size: number;
+  ramGb: number;
+  installed: boolean;
+  downloading: boolean;
+  received: number;
+}
+export interface LlmProgress {
+  id: string;
+  received: number;
+  total: number;
+  done?: boolean;
+  error?: 'cancelled' | 'failed';
+}
 
 export interface AiRunRequest {
   runId: string;
@@ -144,6 +162,20 @@ export interface ElectronBridge {
   search: {
     files: () => Promise<{ root: string; files: string[] }>;
     text: (opts: { query: string; regex?: boolean; caseSensitive?: boolean }) => Promise<{ results: SearchHit[]; truncated: boolean; error?: string }>;
+  };
+  llm: {
+    status: () => Promise<{ defaultId: string; models: LlmModelInfo[] }>;
+    download: (id: string) => Promise<{ success: boolean; error?: string }>;
+    cancel: (id: string) => Promise<{ success: boolean }>;
+    remove: (id: string) => Promise<{ success: boolean }>;
+    onProgress: (callback: (p: LlmProgress) => void) => () => void;
+  };
+  ext: {
+    search: (opts: { query: string; category?: 'Themes' | 'Snippets' | ''; offset?: number }) => Promise<{ success: boolean; total: number; items: import('./services/extensionsService').StoreItem[]; error?: string }>;
+    list: () => Promise<import('./services/extensionsService').InstalledExt[]>;
+    install: (namespace: string, name: string) => Promise<{ success: boolean; error?: string; partial?: boolean }>;
+    uninstall: (id: string) => Promise<{ success: boolean }>;
+    checkUpdates: () => Promise<{ id: string; latest: string }[]>;
   };
   ai: {
     run: (req: AiRunRequest) => Promise<{ success: boolean; error?: string }>;

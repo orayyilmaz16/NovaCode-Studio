@@ -24,6 +24,8 @@ export interface SettingDef {
   maxLength?: number;
   placeholder?: string;
   desc?: boolean;
+  /** Ayarlar sayfasında satır olarak gösterilmez (başka bir arayüz yönetir, ör. eklenti teması). */
+  hidden?: boolean;
   showWhen?: { id: string; equals: SettingValue };
 }
 export interface CategoryDef {

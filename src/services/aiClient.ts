@@ -3,12 +3,14 @@
 import type { AiProvider } from '../types';
 
 export const DEFAULT_MODEL: Record<AiProvider, string> = {
+  builtin: 'qwen2.5-coder-1.5b',
   anthropic: 'claude-sonnet-5-5',
   openai: 'gpt-4o',
   ollama: 'llama3.1'
 };
 
 export const PROVIDER_LABEL: Record<AiProvider, string> = {
+  builtin: 'Nova (yerleşik)',
   anthropic: 'Anthropic',
   openai: 'OpenAI',
   ollama: 'Ollama'

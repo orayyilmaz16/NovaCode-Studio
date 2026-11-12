@@ -9,7 +9,12 @@
 - Projede ara (`Ctrl+Shift+F`): büyük/küçük harf ve düzenli ifade desteği, sonuca tıklayınca satıra gider.
 - Snippet hızlı yolları: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippet'ler artık imlecin olduğu yere eklenir.
 - Ayarlar: yeni "Yapay Zekâ" kategorisi; kısayol listesi güncellendi.
-- Yerel öncelikli: varsayılan sağlayıcı artık Ollama (API anahtarı ve maliyet yok, veri bilgisayardan çıkmaz). Panel Ollama'yı ve yüklü modelleri algılar, model panelden seçilir; eksikse kurulum ipucu gösterir. Dikte için yerel Whisper sunucusu adresi girilebilir (anahtarsız).
+- **Yerleşik yapay zekâ (anahtarsız, ücretsiz):** artık sunucu adresi ya da API anahtarı gerekmez. Panelden bir kez yerel model indirirsin (Hızlı ~1 GB / Güçlü ~4,4 GB), sonra sohbet ve ajan bu bilgisayarda, internetsiz çalışır; kodun ve mesajların dışarı çıkmaz. Ollama ve bulut sağlayıcılar isteğe bağlıdır.
+- Ajan paneli yeniden tasarlandı: dengeli ve taşmasız yerleşim, sürükleyerek genişlik, otomatik büyüyen giriş kutusu, kaydırılabilir araç kartları, koyu/açık tema uyumu.
+- Üst menü çubuğu: Dosya, Düzenle, Seçim, Görünüm, Git, Çalıştır, Terminal, Yardım; animasyonlu açılır menüler. Çalıştır menüsü açık dosyayı türüne göre terminalde çalıştırır (`node`, `python`, `go run`, `php`…) ve `npm run dev/build`, `go run .`, `cargo run` gibi proje komutlarını sunar.
+- Eklenti mağazası (Open VSX): tema ve snippet eklentilerini ara, yükle, güncelle, kaldır (`Ctrl+Shift+X`). Kod çalıştıran eklentiler desteklenmez.
+- Dosya türü simgeleri: Gezgin, sekmeler, palet ve aramada TS, JS, PHP, PY, GO ve ~60 türe renkli rozet.
+- Yerel öncelikli: Ollama desteği (API anahtarı ve maliyet yok, veri bilgisayardan çıkmaz). Panel Ollama'yı ve yüklü modelleri algılar, model panelden seçilir; eksikse kurulum ipucu gösterir. Dikte için yerel Whisper sunucusu adresi girilebilir (anahtarsız).
 
 - Terminal: istemde çalışma klasörü (`PS C:\Users\...>`) ve Git dalı gösterilir; komutlar, bayraklar, metinler ve değişkenler renklendirilir; ANSI renkli çıktı ve kırmızı hata çıktısı desteklenir; ↑/↓ komut geçmişi, Ctrl+L temizleme.
 - GitHub: uygulama içinden hesap bağlama (cihaz kodu akışı), hesap oluşturma bağlantısı; token şifreli saklanır. Git push/pull/fetch bağlı hesapla kimlik doğrular.
@@ -56,7 +61,12 @@
 - Search in project (`Ctrl+Shift+F`): match case and regex support, click a result to jump to the line.
 - Snippet quick triggers: `clg`, `afn`, `tryc`, `forof`, `rfc`, `ust`, `uef`, `def`, `ifmain`, `flexc`, `gridc`, `sect`, `sel`, `todo`; snippets are now inserted at the cursor.
 - Settings: new "AI Assistant" category; shortcut list updated.
-- Local-first: the default provider is now Ollama (no API key, no cost, data never leaves your computer). The panel detects Ollama and installed models and lets you pick a model; it shows setup hints when something is missing. For dictation you can set a local Whisper server address (no key needed).
+- **Built-in AI (no key, free):** no server address or API key needed anymore. Download a local model once from the panel (Fast ~1 GB / Strong ~4.4 GB); then chat and agent run on this computer, offline; your code and messages never leave it. Ollama and cloud providers remain optional.
+- Agent panel redesigned: balanced layout with no overflow, drag-to-resize width, auto-growing input, collapsible tool cards, dark/light theme fit.
+- Top menu bar: File, Edit, Selection, View, Git, Run, Terminal, Help, with animated dropdowns. The Run menu runs the active file in the terminal by type (`node`, `python`, `go run`, `php`…) and offers project commands like `npm run dev/build`, `go run .`, `cargo run`.
+- Extension store (Open VSX): search, install, update and remove theme and snippet extensions (`Ctrl+Shift+X`). Extensions that run code are not supported.
+- File type icons: colored badges for TS, JS, PHP, PY, GO and ~60 types in the explorer, tabs, palette and search.
+- Local-first: Ollama support (no API key, no cost, data never leaves your computer). The panel detects Ollama and installed models and lets you pick a model; it shows setup hints when something is missing. For dictation you can set a local Whisper server address (no key needed).
 
 - The terminal was rebuilt VS Code-style: multiple terminals (+ ▾ to pick PowerShell/CMD), a session list on the right, maximize/restore/close, an inline prompt at the end of the output, block/bar/underline cursor, `Ctrl+C` cancels the line. The panel is closed by default and sessions stay alive while hidden. Terminal code moved to `electron-term.cjs` and is tested with real shells (`npm test`).
 - The Explorer follows the latest VS Code: "Open editors" and workspace sections, inline create, F2 rename, context menu, keyboard navigation, indent guides, animated folder expansion. Creating files/folders in subfolders and deleting folders were fixed.

@@ -407,6 +407,8 @@ require('./electron-term.cjs').register({ getWindow: () => mainWindow, isValidPa
 
 // Arama (Ctrl+P / Ctrl+Shift+F) ve yapay zekâ asistanı (electron-ai.cjs)
 require('./electron-search.cjs').register({ getRoot: () => workspaceRoot });
+require('./electron-ext.cjs').register();
+require('./electron-llm.cjs').register({ getWindow: () => mainWindow });
 require('./electron-ai.cjs').register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
 
 // Single instance lock

@@ -16,6 +16,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
     files: () => ipcRenderer.invoke('search:files'),
     text: (opts) => ipcRenderer.invoke('search:text', opts)
   },
+  llm: {
+    status: () => ipcRenderer.invoke('llm:status'),
+    download: (id) => ipcRenderer.invoke('llm:download', id),
+    cancel: (id) => ipcRenderer.invoke('llm:cancel', id),
+    remove: (id) => ipcRenderer.invoke('llm:delete', id),
+    onProgress: (callback) => {
+      const listener = (_event, data) => callback(data);
+      ipcRenderer.on('llm:progress', listener);
+      return () => ipcRenderer.removeListener('llm:progress', listener);
+    }
+  },
+  ext: {
+    search: (opts) => ipcRenderer.invoke('ext:search', opts),
+    list: () => ipcRenderer.invoke('ext:list'),
+    install: (namespace, name) => ipcRenderer.invoke('ext:install', namespace, name),
+    uninstall: (id) => ipcRenderer.invoke('ext:uninstall', id),
+    checkUpdates: () => ipcRenderer.invoke('ext:checkUpdates')
+  },
   ai: {
     run: (req) => ipcRenderer.invoke('ai:run', req),
     cancel: (runId) => ipcRenderer.invoke('ai:cancel', runId),

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CaseSensitive, Regex, Search as SearchIcon } from 'lucide-react';
 import { t } from '../i18n/uiText';
+import { FileTypeIcon } from './FileTypeIcon';
 import type { SearchHit } from '../types';
 
 interface Props {
@@ -80,7 +81,7 @@ export const SearchPanel: React.FC<Props> = ({ hasFolder, onOpenResult }) => {
             )}
             {groups.map(([rel, hits]) => (
               <div key={rel} className="mb-1">
-                <div className="px-3 py-0.5 text-zinc-300 truncate" title={rel}>{rel}</div>
+                <div className="px-3 py-0.5 text-zinc-300 truncate flex items-center gap-1.5" title={rel}><FileTypeIcon name={rel.split('/').pop() ?? rel} size={13} />{rel}</div>
                 {hits.map((h) => (
                   <button key={`${h.line}-${h.text}`} className="w-full flex gap-2 pl-6 pr-2 h-6 text-left hover:bg-nv-hover" onClick={() => onOpenResult(h.path, h.line)}>
                     <span className="text-zinc-500 shrink-0 w-8 text-right">{h.line}</span>

@@ -30,6 +30,7 @@
 
     { "id": "editorTheme", "category": "editor", "type": "select", "default": "auto", "desc": true,
       "options": [{ "value": "auto", "labelKey": "optAuto" }, { "value": "nova-dark", "label": "Nova Dark" }, { "value": "nova-light", "label": "Nova Light" }, { "value": "vs-dark", "label": "VS Dark" }, { "value": "vs", "label": "VS Light" }, { "value": "hc-black", "label": "High Contrast" }] },
+    { "id": "extTheme", "category": "editor", "type": "text", "default": "", "maxLength": 200, "hidden": true },
     { "id": "fontFamily", "category": "editor", "type": "select", "default": "cascadia",
       "options": [{ "value": "cascadia", "label": "Cascadia Code" }, { "value": "fira", "label": "Fira Code" }, { "value": "jetbrains", "label": "JetBrains Mono" }, { "value": "consolas", "label": "Consolas" }, { "value": "courier", "label": "Courier New" }, { "value": "monospace", "label": "Monospace" }, { "value": "custom", "labelKey": "optCustom" }] },
     { "id": "fontFamilyCustom", "category": "editor", "type": "text", "default": "", "maxLength": 120, "placeholder": "'Iosevka', 'Fira Code', monospace", "desc": true, "showWhen": { "id": "fontFamily", "equals": "custom" } },
@@ -109,8 +110,10 @@
     { "id": "collabEnabled", "category": "collab", "type": "toggle", "default": false },
     { "id": "collabUrl", "category": "collab", "type": "text", "default": "", "maxLength": 200, "placeholder": "wss://sunucun.example.com", "desc": true },
 
-    { "id": "aiProvider", "category": "ai", "type": "select", "default": "ollama", "desc": true,
-      "options": [{ "value": "anthropic", "label": "Anthropic (Claude)" }, { "value": "openai", "label": "OpenAI / uyumlu" }, { "value": "ollama", "label": "Ollama (local)" }] },
+    { "id": "aiProvider", "category": "ai", "type": "select", "default": "builtin", "desc": true,
+      "options": [{ "value": "builtin", "labelKey": "optAiBuiltin" }, { "value": "anthropic", "label": "Anthropic (Claude)" }, { "value": "openai", "label": "OpenAI / uyumlu" }, { "value": "ollama", "label": "Ollama (local)" }] },
+    { "id": "aiBuiltinModel", "category": "ai", "type": "select", "default": "qwen2.5-coder-1.5b", "desc": true,
+      "options": [{ "value": "qwen2.5-coder-1.5b", "labelKey": "optAiModelFast" }, { "value": "qwen2.5-coder-7b", "labelKey": "optAiModelStrong" }] },
     { "id": "aiModel", "category": "ai", "type": "text", "default": "", "maxLength": 120, "placeholder": "qwen2.5-coder:7b", "desc": true },
     { "id": "aiBaseUrl", "category": "ai", "type": "text", "default": "", "maxLength": 200, "placeholder": "https://...", "desc": true },
     { "id": "aiDefaultMode", "category": "ai", "type": "select", "default": "ask",

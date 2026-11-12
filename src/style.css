@@ -270,7 +270,11 @@ button.status-item:hover {
   to { opacity: 1; transform: none; }
 }
 @keyframes menuIn {
-  from { opacity: 0; transform: scale(0.96) translateY(-3px); }
+  from { opacity: 0; transform: scale(0.95) translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes menuItemIn {
+  from { opacity: 0; transform: translateX(-4px); }
   to { opacity: 1; transform: none; }
 }
 @keyframes splashOut {
@@ -289,7 +293,8 @@ button.status-item:hover {
 .animate-sidebar-in { animation: slideInLeft 180ms var(--ease-out-soft) both; }
 .animate-panel-up { animation: panelUp 200ms var(--ease-out-soft) both; }
 .animate-tab-in { animation: tabIn 160ms var(--ease-out-soft) both; }
-.animate-menu { animation: menuIn 120ms var(--ease-out-soft) both; transform-origin: top left; }
+.animate-menu { animation: menuIn 160ms var(--ease-out-soft) both; transform-origin: top left; }
+.animate-menu-item { animation: menuItemIn 180ms var(--ease-out-soft) both; }
 .animate-splash-out { animation: splashOut 260ms ease forwards; }
 .animate-twinkle { animation: twinkle 3.2s ease-in-out infinite; transform-origin: center; }
 

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import type { FileItem } from '../types';
 import { t } from '../i18n/uiText';
+import { FileTypeIcon } from './FileTypeIcon';
 import { PopupMenu, type MenuItem } from './Menu';
 
 export interface FileTreeProps {
@@ -59,15 +60,7 @@ const dirOf = (p: string) => {
 };
 
 function fileIcon(name: string, size = 15) {
-  const ext = name.split('.').pop()?.toLowerCase() ?? '';
-  if (['ts', 'tsx'].includes(ext)) return <FileCode size={size} className="text-sky-400 shrink-0" />;
-  if (['js', 'jsx', 'mjs', 'cjs'].includes(ext)) return <FileCode size={size} className="text-yellow-300 shrink-0" />;
-  if (ext === 'json') return <FileJson size={size} className="text-amber-300 shrink-0" />;
-  if (['html', 'htm'].includes(ext)) return <FileCode size={size} className="text-orange-400 shrink-0" />;
-  if (['css', 'scss', 'sass', 'less'].includes(ext)) return <Hash size={size} className="text-blue-400 shrink-0" />;
-  if (['md', 'markdown', 'txt'].includes(ext)) return <FileText size={size} className="text-zinc-400 shrink-0" />;
-  if (ext === 'py') return <FileCode size={size} className="text-emerald-400 shrink-0" />;
-  return <FileText size={size} className="text-zinc-500 shrink-0" />;
+  return <FileTypeIcon name={name} size={size} />;
 }
 
 // Yumuşak açılıp kapanan bölüm (grid satır geçişi): içerik yüksekliğini ölçmeden animasyon verir.

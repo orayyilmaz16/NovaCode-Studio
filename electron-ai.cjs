@@ -44,7 +44,12 @@ function safeBase(provider, custom) {
 function resolveInRoot(root, p) {
   if (!root) throw new Error('Açık çalışma klasörü yok.');
   if (typeof p !== 'string' || !p || p.includes('\0')) throw new Error('Geçersiz yol.');
-  const abs = path.resolve(root, p);
+  // Küçük modeller yolun başına klasör adını ekleyebilir ("proje/src/a.ts"): kök adı varsa ve gerçek öğe yoksa soy
+  let rp = p;
+  const base = path.basename(root);
+  const norm = p.split('\\').join('/');
+  if (norm.startsWith(base + '/') && !fs.existsSync(path.resolve(root, p))) rp = norm.slice(base.length + 1);
+  const abs = path.resolve(root, rp);
   const rel = path.relative(root, abs);
   if (rel.startsWith('..') || path.isAbsolute(rel)) throw new Error('Yol çalışma klasörü dışında.');
   // Sembolik bağ kaçışı: var olan en yakın üst öğenin gerçek yolu da kök içinde olmalı
@@ -289,6 +294,32 @@ function register({ getWindow, getRoot }) {
     const run = { abort: new AbortController(), pending: new Map() };
     runs.set(runId, run);
     try {
+      // Yerleşik yerel model: anahtar/adres yok, her şey bu bilgisayarda (electron-llm.cjs)
+      if (provider === 'builtin') {
+        const rootDir = getRoot();
+        const agentOn = req.mode === 'agent' && !!rootDir;
+        const system = buildSystem({ root: rootDir, lang: req.lang, agent: agentOn, project: agentOn || req.useProject ? loadProjectInstructions(rootDir) : '' });
+        const msgs = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', text: String(m.text || '').slice(0, 60000) }));
+        const last = msgs.pop();
+        if (!last || last.role !== 'user') throw new Error('Geçersiz istek.');
+        const bctx = {
+          root: rootDir,
+          autoApproveEdits: !!req.autoApproveEdits,
+          allowCommands: req.allowCommands !== false,
+          changed: new Set(),
+          approve: (info) => new Promise((resolve) => {
+            const id = Math.random().toString(36).slice(2, 10);
+            run.pending.set(id, resolve);
+            emit({ type: 'approval', id, ...info });
+          })
+        };
+        await require('./electron-llm.cjs').runBuiltin({
+          modelId: String(req.model || ''), system, history: msgs, prompt: last.text, tools: TOOLS, agent: agentOn,
+          runTool: (name, input) => runTool(name, input, bctx), emit, signal: run.abort.signal, maxTokens: req.maxTokens
+        });
+        emit({ type: 'done', changed: [...bctx.changed], ...(run.abort.signal.aborted ? { cancelled: true } : {}) });
+        return { success: true };
+      }
       const def = PROVIDERS[provider];
       if (!def) throw new Error('Bilinmeyen sağlayıcı.');
       const key = def.secret ? (await readSecret(def.secret)) : '';

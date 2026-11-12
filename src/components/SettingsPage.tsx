@@ -423,6 +423,7 @@ const SHORTCUTS: [string, UiTextKey][] = [
   ['Ctrl+G', 'cmdGoToLine'],
   ['Ctrl+Shift+F', 'cmdFindInFiles'],
   ['Ctrl+Shift+L', 'cmdOpenAI'],
+  ['Ctrl+Shift+X', 'extTitle'],
   ['Ctrl+L', 'scClearTerminal'],
   ['Ctrl+Q', 'quit']
 ];
@@ -517,7 +518,15 @@ interface SettingsPageProps {
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnippetCount }) => {
   const { values, isModified } = useSettings();
-  const [cat, setCat] = useState('appearance');
+  // Menüden (Yardım → Kısayollar/Hakkında) belirli kategoriyle açılabilir; bir kez okunur ve silinir.
+  const [cat, setCat] = useState(() => {
+    try {
+      const want = window.localStorage.getItem('nova.settings.category');
+      window.localStorage.removeItem('nova.settings.category');
+      if (want && ['shortcuts', 'about', 'ai', 'extensions'].includes(want)) return want;
+    } catch { /* depolama kapalı */ }
+    return 'appearance';
+  });
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
 
@@ -537,7 +546,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, builtInSnip
   }, [values, isModified]);
 
   const current = CATEGORIES.find((c) => c.id === cat) ?? CATEGORIES[0];
-  const rows = SCHEMA.filter((d) => d.category === current.id);
+  const rows = SCHEMA.filter((d) => d.category === current.id && !d.hidden);
 
   return (
     <div className="animate-fade-in flex flex-col flex-1 h-full min-w-0 bg-nv-editor select-none">

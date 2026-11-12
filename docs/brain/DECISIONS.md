@@ -2,6 +2,15 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 12.11.2026 (yerleşik model, menü, eklenti mağazası)
+- **Varsayılan sağlayıcı "Nova yerleşik": `node-llama-cpp` ile uygulama içinde yerel model; anahtar, sunucu adresi ve ücret yok.** Neden: kullanıcı/Masqot'a API maliyeti çıkmasın, veri cihazdan çıkmasın, ek kurulum (Ollama) gerekmesin. Yeni bağımlılık gerekçesi: Node için tek hazır llama.cpp bağlayıcısı, hazır ikililer (derleme yok), fonksiyon çağırma desteği. Bedeli: kurulum paketine ~110 MB (yalnız Windows x64 CPU+Vulkan; CUDA/arm64 hariç tutuldu) ve ilk kullanımda 1–4,4 GB model indirme.
+- **Yalnız Apache-2.0 modeller** (Qwen2.5-Coder 1,5B / 7B). Neden: 3B sürümü Qwen-research (ticari değil) lisanslı; Masqot ticari kuruluş. Hugging Face dosya adı/boyutu kodda sabit ve doğrulanır.
+- **Model indirmeyi `node-llama-cpp` indiricisiyle değil kendi `fetch` koduyla yapıyoruz.** Neden: indirici son adımda takıldı (prototipte); kendi kodumuz `Range` ile devam eder, boyut ve konak doğrular.
+- **Eklenti mağazası Open VSX; yalnız tema ve snippet.** Neden: Microsoft Marketplace lisansı yalnız Microsoft ürünlerine izin verir; VS Code eklenti sunucusu yapmak ayrı büyük bir proje ve ciddi güvenlik yüzeyi. Bkz. [[extensions]].
+- **`.vsix` bellekte okunur, diske açılmaz; ZIP için bağımlılık eklenmedi** (`zlib` ile asgari okuyucu). Neden: zip-slip yok, bağımlılık yüzeyi küçük.
+- **Üst menü çubuğu Türkçe ve 8 dilde; Çalıştır menüsü terminale komut gönderir** (`nova:term` olayı). Neden: VS Code alışkanlığı; kod çalıştırma sandbox'ı yok, kullanıcının kendi terminali.
+- **Uygulama içi (çevrimdışı) dikte henüz yok:** transformers.js Whisper ayrı bağımlılık + ~75 MB model + Vite/WASM ayarı gerektirir; test edilmeden eklenmedi. Şimdilik yerel Whisper sunucusu veya OpenAI anahtarı.
+
 ## 12.11.2026 (yerel öncelikli yapay zekâ)
 - **Varsayılan sağlayıcı Ollama (yerel, anahtarsız, ücretsiz).** Neden: Masqot/kullanıcıya API maliyeti çıkmasın, veri cihazdan çıkmasın (KVKK yükü yok). Bulut sağlayıcılar isteğe bağlı kalır. Panel Ollama'yı ve yüklü modelleri algılar, eksikse kurulum ipucu verir.
 - **Dikte için yerel OpenAI uyumlu Whisper sunucusu (`aiTranscribeUrl`).** Neden: yerel adreste anahtar ve 3. parti yok. Sunucu kurulumu kullanıcıdadır; uygulama içi (transformers.js) Whisper ileride ayrı karar (yeni bağımlılık + ~75 MB model indirme).

@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Editor from '@monaco-editor/react';
+import { FileTypeIcon } from './FileTypeIcon';
 import { setActiveEditor } from '../services/editorBridge';
-import * as Y from 'yjs';
-import { WebsocketProvider } from 'y-websocket';
-import { MonacoBinding } from 'y-monaco';
+import { extThemeName, setMonacoForExtensions, useExtensions } from '../services/extensionsService';
 import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight } from 'lucide-react';
 import { Logo } from './Logo';
 import { defineNovaThemes } from '../services/editorTheme';
@@ -66,7 +65,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 }) => {
   // Ayarlar: yazı tipi, tema, imleç, snippet... değiştiği an editöre yansır (gerçek zamanlı)
   const { values, userSnippets, mode } = useSettings();
-  const theme = resolveEditorTheme(values.editorTheme, mode);
+  const { installed: installedExts } = useExtensions();
+  const extTheme = String(values.extTheme || '');
+  const extActive = !!extTheme && installedExts.some((e) => e.themes.some((th) => extThemeName(e.id, th.label) === extTheme));
+  const theme = extActive ? extTheme : resolveEditorTheme(values.editorTheme, mode);
   const editorOptions = useMemo(() => toMonacoOptions(values), [values]);
   useEffect(() => {
     setSnippetSource({ user: userSnippets, includeBuiltIn: values.defaultSnippetsInEditor === true });
@@ -91,36 +93,48 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     const model = editorInstance.getModel();
     if (!model) return;
 
-    const doc = new Y.Doc();
-    const roomName = `${encodeURIComponent(collab.room)}/${encodeURIComponent(activePath)}`;
-    const provider = new WebsocketProvider(collab.url, roomName, doc, {
-      params: collab.token ? { token: collab.token } : {},
-      connect: true
-    });
-    const ytext = doc.getText('monaco');
-    const binding = new MonacoBinding(ytext, model, new Set([editorInstance]), provider.awareness);
-
+    // Ortak düzenleme kütüphaneleri yalnız bu özellik açıkken yüklenir (paket boyutu bütçesi için)
+    let disposed = false;
+    let cleanup = () => {};
     setCollabStatus('connecting');
-    const onStatus = ({ status }: { status: string }) => setCollabStatus(status === 'connected' ? 'synced' : 'connecting');
-    const onSync = (synced: boolean) => {
-      if (synced) {
-        // Oda boşsa (ilk bağlanan) yerel içeriği tohumla; doluysa sunucudaki içerik kullanılır.
-        if (ytext.length === 0 && activeContent) ytext.insert(0, activeContent);
-        setCollabStatus('synced');
-      }
-    };
-    provider.on('status', onStatus);
-    provider.on('sync', onSync);
-    const onConnErr = () => setCollabStatus('error');
-    provider.on('connection-error', onConnErr);
+    void (async () => {
+      const [Y, { WebsocketProvider }, { MonacoBinding }] = await Promise.all([import('yjs'), import('y-websocket'), import('y-monaco')]);
+      if (disposed) return;
+      const doc = new Y.Doc();
+      const roomName = `${encodeURIComponent(collab.room)}/${encodeURIComponent(activePath)}`;
+      const provider = new WebsocketProvider(collab.url, roomName, doc, {
+        params: collab.token ? { token: collab.token } : {},
+        connect: true
+      });
+      const ytext = doc.getText('monaco');
+      const binding = new MonacoBinding(ytext, model, new Set([editorInstance]), provider.awareness);
+
+      const onStatus = ({ status }: { status: string }) => setCollabStatus(status === 'connected' ? 'synced' : 'connecting');
+      const onSync = (synced: boolean) => {
+        if (synced) {
+          // Oda boşsa (ilk bağlanan) yerel içeriği tohumla; doluysa sunucudaki içerik kullanılır.
+          if (ytext.length === 0 && activeContent) ytext.insert(0, activeContent);
+          setCollabStatus('synced');
+        }
+      };
+      provider.on('status', onStatus);
+      provider.on('sync', onSync);
+      const onConnErr = () => setCollabStatus('error');
+      provider.on('connection-error', onConnErr);
+
+      cleanup = () => {
+        provider.off('status', onStatus);
+        provider.off('sync', onSync);
+        provider.off('connection-error', onConnErr);
+        binding.destroy();
+        provider.destroy();
+        doc.destroy();
+      };
+    })().catch(() => setCollabStatus('error'));
 
     return () => {
-      provider.off('status', onStatus);
-      provider.off('sync', onSync);
-      provider.off('connection-error', onConnErr);
-      binding.destroy();
-      provider.destroy();
-      doc.destroy();
+      disposed = true;
+      cleanup();
     };
     // activeContent bilerek bağımlılıkta değil: her tuş vuruşunda odayı yeniden kurmamak için.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -194,7 +208,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                     : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
                 }`}
               >
-                <FileCode size={14} className={`shrink-0 ${extColor(file.name)}`} />
+                <FileTypeIcon name={file.name} size={14} />
                 <span className="truncate">{file.name}</span>
                 <button
                   onClick={(e) => {
@@ -290,6 +304,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             theme={theme}
             beforeMount={(monaco) => {
               defineNovaThemes(monaco);
+              setMonacoForExtensions(monaco);
               registerSnippetProvider(monaco);
             }}
             language={activeFile.language || 'plaintext'}

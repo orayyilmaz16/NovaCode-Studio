@@ -67,8 +67,25 @@ export function runEditorAction(id: string) {
   if (!editor) return;
   try {
     editor.focus();
-    void editor.getAction?.(id)?.run();
+    const action = editor.getAction?.(id);
+    if (action) void action.run();
+    else editor.trigger('nova-menu', id); // undo, redo, expandLineSelection gibi doğrudan komutlar
   } catch { /* eylem yok */ }
+}
+
+/** Seçimi panoya kopyalar (kes = true ise siler). */
+export function copySelection(cut = false) {
+  const text = getSelectedText();
+  if (!text) return;
+  void navigator.clipboard.writeText(text).catch(() => undefined);
+  if (cut) replaceSelection('');
+}
+
+export async function pasteClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text) replaceSelection(text);
+  } catch { /* pano izni yok */ }
 }
 
 export const hasEditor = () => !!editor;

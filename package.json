@@ -34,6 +34,12 @@
       "electron-github.cjs",
       "electron-git.cjs",
       "electron-secrets.cjs",
+      "electron-ai.cjs",
+      "electron-search.cjs",
+      "electron-ext.cjs",
+      "electron-llm.cjs",
+      "!node_modules/@node-llama-cpp/win-x64-cuda*",
+      "!node_modules/@node-llama-cpp/win-arm64",
       "electron-term.cjs",
       "package.json"
     ],
@@ -55,7 +61,11 @@
       "createStartMenuShortcut": true,
       "shortcutName": "NovaCode Studio",
       "runAfterFinish": true
-    }
+    },
+    "asarUnpack": [
+      "node_modules/node-llama-cpp/**/*",
+      "node_modules/@node-llama-cpp/**/*"
+    ]
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.2.1",
@@ -79,6 +89,7 @@
     "lib0": "0.2.119",
     "lucide-react": "^1.67.0",
     "monaco-editor": "^0.57.0",
+    "node-llama-cpp": "3.22.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "tailwindcss": "^4.3.4",

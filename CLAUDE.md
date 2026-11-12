@@ -11,6 +11,7 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 ## Harita (önce buraya bak, tüm repoyu tarama)
 - **Proje beyni:** `docs/brain/BRAIN.md` — okuma sırası, aksiyon oyun kitapları (`docs/brain/actions/`), karar günlüğü; `docs/brain/STATE.md` koddan otomatik üretilir (`npm run brain`, doğrulama `npm run brain:check`). İşe başlarken uygun aksiyon dosyasını oku, bitince `writes` listesini güncelle.
 - `electron-main.cjs`, `electron-preload.cjs`, `electron-git.cjs`, `electron-github.cjs` — ana süreç, dosya sistemi, watcher, IPC, git/GitHub, terminal, sandbox
+- `electron-ai.cjs` (AI motoru + ajan araçları), `electron-llm.cjs` (yerleşik yerel model, `node-llama-cpp`), `electron-ext.cjs` (eklenti mağazası, Open VSX), `electron-search.cjs` (dosya/metin arama) — ayrıntı: `docs/brain/actions/ai-assistant.md`, `extensions.md`, `search-palette.md`
 - `src/App.tsx` — kabuk, durum yönetimi
 - `src/components/` — EditorArea, FileTree, GitPanel, Terminal, AIAssistant, Preview, SnippetsPanel, LandingPage, SplashScreen
 - `server/sync-server.mjs` — açık kaynak Yjs senkron sunucusu (kendi sunucunda, `NOVA_SYNC_TOKEN` zorunlu, `npm run sync:server`)

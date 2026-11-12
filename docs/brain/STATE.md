@@ -25,11 +25,13 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 427 |
+| `electron-ai.cjs` | 458 |
+| `electron-ext.cjs` | 244 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
-| `electron-main.cjs` | 437 |
-| `electron-preload.cjs` | 102 |
+| `electron-llm.cjs` | 256 |
+| `electron-main.cjs` | 439 |
+| `electron-preload.cjs` | 120 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
 | `electron-term.cjs` | 155 |
@@ -37,41 +39,46 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1111 |
+| `src/App.tsx` | 1259 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 211 |
+| `src/types.ts` | 243 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 442 |
-| `src/components/CommandPalette.tsx` | 153 |
-| `src/components/EditorArea.tsx` | 334 |
-| `src/components/FileTree.tsx` | 599 |
+| `src/components/AIAssistant.tsx` | 539 |
+| `src/components/CommandPalette.tsx` | 154 |
+| `src/components/EditorArea.tsx` | 349 |
+| `src/components/ExtensionsPanel.tsx` | 194 |
+| `src/components/FileTree.tsx` | 592 |
+| `src/components/FileTypeIcon.tsx` | 111 |
 | `src/components/GitPanel.tsx` | 608 |
 | `src/components/GithubAccount.tsx` | 132 |
 | `src/components/LandingPage.tsx` | 135 |
 | `src/components/Logo.tsx` | 34 |
-| `src/components/Menu.tsx` | 100 |
+| `src/components/Menu.tsx` | 103 |
+| `src/components/MenuBar.tsx` | 59 |
 | `src/components/Preview.tsx` | 97 |
 | `src/components/ResizeHandle.tsx` | 66 |
-| `src/components/SearchPanel.tsx` | 97 |
-| `src/components/SettingsPage.tsx` | 631 |
+| `src/components/SearchPanel.tsx` | 98 |
+| `src/components/SettingsPage.tsx` | 640 |
 | `src/components/SnippetsPanel.tsx` | 97 |
 | `src/components/SplashScreen.tsx` | 38 |
-| `src/components/Terminal.tsx` | 441 |
+| `src/components/Terminal.tsx` | 470 |
 
 ### Servisler
 | Dosya | Satır |
 |---|---|
-| `src/services/SettingsContext.tsx` | 137 |
-| `src/services/aiClient.ts` | 132 |
-| `src/services/editorBridge.ts` | 74 |
+| `src/services/SettingsContext.tsx` | 138 |
+| `src/services/aiClient.ts` | 134 |
+| `src/services/editorBridge.ts` | 91 |
 | `src/services/editorTheme.ts` | 96 |
+| `src/services/extensionsService.ts` | 181 |
 | `src/services/lang.ts` | 12 |
 | `src/services/monacoShim.ts` | 28 |
-| `src/services/settings.ts` | 271 |
-| `src/services/snippetProvider.ts` | 58 |
+| `src/services/settings.ts` | 273 |
+| `src/services/snippetProvider.ts` | 64 |
+| `src/services/terminalBridge.ts` | 26 |
 | `src/services/terminalText.ts` | 148 |
 | `src/services/useCollabToken.ts` | 67 |
 | `src/services/useDictation.ts` | 69 |
@@ -80,7 +87,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1306 |
+| `src/i18n/uiText.ts` | 1564 |
 
 ### Betikler
 | Dosya | Satır |
@@ -110,22 +117,24 @@
 | ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
 | app | `app:quit` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
+| ext | `ext:checkUpdates`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:branches`, `git:checkout`, `git:commit`, `git:createBranch`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:pull`, `git:push`, `git:stage`, `git:stageAll`, `git:status`, `git:sync`, `git:unstage` |
 | github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
+| llm | `llm:cancel`, `llm:delete`, `llm:download`, `llm:status` |
 | search | `search:files`, `search:text` |
 | secrets | `secrets:get`, `secrets:set` |
 | term | `term:input`, `term:start`, `term:stop` |
 | ui | `ui:setTheme` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `term:cwd`, `term:exit`, `term:output`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`
 
 ## i18n
-- 417 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 503 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-77 ayar, 10 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+79 ayar, 10 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -139,6 +148,7 @@
 | Görünüm | `statusBarVisible` | Durum çubuğunu göster | toggle | `true` |  |
 | Görünüm | `language` | Dil | select | `"auto"` | auto, tr, en, de, ru, ar, es, fr, az |
 | Editör | `editorTheme` | Editör teması | select | `"auto"` | auto, nova-dark, nova-light, vs-dark, vs, hc-black |
+| Editör | `extTheme` | Eklenti teması | text | `""` | ≤200 karakter |
 | Editör | `fontFamily` | Kod yazı tipi | select | `"cascadia"` | cascadia, fira, jetbrains, consolas, courier, monospace, custom |
 | Editör | `fontFamilyCustom` | Özel yazı tipi | text | `""` | ≤120 karakter |
 | Editör | `fontSize` | Yazı boyutu | slider | `14` | 10–32 px |
@@ -194,7 +204,8 @@
 | Git ve GitHub | `gitFetchInterval` | Otomatik fetch aralığı | select | `60` | 30, 60, 120, 300 |
 | Ortak düzenleme | `collabEnabled` | Ortak düzenlemeyi aç | toggle | `false` |  |
 | Ortak düzenleme | `collabUrl` | Sunucu adresi | text | `""` | ≤200 karakter |
-| Yapay Zekâ | `aiProvider` | Sağlayıcı | select | `"ollama"` | anthropic, openai, ollama |
+| Yapay Zekâ | `aiProvider` | Sağlayıcı | select | `"builtin"` | builtin, anthropic, openai, ollama |
+| Yapay Zekâ | `aiBuiltinModel` | Yerleşik model | select | `"qwen2.5-coder-1.5b"` | qwen2.5-coder-1.5b, qwen2.5-coder-7b |
 | Yapay Zekâ | `aiModel` | Model | text | `""` | ≤120 karakter |
 | Yapay Zekâ | `aiBaseUrl` | Özel adres | text | `""` | ≤200 karakter |
 | Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
@@ -222,6 +233,7 @@
 | [[ai-assistant]] | `docs/brain/actions/ai-assistant.md` | Yapay zekâ asistanı: çoklu sağlayıcı, Ask/Agent modları, araçlar, oturumlar, görsel girdi, sesli dikte, özel komutlar |
 | [[brain-maintenance]] | `docs/brain/actions/brain-maintenance.md` | Proje beynini (docs/brain) güncel ve tutarlı tutmak |
 | [[ci-cd]] | `docs/brain/actions/ci-cd.md` | GitHub Actions, audit, bundle bütçesi ve yayın hattı |
+| [[extensions]] | `docs/brain/actions/extensions.md` | Eklenti mağazası (Open VSX): arama, yükleme, güncelleme, kaldırma; tema ve snippet katkıları |
 | [[git-github]] | `docs/brain/actions/git-github.md` | Git paneli, GitHub hesabı bağlama, PR, eşzamanlama ve canlı takip |
 | [[i18n]] | `docs/brain/actions/i18n.md` | Arayüze metin eklemek (8 dil zorunlu) |
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |

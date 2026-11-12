@@ -11,6 +11,11 @@ interface Source {
 
 let source: Source = { user: [], includeBuiltIn: true };
 let registered = false;
+let extSnippets: Snippet[] = []; // yüklü eklentilerden gelen snippet'ler (Monaco sözdizimi)
+
+export function setExtensionSnippets(list: Snippet[]) {
+  extSnippets = list;
+}
 
 export function setSnippetSource(next: Source) {
   source = next;
@@ -36,6 +41,7 @@ export function registerSnippetProvider(monaco: Monaco) {
         const lang = model.getLanguageId();
         const all: { s: Snippet; raw: boolean }[] = [
           ...source.user.map((s) => ({ s, raw: false })), // özel snippet'ler Monaco sözdizimini (\$1, \${1:ad}) kullanır
+          ...extSnippets.map((s) => ({ s, raw: false })),
           ...(source.includeBuiltIn ? builtInSnippets.map((s) => ({ s, raw: true })) : [])
         ];
         return {

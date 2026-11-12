@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Braces, ChevronRight, File as FileIcon, Hash, Search as SearchIcon, Terminal } from 'lucide-react';
+import { Braces, ChevronRight, Hash, Search as SearchIcon, Terminal } from 'lucide-react';
 import { t } from '../i18n/uiText';
 import { baseName } from '../services/lang';
+import { FileTypeIcon } from './FileTypeIcon';
 import type { Snippet } from '../types';
 
 export interface PaletteCommand {
@@ -86,7 +87,7 @@ export const CommandPalette: React.FC<Props> = ({ initial, rootPath, commands, s
     return files
       .map((f) => ({ f, s: score(rel(f), q) + (score(baseName(f), q) > 0 ? 3 : 0) }))
       .filter((x) => x.s > 0).sort((a, b) => b.s - a.s).slice(0, 50)
-      .map(({ f }) => ({ key: f, icon: <FileIcon size={13} />, label: baseName(f), detail: rel(f), run: () => onOpenFile(f) }));
+      .map(({ f }) => ({ key: f, icon: <FileTypeIcon name={baseName(f)} size={14} />, label: baseName(f), detail: rel(f), run: () => onOpenFile(f) }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, q, commands, snippets, files, rootPath]);
 

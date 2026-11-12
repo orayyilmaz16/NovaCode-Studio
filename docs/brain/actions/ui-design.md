@@ -44,6 +44,12 @@ Tanımlı sınıflar: `animate-fade-in`, `animate-sidebar-in`, `animate-panel-up
 - Uygulama simgesi `public/icon.png` (512, şeffaf): `npx electron scripts/make-icons.cjs`. Paketleme: `build.win.icon`.
 - Logo değişirse `Logo.tsx`, `favicon.svg`, `icon.png` birlikte güncellenir.
 
+## Menü çubuğu
+Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır / Terminal / Yardım (`MenuBar.tsx`; tanımlar `App.tsx` → `menus`). Açılır menü `PopupMenu`'dür (animasyonlu, kısayol gösterir, ↑↓ Enter Esc); biri açıkken fare başka başlığa geçince menü de geçer. Başlık arama kutusu esnek genişliktedir (üst üste binmez). Editör eylemleri `editorBridge.runEditorAction` ile Monaco'ya gider. **Çalıştır** menüsü: `terminalBridge.runCommandFor` uzantıya göre komut üretir (`node`, `python`, `go run`, `php`, `npx tsx`, `java`, `ruby`, `bash`…) ve `nova:term` olayıyla entegre terminalde çalıştırır; ayrıca `npm run dev/build/test`, `go run .`, `cargo run`, `dotnet run`. Yeni menü öğesi = `menus` + [[i18n]] (8 dil).
+
+## Dosya türü simgeleri
+`FileTypeIcon.tsx`: uzantıya (ve `package.json`, `Dockerfile`, `.gitignore`… özel adlara) göre renkli rozet (TS, JS, PHP, PY, GO, RS… ~60 tür). Gezgin, sekmeler, palet ve arama sonuçlarında kullanılır. Yeni tür = `EXT`/`NAMES` tablosuna satır.
+
 ## Erişilebilirlik
 Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontrast ≥ 4.5:1. Metinler [[i18n]] ile 8 dilde.
 

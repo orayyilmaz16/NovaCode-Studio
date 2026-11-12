@@ -48,6 +48,8 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
         const i = actionable.indexOf(active);
         const next = actionable[(i + (e.key === 'ArrowDown' ? 1 : -1) + actionable.length) % actionable.length];
         setActive(next);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.length === 1) {
+        onClose(); // Ctrl+P gibi kısayol menüyü kapatır, kısayol çalışmaya devam eder
       } else if (e.key === 'Enter' && active >= 0) {
         e.preventDefault();
         items[active].onClick?.();
@@ -69,7 +71,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
       ref={ref}
       role="menu"
       style={{ left: pos.left, top: pos.top }}
-      className="animate-menu fixed z-[70] min-w-[190px] py-1 rounded-md border border-nv-border bg-nv-side shadow-[0_6px_24px_rgba(0,0,0,0.35)] text-[13px] select-none"
+      className="animate-menu fixed z-[70] min-w-[230px] py-1.5 rounded-lg border border-nv-border bg-nv-side shadow-[0_10px_32px_rgba(0,0,0,0.4)] text-[13px] select-none"
       onContextMenu={(e) => e.preventDefault()}
     >
       {items.map((it, i) =>
@@ -78,6 +80,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
         ) : (
           <button
             key={`${it.label}-${i}`}
+            style={{ animationDelay: `${Math.min(i, 12) * 12}ms` }}
             role="menuitem"
             disabled={it.disabled}
             onMouseEnter={() => !it.disabled && setActive(i)}
@@ -85,7 +88,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
               it.onClick?.();
               onClose();
             }}
-            className={`w-full flex items-center gap-2.5 h-7 px-3 text-left transition-colors disabled:opacity-40 ${
+            className={`animate-menu-item w-full flex items-center gap-2.5 h-7 px-3 text-left transition-colors disabled:opacity-40 ${
               active === i ? 'bg-nv-active text-zinc-50' : it.danger ? 'text-rose-400' : 'text-zinc-300'
             }`}
           >

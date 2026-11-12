@@ -135,6 +135,35 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     [api, cwd, sessions.length, patch]
   );
 
+  // Menü / komut paleti köprüsü: yeni terminal, temizle, komut çalıştır (ör. dosyayı çalıştır)
+  const pendingRun = useRef<string | null>(null);
+  useEffect(() => {
+    const onBridge = (e: Event) => {
+      const d = (e as CustomEvent<{ action: 'run' | 'new' | 'clear'; command?: string }>).detail;
+      if (!d) return;
+      if (d.action === 'new') void createSession(defaultShell);
+      else if (d.action === 'clear') clearActive();
+      else if (d.action === 'run' && d.command) {
+        setTab('terminal');
+        if (active?.running) void runLine(d.command);
+        else {
+          pendingRun.current = d.command;
+          if (visible && sessions.length === 0 && cwd) { autoOpened.current = true; void createSession(defaultShell); }
+        }
+      }
+    };
+    window.addEventListener('nova:term', onBridge);
+    return () => window.removeEventListener('nova:term', onBridge);
+  });
+  useEffect(() => {
+    if (pendingRun.current && active?.running) {
+      const c = pendingRun.current;
+      pendingRun.current = null;
+      void runLine(c);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active?.running, active?.id]);
+
   // Panel ilk kez görününce ve klasör varsa ilk terminali aç
   useEffect(() => {
     if (!visible) {

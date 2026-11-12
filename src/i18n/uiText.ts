@@ -1271,11 +1271,269 @@ export const UI_TEXT = {
   setDesc_aiTranscribeUrl: {
     tr: "OpenAI uyumlu bir yerel Whisper sunucusunun adresi (ör. whisper.cpp veya faster-whisper-server). Yerel adreste API anahtarı gerekmez ve ses bilgisayarından çıkmaz. Boşsa OpenAI kullanılır.", en: "Address of a local OpenAI-compatible Whisper server (e.g. whisper.cpp or faster-whisper-server). No API key is needed for a local address and audio never leaves your computer. If empty, OpenAI is used.", de: "Adresse eines lokalen OpenAI-kompatiblen Whisper-Servers (z. B. whisper.cpp oder faster-whisper-server). Für lokale Adressen ist kein API-Schlüssel nötig, Audio verlässt den Computer nicht. Leer = OpenAI.", ru: "Адрес локального OpenAI-совместимого сервера Whisper (например, whisper.cpp или faster-whisper-server). Для локального адреса ключ API не нужен, звук не покидает компьютер. Пусто — используется OpenAI.", ar: "عنوان خادم Whisper محلي متوافق مع OpenAI (مثل whisper.cpp أو faster-whisper-server). لا حاجة لمفتاح API للعنوان المحلي ولا يغادر الصوت حاسوبك. إذا تُرك فارغاً يُستخدم OpenAI.", es: "Dirección de un servidor Whisper local compatible con OpenAI (p. ej. whisper.cpp o faster-whisper-server). Con una dirección local no hace falta clave API y el audio no sale del equipo. Vacío = OpenAI.", fr: "Adresse d’un serveur Whisper local compatible OpenAI (ex. whisper.cpp ou faster-whisper-server). Aucune clé API pour une adresse locale et l’audio ne quitte pas l’ordinateur. Vide = OpenAI.", az: "OpenAI uyğun yerli Whisper serverinin ünvanı (məs. whisper.cpp və ya faster-whisper-server). Yerli ünvan üçün API açarı lazım deyil, səs kompüterdən çıxmır. Boşdursa OpenAI istifadə olunur.",
   },
-  aiVoiceNeedsKey: {
-    tr: "Dikte için ayarlardan yerel dikte sunucusu adresi gir (ücretsiz) veya bir OpenAI API anahtarı ekle.", en: "For dictation, enter a local dictation server address in settings (free) or add an OpenAI API key.", de: "Für das Diktat gib in den Einstellungen einen lokalen Diktier-Server an (kostenlos) oder füge einen OpenAI-API-Schlüssel hinzu.", ru: "Для диктовки укажи в настройках адрес локального сервера (бесплатно) или добавь ключ API OpenAI.", ar: "للإملاء أدخل عنوان خادم إملاء محلي في الإعدادات (مجاناً) أو أضف مفتاح OpenAI API.", es: "Para dictar, indica en ajustes la dirección de un servidor local (gratis) o añade una clave API de OpenAI.", fr: "Pour la dictée, saisis l’adresse d’un serveur local dans les paramètres (gratuit) ou ajoute une clé API OpenAI.", az: "Dikta üçün ayarlarda yerli server ünvanı daxil et (pulsuz) və ya OpenAI API açarı əlavə et.",
-  },
   setDesc_aiTranscribeModel: {
     tr: "Dikte modeli adı (OpenAI için whisper-1; yerel sunucuda sunucunun model adı).", en: "Dictation model name (whisper-1 for OpenAI; the server’s model name for a local server).", de: "Name des Diktiermodells (whisper-1 für OpenAI; bei lokalem Server dessen Modellname).", ru: "Имя модели диктовки (whisper-1 для OpenAI; для локального сервера — имя модели сервера).", ar: "اسم نموذج الإملاء (whisper-1 لـ OpenAI، أو اسم النموذج على الخادم المحلي).", es: "Nombre del modelo de dictado (whisper-1 para OpenAI; el del servidor si es local).", fr: "Nom du modèle de dictée (whisper-1 pour OpenAI ; celui du serveur en local).", az: "Dikta modelinin adı (OpenAI üçün whisper-1; yerli serverdə serverin model adı).",
+  },
+  extTitle: {
+    tr: "Eklentiler", en: "Extensions", de: "Erweiterungen", ru: "Расширения", ar: "الإضافات", es: "Extensiones", fr: "Extensions", az: "Əlavələr",
+  },
+  extInstalled: {
+    tr: "Yüklü", en: "Installed", de: "Installiert", ru: "Установлено", ar: "مثبّتة", es: "Instaladas", fr: "Installées", az: "Quraşdırılıb",
+  },
+  extStore: {
+    tr: "Mağaza", en: "Store", de: "Store", ru: "Магазин", ar: "المتجر", es: "Tienda", fr: "Boutique", az: "Mağaza",
+  },
+  extSearchPlaceholder: {
+    tr: "Eklenti ara (Open VSX)", en: "Search extensions (Open VSX)", de: "Erweiterungen suchen (Open VSX)", ru: "Поиск расширений (Open VSX)", ar: "ابحث عن إضافات (Open VSX)", es: "Buscar extensiones (Open VSX)", fr: "Rechercher des extensions (Open VSX)", az: "Əlavə axtar (Open VSX)",
+  },
+  extAll: {
+    tr: "Tümü", en: "All", de: "Alle", ru: "Все", ar: "الكل", es: "Todas", fr: "Toutes", az: "Hamısı",
+  },
+  extThemes: {
+    tr: "Temalar", en: "Themes", de: "Themes", ru: "Темы", ar: "السمات", es: "Temas", fr: "Thèmes", az: "Temalar",
+  },
+  extSnippets: {
+    tr: "Snippet'ler", en: "Snippets", de: "Snippets", ru: "Сниппеты", ar: "المقتطفات", es: "Fragmentos", fr: "Snippets", az: "Snippet-lər",
+  },
+  extInstall: {
+    tr: "Yükle", en: "Install", de: "Installieren", ru: "Установить", ar: "تثبيت", es: "Instalar", fr: "Installer", az: "Quraşdır",
+  },
+  extUninstall: {
+    tr: "Kaldır", en: "Uninstall", de: "Deinstallieren", ru: "Удалить", ar: "إزالة", es: "Desinstalar", fr: "Désinstaller", az: "Sil",
+  },
+  extUpdateTo: {
+    tr: "Güncelle ({v})", en: "Update ({v})", de: "Aktualisieren ({v})", ru: "Обновить ({v})", ar: "تحديث ({v})", es: "Actualizar ({v})", fr: "Mettre à jour ({v})", az: "Yenilə ({v})",
+  },
+  extUpdateAll: {
+    tr: "Tümünü güncelle", en: "Update all", de: "Alle aktualisieren", ru: "Обновить все", ar: "تحديث الكل", es: "Actualizar todo", fr: "Tout mettre à jour", az: "Hamısını yenilə",
+  },
+  extCheckUpdates: {
+    tr: "Güncellemeleri denetle", en: "Check for updates", de: "Nach Updates suchen", ru: "Проверить обновления", ar: "التحقق من التحديثات", es: "Buscar actualizaciones", fr: "Rechercher des mises à jour", az: "Yenilikləri yoxla",
+  },
+  extNoInstalled: {
+    tr: "Henüz eklenti yok. Mağaza sekmesinden tema veya snippet eklentisi yükleyebilirsin.", en: "No extensions yet. Install a theme or snippet extension from the Store tab.", de: "Noch keine Erweiterungen. Installiere im Store-Tab ein Theme oder Snippets.", ru: "Расширений пока нет. Установи тему или сниппеты во вкладке «Магазин».", ar: "لا توجد إضافات بعد. ثبّت سمة أو مقتطفات من تبويب المتجر.", es: "Aún no hay extensiones. Instala un tema o fragmentos desde la pestaña Tienda.", fr: "Aucune extension. Installe un thème ou des snippets depuis l’onglet Boutique.", az: "Hələ əlavə yoxdur. Mağaza vərəqindən tema və ya snippet əlavəsi quraşdır.",
+  },
+  extNetworkErr: {
+    tr: "Mağazaya ulaşılamadı. İnternet bağlantını kontrol et.", en: "Could not reach the store. Check your internet connection.", de: "Store nicht erreichbar. Prüfe deine Internetverbindung.", ru: "Не удалось подключиться к магазину. Проверь интернет.", ar: "تعذّر الوصول إلى المتجر. تحقق من اتصالك بالإنترنت.", es: "No se pudo conectar con la tienda. Revisa tu conexión a internet.", fr: "Boutique inaccessible. Vérifie ta connexion internet.", az: "Mağazaya çatmaq olmadı. İnternet bağlantını yoxla.",
+  },
+  extApplyTheme: {
+    tr: "Bu temayı uygula", en: "Apply this theme", de: "Dieses Theme anwenden", ru: "Применить тему", ar: "تطبيق هذه السمة", es: "Aplicar este tema", fr: "Appliquer ce thème", az: "Bu temanı tətbiq et",
+  },
+  extResetTheme: {
+    tr: "Varsayılan temaya dön", en: "Back to default theme", de: "Zurück zum Standard-Theme", ru: "Вернуть тему по умолчанию", ar: "العودة إلى السمة الافتراضية", es: "Volver al tema predeterminado", fr: "Revenir au thème par défaut", az: "Standart temaya qayıt",
+  },
+  extErrRunsCode: {
+    tr: "Bu eklenti kod çalıştırıyor; NovaCode yalnız tema ve snippet eklentilerini destekler.", en: "This extension runs code; NovaCode only supports theme and snippet extensions.", de: "Diese Erweiterung führt Code aus; NovaCode unterstützt nur Theme- und Snippet-Erweiterungen.", ru: "Это расширение выполняет код; NovaCode поддерживает только темы и сниппеты.", ar: "هذه الإضافة تشغّل شيفرة؛ يدعم NovaCode إضافات السمات والمقتطفات فقط.", es: "Esta extensión ejecuta código; NovaCode solo admite extensiones de temas y fragmentos.", fr: "Cette extension exécute du code ; NovaCode ne gère que les thèmes et snippets.", az: "Bu əlavə kod işlədir; NovaCode yalnız tema və snippet əlavələrini dəstəkləyir.",
+  },
+  extErrNothing: {
+    tr: "Bu eklentide desteklenen bir içerik (tema/snippet) yok.", en: "This extension has no supported content (theme/snippet).", de: "Diese Erweiterung enthält nichts Unterstütztes (Theme/Snippet).", ru: "В этом расширении нет поддерживаемого содержимого (тема/сниппеты).", ar: "لا يحتوي هذا الامتداد على محتوى مدعوم (سمة/مقتطف).", es: "Esta extensión no tiene contenido compatible (tema/fragmento).", fr: "Cette extension n’a aucun contenu pris en charge (thème/snippet).", az: "Bu əlavədə dəstəklənən məzmun (tema/snippet) yoxdur.",
+  },
+  extErrTooBig: {
+    tr: "Eklenti çok büyük (30 MB sınırı).", en: "The extension is too large (30 MB limit).", de: "Die Erweiterung ist zu groß (Limit 30 MB).", ru: "Расширение слишком большое (лимит 30 МБ).", ar: "الإضافة كبيرة جداً (الحد 30 ميغابايت).", es: "La extensión es demasiado grande (límite de 30 MB).", fr: "L’extension est trop volumineuse (limite de 30 Mo).", az: "Əlavə çox böyükdür (30 MB limiti).",
+  },
+  extErrFailed: {
+    tr: "Eklenti yüklenemedi. Tekrar dene.", en: "The extension could not be installed. Try again.", de: "Die Erweiterung konnte nicht installiert werden. Versuche es erneut.", ru: "Не удалось установить расширение. Повтори попытку.", ar: "تعذّر تثبيت الإضافة. حاول مجدداً.", es: "No se pudo instalar la extensión. Inténtalo de nuevo.", fr: "L’extension n’a pas pu être installée. Réessaie.", az: "Əlavə quraşdırıla bilmədi. Yenidən cəhd et.",
+  },
+  extInstalledOk: {
+    tr: "Eklenti yüklendi.", en: "Extension installed.", de: "Erweiterung installiert.", ru: "Расширение установлено.", ar: "تم تثبيت الإضافة.", es: "Extensión instalada.", fr: "Extension installée.", az: "Əlavə quraşdırıldı.",
+  },
+  extPartial: {
+    tr: "Yüklendi: tema/snippet kısmı çalışır, eklentinin kod kısmı çalışmaz.", en: "Installed: the theme/snippet part works; the extension’s code part does not run.", de: "Installiert: Theme/Snippet-Teil funktioniert, der Code-Teil läuft nicht.", ru: "Установлено: тема/сниппеты работают, кодовая часть расширения не запускается.", ar: "تم التثبيت: يعمل جزء السمة/المقتطف ولا يعمل جزء الشيفرة.", es: "Instalada: funciona la parte de tema/fragmentos; la parte de código no se ejecuta.", fr: "Installée : la partie thème/snippets fonctionne, la partie code ne s’exécute pas.", az: "Quraşdırıldı: tema/snippet hissəsi işləyir, kod hissəsi işləmir.",
+  },
+  extDownloads: {
+    tr: "{n} indirme", en: "{n} downloads", de: "{n} Downloads", ru: "{n} загрузок", ar: "{n} تنزيل", es: "{n} descargas", fr: "{n} téléchargements", az: "{n} yükləmə",
+  },
+  extThemeCount: {
+    tr: "{n} tema", en: "{n} themes", de: "{n} Themes", ru: "{n} тем", ar: "{n} سمات", es: "{n} temas", fr: "{n} thèmes", az: "{n} tema",
+  },
+  extSnippetCount: {
+    tr: "{n} snippet", en: "{n} snippets", de: "{n} Snippets", ru: "{n} сниппетов", ar: "{n} مقتطفات", es: "{n} fragmentos", fr: "{n} snippets", az: "{n} snippet",
+  },
+  extLoadMore: {
+    tr: "Daha fazla", en: "Load more", de: "Mehr laden", ru: "Показать ещё", ar: "عرض المزيد", es: "Cargar más", fr: "Charger plus", az: "Daha çox",
+  },
+  extNote: {
+    tr: "Kaynak: Open VSX (açık kaynak). Yalnız tema ve snippet eklentileri desteklenir; arama ve indirme sırasında open-vsx.org ile iletişim kurulur, kişisel veri gönderilmez.", en: "Source: Open VSX (open source). Only theme and snippet extensions are supported; searching and downloading contacts open-vsx.org, no personal data is sent.", de: "Quelle: Open VSX (Open Source). Nur Theme- und Snippet-Erweiterungen werden unterstützt; Suche und Download kontaktieren open-vsx.org, es werden keine persönlichen Daten gesendet.", ru: "Источник: Open VSX (открытый код). Поддерживаются только темы и сниппеты; поиск и загрузка обращаются к open-vsx.org, личные данные не передаются.", ar: "المصدر: Open VSX (مفتوح المصدر). تُدعم إضافات السمات والمقتطفات فقط؛ يتصل البحث والتنزيل بـ open-vsx.org دون إرسال بيانات شخصية.", es: "Fuente: Open VSX (código abierto). Solo se admiten extensiones de temas y fragmentos; la búsqueda y descarga contactan con open-vsx.org sin enviar datos personales.", fr: "Source : Open VSX (open source). Seuls les thèmes et snippets sont pris en charge ; la recherche et le téléchargement contactent open-vsx.org sans données personnelles.", az: "Mənbə: Open VSX (açıq mənbə). Yalnız tema və snippet əlavələri dəstəklənir; axtarış və yükləmə open-vsx.org ilə əlaqə qurur, şəxsi məlumat göndərilmir.",
+  },
+  extDesktopOnly: {
+    tr: "Eklenti mağazası yalnız masaüstü uygulamasında çalışır.", en: "The extension store works only in the desktop app.", de: "Der Erweiterungs-Store funktioniert nur in der Desktop-App.", ru: "Магазин расширений работает только в настольном приложении.", ar: "يعمل متجر الإضافات في تطبيق سطح المكتب فقط.", es: "La tienda de extensiones solo funciona en la app de escritorio.", fr: "La boutique d’extensions ne fonctionne que dans l’app de bureau.", az: "Əlavə mağazası yalnız masaüstü tətbiqdə işləyir.",
+  },
+  set_extTheme: {
+    tr: "Eklenti teması", en: "Extension theme", de: "Erweiterungs-Theme", ru: "Тема расширения", ar: "سمة الإضافة", es: "Tema de extensión", fr: "Thème d’extension", az: "Əlavə teması",
+  },
+  optAiBuiltin: {
+    tr: "Nova yerleşik (ücretsiz, çevrimdışı)", en: "Nova built-in (free, offline)", de: "Nova integriert (kostenlos, offline)", ru: "Nova встроенный (бесплатно, офлайн)", ar: "Nova المدمج (مجاني، بدون إنترنت)", es: "Nova integrado (gratis, sin conexión)", fr: "Nova intégré (gratuit, hors ligne)", az: "Nova daxili (pulsuz, oflayn)",
+  },
+  optAiModelFast: {
+    tr: "Hızlı (1,5 B, ~1 GB)", en: "Fast (1.5B, ~1 GB)", de: "Schnell (1,5 B, ~1 GB)", ru: "Быстрая (1,5 B, ~1 ГБ)", ar: "سريع (1.5B، ~1 غ.ب)", es: "Rápido (1,5 B, ~1 GB)", fr: "Rapide (1,5 B, ~1 Go)", az: "Sürətli (1,5 B, ~1 GB)",
+  },
+  optAiModelStrong: {
+    tr: "Güçlü (7 B, ~4,4 GB)", en: "Strong (7B, ~4.4 GB)", de: "Stark (7 B, ~4,4 GB)", ru: "Мощная (7 B, ~4,4 ГБ)", ar: "قوي (7B، ~4.4 غ.ب)", es: "Potente (7 B, ~4,4 GB)", fr: "Puissant (7 B, ~4,4 Go)", az: "Güclü (7 B, ~4,4 GB)",
+  },
+  set_aiBuiltinModel: {
+    tr: "Yerleşik model", en: "Built-in model", de: "Integriertes Modell", ru: "Встроенная модель", ar: "النموذج المدمج", es: "Modelo integrado", fr: "Modèle intégré", az: "Daxili model",
+  },
+  setDesc_aiBuiltinModel: {
+    tr: "Yerleşik sağlayıcı seçiliyken kullanılır. Güçlü model daha iyi kod yazar ve ajan görevlerinde daha güvenilirdir ama ~8 GB RAM ister.", en: "Used when the built-in provider is selected. The strong model writes better code and is more reliable for agent tasks but needs ~8 GB RAM.", de: "Wird genutzt, wenn der integrierte Anbieter gewählt ist. Das starke Modell schreibt besseren Code und ist bei Agent-Aufgaben zuverlässiger, braucht aber ~8 GB RAM.", ru: "Используется при выборе встроенного провайдера. Мощная модель пишет лучший код и надёжнее в задачах агента, но требует ~8 ГБ ОЗУ.", ar: "يُستخدم عند اختيار المزوّد المدمج. النموذج القوي يكتب شيفرة أفضل وأكثر موثوقية لمهام الوكيل لكنه يحتاج ~8 غ.ب من الذاكرة.", es: "Se usa con el proveedor integrado. El modelo potente escribe mejor código y es más fiable en tareas de agente, pero necesita ~8 GB de RAM.", fr: "Utilisé avec le fournisseur intégré. Le modèle puissant écrit un meilleur code et est plus fiable pour l’agent, mais demande ~8 Go de RAM.", az: "Daxili provayder seçiləndə istifadə olunur. Güclü model daha yaxşı kod yazır və agent tapşırıqlarında etibarlıdır, amma ~8 GB RAM tələb edir.",
+  },
+  aiBuiltinTitle: {
+    tr: "Yerleşik yapay zekâyı kur", en: "Set up the built-in AI", de: "Integrierte KI einrichten", ru: "Настроить встроенный ИИ", ar: "إعداد الذكاء الاصطناعي المدمج", es: "Configurar la IA integrada", fr: "Configurer l’IA intégrée", az: "Daxili süni intellekti qur",
+  },
+  aiBuiltinDesc: {
+    tr: "API anahtarı, sunucu adresi veya ücret yok. Bir model indir; sonra her şey bu bilgisayarda çalışır.", en: "No API key, server address or fees. Download a model once; afterwards everything runs on this computer.", de: "Kein API-Schlüssel, keine Serveradresse, keine Kosten. Lade einmal ein Modell; danach läuft alles auf diesem Computer.", ru: "Без ключа API, адреса сервера и платы. Скачай модель один раз — дальше всё работает на этом компьютере.", ar: "بدون مفتاح API أو عنوان خادم أو رسوم. نزّل نموذجاً مرة واحدة ثم يعمل كل شيء على هذا الحاسوب.", es: "Sin clave API, dirección de servidor ni costes. Descarga un modelo una vez; después todo funciona en este equipo.", fr: "Sans clé API, adresse de serveur ni frais. Télécharge un modèle une fois ; ensuite tout tourne sur cet ordinateur.", az: "API açarı, server ünvanı və ödəniş yoxdur. Modeli bir dəfə yüklə; sonra hər şey bu kompüterdə işləyir.",
+  },
+  aiBuiltinDownload: {
+    tr: "İndir", en: "Download", de: "Laden", ru: "Скачать", ar: "تنزيل", es: "Descargar", fr: "Télécharger", az: "Yüklə",
+  },
+  aiBuiltinCancel: {
+    tr: "İptal", en: "Cancel", de: "Abbrechen", ru: "Отмена", ar: "إلغاء", es: "Cancelar", fr: "Annuler", az: "Ləğv et",
+  },
+  aiBuiltinProgress: {
+    tr: "%{p} indiriliyor… (kapatsan da devam eder, kaldığı yerden sürer)", en: "{p}% downloading… (resumes where it left off if interrupted)", de: "{p} % wird geladen… (setzt nach Unterbrechung fort)", ru: "Загрузка {p}%… (продолжится с места остановки)", ar: "جارٍ التنزيل {p}%… (يُستأنف من حيث توقف)", es: "Descargando {p}%… (se reanuda donde quedó)", fr: "Téléchargement {p} %… (reprend là où il s’est arrêté)", az: "{p}% yüklənir… (yarımçıq qalsa davam edər)",
+  },
+  aiBuiltinFailed: {
+    tr: "İndirme başarısız. İnternetini kontrol edip tekrar dene; kaldığı yerden sürer.", en: "Download failed. Check your connection and try again; it resumes where it stopped.", de: "Download fehlgeschlagen. Prüfe die Verbindung und versuche es erneut; es setzt fort.", ru: "Загрузка не удалась. Проверь соединение и повтори — продолжится с места остановки.", ar: "فشل التنزيل. تحقق من الاتصال وأعد المحاولة؛ سيُستأنف من حيث توقف.", es: "Falló la descarga. Revisa la conexión e inténtalo de nuevo; se reanuda donde quedó.", fr: "Échec du téléchargement. Vérifie la connexion et réessaie ; il reprend là où il s’est arrêté.", az: "Yükləmə alınmadı. Bağlantını yoxla və yenidən cəhd et; qaldığı yerdən davam edər.",
+  },
+  aiBuiltinNote: {
+    tr: "Model dosyası tek seferlik Hugging Face'ten indirilir (yalnız dosya istenir, senin verin gönderilmez). Sohbet ve kodun bu bilgisayardan çıkmaz.", en: "The model file is downloaded once from Hugging Face (only the file is requested, none of your data is sent). Your chat and code never leave this computer.", de: "Die Modelldatei wird einmalig von Hugging Face geladen (nur die Datei wird angefragt, keine deiner Daten gesendet). Chat und Code verlassen diesen Computer nicht.", ru: "Файл модели скачивается один раз с Hugging Face (запрашивается только файл, твои данные не отправляются). Чат и код не покидают этот компьютер.", ar: "يُنزَّل ملف النموذج مرة واحدة من Hugging Face (يُطلب الملف فقط ولا تُرسل بياناتك). لا تغادر محادثتك وشيفرتك هذا الحاسوب.", es: "El archivo del modelo se descarga una vez de Hugging Face (solo se pide el archivo, no se envían tus datos). Tu chat y código no salen de este equipo.", fr: "Le fichier du modèle est téléchargé une fois depuis Hugging Face (seul le fichier est demandé, aucune de tes données n’est envoyée). Ton chat et ton code ne quittent pas cet ordinateur.", az: "Model faylı Hugging Face-dən bir dəfə yüklənir (yalnız fayl istənir, məlumatın göndərilmir). Söhbət və kodun bu kompüterdən çıxmır.",
+  },
+  aiTierFast: {
+    tr: "Hızlı", en: "Fast", de: "Schnell", ru: "Быстрая", ar: "سريع", es: "Rápido", fr: "Rapide", az: "Sürətli",
+  },
+  aiTierStrong: {
+    tr: "Güçlü", en: "Strong", de: "Stark", ru: "Мощная", ar: "قوي", es: "Potente", fr: "Puissant", az: "Güclü",
+  },
+  aiRam: {
+    tr: "~{n} GB RAM", en: "~{n} GB RAM", de: "~{n} GB RAM", ru: "~{n} ГБ ОЗУ", ar: "~{n} غ.ب ذاكرة", es: "~{n} GB de RAM", fr: "~{n} Go de RAM", az: "~{n} GB RAM",
+  },
+  aiReady: {
+    tr: "Hazır", en: "Ready", de: "Bereit", ru: "Готово", ar: "جاهز", es: "Listo", fr: "Prêt", az: "Hazır",
+  },
+  aiNoImages: {
+    tr: "Yerleşik model görselleri okuyamaz. Görsel için Ollama'da görüntü destekli bir model seç.", en: "The built-in model cannot read images. For images pick a vision-capable model in Ollama.", de: "Das integrierte Modell kann keine Bilder lesen. Wähle für Bilder ein Vision-Modell in Ollama.", ru: "Встроенная модель не читает изображения. Для картинок выбери модель с поддержкой зрения в Ollama.", ar: "النموذج المدمج لا يقرأ الصور. للصور اختر نموذجاً داعماً للرؤية في Ollama.", es: "El modelo integrado no puede leer imágenes. Para imágenes elige un modelo con visión en Ollama.", fr: "Le modèle intégré ne lit pas les images. Pour les images, choisis un modèle vision dans Ollama.", az: "Daxili model şəkilləri oxuya bilmir. Şəkil üçün Ollama-da görmə dəstəkli model seç.",
+  },
+  aiErrNoModel: {
+    tr: "Yerleşik model henüz indirilmedi. Yukarıdaki karttan indirebilirsin.", en: "The built-in model has not been downloaded yet. You can download it from the card above.", de: "Das integrierte Modell wurde noch nicht geladen. Du kannst es über die Karte oben laden.", ru: "Встроенная модель ещё не скачана. Скачай её в карточке выше.", ar: "لم يُنزَّل النموذج المدمج بعد. يمكنك تنزيله من البطاقة أعلاه.", es: "El modelo integrado aún no se ha descargado. Puedes descargarlo desde la tarjeta de arriba.", fr: "Le modèle intégré n’est pas encore téléchargé. Tu peux le télécharger depuis la carte ci-dessus.", az: "Daxili model hələ yüklənməyib. Yuxarıdakı kartdan yükləyə bilərsən.",
+  },
+  aiVoiceNeedsKey: {
+    tr: "Dikte için Ayarlar → Yapay Zekâ'dan yerel bir dikte sunucusu adresi gir (ücretsiz) veya OpenAI API anahtarı ekle. Uygulama içi dikte henüz yok.", en: "For dictation, enter a local dictation server address in Settings → AI Assistant (free) or add an OpenAI API key. Built-in dictation is not available yet.", de: "Für das Diktat gib in den Einstellungen einen lokalen Diktier-Server an (kostenlos) oder füge einen OpenAI-Schlüssel hinzu. Integriertes Diktat gibt es noch nicht.", ru: "Для диктовки укажи в настройках адрес локального сервера (бесплатно) или добавь ключ OpenAI. Встроенной диктовки пока нет.", ar: "للإملاء أدخل عنوان خادم إملاء محلي في الإعدادات (مجاناً) أو أضف مفتاح OpenAI. الإملاء المدمج غير متاح بعد.", es: "Para dictar, indica en ajustes un servidor local (gratis) o añade una clave de OpenAI. El dictado integrado aún no está disponible.", fr: "Pour la dictée, saisis un serveur local dans les paramètres (gratuit) ou ajoute une clé OpenAI. La dictée intégrée n’existe pas encore.", az: "Dikta üçün ayarlarda yerli server ünvanı (pulsuz) daxil et və ya OpenAI açarı əlavə et. Daxili dikta hələ yoxdur.",
+  },
+  mnFile: {
+    tr: "Dosya", en: "File", de: "Datei", ru: "Файл", ar: "ملف", es: "Archivo", fr: "Fichier", az: "Fayl",
+  },
+  mnEdit: {
+    tr: "Düzenle", en: "Edit", de: "Bearbeiten", ru: "Правка", ar: "تحرير", es: "Editar", fr: "Édition", az: "Redaktə",
+  },
+  mnSelection: {
+    tr: "Seçim", en: "Selection", de: "Auswahl", ru: "Выделение", ar: "تحديد", es: "Selección", fr: "Sélection", az: "Seçim",
+  },
+  mnView: {
+    tr: "Görünüm", en: "View", de: "Ansicht", ru: "Вид", ar: "عرض", es: "Ver", fr: "Affichage", az: "Görünüş",
+  },
+  mnGo: {
+    tr: "Gezin", en: "Go", de: "Gehe zu", ru: "Переход", ar: "انتقال", es: "Ir", fr: "Atteindre", az: "Keç",
+  },
+  mnRun: {
+    tr: "Çalıştır", en: "Run", de: "Ausführen", ru: "Запуск", ar: "تشغيل", es: "Ejecutar", fr: "Exécuter", az: "İşlət",
+  },
+  mnTerminal: {
+    tr: "Terminal", en: "Terminal", de: "Terminal", ru: "Терминал", ar: "الطرفية", es: "Terminal", fr: "Terminal", az: "Terminal",
+  },
+  mnHelp: {
+    tr: "Yardım", en: "Help", de: "Hilfe", ru: "Справка", ar: "مساعدة", es: "Ayuda", fr: "Aide", az: "Kömək",
+  },
+  mnUndo: {
+    tr: "Geri al", en: "Undo", de: "Rückgängig", ru: "Отменить", ar: "تراجع", es: "Deshacer", fr: "Annuler", az: "Geri al",
+  },
+  mnRedo: {
+    tr: "Yinele", en: "Redo", de: "Wiederholen", ru: "Повторить", ar: "إعادة", es: "Rehacer", fr: "Rétablir", az: "Təkrarla",
+  },
+  mnCut: {
+    tr: "Kes", en: "Cut", de: "Ausschneiden", ru: "Вырезать", ar: "قص", es: "Cortar", fr: "Couper", az: "Kəs",
+  },
+  mnCopy: {
+    tr: "Kopyala", en: "Copy", de: "Kopieren", ru: "Копировать", ar: "نسخ", es: "Copiar", fr: "Copier", az: "Kopyala",
+  },
+  mnPaste: {
+    tr: "Yapıştır", en: "Paste", de: "Einfügen", ru: "Вставить", ar: "لصق", es: "Pegar", fr: "Coller", az: "Yapışdır",
+  },
+  mnComment: {
+    tr: "Satırı yorum yap / kaldır", en: "Toggle line comment", de: "Zeilenkommentar umschalten", ru: "Закомментировать/раскомментировать", ar: "تبديل تعليق السطر", es: "Alternar comentario de línea", fr: "Commenter/décommenter la ligne", az: "Sətri şərhə al / çıxar",
+  },
+  mnSelectAll: {
+    tr: "Tümünü seç", en: "Select all", de: "Alles auswählen", ru: "Выделить всё", ar: "تحديد الكل", es: "Seleccionar todo", fr: "Tout sélectionner", az: "Hamısını seç",
+  },
+  mnExpandLine: {
+    tr: "Satırı seç", en: "Expand line selection", de: "Zeile auswählen", ru: "Выделить строку", ar: "تحديد السطر", es: "Seleccionar línea", fr: "Sélectionner la ligne", az: "Sətri seç",
+  },
+  mnNextMatch: {
+    tr: "Sonraki eşleşmeyi ekle", en: "Add next occurrence", de: "Nächstes Vorkommen hinzufügen", ru: "Добавить следующее вхождение", ar: "إضافة التطابق التالي", es: "Añadir siguiente coincidencia", fr: "Ajouter l’occurrence suivante", az: "Növbəti uyğunluğu əlavə et",
+  },
+  mnCopyLineDown: {
+    tr: "Satırı aşağı kopyala", en: "Copy line down", de: "Zeile nach unten kopieren", ru: "Копировать строку вниз", ar: "نسخ السطر لأسفل", es: "Copiar línea abajo", fr: "Copier la ligne vers le bas", az: "Sətri aşağı kopyala",
+  },
+  mnMoveLineUp: {
+    tr: "Satırı yukarı taşı", en: "Move line up", de: "Zeile nach oben", ru: "Переместить строку вверх", ar: "نقل السطر لأعلى", es: "Mover línea arriba", fr: "Déplacer la ligne vers le haut", az: "Sətri yuxarı daşı",
+  },
+  mnMoveLineDown: {
+    tr: "Satırı aşağı taşı", en: "Move line down", de: "Zeile nach unten", ru: "Переместить строку вниз", ar: "نقل السطر لأسفل", es: "Mover línea abajo", fr: "Déplacer la ligne vers le bas", az: "Sətri aşağı daşı",
+  },
+  mnCursorAbove: {
+    tr: "Üste imleç ekle", en: "Add cursor above", de: "Cursor oberhalb hinzufügen", ru: "Добавить курсор выше", ar: "إضافة مؤشر أعلى", es: "Añadir cursor arriba", fr: "Ajouter un curseur au-dessus", az: "Yuxarıya kursor əlavə et",
+  },
+  mnCursorBelow: {
+    tr: "Alta imleç ekle", en: "Add cursor below", de: "Cursor unterhalb hinzufügen", ru: "Добавить курсор ниже", ar: "إضافة مؤشر أسفل", es: "Añadir cursor abajo", fr: "Ajouter un curseur en dessous", az: "Aşağıya kursor əlavə et",
+  },
+  mnZoomIn: {
+    tr: "Yakınlaştır", en: "Zoom in", de: "Vergrößern", ru: "Увеличить", ar: "تكبير", es: "Acercar", fr: "Zoom avant", az: "Yaxınlaşdır",
+  },
+  mnZoomOut: {
+    tr: "Uzaklaştır", en: "Zoom out", de: "Verkleinern", ru: "Уменьшить", ar: "تصغير", es: "Alejar", fr: "Zoom arrière", az: "Uzaqlaşdır",
+  },
+  mnZoomReset: {
+    tr: "Yakınlaştırmayı sıfırla", en: "Reset zoom", de: "Zoom zurücksetzen", ru: "Сбросить масштаб", ar: "إعادة تعيين التكبير", es: "Restablecer zoom", fr: "Réinitialiser le zoom", az: "Yaxınlaşdırmanı sıfırla",
+  },
+  mnNextTab: {
+    tr: "Sonraki sekme", en: "Next tab", de: "Nächster Tab", ru: "Следующая вкладка", ar: "التبويب التالي", es: "Pestaña siguiente", fr: "Onglet suivant", az: "Növbəti vərəq",
+  },
+  mnPrevTab: {
+    tr: "Önceki sekme", en: "Previous tab", de: "Vorheriger Tab", ru: "Предыдущая вкладка", ar: "التبويب السابق", es: "Pestaña anterior", fr: "Onglet précédent", az: "Əvvəlki vərəq",
+  },
+  mnRunFile: {
+    tr: "Açık dosyayı çalıştır", en: "Run active file", de: "Aktive Datei ausführen", ru: "Запустить открытый файл", ar: "تشغيل الملف المفتوح", es: "Ejecutar archivo activo", fr: "Exécuter le fichier actif", az: "Açıq faylı işlət",
+  },
+  mnRunNoFile: {
+    tr: "Çalıştırmak için diskte kayıtlı bir dosya aç.", en: "Open a file saved on disk to run it.", de: "Öffne zum Ausführen eine auf der Festplatte gespeicherte Datei.", ru: "Чтобы запустить, открой файл, сохранённый на диске.", ar: "افتح ملفاً محفوظاً على القرص لتشغيله.", es: "Abre un archivo guardado en disco para ejecutarlo.", fr: "Ouvre un fichier enregistré sur le disque pour l’exécuter.", az: "İşlətmək üçün diskdə saxlanmış fayl aç.",
+  },
+  mnRunNoRunner: {
+    tr: "Bu dosya türü için çalıştırma komutu tanımlı değil. Terminalden elle çalıştırabilirsin.", en: "No run command is defined for this file type. You can run it manually in the terminal.", de: "Für diesen Dateityp ist kein Startbefehl definiert. Du kannst ihn manuell im Terminal ausführen.", ru: "Для этого типа файла команда запуска не задана. Запусти вручную в терминале.", ar: "لا يوجد أمر تشغيل لهذا النوع من الملفات. يمكنك تشغيله يدوياً من الطرفية.", es: "No hay comando de ejecución para este tipo de archivo. Puedes ejecutarlo a mano en la terminal.", fr: "Aucune commande d’exécution pour ce type de fichier. Tu peux le lancer à la main dans le terminal.", az: "Bu fayl növü üçün işlətmə komandası yoxdur. Terminalda əl ilə işlədə bilərsən.",
+  },
+  mnNewTerminal: {
+    tr: "Yeni terminal", en: "New terminal", de: "Neues Terminal", ru: "Новый терминал", ar: "طرفية جديدة", es: "Nueva terminal", fr: "Nouveau terminal", az: "Yeni terminal",
+  },
+  mnWelcome: {
+    tr: "Karşılama sayfası", en: "Welcome page", de: "Willkommensseite", ru: "Страница приветствия", ar: "صفحة الترحيب", es: "Página de bienvenida", fr: "Page d’accueil", az: "Qarşılama səhifəsi",
+  },
+  mnShortcuts: {
+    tr: "Klavye kısayolları", en: "Keyboard shortcuts", de: "Tastenkürzel", ru: "Горячие клавиши", ar: "اختصارات لوحة المفاتيح", es: "Atajos de teclado", fr: "Raccourcis clavier", az: "Klaviatura qısayolları",
+  },
+  mnDocs: {
+    tr: "Dokümantasyon", en: "Documentation", de: "Dokumentation", ru: "Документация", ar: "التوثيق", es: "Documentación", fr: "Documentation", az: "Sənədlər",
+  },
+  mnReleaseNotes: {
+    tr: "Sürüm notları", en: "Release notes", de: "Versionshinweise", ru: "Примечания к выпуску", ar: "ملاحظات الإصدار", es: "Notas de la versión", fr: "Notes de version", az: "Buraxılış qeydləri",
+  },
+  mnReportIssue: {
+    tr: "Sorun bildir", en: "Report an issue", de: "Problem melden", ru: "Сообщить о проблеме", ar: "الإبلاغ عن مشكلة", es: "Informar de un problema", fr: "Signaler un problème", az: "Problem bildir",
+  },
+  mnAbout: {
+    tr: "Hakkında", en: "About", de: "Über", ru: "О программе", ar: "حول", es: "Acerca de", fr: "À propos", az: "Haqqında",
+  },
+  aiBuiltinAgentWarn: {
+    tr: "Hızlı model ajan modunda yalnızca dosya okur ve arar. Düzenleme ve komut için Güçlü modeli (Ayarlar → Yapay Zekâ) veya Ollama'yı kullan.", en: "In Agent mode the Fast model only reads and searches files. For edits and commands use the Strong model (Settings → AI Assistant) or Ollama.", de: "Im Agent-Modus liest und durchsucht das schnelle Modell nur Dateien. Für Änderungen und Befehle nutze das starke Modell (Einstellungen → KI-Assistent) oder Ollama.", ru: "В режиме агента быстрая модель только читает и ищет файлы. Для правок и команд используй мощную модель (Настройки → ИИ) или Ollama.", ar: "في وضع الوكيل يقرأ النموذج السريع الملفات ويبحث فيها فقط. للتعديل والأوامر استخدم النموذج القوي (الإعدادات ← المساعد الذكي) أو Ollama.", es: "En modo Agente el modelo rápido solo lee y busca archivos. Para editar y ejecutar comandos usa el modelo potente (Ajustes → Asistente IA) u Ollama.", fr: "En mode Agent, le modèle rapide ne fait que lire et chercher des fichiers. Pour modifier et exécuter des commandes, utilise le modèle puissant (Paramètres → Assistant IA) ou Ollama.", az: "Agent rejimində sürətli model yalnız faylları oxuyur və axtarır. Redaktə və komanda üçün güclü modeldən (Ayarlar → Süni intellekt) və ya Ollama-dan istifadə et.",
+  },
+  aiErrStuck: {
+    tr: "Model bu görevi tamamlayamadı. Daha net yaz, Güçlü modeli ya da Ollama'yı dene.", en: "The model could not complete this task. Be more specific, or try the Strong model or Ollama.", de: "Das Modell konnte die Aufgabe nicht abschließen. Formuliere genauer oder nutze das starke Modell bzw. Ollama.", ru: "Модель не смогла выполнить задачу. Уточни запрос или попробуй мощную модель либо Ollama.", ar: "تعذّر على النموذج إكمال المهمة. كن أكثر تحديداً أو جرّب النموذج القوي أو Ollama.", es: "El modelo no pudo completar la tarea. Sé más específico o prueba el modelo potente u Ollama.", fr: "Le modèle n’a pas pu terminer la tâche. Sois plus précis ou essaie le modèle puissant ou Ollama.", az: "Model bu tapşırığı tamamlaya bilmədi. Daha dəqiq yaz, güclü modeli və ya Ollama-nı sına.",
   },
 } satisfies Record<string, Dict>;
 

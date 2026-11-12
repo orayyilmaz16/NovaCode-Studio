@@ -9,6 +9,9 @@ triggers: ["yapay zeka", "ai", "asistan", "agent", "ajan", "dikte", "ses", "clau
 
 Sağ panel (`Ctrl+Shift+L`, etkinlik çubuğundaki kıvılcım). Yalnız masaüstü uygulamasında çalışır: API anahtarı şifreli saklanabilsin diye web sürümünde panel bilgi mesajı gösterir.
 
+## Panel düzeni
+Üstte oturum seçici + eylemler, altında Sor/Ajan geçişi, uyarı kartları (kurulum, Ollama, anahtar), kaydırılan ileti alanı (`min-h-0`, yatay taşma yok; kod blokları kendi içinde kayar), altta otomatik büyüyen giriş kutusu (en çok ~8 satır) ve araç çubuğu (görsel, mikrofon, model etiketi, gönder/durdur). Genişlik sürüklenerek 300–720 px ayarlanır (`nova.aiWidth`). Kullanıcı en alttaysa akış izlenir, yukarı kaydırdıysa yerinde kalır.
+
 ## Mimari
 | Parça | Dosya | Görev |
 |---|---|---|
@@ -23,8 +26,17 @@ Sağ panel (`Ctrl+Shift+L`, etkinlik çubuğundaki kıvılcım). Yalnız masaüs
 ## Sağlayıcılar
 `anthropic` (Messages API, `x-api-key`), `openai` (Chat Completions, OpenAI uyumlu), `ollama` (yerel, anahtarsız, `http://localhost:11434/v1`). Kanonik ileti biçimi Anthropic blokları; OpenAI için `toOpenAIMessages` çevirir. Özel taban adres yalnız `https://` veya yerel `http://` (`safeBase`). Varsayılan modeller `aiClient.ts` → `DEFAULT_MODEL`.
 
-## Yerel ve ücretsiz kullanım (varsayılan)
-Varsayılan sağlayıcı **Ollama**: API anahtarı yok, maliyet yok, kod ve mesajlar bilgisayardan çıkmaz.
+## Yerleşik model (varsayılan): anahtar yok, adres yok, ücret yok
+Sağlayıcı **Nova yerleşik** (`builtin`): motor `node-llama-cpp` (llama.cpp), ana süreçte (`electron-llm.cjs`). Ayrı kurulum gerekmez.
+- **Model:** ilk kullanımda panelde kurulum kartı çıkar; Hızlı (Qwen2.5-Coder 1,5B, ~1 GB) veya Güçlü (7B, ~4,4 GB). İkisi de Apache-2.0. GGUF dosyası `userData/models/` altına **tek sefer** Hugging Face'ten indirilir (`Range` ile kaldığı yerden devam, boyut doğrulaması, yalnız `huggingface.co`/`hf.co` konakları). Sonrasında internet gerekmez.
+- **Çalışma:** `getLlama({ build: 'never' })` (derleme yok, hazır ikililer; GPU varsa Vulkan/CUDA, yoksa CPU). Model 10 dk boşta kalınca bellekten atılır. Bağlam 8K'ya kadar.
+- **Ajan:** araç çağırma **istem tabanlı protokolle** yapılır (modelden bağımsız): model ```json {"name","arguments"}``` yazar, `parseToolCall` ayrıştırır, araç çalışır, sonuç sonraki iletiyle döner (`node-llama-cpp` yerel fonksiyon çağırması 1,5B'de tutmadı). Araçlar `electron-ai.cjs` ile **aynı** güvenlik katmanından (çalışma klasörü, gizli dosya, onay) geçer. Döngü koruması: aynı çağrıyı tekrarlarsa veya adım bütçesi (hızlı 6, güçlü 20) dolarsa "düz metinle yanıtla" talimatı verilir, yine araç isterse son sonuç gösterilir / `agent-stuck` hatası döner. **Hızlı (1,5B) model ajanda yalnız okuma/arama araçlarını alır** (yazma ve komut yok); düzenleme için 7B veya Ollama/bulut. Küçük modeller yolun başına klasör adı ekleyebilir; `resolveInRoot` bunu soyar (kök dışına çıkış yine engelli).
+- **Sınırlar:** görsel okumaz (ataç düğmesi kapalı), dikte yerleşik değildir: mikrofon için yerel Whisper sunucusu adresi (`aiTranscribeUrl`) veya OpenAI anahtarı gerekir. Uygulama içi Whisper (transformers.js) açık iş.
+- **Paketleme:** `package.json` → `build.files` yalnız Windows x64 CPU/Vulkan ikililerini alır (CUDA ve arm64 hariç, ~110 MB); `asarUnpack` ile node-llama-cpp açık dizinde kalır.
+- **KVKK:** sohbet ve kod hiçbir yere gitmez; tek dış istek model dosyasıdır (veri gönderilmez).
+
+## Yerel ve ücretsiz kullanım (Ollama, isteğe bağlı)
+**Ollama** da anahtarsızdır; çalışan modeli ve görüntü destekli modelleri kullanmak istersen seçilir.
 1. [ollama.com](https://ollama.com)'dan Ollama'yı kur ve başlat.
 2. Terminalde bir model indir. Kod için öneri: `ollama pull qwen2.5-coder:7b` (zayıf bilgisayarda `qwen2.5-coder:3b`). Görsel için görüntü destekli model (ör. `llama3.2-vision`, `qwen2.5vl`).
 3. Panel `ai:ollamaModels` ile çalışıp çalışmadığını ve yüklü modelleri algılar; model üst çubuktan seçilir (boşsa "coder" içeren ilk model otomatik seçilir). Çalışmıyorsa/model yoksa panelde kurulum ipucu çıkar.

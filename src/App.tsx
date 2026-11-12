@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
 import {
   Files,
   Settings,
   Sparkles,
+  Puzzle,
   Columns,
   House,
   GitBranch,
@@ -18,13 +19,13 @@ import { FileTree, normGitPath } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
 import { Terminal } from './components/Terminal';
 import { Preview } from './components/Preview';
-import { AIAssistant } from './components/AIAssistant';
+const AIAssistant = lazy(() => import('./components/AIAssistant').then((m) => ({ default: m.AIAssistant })));
 import { LandingPage } from './components/LandingPage';
 import { SplashScreen } from './components/SplashScreen';
 import { GitPanel } from './components/GitPanel';
 import { GithubAccount } from './components/GithubAccount';
 import { Logo } from './components/Logo';
-import { SettingsPage } from './components/SettingsPage';
+const SettingsPage = lazy(() => import('./components/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 import { builtInSnippets } from './snippets/defaultSnippets';
 import { useSettings } from './services/SettingsContext';
 import { useCollabToken } from './services/useCollabToken';
@@ -32,8 +33,12 @@ import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 import { SnippetsPanel } from './components/SnippetsPanel';
 import { SearchPanel } from './components/SearchPanel';
-import { CommandPalette, type PaletteCommand } from './components/CommandPalette';
-import { goToLine, insertSnippetAtCursor, runEditorAction, hasEditor } from './services/editorBridge';
+const ExtensionsPanel = lazy(() => import('./components/ExtensionsPanel').then((m) => ({ default: m.ExtensionsPanel })));
+import type { PaletteCommand } from './components/CommandPalette';
+const CommandPalette = lazy(() => import('./components/CommandPalette').then((m) => ({ default: m.CommandPalette })));
+import { goToLine, insertSnippetAtCursor, runEditorAction, hasEditor, copySelection, pasteClipboard } from './services/editorBridge';
+import { MenuBar, type MenuGroup } from './components/MenuBar';
+import { sendTerminal, runCommandFor } from './services/terminalBridge';
 import { baseName, languageFromName } from './services/lang';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { t } from './i18n/uiText';
@@ -60,7 +65,7 @@ export function App() {
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
 
   // Paneller
-  const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'snippets'>('files');
+  const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'snippets' | 'extensions'>('files');
   // Önizleme varsayılan olarak kapalı; yalnız HTML dosyasında düğmesi görünür.
   const [showRightPanel, setShowRightPanel] = useState<'preview' | 'ai' | null>(null);
   const [showBottomTerminal, setShowBottomTerminal] = useState(false);
@@ -72,10 +77,12 @@ export function App() {
   const [sidebarWidth, setSidebarWidth] = useState(() => loadStoredNumber('nova.sidebarWidth', 256));
   const [terminalHeight, setTerminalHeight] = useState(() => loadStoredNumber('nova.terminalHeight', 208));
   const [previewWidth, setPreviewWidth] = useState(() => loadStoredNumber('nova.previewWidth', 560));
+  const [aiWidth, setAiWidth] = useState(() => loadStoredNumber('nova.aiWidth', 380));
 
   useEffect(() => { saveStoredNumber('nova.sidebarWidth', sidebarWidth); }, [sidebarWidth]);
   useEffect(() => { saveStoredNumber('nova.terminalHeight', terminalHeight); }, [terminalHeight]);
   useEffect(() => { saveStoredNumber('nova.previewWidth', previewWidth); }, [previewWidth]);
+  useEffect(() => { saveStoredNumber('nova.aiWidth', aiWidth); }, [aiWidth]);
 
   // Ortak düzenleme (kendi sunucun, açık kaynak Yjs). Ayarlar tarayıcıda saklanır.
   // Ayarlar (gerçek zamanlı, tek kaynak: SettingsContext)
@@ -191,6 +198,7 @@ export function App() {
     if (key === 'p') { e.preventDefault(); setPalette(e.shiftKey ? '>' : ''); return; }
     if (key === 'g' && !e.shiftKey) { e.preventDefault(); setPalette(':'); return; }
     if (key === 'f' && e.shiftKey) { e.preventDefault(); pickSidebarForce('search'); return; }
+    if (key === 'x' && e.shiftKey) { e.preventDefault(); pickSidebarForce('extensions'); return; }
     if (key === 'l' && e.shiftKey) { e.preventDefault(); setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); return; }
 
     if (key === 'q') { e.preventDefault(); handleQuit(); return; }
@@ -694,7 +702,7 @@ export function App() {
   const isHtml = activeFile?.language === 'html';
 
   // Etkinlik çubuğu: etkin sekmeye tekrar basmak kenar çubuğunu kapatır (VS Code davranışı)
-  const pickSidebar = (tab: 'files' | 'search' | 'git' | 'snippets') => {
+  const pickSidebar = (tab: 'files' | 'search' | 'git' | 'snippets' | 'extensions') => {
     if (!showLanding && activeSidebarTab === tab && sidebarVisible) {
       setSidebarVisible(false);
       return;
@@ -707,7 +715,7 @@ export function App() {
   };
 
   // Kısayoldan açılışta (ör. Ctrl+Shift+F) sekme zaten açıksa kapatmaz
-  const pickSidebarForce = (tab: 'files' | 'search' | 'git' | 'snippets') => {
+  const pickSidebarForce = (tab: 'files' | 'search' | 'git' | 'snippets' | 'extensions') => {
     setShowLanding(false);
     setShowSettings(false);
     setActiveSidebarTab(tab);
@@ -729,6 +737,130 @@ export function App() {
     if (!insertSnippetAtCursor(tpl)) handleInsertSnippet(sn.body);
   };
 
+  const runInTerminal = (command: string) => {
+    setShowBottomTerminal(true);
+    window.setTimeout(() => sendTerminal({ action: 'run', command }), 80);
+  };
+
+  const runActiveFile = () => {
+    const f = openFiles.find((x) => x.id === activeFileId);
+    if (!f?.path) { addLog('warn', t('mnRunNoFile')); setShowBottomTerminal(true); return; }
+    const cmd = runCommandFor(f.path, f.language);
+    if (!cmd) { addLog('warn', t('mnRunNoRunner')); setShowBottomTerminal(true); return; }
+    if (f.isModified) void handleSaveFile(f);
+    runInTerminal(cmd);
+  };
+
+  const openDocs = (path: string) => void window.electronAPI?.github.openExternal(`https://github.com/orayyilmaz16/NovaCode-Studio${path}`);
+  const openSettingsAt = (cat: string) => {
+    try { window.localStorage.setItem('nova.settings.category', cat); } catch { /* depolama kapalı */ }
+    setShowLanding(false);
+    setShowSettings(true);
+  };
+  const hasPkg = !!currentRootPath;
+  const act = runEditorAction;
+  // Bazı etiketler kısayolu parantez içinde taşır; menüde kısayol ayrı sütunda gösterilir
+  const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
+
+  const menus: MenuGroup[] = [
+    { id: 'file', label: t('mnFile'), items: [
+      { label: t('newFile'), shortcut: 'Ctrl+N', onClick: handleNewUntitled },
+      { label: t('openFolder'), shortcut: 'Ctrl+O', onClick: () => void handleOpenFolderDialog() },
+      { label: t('openFiles'), shortcut: 'Ctrl+Shift+O', onClick: () => void handleOpenFileDialog() },
+      { separator: true },
+      { label: t('cmdSave'), shortcut: 'Ctrl+S', disabled: !activeFile, onClick: () => { if (activeFile) void handleSaveFile(activeFile); } },
+      { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', disabled: !activeFile, onClick: () => { if (activeFileId) handleCloseTab(activeFileId); } },
+      { separator: true },
+      { label: t('actSettings'), shortcut: 'Ctrl+,', onClick: () => { setShowLanding(false); setShowSettings(true); } },
+      { separator: true },
+      { label: t('quit'), shortcut: 'Ctrl+Q', danger: true, onClick: handleQuit }
+    ] },
+    { id: 'edit', label: t('mnEdit'), items: [
+      { label: t('mnUndo'), shortcut: 'Ctrl+Z', disabled: !activeFile, onClick: () => act('undo') },
+      { label: t('mnRedo'), shortcut: 'Ctrl+Y', disabled: !activeFile, onClick: () => act('redo') },
+      { separator: true },
+      { label: t('mnCut'), shortcut: 'Ctrl+X', disabled: !activeFile, onClick: () => copySelection(true) },
+      { label: t('mnCopy'), shortcut: 'Ctrl+C', disabled: !activeFile, onClick: () => copySelection(false) },
+      { label: t('mnPaste'), shortcut: 'Ctrl+V', disabled: !activeFile, onClick: () => void pasteClipboard() },
+      { separator: true },
+      { label: t('cmdFind'), shortcut: 'Ctrl+F', disabled: !activeFile, onClick: () => act('actions.find') },
+      { label: t('cmdReplace'), shortcut: 'Ctrl+H', disabled: !activeFile, onClick: () => act('editor.action.startFindReplace') },
+      { label: t('cmdFindInFiles'), shortcut: 'Ctrl+Shift+F', onClick: () => pickSidebarForce('search') },
+      { separator: true },
+      { label: t('mnComment'), shortcut: 'Ctrl+/', disabled: !activeFile, onClick: () => act('editor.action.commentLine') },
+      { label: t('cmdFormat'), shortcut: 'Shift+Alt+F', disabled: !activeFile, onClick: () => act('editor.action.formatDocument') }
+    ] },
+    { id: 'selection', label: t('mnSelection'), items: [
+      { label: t('mnSelectAll'), shortcut: 'Ctrl+A', disabled: !activeFile, onClick: () => act('editor.action.selectAll') },
+      { label: t('mnExpandLine'), disabled: !activeFile, onClick: () => act('expandLineSelection') },
+      { label: t('mnNextMatch'), shortcut: 'Ctrl+D', disabled: !activeFile, onClick: () => act('editor.action.addSelectionToNextFindMatch') },
+      { separator: true },
+      { label: t('mnCopyLineDown'), shortcut: 'Shift+Alt+↓', disabled: !activeFile, onClick: () => act('editor.action.copyLinesDownAction') },
+      { label: t('mnMoveLineUp'), shortcut: 'Alt+↑', disabled: !activeFile, onClick: () => act('editor.action.moveLinesUpAction') },
+      { label: t('mnMoveLineDown'), shortcut: 'Alt+↓', disabled: !activeFile, onClick: () => act('editor.action.moveLinesDownAction') },
+      { separator: true },
+      { label: t('mnCursorAbove'), shortcut: 'Ctrl+Alt+↑', disabled: !activeFile, onClick: () => act('editor.action.insertCursorAbove') },
+      { label: t('mnCursorBelow'), shortcut: 'Ctrl+Alt+↓', disabled: !activeFile, onClick: () => act('editor.action.insertCursorBelow') }
+    ] },
+    { id: 'view', label: t('mnView'), items: [
+      { label: t('cpTitle'), shortcut: 'Ctrl+Shift+P', onClick: () => setPalette('>') },
+      { label: t('cmdQuickOpen'), shortcut: 'Ctrl+P', onClick: () => setPalette('') },
+      { separator: true },
+      { label: t('actExplorer'), onClick: () => pickSidebarForce('files') },
+      { label: t('actSearch'), shortcut: 'Ctrl+Shift+F', onClick: () => pickSidebarForce('search') },
+      { label: t('actGit'), onClick: () => pickSidebarForce('git') },
+      { label: t('actSnippets'), onClick: () => pickSidebarForce('snippets') },
+      { label: t('extTitle'), onClick: () => pickSidebarForce('extensions') },
+      { separator: true },
+      { label: plain(t('tbSidebar')), shortcut: 'Ctrl+B', onClick: () => setSidebarVisible((v) => !v) },
+      { label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', onClick: () => setShowBottomTerminal((v) => !v) },
+      { label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', onClick: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel((v) => (v === 'ai' ? null : 'ai')); } },
+      { label: t('tbPreview'), disabled: !isHtml, onClick: () => setShowRightPanel((v) => (v === 'preview' ? null : 'preview')) },
+      { separator: true },
+      { label: t('mnZoomIn'), onClick: () => setSetting('uiZoom', Math.min(150, Number(settings.uiZoom || 100) + 10)) },
+      { label: t('mnZoomOut'), onClick: () => setSetting('uiZoom', Math.max(80, Number(settings.uiZoom || 100) - 10)) },
+      { label: t('mnZoomReset'), onClick: () => setSetting('uiZoom', 100) },
+      { label: t('cmdToggleTheme'), onClick: () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light') }
+    ] },
+    { id: 'go', label: t('mnGo'), items: [
+      { label: t('cmdQuickOpen'), shortcut: 'Ctrl+P', onClick: () => setPalette('') },
+      { label: t('cmdGoToLine'), shortcut: 'Ctrl+G', disabled: !activeFile, onClick: () => setPalette(':') },
+      { label: t('cmdGoToSymbol'), disabled: !activeFile, onClick: () => act('editor.action.quickOutline') },
+      { separator: true },
+      { label: t('mnNextTab'), shortcut: 'Ctrl+Tab', disabled: openFiles.length < 2, onClick: () => { const i = openFiles.findIndex((f) => f.id === activeFileId); setActiveFileId(openFiles[(i + 1) % openFiles.length].id); } },
+      { label: t('mnPrevTab'), shortcut: 'Ctrl+Shift+Tab', disabled: openFiles.length < 2, onClick: () => { const i = openFiles.findIndex((f) => f.id === activeFileId); setActiveFileId(openFiles[(i - 1 + openFiles.length) % openFiles.length].id); } }
+    ] },
+    { id: 'run', label: t('mnRun'), items: [
+      { label: t('mnRunFile'), disabled: !activeFile, onClick: runActiveFile },
+      { separator: true },
+      { label: 'npm run dev', disabled: !hasPkg, onClick: () => runInTerminal('npm run dev') },
+      { label: 'npm run build', disabled: !hasPkg, onClick: () => runInTerminal('npm run build') },
+      { label: 'npm test', disabled: !hasPkg, onClick: () => runInTerminal('npm test') },
+      { separator: true },
+      { label: 'go run .', disabled: !hasPkg, onClick: () => runInTerminal('go run .') },
+      { label: 'cargo run', disabled: !hasPkg, onClick: () => runInTerminal('cargo run') },
+      { label: 'dotnet run', disabled: !hasPkg, onClick: () => runInTerminal('dotnet run') },
+      { label: 'php -S localhost:8000', disabled: !hasPkg, onClick: () => runInTerminal('php -S localhost:8000') }
+    ] },
+    { id: 'terminal', label: t('mnTerminal'), items: [
+      { label: t('mnNewTerminal'), disabled: !currentRootPath, onClick: () => { setShowBottomTerminal(true); window.setTimeout(() => sendTerminal({ action: 'new' }), 80); } },
+      { label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', onClick: () => setShowBottomTerminal((v) => !v) },
+      { label: t('termClear'), onClick: () => sendTerminal({ action: 'clear' }) },
+      { separator: true },
+      { label: t('mnRunFile'), disabled: !activeFile, onClick: runActiveFile }
+    ] },
+    { id: 'help', label: t('mnHelp'), items: [
+      { label: t('mnWelcome'), onClick: () => { setShowSettings(false); setShowLanding(true); } },
+      { label: t('mnShortcuts'), onClick: () => openSettingsAt('shortcuts') },
+      { separator: true },
+      { label: t('mnDocs'), onClick: () => openDocs('#readme') },
+      { label: t('mnReleaseNotes'), onClick: () => openDocs('/releases') },
+      { label: t('mnReportIssue'), onClick: () => openDocs('/issues/new') },
+      { separator: true },
+      { label: t('mnAbout'), onClick: () => openSettingsAt('about') }
+    ] }
+  ];
+
   const paletteCommands: PaletteCommand[] = [
     { id: 'quickOpen', label: t('cmdQuickOpen'), shortcut: 'Ctrl+P', run: () => setPalette('') },
     { id: 'goLine', label: t('cmdGoToLine'), shortcut: 'Ctrl+G', run: () => setPalette(':') },
@@ -742,10 +874,11 @@ export function App() {
     { id: 'openFolder', label: t('openFolder'), shortcut: 'Ctrl+O', run: () => void handleOpenFolderDialog() },
     { id: 'save', label: t('cmdSave'), shortcut: 'Ctrl+S', run: () => { const f = openFiles.find((x) => x.id === activeFileId); if (f) void handleSaveFile(f); } },
     { id: 'closeTab', label: t('cmdCloseTab'), shortcut: 'Ctrl+W', run: () => { if (activeFileId) handleCloseTab(activeFileId); } },
-    { id: 'sidebar', label: t('tbSidebar'), shortcut: 'Ctrl+B', run: () => setSidebarVisible((v) => !v) },
-    { id: 'terminal', label: t('tbTerminal'), shortcut: 'Ctrl+`', run: () => setShowBottomTerminal((v) => !v) },
+    { id: 'sidebar', label: plain(t('tbSidebar')), shortcut: 'Ctrl+B', run: () => setSidebarVisible((v) => !v) },
+    { id: 'terminal', label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', run: () => setShowBottomTerminal((v) => !v) },
     { id: 'git', label: t('actGit'), run: () => pickSidebarForce('git') },
     { id: 'snippets', label: t('actSnippets'), run: () => pickSidebarForce('snippets') },
+    { id: 'extensions', label: t('extTitle'), run: () => pickSidebarForce('extensions') },
     { id: 'ai', label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', run: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); } },
     { id: 'settings', label: t('actSettings'), shortcut: 'Ctrl+,', run: () => { setShowLanding(false); setShowSettings(true); } },
     { id: 'theme', label: t('cmdToggleTheme'), run: () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light') }
@@ -759,6 +892,7 @@ export function App() {
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
       {palette !== null && (
+        <Suspense fallback={null}>
         <CommandPalette
           initial={palette}
           rootPath={currentRootPath}
@@ -770,20 +904,21 @@ export function App() {
           onInsertSnippet={insertSnippetObject}
           onClose={() => setPalette(null)}
         />
+        </Suspense>
       )}
 
       {/* Başlık çubuğu */}
-      <header className="app-drag relative flex items-center justify-between h-9 bg-nv-side border-b border-nv-border select-none shrink-0">
-        <div className="flex items-center gap-2 pl-3 min-w-0">
+      <header className="app-drag relative flex items-center h-9 bg-nv-side border-b border-nv-border select-none shrink-0">
+        <div className="flex items-center gap-1.5 pl-3 h-full min-w-0 shrink-0">
           <Logo size={18} />
-          <span className="text-[12px] text-zinc-400 hidden sm:inline">NovaCode Studio</span>
         </div>
+        <MenuBar menus={menus} />
 
         {/* Orta: komut merkezi görünümlü proje alanı */}
         <button
           onClick={() => setPalette('')}
           title={`${t('cpTitle')} (Ctrl+P)`}
-          className="app-no-drag absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 h-6 w-[min(44vw,460px)] rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
+          className="app-no-drag flex-1 min-w-[120px] max-w-[460px] mx-3 flex items-center justify-center gap-2 h-6 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
         >
           <Search size={12} className="text-zinc-500 shrink-0" />
           <span className="truncate">
@@ -797,7 +932,7 @@ export function App() {
           </span>
         </button>
 
-        <div className="app-no-drag flex items-center gap-0.5 pr-2" style={{ marginRight: isElectron ? 138 : 0 }}>
+        <div className="app-no-drag ml-auto flex items-center gap-0.5 pr-2 shrink-0" style={{ marginRight: isElectron ? 138 : 0 }}>
           <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="icon-btn">
             <FolderOpen size={15} />
           </button>
@@ -846,6 +981,9 @@ export function App() {
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} title={`${t('actSearch')} (Ctrl+Shift+F)`} aria-label={t('actSearch')} onClick={() => pickSidebar('search')}>
               <Search size={24} strokeWidth={1.5} />
+            </button>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} title={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
+              <Puzzle size={24} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} title={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
               <GitBranch size={24} strokeWidth={1.5} />
@@ -938,6 +1076,11 @@ export function App() {
                   />
                 </div>
               )}
+              {activeSidebarTab === 'extensions' && (
+                <div key="extensions" className="animate-sidebar-in h-full">
+                  <Suspense fallback={null}><ExtensionsPanel /></Suspense>
+                </div>
+              )}
               {activeSidebarTab === 'search' && (
                 <div key="search" className="animate-sidebar-in h-full">
                   <SearchPanel hasFolder={!!currentRootPath} onOpenResult={(p, line) => void openFileAt(p, line)} />
@@ -966,7 +1109,7 @@ export function App() {
         <div className="flex flex-col flex-1 h-full min-w-0">
           <div className="flex-1 min-h-0 flex flex-col min-w-0">
             {showSettings ? (
-          <SettingsPage onClose={() => setShowSettings(false)} builtInSnippetCount={builtInSnippets.length} />
+          <Suspense fallback={null}><SettingsPage onClose={() => setShowSettings(false)} builtInSnippetCount={builtInSnippets.length} /></Suspense>
         ) : showLanding ? (
           <LandingPage
             onNewFile={handleNewUntitled}
@@ -1061,13 +1204,18 @@ export function App() {
         )}
 
         {!showLanding && showRightPanel === 'ai' && (
-          <div className="animate-fade-in w-80 h-full border-l border-nv-border shrink-0">
+          <>
+          <ResizeHandle direction="horizontal" title={t('aiTitle')} onResize={(d) => setAiWidth((w) => clamp(w - d, 300, 720))} />
+          <div style={{ width: aiWidth }} className="animate-fade-in h-full shrink-0 min-w-0">
+            <Suspense fallback={null}>
             <AIAssistant
               activeFile={activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: activeFile.content } : null}
               hasWorkspace={!!currentRootPath}
               onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }}
             />
+            </Suspense>
           </div>
+          </>
         )}
       </div>
 
