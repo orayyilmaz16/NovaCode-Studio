@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowDown, Bot, Check, ChevronDown, ChevronRight, ClipboardCheck, FlaskConical, Hammer, Lock, ScanSearch, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
+  ArrowDown, Bot, BookOpen, Bug, Check, Layers, ShieldAlert, ChevronDown, ChevronRight, ClipboardCheck, FlaskConical, Hammer, Lock, ScanSearch, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
   Settings as Cog, ShieldCheck, Sparkles, Square, Terminal as TermIcon, Trash2, Wrench, X, ArrowUp, Zap
 } from 'lucide-react';
 import { t, getUiLang } from '../i18n/uiText';
@@ -13,6 +13,7 @@ import {
   type AiSession, type CategoryId, type ChatMsg, type ToolCard
 } from '../services/aiClient';
 import { ChatSessions } from './ChatSessions';
+import { ChipSlider } from './ChipSlider';
 import { ThinkingMenu, type Autonomy, type ThinkingLevel } from './ThinkingMenu';
 import type { AiEvent, AiProvider, LlmModelInfo, LlmProgress } from '../types';
 
@@ -144,7 +145,11 @@ const TASKS = [
   ['aiTaskBuild', 'aiTaskBuildP', Hammer],
   ['aiTaskTest', 'aiTaskTestP', FlaskConical],
   ['aiTaskCheck', 'aiTaskCheckP', ScanSearch],
-  ['aiTaskReview', 'aiTaskReviewP', ClipboardCheck]
+  ['aiTaskReview', 'aiTaskReviewP', ClipboardCheck],
+  ['aiTaskDebug', 'aiTaskDebugP', Bug],
+  ['aiTaskSecurity', 'aiTaskSecurityP', ShieldAlert],
+  ['aiTaskSimplify', 'aiTaskSimplifyP', Layers],
+  ['aiTaskDocs', 'aiTaskDocsP', BookOpen]
 ] as const;
 
 // ---------- Ana bileşen ----------
@@ -335,21 +340,24 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     }
   });
 
-  // Mod değiştirme = o modun son sohbetine geçmek (yoksa yeni açılır). Boş sohbetteyken yeni liste kurulmaz, sohbet o moda çevrilir.
+  // Sohbet ve Ajan iki AYRI daldır: her birinin kendi sohbet listesi, kendi etkin sohbeti ve kendi taslağı vardır. Mod değiştirmek bir sohbeti
+  // öbür moda çevirmez ve aynı sohbet üzerinden devam etmez: o modun en son bakılan sohbetine (yoksa en yeni dolu sohbetine, o da yoksa boş yeni sohbete) geçilir.
   const drafts = useRef<{ ask: string; agent: string }>({ ask: '', agent: '' });
+  const lastActive = useRef<{ ask?: string; agent?: string }>({});
+  useEffect(() => { if (session) lastActive.current[session.mode] = session.id; }, [session?.id, session?.mode]); // eslint-disable-line react-hooks/exhaustive-deps
   const switchMode = (m: 'ask' | 'agent') => {
     if (m === mode || busy || !session) return;
     drafts.current[mode] = input;
     setImages([]);
     setRenameId(null);
-    if (!session.messages.length) {
-      setSessions((all) => all.map((s) => (s.id === session.id ? { ...s, mode: m } : s)));
-    } else {
-      const last = sessions.filter((s) => s.mode === m).sort((a, b) => b.updatedAt - a.updatedAt)[0];
-      if (last) setActiveId(last.id);
-      else { const s = newSession(m); setSessions((all) => [s, ...all]); setActiveId(s.id); }
-    }
+    const remembered = sessions.find((s) => s.id === lastActive.current[m] && s.mode === m);
+    const recent = [...sessions].filter((s) => s.mode === m && s.messages.length > 0).sort((a, b) => b.updatedAt - a.updatedAt)[0];
+    const target = remembered ?? recent;
+    if (target) setActiveId(target.id);
+    else { const s = newSession(m); setSessions((all) => [s, ...all]); setActiveId(s.id); }
     setInput(drafts.current[m]);
+    stick.current = true;
+    setAtBottom(true);
   };
 
   // Klasör kapandıysa (veya hiç açılmadıysa) ajan sohbetindeyken Sohbet'e dön; ajan sohbetleri silinmez
@@ -739,7 +747,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); void addFiles(e.dataTransfer.files); } }}
       >
         {isAgent && hasWorkspace && !busy && (
-          <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pb-1.5" aria-label={t('aiModeAgent')}>
+          <ChipSlider className="pb-1.5" label={t('aiModeAgent')}>
             <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 h-6 text-[11px] text-zinc-400" title={`${t('aiAutonomyLabel')}: ${autonomy === 'ask' ? t('optAutoAsk') : autonomy === 'edits' ? t('optAutoEdits') : t('optAutoFull')}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${autonomy === 'auto' ? 'bg-rose-400' : autonomy === 'edits' ? 'bg-amber-400' : 'bg-emerald-400'}`} />
               {autonomy === 'ask' ? t('optAutoAsk') : autonomy === 'edits' ? t('optAutoEdits') : t('optAutoFull')}
@@ -749,7 +757,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
                 <Ico size={11} />{t(label)}
               </button>
             ))}
-          </div>
+          </ChipSlider>
         )}
         <div className={`rounded-xl border border-zinc-700/80 bg-nv-input/50 transition-colors ${isAgent ? 'focus-within:border-violet-500' : 'focus-within:border-indigo-500'}`}>
           {images.length > 0 && (

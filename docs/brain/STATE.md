@@ -50,8 +50,9 @@
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 812 |
+| `src/components/AIAssistant.tsx` | 820 |
 | `src/components/ChatSessions.tsx` | 340 |
+| `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/EditorArea.tsx` | 363 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
@@ -97,7 +98,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/i18n/uiText.ts` | 1604 |
-| `src/i18n/uiTextAi.ts` | 486 |
+| `src/i18n/uiTextAi.ts` | 516 |
 
 ### Betikler
 | Dosya | Satır |
@@ -145,7 +146,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 671 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 681 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 93 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
