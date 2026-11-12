@@ -3,6 +3,10 @@
 ## Unreleased
 
 ### tr
+- **Gerçek terminal (PTY):** Terminal artık xterm.js ile gerçek bir terminal (vim, htop, gerçek Ctrl+C, yeniden boyutlandırma, Ctrl+Tık ile dosya:satır bağlantısı). Eski terminal "klasik" olarak durur; ayar: Terminal modu.
+- **Hata ayıklayıcı (Node/JavaScript):** Kesme noktaları (oluğa tık / F9), F5/F10/F11/Shift+F11/Shift+F5, değişkenler, çağrı yığını, ifade değerlendirme. Yalnız açık klasördeki .js/.mjs/.cjs dosyaları.
+- **Dil sunucuları (LSP):** Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua, YAML için tamamlama, üzerine gelme, tanıma git ve hata işaretleri; bilgisayarındaki sunucuyla (yalnız PATH'ten). Durum çubuğunda sunucu durumu; ayar: Dil sunucuları.
+- **Metin tamponu ve `edit_lines`:** Piece table tabanlı tampon; ajan artık satır aralığını atomik değiştirebilir (onay önizlemesi ile).
 - **İnce, sade çerçeve:** Üst çubuk, etkinlik şeridi, yan panel, editör, sağ paneller (AI/önizleme) ve alt çubuk ince kenarlıklı, hafif yuvarlak kartlar oldu (VS Code gibi). Renkler, tema ve editör görünümü değişmedi. Çerçeve boşluğu ve köşe yuvarlaklığı dar pencerede küçülür; alt çubuk dar genişlikte ikincil bilgileri gizler.
 - **AI paneli üst çubukta:** Yapay zekâ düğmesi sol etkinlik çubuğundan kalktı; arama çubuğunun yanında küçük bir simgeyle (veya Ctrl+Shift+L) panel açılıp kapanıyor.
 - **Sohbet ve Ajan iki ayrı dal:** Mod değiştirmek bir sohbeti öbür moda çevirmez; her modun kendi sohbeti, taslağı ve son bakılan sohbeti vardır. Ajan görev şablonları sağ/sol düğmeli (ayrıca tekerlek ve dokunmatik) bir kaydırıcıya çevrildi ve 8 şablona çıktı (hata kaynağı, güvenlik denetimi, sadeleştir, belgele eklendi).
@@ -84,6 +88,10 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **Real terminal (PTY):** The terminal is now a real xterm.js terminal (vim, htop, real Ctrl+C, resizing, Ctrl+Click file:line links). The old terminal remains as "classic"; setting: Terminal mode.
+- **Debugger (Node/JavaScript):** Breakpoints (gutter click / F9), F5/F10/F11/Shift+F11/Shift+F5, variables, call stack, expression evaluation. Only .js/.mjs/.cjs files in the opened folder.
+- **Language servers (LSP):** Completion, hover, go to definition and error marks for Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua, YAML using a server on your computer (PATH only). Server status in the status bar; setting: Language servers.
+- **Text buffer and `edit_lines`:** A piece-table based buffer; the agent can now replace line ranges atomically (with an approval preview).
 - **Thin, simple frame:** The title bar, activity rail, side panel, editor, right panels (AI/preview) and status bar are now thin-bordered, slightly rounded cards (VS Code style). Colors, theme and editor look are unchanged. The frame gap and corner radius shrink in narrow windows; the status bar hides secondary info when narrow.
 - **AI panel in the top bar:** The AI button moved out of the left activity bar; a small icon next to the search bar (or Ctrl+Shift+L) now opens and closes the panel.
 - **Chat and Agent are two separate branches:** Switching modes never turns a chat into the other mode; each mode keeps its own chat, draft and last-viewed chat. The agent task templates are now a slider with left/right buttons (plus wheel and touch) and grew to 8 templates (root cause, security check, simplify and document added).

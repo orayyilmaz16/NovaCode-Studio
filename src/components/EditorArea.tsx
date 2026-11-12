@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { FileTypeIcon } from './FileTypeIcon';
+import { bindDebugEditor } from '../services/debugEditor';
+import { bindLsp, setLspMonaco } from '../services/lspClient';
 import { setActiveEditor } from '../services/editorBridge';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
 import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns } from 'lucide-react';
@@ -78,6 +80,18 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [collabStatus, setCollabStatus] = useState<'off' | 'connecting' | 'synced' | 'error'>('off');
   const activeFile = openFiles.find((f) => f.id === activeFileId);
+
+  // Hata ayıklama: gutter'da kesme noktası (tıkla / F9) ve durulan satır vurgusu
+  useEffect(() => {
+    if (!editorInstance || !activeFile?.path) return;
+    return bindDebugEditor(editorInstance, activeFile.path);
+  }, [editorInstance, activeFile?.path]);
+
+  // Dil sunucusu (LSP): Python, Rust, Go, C/C++ vb. için tanılama, tamamlama, üzerine gelme, tanıma git
+  useEffect(() => {
+    if (!editorInstance || !activeFile?.path) return;
+    return bindLsp(editorInstance, activeFile.path, values.lspEnabled !== false);
+  }, [editorInstance, activeFile?.path, values.lspEnabled]);
 
   // Ortak düzenleme: aktif dosya için bir Yjs odası aç ve Monaco modeline bağla.
   // Odalar dosya bazlıdır: <proje>/<dosya-yolu>. Sunucu kapalıysa editör yerel çalışmaya devam eder.
@@ -320,6 +334,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             beforeMount={(monaco) => {
               defineNovaThemes(monaco);
               setMonacoForExtensions(monaco);
+              setLspMonaco(monaco);
             }}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}

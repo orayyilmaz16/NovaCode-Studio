@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
 import {
   Files,
+  Bug,
   Settings,
   Sparkles,
   Puzzle,
@@ -30,12 +31,16 @@ import { useCollabToken } from './services/useCollabToken';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
+const DebugPanel = lazy(() => import('./components/DebugPanel').then((m) => ({ default: m.DebugPanel })));
 const ExtensionsPanel = lazy(() => import('./components/ExtensionsPanel').then((m) => ({ default: m.ExtensionsPanel })));
 import type { PaletteCommand } from './components/CommandPalette';
 const CommandPalette = lazy(() => import('./components/CommandPalette').then((m) => ({ default: m.CommandPalette })));
 import { goToLine, runEditorAction, copySelection, pasteClipboard } from './services/editorBridge';
 import { MenuBar, type MenuGroup } from './components/MenuBar';
 import { WindowControls } from './components/WindowControls';
+import './i18n/uiTextDev'; // hata ayıklama/dil sunucusu/terminal metinleri (menü ve komutlarda gerekir)
+import { useLsp } from './services/lspStore';
+import { getDebugState, initDebug, isDebuggable, resumeDebug, setLocationHandler, startDebug, stepInto, stepOut, stepOver, stopDebug, useDebug } from './services/debugStore';
 import { UpdateDialog, UpdateIndicator } from './components/UpdateDialog';
 import { checkForUpdates } from './services/updateService';
 import { BUILTIN_THEMES, autoUpdateExtensions, listExtThemes, useExtensions } from './services/extensionsService';
@@ -69,7 +74,7 @@ export function App() {
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
 
   // Paneller
-  const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions'>('files');
+  const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions' | 'debug'>('files');
   // Önizleme varsayılan olarak kapalı; yalnız HTML dosyasında düğmesi görünür.
   const [showRightPanel, setShowRightPanel] = useState<'preview' | 'ai' | null>(null);
   const [showBottomTerminal, setShowBottomTerminal] = useState(false);
@@ -247,6 +252,15 @@ export function App() {
   }, [settings.updateAutoCheck, settings.updateAutoDownload]);
 
   // Kısayol tuşları. Dinleyici tek sefer kurulur; her render'da güncel işleyiciye yönlenir.
+  // Hata ayıklama: durum deposu, kesme noktaları çalışma klasörüne göre yüklenir; durunca dosya ve satır açılır
+  const dbg = useDebug();
+  const prevDbgStatus = useRef(dbg.status);
+  useEffect(() => { initDebug(currentRootPath); }, [currentRootPath]);
+  useEffect(() => {
+    if (dbg.status === 'paused' && prevDbgStatus.current !== 'paused') { setActiveSidebarTab('debug'); setSidebarVisible(true); }
+    prevDbgStatus.current = dbg.status;
+  }, [dbg.status]);
+
   const shortcutHandler = useRef<(e: KeyboardEvent) => void>(() => {});
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => shortcutHandler.current(e);
@@ -256,6 +270,12 @@ export function App() {
 
   shortcutHandler.current = (e: KeyboardEvent) => {
     if (e.key === 'F1') { e.preventDefault(); setPalette('>'); return; }
+    // Hata ayıklama kısayolları (VS Code ile aynı): duraklamadayken F5 devam, F10 adım at, F11 içine gir, Shift+F11 dışına çık, Shift+F5 durdur
+    const dbgStatus = getDebugState().status;
+    if (e.key === 'F5' && e.shiftKey && dbgStatus !== 'idle') { e.preventDefault(); void stopDebug(); return; }
+    if (e.key === 'F5' && dbgStatus === 'paused') { e.preventDefault(); void resumeDebug(); return; }
+    if (e.key === 'F10' && dbgStatus === 'paused') { e.preventDefault(); void stepOver(); return; }
+    if (e.key === 'F11' && dbgStatus === 'paused') { e.preventDefault(); void (e.shiftKey ? stepOut() : stepInto()); return; }
     if (e.key === 'F5') { e.preventDefault(); handleRunCode(); return; }
     const mod = e.ctrlKey || e.metaKey;
     if (!mod) return;
@@ -798,7 +818,7 @@ export function App() {
   const canPreview = previewable || !!localUrl; // yerel sunucu adresi yakalandıysa dosya olmasa da önizlenebilir
 
   // Etkinlik çubuğu: etkin sekmeye tekrar basmak kenar çubuğunu kapatır (VS Code davranışı)
-  const pickSidebar = (tab: 'files' | 'search' | 'git' | 'extensions') => {
+  const pickSidebar = (tab: 'files' | 'search' | 'git' | 'extensions' | 'debug') => {
     if (!showLanding && activeSidebarTab === tab && sidebarVisible) {
       setSidebarVisible(false);
       return;
@@ -811,7 +831,7 @@ export function App() {
   };
 
   // Kısayoldan açılışta (ör. Ctrl+Shift+F) sekme zaten açıksa kapatmaz
-  const pickSidebarForce = (tab: 'files' | 'search' | 'git' | 'extensions') => {
+  const pickSidebarForce = (tab: 'files' | 'search' | 'git' | 'extensions' | 'debug') => {
     setShowLanding(false);
     setShowSettings(false);
     setActiveSidebarTab(tab);
@@ -864,6 +884,38 @@ export function App() {
   };
   const previewTheme = (id: string) => { if (extThemeList.some((th) => th.id === id)) setSetting('extTheme', id); else setSetting('editorTheme', id); };
   const revertTheme = () => { setSetting('editorTheme', themeOrig.current.editorTheme); if (themeOrig.current.extTheme) setSetting('extTheme', themeOrig.current.extTheme); };
+
+  // Terminal çıktısındaki yol:satır bağlantıları (Ctrl+Tık) ve dil sunucusu "tanıma git": dosyayı ilgili satırda aç
+  useEffect(() => {
+    const on = (e: Event) => {
+      const d = (e as CustomEvent<{ path?: string; line?: number; cwd?: string }>).detail;
+      if (!d?.path) return;
+      const base = d.cwd || currentRootPath || '';
+      const sep = base.includes('\\') ? '\\' : '/';
+      const abs = /^([A-Za-z]:[\\/]|\/)/.test(d.path) ? d.path : `${base.replace(/[\\/]+$/, '')}${sep}${d.path.replace(/^\.[\\/]/, '').split(/[\\/]/).join(sep)}`;
+      void openFileAt(abs, d.line && d.line > 0 ? d.line : undefined);
+    };
+    window.addEventListener('nova:open-file', on);
+    return () => window.removeEventListener('nova:open-file', on);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openFiles, currentRootPath]);
+
+  // Dil sunucusu durumu: etkin dosyanın diline göre durum çubuğunda gösterilir
+  const lspMap = useLsp();
+  const lspEntry = activeFile ? lspMap[languageFromName(activeFile.name)] : undefined;
+  const lspTip = !lspEntry ? '' : lspEntry.state === 'ready' ? t('lspReady').replace('{n}', lspEntry.name)
+    : lspEntry.state === 'starting' ? t('lspStarting').replace('{n}', lspEntry.name)
+      : lspEntry.state === 'missing' ? t('lspMissing').replace('{n}', lspEntry.name).replace('{h}', lspEntry.hint ?? '')
+        : t('lspError').replace('{n}', lspEntry.name);
+
+  // Hata ayıklama: yalnız klasör açıkken ve etkin dosya JavaScript ise başlatılabilir
+  const canDebug = !!currentRootPath && !!activeFile?.path && isDebuggable(activeFile.name);
+  const startDebugActive = () => { if (canDebug && activeFile?.path) void startDebug(activeFile.path); };
+  useEffect(() => {
+    setLocationHandler((file, line) => { void openFileAt(file, line); });
+    return () => setLocationHandler(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openFiles, currentRootPath]);
 
   const menus: MenuGroup[] = [
     { id: 'file', label: t('mnFile'), items: [
@@ -934,6 +986,11 @@ export function App() {
     { id: 'run', label: t('mnRun'), items: [
       { label: t('mnRunFile'), shortcut: 'F5', ...F, onClick: handleRunCode },
       { label: t('tbPreview'), disabled: !canPreview, hint: !canPreview ? t('mnHintHtml') : undefined, onClick: () => setShowRightPanel((v) => (v === 'preview' ? null : 'preview')) },
+      { separator: true },
+      dbg.status === 'idle'
+        ? { label: t('dbgStart'), disabled: !canDebug, hint: !canDebug ? t('dbgOnlyJs') : undefined, onClick: startDebugActive }
+        : { label: t('dbgStop'), shortcut: 'Shift+F5', onClick: () => void stopDebug() },
+      { label: t('dbgToggleBp'), shortcut: 'F9', ...F, onClick: () => runEditorAction('nova.toggleBreakpoint') },
       { separator: true },
       { label: t('mnRunSettings'), onClick: () => openSettingsAt('run') }
     ] },
@@ -1136,6 +1193,10 @@ export function App() {
                 </span>
               )}
             </button>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} title={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
+              <Bug size={24} strokeWidth={1.5} />
+              {dbg.status === 'paused' && <span className="absolute bottom-2.5 right-2.5 w-2 h-2 rounded-full bg-amber-400" />}
+            </button>
           </div>
 
           <div className="flex flex-col">
@@ -1225,6 +1286,11 @@ export function App() {
                   <div className="flex-1 min-h-0">
                     <Suspense fallback={null}><GitPanel status={gitStatus} currentRepoPath={currentRootPath} onRefresh={() => refreshGitStatus()} onLog={(type, text) => addLog(type, text)} /></Suspense>
                   </div>
+                </div>
+              )}
+              {activeSidebarTab === 'debug' && (
+                <div key="debug" className="animate-sidebar-in h-full">
+                  <Suspense fallback={null}><DebugPanel rootPath={currentRootPath} activeFile={activeFile ? { path: activeFile.path, name: activeFile.name } : null} onOpenFile={(p, line) => void openFileAt(p, line)} /></Suspense>
                 </div>
               )}
             </div>
@@ -1374,6 +1440,12 @@ export function App() {
               <>
                 <span className="status-item hidden @lg:inline-flex">{t('stSpaces').replace(/\d+/, String(tabSize))}</span>
                 <span className="status-item hidden @lg:inline-flex">UTF-8</span>
+                {lspEntry && (
+                  <span className="status-item" title={lspTip}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${lspEntry.state === 'ready' ? 'bg-emerald-400' : lspEntry.state === 'starting' ? 'bg-amber-400 animate-pulse' : lspEntry.state === 'missing' ? 'bg-zinc-500' : 'bg-rose-400'}`} />
+                    <span className="hidden @md:inline">{lspEntry.name}</span>
+                  </span>
+                )}
                 <span className="status-item">{activeFile.language ? activeFile.language : t('stPlain')}</span>
               </>
             )}

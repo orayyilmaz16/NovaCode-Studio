@@ -1,10 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Plus, ChevronDown, Trash2, Maximize2, Minimize2, X, SquareTerminal, FolderOpen } from 'lucide-react';
 import type { ConsoleLog } from '../types';
 import { t } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
 import { commandToAnsi, parseAnsi, shortenPath, tokenizeCommand, TOKEN_COLOR } from '../services/terminalText';
 import { PopupMenu } from './Menu';
+import '../i18n/uiTextDev'; // gerçek terminal metinleri (gecikmeli yüklenen ek sözlük)
+import { dropPty, pushPtyData } from '../services/ptyBus';
+import type { PtyHandle } from './PtyView';
+
+const PtyView = React.lazy(() => import('./PtyView')); // xterm.js yalnız ilk gerçek terminal açılınca yüklenir
 
 interface TerminalProps {
   logs: ConsoleLog[];
@@ -25,6 +30,8 @@ type PanelTab = 'terminal' | 'log';
 interface Session {
   id: string;
   shell: ShellId;
+  /** pipe: klasik (satır içi istem, boru); pty: gerçek terminal (xterm.js + PTY). */
+  kind: 'pipe' | 'pty';
   running: boolean;
   status: string;
   output: string;
@@ -79,9 +86,13 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const [ptyOk, setPtyOk] = useState<boolean | null>(null); // null: henüz denetlenmedi
+  const ptyHandles = useRef(new Map<string, PtyHandle>());
 
   const api = typeof window !== 'undefined' ? window.electronAPI : undefined;
   const hasShell = !!api?.termStart;
+  // Varsayılan tür: gerçek terminal (PTY) kullanılabilirse ve ayar 'klasik' değilse o
+  const defaultKind: 'pipe' | 'pty' = values.terminalMode === 'classic' || !ptyOk ? 'pipe' : 'pty';
   const counter = useRef(0);
   const history = useRef<Map<string, string[]>>(new Map());
   const historyPos = useRef(-1);
@@ -92,6 +103,13 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const autoOpened = useRef(false);
   const scrollbackRef = useRef(scrollback);
   scrollbackRef.current = scrollback;
+  const sessionsRef = useRef<Session[]>([]);
+  sessionsRef.current = sessions;
+  useEffect(() => {
+    if (!api?.pty) { setPtyOk(false); return; }
+    void api.pty.available().then((r) => setPtyOk(!!r.available)).catch(() => setPtyOk(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const active = sessions.find((s) => s.id === activeId) ?? null;
   const patch = useCallback((id: string, fn: (s: Session) => Session) => {
@@ -115,28 +133,52 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     const offExit = api.onTermExit(({ id, code }) => {
       patch(id, (s) => ({ ...s, running: false, status: t('termEnded').replace('{code}', String(code ?? '?')) }));
     });
+    const offPtyData = api.pty?.onData(({ id, data }) => {
+      pushPtyData(id, data);
+      // Geliştirme sunucusu adresi → önizleme (klasik terminaldeki davranışla aynı)
+      const plain = data.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, '');
+      const m = /https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\]):\d{2,5}[^\s'")>]*/i.exec(plain);
+      if (m) window.dispatchEvent(new CustomEvent('nova:localhost', { detail: m[0] }));
+    });
+    const offPtyExit = api.pty?.onExit(({ id, code }) => {
+      const msg = t('termEnded').replace('{code}', String(code ?? '?'));
+      pushPtyData(id, `\r\n\x1b[2m${msg}\x1b[0m\r\n`);
+      patch(id, (s) => ({ ...s, running: false, status: msg }));
+    });
     return () => {
       offOut?.();
       offCwd?.();
       offExit?.();
+      offPtyData?.();
+      offPtyExit?.();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const createSession = useCallback(
-    async (shell: ShellId) => {
-      if (!api?.termStart || !cwd) return;
-      if (sessions.length >= 12) return;
+    async (shell: ShellId, kind: 'pipe' | 'pty' = defaultKind) => {
+      if (!cwd || sessions.length >= 12) return;
       counter.current += 1;
+      if (kind === 'pty' && api?.pty) {
+        // Gerçek terminal: oturumu burada başlatırız; xterm görünümü (PtyView) yalnız çizer ve çıktıyı tampondan oynatır
+        const id = `p-${counter.current}-${Math.random().toString(36).slice(2, 6)}`;
+        setSessions((prev) => [...prev, { id, shell, kind: 'pty', running: true, status: '', output: '', cwd }]);
+        setActiveId(id);
+        setTab('terminal');
+        const res = await api.pty.start({ id, shell, cwd, cols: 100, rows: 28 });
+        if (!res.success) patch(id, (s) => ({ ...s, running: false, status: res.error === 'too-many' ? t('termTooMany') : res.error === 'no-pty' ? t('termPtyUnavailable') : t('termStartFailed') }));
+        return;
+      }
+      if (!api?.termStart) return;
       const id = `t-${counter.current}-${Math.random().toString(36).slice(2, 6)}`;
-      setSessions((prev) => [...prev, { id, shell, running: false, status: t('termStarting'), output: '', cwd }]);
+      setSessions((prev) => [...prev, { id, shell, kind: 'pipe', running: false, status: t('termStarting'), output: '', cwd }]);
       setActiveId(id);
       setTab('terminal');
       const res = await api.termStart(shell, cwd, id);
       patch(id, (s) => ({ ...s, running: res.success, status: res.success ? '' : res.error === 'too-many' ? t('termTooMany') : t('termStartFailed') }));
       inputRef.current?.focus();
     },
-    [api, cwd, sessions.length, patch]
+    [api, cwd, sessions.length, patch, defaultKind]
   );
 
   // Menü / komut paleti köprüsü: yeni terminal, temizle, komut çalıştır (ör. dosyayı çalıştır)
@@ -185,16 +227,17 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       autoOpened.current = false;
       return;
     }
-    if (hasShell && cwd && sessions.length === 0 && !autoOpened.current) {
+    if (hasShell && cwd && ptyOk !== null && sessions.length === 0 && !autoOpened.current) {
       autoOpened.current = true;
       void createSession(defaultShell);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, cwd, hasShell]);
+  }, [visible, cwd, hasShell, ptyOk]);
 
   const closeSession = useCallback(
     async (id: string) => {
-      await api?.termStop(id);
+      const kind = sessionsRef.current.find((x) => x.id === id)?.kind;
+      if (kind === 'pty') { await api?.pty?.stop(id); dropPty(id); ptyHandles.current.delete(id); } else await api?.termStop(id);
       history.current.delete(id);
       setSessions((prev) => {
         const next = prev.filter((s) => s.id !== id);
@@ -238,6 +281,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
 
   // ---- Komut gönderme ----
   const runLine = async (line: string) => {
+    // Gerçek terminal: satır doğrudan PTY'ye yazılır (kabuk kendi istemini ve geçmişini yönetir)
+    if (active?.kind === 'pty') { if (active.running) await api?.pty?.write(active.id, line + '\r'); return; }
     if (!active || !active.running || !api?.termInput) return;
     const echo = `${promptAnsi(active.shell, active.cwd, branch)}${colorInput ? commandToAnsi(line, active.shell) : line}\n`;
     patch(active.id, (s) => ({ ...s, output: (s.output + echo).slice(-scrollbackRef.current) }));
@@ -293,7 +338,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     if (!window.getSelection()?.toString()) inputRef.current?.focus();
   };
 
-  const clearActive = () => (tab === 'log' ? onClear() : active && patch(active.id, (s) => ({ ...s, output: '' })));
+  const clearActive = () => (tab === 'log' ? onClear() : active?.kind === 'pty' ? ptyHandles.current.get(active.id)?.clear() : active && patch(active.id, (s) => ({ ...s, output: '' })));
 
   // ---- Üst çubuk ----
   const tabBtn = (id: PanelTab, label: string) => (
@@ -359,6 +404,20 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       <div className="flex flex-1 min-h-0">
         {/* Ana alan */}
         <div className="flex-1 min-w-0 relative">
+          {sessions.filter((x) => x.kind === 'pty').map((x) => (
+            <Suspense key={x.id} fallback={null}>
+              <PtyView
+                id={x.id}
+                cwd={x.cwd}
+                active={tab === 'terminal' && x.id === activeId}
+                fontSize={fontSize}
+                lineHeight={lineHeight}
+                cursor={cursor === 'bar' ? 'bar' : cursor === 'underline' ? 'underline' : 'block'}
+                scrollback={scrollback}
+                onReady={(pid, h) => { if (h) ptyHandles.current.set(pid, h); else ptyHandles.current.delete(pid); }}
+              />
+            </Suspense>
+          ))}
           {tab === 'log' ? (
             <div className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
               {logs.length === 0 ? (
@@ -386,7 +445,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                 </button>
               )}
             </div>
-          ) : (
+          ) : active?.kind === 'pty' ? null : (
             <div ref={scrollRef} onScroll={onScroll} onClick={focusInput} className="absolute inset-0 overflow-y-auto px-3 py-1.5" style={{ lineHeight }} data-terminal-scroll="">
               {active && (
                 <>
@@ -449,7 +508,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                   <span className={`absolute left-0 top-1 bottom-1 w-0.5 rounded-r bg-indigo-400 transition-transform ${on ? 'scale-y-100' : 'scale-y-0'}`} />
                   <SquareTerminal size={13} className={s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0'} />
                   <span className="truncate flex-1">
-                    {SHELL_LABEL[s.shell]} <span className="text-zinc-500">{baseName(s.cwd)}</span>
+                    {SHELL_LABEL[s.shell]}{ptyOk && s.kind === 'pipe' ? <span className="text-zinc-500"> · {t('termClassic')}</span> : null} <span className="text-zinc-500">{baseName(s.cwd)}</span>
                   </span>
                   <button
                     onClick={(e) => {
@@ -475,8 +534,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
           y={menu.y}
           onClose={() => setMenu(null)}
           items={[
-            { label: 'PowerShell', icon: <SquareTerminal size={13} />, onClick: () => void createSession('powershell') },
-            { label: 'CMD', icon: <SquareTerminal size={13} />, onClick: () => void createSession('cmd') }
+            ...(ptyOk
+              ? [
+                  { label: `PowerShell · ${t('termFull')}`, icon: <SquareTerminal size={13} />, onClick: () => void createSession('powershell', 'pty') },
+                  { label: `CMD · ${t('termFull')}`, icon: <SquareTerminal size={13} />, onClick: () => void createSession('cmd', 'pty') },
+                  { separator: true as const }
+                ]
+              : []),
+            { label: ptyOk ? `PowerShell · ${t('termClassic')}` : 'PowerShell', icon: <SquareTerminal size={13} />, onClick: () => void createSession('powershell', 'pipe') },
+            { label: ptyOk ? `CMD · ${t('termClassic')}` : 'CMD', icon: <SquareTerminal size={13} />, onClick: () => void createSession('cmd', 'pipe') }
           ]}
         />
       )}

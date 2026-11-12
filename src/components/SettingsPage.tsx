@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { t, type TextKey, type UiTextKey } from '../i18n/uiText';
 import '../i18n/uiTextAi'; // AI ve ayar metinleri (gecikmeli yüklenen ek sözlük)
+import '../i18n/uiTextDev'; // hata ayıklama/terminal ayar metinleri (gecikmeli yüklenen ek sözlük)
 import { useSettings } from '../services/SettingsContext';
 import { useUpdate } from '../services/updateService';
 import { BUILTIN_THEMES, extThemeName, listExtThemes, uninstallExt, useActiveEditorTheme, useExtensions, setMonacoForExtensions } from '../services/extensionsService';

@@ -3,7 +3,7 @@
 > Bu dosya `scripts/brain.mjs` tarafından koddan üretilir; **elle düzenleme**. Yenilemek için `npm run brain`. Bkz. [[BRAIN]].
 
 ## Sürümler
-- Uygulama: **1.2.0**
+- Uygulama: **1.3.0**
 - Electron ^45.2.1 · React ^19.3.1 · Vite ^8.3.5 · TypeScript ~7.0.2 · Tailwind ^4.3.4
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.57.0
 - GitHub OAuth Client ID tanımlı: evet
@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `version:check` | `node scripts/check-version.mjs` |
@@ -28,24 +28,28 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 656 |
+| `electron-ai.cjs` | 691 |
+| `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
 | `electron-llm.cjs` | 256 |
-| `electron-main.cjs` | 512 |
-| `electron-preload.cjs` | 152 |
+| `electron-lsp.cjs` | 271 |
+| `electron-main.cjs` | 520 |
+| `electron-preload.cjs` | 201 |
+| `electron-pty.cjs` | 118 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
 | `electron-term.cjs` | 155 |
+| `electron-textbuffer.cjs` | 309 |
 | `electron-update.cjs` | 164 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1387 |
+| `src/App.tsx` | 1459 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 288 |
+| `src/types.ts` | 340 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -54,7 +58,8 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
-| `src/components/EditorArea.tsx` | 363 |
+| `src/components/DebugPanel.tsx` | 198 |
+| `src/components/EditorArea.tsx` | 378 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 919 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -66,11 +71,12 @@
 | `src/components/Menu.tsx` | 115 |
 | `src/components/MenuBar.tsx` | 95 |
 | `src/components/Preview.tsx` | 317 |
+| `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
-| `src/components/SettingsPage.tsx` | 568 |
+| `src/components/SettingsPage.tsx` | 569 |
 | `src/components/SplashScreen.tsx` | 38 |
-| `src/components/Terminal.tsx` | 485 |
+| `src/components/Terminal.tsx` | 551 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/UpdateDialog.tsx` | 156 |
 | `src/components/WindowControls.tsx` | 48 |
@@ -80,12 +86,17 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
+| `src/services/debugEditor.ts` | 57 |
+| `src/services/debugStore.ts` | 143 |
 | `src/services/editorBridge.ts` | 80 |
 | `src/services/editorTheme.ts` | 96 |
 | `src/services/extensionsService.ts` | 220 |
-| `src/services/lang.ts` | 12 |
+| `src/services/lang.ts` | 13 |
+| `src/services/lspClient.ts` | 190 |
+| `src/services/lspStore.ts` | 34 |
 | `src/services/monacoShim.ts` | 28 |
 | `src/services/previewKind.ts` | 11 |
+| `src/services/ptyBus.ts` | 24 |
 | `src/services/settings.ts` | 249 |
 | `src/services/terminalBridge.ts` | 32 |
 | `src/services/terminalText.ts` | 148 |
@@ -97,8 +108,9 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1604 |
+| `src/i18n/uiText.ts` | 1605 |
 | `src/i18n/uiTextAi.ts` | 516 |
+| `src/i18n/uiTextDev.ts` | 126 |
 
 ### Betikler
 | Dosya | Satır |
@@ -115,9 +127,14 @@
 ### Testler
 | Dosya | Satır |
 |---|---|
+| `scripts/tests/ai-tools.test.cjs` | 73 |
+| `scripts/tests/debug.test.cjs` | 112 |
 | `scripts/tests/git.test.cjs` | 84 |
+| `scripts/tests/lsp.test.cjs` | 97 |
+| `scripts/tests/pty.test.cjs` | 84 |
 | `scripts/tests/sync.test.cjs` | 58 |
 | `scripts/tests/term.test.cjs` | 74 |
+| `scripts/tests/textbuffer.test.cjs` | 135 |
 
 ### Sunucu
 | Dosya | Satır |
@@ -129,12 +146,15 @@
 |---|---|
 | ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
 | app | `app:openLink`, `app:quit`, `app:reveal` |
+| dbg | `dbg:evaluate`, `dbg:pause`, `dbg:properties`, `dbg:resume`, `dbg:scopes`, `dbg:setBreakpoints`, `dbg:start`, `dbg:stepInto`, `dbg:stepOut`, `dbg:stepOver`, `dbg:stop` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
 | ext | `ext:checkUpdates`, `ext:details`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDataUrl`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:branches`, `git:checkout`, `git:commit`, `git:createBranch`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:pull`, `git:push`, `git:stage`, `git:stageAll`, `git:status`, `git:sync`, `git:unstage` |
 | github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
 | llm | `llm:cancel`, `llm:delete`, `llm:download`, `llm:status` |
+| lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
+| pty | `pty:available`, `pty:resize`, `pty:start`, `pty:stop`, `pty:write` |
 | search | `search:files`, `search:text` |
 | secrets | `secrets:get`, `secrets:set` |
 | term | `term:input`, `term:start`, `term:stop` |
@@ -143,13 +163,13 @@
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 681 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 719 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-93 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+95 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -220,6 +240,8 @@
 | Çalıştır ve önizleme | `runCommandPhp` | PHP çalıştırma komutu | text | `""` | ≤200 karakter |
 | Eklentiler | `extAutoUpdate` | Eklentileri otomatik güncelle | toggle | `true` |  |
 | Terminal | `terminalFontSize` | Terminal yazı boyutu | slider | `12` | 10–20 px |
+| Editör | `lspEnabled` | Dil sunucuları (LSP) | toggle | `true` |  |
+| Terminal | `terminalMode` | Terminal türü | select | `"pty"` | pty, classic |
 | Terminal | `defaultShell` | Varsayılan kabuk | select | `"powershell"` | powershell, cmd |
 | Terminal | `terminalColorInput` | Komutları renklendir | toggle | `true` |  |
 | Terminal | `terminalShowBranch` | İstemde Git dalını göster | toggle | `true` |  |
@@ -264,17 +286,20 @@
 | [[ai-assistant]] | `docs/brain/actions/ai-assistant.md` | Yapay zekâ asistanı: çoklu sağlayıcı, Ask/Agent modları, araçlar, oturumlar, görsel girdi, sesli dikte, özel komutlar |
 | [[brain-maintenance]] | `docs/brain/actions/brain-maintenance.md` | Proje beynini (docs/brain) güncel ve tutarlı tutmak |
 | [[ci-cd]] | `docs/brain/actions/ci-cd.md` | GitHub Actions, audit, bundle bütçesi ve yayın hattı |
+| [[debugging]] | `docs/brain/actions/debugging.md` | Hata ayıklayıcı (Node/JavaScript): kesme noktası, adım adım, değişkenler, çağrı yığını |
 | [[explorer]] | `docs/brain/actions/explorer.md` | Gezgin (dosya ağacı): görünüm seçenekleri, filtre, sürükle-bırak taşıma, bağlam menüsü, simge stilleri, güvenlik kuralları |
 | [[extensions]] | `docs/brain/actions/extensions.md` | Eklenti mağazası (Open VSX): arama, yükleme, güncelleme, kaldırma; tema katkısı |
 | [[git-github]] | `docs/brain/actions/git-github.md` | Git paneli, GitHub hesabı bağlama, PR, eşzamanlama ve canlı takip |
 | [[i18n]] | `docs/brain/actions/i18n.md` | Arayüze metin eklemek (8 dil zorunlu) |
+| [[lsp]] | `docs/brain/actions/lsp.md` | Dil sunucuları (LSP): Monaco'nun yerleşik desteği olmayan diller için tamamlama, üzerine gelme, tanıma git, tanılama |
 | [[preview]] | `docs/brain/actions/preview.md` | HTML/SVG/Markdown önizleme, yerel sunucu önizleme, Çalıştır (F5) ve çalıştırma ayarları |
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |
 | [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
 | [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör davranışları, kalıcılık ve gizli değerler |
-| [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: çoklu oturum, panel davranışı, istem, renklendirme |
+| [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: gerçek PTY (xterm.js) ve klasik boru terminali, çoklu oturum, panel davranışı |
 | [[testing]] | `docs/brain/actions/testing.md` | Değişikliği doğrulamak: tip, derleme, birim ve entegrasyon testleri, uygulamayı çalıştırma |
+| [[text-buffer]] | `docs/brain/actions/text-buffer.md` | Özel metin tamponu (piece table) ve ajanın edit_lines aracı |
 | [[ui-design]] | `docs/brain/actions/ui-design.md` | Arayüz, tema, logo ve animasyon değişiklikleri |
 | [[updates]] | `docs/brain/actions/updates.md` | Uygulama güncelleme sistemi: denetle, indir (yüzde), yeniden başlat ve kur; sürüm notları; yayın hattı |
 | [[BRAIN]] | `docs/brain/BRAIN.md` | NovaCode Studio — Proje Beyni |

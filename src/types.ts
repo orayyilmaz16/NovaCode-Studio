@@ -144,6 +144,28 @@ export interface LlmProgress {
   error?: 'cancelled' | 'failed';
 }
 
+export interface LspDiagnostic {
+  message: string;
+  severity?: number;
+  range: { start: { line: number; character: number }; end: { line: number; character: number } };
+  source?: string;
+  code?: string | number | { value: string };
+}
+export type LspEvent =
+  | { type: 'diagnostics'; name: string; path: string; diagnostics: LspDiagnostic[] }
+  | { type: 'state'; name: string; state: 'starting' | 'ready' | 'error' | 'stopped'; detail?: string };
+
+export interface DebugVar { name: string; value: string; type: string; ref: string | null }
+export interface DebugFrame { id: string; name: string; file: string | null; url: string; line: number; column: number }
+export type DebugEvent =
+  | { type: 'started'; file: string }
+  | { type: 'paused'; reason: string; frames: DebugFrame[]; hit: number }
+  | { type: 'resumed' }
+  | { type: 'bpVerified'; file: string; line: number }
+  | { type: 'output'; stream: 'stdout' | 'stderr'; text: string }
+  | { type: 'exited'; code: number }
+  | { type: 'error'; message: string };
+
 export interface AiRunRequest {
   runId: string;
   provider: AiProvider;
@@ -221,6 +243,36 @@ export interface ElectronBridge {
     commands: () => Promise<{ name: string; template: string }[]>;
     ollamaModels: (baseUrl?: string) => Promise<{ running: boolean; models: string[] }>;
     onEvent: (callback: (ev: AiEvent) => void) => () => void;
+  };
+  lsp?: {
+    status: (lang: string) => Promise<{ supported: boolean; name?: string; available?: boolean; hint?: string; state?: string }>;
+    start: (lang: string) => Promise<{ success: boolean; error?: string; name?: string; hint?: string; triggers?: string[]; signatureTriggers?: string[] }>;
+    notify: (lang: string, method: string, path: string, params: unknown) => Promise<{ success: boolean; error?: string }>;
+    request: (lang: string, method: string, path: string, params: unknown) => Promise<{ success: boolean; result?: unknown; error?: string }>;
+    onEvent: (cb: (ev: LspEvent) => void) => () => void;
+  };
+  pty?: {
+    available: () => Promise<{ available: boolean }>;
+    start: (req: { id: string; shell: 'powershell' | 'cmd'; cwd: string; cols: number; rows: number }) => Promise<{ success: boolean; error?: string }>;
+    write: (id: string, data: string) => Promise<{ success: boolean }>;
+    resize: (id: string, cols: number, rows: number) => Promise<{ success: boolean }>;
+    stop: (id: string) => Promise<{ success: boolean }>;
+    onData: (cb: (m: { id: string; data: string }) => void) => () => void;
+    onExit: (cb: (m: { id: string; code: number | null }) => void) => () => void;
+  };
+  debug?: {
+    start: (req: { file: string; args?: string[]; stopOnEntry?: boolean }) => Promise<{ success: boolean; error?: string }>;
+    stop: () => Promise<{ success: boolean }>;
+    setBreakpoints: (file: string, lines: number[]) => Promise<{ success: boolean; error?: string; breakpoints?: { line: number; verified: boolean }[] }>;
+    resume: () => Promise<{ success: boolean }>;
+    stepOver: () => Promise<{ success: boolean }>;
+    stepInto: () => Promise<{ success: boolean }>;
+    stepOut: () => Promise<{ success: boolean }>;
+    pause: () => Promise<{ success: boolean }>;
+    scopes: (frameId: string) => Promise<{ success: boolean; scopes?: { name: string; ref: string; expanded: boolean }[] }>;
+    properties: (ref: string) => Promise<{ success: boolean; props?: DebugVar[] }>;
+    evaluate: (expr: string, frameId?: string | null) => Promise<{ success: boolean; value?: string; type?: string; ref?: string | null; error?: string }>;
+    onEvent: (cb: (ev: DebugEvent) => void) => () => void;
   };
   quitApp: () => Promise<void>;
   platform?: string;

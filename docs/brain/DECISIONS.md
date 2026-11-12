@@ -2,6 +2,12 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 12.11.2026 (metin tamponu, hata ayıklama, PTY, LSP)
+- **Piece table Monaco'nun tamponunu değiştirmez;** yalnız ajan `edit_lines` aracı kullanır. Neden: Monaco'nun tamponu zaten iyi, değiştirmek risk ve fayda yok. Bkz. [[text-buffer]].
+- **Hata ayıklayıcı yalnız Node/JS, V8 Inspector (CDP).** Neden: ek bağımlılıksız (`ws` vardı), çalışma klasörü + 127.0.0.1 ile güvenli. Bkz. [[debugging]].
+- **Gerçek terminal `@lydell/node-pty` + `xterm`; klasik terminal korunur.** Neden: tam ekran programlar ve gerçek Ctrl+C; derleme aracı gerektirmeyen hazır ikili. Yeni bağımlılıklar: `@lydell/node-pty`, `@xterm/xterm`, `@xterm/addon-fit`. Bkz. [[terminal]].
+- **Dil sunucuları yalnız kullanıcının PATH'inden çalışır, proje içinden asla.** Neden: açılan kötü niyetli proje kod çalıştıramasın. Uygulama sunucu kurmaz, ipucu gösterir. Bkz. [[lsp]].
+
 ## 12.11.2026 (Ayarlar penceresi, Gezgin)
 - **Ayarlar ana alanı değiştirmek yerine uygulamanın üstünde ayrı bir pencere (modal) olarak açılır.** Neden: kullanıcı "arka plan siyah, ayarlar ayrı açılsın, ekrandan çıkmasın" istedi; ana görünüm kaybolmuyor, boyut ekranla sınırlı. Tek z-index ölçeği dokümante edildi ([[ui-design]]).
 - **Açılır menüler portal ile `document.body`'ye çizilir.** Neden: Gezgin'in görünüm menüsü kenar çubuğunun `overflow-hidden`'ı tarafından kırpılıyordu.

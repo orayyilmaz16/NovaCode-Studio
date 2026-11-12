@@ -11,6 +11,55 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     setTheme: (mode) => ipcRenderer.invoke('ui:setTheme', mode)
   },
+  // Dil sunucuları (LSP): Python, Rust, Go, C/C++ vb. (yalnız kullanıcının PATH'indeki sunucular)
+  lsp: {
+    status: (lang) => ipcRenderer.invoke('lsp:status', { lang }),
+    start: (lang) => ipcRenderer.invoke('lsp:start', { lang }),
+    notify: (lang, method, path, params) => ipcRenderer.invoke('lsp:notify', { lang, method, path, params }),
+    request: (lang, method, path, params) => ipcRenderer.invoke('lsp:request', { lang, method, path, params }),
+    onEvent: (cb) => {
+      const h = (_e, ev) => cb(ev);
+      ipcRenderer.on('lsp:event', h);
+      return () => ipcRenderer.removeListener('lsp:event', h);
+    }
+  },
+  // Gerçek terminal (PTY): xterm.js ile çalışır
+  pty: {
+    available: () => ipcRenderer.invoke('pty:available'),
+    start: (req) => ipcRenderer.invoke('pty:start', req),
+    write: (id, data) => ipcRenderer.invoke('pty:write', id, data),
+    resize: (id, cols, rows) => ipcRenderer.invoke('pty:resize', id, cols, rows),
+    stop: (id) => ipcRenderer.invoke('pty:stop', id),
+    onData: (cb) => {
+      const h = (_e, m) => cb(m);
+      ipcRenderer.on('pty:data', h);
+      return () => ipcRenderer.removeListener('pty:data', h);
+    },
+    onExit: (cb) => {
+      const h = (_e, m) => cb(m);
+      ipcRenderer.on('pty:exit', h);
+      return () => ipcRenderer.removeListener('pty:exit', h);
+    }
+  },
+  // Hata ayıklayıcı (Node.js / V8 Inspector): kesme noktaları, adım adım, değişkenler
+  debug: {
+    start: (req) => ipcRenderer.invoke('dbg:start', req),
+    stop: () => ipcRenderer.invoke('dbg:stop'),
+    setBreakpoints: (file, lines) => ipcRenderer.invoke('dbg:setBreakpoints', { file, lines }),
+    resume: () => ipcRenderer.invoke('dbg:resume'),
+    stepOver: () => ipcRenderer.invoke('dbg:stepOver'),
+    stepInto: () => ipcRenderer.invoke('dbg:stepInto'),
+    stepOut: () => ipcRenderer.invoke('dbg:stepOut'),
+    pause: () => ipcRenderer.invoke('dbg:pause'),
+    scopes: (frameId) => ipcRenderer.invoke('dbg:scopes', { frameId }),
+    properties: (ref) => ipcRenderer.invoke('dbg:properties', { ref }),
+    evaluate: (expr, frameId) => ipcRenderer.invoke('dbg:evaluate', { expr, frameId }),
+    onEvent: (cb) => {
+      const h = (_e, ev) => cb(ev);
+      ipcRenderer.on('dbg:event', h);
+      return () => ipcRenderer.removeListener('dbg:event', h);
+    }
+  },
   secrets: {
     get: (key) => ipcRenderer.invoke('secrets:get', key),
     set: (key, value) => ipcRenderer.invoke('secrets:set', key, value)

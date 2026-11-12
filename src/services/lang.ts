@@ -3,6 +3,7 @@ const MAP: Record<string, string> = {
   js: 'javascript', jsx: 'javascript', mjs: 'javascript', cjs: 'javascript',
   ts: 'typescript', tsx: 'typescript', html: 'html', htm: 'html',
   css: 'css', scss: 'css', sass: 'css', less: 'css', json: 'json',
+  cs: 'csharp', php: 'php', rb: 'ruby', lua: 'lua',
   md: 'markdown', markdown: 'markdown', py: 'python', rs: 'rust', go: 'go',
   c: 'cpp', cpp: 'cpp', h: 'cpp', hpp: 'cpp', java: 'java', sql: 'sql',
   sh: 'shell', bash: 'shell', zsh: 'shell', ps1: 'shell', yaml: 'yaml', yml: 'yaml'

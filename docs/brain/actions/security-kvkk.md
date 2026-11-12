@@ -42,6 +42,8 @@ Ana süreçte yazan/silen/taşıyan her işleyici yolu doğrular: `fs:createFile
 | Dikte (OpenAI uyumlu) | Mikrofon kullanılınca ve açık rıza varsa | Ses | Yerel adreste yerelde kalır |
 | GitHub (güncelleme) | Güncelleme denetimi / sürüm notları | IP, uygulama sürümü, platform | Kullanıcı isteğiyle veya "açılışta denetle" ayarıyla; kişisel veri yok |
 | GitHub | Git/GitHub paneli | Kimlik doğrulama, repo işlemleri | Kullanıcı eylemiyle |
+| Dil sunucusu (LSP) | Python/Rust/Go... dosyası açılınca | Dosya içeriği yerel sunucu sürecine | Yerelde kalır; ağ yok; sunucu yalnız kullanıcının PATH'inden |
+| Hata ayıklayıcı / PTY | Kullanıcı başlatınca | Yerel süreç | Yalnız çalışma klasöründe; 127.0.0.1; veri çıkmaz |
 
 ## Çıktı
 Raporda ayrıca belirt; karar alındıysa [[DECISIONS]]. Güvenlik açığı bildirimi süreci: [[SECURITY]].

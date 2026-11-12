@@ -9,7 +9,7 @@ triggers: ["test", "doğrula", "build", "tsc"]
 
 ## Sıra (en fazla 3 tur)
 1. `npx tsc --noEmit` — tip kontrolü (build tipleri denetlemez).
-2. `npm test` — `git.test.cjs` (durum, sahneleme, commit, dallar, kilit, yol güvenliği), `sync.test.cjs` (yerel bare depoyla fetch/pull/push, ayrışma), `term.test.cjs` (terminal süzgeci, kimlik reddi, gerçek PowerShell/CMD turu).
+2. `npm test` — `git.test.cjs` (durum, sahneleme, commit, dallar, kilit, yol güvenliği), `sync.test.cjs` (yerel bare depoyla fetch/pull/push, ayrışma), `term.test.cjs` (terminal süzgeci, kimlik reddi, gerçek PowerShell/CMD turu), `textbuffer.test.cjs`, `debug.test.cjs` (gerçek Node süreci), `pty.test.cjs` (gerçek ConPTY), `lsp.test.cjs` (güvenlik + PATH'te pyright varsa gerçek sunucu; `NOVA_TEST_PATH`), `ai-tools.test.cjs` (ajan araçları).
 3. `npm run brain:check` — md bağlantıları, aksiyon başlıkları, IPC eşleşmesi, i18n 8 dil.
 4. `npm run build` + `node scripts/check-bundle.mjs` — bütçe: JS 600 KB (gzip 200), CSS 100 KB.
 5. `npm audit --omit=dev --audit-level=moderate`.

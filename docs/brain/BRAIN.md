@@ -29,7 +29,10 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[settings]] | Ayarlar sistemi: yeni ayar, tema/font/editör |
 | [[i18n]] | Arayüze metin eklemek (8 dil) |
 | [[security-kvkk]] | IPC, dosya sistemi, token, kişisel veri |
-| [[terminal]] | Entegre terminal (PowerShell/CMD) |
+| [[terminal]] | Entegre terminal (gerçek PTY + klasik, PowerShell/CMD) |
+| [[debugging]] | Hata ayıklayıcı (Node/JS): kesme noktası, adım, değişkenler |
+| [[lsp]] | Dil sunucuları (Python, Rust, Go, C/C++ ...): tamamlama, hover, tanım, tanılama |
+| [[text-buffer]] | Piece table metin tamponu ve ajan `edit_lines` aracı |
 | [[ai-assistant]] | Yapay zekâ paneli: sağlayıcılar, Ask/Agent, araçlar, oturumlar, görsel, dikte, özel komutlar |
 | [[explorer]] | Gezgin: filtre, sıralama, sürükle-bırak taşıma, görünüm seçenekleri, güvenlik |
 | [[updates]] | Güncelleme sistemi: denetle, indir (yüzde), yeniden başlat ve kur; yayın hattı |
