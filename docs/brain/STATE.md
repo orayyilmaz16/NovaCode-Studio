@@ -28,7 +28,7 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 532 |
+| `electron-ai.cjs` | 656 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
@@ -43,15 +43,15 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1376 |
+| `src/App.tsx` | 1378 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 283 |
+| `src/types.ts` | 288 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 716 |
-| `src/components/ChatSessions.tsx` | 339 |
+| `src/components/AIAssistant.tsx` | 812 |
+| `src/components/ChatSessions.tsx` | 340 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/EditorArea.tsx` | 363 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
@@ -67,10 +67,10 @@
 | `src/components/Preview.tsx` | 317 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
-| `src/components/SettingsPage.tsx` | 615 |
+| `src/components/SettingsPage.tsx` | 568 |
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 485 |
-| `src/components/ThinkingMenu.tsx` | 91 |
+| `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/UpdateDialog.tsx` | 156 |
 | `src/components/WindowControls.tsx` | 48 |
 
@@ -96,13 +96,14 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 2023 |
+| `src/i18n/uiText.ts` | 1604 |
+| `src/i18n/uiTextAi.ts` | 486 |
 
 ### Betikler
 | Dosya | Satır |
 |---|---|
 | `scripts/auto-commit.mjs` | 216 |
-| `scripts/brain.mjs` | 295 |
+| `scripts/brain.mjs` | 297 |
 | `scripts/bump-version.mjs` | 130 |
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
@@ -144,10 +145,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 656 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 671 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-92 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+93 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -239,7 +240,8 @@
 | Yapay Zekâ | `aiAgentThinking` | Ajan: düşünme seviyesi | select | `"deep"` | fast, balanced, deep |
 | Yapay Zekâ | `aiAgentMaxTokens` | Ajan: en çok yanıt uzunluğu (token) | slider | `8192` | 1024–16000 |
 | Yapay Zekâ | `aiAgentIncludeContext` | Ajan: açık dosyayı bağlam olarak gönder | toggle | `true` |  |
-| Yapay Zekâ | `aiAutoApproveEdits` | Dosya düzenlemelerini otomatik onayla | toggle | `false` |  |
+| Yapay Zekâ | `aiAgentMaxSteps` | Ajan: en çok adım | slider | `20` | 6–40 |
+| Yapay Zekâ | `aiAgentAutonomy` | Ajan: otonomi | select | `"ask"` | ask, edits, auto |
 | Yapay Zekâ | `aiAllowCommands` | Ajan komut çalıştırabilsin | toggle | `true` |  |
 | Yapay Zekâ | `aiAgentInstructions` | Ajan: özel yönerge | text | `""` | ≤600 karakter |
 | Yapay Zekâ | `aiVoiceEnabled` | Sesli dikteyi aç | toggle | `false` |  |

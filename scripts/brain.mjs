@@ -109,8 +109,10 @@ function ipcSection() {
 // ---------- i18n ----------
 const LANGS = ["tr", "en", "de", "ru", "ar", "es", "fr", "az"];
 let i18nKeys = 0;
+// Metinler iki dosyada: uiText.ts (ana paket) ve uiTextAi.ts (AI paneli + ayarlar, gecikmeli yüklenir)
+const readUiTexts = () => ["src/i18n/uiText.ts", "src/i18n/uiTextAi.ts"].filter(exists).map(read).join("\n").replace(/\r\n/g, "\n");
 if (exists("src/i18n/uiText.ts")) {
-  const ui = read("src/i18n/uiText.ts").replace(/\r\n/g, "\n");
+  const ui = readUiTexts();
   for (const m of ui.matchAll(/^  (\w+): \{\n([\s\S]*?)\n  \},/gm)) {
     i18nKeys++;
     const found = new Set([...m[2].matchAll(/\b(tr|en|de|ru|ar|es|fr|az):\s*['"`]/g)].map((x) => x[1]));
@@ -120,7 +122,7 @@ if (exists("src/i18n/uiText.ts")) {
 }
 
 // ---------- Ayar şeması (src/services/settingsSchema.json: tek kaynak) ----------
-const uiTextSrc = exists("src/i18n/uiText.ts") ? read("src/i18n/uiText.ts").replace(/\r\n/g, "\n") : "";
+const uiTextSrc = exists("src/i18n/uiText.ts") ? readUiTexts() : "";
 const uiKeys = new Map(); // anahtar -> Türkçe metin
 for (const m of uiTextSrc.matchAll(/^  (\w+): \{\n([\s\S]*?)\n  \},/gm)) {
   const tr = /\btr:\s*(["'`])((?:\\.|(?!\1)[^\\])*)\1/.exec(m[2]);

@@ -153,6 +153,11 @@ export interface AiRunRequest {
   mode: 'ask' | 'agent';
   lang: string;
   autoApproveEdits?: boolean;
+  /** Otonom mod: güvenli derleme/test/lint komutları onaysız çalışır (motorda sıkı izin listesi). */
+  autoSafeCommands?: boolean;
+  autonomy?: 'ask' | 'edits' | 'auto';
+  /** Ajanın bir görevde yapabileceği en çok araç turu (5–40). */
+  maxSteps?: number;
   allowCommands?: boolean;
   useProject?: boolean;
   /** Düşünme seviyesi (hızlı / dengeli / derin): sıcaklık ve çalışma biçimini ayarlar. */

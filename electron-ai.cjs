@@ -70,9 +70,36 @@ const TOOLS = [
   { name: 'search_text', description: 'Projede metin arar (büyük/küçük harf duyarsız). Eşleşen dosya:satır döner.', input_schema: { type: 'object', properties: { query: { type: 'string' }, regex: { type: 'boolean' } }, required: ['query'] } },
   { name: 'write_file', description: 'Dosyayı tamamen yazar/oluşturur. Kullanıcı onayı gerekir.', input_schema: { type: 'object', properties: { path: { type: 'string' }, content: { type: 'string' } }, required: ['path', 'content'] } },
   { name: 'replace_in_file', description: 'Dosyada tek bir benzersiz metni değiştirir (old, dosyada tam bir kez geçmeli). Kullanıcı onayı gerekir.', input_schema: { type: 'object', properties: { path: { type: 'string' }, old: { type: 'string' }, new: { type: 'string' } }, required: ['path', 'old', 'new'] } },
-  { name: 'run_command', description: 'Çalışma klasöründe kabuk komutu çalıştırır (60 sn sınır). Her zaman kullanıcı onayı gerekir.', input_schema: { type: 'object', properties: { command: { type: 'string' } }, required: ['command'] } }
+  { name: 'run_command', description: 'Çalışma klasöründe kabuk komutu çalıştırır (60 sn; derleme/test komutlarında 180 sn sınır). Kullanıcı onayı gerekir; otonom modda yalnız güvenli derleme/test/lint komutları (npm run build|test|lint, npx tsc --noEmit, cargo/go/dotnet build|test, pytest) onaysız çalışır. Her komutu ayrı çağır, && | ; kullanma.', input_schema: { type: 'object', properties: { command: { type: 'string' } }, required: ['command'] } }
 ];
 
+// ---------- Otonom mod: yalnız güvenli derleme/test/lint komutları onaysız çalışır ----------
+// Kabuk birleştirme, yönlendirme ve değiştirme karakterleri yasak; yalnız bilinen komut kalıpları ve argümansız (veya yalnız yol alan) biçimleri.
+const SHELL_META = /[;&|<>`$(){}\\^%!\r\n"'*?~]/;
+const SAFE_CMDS = [
+  /^npm (?:run )?(?:test|build|lint|typecheck|type-check|check|compile)(?::[\w-]+)?$/,
+  /^npx tsc --noEmit(?: -p [\w.\/-]+)?$/,
+  /^node --check [\w.\/-]+$/,
+  /^cargo (?:build|check|test|clippy)(?: --release)?$/,
+  /^go (?:build|vet|test) [\w.\/-]+$/,
+  /^dotnet (?:build|test)(?: [\w.\/-]+)?$/,
+  /^(?:python -m )?pytest(?: [\w.\/][\w.\/-]*)?$/
+];
+function isSafeCommand(cmd) {
+  return cmd.length <= 200 && !SHELL_META.test(cmd) && SAFE_CMDS.some((re) => re.test(cmd));
+}
+// Derleme sırasında kod çalıştırabilen dosyalar: bu çalıştırmada değiştirildiyse güvenli komutlar bile onay ister
+// (ajanın package.json'a kötü bir betik yazıp sonra "npm run build" ile tetiklemesini engeller).
+const RISKY_NAME = new Set(['package.json', 'package-lock.json', '.npmrc', 'makefile', 'cargo.toml', 'build.rs', 'go.mod', 'pom.xml', 'build.gradle', '.env']);
+const RISKY_EXT = new Set(['.sh', '.bat', '.cmd', '.ps1', '.csproj', '.sln', '.targets', '.props']);
+function isRiskyPath(root, file) {
+  const rel = path.relative(root, file).split(path.sep).join('/').toLowerCase();
+  const base = path.basename(rel);
+  return RISKY_NAME.has(base) || RISKY_EXT.has(path.extname(base)) || /^(scripts|\.github|\.husky|node_modules)\//.test(rel)
+    || /(^|\/)(vite|webpack|rollup|esbuild|tsup|next|nuxt|svelte|babel|jest|vitest|eslint|postcss|tailwind)\.config\./.test(rel) || base.startsWith('.babelrc');
+}
+
+const FILE_EDIT_TOOLS = new Set(['write_file', 'replace_in_file']);
 const clip = (s, n = MAX_OUT) => (s.length > n ? s.slice(0, n) + `\n…(${s.length - n} karakter kesildi)` : s);
 
 async function runTool(name, input, ctx) {
@@ -108,6 +135,7 @@ async function runTool(name, input, ctx) {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, input.content, 'utf8');
       ctx.changed.add(file);
+      if (isRiskyPath(root, file)) ctx.riskyTouched = true;
       return `Yazıldı: ${path.relative(root, file)}`;
     }
     case 'replace_in_file': {
@@ -121,16 +149,19 @@ async function runTool(name, input, ctx) {
       if (!ok) return 'Kullanıcı reddetti.';
       fs.writeFileSync(file, src.replace(old, () => String(input.new ?? '')), 'utf8');
       ctx.changed.add(file);
+      if (isRiskyPath(root, file)) ctx.riskyTouched = true;
       return `Düzenlendi: ${path.relative(root, file)}`;
     }
     case 'run_command': {
       if (!allowCommands) return 'Komut çalıştırma ayarlardan kapalı.';
       const cmd = String(input.command || '').trim();
       if (!cmd || cmd.length > 2000) throw new Error('Komut geçersiz.');
-      const ok = await approve({ tool: name, summary: 'Komut çalıştır', preview: cmd });
+      // Otonom mod: güvenli derleme/test komutu ve bu çalıştırmada derlemeyi etkileyen dosya değişmediyse onaysız
+      const safe = !!ctx.autoSafeCommands && !ctx.riskyTouched && isSafeCommand(cmd);
+      const ok = safe || (await approve({ tool: name, summary: ctx.riskyTouched && ctx.autoSafeCommands ? 'Komut çalıştır (derlemeyi etkileyen dosya değişti)' : 'Komut çalıştır', preview: cmd }));
       if (!ok) return 'Kullanıcı reddetti.';
       return await new Promise((resolve) => {
-        exec(cmd, { cwd: root, timeout: 60000, maxBuffer: 1024 * 1024, windowsHide: true, env: { ...process.env, NOVA_AI_AGENT: '1' } }, (err, stdout, stderr) => {
+        exec(cmd, { cwd: root, timeout: safe || isSafeCommand(cmd) ? 180000 : 60000, maxBuffer: 1024 * 1024, windowsHide: true, env: { ...process.env, NOVA_AI_AGENT: '1' } }, (err, stdout, stderr) => {
           resolve(clip(`${err ? `çıkış hatası: ${err.code ?? err.message}\n` : ''}${stdout}${stderr ? `\n[stderr]\n${stderr}` : ''}`.trim() || '(çıktı yok)'));
         });
       });
@@ -232,13 +263,33 @@ async function callOpenAI(cfg, system, messages, tools, onText, signal) {
   const calls = [];
   let stop = null;
   const usage = { in: 0, out: 0 };
+  // Araçlar açıkken: model araç çağrısını düz metin JSON olarak yazmış olabilir (açıklama + ```json bloğu gibi karışık da). Akış, çağrı belirtisi
+  // (çit, <tool_call>, {"name":) görüldüğü yerde durur; kalan kısım akış sonunda ayrıştırılır (çağrıysa gösterilmez, değilse olduğu gibi gösterilir).
+  // Belirti iki parçaya bölünebilsin diye son 14 karakter akışa son anda verilir.
+  const TRIGGER = /```|<tool_call>|\{\s*"name"\s*:/;
+  let emitted = 0;
+  let held = false;
   for await (const data of sseLines(res, signal)) {
     if (data === '[DONE]') break;
     let ev; try { ev = JSON.parse(data); } catch { continue; }
     if (ev.usage) { usage.in = ev.usage.prompt_tokens || 0; usage.out = ev.usage.completion_tokens || 0; }
     const ch = ev.choices && ev.choices[0];
     if (!ch) continue;
-    if (ch.delta?.content) { text += ch.delta.content; onText(ch.delta.content); }
+    if (ch.delta?.content) {
+      text += ch.delta.content;
+      if (!tools) onText(ch.delta.content);
+      else if (!held) {
+        const idx = text.search(TRIGGER);
+        if (idx >= 0) {
+          if (idx > emitted) onText(text.slice(emitted, idx));
+          emitted = Math.max(emitted, idx);
+          held = true;
+        } else {
+          const safe = Math.max(emitted, text.length - 14);
+          if (safe > emitted) { onText(text.slice(emitted, safe)); emitted = safe; }
+        }
+      }
+    }
     for (const tc of ch.delta?.tool_calls || []) {
       const c = (calls[tc.index] = calls[tc.index] || { id: '', name: '', args: '' });
       if (tc.id) c.id = tc.id;
@@ -247,13 +298,56 @@ async function callOpenAI(cfg, system, messages, tools, onText, signal) {
     }
     if (ch.finish_reason) stop = ch.finish_reason;
   }
+  const textCalls = [];
+  if (tools && emitted < text.length) {
+    const tail = text.slice(emitted); // akışa verilmemiş kısım (çağrı belirtisinden sonrası ve son 14 karakter)
+    const found = !calls.length ? extractToolCalls(tail, new Set(tools.map((x) => x.name))) : { calls: [], remaining: tail };
+    if (found.calls.length) textCalls.push(...found.calls);
+    if (found.remaining.trim()) onText(found.remaining); // çağrı değilse metin olduğu gibi, çağrıysa yalnız çağrı dışı açıklama gösterilir
+    text = text.slice(0, emitted) + found.remaining;
+  }
   const content = [];
   if (text) content.push({ type: 'text', text });
   for (const c of calls.filter(Boolean)) {
     let input = {}; try { input = c.args ? JSON.parse(c.args) : {}; } catch { /* boş */ }
     content.push({ type: 'tool_use', id: c.id || 'call_' + Math.random().toString(36).slice(2, 10), name: c.name, input });
   }
-  return { content, stop: calls.length ? 'tool_use' : stop, usage };
+  for (const c of textCalls) content.push({ type: 'tool_use', id: 'call_' + Math.random().toString(36).slice(2, 10), name: c.name, input: c.input });
+  return { content, stop: calls.length || textCalls.length ? 'tool_use' : stop, usage };
+}
+
+// Bazı yerel modeller (ör. qwen2.5-coder) araç çağrısını yapılandırılmış alan yerine düz metin JSON olarak yazar:
+// {"name":"read_file","arguments":{...}} — düz, ```json çitli veya <tool_call> etiketli. Bilinen araç adıyla eşleşenler gerçek çağrıya çevrilir;
+// çağrı olmayan JSON (ör. kod örneği) varsa metin olduğu gibi bırakılır.
+function extractToolCalls(text, toolNames) {
+  const rest = text.replace(/<\/?tool_call>/gi, ' ').replace(/```(?:json)?/gi, ' ');
+  const spans = [];
+  const out = [];
+  let i = 0;
+  while (i < rest.length) {
+    const start = rest.indexOf('{', i);
+    if (start < 0) break;
+    let depth = 0, inStr = false, esc = false, end = -1;
+    for (let k = start; k < rest.length; k++) {
+      const ch = rest[k];
+      if (inStr) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false; continue; }
+      if (ch === '"') inStr = true; else if (ch === '{') depth++; else if (ch === '}') { depth--; if (depth === 0) { end = k; break; } }
+    }
+    if (end < 0) break;
+    let obj = null; try { obj = JSON.parse(rest.slice(start, end + 1)); } catch { /* JSON değil */ }
+    const args = obj && (obj.arguments ?? obj.parameters ?? obj.input);
+    if (obj && typeof obj.name === 'string' && toolNames.has(obj.name) && (args === undefined || (args && typeof args === 'object' && !Array.isArray(args)))) {
+      out.push({ name: obj.name, input: args || {} });
+      spans.push([start, end + 1]);
+    }
+    i = end + 1;
+  }
+  if (!out.length) return { calls: [], remaining: text };
+  let remaining = '';
+  let pos = 0;
+  for (const [a, b] of spans) { remaining += rest.slice(pos, a); pos = b; }
+  remaining += rest.slice(pos);
+  return { calls: out.slice(0, 4), remaining: remaining.trim() };
 }
 
 // ---------- Sistem istemi ----------
@@ -326,8 +420,16 @@ function cleanInstructions(x) {
   return t ? `\n\n# Kullanıcı yönergeleri\n${t}` : '';
 }
 
-function buildSystem({ root, lang, agent, project, extra = '', thinking }) {
+function buildSystem({ root, lang, agent, project, extra = '', thinking, autonomy }) {
   const th = thinkingOf(thinking);
+  // Otonomi: edits = düzenlemeler onaysız; auto = ek olarak güvenli derleme/test komutları onaysız (bkz. isSafeCommand)
+  // Küçük yerel modeller için somut, adım adım yönerge (komut listesi vermek modeli dosyalarda komut aramaya itiyordu)
+  const auto = autonomy === 'auto' || autonomy === 'edits'
+    ? ' OTONOM ÇALIŞ: görevi bitirene kadar kendin ilerle, kullanıcıya hangi komutu veya dosyayı istediğini SORMA (yalnız gerçekten belirsizse tek kısa soru).'
+      + (autonomy === 'auto'
+        ? ' Derleme/test adımları: 1) read_file ile package.json oku ve "scripts" bölümünden build/test komutunu bul (package.json yoksa: Cargo.toml → "cargo build", go.mod → "go build ./...", .csproj → "dotnet build", pyproject.toml/pytest → "pytest"). 2) Komutu ARAMA, doğrudan run_command ile ÇALIŞTIR (örn. "npm run build"). Bu tür derleme/test komutları onaysız çalışır. 3) Çıktıda hata varsa hata mesajındaki dosyayı read_file ile oku ve replace_in_file ile düzelt. 4) Aynı komutu yeniden çalıştır; başarılı olana kadar 3-4. adımları tekrarla. 5) Sonunda ne yaptığını iki cümleyle özetle. Her komutu ayrı çağır (&&, |, ; kullanma). package.json veya yapı betiklerini değiştirirsen sonraki komut onay ister.'
+        : ' Dosya düzenlemeleri onaysızdır; komut çalıştırmak için onay gerekir.')
+    : '';
   const langName = { tr: 'Türkçe', en: 'English', de: 'Deutsch', ru: 'русский', ar: 'العربية', es: 'español', fr: 'français', az: 'azərbaycanca' }[lang] || 'Türkçe';
   // Türkçe duyarlılığı: doğal dil, dikteyle gelen hatalı yazımı anlama, teknik terim dengesi
   const trNote = lang === 'tr' ? [
@@ -338,7 +440,7 @@ function buildSystem({ root, lang, agent, project, extra = '', thinking }) {
     'Sen NovaCode Studio kod editörünün yapay zekâ asistanısın. Kısa, net ve doğru yanıt ver; emin olmadığını kesinmiş gibi sunma.',
     `Kullanıcının arayüz dili: ${langName}. Aksi istenmedikçe bu dilde yanıtla. Kodu uygun dil etiketli kod bloğuna koy.`,
     ...trNote,
-    th.text + (agent && th.agent ? ' ' + th.agent : ''),
+    th.text + (agent && th.agent ? ' ' + th.agent : '') + (agent ? auto : ''),
     root ? `Çalışma klasörü: ${path.basename(root)}` : 'Açık çalışma klasörü yok.',
     agent
       ? 'AGENT modundasın: görevi bitirmek için araçları kullan (önce oku/ara, sonra değiştir). Değişikliklerden önce ilgili dosyayı oku. Yazma ve komut araçları kullanıcı onayı ister; reddedilirse alternatif öner. Bitirince ne yaptığını kısaca özetle.'
@@ -366,7 +468,7 @@ function register({ getWindow, getRoot }) {
       if (provider === 'builtin') {
         const rootDir = getRoot();
         const agentOn = req.mode === 'agent' && !!rootDir;
-        const system = buildSystem({ root: rootDir, lang: req.lang, agent: agentOn, project: agentOn || req.useProject ? loadProjectInstructions(rootDir) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking });
+        const system = buildSystem({ root: rootDir, lang: req.lang, agent: agentOn, project: agentOn || req.useProject ? loadProjectInstructions(rootDir) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking, autonomy: req.autonomy });
         const msgs = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', text: String(m.text || '').slice(0, 60000) }));
         const last = msgs.pop();
         if (!last || last.role !== 'user') throw new Error('Geçersiz istek.');
@@ -396,7 +498,7 @@ function register({ getWindow, getRoot }) {
       if (!cfg.model) throw new Error('Model adı boş.');
       const root = getRoot();
       const agent = req.mode === 'agent' && !!root;
-      const system = buildSystem({ root, lang: req.lang, agent, project: agent || req.useProject ? loadProjectInstructions(root) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking });
+      const system = buildSystem({ root, lang: req.lang, agent, project: agent || req.useProject ? loadProjectInstructions(root) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking, autonomy: req.autonomy });
 
       // Geçmiş + yeni kullanıcı iletisi (görseller yalnız son iletide)
       const messages = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m, i, arr) => {
@@ -416,6 +518,8 @@ function register({ getWindow, getRoot }) {
       const ctx = {
         root,
         autoApproveEdits: !!req.autoApproveEdits,
+        autoSafeCommands: !!req.autoSafeCommands,
+        riskyTouched: false,
         allowCommands: req.allowCommands !== false,
         changed: new Set(),
         approve: (info) => new Promise((resolve) => {
@@ -426,12 +530,28 @@ function register({ getWindow, getRoot }) {
       };
       const call = provider === 'anthropic' ? callAnthropic : callOpenAI;
       const total = { in: 0, out: 0 };
+      const maxSteps = Math.min(40, Math.max(5, Math.round(Number(req.maxSteps)) || MAX_STEPS));
 
-      for (let step = 0; step < (agent ? MAX_STEPS : 1); step++) {
+      let nudges = 0; // küçük modeller araç çıktısından sonra boş/yarım dönebilir: en çok 3 kez "devam et" uyarısı
+      let lastCmdFailed = false;
+      for (let step = 0; step < (agent ? maxSteps : 1); step++) {
         const turn = await call(cfg, system, messages, agent ? TOOLS : null, (text) => emit({ type: 'text', text }), run.abort.signal);
         total.in += turn.usage.in; total.out += turn.usage.out;
         const uses = turn.content.filter((b) => b.type === 'tool_use');
-        if (!agent || !uses.length) break;
+        if (!agent) break;
+        if (!uses.length) {
+          const hadText = turn.content.some((b) => b.type === 'text' && b.text.trim());
+          const stalled = step > 0 && (!hadText || (lastCmdFailed && req.autonomy && req.autonomy !== 'ask'));
+          if (stalled && nudges < 3 && step < maxSteps - 1 && !run.abort.signal.aborted) {
+            nudges++;
+            messages.push({ role: 'assistant', content: turn.content.length ? turn.content : [{ type: 'text', text: '…' }] });
+            messages.push({ role: 'user', content: lastCmdFailed
+              ? 'Komut başarısız oldu. Hata mesajındaki dosyayı düzeltmek için replace_in_file veya write_file aracını ÇAĞIR, sonra komutu run_command ile tekrar çalıştır. Soru sorma.'
+              : 'Devam et: görev bitmediyse bir sonraki aracı çağır; bittiyse yaptıklarını iki cümleyle özetle.' });
+            continue;
+          }
+          break;
+        }
         messages.push({ role: 'assistant', content: turn.content });
         const results = [];
         for (const u of uses) {
@@ -439,12 +559,16 @@ function register({ getWindow, getRoot }) {
           emit({ type: 'tool', id: u.id, name: u.name, input: u.name === 'write_file' ? { path: u.input.path, bytes: String(u.input.content || '').length } : u.input });
           let out; let isError = false;
           try { out = await runTool(u.name, u.input, ctx); } catch (err) { out = 'Hata: ' + err.message; isError = true; }
-          emit({ type: 'tool_result', id: u.id, ok: !isError, text: clip(out, 1500) });
+          // Komut hata koduyla bittiyse (derleme/test başarısız) kart kırmızı görünsün; model çıktıyı yine okur
+          const cmdFailed = u.name === 'run_command' && /^çıkış hatası:/.test(out);
+          if (u.name === 'run_command') lastCmdFailed = cmdFailed; // başarısız komuttan sonra model durursa "düzelt" uyarısı gider
+          else if (FILE_EDIT_TOOLS.has(u.name) && !isError) lastCmdFailed = false;
+          emit({ type: 'tool_result', id: u.id, ok: !isError && !cmdFailed, text: clip(out, 1500) });
           results.push({ type: 'tool_result', tool_use_id: u.id, content: out, ...(isError ? { is_error: true } : {}) });
         }
         if (run.abort.signal.aborted) break;
         messages.push({ role: 'user', content: results });
-        if (step === MAX_STEPS - 1) emit({ type: 'text', text: '\n\n_(Adım sınırına ulaşıldı.)_' });
+        if (step === maxSteps - 1) emit({ type: 'text', text: '\n\n_(Adım sınırına ulaşıldı.)_' });
       }
       emit({ type: 'done', usage: total, changed: [...ctx.changed] });
       return { success: true };

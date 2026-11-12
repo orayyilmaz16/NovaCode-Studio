@@ -140,7 +140,9 @@
       "options": [{ "value": "fast", "labelKey": "optThinkFast" }, { "value": "balanced", "labelKey": "optThinkBalanced" }, { "value": "deep", "labelKey": "optThinkDeep" }] },
     { "id": "aiAgentMaxTokens", "category": "ai", "group": "aiModeAgent", "type": "slider", "default": 8192, "min": 1024, "max": 16000, "step": 512 },
     { "id": "aiAgentIncludeContext", "category": "ai", "group": "aiModeAgent", "type": "toggle", "default": true, "desc": true },
-    { "id": "aiAutoApproveEdits", "category": "ai", "group": "aiModeAgent", "type": "toggle", "default": false, "desc": true },
+    { "id": "aiAgentMaxSteps", "category": "ai", "group": "aiModeAgent", "type": "slider", "default": 20, "min": 6, "max": 40, "step": 2, "desc": true },
+    { "id": "aiAgentAutonomy", "category": "ai", "group": "aiModeAgent", "type": "select", "default": "ask", "desc": true,
+      "options": [{ "value": "ask", "labelKey": "optAutoAsk" }, { "value": "edits", "labelKey": "optAutoEdits" }, { "value": "auto", "labelKey": "optAutoFull" }] },
     { "id": "aiAllowCommands", "category": "ai", "group": "aiModeAgent", "type": "toggle", "default": true, "desc": true },
     { "id": "aiAgentInstructions", "category": "ai", "group": "aiModeAgent", "type": "text", "default": "", "maxLength": 600, "desc": true },
 

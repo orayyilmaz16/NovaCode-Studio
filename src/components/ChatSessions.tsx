@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUpDown, CalendarDays, Check, ChevronDown, Download, MessageSquare, Pencil, Pin, PinOff, Search, Tag, Trash2, X, Zap } from 'lucide-react';
-import { t, getUiLang, type UiTextKey } from '../i18n/uiText';
+import { t, getUiLang, type TextKey } from '../i18n/uiText';
+import '../i18n/uiTextAi'; // AI metinleri (gecikmeli yüklenen ek sözlük)
 import { CATEGORY_IDS, CATEGORY_STYLE, dateGroup, relativeTime, type AiSession, type CategoryId, type DateGroup } from '../services/aiClient';
 
 // Sohbet seçici: başlıkta ad + açılır liste. Arama (başlık + ileti metni), kategori süzgeci, tarih/kategori gruplama,
@@ -30,9 +31,9 @@ interface Props {
 type GroupBy = 'date' | 'category';
 type SortBy = 'recent' | 'name' | 'messages';
 
-const DATE_KEY: Record<DateGroup, UiTextKey> = { today: 'aiGroupToday', yesterday: 'aiGroupYesterday', week: 'aiGroupWeek', older: 'aiGroupOlder' };
-const CAT_KEY: Record<CategoryId, UiTextKey> = { bug: 'catBug', feature: 'catFeature', explain: 'catExplain', refactor: 'catRefactor', test: 'catTest', docs: 'catDocs', general: 'catGeneral' };
-const SORT_KEY: Record<SortBy, UiTextKey> = { recent: 'aiSortRecent', name: 'aiSortName', messages: 'aiSortMessages' };
+const DATE_KEY: Record<DateGroup, TextKey> = { today: 'aiGroupToday', yesterday: 'aiGroupYesterday', week: 'aiGroupWeek', older: 'aiGroupOlder' };
+const CAT_KEY: Record<CategoryId, TextKey> = { bug: 'catBug', feature: 'catFeature', explain: 'catExplain', refactor: 'catRefactor', test: 'catTest', docs: 'catDocs', general: 'catGeneral' };
+const SORT_KEY: Record<SortBy, TextKey> = { recent: 'aiSortRecent', name: 'aiSortName', messages: 'aiSortMessages' };
 
 const label = (s: AiSession) => s.title || t('aiNewSession');
 const catOf = (s: AiSession): CategoryId => s.category ?? 'general';
