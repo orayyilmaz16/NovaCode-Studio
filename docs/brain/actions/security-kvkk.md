@@ -45,6 +45,7 @@ Yeni Git kanalları ref/etiket/SHA/stash indeksini ana süreçte doğrular (`REF
 | Dikte (OpenAI uyumlu) | Mikrofon kullanılınca ve açık rıza varsa | Ses | Yerel adreste yerelde kalır |
 | GitHub (güncelleme) | Güncelleme denetimi / sürüm notları | IP, uygulama sürümü, platform | Kullanıcı isteğiyle veya "açılışta denetle" ayarıyla; kişisel veri yok |
 | GitHub | Git/GitHub paneli | Kimlik doğrulama, repo işlemleri | Kullanıcı eylemiyle |
+| AI kod tamamlama | Yazarken (ayar açıkken) | İmleç çevresindeki kod → yerel Ollama | 127.0.0.1; `.env`/anahtar dosyaları gönderilmez; saklanmaz |
 | Dil sunucusu (LSP) | Python/Rust/Go... dosyası açılınca | Dosya içeriği yerel sunucu sürecine | Yerelde kalır; ağ yok; sunucu yalnız kullanıcının PATH'inden |
 | Hata ayıklayıcı / PTY | Kullanıcı başlatınca | Yerel süreç | Yalnız çalışma klasöründe; 127.0.0.1; veri çıkmaz |
 

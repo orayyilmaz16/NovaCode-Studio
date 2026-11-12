@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `version:check` | `node scripts/check-version.mjs` |
@@ -28,7 +28,7 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 691 |
+| `electron-ai.cjs` | 747 |
 | `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 406 |
@@ -36,7 +36,7 @@
 | `electron-llm.cjs` | 256 |
 | `electron-lsp.cjs` | 271 |
 | `electron-main.cjs` | 520 |
-| `electron-preload.cjs` | 221 |
+| `electron-preload.cjs` | 223 |
 | `electron-pty.cjs` | 118 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
@@ -47,9 +47,9 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1577 |
+| `src/App.tsx` | 1584 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 409 |
+| `src/types.ts` | 411 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -60,7 +60,7 @@
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 496 |
+| `src/components/EditorArea.tsx` | 503 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -88,6 +88,7 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
+| `src/services/aiCompletion.ts` | 93 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
@@ -114,9 +115,9 @@
 | Dosya | Satır |
 |---|---|
 | `src/i18n/uiText.ts` | 1606 |
-| `src/i18n/uiTextAi.ts` | 516 |
+| `src/i18n/uiTextAi.ts` | 525 |
 | `src/i18n/uiTextDev.ts` | 126 |
-| `src/i18n/uiTextScm.ts` | 219 |
+| `src/i18n/uiTextScm.ts` | 228 |
 
 ### Betikler
 | Dosya | Satır |
@@ -133,6 +134,7 @@
 ### Testler
 | Dosya | Satır |
 |---|---|
+| `scripts/tests/ai-complete.test.cjs` | 76 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/debug.test.cjs` | 112 |
 | `scripts/tests/git.test.cjs` | 163 |
@@ -150,7 +152,7 @@
 ## IPC kanalları
 | Grup | Kanallar |
 |---|---|
-| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
+| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:complete`, `ai:completeCancel`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
 | app | `app:openLink`, `app:quit`, `app:reveal` |
 | dbg | `dbg:evaluate`, `dbg:pause`, `dbg:properties`, `dbg:resume`, `dbg:scopes`, `dbg:setBreakpoints`, `dbg:start`, `dbg:stepInto`, `dbg:stepOut`, `dbg:stepOver`, `dbg:stop` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
@@ -172,10 +174,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 788 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 794 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-95 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+97 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -261,6 +263,8 @@
 | Ortak düzenleme | `collabUrl` | Sunucu adresi | text | `""` | ≤200 karakter |
 | Hakkında ve yedek | `updateAutoCheck` | Açılışta güncellemeleri denetle | toggle | `true` |  |
 | Hakkında ve yedek | `updateAutoDownload` | Güncellemeyi otomatik indir | toggle | `true` |  |
+| Yapay Zekâ | `aiCompletion` | AI kod tamamlama (hayalet metin) | toggle | `true` |  |
+| Yapay Zekâ | `aiCompletionDelay` | Tamamlama gecikmesi (ms) | slider | `450` | 200–1500 |
 | Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
 | Yapay Zekâ | `aiAskThinking` | Sohbet: düşünme seviyesi | select | `"balanced"` | fast, balanced, deep |
 | Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |

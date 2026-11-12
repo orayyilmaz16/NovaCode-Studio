@@ -130,6 +130,8 @@
     { "id": "updateAutoCheck", "category": "about", "type": "toggle", "default": true, "desc": true },
     { "id": "updateAutoDownload", "category": "about", "type": "toggle", "default": true, "desc": true },
 
+    { "id": "aiCompletion", "category": "ai", "group": "grpAiGeneral", "type": "toggle", "default": true, "desc": true },
+    { "id": "aiCompletionDelay", "category": "ai", "group": "grpAiGeneral", "type": "slider", "default": 450, "min": 200, "max": 1500, "step": 50 },
     { "id": "aiDefaultMode", "category": "ai", "group": "grpAiGeneral", "type": "select", "default": "ask",
       "options": [{ "value": "ask", "labelKey": "optAiAsk" }, { "value": "agent", "labelKey": "optAiAgent" }] },
 
