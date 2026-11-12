@@ -74,7 +74,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/services/SettingsContext.tsx` | 128 |
-| `src/services/aiClient.ts` | 134 |
+| `src/services/aiClient.ts` | 139 |
 | `src/services/editorBridge.ts` | 80 |
 | `src/services/editorTheme.ts` | 96 |
 | `src/services/extensionsService.ts` | 220 |

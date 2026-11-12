@@ -57,7 +57,12 @@ const KEY = 'nova.ai.sessions.v1';
 const MAX_SESSIONS = 30;
 const MAX_MSGS = 100;
 
-export const uid = () => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
+export const uid = () => {
+  const c = globalThis.crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  const b = c.getRandomValues(new Uint8Array(8)); // Math.random yerine güvenli kaynak
+  return `${Date.now()}-${Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('')}`;
+};
 
 export function newSession(mode: 'ask' | 'agent'): AiSession {
   const now = Date.now();
