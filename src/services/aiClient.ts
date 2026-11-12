@@ -58,6 +58,39 @@ export interface AiSession {
   titleLocked?: boolean;
   /** Otomatik ad aşaması: 0 yok, 1 ilk mesajdan, 2 ilk yanıttan sonra inceltildi. */
   autoLevel?: 0 | 1 | 2;
+  /** Konu kategorisi: ilk iletiden yerelde otomatik atanır; elle seçilirse kilitlenir. */
+  category?: CategoryId;
+  categoryLocked?: boolean;
+}
+
+// ---------- Sohbet kategorileri (yerel, kural tabanlı; veri dışarı gitmez) ----------
+export type CategoryId = 'bug' | 'feature' | 'explain' | 'refactor' | 'test' | 'docs' | 'general';
+export const CATEGORY_IDS: CategoryId[] = ['bug', 'feature', 'explain', 'refactor', 'test', 'docs', 'general'];
+export const CATEGORY_STYLE: Record<CategoryId, { dot: string; chip: string }> = {
+  bug: { dot: 'bg-rose-400', chip: 'bg-rose-500/15 text-rose-300' },
+  feature: { dot: 'bg-emerald-400', chip: 'bg-emerald-500/15 text-emerald-300' },
+  explain: { dot: 'bg-sky-400', chip: 'bg-sky-500/15 text-sky-300' },
+  refactor: { dot: 'bg-violet-400', chip: 'bg-violet-500/15 text-violet-300' },
+  test: { dot: 'bg-amber-400', chip: 'bg-amber-500/15 text-amber-300' },
+  docs: { dot: 'bg-teal-400', chip: 'bg-teal-500/15 text-teal-300' },
+  general: { dot: 'bg-zinc-400', chip: 'bg-zinc-500/20 text-zinc-300' }
+};
+export const isCategory = (x: unknown): x is CategoryId => typeof x === 'string' && (CATEGORY_IDS as string[]).includes(x);
+
+// Sözcük başı eşleşmesi (düzeltir → düzelt); 8 dilde yaygın kökler. Sıra önemli: ilk eşleşen kazanır.
+const CAT_WORDS: [CategoryId, string[]][] = [
+  ['test', ['test', 'spec', 'jest', 'vitest', 'pytest', 'unit', 'prüf', 'тест', 'prueba', 'teste']],
+  ['bug', ['hata', 'bug', 'düzelt', 'çalışmıyor', 'çöz', 'sorun', 'fix', 'error', 'exception', 'crash', 'broken', 'fehler', 'ошибк', 'исправ', 'баг', 'corrige', 'erreur', 'corrig', 'xəta', 'problem']],
+  ['refactor', ['refactor', 'yeniden düzenle', 'temizle', 'sadeleştir', 'optimi', 'iyileştir', 'performans', 'clean up', 'simplif', 'aufräum', 'рефактор', 'оптимиз', 'nettoy', 'təmizlə']],
+  ['docs', ['readme', 'doküman', 'belge', 'document', 'yorum satır', 'comment', 'docs', 'dokumentation', 'документац', 'documenta', 'sənəd']],
+  ['explain', ['açıkla', 'anlat', 'nedir', 'nasıl çalış', 'neden', 'explain', 'what is', 'what does', 'how does', 'why', 'erkläre', 'was ist', 'объясни', 'что такое', 'explica', 'qué es', 'explique', 'izah', 'nədir']],
+  ['feature', ['ekle', 'oluştur', 'yaz', 'geliştir', 'implement', 'add', 'create', 'build', 'generate', 'make', 'feature', 'özellik', 'hinzufüg', 'erstelle', 'добав', 'создай', 'реализ', 'añade', 'crea', 'ajoute', 'crée', 'əlavə', 'yarat']]
+];
+const CAT_RE = CAT_WORDS.map(([id, words]) => [id, new RegExp(`(?<![\\p{L}\\p{N}])(${words.join('|')})`, 'iu')] as const);
+export function smartCategory(text: string): CategoryId {
+  const x = text.replace(/```[\s\S]*?(```|$)/g, ' ').slice(0, 1200);
+  for (const [id, re] of CAT_RE) if (re.test(x)) return id;
+  return 'general';
 }
 
 const KEY = 'nova.ai.sessions.v1';
@@ -91,6 +124,8 @@ export function loadSessions(): AiSession[] {
         pinned: s.pinned === true,
         titleLocked: s.titleLocked === true,
         autoLevel: (s.autoLevel === 1 || s.autoLevel === 2 ? s.autoLevel : 0) as 0 | 1 | 2,
+        category: isCategory(s.category) ? s.category : undefined,
+        categoryLocked: s.categoryLocked === true,
         messages: (s.messages as ChatMsg[]).slice(-MAX_MSGS).map((m) => ({ ...m, streaming: false }))
       }))
       .slice(0, MAX_SESSIONS * 2);

@@ -50,8 +50,8 @@
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 621 |
-| `src/components/ChatSessions.tsx` | 246 |
+| `src/components/AIAssistant.tsx` | 716 |
+| `src/components/ChatSessions.tsx` | 339 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/EditorArea.tsx` | 363 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
@@ -70,6 +70,7 @@
 | `src/components/SettingsPage.tsx` | 615 |
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 485 |
+| `src/components/ThinkingMenu.tsx` | 91 |
 | `src/components/UpdateDialog.tsx` | 156 |
 | `src/components/WindowControls.tsx` | 48 |
 
@@ -77,7 +78,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
-| `src/services/aiClient.ts` | 230 |
+| `src/services/aiClient.ts` | 265 |
 | `src/services/editorBridge.ts` | 80 |
 | `src/services/editorTheme.ts` | 96 |
 | `src/services/extensionsService.ts` | 220 |
@@ -95,7 +96,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1942 |
+| `src/i18n/uiText.ts` | 2023 |
 
 ### Betikler
 | Dosya | Satır |
@@ -143,7 +144,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 629 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 656 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 92 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

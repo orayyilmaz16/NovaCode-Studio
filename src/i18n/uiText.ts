@@ -1496,6 +1496,87 @@ export const UI_TEXT = {
   optThinkDeep: {
     tr: "Derin", en: "Deep", de: "Tief", ru: "Глубоко", ar: "عميق", es: "Profundo", fr: "Approfondi", az: "Dərin",
   },
+  catBug: {
+    tr: "Hata", en: "Bug", de: "Fehler", ru: "Ошибка", ar: "خطأ", es: "Error", fr: "Bogue", az: "Xəta",
+  },
+  catFeature: {
+    tr: "Özellik", en: "Feature", de: "Funktion", ru: "Функция", ar: "ميزة", es: "Función", fr: "Fonction", az: "Xüsusiyyət",
+  },
+  catExplain: {
+    tr: "Açıklama", en: "Explanation", de: "Erklärung", ru: "Объяснение", ar: "شرح", es: "Explicación", fr: "Explication", az: "İzah",
+  },
+  catRefactor: {
+    tr: "Refaktör", en: "Refactor", de: "Refactoring", ru: "Рефакторинг", ar: "إعادة هيكلة", es: "Refactorización", fr: "Refactorisation", az: "Refaktorinq",
+  },
+  catTest: {
+    tr: "Test", en: "Test", de: "Test", ru: "Тест", ar: "اختبار", es: "Prueba", fr: "Test", az: "Test",
+  },
+  catDocs: {
+    tr: "Belge", en: "Docs", de: "Doku", ru: "Документация", ar: "توثيق", es: "Docs", fr: "Docs", az: "Sənəd",
+  },
+  catGeneral: {
+    tr: "Genel", en: "General", de: "Allgemein", ru: "Общее", ar: "عام", es: "General", fr: "Général", az: "Ümumi",
+  },
+  aiGroupBy: {
+    tr: "Grupla", en: "Group by", de: "Gruppieren", ru: "Группировка", ar: "تجميع", es: "Agrupar", fr: "Grouper", az: "Qruplaşdır",
+  },
+  aiGroupByDate: {
+    tr: "Tarih", en: "Date", de: "Datum", ru: "Дата", ar: "التاريخ", es: "Fecha", fr: "Date", az: "Tarix",
+  },
+  aiGroupByCategory: {
+    tr: "Kategori", en: "Category", de: "Kategorie", ru: "Категория", ar: "الفئة", es: "Categoría", fr: "Catégorie", az: "Kateqoriya",
+  },
+  aiSortBy: {
+    tr: "Sırala", en: "Sort", de: "Sortieren", ru: "Сортировка", ar: "ترتيب", es: "Ordenar", fr: "Trier", az: "Sırala",
+  },
+  aiSortRecent: {
+    tr: "Son kullanılan", en: "Recent", de: "Zuletzt", ru: "Недавние", ar: "الأحدث", es: "Recientes", fr: "Récents", az: "Son istifadə",
+  },
+  aiSortName: {
+    tr: "Ada göre", en: "By name", de: "Nach Name", ru: "По имени", ar: "حسب الاسم", es: "Por nombre", fr: "Par nom", az: "Ada görə",
+  },
+  aiSortMessages: {
+    tr: "İleti sayısı", en: "Messages", de: "Nachrichten", ru: "Сообщения", ar: "الرسائل", es: "Mensajes", fr: "Messages", az: "Mesaj sayı",
+  },
+  aiAllCats: {
+    tr: "Tümü", en: "All", de: "Alle", ru: "Все", ar: "الكل", es: "Todos", fr: "Tous", az: "Hamısı",
+  },
+  aiSetCategory: {
+    tr: "Kategori ata", en: "Set category", de: "Kategorie festlegen", ru: "Задать категорию", ar: "تعيين فئة", es: "Asignar categoría", fr: "Définir la catégorie", az: "Kateqoriya təyin et",
+  },
+  aiThinkingLevel: {
+    tr: "Düşünme seviyesi", en: "Thinking level", de: "Denktiefe", ru: "Уровень размышления", ar: "مستوى التفكير", es: "Nivel de razonamiento", fr: "Niveau de réflexion", az: "Düşünmə səviyyəsi",
+  },
+  aiThinkFastDesc: {
+    tr: "Kısa ve doğrudan yanıt", en: "Short, direct answers", de: "Kurze, direkte Antworten", ru: "Короткие прямые ответы", ar: "ردود قصيرة ومباشرة", es: "Respuestas cortas y directas", fr: "Réponses courtes et directes", az: "Qısa və birbaşa cavab",
+  },
+  aiThinkBalancedDesc: {
+    tr: "Gerekirse kısa plan, sonra yanıt", en: "A short plan when needed, then the answer", de: "Bei Bedarf kurzer Plan, dann Antwort", ru: "При необходимости краткий план, затем ответ", ar: "خطة قصيرة عند الحاجة ثم الرد", es: "Un plan breve si hace falta, luego la respuesta", fr: "Un court plan si besoin, puis la réponse", az: "Lazım olsa qısa plan, sonra cavab",
+  },
+  aiThinkDeepDesc: {
+    tr: "Adım adım düşünür; yavaş ama daha doğru", en: "Thinks step by step; slower but more accurate", de: "Denkt Schritt für Schritt; langsamer, aber genauer", ru: "Рассуждает пошагово; медленнее, но точнее", ar: "يفكر خطوة بخطوة؛ أبطأ لكن أدق", es: "Piensa paso a paso; más lento pero más preciso", fr: "Réfléchit pas à pas ; plus lent mais plus précis", az: "Addım-addım düşünür; yavaş, amma daha dəqiq",
+  },
+  aiQuickAgent1: {
+    tr: "Projeyi özetle", en: "Summarize this project", de: "Fasse dieses Projekt zusammen", ru: "Кратко опиши проект", ar: "لخّص هذا المشروع", es: "Resume este proyecto", fr: "Résume ce projet", az: "Layihəni xülasə et",
+  },
+  aiQuickAgent2: {
+    tr: "TODO notlarını bul", en: "Find the TODO comments", de: "Finde die TODO-Kommentare", ru: "Найди комментарии TODO", ar: "ابحث عن ملاحظات TODO", es: "Encuentra los comentarios TODO", fr: "Trouve les commentaires TODO", az: "TODO qeydlərini tap",
+  },
+  aiQuickAgent3: {
+    tr: "Testleri çalıştır, hataları düzelt", en: "Run the tests and fix failures", de: "Führe die Tests aus und behebe Fehler", ru: "Запусти тесты и исправь ошибки", ar: "شغّل الاختبارات وأصلح الأخطاء", es: "Ejecuta las pruebas y corrige los fallos", fr: "Lance les tests et corrige les échecs", az: "Testləri işə sal, xətaları düzəlt",
+  },
+  aiQuickAgent4: {
+    tr: "README'yi güncelle", en: "Update the README", de: "Aktualisiere die README", ru: "Обнови README", ar: "حدّث ملف README", es: "Actualiza el README", fr: "Mets à jour le README", az: "README-ni yenilə",
+  },
+  aiCopyMsg: {
+    tr: "Mesajı kopyala", en: "Copy message", de: "Nachricht kopieren", ru: "Копировать сообщение", ar: "نسخ الرسالة", es: "Copiar mensaje", fr: "Copier le message", az: "Mesajı kopyala",
+  },
+  aiScrollDown: {
+    tr: "En alta in", en: "Jump to latest", de: "Zum Ende springen", ru: "К последнему", ar: "إلى الأحدث", es: "Ir al final", fr: "Aller au dernier", az: "Ən aşağı keç",
+  },
+  aiClickAgainDelete: {
+    tr: "Silmek için tekrar tıkla", en: "Click again to delete", de: "Zum Löschen erneut klicken", ru: "Нажми ещё раз для удаления", ar: "انقر مرة أخرى للحذف", es: "Haz clic de nuevo para eliminar", fr: "Clique encore pour supprimer", az: "Silmək üçün yenidən klik et",
+  },
   aiSessionSearch: {
     tr: "Sohbetlerde ara…", en: "Search chats…", de: "Chats durchsuchen…", ru: "Поиск по чатам…", ar: "ابحث في المحادثات…", es: "Buscar chats…", fr: "Rechercher dans les chats…", az: "Söhbətlərdə axtar…",
   },
