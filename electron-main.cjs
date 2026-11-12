@@ -240,7 +240,8 @@ ipcMain.handle('dialog:openFolder', async () => {
   try {
     const result = await dialog.showOpenDialog(mainWindow || undefined, {
       properties: ['openDirectory'],
-      title: 'Çalışma Alanı Klasörü Seçin'
+      title: 'Çalışma Alanı Klasörü Seçin',
+      buttonLabel: 'Klasörü Seç'
     });
     if (result.canceled || !result.filePaths.length) return null;
     return await openWorkspace(result.filePaths[0]);

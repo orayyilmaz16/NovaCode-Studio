@@ -32,7 +32,7 @@
 | `electron-git.cjs` | 214 |
 | `electron-github.cjs` | 329 |
 | `electron-llm.cjs` | 256 |
-| `electron-main.cjs` | 497 |
+| `electron-main.cjs` | 498 |
 | `electron-preload.cjs` | 136 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
@@ -42,7 +42,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1361 |
+| `src/App.tsx` | 1371 |
 | `src/main.tsx` | 21 |
 | `src/types.ts` | 271 |
 

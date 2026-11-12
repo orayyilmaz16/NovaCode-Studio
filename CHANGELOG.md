@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### tr
+- **Klasör açma düzeltmeleri:** Yeniden başlatınca başlık "Gezgin" iken eski projenin dosyalarının görünmesi giderildi (eski klasör izleyicisi artık ağacı doldurmaz). Başka klasör açılınca eski projenin kaydedilmiş sekmeleri kapanır. Klasör diyaloğunun düğmesi "Klasörü Seç" oldu.
 - **Önizleme yenilendi:** `.html`, `.svg` ve `.md` dosyası açılınca localhost gerekmeden önizleme kendiliğinden açılır (ayar: Çalıştır ve önizleme). Yerel CSS/JS/görsel/yazı tipleri diskten gömülür, yazdıkça (kaydetmeden) ve diskte değişince canlı yenilenir; sandbox içinde çalışır, konsol çıktısı ve hata rozeti görünür. Terminalde çalışan yerel sunucu (`localhost`) algılanır ve tek tıkla önizlenir.
 - **Çalıştır menüsü sadeleşti:** npm/cargo/dotnet komutları kaldırıldı; "Açık dosyayı çalıştır (F5)", "Önizleme" ve yeni **Çalıştır ve önizleme** ayarları (kaydet-önce, terminali temizle, dil başına özel komut şablonu `{file}`/`{dir}`) var.
 - **Eklentiler ayarlara entegre:** Ayarlar → Eklentiler'de yerleşik + eklenti temaları tek listede, seçim anında uygulanır; `Ctrl+Shift+P` → "Renk temasını seç…" ile ok tuşlarıyla canlı önizleme (Esc geri alır). Yüklü eklentiler açılışta ve 6 saatte bir otomatik güncellenir (ayar: kapatılabilir).
@@ -69,6 +70,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **Folder opening fixes:** Fixed the old project's files showing under an "Explorer" header after a restart (a stale folder watcher no longer fills the tree). Opening another folder closes the previous project's saved tabs. The folder dialog button now reads "Select Folder".
 - **Preview overhaul:** opening an `.html`, `.svg` or `.md` file opens a preview automatically, no localhost needed (setting: Run & preview). Local CSS/JS/images/fonts are inlined from disk, refreshed live as you type (unsaved) and when files change on disk; sandboxed, with console output and an error badge. A local dev server (`localhost`) started in the terminal is detected and previewed in one click.
 - **Simpler Run menu:** npm/cargo/dotnet commands removed; "Run active file (F5)", "Preview" and new **Run & preview** settings (save first, clear terminal, per-language command template `{file}`/`{dir}`).
 - **Extensions built into settings:** Settings → Extensions lists built-in + extension themes in one list, applied instantly; `Ctrl+Shift+P` → "Select color theme…" gives live preview with arrow keys (Esc reverts). Installed extensions auto-update at startup and every 6 hours (can be turned off).
