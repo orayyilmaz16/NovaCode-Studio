@@ -13,7 +13,10 @@ import {
   Search,
   PanelLeft,
   PanelBottom,
-  UserRound
+  UserRound,
+  XCircle,
+  TriangleAlert,
+  RefreshCcw
 } from 'lucide-react';
 import { FileTree, normGitPath } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
@@ -31,6 +34,7 @@ import { useCollabToken } from './services/useCollabToken';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
+const BranchPicker = lazy(() => import('./components/BranchPicker').then((m) => ({ default: m.BranchPicker })));
 const DebugPanel = lazy(() => import('./components/DebugPanel').then((m) => ({ default: m.DebugPanel })));
 const ExtensionsPanel = lazy(() => import('./components/ExtensionsPanel').then((m) => ({ default: m.ExtensionsPanel })));
 import type { PaletteCommand } from './components/CommandPalette';
@@ -50,6 +54,9 @@ import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './compo
 import { t } from './i18n/uiText';
 import { previewKind } from './services/previewKind';
 import type { FileItem, ConsoleLog, GitStatus } from './types';
+import type { PickerMode } from './components/BranchPicker';
+import { useProblems } from './services/problems';
+import './i18n/uiTextScm';
 
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -72,6 +79,11 @@ export function App() {
   rootPathRef.current = currentRootPath;
   const [currentRootName, setCurrentRootName] = useState<string>('NovaCode-Studio');
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
+  const [picker, setPicker] = useState<PickerMode | null>(null);
+  const [gitNotice, setGitNotice] = useState<{ id: number; ok: boolean; text: string } | null>(null);
+  const [noticeShown, setNoticeShown] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const problems = useProblems();
 
   // Paneller
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions' | 'debug'>('files');
@@ -287,6 +299,7 @@ export function App() {
     if (key === 'f' && e.shiftKey) { e.preventDefault(); if (currentRootPath) pickSidebarForce('search'); return; }
     if (key === 'x' && e.shiftKey) { e.preventDefault(); pickSidebarForce('extensions'); return; }
     if (key === 'l' && e.shiftKey) { e.preventDefault(); toggleAI(); return; }
+    if (key === 'm' && e.shiftKey) { e.preventDefault(); openProblems(); return; }
 
     if (key === 'q') { e.preventDefault(); handleQuit(); return; }
     if (key === 'b') { e.preventDefault(); setSidebarVisible((v) => !v); return; }
@@ -561,6 +574,7 @@ export function App() {
   };
 
   const handleSaveFile = async (file: FileItem) => {
+    if (file.diff) return; // fark sekmesi salt okunur
     if (file.path && window.electronAPI?.writeFile) {
       // Ayarlara göre kayıt dönüşümleri
       let content = file.content || '';
@@ -838,6 +852,75 @@ export function App() {
     setSidebarVisible(true);
   };
 
+  // Git farkı: salt okunur sekme (aynı dosyanın sekmesi varsa yerinde yenilenir)
+  const openDiffTab = (item: FileItem) => {
+    setShowLanding(false);
+    setShowSettings(false);
+    setOpenFiles((prev) => (prev.some((f) => f.id === item.id) ? prev.map((f) => (f.id === item.id ? item : f)) : [...prev, item]));
+    setActiveFileId(item.id);
+  };
+
+  // Alt panelde Sorunlar sekmesini aç
+  const openProblems = () => {
+    setShowBottomTerminal(true);
+    window.setTimeout(() => sendTerminal({ action: 'tab', tab: 'problems' }), 80);
+  };
+
+  // Dal seçici / durum çubuğu eşzamanlama gibi işlemlerin sonucu: günlüğe yazılır, durum çubuğunda kısa süre görünür, Git paneline iletilir
+  const pushGitNotice = (ok: boolean, text: string) => {
+    setGitNotice({ id: Date.now(), ok, text });
+    addLog(ok ? 'info' : 'error', text);
+    void refreshGitStatus();
+  };
+  useEffect(() => {
+    if (!gitNotice) return;
+    setNoticeShown(true);
+    const id = window.setTimeout(() => setNoticeShown(false), 6000);
+    return () => window.clearTimeout(id);
+  }, [gitNotice]);
+
+  const statusBarSync = async () => {
+    const api = window.electronAPI;
+    if (!api?.gitSync || !currentRootPath || syncing) return;
+    setSyncing(true);
+    try {
+      const res = await api.gitSync(currentRootPath);
+      pushGitNotice(res.success, res.success ? t('gitSyncDone') : res.stderr === 'diverged' ? t('gitDiverged') : res.stderr && res.stderr.length < 300 ? res.stderr : t('gitFailed'));
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  // Açık fark sekmeleri (çalışma ağacı/sahne) git durumu değişince tazelenir
+  useEffect(() => {
+    const api = window.electronAPI;
+    if (!api?.gitDiffFile) return;
+    const tabs = openFilesRef.current.filter((f) => f.diff?.source);
+    if (tabs.length === 0) return;
+    let off = false;
+    void Promise.all(
+      tabs.map(async (f) => {
+        const s = f.diff!.source!;
+        return { id: f.id, r: await api.gitDiffFile(s.repo, { path: s.path, orig: s.orig, staged: s.staged }) };
+      })
+    ).then((res) => {
+      if (off) return;
+      setOpenFiles((prev) =>
+        prev.map((f) => {
+          const hit = res.find((x) => x.id === f.id);
+          if (!hit || !hit.r.success || !f.diff) return f;
+          const original = hit.r.original ?? '';
+          const modified = hit.r.modified ?? '';
+          const note = hit.r.binary ? 'binary' : hit.r.tooLarge ? 'tooLarge' : undefined;
+          if (original === f.diff.original && modified === f.diff.modified && note === f.diff.note) return f;
+          return { ...f, diff: { ...f.diff, original, modified, note } };
+        })
+      );
+    });
+    return () => { off = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gitStatus]);
+
   const openFileAt = async (path: string, line?: number) => {
     setShowLanding(false);
     setShowSettings(false);
@@ -1031,6 +1114,8 @@ export function App() {
     { id: 'sidebar', label: plain(t('tbSidebar')), shortcut: 'Ctrl+B', run: () => setSidebarVisible((v) => !v) },
     { id: 'terminal', label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', run: () => setShowBottomTerminal((v) => !v) },
     { id: 'git', label: t('actGit'), run: () => pickSidebarForce('git') },
+    { id: 'gitBranch', label: t('scmBranchTip'), run: () => { if (currentRootPath && gitStatus.isRepo) setPicker('checkout'); } },
+    { id: 'problems', label: t('prbTab'), shortcut: 'Ctrl+Shift+M', run: openProblems },
     { id: 'extensions', label: t('extTitle'), run: () => pickSidebarForce('extensions') },
     { id: 'ai', label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', run: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); } },
     { id: 'settings', label: t('actSettings'), shortcut: 'Ctrl+,', run: () => { setShowLanding(false); setShowSettings(true); } },
@@ -1284,7 +1369,7 @@ export function App() {
                   <div className="h-9 flex items-center pl-4 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">{t('actGit')}</div>
                   <Suspense fallback={null}><GithubAccount /></Suspense>
                   <div className="flex-1 min-h-0">
-                    <Suspense fallback={null}><GitPanel status={gitStatus} currentRepoPath={currentRootPath} onRefresh={() => refreshGitStatus()} onLog={(type, text) => addLog(type, text)} /></Suspense>
+                    <Suspense fallback={null}><GitPanel status={gitStatus} currentRepoPath={currentRootPath} onRefresh={() => refreshGitStatus()} onLog={(type, text) => addLog(type, text)} onOpenDiff={openDiffTab} onOpenFile={(p) => void openFileAt(p)} onPicker={setPicker} notice={gitNotice} /></Suspense>
                   </div>
                 </div>
               )}
@@ -1325,6 +1410,7 @@ export function App() {
           /></Suspense>
             ) : (
               <EditorArea
+                onOpenPath={(p) => void openFileAt(p)}
                 openFiles={openFiles}
                 activeFileId={activeFileId}
                 onSelectTab={(id) => setActiveFileId(id)}
@@ -1412,28 +1498,52 @@ export function App() {
         )}
       </div>
 
+      {picker && currentRootPath && gitStatus.isRepo && (
+        <Suspense fallback={null}>
+          <BranchPicker repo={currentRootPath} mode={picker} current={gitStatus.branch} onClose={() => setPicker(null)} onResult={(r) => pushGitNotice(r.ok, r.text)} />
+        </Suspense>
+      )}
+
       {/* Durum çubuğu: yalnız anlamlı bilgiler */}
       {settings.statusBarVisible !== false && (
         <footer className="@container h-6 m-[var(--frame)] rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
           <div className="flex items-center h-full min-w-0 overflow-hidden">
             {gitStatus.isRepo && (
-              <button className="status-item" onClick={() => pickSidebar('git')} title={t('actGit')}>
-                <GitBranch size={12} />
-                <span className="font-mono">{gitStatus.branch}</span>
-                {gitStatus.behind || gitStatus.ahead ? (
-                  <span className="font-mono">
-                    ↓{gitStatus.behind ?? 0} ↑{gitStatus.ahead ?? 0}
-                  </span>
-                ) : null}
-                {changeCount > 0 && <span className="text-amber-400">±{changeCount}</span>}
-              </button>
+              <>
+                <button className="status-item" onClick={() => setPicker('checkout')} title={t('scmBranchTip')} aria-label={t('scmBranchTip')}>
+                  <GitBranch size={12} />
+                  <span className="font-mono">{gitStatus.branch}</span>
+                </button>
+                {gitStatus.hasRemote && (
+                  <button className="status-item" onClick={() => void statusBarSync()} title={t('scmSyncTip')} aria-label={t('scmSyncTip')}>
+                    <RefreshCcw size={12} className={syncing ? 'animate-spin' : ''} />
+                    {gitStatus.behind || gitStatus.ahead ? (
+                      <span className="font-mono">
+                        ↓{gitStatus.behind ?? 0} ↑{gitStatus.ahead ?? 0}
+                      </span>
+                    ) : null}
+                  </button>
+                )}
+                {changeCount > 0 && (
+                  <button className="status-item" onClick={() => pickSidebar('git')} title={t('actGit')}>
+                    <span className="text-amber-400">±{changeCount}</span>
+                  </button>
+                )}
+              </>
             )}
+            <button className="status-item" onClick={openProblems} title={t('prbTip').replace('{e}', String(problems.errors)).replace('{w}', String(problems.warnings))} aria-label={t('prbTab')}>
+              <XCircle size={12} className={problems.errors ? 'text-rose-400' : ''} />
+              <span>{problems.errors}</span>
+              <TriangleAlert size={12} className={problems.warnings ? 'text-amber-300' : ''} />
+              <span>{problems.warnings}</span>
+            </button>
             <button className="status-item" onClick={() => pickSidebar('git')} title={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}>
               <UserRound size={12} />
               <span>{auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}</span>
             </button>
           </div>
           <div className="flex items-center h-full min-w-0 overflow-hidden">
+            {noticeShown && gitNotice && <span className={`status-item ${gitNotice.ok ? 'text-emerald-300' : 'text-rose-300'} max-w-[40vw] truncate`} title={gitNotice.text}>{gitNotice.text}</span>}
             <UpdateIndicator onOpen={() => setUpdateDlg('update')} />
             {activeFile?.isModified && <span className="status-item text-amber-300">{t('stUnsaved')}</span>}
             {activeFile && (

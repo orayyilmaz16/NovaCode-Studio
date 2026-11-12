@@ -73,6 +73,85 @@ const ok = (c, m) => { console.log(c ? 'ok  ' : 'FAIL', m); if (!c) process.exit
   const lg = await call('git:log', dir);
   ok(lg.commits.length === 1 && lg.commits[0].subject === 'feat: first', 'log');
 
+  // ---- Fark (diff) ----
+  fs.writeFileSync(path.join(dir, 'a.txt'), 'a\nyeni satır\n');
+  let d = await call('git:diffFile', dir, { path: 'a.txt', staged: false });
+  ok(d.success && d.original === 'a' && d.modified === 'a\nyeni satır\n', 'diff (sahnelenmemiş): index ↔ çalışma ağacı');
+  await call('git:stage', dir, ['a.txt']);
+  d = await call('git:diffFile', dir, { path: 'a.txt', staged: true });
+  ok(d.success && d.original === 'a' && d.modified === 'a\nyeni satır\n', 'diff (sahnelenmiş): HEAD ↔ index');
+  fs.writeFileSync(path.join(dir, 'yeni.txt'), 'yeni');
+  d = await call('git:diffFile', dir, { path: 'yeni.txt', staged: false });
+  ok(d.success && d.original === '' && d.modified === 'yeni', 'diff (izlenmeyen): boş ↔ dosya');
+  fs.rmSync(path.join(dir, 'yeni.txt'));
+  fs.rmSync(path.join(dir, 'a.txt'));
+  d = await call('git:diffFile', dir, { path: 'a.txt', staged: false });
+  ok(d.success && d.modified === '' && d.original === 'a\nyeni satır\n', 'diff (silinmiş): sağ taraf boş');
+  ok(!(await call('git:diffFile', dir, { path: '../x', staged: false })).success, 'diff: yol geçişi reddedildi');
+  ok(!(await call('git:diffFile', dir, { path: 'a.txt', ref: '--output=/tmp/x' })).success, 'diff: tehlikeli ref reddedildi');
+  fs.writeFileSync(path.join(dir, 'bin.dat'), Buffer.from([1, 2, 0, 3, 4]));
+  d = await call('git:diffFile', dir, { path: 'bin.dat', staged: false });
+  ok(d.success && d.binary === true, 'diff: ikili dosya içerik taşımaz');
+  fs.rmSync(path.join(dir, 'bin.dat'));
+  g('checkout', '--', 'a.txt'); g('reset', '-q'); g('checkout', '--', '.');
+  fs.writeFileSync(path.join(dir, 'a.txt'), 'a');
+
+  // ---- Commit düzeltme / geri alma ----
+  fs.writeFileSync(path.join(dir, 'b.txt'), 'b');
+  await call('git:stage', dir, ['b.txt']);
+  ok((await call('git:commit', dir, 'feat: second')).success, 'ikinci commit');
+  const cf = await call('git:commitFiles', dir, 'HEAD'.length ? g('rev-parse', '--short', 'HEAD').trim() : '');
+  ok(cf.success && cf.files.length === 1 && cf.files[0].path === 'b.txt' && cf.files[0].status === 'A', 'commit dosyaları: b.txt eklendi');
+  d = await call('git:diffFile', dir, { path: 'b.txt', ref: g('rev-parse', '--short', 'HEAD').trim() });
+  ok(d.success && d.original === '' && d.modified === 'b', 'commit farkı: üst yok → boş ↔ b');
+  ok((await call('git:amend', dir, 'feat: second (düzeltildi)')).success && (await call('git:log', dir)).commits[0].subject === 'feat: second (düzeltildi)', 'amend mesajı değiştirdi');
+  ok((await call('git:undoCommit', dir)).success, 'son commit geri alındı (soft)');
+  st = await call('git:status', dir);
+  ok(st.files.find((f) => f.path === 'b.txt').index === 'A', 'geri almada değişiklik sahnede kaldı');
+  ok((await call('git:commit', dir, 'feat: second')).success, 'yeniden commit');
+
+  // ---- Dallar, etiketler, birleştirme ----
+  ok((await call('git:createTag', dir, 'v0.1', 'ilk')).success, 'etiket oluşturuldu');
+  ok(!(await call('git:createTag', dir, '-x')).success && !(await call('git:createTag', dir, 'a..b')).success, 'geçersiz etiket adları reddedildi');
+  const refs = await call('git:refs', dir);
+  ok(refs.success && refs.local.some((b) => b.name === 'main' && b.current) && refs.tags.some((x) => x.name === 'v0.1'), 'refs: dal ve etiket listelendi');
+  ok((await call('git:createBranchFrom', dir, 'dev', 'v0.1')).success && (await call('git:refs', dir)).local.some((b) => b.name === 'dev' && b.current), 'etiketten dal oluştur');
+  fs.writeFileSync(path.join(dir, 'c.txt'), 'dev'); await call('git:stage', dir, ['c.txt']); await call('git:commit', dir, 'feat: dev');
+  ok((await call('git:checkoutRef', dir, 'main')).success, 'checkoutRef main');
+  ok((await call('git:checkoutRef', dir, 'v0.1')).success && (await call('git:status', dir)).detached, 'etiket → detached HEAD');
+  ok((await call('git:checkoutRef', dir, 'main')).success, 'detached → main');
+  ok(!(await call('git:checkoutRef', dir, 'yok-boyle-bir-ref')).success && !(await call('git:checkoutRef', dir, '--orphan')).success, 'olmayan/tehlikeli ref reddedildi');
+  ok((await call('git:merge', dir, 'dev')).success && fs.existsSync(path.join(dir, 'c.txt')), 'merge dev → main');
+  ok(!(await call('git:deleteBranch', dir, 'main')).success, 'geçerli dal silinemez');
+  ok((await call('git:deleteBranch', dir, 'dev')).success, 'birleşmiş dal silindi');
+  ok((await call('git:deleteTag', dir, 'v0.1')).success, 'etiket silindi');
+
+  // çakışma: iki dal aynı satırı değiştirir
+  g('switch', '-c', 'k1'); fs.writeFileSync(path.join(dir, 'a.txt'), 'k1'); g('commit', '-qam', 'k1');
+  g('switch', 'main'); fs.writeFileSync(path.join(dir, 'a.txt'), 'main2'); g('commit', '-qam', 'main2');
+  const mc = await call('git:merge', dir, 'k1');
+  ok(!mc.success && mc.stderr === 'merge-conflict', 'merge çakışması bildirildi');
+  st = await call('git:status', dir);
+  ok(st.merging === true && st.files.some((f) => f.path === 'a.txt' && f.conflict), 'durum: merging + çakışan dosya');
+  ok((await call('git:resolve', dir, 'a.txt', 'theirs')).success && fs.readFileSync(path.join(dir, 'a.txt'), 'utf8') === 'k1', 'çakışma: onlarınki seçildi');
+  ok((await call('git:mergeContinue', dir)).success && !(await call('git:status', dir)).merging, 'birleştirme tamamlandı');
+  g('switch', '-c', 'k2', 'HEAD~1'); fs.writeFileSync(path.join(dir, 'a.txt'), 'k2'); g('commit', '-qam', 'k2');
+  g('switch', 'main');
+  fs.writeFileSync(path.join(dir, 'a.txt'), 'main3'); g('commit', '-qam', 'main3');
+  await call('git:merge', dir, 'k2');
+  ok((await call('git:mergeAbort', dir)).success && !(await call('git:status', dir)).merging, 'birleştirme iptal edildi');
+  ok(!(await call('git:merge', dir, '--abort')).success, 'merge: tehlikeli ref reddedildi');
+
+  // ---- Stash ----
+  fs.writeFileSync(path.join(dir, 'a.txt'), 'stashed'); fs.writeFileSync(path.join(dir, 'u.txt'), 'untracked');
+  ok((await call('git:stashPush', dir, 'deneme')).success, 'stash push (izlenmeyen dahil)');
+  ok(!fs.existsSync(path.join(dir, 'u.txt')), 'stash sonrası izlenmeyen dosya kalktı');
+  const sl = await call('git:stashList', dir);
+  ok(sl.stashes.length === 1 && /deneme/.test(sl.stashes[0].message), 'stash listesi');
+  ok((await call('git:stashPop', dir, 0)).success && fs.readFileSync(path.join(dir, 'a.txt'), 'utf8') === 'stashed', 'stash pop geri getirdi');
+  ok(!(await call('git:stashPop', dir, -1)).success && !(await call('git:stashDrop', dir, '0; x')).success, 'geçersiz stash indeksi reddedildi');
+  g('checkout', '--', '.'); g('clean', '-fq');
+
   const sync = await call('git:sync', dir);
   ok(!sync.success, 'uzak olmadan sync hata verir (beklenen): ' + sync.step);
 

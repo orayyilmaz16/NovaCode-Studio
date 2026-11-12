@@ -2,6 +2,12 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 12.11.2026 (kaynak denetimi ve Sorunlar)
+- **Fark salt okunur sekmede (Monaco DiffEditor), commit/sahne/çalışma ağacı üçü de aynı mekanizma.** Neden: VS Code deneyimi, ek bağımlılık yok. Bkz. [[source-control]].
+- **Açık dosyaların Monaco modelleri sekme değişince yaşar.** Neden: Sorunlar sayacı yalnız var olan modelleri görür; bedeli: sayaç açık dosyaları kapsar, kapalıları kapsamaz.
+- **TS çalışanında "modül bulunamadı" vb. tanılar susturuldu.** Neden: node_modules türleri yok, yanlış pozitifler sayacı anlamsız kılıyordu.
+- **Birleştirme `--no-edit` ile commit'e dönüşür, çakışma arayüzde çözülür veya iptal edilir;** `push --force`/yeniden yazma yok (`amend` açık onayla).
+
 ## 12.11.2026 (metin tamponu, hata ayıklama, PTY, LSP)
 - **Piece table Monaco'nun tamponunu değiştirmez;** yalnız ajan `edit_lines` aracı kullanır. Neden: Monaco'nun tamponu zaten iyi, değiştirmek risk ve fayda yok. Bkz. [[text-buffer]].
 - **Hata ayıklayıcı yalnız Node/JS, V8 Inspector (CDP).** Neden: ek bağımlılıksız (`ws` vardı), çalışma klasörü + 127.0.0.1 ile güvenli. Bkz. [[debugging]].

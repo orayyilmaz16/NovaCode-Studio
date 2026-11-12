@@ -33,6 +33,9 @@ Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmad
 ## Dosya sistemi IPC kuralları (güncel)
 Ana süreçte yazan/silen/taşıyan her işleyici yolu doğrular: `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:renameItem` yalnız açık çalışma klasörünün **içinde**; `fs:writeFile` çalışma klasörü içinde veya kullanıcının "Dosya Aç" diyaloğuyla seçtiği dosyalarda; taşıma/yeniden adlandırma hedefin üzerine yazmaz. Yeni dosya IPC'si eklerken `insideWorkspace()` / `writable()` kullan. Ayrıntı: [[explorer]].
 
+## Git IPC kuralları (genişletme)
+Yeni Git kanalları ref/etiket/SHA/stash indeksini ana süreçte doğrular (`REF_RE`, var olan ref, `-` ile başlayanlar reddedilir); fark okuma çalışma ağacı dosyasını realpath ile depo içinde denetler. Ayrıntı: [[source-control]].
+
 ## Dış istek envanteri (güncel)
 | Servis | Ne zaman | Ne gider | Not |
 |---|---|---|---|

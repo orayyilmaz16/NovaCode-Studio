@@ -1,5 +1,5 @@
 // Uygulama menüsü / komut paleti → entegre terminal köprüsü (Terminal.tsx 'nova:term' olayını dinler).
-export type TerminalAction = { action: 'run'; command: string } | { action: 'cd'; dir: string } | { action: 'new' } | { action: 'clear' };
+export type TerminalAction = { action: 'run'; command: string } | { action: 'cd'; dir: string } | { action: 'new' } | { action: 'clear' } | { action: 'tab'; tab: 'problems' | 'terminal' | 'log' };
 
 export function sendTerminal(detail: TerminalAction) {
   window.dispatchEvent(new CustomEvent('nova:term', { detail }));

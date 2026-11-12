@@ -1,3 +1,14 @@
+/** Git farkı (salt okunur sekme): sol/sağ metin Monaco DiffEditor'da gösterilir. */
+export interface DiffInfo {
+  original: string;
+  modified: string;
+  /** Gerçek dosya yolu ("dosyayı aç" için); silinmişse bile adı korunur. */
+  filePath: string;
+  note?: 'binary' | 'tooLarge';
+  /** Sekmeyi git durumu değişince yenilemek için kaynak istek (commit farkları sabittir, yenilenmez). */
+  source?: { repo: string; path: string; orig?: string; staged?: boolean };
+}
+
 export interface FileItem {
   id: string;
   name: string;
@@ -8,6 +19,7 @@ export interface FileItem {
   children?: FileItem[];
   isOpen?: boolean;
   isModified?: boolean;
+  diff?: DiffInfo;
 }
 
 export interface ConsoleLog {
@@ -36,6 +48,42 @@ export interface GitCommitInfo {
   author: string;
   when: string;
   subject: string;
+  refs?: string[];
+}
+
+export interface GitCommitFile {
+  status: string;
+  path: string;
+  orig?: string;
+}
+
+export interface GitRefs {
+  success: boolean;
+  local: { name: string; hash: string; current: boolean; upstream?: string; subject?: string }[];
+  remote: { name: string; hash: string; subject?: string }[];
+  tags: { name: string; hash: string; subject?: string }[];
+}
+
+export interface GitDiffResult {
+  success: boolean;
+  stderr?: string;
+  original?: string;
+  modified?: string;
+  binary?: boolean;
+  tooLarge?: boolean;
+}
+
+export interface GitDiffRequest {
+  path: string;
+  orig?: string;
+  staged?: boolean;
+  ref?: string;
+}
+
+export interface GitStash {
+  index: number;
+  message: string;
+  when: string;
 }
 
 export interface GitResult {
@@ -57,6 +105,7 @@ export interface GitStatus {
   detached?: boolean;
   files?: GitFile[];
   hasRemote?: boolean;
+  merging?: boolean;
   changes: GitChange[];
 }
 
@@ -317,6 +366,26 @@ export interface ElectronBridge {
   gitCreateBranch: (repoPath: string, name: string) => Promise<GitResult>;
   gitLog: (repoPath: string) => Promise<{ success: boolean; commits: GitCommitInfo[] }>;
   gitInit: (repoPath: string) => Promise<GitResult>;
+  gitDiffFile: (repoPath: string, opts: GitDiffRequest) => Promise<GitDiffResult>;
+  gitCommitFiles: (repoPath: string, hash: string) => Promise<{ success: boolean; files: GitCommitFile[] }>;
+  gitRefs: (repoPath: string) => Promise<GitRefs>;
+  gitCheckoutRef: (repoPath: string, ref: string) => Promise<GitResult>;
+  gitCreateBranchFrom: (repoPath: string, name: string, from: string) => Promise<GitResult>;
+  gitDeleteBranch: (repoPath: string, name: string, force?: boolean) => Promise<GitResult>;
+  gitMerge: (repoPath: string, ref: string) => Promise<GitResult>;
+  gitMergeAbort: (repoPath: string) => Promise<GitResult>;
+  gitMergeContinue: (repoPath: string) => Promise<GitResult>;
+  gitResolve: (repoPath: string, file: string, side: 'ours' | 'theirs') => Promise<GitResult>;
+  gitAmend: (repoPath: string, message?: string) => Promise<GitResult>;
+  gitUndoCommit: (repoPath: string) => Promise<GitResult>;
+  gitCreateTag: (repoPath: string, name: string, message?: string, ref?: string) => Promise<GitResult>;
+  gitDeleteTag: (repoPath: string, name: string) => Promise<GitResult>;
+  gitPushTag: (repoPath: string, name: string) => Promise<GitResult>;
+  gitStashList: (repoPath: string) => Promise<{ success: boolean; stashes: GitStash[] }>;
+  gitStashPush: (repoPath: string, message?: string, includeUntracked?: boolean) => Promise<GitResult>;
+  gitStashApply: (repoPath: string, index: number) => Promise<GitResult>;
+  gitStashPop: (repoPath: string, index: number) => Promise<GitResult>;
+  gitStashDrop: (repoPath: string, index: number) => Promise<GitResult>;
   onGitChanged: (callback: (data: { rootPath: string }) => void) => () => void;
   github: {
     status: () => Promise<GithubAuthStatus>;

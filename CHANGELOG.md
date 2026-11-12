@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### tr
+- **Kaynak denetimi genişledi:** Değişen dosyaya tıklayınca VS Code gibi fark (diff) sekmesi açılır (eklenen/silinen/değişen satırlar; yan yana veya satır içi). Dosyalar uzantısına göre simgeyle listelenir; sahnelenenler, değişiklikler, birleştirme çakışmaları ve raf (stash) ayrı bölümlerdir. Geçmişte bir commit'e tıklayınca değişen dosyaları ve farkı görürsün.
+- **Dal/etiket seçici:** Alt çubuktaki dal adına basınca "Dal veya etiket seç" menüsü açılır (dal geç, yeni dal, şuradan yeni dal, uzak dal, etiket). Git panelindeki ⋯ menüsünde dal birleştir (çakışma çözümü ve iptal dahil), dal/etiket sil, etiket oluştur, stash, son commit'i düzelt/geri al, tümünü at, getir/çek/gönder var.
+- **Sorunlar:** Alt çubukta hata ve uyarı sayacı (simgeli), alt panelde SORUNLAR sekmesi (Ctrl+Shift+M). Hatalı satırlar editörde kırmızı çizgi/zeminle, hatalı dosyalar sekmede ve dosya ağacında (klasörler dahil) kırmızı görünür. Sayaç açık dosyaları kapsar; TypeScript'te "modül bulunamadı" gibi yanlış pozitifler susturuldu.
 - **Gerçek terminal (PTY):** Terminal artık xterm.js ile gerçek bir terminal (vim, htop, gerçek Ctrl+C, yeniden boyutlandırma, Ctrl+Tık ile dosya:satır bağlantısı). Eski terminal "klasik" olarak durur; ayar: Terminal modu.
 - **Hata ayıklayıcı (Node/JavaScript):** Kesme noktaları (oluğa tık / F9), F5/F10/F11/Shift+F11/Shift+F5, değişkenler, çağrı yığını, ifade değerlendirme. Yalnız açık klasördeki .js/.mjs/.cjs dosyaları.
 - **Dil sunucuları (LSP):** Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua, YAML için tamamlama, üzerine gelme, tanıma git ve hata işaretleri; bilgisayarındaki sunucuyla (yalnız PATH'ten). Durum çubuğunda sunucu durumu; ayar: Dil sunucuları.
@@ -88,6 +91,9 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **Source control expanded:** Clicking a changed file opens a VS Code-style diff tab (added/removed/changed lines; side by side or inline). Files are listed with extension icons; staged, changes, merge conflicts and stashes are separate sections. In History, click a commit to see its files and diffs.
+- **Branch/tag picker:** Clicking the branch name in the status bar opens "Select a branch or tag" (switch branch, new branch, new branch from…, remote branch, tag). The ⋯ menu in the Git panel adds merge (with conflict resolution and abort), delete branch/tag, create tag, stash, amend/undo last commit, discard all, fetch/pull/push.
+- **Problems:** An error and warning counter with icons in the status bar and a PROBLEMS tab in the bottom panel (Ctrl+Shift+M). Error lines get a red bar/background in the editor; files with errors turn red in tabs and the file tree (folders included). The counter covers open files; false positives such as "cannot find module" in TypeScript are silenced.
 - **Real terminal (PTY):** The terminal is now a real xterm.js terminal (vim, htop, real Ctrl+C, resizing, Ctrl+Click file:line links). The old terminal remains as "classic"; setting: Terminal mode.
 - **Debugger (Node/JavaScript):** Breakpoints (gutter click / F9), F5/F10/F11/Shift+F11/Shift+F5, variables, call stack, expression evaluation. Only .js/.mjs/.cjs files in the opened folder.
 - **Language servers (LSP):** Completion, hover, go to definition and error marks for Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua, YAML using a server on your computer (PATH only). Server status in the status bar; setting: Language servers.
