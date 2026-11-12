@@ -214,6 +214,14 @@ export interface ElectronBridge {
     onEvent: (callback: (ev: AiEvent) => void) => () => void;
   };
   quitApp: () => Promise<void>;
+  platform?: string;
+  windowControls?: {
+    minimize: () => Promise<void>;
+    toggleMaximize: () => Promise<boolean>;
+    close: () => Promise<void>;
+    isMaximized: () => Promise<boolean>;
+    onMaximized: (cb: (maximized: boolean) => void) => () => void;
+  };
   openFolderDialog: () => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | { error: string } | null>;
   recentFolders: () => Promise<{ path: string; name: string }[]>;
   openRecentFolder: (folderPath: string) => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | { error: string }>;

@@ -35,6 +35,7 @@ import type { PaletteCommand } from './components/CommandPalette';
 const CommandPalette = lazy(() => import('./components/CommandPalette').then((m) => ({ default: m.CommandPalette })));
 import { goToLine, runEditorAction, copySelection, pasteClipboard } from './services/editorBridge';
 import { MenuBar, type MenuGroup } from './components/MenuBar';
+import { WindowControls } from './components/WindowControls';
 import { UpdateDialog, UpdateIndicator } from './components/UpdateDialog';
 import { checkForUpdates } from './services/updateService';
 import { BUILTIN_THEMES, autoUpdateExtensions, listExtThemes, useExtensions } from './services/extensionsService';
@@ -1044,7 +1045,8 @@ export function App() {
           </span>
         </button>
 
-        <div className="app-no-drag flex items-center justify-end gap-0.5 min-w-0" style={{ paddingRight: isElectron ? 146 : 8 }}>
+        <div className="flex items-center justify-end h-full min-w-0">
+        <div className="app-no-drag flex items-center justify-end gap-0.5 min-w-0 pr-2">
           <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="icon-btn">
             <FolderOpen size={15} />
           </button>
@@ -1085,6 +1087,8 @@ export function App() {
           >
             <PanelBottom size={15} />
           </button>
+        </div>
+        {isElectron && <WindowControls />}
         </div>
       </header>
 
