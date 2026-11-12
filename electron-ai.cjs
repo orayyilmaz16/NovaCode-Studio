@@ -484,6 +484,40 @@ function buildSystem({ root, lang, agent, project, extra = '', thinking, autonom
   ].join('\n') + project + extra;
 }
 
+// ---------- Satır içi kod tamamlama (FIM) ----------
+// İmleçten önceki/sonraki kod yalnız YEREL Ollama'ya (127.0.0.1) gider; üçüncü tarafa veri çıkmaz. Gizli dosyalar (.env, anahtar) gönderilmez.
+const COMPLETION_MODEL = 'qwen2.5-coder:7b';
+const FIM_STOP = ['<|fim_pad|>', '<|endoftext|>', '<|fim_prefix|>', '<|fim_suffix|>', '<|fim_middle|>', '<|file_sep|>', '<|repo_name|>'];
+const completions = new Map(); // id -> AbortController (aynı anda tek istek: yenisi eskisini iptal eder)
+
+async function completeCode(req, signal) {
+  if (!req || typeof req.prefix !== 'string' || typeof req.suffix !== 'string') return { success: false, error: 'invalid' };
+  if (SECRET_FILE.test(String(req.fileName || ''))) return { success: true, text: '', skipped: 'secret' };
+  const base = safeBase('ollama', req.baseUrl).replace(/\/v1$/, '');
+  if (!isLoopback(base)) return { success: false, error: 'not-local' };
+  const prefix = req.prefix.slice(-6000);
+  const suffix = req.suffix.slice(0, 2000);
+  if (!prefix.trim() && !suffix.trim()) return { success: true, text: '' };
+  const res = await fetch(base + '/api/generate', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    signal: AbortSignal.any([signal, AbortSignal.timeout(25000)]),
+    body: JSON.stringify({
+      model: COMPLETION_MODEL,
+      prompt: `<|fim_prefix|>${prefix}<|fim_suffix|>${suffix}<|fim_middle|>`,
+      raw: true,
+      stream: false,
+      keep_alive: '10m',
+      options: { temperature: 0.1, top_p: 0.9, num_predict: 80, num_ctx: 4096, stop: FIM_STOP }
+    })
+  });
+  if (!res.ok) return { success: false, error: `http-${res.status}` };
+  const json = await res.json();
+  let text = typeof json.response === 'string' ? json.response : '';
+  for (const s of FIM_STOP) { const i = text.indexOf(s); if (i >= 0) text = text.slice(0, i); }
+  return { success: true, text: text.replace(/\r/g, '').slice(0, 1500) };
+}
+
 // ---------- IPC ----------
 function register({ getWindow, getRoot }) {
   const send = (channel, payload) => {
@@ -618,6 +652,28 @@ function register({ getWindow, getRoot }) {
     }
   });
 
+  ipcMain.handle('ai:complete', async (_e, req) => {
+    const id = String(req && req.id || '');
+    if (!id || id.length > 40) return { success: false, error: 'invalid' };
+    for (const a of completions.values()) a.abort();
+    completions.clear();
+    const ac = new AbortController();
+    completions.set(id, ac);
+    try {
+      return await completeCode({ prefix: req.prefix, suffix: req.suffix, fileName: req.fileName }, ac.signal);
+    } catch {
+      return { success: false, error: ac.signal.aborted ? 'aborted' : 'unavailable' };
+    } finally {
+      if (completions.get(id) === ac) completions.delete(id);
+    }
+  });
+
+  ipcMain.handle('ai:completeCancel', (_e, id) => {
+    const a = completions.get(String(id));
+    if (a) a.abort();
+    return { success: true };
+  });
+
   ipcMain.handle('ai:cancel', (_e, runId) => {
     const run = runs.get(String(runId));
     if (run) { run.abort.abort(); for (const r of run.pending.values()) r(false); run.pending.clear(); }
@@ -688,4 +744,4 @@ function register({ getWindow, getRoot }) {
   });
 }
 
-module.exports = { register, stopWhisper, _test: { runTool, isSafeCommand, extractToolCalls } };
+module.exports = { register, stopWhisper, _test: { runTool, isSafeCommand, extractToolCalls, completeCode } };

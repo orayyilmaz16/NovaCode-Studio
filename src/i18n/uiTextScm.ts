@@ -212,6 +212,15 @@ export const SCM_TEXT = {
   scmSelected: {
     tr: "({n} seçili)", en: "({n} selected)", de: "({n} ausgewählt)", ru: "(выбрано {n})", ar: "({n} محدد)", es: "({n} seleccionados)", fr: "({n} sélectionnés)", az: "({n} seçilib)",
   },
+  aiCompReady: {
+    tr: "AI kod tamamlama hazır (Tab ile kabul)", en: "AI code completion ready (Tab to accept)", de: "KI-Vervollständigung bereit (Tab zum Übernehmen)", ru: "ИИ-автодополнение готово (Tab — принять)", ar: "إكمال الذكاء الاصطناعي جاهز (Tab للقبول)", es: "Autocompletado con IA listo (Tab para aceptar)", fr: "Complétion IA prête (Tab pour accepter)", az: "AI tamamlama hazırdır (qəbul üçün Tab)",
+  },
+  aiCompBusy: {
+    tr: "AI öneri hazırlıyor…", en: "AI is preparing a suggestion…", de: "KI bereitet einen Vorschlag vor…", ru: "ИИ готовит подсказку…", ar: "الذكاء الاصطناعي يُحضّر اقتراحاً…", es: "La IA está preparando una sugerencia…", fr: "L’IA prépare une suggestion…", az: "AI təklif hazırlayır…",
+  },
+  aiCompUnavailable: {
+    tr: "AI kod tamamlama kullanılamıyor: Ollama çalışmıyor veya qwen2.5-coder:7b kurulu değil", en: "AI completion unavailable: Ollama is not running or qwen2.5-coder:7b is not installed", de: "KI-Vervollständigung nicht verfügbar: Ollama läuft nicht oder qwen2.5-coder:7b fehlt", ru: "ИИ-автодополнение недоступно: Ollama не запущен или нет qwen2.5-coder:7b", ar: "إكمال الذكاء الاصطناعي غير متاح: Ollama لا يعمل أو qwen2.5-coder:7b غير مثبّت", es: "Autocompletado con IA no disponible: Ollama no está activo o falta qwen2.5-coder:7b", fr: "Complétion IA indisponible : Ollama inactif ou qwen2.5-coder:7b absent", az: "AI tamamlama mövcud deyil: Ollama işləmir və ya qwen2.5-coder:7b yoxdur",
+  },
 } satisfies Record<string, Dict>;
 
 export type ScmTextKey = keyof typeof SCM_TEXT;

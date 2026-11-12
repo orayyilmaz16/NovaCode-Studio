@@ -107,6 +107,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     approve: (runId, id, allow) => ipcRenderer.invoke('ai:approve', runId, id, allow),
     transcribe: (req) => ipcRenderer.invoke('ai:transcribe', req),
     commands: () => ipcRenderer.invoke('ai:commands'),
+    complete: (req) => ipcRenderer.invoke('ai:complete', req),
+    completeCancel: (id) => ipcRenderer.invoke('ai:completeCancel', id),
     ollamaModels: (baseUrl) => ipcRenderer.invoke('ai:ollamaModels', baseUrl),
     onEvent: (callback) => {
       const listener = (_event, data) => callback(data);

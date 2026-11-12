@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### tr
+- **AI kod tamamlama:** Yazarken yapay zekâ, kodu gri "hayalet metin" olarak tamamlar (Tab ile kabul, Esc ile reddet). Yerel Ollama (qwen2.5-coder:7b) kullanır; kod bu bilgisayardan çıkmaz, .env ve anahtar dosyaları gönderilmez. Durum çubuğunda ✦ simgesi; Ayarlar → Yapay zekâ'dan açılıp kapatılır, gecikme ayarlanır.
+- **İmleç konumu:** Alt çubukta "Sat 12, Süt 5" (seçili karakter sayısıyla); tıklayınca satıra git.
 - **Kaynak denetimi genişledi:** Değişen dosyaya tıklayınca VS Code gibi fark (diff) sekmesi açılır (eklenen/silinen/değişen satırlar; yan yana veya satır içi). Dosyalar uzantısına göre simgeyle listelenir; sahnelenenler, değişiklikler, birleştirme çakışmaları ve raf (stash) ayrı bölümlerdir. Geçmişte bir commit'e tıklayınca değişen dosyaları ve farkı görürsün.
 - **Dal/etiket seçici:** Alt çubuktaki dal adına basınca "Dal veya etiket seç" menüsü açılır (dal geç, yeni dal, şuradan yeni dal, uzak dal, etiket). Git panelindeki ⋯ menüsünde dal birleştir (çakışma çözümü ve iptal dahil), dal/etiket sil, etiket oluştur, stash, son commit'i düzelt/geri al, tümünü at, getir/çek/gönder var.
 - **Sorunlar:** Alt çubukta hata ve uyarı sayacı (simgeli), alt panelde SORUNLAR sekmesi (Ctrl+Shift+M). Hatalı satırlar editörde kırmızı çizgi/zeminle, hatalı dosyalar sekmede ve dosya ağacında (klasörler dahil) kırmızı görünür. Sayaç açık dosyaları kapsar; TypeScript'te "modül bulunamadı" gibi yanlış pozitifler susturuldu.
@@ -91,6 +93,8 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **AI code completion:** While you type, the AI completes code as grey "ghost text" (Tab to accept, Esc to dismiss). Uses local Ollama (qwen2.5-coder:7b); code never leaves this computer and .env/key files are not sent. A ✦ icon in the status bar; toggle and delay in Settings → AI.
+- **Cursor position:** "Ln 12, Col 5" in the status bar (with selected character count); click to go to a line.
 - **Source control expanded:** Clicking a changed file opens a VS Code-style diff tab (added/removed/changed lines; side by side or inline). Files are listed with extension icons; staged, changes, merge conflicts and stashes are separate sections. In History, click a commit to see its files and diffs.
 - **Branch/tag picker:** Clicking the branch name in the status bar opens "Select a branch or tag" (switch branch, new branch, new branch from…, remote branch, tag). The ⋯ menu in the Git panel adds merge (with conflict resolution and abort), delete branch/tag, create tag, stash, amend/undo last commit, discard all, fetch/pull/push.
 - **Problems:** An error and warning counter with icons in the status bar and a PROBLEMS tab in the bottom panel (Ctrl+Shift+M). Error lines get a red bar/background in the editor; files with errors turn red in tabs and the file tree (folders included). The counter covers open files; false positives such as "cannot find module" in TypeScript are silenced.

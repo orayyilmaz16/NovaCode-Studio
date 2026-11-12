@@ -6,6 +6,7 @@ import { bindDebugEditor } from '../services/debugEditor';
 import { bindLsp, setLspMonaco } from '../services/lspClient';
 import { setActiveEditor } from '../services/editorBridge';
 import { setCursor } from '../services/cursorStore';
+import { setCompletionConfig, setCompletionMonaco } from '../services/aiCompletion';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
 import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink } from 'lucide-react';
 import { Logo } from './Logo';
@@ -139,6 +140,11 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
       if ((u.scheme === 'file' || (u.scheme === 'inmemory' && u.authority === 'untitled')) && !want.has(u.toString())) model.dispose();
     }
   }, [openFiles]);
+
+  // AI kod tamamlama ayarları (açık/kapalı, gecikme) anında yansır
+  useEffect(() => {
+    setCompletionConfig({ enabled: values.aiCompletion !== false, delay: Number(values.aiCompletionDelay) || 450 });
+  }, [values.aiCompletion, values.aiCompletionDelay]);
 
   // Hatalı satırlar kırmızı, uyarılı satırlar sarı çizgiyle işaretlenir
   useEffect(() => {
@@ -438,6 +444,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               setMonacoForExtensions(monaco);
               setLspMonaco(monaco);
               setProblemsMonaco(monaco);
+              setCompletionMonaco(monaco);
             }}
             language={activeFile.language || 'plaintext'}
             value={activeFile.content || ''}

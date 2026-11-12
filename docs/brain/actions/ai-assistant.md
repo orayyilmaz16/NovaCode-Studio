@@ -9,6 +9,12 @@ triggers: ["yapay zeka", "ai", "asistan", "agent", "ajan", "dikte", "ses", "clau
 
 Sağ panel; **üst çubukta arama kutusunun yanındaki küçük yıldız simgesiyle** (veya `Ctrl+Shift+L`) açılıp kapanır (`App.tsx` → `toggleAI`, `aiOpen`); sol etkinlik çubuğunda AI düğmesi yoktur. Yalnız masaüstü uygulamasında çalışır: API anahtarı şifreli saklanabilsin diye web sürümünde panel bilgi mesajı gösterir.
 
+## AI kod tamamlama (hayalet metin)
+- Ana süreç `electron-ai.cjs` → `completeCode` / `ai:complete`, `ai:completeCancel`: yerel Ollama `/api/generate`, **ham FIM** istemi (`<|fim_prefix|>…<|fim_suffix|>…<|fim_middle|>`), model `qwen2.5-coder:7b`, `num_predict` 80, sıcaklık 0,1, durdurma jetonları. Aynı anda tek istek (yenisi eskisini iptal eder).
+- **Gizlilik:** yalnız loopback (`isLoopback`), imleç çevresi en çok 6000 + 2000 karakter; `.env`/anahtar dosyaları (`SECRET_FILE`) hiç gönderilmez; veri yurt dışına/3. tarafa çıkmaz, saklanmaz.
+- İstemci `src/services/aiCompletion.ts`: Monaco `registerInlineCompletionsProvider('*')`, gecikme (ayar `aiCompletionDelay`, 200–1500 ms), öneri tek blok (ilk boş satırda kesilir, en çok 8 satır; imleç sonrası kod varsa tek satır). İki başarısızlıktan sonra 60 sn sorulmaz. Durum çubuğunda ✦ simgesi (hazır / çalışıyor / kullanılamıyor). Ayarlar: `aiCompletion`, `aiCompletionDelay`. Tab kabul, Esc reddeder.
+- Test: `scripts/tests/ai-complete.test.cjs` (sahte Ollama: istem biçimi, gizli dosya, yalnız-yerel kuralı, iptal).
+
 ## edit_lines aracı
 Ajan satır aralığını `edit_lines` ile değiştirebilir (piece table, atomik, onay önizlemesi diff ile). Ayrıntı: [[text-buffer]].
 

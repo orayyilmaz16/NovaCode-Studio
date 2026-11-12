@@ -57,6 +57,7 @@ import type { FileItem, ConsoleLog, GitStatus } from './types';
 import type { PickerMode } from './components/BranchPicker';
 import { useProblems } from './services/problems';
 import { useCursor } from './services/cursorStore';
+import { useCompletionState } from './services/aiCompletion';
 import './i18n/uiTextScm';
 
 export function App() {
@@ -86,6 +87,7 @@ export function App() {
   const [syncing, setSyncing] = useState(false);
   const problems = useProblems();
   const cursor = useCursor();
+  const compState = useCompletionState();
 
   // Paneller
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions' | 'debug'>('files');
@@ -1558,6 +1560,11 @@ export function App() {
                 )}
                 <span className="status-item hidden @lg:inline-flex">{t('stSpaces').replace(/\d+/, String(tabSize))}</span>
                 <span className="status-item hidden @lg:inline-flex">UTF-8</span>
+                {compState !== 'off' && !activeFile.diff && (
+                  <span className="status-item" title={compState === 'busy' ? t('aiCompBusy') : compState === 'unavailable' ? t('aiCompUnavailable') : t('aiCompReady')} aria-label={t('aiCompReady')}>
+                    <Sparkles size={12} className={compState === 'busy' ? 'text-indigo-400 animate-pulse' : compState === 'unavailable' ? 'text-zinc-600' : 'text-indigo-300'} />
+                  </span>
+                )}
                 {lspEntry && (
                   <span className="status-item" title={lspTip}>
                     <span className={`w-1.5 h-1.5 rounded-full ${lspEntry.state === 'ready' ? 'bg-emerald-400' : lspEntry.state === 'starting' ? 'bg-amber-400 animate-pulse' : lspEntry.state === 'missing' ? 'bg-zinc-500' : 'bg-rose-400'}`} />
