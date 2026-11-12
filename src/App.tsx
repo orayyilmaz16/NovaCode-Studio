@@ -1022,7 +1022,7 @@ export function App() {
       <header
         className="app-drag relative grid items-center h-9 bg-nv-side border-b border-nv-border select-none shrink-0"
         // Üç bölge: sol (logo + menü) · orta (arama, pencereye göre ortalı) · sağ (düğmeler; pencere denetimlerinden önce biter)
-        style={{ gridTemplateColumns: `minmax(0,1fr) minmax(130px,min(${compactMenu ? 460 : 360}px,calc(100% - ${isElectron ? 584 : 328}px))) minmax(0,1fr)` }}
+        style={{ gridTemplateColumns: `minmax(0,1fr) minmax(130px,min(${compactMenu ? 460 : 360}px,calc(100% - ${isElectron ? 600 : 328}px))) minmax(0,1fr)` }}
       >
         <div className="flex items-center h-full min-w-0 overflow-hidden">
           <div className="flex items-center pl-3 pr-1 h-full shrink-0"><Logo size={18} /></div>
