@@ -57,7 +57,7 @@ const Range: React.FC<{ id: string; min: number; max: number; step: number; valu
     <span className="text-xs text-zinc-300 flex-1 min-w-0 truncate" title={label}>{label}</span>
     <div className={`${CTRL_W} flex items-center gap-2 shrink-0`}>
       <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={(e) => set(id, Number(e.target.value))} style={{ '--pct': `${max > min ? ((value - min) / (max - min)) * 100 : 0}%` } as React.CSSProperties} className="cm-range flex-1 min-w-0" />
-      <span className="w-[44px] text-right font-mono tabular-nums text-[11px] text-zinc-400 shrink-0">{fmt ? fmt(value) : value}</span>
+      <span className="w-[52px] whitespace-nowrap text-right font-mono tabular-nums text-[11px] text-zinc-400 shrink-0">{fmt ? fmt(value) : value}</span>
     </div>
   </div>
 );
