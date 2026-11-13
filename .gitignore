@@ -37,3 +37,4 @@ coverage
 
 # Güncelleyici testi (yalnız yerel)
 dev-app-update.yml
+.claude/settings.local.json
