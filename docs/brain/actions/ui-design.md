@@ -77,6 +77,14 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 - **Sürükleme:** üst çubuk kartının üstündeki dar boşlukta `app-drag` şeridi vardır (pencere taşınabilsin). Sağ paneller dar ekranda (`compactRight`) editörün üstüne biner (`right/top-[var(--frame)]`).
 - **Alt çubuk:** `@container`; ikincil bilgiler (girinti, UTF-8) `hidden @lg:inline-flex` ile dar genişlikte gizlenir.
 
+## ✦ tamamlama menüsü (`CompletionMenu.tsx`)
+- **Yüzey:** `bg-nv-side`, `border-nv-border`, `rounded-[var(--frame-r)]`, tek `shadow-xl`; katman `z-[70]` (açılır menü). Sabit hex ve `zinc-700/70` gibi yarı saydam kenarlık yok; açık/koyu modda kod aynı.
+- **Hizalama ızgarası:** her satır `h-8`, yan boşluk `px-3.5`, etiket solda (`flex-1 truncate`), kontrol sağda **sabit sütunda** (`CTRL_W` = `w-[176px]`). Anahtar, segment ve kaydırıcı aynı sağ kenarda biter; kaydırıcı değeri `w-[44px]` `tabular-nums`. Yeni satır eklerken `Row` / `Range` kullan, kendi genişliğini verme.
+- **Kontroller:** `Switch` 32×18; `Segmented` eşit genişlikli düğmeler (`auto-cols-fr`), seçili `bg-indigo-600 text-white`, boşta `text-zinc-400 hover:bg-nv-hover`, zemin `bg-nv-input`; üst başlıkta 32 px `bg-nv-active` simge karosu; gruplar `Divider` (1 px `nv-border`) ile ayrılır.
+- **Alt düğmeler:** "Şimdi öner" ve "Tüm ayarlar" `h-9`, iki eşit yarı, ortalı simge+metin, aralarında 1 px ayraç; kapalıyken (`disabled`) `opacity-40`, hover yok. Altında kısayol satırı (`break-words`, dar kapta sarar).
+- **Erişilebilirlik:** tüm düğmelerde `focus-visible` indigo halka, `role=switch|radio|dialog`, Esc kapatır.
+- **Sınır:** panel `w-[400px] max-w-[calc(100vw-16px)]`, uzunsa içeride kayar; konum düğmenin üstü, ekrandan taşmaz. Yeni metin eklenmez (mevcut `cm*`/`set_*` anahtarları, 8 dil [[i18n]]).
+
 ## Erişilebilirlik
 Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontrast ≥ 4.5:1. Metinler [[i18n]] ile 8 dilde.
 

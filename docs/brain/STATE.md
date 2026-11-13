@@ -59,7 +59,7 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
-| `src/components/CompletionMenu.tsx` | 197 |
+| `src/components/CompletionMenu.tsx` | 209 |
 | `src/components/DebugPanel.tsx` | 198 |
 | `src/components/EditorArea.tsx` | 525 |
 | `src/components/ExtensionsPanel.tsx` | 302 |

@@ -2,6 +2,10 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 13.11.2026 (✦ menüsü tasarımı)
+- **✦ tamamlama menüsü editör temasına ve tek hizalama ızgarasına bağlandı.** Tüm kontroller (anahtar, segment, kaydırıcı) aynı sağ sütunda (`CTRL_W` = 176 px) biter; satır yüksekliği 32 px, yan boşluk 14 px. Neden: eski sürümde segmentler içeriğe göre genişliyor, kenarlar zıplıyordu; sabit hex/`zinc-700/70` kenarlıklar temayla uyumsuzdu. Sonuç: yalnız jeton sınıfları (`nv-side`, `nv-border`, `nv-input`, `nv-hover`, `nv-active`, `rounded-[var(--frame-r)]`); açık/koyu modda aynı kod. Ayrıntı: [[ui-design]].
+- **Menü katmanı `z-[70]`** (açılır menü katmanı; önceki `z-[200]` komut paletinin katmanıydı). Yeni metin eklenmedi (8 dil değişmedi).
+
 ## 12.11.2026 (AI kod tamamlama)
 - **Copilot tarzı ✦ menüsü ve çaba ön ayarları.** "Düşünme seviyesi" burada ön ayardır (gecikme, uzunluk, bağlam, sıcaklık birlikte), ardından tek tek ayarlanır. Neden: tek model var, Copilot'taki gibi seviye modeli değiştirmez, çaba/bağlamı değiştirir. Ayarlar hem menüde hem Ayarlar sayfasında (tek kaynak: settingsSchema).
 - **Ana süreç eski kalırsa (yeniden başlatılmadı) sessiz kalma:** menü nedeni söyler.

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### tr
+- **AI tamamlama menüsü yeniden tasarlandı:** ✦ menüsü artık editör temasına (açık ve koyu) ve tek hizalama ızgarasına uyuyor: anahtarlar, segment düğmeleri ve kaydırıcılar aynı sağ kenarda bitiyor, satır aralıkları eşit, alt düğmeler eşit yarılar. Klavye odak halkaları eklendi.
 - **GitHub giriş kodu otomatik kopyalanır:** 8 haneli cihaz kodu giriş başlayınca panoya otomatik kopyalanır; tarayıcıda yapıştırmanız yeterli.
 - **AI tamamlama menüsü (Copilot gibi):** Alt çubuktaki ✦ düğmesi menü açar: aç/kapat, bu dilde kapat, tetikleme (otomatik / manuel Alt+\), düşünme seviyesi (Hızlı/Dengeli/Derin ön ayarı), öneri biçimi (satır/blok/uzun), gecikme, uzunluk, önceki/sonraki bağlam, yaratıcılık ve alternatif sayısı kaydırıcıları, "şimdi öner". Aynı ayarlar Ayarlar → Yapay zekâ'da.
 - **Öneri önizlemesi ve kısmi kabul:** Öneri görünürken araç çubuğu çıkar (kabul, kelime, önceki/sonraki öneri). Tab tümünü, Ctrl+→ kelimeyi, Ctrl+Alt+→ satırı kabul eder; Esc reddeder.
@@ -96,6 +97,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **Redesigned AI completion menu:** The ✦ menu now follows the editor theme (light and dark) with one alignment grid: all switches, segmented buttons and sliders end on the same right edge, rows are evenly spaced, and the bottom buttons are equal halves. Keyboard focus rings added.
 - **GitHub login code auto-copied:** The 8-character device code is now copied to the clipboard automatically when sign-in starts, so you can just paste it in the browser.
 - **AI completion menu (like Copilot):** The ✦ button in the status bar opens a menu: on/off, disable for this language, trigger (automatic / manual Alt+\), thinking level (Fast/Balanced/Deep preset), suggestion style (line/block/long), sliders for delay, length, context before/after, creativity and number of alternatives, and "suggest now". The same settings are in Settings → AI.
 - **Suggestion preview and partial accept:** While a suggestion is shown, a toolbar appears (accept, word, previous/next suggestion). Tab accepts all, Ctrl+→ a word, Ctrl+Alt+→ a line; Esc dismisses.
