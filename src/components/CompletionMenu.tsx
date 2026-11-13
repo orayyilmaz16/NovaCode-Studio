@@ -24,20 +24,19 @@ const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outli
 const CTRL_W = 'w-[176px]';
 
 const Switch: React.FC<{ on: boolean; onChange: (v: boolean) => void; label: string }> = ({ on, onChange, label }) => (
-  <button role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} className={`flex items-center box-border w-8 h-[18px] p-[2px] rounded-full transition-colors shrink-0 cursor-pointer ${FOCUS} ${on ? 'justify-end bg-indigo-600' : 'justify-start bg-zinc-600'}`}>
-    <span className="block w-[14px] h-[14px] rounded-full bg-white shadow-sm shrink-0" />
-  </button>
+  <button role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} className={`cm-switch ${FOCUS}`} />
 );
 
 const Segmented: React.FC<{ value: string; options: { value: string; label: string }[]; onChange: (v: string) => void; label: string }> = ({ value, options, onChange, label }) => (
-  <div role="radiogroup" aria-label={label} className={`grid grid-flow-col auto-cols-fr ${CTRL_W} rounded-md bg-nv-input border border-nv-border p-0.5 gap-0.5`}>
+  <div role="radiogroup" aria-label={label} className={`cm-seg grid grid-flow-col auto-cols-fr ${CTRL_W} rounded-md bg-nv-input border border-nv-border p-0.5 gap-0.5`} style={{ '--n': options.length, '--i': Math.max(0, options.findIndex((o) => o.value === value)) } as React.CSSProperties}>
+    <span aria-hidden className="cm-seg-pill" />
     {options.map((o) => (
       <button
         key={o.value}
         role="radio"
         aria-checked={value === o.value}
         onClick={() => onChange(o.value)}
-        className={`h-5 px-1.5 rounded text-[11px] font-medium truncate cursor-pointer transition-colors ${FOCUS} ${value === o.value ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover'}`}
+        className={`h-5 px-1.5 rounded text-[11px] font-medium truncate cursor-pointer transition-colors ${FOCUS} ${value === o.value ? 'text-white' : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.06]'}`}
       >
         {o.label}
       </button>
@@ -46,19 +45,19 @@ const Segmented: React.FC<{ value: string; options: { value: string; label: stri
 );
 
 // Tek satır: solda etiket, sağda sabit genişlikli kontrol sütunu
-const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-  <div className="flex items-center gap-3 px-3.5 h-8">
+const Row: React.FC<{ label: string; children: React.ReactNode; d?: number }> = ({ label, children, d }) => (
+  <div className="cm-row flex items-center gap-3 px-3.5 h-8" style={d === undefined ? undefined : ({ '--d': d } as React.CSSProperties)}>
     <span className="text-xs text-zinc-300 flex-1 min-w-0 truncate" title={label}>{label}</span>
     <div className={`${CTRL_W} flex justify-end shrink-0`}>{children}</div>
   </div>
 );
 
-const Range: React.FC<{ id: string; min: number; max: number; step: number; value: number; set: (id: string, v: number) => void; label: string; fmt?: (n: number) => string }> = ({ id, min, max, step, value, set, label, fmt }) => (
-  <div className="flex items-center gap-3 px-3.5 h-8">
+const Range: React.FC<{ id: string; min: number; max: number; step: number; value: number; set: (id: string, v: number) => void; label: string; fmt?: (n: number) => string; d?: number }> = ({ id, min, max, step, value, set, label, fmt, d }) => (
+  <div className="cm-row flex items-center gap-3 px-3.5 h-8" style={d === undefined ? undefined : ({ '--d': d } as React.CSSProperties)}>
     <span className="text-xs text-zinc-300 flex-1 min-w-0 truncate" title={label}>{label}</span>
     <div className={`${CTRL_W} flex items-center gap-2 shrink-0`}>
-      <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={(e) => set(id, Number(e.target.value))} className={`flex-1 min-w-0 accent-indigo-500 h-1 cursor-pointer ${FOCUS}`} />
-      <span className="w-[44px] text-right font-mono tabular-nums text-[11px] text-zinc-400 shrink-0">{fmt ? fmt(value) : value}</span>
+      <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={(e) => set(id, Number(e.target.value))} style={{ '--pct': `${max > min ? ((value - min) / (max - min)) * 100 : 0}%` } as React.CSSProperties} className="cm-range flex-1 min-w-0" />
+      <span className="w-[52px] whitespace-nowrap text-right font-mono tabular-nums text-[11px] text-zinc-400 shrink-0">{fmt ? fmt(value) : value}</span>
     </div>
   </div>
 );
@@ -120,7 +119,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
         aria-label={t('set_aiCompletion')}
         onMouseDown={(e) => e.stopPropagation()}
         style={{ left, bottom, maxHeight: `calc(100vh - ${bottom + 16}px)` }}
-        className="absolute w-[400px] max-w-[calc(100vw-16px)] overflow-y-auto overflow-x-hidden rounded-[var(--frame-r)] border border-nv-border bg-nv-side shadow-xl animate-fade-in outline-none text-zinc-300"
+        className="absolute w-[400px] max-w-[calc(100vw-16px)] overflow-y-auto overflow-x-hidden rounded-[var(--frame-r)] border border-nv-border bg-nv-side shadow-2xl cm-panel outline-none text-zinc-300"
       >
         <div className="flex items-center gap-3 px-3.5 py-3 border-b border-nv-border">
           <span className="w-8 h-8 rounded-md bg-nv-active flex items-center justify-center shrink-0">
@@ -170,34 +169,34 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
           <Range id="aiCompletionDelay" min={200} max={1500} step={50} value={num('aiCompletionDelay', 450)} set={set} label={t('set_aiCompletionDelay')} fmt={(n) => `${n} ms`} />
 
           <Divider />
-          <button onClick={() => setAdv((v) => !v)} aria-expanded={adv} className={`w-full flex items-center gap-1.5 px-3.5 h-8 text-xs text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover cursor-pointer ${FOCUS}`}>
-            <ChevronRight size={13} className={`transition-transform ${adv ? 'rotate-90' : ''}`} />
+          <button onClick={() => setAdv((v) => !v)} aria-expanded={adv} className={`cm-adv w-full flex items-center gap-1.5 px-3.5 h-8 text-xs ${adv ? 'text-zinc-100' : 'text-zinc-400'} hover:text-zinc-100 hover:bg-nv-hover cursor-pointer ${FOCUS}`}>
+            <ChevronRight size={13} style={{ transform: adv ? 'rotate(90deg)' : 'none' }} />
             {t('cmAdvanced')}
           </button>
-          {adv && (
-            <div className="pb-1 animate-fade-in">
-              <Range id="aiCompletionMaxTokens" min={16} max={256} step={8} value={num('aiCompletionMaxTokens', 80)} set={set} label={t('set_aiCompletionMaxTokens')} />
-              <Range id="aiCompletionPrefix" min={500} max={12000} step={500} value={num('aiCompletionPrefix', 6000)} set={set} label={t('set_aiCompletionPrefix')} />
-              <Range id="aiCompletionSuffix" min={0} max={4000} step={250} value={num('aiCompletionSuffix', 2000)} set={set} label={t('set_aiCompletionSuffix')} />
-              <Range id="aiCompletionTemperature" min={0} max={1} step={0.05} value={num('aiCompletionTemperature', 0.1)} set={set} label={t('set_aiCompletionTemperature')} fmt={(n) => n.toFixed(2)} />
-              <Range id="aiCompletionCount" min={1} max={3} step={1} value={num('aiCompletionCount', 1)} set={set} label={t('set_aiCompletionCount')} />
-              <Row label={t('set_aiCompletionToolbar')}>
+          <div className="cm-collapse" data-open={adv} aria-hidden={!adv}>
+            <div className="pb-1">
+              <Range id="aiCompletionMaxTokens" min={16} max={256} step={8} value={num('aiCompletionMaxTokens', 80)} set={set} d={0} label={t('set_aiCompletionMaxTokens')} />
+              <Range id="aiCompletionPrefix" min={500} max={12000} step={500} value={num('aiCompletionPrefix', 6000)} set={set} d={1} label={t('set_aiCompletionPrefix')} />
+              <Range id="aiCompletionSuffix" min={0} max={4000} step={250} value={num('aiCompletionSuffix', 2000)} set={set} d={2} label={t('set_aiCompletionSuffix')} />
+              <Range id="aiCompletionTemperature" min={0} max={1} step={0.05} value={num('aiCompletionTemperature', 0.1)} set={set} d={3} label={t('set_aiCompletionTemperature')} fmt={(n) => n.toFixed(2)} />
+              <Range id="aiCompletionCount" min={1} max={3} step={1} value={num('aiCompletionCount', 1)} set={set} d={4} label={t('set_aiCompletionCount')} />
+              <Row d={5} label={t('set_aiCompletionToolbar')}>
                 <Switch on={values.aiCompletionToolbar !== false} onChange={(v) => set('aiCompletionToolbar', v)} label={t('set_aiCompletionToolbar')} />
               </Row>
             </div>
-          )}
+          </div>
         </div>
 
         <div className="flex border-t border-nv-border">
           <button
             disabled={!enabled}
             onClick={() => { onClose(); window.setTimeout(() => runEditorAction('editor.action.inlineSuggest.trigger'), 60); }}
-            className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-3 h-9 text-xs text-zinc-200 hover:bg-nv-hover disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer ${FOCUS}`}
+            className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-3 h-9 text-xs text-zinc-200 cm-act hover:bg-nv-hover disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer ${FOCUS}`}
           >
             <Wand2 size={14} className="text-indigo-300 shrink-0" />
             <span className="truncate">{t('cmNow')}</span>
           </button>
-          <button onClick={() => { onClose(); onOpenSettings(); }} className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-3 h-9 text-xs text-zinc-200 hover:bg-nv-hover border-l border-nv-border cursor-pointer ${FOCUS}`}>
+          <button onClick={() => { onClose(); onOpenSettings(); }} className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-3 h-9 cm-act text-xs text-zinc-200 hover:bg-nv-hover border-l border-nv-border cursor-pointer ${FOCUS}`}>
             <Settings2 size={14} className="text-zinc-400 shrink-0" />
             <span className="truncate">{t('cmAllSettings')}</span>
           </button>
