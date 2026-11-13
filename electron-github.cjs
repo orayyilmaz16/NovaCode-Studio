@@ -3,7 +3,7 @@
 // - Erişim token'ı yalnız ana süreçte tutulur, Electron safeStorage ile şifrelenip diske yazılır.
 //   Renderer'a token ASLA gönderilmez; yalnız profil (login, ad, avatar) gider.
 // - Ağ istekleri yalnız github.com ve api.github.com adreslerine yapılır.
-const { app, ipcMain, safeStorage, shell } = require('electron');
+const { app, clipboard, ipcMain, safeStorage, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -180,6 +180,8 @@ function register({ getWindow, runGit, isValidPath }) {
       // Kod önceden doldurulmuş sayfa: oturum yoksa GitHub giriş/kayıt ekranına, varsa doğrudan yetkilendirmeye gider.
       const target = new URL(d.verification_uri);
       target.searchParams.set('user_code', d.user_code);
+      // Kodu otomatik panoya kopyala (tarayıcı odağı alınca renderer panoya yazamaz, bu yüzden ana süreçte).
+      try { clipboard.writeText(d.user_code); } catch { /* pano yoksa kod ekranda görünür */ }
       shell.openExternal(target.toString()).catch(() => {});
 
       (async () => {

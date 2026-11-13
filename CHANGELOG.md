@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### tr
+- **GitHub giriş kodu otomatik kopyalanır:** 8 haneli cihaz kodu giriş başlayınca panoya otomatik kopyalanır; tarayıcıda yapıştırmanız yeterli.
 - **AI tamamlama menüsü (Copilot gibi):** Alt çubuktaki ✦ düğmesi menü açar: aç/kapat, bu dilde kapat, tetikleme (otomatik / manuel Alt+\), düşünme seviyesi (Hızlı/Dengeli/Derin ön ayarı), öneri biçimi (satır/blok/uzun), gecikme, uzunluk, önceki/sonraki bağlam, yaratıcılık ve alternatif sayısı kaydırıcıları, "şimdi öner". Aynı ayarlar Ayarlar → Yapay zekâ'da.
 - **Öneri önizlemesi ve kısmi kabul:** Öneri görünürken araç çubuğu çıkar (kabul, kelime, önceki/sonraki öneri). Tab tümünü, Ctrl+→ kelimeyi, Ctrl+Alt+→ satırı kabul eder; Esc reddeder.
 - **AI kod tamamlama:** Yazarken yapay zekâ, kodu gri "hayalet metin" olarak tamamlar (Tab ile kabul, Esc ile reddet). Yerel Ollama (qwen2.5-coder:7b) kullanır; kod bu bilgisayardan çıkmaz, .env ve anahtar dosyaları gönderilmez. Durum çubuğunda ✦ simgesi; Ayarlar → Yapay zekâ'dan açılıp kapatılır, gecikme ayarlanır.
@@ -95,6 +96,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **GitHub login code auto-copied:** The 8-character device code is now copied to the clipboard automatically when sign-in starts, so you can just paste it in the browser.
 - **AI completion menu (like Copilot):** The ✦ button in the status bar opens a menu: on/off, disable for this language, trigger (automatic / manual Alt+\), thinking level (Fast/Balanced/Deep preset), suggestion style (line/block/long), sliders for delay, length, context before/after, creativity and number of alternatives, and "suggest now". The same settings are in Settings → AI.
 - **Suggestion preview and partial accept:** While a suggestion is shown, a toolbar appears (accept, word, previous/next suggestion). Tab accepts all, Ctrl+→ a word, Ctrl+Alt+→ a line; Esc dismisses.
 - **AI code completion:** While you type, the AI completes code as grey "ghost text" (Tab to accept, Esc to dismiss). Uses local Ollama (qwen2.5-coder:7b); code never leaves this computer and .env/key files are not sent. A ✦ icon in the status bar; toggle and delay in Settings → AI.
