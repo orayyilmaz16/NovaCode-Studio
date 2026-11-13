@@ -24,8 +24,8 @@ const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outli
 const CTRL_W = 'w-[176px]';
 
 const Switch: React.FC<{ on: boolean; onChange: (v: boolean) => void; label: string }> = ({ on, onChange, label }) => (
-  <button role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} className={`relative w-8 h-[18px] rounded-full transition-colors shrink-0 cursor-pointer ${FOCUS} ${on ? 'bg-indigo-600' : 'bg-zinc-600'}`}>
-    <span className={`absolute top-[2px] left-[2px] w-[14px] h-[14px] rounded-full bg-white transition-transform ${on ? 'translate-x-[14px]' : ''}`} />
+  <button role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} className={`flex items-center box-border w-8 h-[18px] p-[2px] rounded-full transition-colors shrink-0 cursor-pointer ${FOCUS} ${on ? 'justify-end bg-indigo-600' : 'justify-start bg-zinc-600'}`}>
+    <span className="block w-[14px] h-[14px] rounded-full bg-white shadow-sm shrink-0" />
   </button>
 );
 
