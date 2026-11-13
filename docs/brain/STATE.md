@@ -4,7 +4,7 @@
 
 ## Sürümler
 - Uygulama: **1.3.0**
-- Electron ^45.2.1 · React ^19.3.1 · Vite ^8.3.5 · TypeScript ~7.0.2 · Tailwind ^4.3.4
+- Electron ^45.2.3 · React ^19.3.1 · Vite ^8.3.5 · TypeScript ~7.0.2 · Tailwind ^4.3.5
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.57.0
 - GitHub OAuth Client ID tanımlı: evet
 
@@ -32,7 +32,7 @@
 | `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 406 |
-| `electron-github.cjs` | 329 |
+| `electron-github.cjs` | 331 |
 | `electron-llm.cjs` | 256 |
 | `electron-lsp.cjs` | 271 |
 | `electron-main.cjs` | 520 |
@@ -66,7 +66,7 @@
 | `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 899 |
-| `src/components/GithubAccount.tsx` | 132 |
+| `src/components/GithubAccount.tsx` | 134 |
 | `src/components/LandingPage.tsx` | 135 |
 | `src/components/Logo.tsx` | 34 |
 | `src/components/Markdown.tsx` | 73 |

@@ -42,6 +42,8 @@ export const GithubAccount: React.FC = () => {
     setBusy(false);
     if (res.success && res.userCode && res.verificationUri) {
       setPending({ userCode: res.userCode, verificationUri: res.verificationUri });
+      setCopied(true); // ana süreç kodu otomatik kopyaladı
+      setTimeout(() => setCopied(false), 1500);
     } else {
       setError(res.error === 'client-id-missing' ? t('ghNotConfigured') : t('ghLoginFailed'));
       void refresh();
