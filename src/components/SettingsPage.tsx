@@ -70,10 +70,10 @@ const Toggle: React.FC<{ checked: boolean; onChange: (v: boolean) => void; label
     aria-checked={checked}
     aria-label={label}
     onClick={() => onChange(!checked)}
-    className={`relative w-9 h-5 rounded-full shrink-0 transition-colors ${checked ? 'bg-indigo-500' : 'bg-zinc-600'}`}
+    className={`flex items-center box-border w-9 h-5 p-0.5 rounded-full shrink-0 transition-colors ${checked ? 'justify-end bg-indigo-500' : 'justify-start bg-zinc-600'}`}
   >
     <span
-      className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-150 ${checked ? 'translate-x-4' : ''}`}
+      className="block w-4 h-4 rounded-full bg-white shadow shrink-0"
     />
   </button>
 );
