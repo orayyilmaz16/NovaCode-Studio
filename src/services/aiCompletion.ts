@@ -58,12 +58,23 @@ let snapshot: { state: CompletionState; reason: CompletionReason } = { state, re
 export const useCompletionState = () => useSyncExternalStore(subscribe, () => snapshot, () => snapshot).state;
 export const useCompletionStatus = () => useSyncExternalStore(subscribe, () => snapshot, () => snapshot);
 
+/** Modeli arka planda belleğe yükler (ilk öneri gecikmesin). Aynı anda tek istek; başarısızsa sessiz kalır. */
+let warming = false;
+export function warmCompletion() {
+  const warm = window.electronAPI?.ai?.completeWarm;
+  if (!cfg.enabled || warming || !warm) return;
+  warming = true;
+  warm().then((r) => { if (r?.success && failStreak === 0 && state === 'unavailable') setState('idle'); }).catch(() => {}).finally(() => { warming = false; });
+}
+
 export function setCompletionConfig(c: Partial<CompletionConfig>) {
+  const wasEnabled = cfg.enabled;
   const next = { ...cfg, ...c };
   next.delay = Math.min(1500, Math.max(200, next.delay || 450));
   cfg = next;
   if (!cfg.enabled) setState('off');
   else if (state === 'off') setState('idle');
+  if (cfg.enabled && !wasEnabled) warmCompletion();
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -90,6 +101,7 @@ export function setCompletionMonaco(m: unknown) {
   monaco = m as Monaco;
   if (registered) return;
   registered = true;
+  warmCompletion();
   monaco.languages.registerInlineCompletionsProvider('*', {
     async provideInlineCompletions(model, position, ctx, token) {
       const api = window.electronAPI?.ai;
@@ -127,6 +139,8 @@ export function setCompletionMonaco(m: unknown) {
         res = { success: false, error: 'unavailable' };
       }
       if (token.isCancellationRequested || res.error === 'aborted') { if (state === 'busy') setState('idle'); return empty; }
+      // Zaman aşımı = model hâlâ yükleniyor olabilir: hata sayma, duraklatma; arka planda ısıt
+      if (!res.success && res.error === 'timeout') { setState('idle'); warmCompletion(); return empty; }
       if (!res.success) {
         // Ollama kapalı / model yok: art arda iki başarısızlıktan sonra 60 sn sorma (gürültü ve CPU israfı olmasın)
         failStreak += 1;

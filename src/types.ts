@@ -292,6 +292,7 @@ export interface ElectronBridge {
     commands: () => Promise<{ name: string; template: string }[]>;
     complete: (req: { id: string; prefix: string; suffix: string; fileName?: string; maxTokens?: number; temperature?: number; prefixChars?: number; suffixChars?: number; count?: number }) => Promise<{ success: boolean; text?: string; alternatives?: string[]; error?: string; skipped?: string }>;
     completeCancel: (id: string) => Promise<{ success: boolean }>;
+    completeWarm?: () => Promise<{ success: boolean; error?: string }>;
     ollamaModels: (baseUrl?: string) => Promise<{ running: boolean; models: string[] }>;
     onEvent: (callback: (ev: AiEvent) => void) => () => void;
   };
