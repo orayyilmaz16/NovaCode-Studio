@@ -28,7 +28,7 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 781 |
+| `electron-ai.cjs` | 826 |
 | `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 406 |
@@ -137,7 +137,7 @@
 ### Testler
 | Dosya | Satır |
 |---|---|
-| `scripts/tests/ai-complete.test.cjs` | 94 |
+| `scripts/tests/ai-complete.test.cjs` | 130 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/debug.test.cjs` | 112 |

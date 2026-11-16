@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### tr
+- **AI kod tamamlama modeli yazarken de yükleniyor:** Model yüklenirken yazmaya devam etmek yüklemeyi sürekli yarıda kesiyor ve öneri hiç çıkmıyordu. Yükleme artık yazma/iptalden bağımsız tamamlanıyor, yüklenirken gelen istekler aynı yüklemeyi bekliyor ve ısıtma ile öneri isteği aynı bağlam boyutunu kullanıyor (Ollama modeli boşuna yeniden yüklemiyor).
 - **AI kod tamamlama zamanlaması yenilendi:** Öneri artık yazmayı bıraktığın anda (gecikme) ve önceki istekten sonra bir soğuma süresi geçince istenir. Yazarken iptal olan istekler gecikmeyi otomatik uzatır, öneri gelince eski haline döner; Ollama yanıt vermezse bekleme 3, 10, 30, 60 sn diye kademeli artar. ✦ menüsüne "Tamamlama soğuma süresi" kaydırıcısı eklendi; hızlı/dengeli/derin ön ayarları ikisini birlikte ayarlar.
 - **AI kod tamamlama artık ilk yazışta da çalışıyor:** Model uygulama açılırken arka planda yüklenir ve 30 dakika bellekte kalır; ilk öneri uzun beklemez. Model yüklenirken oluşan zaman aşımı, tamamlamayı 60 sn duraklatmaz.
 - **Yeni karşılama ekranı, logo gölgesi ve hareket sistemi:** Karşılama sayfası yenilendi: üstte hızlı eylemler, kartlarda kademeli giriş ve hover efektleri, kısayol ipuçları. Arka plan eskisi gibi sade kaldı. NovaCode logosu temaya uyumlu gölge alıyor (koyu temada siyah, açık temada yumuşak gri). Geçiş, hover, alt çizgi ve gecikme efektleri tek bir jeton ve sınıf setine bağlandı; azaltılmış hareket ayarlarına uyuyor.
@@ -100,6 +101,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
+- **AI code completion model now loads while you type:** Typing while the model was loading kept aborting the load, so no suggestion ever appeared. Loading now completes independently of typing/cancellation, requests during a load wait for the same load, and warm-up and suggestions share one context size (Ollama no longer reloads the model needlessly).
 - **AI code completion timing reworked:** Suggestions are now requested once you stop typing (delay) and after a cooldown since the previous request. Requests cancelled while typing automatically lengthen the delay and reset when a suggestion arrives; if Ollama is unresponsive, the wait backs off 3, 10, 30, 60 s. A "Completion cooldown" slider was added to the ✦ menu; the fast/balanced/deep presets set both values together.
 - **AI code completion now works on the first keystroke too:** The model is loaded in the background at startup and stays in memory for 30 minutes, so the first suggestion no longer waits. A timeout while the model loads no longer pauses completion for 60 seconds.
 - **New welcome screen, logo shadow and motion system:** The welcome page is redesigned: quick actions on top, staggered card entrances with hover effects, and shortcut tips. The background stays plain as before. The NovaCode logo gets a theme-aware shadow (black in dark theme, soft gray in light theme). Transitions, hover, underline and delay effects now share one set of tokens and classes and respect reduced-motion settings.

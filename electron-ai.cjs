@@ -489,24 +489,58 @@ function buildSystem({ root, lang, agent, project, extra = '', thinking, autonom
 const COMPLETION_MODEL = 'qwen2.5-coder:7b';
 const FIM_STOP = ['<|fim_pad|>', '<|endoftext|>', '<|fim_prefix|>', '<|fim_suffix|>', '<|fim_middle|>', '<|file_sep|>', '<|repo_name|>'];
 const completions = new Map(); // id -> AbortController (aynı anda tek istek: yenisi eskisini iptal eder)
-const COMPLETION_KEEP_ALIVE = '30m'; // model boşta bile 30 dk bellekte kalır (soğuk başlangıç ~6 sn sürer)
-const COMPLETION_TIMEOUT_MS = 60000; // soğuk başlangıçta ilk istek 25 sn'yi aşabilir
+const COMPLETION_KEEP_ALIVE = '30m'; // model boşta bile 30 dk bellekte kalır
+const COMPLETION_GEN_TIMEOUT_MS = 30000; // yalnız üretim (model zaten yüklü)
+const COMPLETION_LOAD_TIMEOUT_MS = 180000; // modeli belleğe yükleme (6 GB GPU'da bile ~6-20 sn)
+// Isıtma ve üretim AYNI num_ctx'i kullanmalı: Ollama farklı num_ctx görünce modeli yeniden yükler.
+const COMPLETION_NUM_CTX = 4096;
+const ABORTED = Symbol('aborted');
 
-// Modeli boş istekle belleğe yükler: ilk öneri gecikmesin. Yalnız yerel Ollama'ya gider, kullanıcı kodu gönderilmez.
+// Modeli belleğe yükleme: iptalden BAĞIMSIZ, taban adres başına tek ortak işlem. Neden: yazarken her tuş vuruşu isteği iptal ediyordu;
+// model yüklenirken istemci bağlantısı kapanınca Ollama yüklemeyi yarıda bırakıp baştan başlatıyor ve model hiç yüklenemiyordu.
+const pendingLoads = new Map(); // base -> Promise<{success, error?}>
+const readyUntil = new Map(); // base -> ms (bu ana kadar yüklü sayılır)
+
+function ensureCompletionModel(base) {
+  if ((readyUntil.get(base) || 0) > Date.now()) return Promise.resolve({ success: true });
+  const running = pendingLoads.get(base);
+  if (running) return running;
+  const p = (async () => {
+    try {
+      const res = await fetch(base + '/api/generate', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        signal: AbortSignal.timeout(COMPLETION_LOAD_TIMEOUT_MS),
+        body: JSON.stringify({ model: COMPLETION_MODEL, prompt: '', stream: false, keep_alive: COMPLETION_KEEP_ALIVE, options: { num_ctx: COMPLETION_NUM_CTX } })
+      });
+      if (!res.ok) return { success: false, error: `http-${res.status}` };
+      readyUntil.set(base, Date.now() + 25 * 60 * 1000);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err && err.name === 'TimeoutError' ? 'timeout' : 'unavailable' };
+    } finally {
+      pendingLoads.delete(base);
+    }
+  })();
+  pendingLoads.set(base, p);
+  return p;
+}
+
+// Beklemeyi iptal sinyaliyle kes; ama altta çalışan yüklemeye dokunma.
+function raceAbort(promise, signal) {
+  return new Promise((resolve) => {
+    if (signal.aborted) return resolve(ABORTED);
+    const onAbort = () => resolve(ABORTED);
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then((v) => { signal.removeEventListener('abort', onAbort); resolve(v); });
+  });
+}
+
+// Açılışta/etkinleştirmede çağrılır: ilk öneri gecikmesin. Yalnız yerel Ollama'ya gider, kullanıcı kodu gönderilmez.
 async function warmCompletion() {
   const base = safeBase('ollama').replace(/\/v1$/, '');
   if (!isLoopback(base)) return { success: false, error: 'not-local' };
-  try {
-    const res = await fetch(base + '/api/generate', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      signal: AbortSignal.timeout(COMPLETION_TIMEOUT_MS),
-      body: JSON.stringify({ model: COMPLETION_MODEL, prompt: '', stream: false, keep_alive: COMPLETION_KEEP_ALIVE })
-    });
-    return res.ok ? { success: true } : { success: false, error: `http-${res.status}` };
-  } catch {
-    return { success: false, error: 'unavailable' };
-  }
+  return ensureCompletionModel(base);
 }
 
 const clampNum = (v, lo, hi, d) => Math.min(hi, Math.max(lo, Number.isFinite(Number(v)) ? Number(v) : d));
@@ -523,24 +557,35 @@ async function completeCode(req, signal) {
   const prefix = req.prefix.slice(-Math.round(clampNum(req.prefixChars, 200, 12000, 6000)));
   const suffix = req.suffix.slice(0, Math.round(clampNum(req.suffixChars, 0, 4000, 2000)));
   if (!prefix.trim() && !suffix.trim()) return { success: true, text: '', alternatives: [] };
+  // Model yüklü değilse önce yüklenir; iptal yalnız bu bekleyişi keser, yüklemeyi değil
+  const loaded = await raceAbort(ensureCompletionModel(base), signal);
+  if (loaded === ABORTED) return { success: false, error: 'aborted' };
+  if (!loaded.success) return { success: false, error: loaded.error };
   const alternatives = [];
   for (let i = 0; i < count; i++) {
     if (signal.aborted) break;
-    const res = await fetch(base + '/api/generate', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      signal: AbortSignal.any([signal, AbortSignal.timeout(COMPLETION_TIMEOUT_MS)]),
-      body: JSON.stringify({
-        model: COMPLETION_MODEL,
-        prompt: `<|fim_prefix|>${prefix}<|fim_suffix|>${suffix}<|fim_middle|>`,
-        raw: true,
-        stream: false,
-        keep_alive: COMPLETION_KEEP_ALIVE,
-        // Ek alternatifler daha yüksek sıcaklıkla üretilir ki ilkinden farklı olsun
-        options: { temperature: i === 0 ? temperature : Math.min(1, Math.max(temperature, 0.5) + 0.2 * (i - 1)), top_p: 0.9, num_predict: maxTokens, num_ctx: 4096, stop: FIM_STOP }
-      })
-    });
-    if (!res.ok) { if (i === 0) return { success: false, error: `http-${res.status}` }; break; }
+    let res;
+    try {
+      res = await fetch(base + '/api/generate', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        signal: AbortSignal.any([signal, AbortSignal.timeout(COMPLETION_GEN_TIMEOUT_MS)]),
+        body: JSON.stringify({
+          model: COMPLETION_MODEL,
+          prompt: `<|fim_prefix|>${prefix}<|fim_suffix|>${suffix}<|fim_middle|>`,
+          raw: true,
+          stream: false,
+          keep_alive: COMPLETION_KEEP_ALIVE,
+          // Ek alternatifler daha yüksek sıcaklıkla üretilir ki ilkinden farklı olsun
+          options: { temperature: i === 0 ? temperature : Math.min(1, Math.max(temperature, 0.5) + 0.2 * (i - 1)), top_p: 0.9, num_predict: maxTokens, num_ctx: COMPLETION_NUM_CTX, stop: FIM_STOP }
+        })
+      });
+    } catch (err) {
+      // İptal dışındaki bağlantı hatası (Ollama yeniden başlamış olabilir): yüklü sayma, sonraki istek yeniden yükletsin
+      if (!signal.aborted) readyUntil.delete(base);
+      throw err;
+    }
+    if (!res.ok) { readyUntil.delete(base); if (i === 0) return { success: false, error: `http-${res.status}` }; break; }
     const json = await res.json();
     let text = typeof json.response === 'string' ? json.response : '';
     for (const st of FIM_STOP) { const k = text.indexOf(st); if (k >= 0) text = text.slice(0, k); }
@@ -778,4 +823,4 @@ function register({ getWindow, getRoot }) {
   });
 }
 
-module.exports = { register, stopWhisper, _test: { runTool, isSafeCommand, extractToolCalls, completeCode } };
+module.exports = { register, stopWhisper, _test: { runTool, isSafeCommand, extractToolCalls, completeCode, ensureCompletionModel } };
