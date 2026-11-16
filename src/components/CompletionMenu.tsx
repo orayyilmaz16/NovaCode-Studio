@@ -83,6 +83,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
     const p = EFFORT_PRESETS[k];
     set('aiCompletionEffort', k);
     set('aiCompletionDelay', p.delay);
+    set('aiCompletionCooldown', p.cooldown);
     set('aiCompletionMaxTokens', p.maxTokens);
     set('aiCompletionPrefix', p.prefixChars);
     set('aiCompletionSuffix', p.suffixChars);
@@ -167,6 +168,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
             />
           </Row>
           <Range id="aiCompletionDelay" min={200} max={1500} step={50} value={num('aiCompletionDelay', 450)} set={set} label={t('set_aiCompletionDelay')} fmt={(n) => `${n} ms`} />
+          <Range id="aiCompletionCooldown" min={0} max={5000} step={100} value={num('aiCompletionCooldown', 600)} set={set} label={t('set_aiCompletionCooldown')} fmt={(n) => `${n} ms`} />
 
           <Divider />
           <button onClick={() => setAdv((v) => !v)} aria-expanded={adv} className={`cm-adv w-full flex items-center gap-1.5 px-3.5 h-8 text-xs ${adv ? 'text-zinc-100' : 'text-zinc-400'} hover:text-zinc-100 hover:bg-nv-hover cursor-pointer ${FOCUS}`}>

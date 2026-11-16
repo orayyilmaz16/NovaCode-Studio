@@ -138,6 +138,7 @@
     { "id": "aiCompletionLength", "category": "ai", "group": "grpAiCompletion", "type": "select", "default": "block",
       "options": [{ "value": "line", "labelKey": "optLenLine" }, { "value": "block", "labelKey": "optLenBlock" }, { "value": "long", "labelKey": "optLenLong" }] },
     { "id": "aiCompletionDelay", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 450, "min": 200, "max": 1500, "step": 50 },
+    { "id": "aiCompletionCooldown", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 600, "min": 0, "max": 5000, "step": 100 },
     { "id": "aiCompletionMaxTokens", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 80, "min": 16, "max": 256, "step": 8 },
     { "id": "aiCompletionPrefix", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 6000, "min": 500, "max": 12000, "step": 500 },
     { "id": "aiCompletionSuffix", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 2000, "min": 0, "max": 4000, "step": 250 },
