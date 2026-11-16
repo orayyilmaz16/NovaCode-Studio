@@ -109,6 +109,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     commands: () => ipcRenderer.invoke('ai:commands'),
     complete: (req) => ipcRenderer.invoke('ai:complete', req),
     completeCancel: (id) => ipcRenderer.invoke('ai:completeCancel', id),
+    completeWarm: () => ipcRenderer.invoke('ai:completeWarm'),
     ollamaModels: (baseUrl) => ipcRenderer.invoke('ai:ollamaModels', baseUrl),
     onEvent: (callback) => {
       const listener = (_event, data) => callback(data);

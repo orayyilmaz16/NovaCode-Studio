@@ -28,7 +28,7 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 760 |
+| `electron-ai.cjs` | 781 |
 | `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 406 |
@@ -36,7 +36,7 @@
 | `electron-llm.cjs` | 256 |
 | `electron-lsp.cjs` | 271 |
 | `electron-main.cjs` | 520 |
-| `electron-preload.cjs` | 223 |
+| `electron-preload.cjs` | 224 |
 | `electron-pty.cjs` | 118 |
 | `electron-search.cjs` | 74 |
 | `electron-secrets.cjs` | 58 |
@@ -49,7 +49,7 @@
 |---|---|
 | `src/App.tsx` | 1598 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 411 |
+| `src/types.ts` | 412 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -89,7 +89,7 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
-| `src/services/aiCompletion.ts` | 150 |
+| `src/services/aiCompletion.ts` | 164 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
@@ -154,7 +154,7 @@
 ## IPC kanalları
 | Grup | Kanallar |
 |---|---|
-| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:complete`, `ai:completeCancel`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
+| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:complete`, `ai:completeCancel`, `ai:completeWarm`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
 | app | `app:openLink`, `app:quit`, `app:reveal` |
 | dbg | `dbg:evaluate`, `dbg:pause`, `dbg:properties`, `dbg:resume`, `dbg:scopes`, `dbg:setBreakpoints`, `dbg:start`, `dbg:stepInto`, `dbg:stepOut`, `dbg:stepOver`, `dbg:stop` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |

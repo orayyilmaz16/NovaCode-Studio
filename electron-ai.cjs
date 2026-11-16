@@ -489,6 +489,25 @@ function buildSystem({ root, lang, agent, project, extra = '', thinking, autonom
 const COMPLETION_MODEL = 'qwen2.5-coder:7b';
 const FIM_STOP = ['<|fim_pad|>', '<|endoftext|>', '<|fim_prefix|>', '<|fim_suffix|>', '<|fim_middle|>', '<|file_sep|>', '<|repo_name|>'];
 const completions = new Map(); // id -> AbortController (aynı anda tek istek: yenisi eskisini iptal eder)
+const COMPLETION_KEEP_ALIVE = '30m'; // model boşta bile 30 dk bellekte kalır (soğuk başlangıç ~6 sn sürer)
+const COMPLETION_TIMEOUT_MS = 60000; // soğuk başlangıçta ilk istek 25 sn'yi aşabilir
+
+// Modeli boş istekle belleğe yükler: ilk öneri gecikmesin. Yalnız yerel Ollama'ya gider, kullanıcı kodu gönderilmez.
+async function warmCompletion() {
+  const base = safeBase('ollama').replace(/\/v1$/, '');
+  if (!isLoopback(base)) return { success: false, error: 'not-local' };
+  try {
+    const res = await fetch(base + '/api/generate', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      signal: AbortSignal.timeout(COMPLETION_TIMEOUT_MS),
+      body: JSON.stringify({ model: COMPLETION_MODEL, prompt: '', stream: false, keep_alive: COMPLETION_KEEP_ALIVE })
+    });
+    return res.ok ? { success: true } : { success: false, error: `http-${res.status}` };
+  } catch {
+    return { success: false, error: 'unavailable' };
+  }
+}
 
 const clampNum = (v, lo, hi, d) => Math.min(hi, Math.max(lo, Number.isFinite(Number(v)) ? Number(v) : d));
 
@@ -510,13 +529,13 @@ async function completeCode(req, signal) {
     const res = await fetch(base + '/api/generate', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      signal: AbortSignal.any([signal, AbortSignal.timeout(25000)]),
+      signal: AbortSignal.any([signal, AbortSignal.timeout(COMPLETION_TIMEOUT_MS)]),
       body: JSON.stringify({
         model: COMPLETION_MODEL,
         prompt: `<|fim_prefix|>${prefix}<|fim_suffix|>${suffix}<|fim_middle|>`,
         raw: true,
         stream: false,
-        keep_alive: '10m',
+        keep_alive: COMPLETION_KEEP_ALIVE,
         // Ek alternatifler daha yüksek sıcaklıkla üretilir ki ilkinden farklı olsun
         options: { temperature: i === 0 ? temperature : Math.min(1, Math.max(temperature, 0.5) + 0.2 * (i - 1)), top_p: 0.9, num_predict: maxTokens, num_ctx: 4096, stop: FIM_STOP }
       })
@@ -674,12 +693,14 @@ function register({ getWindow, getRoot }) {
     completions.set(id, ac);
     try {
       return await completeCode({ prefix: req.prefix, suffix: req.suffix, fileName: req.fileName, maxTokens: req.maxTokens, temperature: req.temperature, prefixChars: req.prefixChars, suffixChars: req.suffixChars, count: req.count }, ac.signal);
-    } catch {
-      return { success: false, error: ac.signal.aborted ? 'aborted' : 'unavailable' };
+    } catch (err) {
+      return { success: false, error: ac.signal.aborted ? 'aborted' : (err && err.name === 'TimeoutError' ? 'timeout' : 'unavailable') };
     } finally {
       if (completions.get(id) === ac) completions.delete(id);
     }
   });
+
+  ipcMain.handle('ai:completeWarm', () => warmCompletion());
 
   ipcMain.handle('ai:completeCancel', (_e, id) => {
     const a = completions.get(String(id));
