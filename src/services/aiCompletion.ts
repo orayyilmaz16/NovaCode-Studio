@@ -1,6 +1,10 @@
 import { useSyncExternalStore } from 'react';
 import type * as MonacoNS from 'monaco-editor';
 import { clearBackoff, newScheduleState, onOutcome, planRequest, type ScheduleState } from './completionSchedule';
+import { indentWidth, shapeSuggestion, type SuggestLength } from './completionShape';
+
+export { shapeSuggestion };
+export type { SuggestLength };
 
 // AI kod tamamlama (hayalet metin, GitHub Copilot tarzı): Monaco satır içi öneri sağlayıcısı.
 // İmleç çevresi yalnız yerel Ollama'ya gider (electron-ai.cjs → ai:complete). Ayarlar ✦ menüsünden ve Ayarlar sayfasından gelir.
@@ -8,7 +12,6 @@ import { clearBackoff, newScheduleState, onOutcome, planRequest, type ScheduleSt
 type Monaco = typeof MonacoNS;
 export type CompletionState = 'idle' | 'busy' | 'unavailable' | 'off';
 export type CompletionReason = 'no-api' | 'no-model' | 'no-ollama' | null;
-export type SuggestLength = 'line' | 'block' | 'long';
 
 export interface CompletionConfig {
   enabled: boolean;
@@ -29,14 +32,14 @@ export interface CompletionConfig {
 }
 
 export const DEFAULT_COMPLETION: CompletionConfig = {
-  enabled: true, trigger: 'auto', delay: 450, cooldown: 600, maxTokens: 80, prefixChars: 6000, suffixChars: 2000, temperature: 0.1, count: 1, length: 'block', offLangs: []
+  enabled: true, trigger: 'auto', delay: 250, cooldown: 300, maxTokens: 64, prefixChars: 4000, suffixChars: 1500, temperature: 0.1, count: 1, length: 'block', offLangs: []
 };
 
 /** "Çaba" ön ayarları: seçilince gecikme, uzunluk ve bağlam birlikte güncellenir. */
 export const EFFORT_PRESETS: Record<'fast' | 'balanced' | 'deep', Pick<CompletionConfig, 'delay' | 'cooldown' | 'maxTokens' | 'prefixChars' | 'suffixChars' | 'temperature' | 'length'>> = {
-  fast: { delay: 300, cooldown: 300, maxTokens: 48, prefixChars: 3000, suffixChars: 1000, temperature: 0.05, length: 'block' },
-  balanced: { delay: 450, cooldown: 600, maxTokens: 80, prefixChars: 6000, suffixChars: 2000, temperature: 0.1, length: 'block' },
-  deep: { delay: 600, cooldown: 900, maxTokens: 160, prefixChars: 10000, suffixChars: 3000, temperature: 0.2, length: 'long' }
+  fast: { delay: 150, cooldown: 150, maxTokens: 32, prefixChars: 2000, suffixChars: 600, temperature: 0.05, length: 'block' },
+  balanced: { delay: 250, cooldown: 300, maxTokens: 64, prefixChars: 4000, suffixChars: 1500, temperature: 0.1, length: 'block' },
+  deep: { delay: 400, cooldown: 500, maxTokens: 128, prefixChars: 8000, suffixChars: 2500, temperature: 0.2, length: 'long' }
 };
 
 let monaco: Monaco | null = null;
@@ -73,8 +76,8 @@ export function warmCompletion() {
 export function setCompletionConfig(c: Partial<CompletionConfig>) {
   const wasEnabled = cfg.enabled;
   const next = { ...cfg, ...c };
-  next.delay = Math.min(1500, Math.max(200, next.delay || 450));
-  next.cooldown = Math.min(5000, Math.max(0, Number.isFinite(next.cooldown) ? next.cooldown : 600));
+  next.delay = Math.min(1500, Math.max(100, next.delay || 250));
+  next.cooldown = Math.min(5000, Math.max(0, Number.isFinite(next.cooldown) ? next.cooldown : 300));
   cfg = next;
   if (!cfg.enabled) setState('off');
   else if (state === 'off') setState('idle');
@@ -89,24 +92,6 @@ const waitOrCancel = (ms: number, token: MonacoNS.CancellationToken) => new Prom
   const timer = setTimeout(() => { sub?.dispose(); resolve(true); }, ms);
   sub = token.onCancellationRequested(() => { clearTimeout(timer); sub?.dispose(); resolve(false); });
 });
-
-/** Öneriyi seçilen biçime göre kısaltır: tek satır / blok (ilk boş satıra kadar, 8 satır) / uzun (24 satır). */
-export function shapeSuggestion(raw: string, length: SuggestLength, lineRest: string): string {
-  let text = raw.replace(/^```[a-z]*\n?|\n?```$/g, '');
-  // İmleçten sonra aynı satırda kod varsa yalnız satır sonuna kadar öner (kodun ortasına blok eklemeyelim)
-  if (lineRest.trim() || length === 'line') text = text.split('\n')[0];
-  else {
-    const maxLines = length === 'long' ? 24 : 8;
-    const cut: string[] = [];
-    for (const ln of text.split('\n')) {
-      if (length === 'block' && cut.some((x) => x.trim()) && !ln.trim()) break;
-      cut.push(ln);
-      if (cut.length >= maxLines) break;
-    }
-    text = cut.join('\n');
-  }
-  return text.replace(/\s+$/, '');
-}
 
 export function setCompletionMonaco(m: unknown) {
   monaco = m as Monaco;
@@ -139,13 +124,26 @@ export function setCompletionMonaco(m: unknown) {
       const prefix = model.getValueInRange({ startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column });
       const last = model.getLineCount();
       const suffix = model.getValueInRange({ startLineNumber: position.lineNumber, startColumn: position.column, endLineNumber: last, endColumn: model.getLineMaxColumn(last) });
+      // Dil ve imleç bağlamı: editörün girinti ayarı, imleç satırı, sonraki satır (modeli ve öneri şekillendirmeyi yönlendirir)
+      const mo = model.getOptions();
+      const lineText = model.getLineContent(position.lineNumber);
+      const lineRest = lineText.slice(position.column - 1);
+      const midLine = lineRest.trim() !== '';
+      let nextLine = '';
+      for (let n = position.lineNumber + 1; n <= Math.min(last, position.lineNumber + 20); n++) {
+        const t = model.getLineContent(n);
+        if (t.trim()) { nextLine = t; break; }
+      }
+      // Satır ortası: ilk satırda dur (hızlı). Tek satır modu: kısa üretim. Blok: ilk boş satırda dur.
+      const maxTokens = midLine || cfg.length === 'line' ? Math.min(cfg.maxTokens, 48) : cfg.maxTokens;
       token.onCancellationRequested(() => { void api.completeCancel(id); });
       setState('busy');
       let res: Awaited<ReturnType<typeof api.complete>>;
       try {
         res = await api.complete({
-          id, prefix, suffix, fileName: u.scheme === 'file' ? u.fsPath : undefined,
-          maxTokens: cfg.maxTokens, temperature: cfg.temperature, prefixChars: cfg.prefixChars, suffixChars: cfg.suffixChars, count: cfg.count
+          id, prefix, suffix, fileName: u.scheme === 'file' ? u.fsPath : undefined, languageId: lang,
+          singleLine: midLine, stopAtBlank: !midLine && cfg.length === 'block',
+          maxTokens, temperature: cfg.temperature, prefixChars: cfg.prefixChars, suffixChars: cfg.suffixChars, count: cfg.count
         });
       } catch {
         res = { success: false, error: 'unavailable' };
@@ -163,10 +161,10 @@ export function setCompletionMonaco(m: unknown) {
       sched = onOutcome(sched, 'ok', Date.now());
       setState('idle');
 
-      const lineRest = model.getLineContent(position.lineNumber).slice(position.column - 1);
+      const shape = { languageId: lang, tabSize: mo.tabSize, insertSpaces: mo.insertSpaces, baseIndent: indentWidth(lineText, mo.tabSize), nextLine };
       const range = new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column);
       const texts = (res.alternatives?.length ? res.alternatives : res.text ? [res.text] : [])
-        .map((t) => shapeSuggestion(t, cfg.length, lineRest))
+        .map((t) => shapeSuggestion(t, cfg.length, lineRest, shape))
         .filter((t, i, a) => t.trim() && a.indexOf(t) === i);
       return { items: texts.map((insertText) => ({ insertText, range })) };
     },

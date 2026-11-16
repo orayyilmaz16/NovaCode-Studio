@@ -489,6 +489,19 @@ function buildSystem({ root, lang, agent, project, extra = '', thinking, autonom
 const COMPLETION_MODEL = 'qwen2.5-coder:7b';
 const FIM_STOP = ['<|fim_pad|>', '<|endoftext|>', '<|fim_prefix|>', '<|fim_suffix|>', '<|fim_middle|>', '<|file_sep|>', '<|repo_name|>'];
 const completions = new Map(); // id -> AbortController (aynı anda tek istek: yenisi eskisini iptal eder)
+// Dil kimliği -> uzantı (adsız dosyada modele dosya türünü söylemek için)
+const LANG_EXT = { javascript: 'js', typescript: 'ts', javascriptreact: 'jsx', typescriptreact: 'tsx', python: 'py', java: 'java', c: 'c', cpp: 'cpp', csharp: 'cs', go: 'go', rust: 'rs', php: 'php', ruby: 'rb', swift: 'swift', kotlin: 'kt', scala: 'scala', dart: 'dart', html: 'html', css: 'css', scss: 'scss', less: 'less', json: 'json', jsonc: 'json', yaml: 'yml', markdown: 'md', shell: 'sh', powershell: 'ps1', bat: 'bat', sql: 'sql', lua: 'lua', perl: 'pl', r: 'r', xml: 'xml', vue: 'vue', svelte: 'svelte', dockerfile: 'Dockerfile', toml: 'toml', ini: 'ini', graphql: 'graphql', 'objective-c': 'm' };
+
+// Modele dosya adı/türü bilgisi: Qwen2.5-Coder'ın <|file_sep|> biçimi. Yalnız dosya ADI (klasör yolu değil) gider; adsız dosyada dilden üretilir.
+function fileHeader(fileName, languageId) {
+  let name = String(fileName || '').replace(/\\/g, '/').split('/').pop().replace(/[\u0000-\u001f]/g, '').replace(/<\||\|>/g, '').slice(0, 80);
+  if (!name) {
+    const ext = /^[a-z0-9+#.-]{1,30}$/i.test(String(languageId || '')) ? LANG_EXT[String(languageId).toLowerCase()] : '';
+    name = ext ? (ext === 'Dockerfile' ? 'Dockerfile' : `untitled.${ext}`) : '';
+  }
+  return name ? `<|file_sep|>${name}\n` : '';
+}
+
 const COMPLETION_KEEP_ALIVE = '30m'; // model boşta bile 30 dk bellekte kalır
 const COMPLETION_GEN_TIMEOUT_MS = 30000; // yalnız üretim (model zaten yüklü)
 const COMPLETION_LOAD_TIMEOUT_MS = 180000; // modeli belleğe yükleme (6 GB GPU'da bile ~6-20 sn)
@@ -561,6 +574,9 @@ async function completeCode(req, signal) {
   const loaded = await raceAbort(ensureCompletionModel(base), signal);
   if (loaded === ABORTED) return { success: false, error: 'aborted' };
   if (!loaded.success) return { success: false, error: loaded.error };
+  const header = fileHeader(req.fileName, req.languageId);
+  // Satır ortasında ilk satırda, blok modunda ilk boş satırda dur: daha az token, daha hızlı öneri
+  const stop = req.singleLine ? [...FIM_STOP, '\n'] : req.stopAtBlank ? [...FIM_STOP, '\n\n'] : FIM_STOP;
   const alternatives = [];
   for (let i = 0; i < count; i++) {
     if (signal.aborted) break;
@@ -572,12 +588,12 @@ async function completeCode(req, signal) {
         signal: AbortSignal.any([signal, AbortSignal.timeout(COMPLETION_GEN_TIMEOUT_MS)]),
         body: JSON.stringify({
           model: COMPLETION_MODEL,
-          prompt: `<|fim_prefix|>${prefix}<|fim_suffix|>${suffix}<|fim_middle|>`,
+          prompt: `${header}<|fim_prefix|>${prefix}<|fim_suffix|>${suffix}<|fim_middle|>`,
           raw: true,
           stream: false,
           keep_alive: COMPLETION_KEEP_ALIVE,
           // Ek alternatifler daha yüksek sıcaklıkla üretilir ki ilkinden farklı olsun
-          options: { temperature: i === 0 ? temperature : Math.min(1, Math.max(temperature, 0.5) + 0.2 * (i - 1)), top_p: 0.9, num_predict: maxTokens, num_ctx: COMPLETION_NUM_CTX, stop: FIM_STOP }
+          options: { temperature: i === 0 ? temperature : Math.min(1, Math.max(temperature, 0.5) + 0.2 * (i - 1)), top_p: 0.9, num_predict: maxTokens, num_ctx: COMPLETION_NUM_CTX, stop }
         })
       });
     } catch (err) {
@@ -737,7 +753,7 @@ function register({ getWindow, getRoot }) {
     const ac = new AbortController();
     completions.set(id, ac);
     try {
-      return await completeCode({ prefix: req.prefix, suffix: req.suffix, fileName: req.fileName, maxTokens: req.maxTokens, temperature: req.temperature, prefixChars: req.prefixChars, suffixChars: req.suffixChars, count: req.count }, ac.signal);
+      return await completeCode({ prefix: req.prefix, suffix: req.suffix, fileName: req.fileName, maxTokens: req.maxTokens, temperature: req.temperature, prefixChars: req.prefixChars, suffixChars: req.suffixChars, count: req.count, languageId: req.languageId, singleLine: req.singleLine === true, stopAtBlank: req.stopAtBlank === true }, ac.signal);
     } catch (err) {
       return { success: false, error: ac.signal.aborted ? 'aborted' : (err && err.name === 'TimeoutError' ? 'timeout' : 'unavailable') };
     } finally {

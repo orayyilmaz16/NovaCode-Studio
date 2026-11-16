@@ -167,8 +167,8 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
               onChange={(v) => set('aiCompletionLength', v)}
             />
           </Row>
-          <Range id="aiCompletionDelay" min={200} max={1500} step={50} value={num('aiCompletionDelay', 450)} set={set} label={t('set_aiCompletionDelay')} fmt={(n) => `${n} ms`} />
-          <Range id="aiCompletionCooldown" min={0} max={5000} step={100} value={num('aiCompletionCooldown', 600)} set={set} label={t('set_aiCompletionCooldown')} fmt={(n) => `${n} ms`} />
+          <Range id="aiCompletionDelay" min={100} max={1500} step={50} value={num('aiCompletionDelay', 250)} set={set} label={t('set_aiCompletionDelay')} fmt={(n) => `${n} ms`} />
+          <Range id="aiCompletionCooldown" min={0} max={5000} step={100} value={num('aiCompletionCooldown', 300)} set={set} label={t('set_aiCompletionCooldown')} fmt={(n) => `${n} ms`} />
 
           <Divider />
           <button onClick={() => setAdv((v) => !v)} aria-expanded={adv} className={`cm-adv w-full flex items-center gap-1.5 px-3.5 h-8 text-xs ${adv ? 'text-zinc-100' : 'text-zinc-400'} hover:text-zinc-100 hover:bg-nv-hover cursor-pointer ${FOCUS}`}>
@@ -177,9 +177,9 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
           </button>
           <div className="cm-collapse" data-open={adv} aria-hidden={!adv}>
             <div className="pb-1">
-              <Range id="aiCompletionMaxTokens" min={16} max={256} step={8} value={num('aiCompletionMaxTokens', 80)} set={set} d={0} label={t('set_aiCompletionMaxTokens')} />
-              <Range id="aiCompletionPrefix" min={500} max={12000} step={500} value={num('aiCompletionPrefix', 6000)} set={set} d={1} label={t('set_aiCompletionPrefix')} />
-              <Range id="aiCompletionSuffix" min={0} max={4000} step={250} value={num('aiCompletionSuffix', 2000)} set={set} d={2} label={t('set_aiCompletionSuffix')} />
+              <Range id="aiCompletionMaxTokens" min={16} max={256} step={8} value={num('aiCompletionMaxTokens', 64)} set={set} d={0} label={t('set_aiCompletionMaxTokens')} />
+              <Range id="aiCompletionPrefix" min={500} max={12000} step={500} value={num('aiCompletionPrefix', 4000)} set={set} d={1} label={t('set_aiCompletionPrefix')} />
+              <Range id="aiCompletionSuffix" min={0} max={4000} step={250} value={num('aiCompletionSuffix', 1500)} set={set} d={2} label={t('set_aiCompletionSuffix')} />
               <Range id="aiCompletionTemperature" min={0} max={1} step={0.05} value={num('aiCompletionTemperature', 0.1)} set={set} d={3} label={t('set_aiCompletionTemperature')} fmt={(n) => n.toFixed(2)} />
               <Range id="aiCompletionCount" min={1} max={3} step={1} value={num('aiCompletionCount', 1)} set={set} d={4} label={t('set_aiCompletionCount')} />
               <Row d={5} label={t('set_aiCompletionToolbar')}>
