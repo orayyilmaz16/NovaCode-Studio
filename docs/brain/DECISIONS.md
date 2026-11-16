@@ -104,4 +104,5 @@ Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kar
 - **Terminalde çalışma klasörü işareti (`@@NOVA_CWD@@`)**; çıktı ANSI ayrıştırılır, HTML basılmaz (XSS yüzeyi yok).
 - **`webSecurity` açık** (renderer yalnız yerel içerik ve `wss://` kullanır).
 - **Yalnız dev bağımlılıkları etkileyen `minimatch` bulgusu kabul edildi;** çalışma zamanı bağımlılıkları `moderate`, tümü `high` düzeyinde denetlenir. Bkz. [[ci-cd]].
-- **Logo plakası CSS jetonlarıyla (16.11.2026).** Neden: koyu/açık tema ve vurgu rengi değişince plaka ve gölge ek kod olmadan güncellensin; SVG çizimi ve ikon dosyaları aynı kalsın. `plate` isteğe bağlı, başlık çubuğu logosu etkilenmez. Karşılama süslemesi (parıltı, ızgara) yalnız karşılama ekranına özeldir. Bkz. [[ui-design]].
+- **Logo yalnız gölge alır, plaka/ızgara yok (16.11.2026).** Neden: kullanıcı arka planın aynı kalmasını, logoya yalnız tema uyumlu (koyu: siyah) gölge istedi; sade yüzey korunur. Gölge `--logo-shadow` jetonuyla. Karşılama arka planı `bg-nv-editor` kalır. Bkz. [[ui-design]].
+- **Tek hareket dili: jeton + yardımcı sınıf (16.11.2026).** Neden: hover/geçiş/gecikme dağınık ms ve eğrilerle yazılıyordu; tutarlılık ve azaltılmış hareket desteği için `--dur-*`, `--ease-*` jetonları ve `motion-*` sınıfları. Bkz. [[motion]].

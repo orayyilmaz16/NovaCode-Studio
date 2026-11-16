@@ -21,11 +21,11 @@ interface LandingPageProps {
 const LinkRow: React.FC<{ icon: React.ReactNode; label: string; hint?: string; onClick: () => void }> = ({ icon, label, hint, onClick }) => (
   <button
     onClick={onClick}
-    className="group flex items-center gap-2.5 h-8 px-2 -mx-2 rounded-md text-[13px] text-indigo-300 hover:text-indigo-200 hover:bg-nv-hover transition-colors w-full text-start"
+    className="group motion-press flex items-center gap-2.5 h-8 px-2 -mx-2 rounded-md text-[13px] text-indigo-300 hover:text-indigo-200 hover:bg-nv-hover w-full text-start"
   >
     <span className="shrink-0 text-indigo-400">{icon}</span>
     <span className="truncate">{label}</span>
-    {hint && <kbd className="ms-auto text-[11px] font-mono text-zinc-500 group-hover:text-zinc-400">{hint}</kbd>}
+    {hint && <kbd className="ms-auto motion-hint text-[11px] font-mono text-zinc-500">{hint}</kbd>}
   </button>
 );
 
@@ -33,19 +33,19 @@ const Card: React.FC<{ icon: React.ReactNode; title: string; desc: string; onCli
   <button
     onClick={onClick}
     style={{ ['--i' as string]: index }}
-    className="welcome-rise welcome-card group flex items-start gap-3 p-3.5 rounded-lg text-start w-full"
+    className="motion-rise motion-card group flex items-start gap-3 p-3.5 rounded-lg text-start w-full"
   >
     <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-nv-active text-indigo-300">{icon}</span>
     <span className="min-w-0 flex-1">
       <span className="block text-[13px] text-zinc-100">{title}</span>
       <span className="block text-[12px] text-zinc-500 leading-relaxed mt-0.5">{desc}</span>
     </span>
-    <ChevronRight size={14} className="mt-2.5 text-zinc-600 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all rtl:rotate-180" />
+    <ChevronRight size={14} className="motion-arrow mt-2.5 text-zinc-500 shrink-0" />
   </button>
 );
 
-const Tip: React.FC<{ label: string; keys: string }> = ({ label, keys }) => (
-  <li className="flex items-center justify-between gap-3 h-7 text-[12px] text-zinc-400">
+const Tip: React.FC<{ label: string; keys: string; index: number }> = ({ label, keys, index }) => (
+  <li style={{ ['--i' as string]: index + 3 }} className="motion-rise flex items-center justify-between gap-3 h-7 text-[12px] text-zinc-400">
     <span className="truncate">{label}</span>
     <kbd className="shrink-0 px-1.5 py-px rounded border border-nv-border bg-nv-input text-[11px] font-mono text-zinc-300">{keys}</kbd>
   </li>
@@ -65,25 +65,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onToggleStartup
 }) => {
   return (
-    <div className="animate-fade-in welcome-bg flex-1 h-full w-full overflow-y-auto select-none">
+    <div className="animate-fade-in bg-nv-editor flex-1 h-full w-full overflow-y-auto select-none">
       <div className="min-h-full max-w-[920px] mx-auto px-10 pt-12 pb-8 flex flex-col">
         {/* Başlık: plakalı logo + hızlı eylemler */}
         <header className="flex flex-col sm:flex-row sm:items-center gap-6 mb-12">
-          <Logo size={84} animated plate />
+          <Logo size={60} animated shadow />
           <div className="flex-1 min-w-0">
             <h1 className="text-[30px] leading-tight font-light tracking-tight text-zinc-50">NovaCode Studio</h1>
             <p className="text-[14px] text-zinc-500 mt-1">{t('splashTagline')}</p>
             <div className="flex flex-wrap gap-2 mt-4">
               <button
                 onClick={onOpenFolder}
-                className="inline-flex items-center gap-2 h-8 px-3.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-[13px] text-white shadow-sm transition-colors"
+                className="btn-primary"
               >
                 <FolderOpen size={15} />
                 {t('openFolder')}
               </button>
               <button
                 onClick={onNewFile}
-                className="inline-flex items-center gap-2 h-8 px-3.5 rounded-md border border-nv-border bg-nv-side hover:bg-nv-hover text-[13px] text-zinc-200 transition-colors"
+                className="btn-ghost"
               >
                 <FilePlus size={15} className="text-indigo-400" />
                 {t('newFile')}
@@ -121,7 +121,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     key={f.path}
                     onClick={() => onOpenRecent(f.path)}
                     title={f.path}
-                    className="group flex items-baseline gap-3 h-8 px-2 -mx-2 rounded-md text-[13px] hover:bg-nv-hover transition-colors w-full text-start"
+                    className="group motion-press flex items-baseline gap-3 h-8 px-2 -mx-2 rounded-md text-[13px] hover:bg-nv-hover w-full text-start"
                   >
                     <Folder size={14} className="self-center shrink-0 text-zinc-500" />
                     <span className="text-indigo-300 group-hover:text-indigo-200 shrink-0">{f.name}</span>
@@ -150,12 +150,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 {t('welTips')}
               </h2>
               <ul>
-                <Tip label={t('welTipQuickOpen')} keys="Ctrl+P" />
-                <Tip label={t('welTipPalette')} keys="Ctrl+Shift+P" />
-                <Tip label={t('welTipSearch')} keys="Ctrl+Shift+F" />
-                <Tip label={t('welTipAi')} keys="Ctrl+Shift+L" />
-                <Tip label={t('welTipTerminal')} keys="Ctrl+`" />
-                <Tip label={t('welTipSettings')} keys="Ctrl+," />
+                <Tip label={t('welTipQuickOpen')} keys="Ctrl+P" index={0} />
+                <Tip label={t('welTipPalette')} keys="Ctrl+Shift+P" index={1} />
+                <Tip label={t('welTipSearch')} keys="Ctrl+Shift+F" index={2} />
+                <Tip label={t('welTipAi')} keys="Ctrl+Shift+L" index={3} />
+                <Tip label={t('welTipTerminal')} keys="Ctrl+`" index={4} />
+                <Tip label={t('welTipSettings')} keys="Ctrl+," index={5} />
               </ul>
             </section>
           </div>
@@ -163,7 +163,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
         {/* Alt: açılışta göster */}
         <footer className="mt-10 pt-4 flex items-center justify-between text-[12px] text-zinc-500">
-          <label className="flex items-center gap-2 cursor-pointer hover:text-zinc-300 transition-colors">
+          <label className="flex items-center gap-2 cursor-pointer hover:text-zinc-300 motion-press">
             <input type="checkbox" checked={showOnStartup} onChange={(e) => onToggleStartup(e.target.checked)} className="accent-indigo-500" />
             {t('welShowOnStartup')}
           </label>

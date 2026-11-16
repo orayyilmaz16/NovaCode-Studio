@@ -27,6 +27,7 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 6. Yeni bağımlılık eklemeden önce var olan çözüme bak; ekleniyorsa nedenini yaz.
 7. Kullanıcı arayüzüne eklenen her metin 8 dilde olmalı: tr, en, de, ru, ar, es, fr, az.
 8. Mevcut stile uy (Tailwind 4, fonksiyonel React bileşenleri, TypeScript strict).
+9. Arayüz sade kalır: düz yüzey, tek vurgu, gölge yığını/ızgara/degrade zemin yok. Geçiş, hover ve animasyonda `docs/brain/actions/motion.md` jetonları ve `motion-*` sınıfları kullanılır (sabit ms yazılmaz).
 
 ## Git ve sürüm (ayrıntı: `AGENT.md`, `.claude/skills/nova-release/SKILL.md`)
 - Conventional Commits. Sürüm SemVer, tek kaynak `package.json`.

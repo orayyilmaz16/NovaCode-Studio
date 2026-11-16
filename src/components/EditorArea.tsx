@@ -491,29 +491,29 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
           />
         ) : (
           <div className="animate-fade-in flex flex-col items-center justify-center h-full text-zinc-500 text-sm px-6 select-none">
-            <Logo size={88} animated plate className="mb-5" />
+            <Logo size={72} animated shadow className="mb-5" />
             <p className="text-zinc-300 text-lg font-light tracking-wide mb-1">NovaCode Studio</p>
             <p className="text-center max-w-md mb-6">{t('emptyHint')}</p>
             <div className="flex flex-col gap-1.5 w-full max-w-xs">
               {onOpenFolder && (
-                <button onClick={onOpenFolder} className="group flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover transition-colors">
+                <button onClick={onOpenFolder} className="group motion-press flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover">
                   <FolderOpen size={15} className="text-indigo-400" />
                   <span className="flex-1 text-left">{t('openFolder')}</span>
-                  <kbd className="px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+O</kbd>
+                  <kbd className="motion-hint px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+O</kbd>
                 </button>
               )}
               {onOpenFiles && (
-                <button onClick={onOpenFiles} className="group flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover transition-colors">
+                <button onClick={onOpenFiles} className="group motion-press flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover">
                   <FileCode size={15} className="text-indigo-400" />
                   <span className="flex-1 text-left">{t('openFiles')}</span>
-                  <kbd className="px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+Shift+O</kbd>
+                  <kbd className="motion-hint px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+Shift+O</kbd>
                 </button>
               )}
               {onNewFile && (
-                <button onClick={onNewFile} className="group flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover transition-colors">
+                <button onClick={onNewFile} className="group motion-press flex items-center gap-3 px-3 h-8 rounded text-zinc-300 hover:bg-nv-hover">
                   <FilePlus size={15} className="text-indigo-400" />
                   <span className="flex-1 text-left">{t('newFile')}</span>
-                  <kbd className="px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+N</kbd>
+                  <kbd className="motion-hint px-1.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">Ctrl+N</kbd>
                 </button>
               )}
             </div>
