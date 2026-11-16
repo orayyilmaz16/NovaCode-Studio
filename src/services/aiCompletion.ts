@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type * as MonacoNS from 'monaco-editor';
+import { clearBackoff, newScheduleState, onOutcome, planRequest, type ScheduleState } from './completionSchedule';
 
 // AI kod tamamlama (hayalet metin, GitHub Copilot tarzı): Monaco satır içi öneri sağlayıcısı.
 // İmleç çevresi yalnız yerel Ollama'ya gider (electron-ai.cjs → ai:complete). Ayarlar ✦ menüsünden ve Ayarlar sayfasından gelir.
@@ -13,7 +14,10 @@ export interface CompletionConfig {
   enabled: boolean;
   /** auto: yazarken; manual: yalnız Alt+\ ile */
   trigger: 'auto' | 'manual';
+  /** Son tuştan sonra beklenecek sessizlik (ms) */
   delay: number;
+  /** Bir istek bittikten sonra yenisinin başlaması için en az bekleme (ms) */
+  cooldown: number;
   maxTokens: number;
   prefixChars: number;
   suffixChars: number;
@@ -25,14 +29,14 @@ export interface CompletionConfig {
 }
 
 export const DEFAULT_COMPLETION: CompletionConfig = {
-  enabled: true, trigger: 'auto', delay: 450, maxTokens: 80, prefixChars: 6000, suffixChars: 2000, temperature: 0.1, count: 1, length: 'block', offLangs: []
+  enabled: true, trigger: 'auto', delay: 450, cooldown: 600, maxTokens: 80, prefixChars: 6000, suffixChars: 2000, temperature: 0.1, count: 1, length: 'block', offLangs: []
 };
 
 /** "Çaba" ön ayarları: seçilince gecikme, uzunluk ve bağlam birlikte güncellenir. */
-export const EFFORT_PRESETS: Record<'fast' | 'balanced' | 'deep', Pick<CompletionConfig, 'delay' | 'maxTokens' | 'prefixChars' | 'suffixChars' | 'temperature' | 'length'>> = {
-  fast: { delay: 300, maxTokens: 48, prefixChars: 3000, suffixChars: 1000, temperature: 0.05, length: 'block' },
-  balanced: { delay: 450, maxTokens: 80, prefixChars: 6000, suffixChars: 2000, temperature: 0.1, length: 'block' },
-  deep: { delay: 600, maxTokens: 160, prefixChars: 10000, suffixChars: 3000, temperature: 0.2, length: 'long' }
+export const EFFORT_PRESETS: Record<'fast' | 'balanced' | 'deep', Pick<CompletionConfig, 'delay' | 'cooldown' | 'maxTokens' | 'prefixChars' | 'suffixChars' | 'temperature' | 'length'>> = {
+  fast: { delay: 300, cooldown: 300, maxTokens: 48, prefixChars: 3000, suffixChars: 1000, temperature: 0.05, length: 'block' },
+  balanced: { delay: 450, cooldown: 600, maxTokens: 80, prefixChars: 6000, suffixChars: 2000, temperature: 0.1, length: 'block' },
+  deep: { delay: 600, cooldown: 900, maxTokens: 160, prefixChars: 10000, suffixChars: 3000, temperature: 0.2, length: 'long' }
 };
 
 let monaco: Monaco | null = null;
@@ -40,8 +44,7 @@ let registered = false;
 let cfg: CompletionConfig = { ...DEFAULT_COMPLETION };
 let state: CompletionState = 'idle';
 let reason: CompletionReason = null;
-let failStreak = 0;
-let pausedUntil = 0;
+let sched: ScheduleState = newScheduleState();
 let seq = 0;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
@@ -64,20 +67,28 @@ export function warmCompletion() {
   const warm = window.electronAPI?.ai?.completeWarm;
   if (!cfg.enabled || warming || !warm) return;
   warming = true;
-  warm().then((r) => { if (r?.success && failStreak === 0 && state === 'unavailable') setState('idle'); }).catch(() => {}).finally(() => { warming = false; });
+  warm().then((r) => { if (r?.success) sched = clearBackoff(sched); if (r?.success && state === 'unavailable') setState('idle'); }).catch(() => {}).finally(() => { warming = false; });
 }
 
 export function setCompletionConfig(c: Partial<CompletionConfig>) {
   const wasEnabled = cfg.enabled;
   const next = { ...cfg, ...c };
   next.delay = Math.min(1500, Math.max(200, next.delay || 450));
+  next.cooldown = Math.min(5000, Math.max(0, Number.isFinite(next.cooldown) ? next.cooldown : 600));
   cfg = next;
   if (!cfg.enabled) setState('off');
   else if (state === 'off') setState('idle');
   if (cfg.enabled && !wasEnabled) warmCompletion();
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** İptal edilebilir bekleme: true = süre doldu, false = iptal edildi (yeni tuş vuruşu). */
+const waitOrCancel = (ms: number, token: MonacoNS.CancellationToken) => new Promise<boolean>((resolve) => {
+  if (token.isCancellationRequested) return resolve(false);
+  if (ms <= 0) return resolve(true);
+  let sub: MonacoNS.IDisposable | undefined;
+  const timer = setTimeout(() => { sub?.dispose(); resolve(true); }, ms);
+  sub = token.onCancellationRequested(() => { clearTimeout(timer); sub?.dispose(); resolve(false); });
+});
 
 /** Öneriyi seçilen biçime göre kısaltır: tek satır / blok (ilk boş satıra kadar, 8 satır) / uzun (24 satır). */
 export function shapeSuggestion(raw: string, length: SuggestLength, lineRest: string): string {
@@ -116,11 +127,12 @@ export function setCompletionMonaco(m: unknown) {
       if (lang === 'plaintext' || cfg.offLangs.includes(lang)) return empty;
       const explicit = ctx.triggerKind === 1; // Alt+\ veya menüden "şimdi öner"
       if (cfg.trigger === 'manual' && !explicit) return empty;
-      if (!explicit && Date.now() < pausedUntil) return empty;
-
+      // Otomatik tetikleme: gecikme (son tuştan sessizlik) + soğuma (önceki istekten bekleme) + hata geri çekilmesi.
+      // Her tuşta Monaco eski çağrıyı iptal eder; bekleme iptal olursa yeni çağrı süreyi baştan sayar (debounce).
       if (!explicit) {
-        await sleep(cfg.delay);
-        if (token.isCancellationRequested) return empty;
+        const plan = planRequest(Date.now(), sched, { delay: cfg.delay, cooldown: cfg.cooldown });
+        if (plan.skip) return empty;
+        if (!(await waitOrCancel(plan.wait, token))) return empty;
       }
 
       const id = `c${++seq}`;
@@ -138,17 +150,17 @@ export function setCompletionMonaco(m: unknown) {
       } catch {
         res = { success: false, error: 'unavailable' };
       }
-      if (token.isCancellationRequested || res.error === 'aborted') { if (state === 'busy') setState('idle'); return empty; }
+      // Yazmaya devam edildi, istek boşa gitti: sonraki gecikme kademeli uzar
+      if (token.isCancellationRequested || res.error === 'aborted') { sched = onOutcome(sched, 'wasted', Date.now()); if (state === 'busy') setState('idle'); return empty; }
       // Zaman aşımı = model hâlâ yükleniyor olabilir: hata sayma, duraklatma; arka planda ısıt
-      if (!res.success && res.error === 'timeout') { setState('idle'); warmCompletion(); return empty; }
+      if (!res.success && res.error === 'timeout') { sched = onOutcome(sched, 'timeout', Date.now()); setState('idle'); warmCompletion(); return empty; }
       if (!res.success) {
-        // Ollama kapalı / model yok: art arda iki başarısızlıktan sonra 60 sn sorma (gürültü ve CPU israfı olmasın)
-        failStreak += 1;
-        if (failStreak >= 2) pausedUntil = Date.now() + 60000;
+        // Ollama kapalı / model yok: kademeli geri çekilme (3, 10, 30, 60 sn); Alt+\ ile elle denenebilir
+        sched = onOutcome(sched, 'fail', Date.now());
         setState('unavailable', res.error === 'http-404' ? 'no-model' : 'no-ollama');
         return empty;
       }
-      failStreak = 0;
+      sched = onOutcome(sched, 'ok', Date.now());
       setState('idle');
 
       const lineRest = model.getLineContent(position.lineNumber).slice(position.column - 1);

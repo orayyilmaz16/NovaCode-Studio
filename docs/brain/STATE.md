@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `version:check` | `node scripts/check-version.mjs` |
@@ -59,9 +59,9 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
-| `src/components/CompletionMenu.tsx` | 208 |
+| `src/components/CompletionMenu.tsx` | 210 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 525 |
+| `src/components/EditorArea.tsx` | 526 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -89,7 +89,8 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
-| `src/services/aiCompletion.ts` | 164 |
+| `src/services/aiCompletion.ts` | 176 |
+| `src/services/completionSchedule.ts` | 69 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
@@ -117,7 +118,7 @@
 |---|---|
 | `src/i18n/uiText.ts` | 1628 |
 | `src/i18n/uiTextAi.ts` | 525 |
-| `src/i18n/uiTextComp.ts` | 107 |
+| `src/i18n/uiTextComp.ts` | 110 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
 
@@ -138,6 +139,7 @@
 |---|---|
 | `scripts/tests/ai-complete.test.cjs` | 94 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
+| `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/debug.test.cjs` | 112 |
 | `scripts/tests/git.test.cjs` | 163 |
 | `scripts/tests/lsp.test.cjs` | 97 |
@@ -176,10 +178,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 833 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 834 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-107 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+108 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -270,6 +272,7 @@
 | Yapay Zekâ | `aiCompletionEffort` | Düşünme seviyesi / çaba | select | `"balanced"` | fast, balanced, deep |
 | Yapay Zekâ | `aiCompletionLength` | Öneri biçimi | select | `"block"` | line, block, long |
 | Yapay Zekâ | `aiCompletionDelay` | Tamamlama gecikmesi (ms) | slider | `450` | 200–1500 |
+| Yapay Zekâ | `aiCompletionCooldown` | Tamamlama soğuma süresi (ms) | slider | `600` | 0–5000 |
 | Yapay Zekâ | `aiCompletionMaxTokens` | Öneri uzunluğu üst sınırı (token) | slider | `80` | 16–256 |
 | Yapay Zekâ | `aiCompletionPrefix` | İmleçten önceki bağlam (karakter) | slider | `6000` | 500–12000 |
 | Yapay Zekâ | `aiCompletionSuffix` | İmleçten sonraki bağlam (karakter) | slider | `2000` | 0–4000 |
