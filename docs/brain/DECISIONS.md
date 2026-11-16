@@ -104,3 +104,4 @@ Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kar
 - **Terminalde çalışma klasörü işareti (`@@NOVA_CWD@@`)**; çıktı ANSI ayrıştırılır, HTML basılmaz (XSS yüzeyi yok).
 - **`webSecurity` açık** (renderer yalnız yerel içerik ve `wss://` kullanır).
 - **Yalnız dev bağımlılıkları etkileyen `minimatch` bulgusu kabul edildi;** çalışma zamanı bağımlılıkları `moderate`, tümü `high` düzeyinde denetlenir. Bkz. [[ci-cd]].
+- **Logo plakası CSS jetonlarıyla (16.11.2026).** Neden: koyu/açık tema ve vurgu rengi değişince plaka ve gölge ek kod olmadan güncellensin; SVG çizimi ve ikon dosyaları aynı kalsın. `plate` isteğe bağlı, başlık çubuğu logosu etkilenmez. Karşılama süslemesi (parıltı, ızgara) yalnız karşılama ekranına özeldir. Bkz. [[ui-design]].

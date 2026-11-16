@@ -90,6 +90,22 @@
   --ansi-12: #1f6fd0; --ansi-13: #8f56d6; --ansi-14: #1488a6; --ansi-15: #1f1f1f;
 }
 
+/* Logo plakası: koyu temada koyu zemin + vurgu parıltısı, açık temada açık zemin + yumuşak gölge. Vurgu rengi değişince canlı güncellenir. */
+:root {
+  --logo-plate: linear-gradient(145deg, color-mix(in srgb, var(--color-indigo-500) 16%, var(--color-nv-editor)), color-mix(in srgb, var(--color-nv-side) 70%, black));
+  --logo-plate-border: color-mix(in srgb, var(--color-indigo-400) 30%, transparent);
+  --logo-shadow: 0 14px 34px -10px color-mix(in srgb, var(--color-indigo-500) 55%, transparent), 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --welcome-glow: color-mix(in srgb, var(--color-indigo-500) 16%, transparent);
+  --welcome-grid: rgba(255, 255, 255, 0.035);
+}
+:root[data-theme="light"] {
+  --logo-plate: linear-gradient(145deg, #ffffff, color-mix(in srgb, var(--color-indigo-500) 9%, #ffffff));
+  --logo-plate-border: color-mix(in srgb, var(--color-indigo-500) 22%, transparent);
+  --logo-shadow: 0 14px 30px -12px color-mix(in srgb, var(--color-indigo-500) 45%, transparent), 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --welcome-glow: color-mix(in srgb, var(--color-indigo-500) 10%, transparent);
+  --welcome-grid: rgba(0, 0, 0, 0.04);
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -378,6 +394,38 @@ button.status-item:hover {
   transform-origin: center;
   animation: starIn 650ms 520ms var(--ease-out-soft) both;
 }
+.logo-plate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--logo-plate);
+  border: 1px solid var(--logo-plate-border);
+  box-shadow: var(--logo-shadow);
+}
+
+/* Karşılama ekranı: üstte vurgu parıltısı + ince ızgara, kartlara kademeli giriş */
+.welcome-bg {
+  background-color: var(--color-nv-editor);
+  background-image:
+    radial-gradient(ellipse 70% 38% at 50% 0%, var(--welcome-glow), transparent 70%),
+    linear-gradient(var(--welcome-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--welcome-grid) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+  background-position: 0 0, center top, center top;
+}
+.welcome-rise { animation: panelUp 380ms var(--ease-out-soft) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
+.welcome-card {
+  background: color-mix(in srgb, var(--color-nv-side) 80%, transparent);
+  border: 1px solid var(--color-nv-border);
+  transition: border-color 160ms var(--ease-out-soft), box-shadow 160ms var(--ease-out-soft), transform 160ms var(--ease-out-soft);
+}
+.welcome-card:hover {
+  border-color: color-mix(in srgb, var(--color-indigo-400) 45%, var(--color-nv-border));
+  box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--color-indigo-500) 55%, transparent);
+  transform: translateY(-1px);
+}
+
 .load-bar::after {
   content: "";
   display: block;

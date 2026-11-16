@@ -25,7 +25,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       aria-label={t('splashLoading')}
       className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-nv-side text-white select-none ${leaving ? 'animate-splash-out' : ''}`}
     >
-      <Logo size={88} animated />
+      <Logo size={104} animated plate />
       <h1 className="mt-6 text-xl font-light tracking-[0.2em] text-zinc-200 uppercase animate-fade-in" style={{ animationDelay: '300ms' }}>
         NovaCode Studio
       </h1>

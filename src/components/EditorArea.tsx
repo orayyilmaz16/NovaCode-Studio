@@ -491,7 +491,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
           />
         ) : (
           <div className="animate-fade-in flex flex-col items-center justify-center h-full text-zinc-500 text-sm px-6 select-none">
-            <Logo size={72} animated className="mb-5 opacity-90" />
+            <Logo size={88} animated plate className="mb-5" />
             <p className="text-zinc-300 text-lg font-light tracking-wide mb-1">NovaCode Studio</p>
             <p className="text-center max-w-md mb-6">{t('emptyHint')}</p>
             <div className="flex flex-col gap-1.5 w-full max-w-xs">

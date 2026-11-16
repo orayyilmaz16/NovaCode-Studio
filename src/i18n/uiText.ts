@@ -403,6 +403,27 @@ export const UI_TEXT = {
   welShowOnStartup: {
     tr: "Açılışta karşılama sayfasını göster", en: "Show welcome page on startup", de: "Willkommensseite beim Start anzeigen", ru: "Показывать приветствие при запуске", ar: "إظهار صفحة الترحيب عند البدء", es: "Mostrar la página de bienvenida al iniciar", fr: "Afficher la page d’accueil au démarrage", az: "Açılışda xoş gəlmisiniz səhifəsini göstər",
   },
+  welTips: {
+    tr: "İpuçları", en: "Tips", de: "Tipps", ru: "Советы", ar: "نصائح", es: "Consejos", fr: "Astuces", az: "Məsləhətlər",
+  },
+  welTipQuickOpen: {
+    tr: "Dosyaya git", en: "Go to file", de: "Zu Datei gehen", ru: "Перейти к файлу", ar: "الانتقال إلى ملف", es: "Ir al archivo", fr: "Aller au fichier", az: "Fayla keç",
+  },
+  welTipPalette: {
+    tr: "Komut paleti", en: "Command palette", de: "Befehlspalette", ru: "Палитра команд", ar: "لوحة الأوامر", es: "Paleta de comandos", fr: "Palette de commandes", az: "Əmr paleti",
+  },
+  welTipSearch: {
+    tr: "Projede ara", en: "Search in project", de: "Im Projekt suchen", ru: "Поиск по проекту", ar: "البحث في المشروع", es: "Buscar en el proyecto", fr: "Rechercher dans le projet", az: "Layihədə axtar",
+  },
+  welTipAi: {
+    tr: "Yapay zekâ asistanı", en: "AI assistant", de: "KI-Assistent", ru: "ИИ-ассистент", ar: "مساعد الذكاء الاصطناعي", es: "Asistente de IA", fr: "Assistant IA", az: "Süni intellekt köməkçisi",
+  },
+  welTipTerminal: {
+    tr: "Terminali aç/kapat", en: "Toggle terminal", de: "Terminal umschalten", ru: "Показать/скрыть терминал", ar: "تبديل الطرفية", es: "Mostrar/ocultar terminal", fr: "Afficher/masquer le terminal", az: "Terminalı aç/bağla",
+  },
+  welTipSettings: {
+    tr: "Ayarlar", en: "Settings", de: "Einstellungen", ru: "Настройки", ar: "الإعدادات", es: "Ajustes", fr: "Paramètres", az: "Ayarlar",
+  },
   setCatAppearance: {
     tr: "Görünüm", en: "Appearance", de: "Darstellung", ru: "Внешний вид", ar: "المظهر", es: "Apariencia", fr: "Apparence", az: "Görünüş",
   },
