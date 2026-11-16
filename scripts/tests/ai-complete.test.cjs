@@ -143,6 +143,61 @@ const ok = (c, m) => { if (!c) { fails++; process.exitCode = 1; } console.log(c 
   srv2.closeAllConnections?.();
   srv2.close();
 
+  // --- model seçimi: yalnız Qwen2.5-Coder ailesi (FIM jetonları), boyut seçilebilir ---
+  ok(_test.pickModel('qwen2.5-coder:1.5b') === 'qwen2.5-coder:1.5b' && _test.pickModel('qwen2.5-coder') === 'qwen2.5-coder', 'qwen2.5-coder boyutları kabul edilir');
+  ok(_test.pickModel('llama3:8b') === 'qwen2.5-coder:7b' && _test.pickModel('') === 'qwen2.5-coder:7b' && _test.pickModel(undefined) === 'qwen2.5-coder:7b', 'başka aile/boş ise varsayılan 7b');
+  ok(_test.pickModel('qwen2.5-coder:7b; rm -rf /') === 'qwen2.5-coder:7b' && _test.pickModel('qwen2.5-coder:../../x') === 'qwen2.5-coder:7b', 'enjeksiyon/yol denemeleri varsayılana düşer');
+
+  // --- seçilen model istekte kullanılır; her model ayrı yüklenir ---
+  const seenM = [];
+  const srvM = http.createServer((req, res) => {
+    let b = '';
+    req.on('data', (d) => (b += d));
+    req.on('end', () => { const j = JSON.parse(b); seenM.push({ model: j.model, prompt: j.prompt, stream: j.stream }); res.setHeader('content-type', 'application/json'); res.end(JSON.stringify({ response: 'x', done: true })); });
+  }).listen(0, '127.0.0.1');
+  await new Promise((r) => srvM.on('listening', r));
+  const baseM = `http://127.0.0.1:${srvM.address().port}`;
+  await _test.completeCode({ prefix: 'a', suffix: '', fileName: 'a.js', baseUrl: baseM, model: 'qwen2.5-coder:1.5b' }, sig);
+  await _test.completeCode({ prefix: 'a', suffix: '', fileName: 'a.js', baseUrl: baseM, model: 'qwen2.5-coder:7b' }, sig);
+  await _test.completeCode({ prefix: 'a', suffix: '', fileName: 'a.js', baseUrl: baseM, model: 'qwen2.5-coder:1.5b' }, sig);
+  const loads = seenM.filter((x) => x.prompt === '').map((x) => x.model);
+  ok(loads.length === 2 && loads[0] === 'qwen2.5-coder:1.5b' && loads[1] === 'qwen2.5-coder:7b', 'her model bir kez yüklenir, model değişince yenisi yüklenir (' + loads.join(', ') + ')');
+  ok(seenM.filter((x) => x.prompt).map((x) => x.model).join() === 'qwen2.5-coder:1.5b,qwen2.5-coder:7b,qwen2.5-coder:1.5b', 'öneri isteği seçilen modelle gider');
+  ok(seenM.filter((x) => x.prompt).every((x) => x.stream === false), 'tek satır modu kapalıyken akış yok');
+  srvM.closeAllConnections?.();
+  srvM.close();
+
+  // --- tek satır modu: akışla ilk satır gelir gelmez biter, kalan üretim iptal edilir ---
+  let lateSent = false; let closedEarly = false; let streamFlag = null;
+  const srvS = http.createServer((req, res) => {
+    let b = '';
+    req.on('data', (d) => (b += d));
+    req.on('end', () => {
+      const j = JSON.parse(b);
+      if (j.prompt === '') { res.setHeader('content-type', 'application/json'); return res.end('{"done":true}'); }
+      streamFlag = j.stream;
+      res.setHeader('content-type', 'application/x-ndjson');
+      res.on('close', () => { if (!res.writableEnded) closedEarly = true; });
+      const w = (o) => res.write(JSON.stringify(o) + '\n');
+      w({ response: '\n' });
+      setTimeout(() => w({ response: '  return a + b;' }), 40);
+      setTimeout(() => w({ response: '\n' }), 80); // ilk satır tamam
+      setTimeout(() => { lateSent = true; w({ response: 'function next() {}' }); w({ response: '', done: true }); res.end(); }, 600);
+    });
+  }).listen(0, '127.0.0.1');
+  await new Promise((r) => srvS.on('listening', r));
+  const baseS = `http://127.0.0.1:${srvS.address().port}`;
+  const t0 = Date.now();
+  const rl = await _test.completeCode({ prefix: 'function add(a, b) {', suffix: '}', fileName: 'a.js', baseUrl: baseS, lineMode: true }, sig);
+  const took = Date.now() - t0;
+  ok(streamFlag === true, 'tek satır modunda akış (stream:true) istenir');
+  ok(rl.success && rl.text === '\n  return a + b;\n', 'ilk boş olmayan satır tamamlanınca öneri döner: ' + JSON.stringify(rl.text));
+  ok(took < 450, 'tam yanıtı beklemez (' + took + ' ms, sunucu 600 ms sonra bitiriyordu)');
+  await new Promise((r) => setTimeout(r, 700));
+  ok(closedEarly, 'kalan üretim iptal edilir (bağlantı erken kapandı)');
+  srvS.closeAllConnections?.();
+  srvS.close();
+
   srv.closeAllConnections?.();
   srv.close();
   console.log(fails ? `\n${fails} test başarısız` : '\ntüm AI tamamlama testleri geçti');

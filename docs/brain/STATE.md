@@ -28,7 +28,7 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 842 |
+| `electron-ai.cjs` | 889 |
 | `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 406 |
@@ -59,9 +59,9 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
-| `src/components/CompletionMenu.tsx` | 210 |
+| `src/components/CompletionMenu.tsx` | 233 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 526 |
+| `src/components/EditorArea.tsx` | 527 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -89,9 +89,9 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
-| `src/services/aiCompletion.ts` | 174 |
+| `src/services/aiCompletion.ts` | 187 |
 | `src/services/completionSchedule.ts` | 69 |
-| `src/services/completionShape.ts` | 177 |
+| `src/services/completionShape.ts` | 180 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
@@ -106,7 +106,7 @@
 | `src/services/previewKind.ts` | 11 |
 | `src/services/problems.ts` | 141 |
 | `src/services/ptyBus.ts` | 24 |
-| `src/services/settings.ts` | 259 |
+| `src/services/settings.ts` | 263 |
 | `src/services/terminalBridge.ts` | 32 |
 | `src/services/terminalText.ts` | 148 |
 | `src/services/updateService.ts` | 28 |
@@ -119,7 +119,7 @@
 |---|---|
 | `src/i18n/uiText.ts` | 1628 |
 | `src/i18n/uiTextAi.ts` | 525 |
-| `src/i18n/uiTextComp.ts` | 110 |
+| `src/i18n/uiTextComp.ts` | 122 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
 
@@ -138,15 +138,15 @@
 ### Testler
 | Dosya | Satır |
 |---|---|
-| `scripts/tests/ai-complete.test.cjs` | 150 |
+| `scripts/tests/ai-complete.test.cjs` | 205 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
-| `scripts/tests/completion-shape.test.cjs` | 65 |
+| `scripts/tests/completion-shape.test.cjs` | 70 |
 | `scripts/tests/debug.test.cjs` | 112 |
 | `scripts/tests/git.test.cjs` | 163 |
 | `scripts/tests/lsp.test.cjs` | 97 |
 | `scripts/tests/pty.test.cjs` | 84 |
-| `scripts/tests/settings-migrate.test.cjs` | 48 |
+| `scripts/tests/settings-migrate.test.cjs` | 62 |
 | `scripts/tests/sync.test.cjs` | 58 |
 | `scripts/tests/term.test.cjs` | 74 |
 | `scripts/tests/textbuffer.test.cjs` | 135 |
@@ -181,10 +181,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 834 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 838 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-108 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+109 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -272,14 +272,15 @@
 | Hakkında ve yedek | `updateAutoDownload` | Güncellemeyi otomatik indir | toggle | `true` |  |
 | Yapay Zekâ | `aiCompletion` | AI kod tamamlama (hayalet metin) | toggle | `true` |  |
 | Yapay Zekâ | `aiCompletionTrigger` | Öneri tetikleme | select | `"auto"` | auto, manual |
-| Yapay Zekâ | `aiCompletionEffort` | Düşünme seviyesi / çaba | select | `"balanced"` | fast, balanced, deep |
+| Yapay Zekâ | `aiCompletionEffort` | Düşünme seviyesi / çaba | select | `"fast"` | instant, fast, balanced, deep |
+| Yapay Zekâ | `aiCompletionModel` | Tamamlama modeli | text | `"qwen2.5-coder:7b"` | ≤60 karakter |
 | Yapay Zekâ | `aiCompletionLength` | Öneri biçimi | select | `"block"` | line, block, long |
-| Yapay Zekâ | `aiCompletionDelay` | Tamamlama gecikmesi (ms) | slider | `250` | 100–1500 |
-| Yapay Zekâ | `aiCompletionCooldown` | Tamamlama soğuma süresi (ms) | slider | `300` | 0–5000 |
-| Yapay Zekâ | `aiCompletionMaxTokens` | Öneri uzunluğu üst sınırı (token) | slider | `64` | 16–256 |
-| Yapay Zekâ | `aiCompletionPrefix` | İmleçten önceki bağlam (karakter) | slider | `4000` | 500–12000 |
-| Yapay Zekâ | `aiCompletionSuffix` | İmleçten sonraki bağlam (karakter) | slider | `1500` | 0–4000 |
-| Yapay Zekâ | `aiCompletionTemperature` | Yaratıcılık (sıcaklık) | slider | `0.1` | 0–1 |
+| Yapay Zekâ | `aiCompletionDelay` | Tamamlama gecikmesi (ms) | slider | `100` | 0–1500 |
+| Yapay Zekâ | `aiCompletionCooldown` | Tamamlama soğuma süresi (ms) | slider | `100` | 0–5000 |
+| Yapay Zekâ | `aiCompletionMaxTokens` | Öneri uzunluğu üst sınırı (token) | slider | `32` | 16–256 |
+| Yapay Zekâ | `aiCompletionPrefix` | İmleçten önceki bağlam (karakter) | slider | `2000` | 500–12000 |
+| Yapay Zekâ | `aiCompletionSuffix` | İmleçten sonraki bağlam (karakter) | slider | `600` | 0–4000 |
+| Yapay Zekâ | `aiCompletionTemperature` | Yaratıcılık (sıcaklık) | slider | `0.05` | 0–1 |
 | Yapay Zekâ | `aiCompletionCount` | Alternatif öneri sayısı | slider | `1` | 1–3 |
 | Yapay Zekâ | `aiCompletionToolbar` | Öneri araç çubuğunu göster | toggle | `true` |  |
 | Yapay Zekâ | `aiCompletionOffLangs` | Kapalı diller | text | `""` | ≤200 karakter |

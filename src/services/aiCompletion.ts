@@ -12,6 +12,8 @@ export type { SuggestLength };
 type Monaco = typeof MonacoNS;
 export type CompletionState = 'idle' | 'busy' | 'unavailable' | 'off';
 export type CompletionReason = 'no-api' | 'no-model' | 'no-ollama' | null;
+export type CompletionEffort = 'instant' | 'fast' | 'balanced' | 'deep';
+export const DEFAULT_MODEL = 'qwen2.5-coder:7b';
 
 export interface CompletionConfig {
   enabled: boolean;
@@ -29,15 +31,19 @@ export interface CompletionConfig {
   length: SuggestLength;
   /** Kapalı dil kimlikleri (küçük harf) */
   offLangs: string[];
+  /** Ollama modeli (yalnız qwen2.5-coder ailesi; küçük = hızlı) */
+  model: string;
 }
 
 export const DEFAULT_COMPLETION: CompletionConfig = {
-  enabled: true, trigger: 'auto', delay: 250, cooldown: 300, maxTokens: 64, prefixChars: 4000, suffixChars: 1500, temperature: 0.1, count: 1, length: 'block', offLangs: []
+  enabled: true, trigger: 'auto', delay: 100, cooldown: 100, maxTokens: 32, prefixChars: 2000, suffixChars: 600, temperature: 0.05, count: 1, length: 'block', offLangs: [], model: DEFAULT_MODEL
 };
 
 /** "Çaba" ön ayarları: seçilince gecikme, uzunluk ve bağlam birlikte güncellenir. */
-export const EFFORT_PRESETS: Record<'fast' | 'balanced' | 'deep', Pick<CompletionConfig, 'delay' | 'cooldown' | 'maxTokens' | 'prefixChars' | 'suffixChars' | 'temperature' | 'length'>> = {
-  fast: { delay: 150, cooldown: 150, maxTokens: 32, prefixChars: 2000, suffixChars: 600, temperature: 0.05, length: 'block' },
+export const EFFORT_PRESETS: Record<CompletionEffort, Pick<CompletionConfig, 'delay' | 'cooldown' | 'maxTokens' | 'prefixChars' | 'suffixChars' | 'temperature' | 'length'>> = {
+  // Anında: tek satır, akışla ilk satır gelir gelmez gösterilir, bekleme yok
+  instant: { delay: 50, cooldown: 0, maxTokens: 24, prefixChars: 1500, suffixChars: 300, temperature: 0, length: 'line' },
+  fast: { delay: 100, cooldown: 100, maxTokens: 32, prefixChars: 2000, suffixChars: 600, temperature: 0.05, length: 'block' },
   balanced: { delay: 250, cooldown: 300, maxTokens: 64, prefixChars: 4000, suffixChars: 1500, temperature: 0.1, length: 'block' },
   deep: { delay: 400, cooldown: 500, maxTokens: 128, prefixChars: 8000, suffixChars: 2500, temperature: 0.2, length: 'long' }
 };
@@ -47,6 +53,7 @@ let registered = false;
 let cfg: CompletionConfig = { ...DEFAULT_COMPLETION };
 let state: CompletionState = 'idle';
 let reason: CompletionReason = null;
+let latency: number | null = null;
 let sched: ScheduleState = newScheduleState();
 let seq = 0;
 const listeners = new Set<() => void>();
@@ -57,10 +64,12 @@ const setState = (s: CompletionState, r: CompletionReason = null) => {
   if (state === s && reason === r) return;
   state = s;
   reason = r;
-  snapshot = { state, reason };
+  snapshot = { state, reason, latency };
   emit();
 };
-let snapshot: { state: CompletionState; reason: CompletionReason } = { state, reason };
+/** Son önerinin istek→yanıt süresi (ms): menüde gösterilir, ayar yaparken ölçü olur. */
+const recordLatency = (ms: number) => { latency = ms; snapshot = { state, reason, latency }; emit(); };
+let snapshot: { state: CompletionState; reason: CompletionReason; latency: number | null } = { state, reason, latency };
 export const useCompletionState = () => useSyncExternalStore(subscribe, () => snapshot, () => snapshot).state;
 export const useCompletionStatus = () => useSyncExternalStore(subscribe, () => snapshot, () => snapshot);
 
@@ -70,18 +79,20 @@ export function warmCompletion() {
   const warm = window.electronAPI?.ai?.completeWarm;
   if (!cfg.enabled || warming || !warm) return;
   warming = true;
-  warm().then((r) => { if (r?.success) sched = clearBackoff(sched); if (r?.success && state === 'unavailable') setState('idle'); }).catch(() => {}).finally(() => { warming = false; });
+  warm(cfg.model).then((r) => { if (r?.success) sched = clearBackoff(sched); if (r?.success && state === 'unavailable') setState('idle'); }).catch(() => {}).finally(() => { warming = false; });
 }
 
 export function setCompletionConfig(c: Partial<CompletionConfig>) {
   const wasEnabled = cfg.enabled;
   const next = { ...cfg, ...c };
-  next.delay = Math.min(1500, Math.max(100, next.delay || 250));
-  next.cooldown = Math.min(5000, Math.max(0, Number.isFinite(next.cooldown) ? next.cooldown : 300));
+  next.delay = Math.min(1500, Math.max(0, Number.isFinite(next.delay) ? next.delay : 100));
+  next.model = typeof next.model === 'string' && next.model.trim() ? next.model.trim() : DEFAULT_MODEL;
+  const modelChanged = next.model !== cfg.model;
+  next.cooldown = Math.min(5000, Math.max(0, Number.isFinite(next.cooldown) ? next.cooldown : 100));
   cfg = next;
   if (!cfg.enabled) setState('off');
   else if (state === 'off') setState('idle');
-  if (cfg.enabled && !wasEnabled) warmCompletion();
+  if (cfg.enabled && (!wasEnabled || modelChanged)) { if (modelChanged && state === 'unavailable') setState('idle'); warmCompletion(); }
 }
 
 /** İptal edilebilir bekleme: true = süre doldu, false = iptal edildi (yeni tuş vuruşu). */
@@ -138,11 +149,12 @@ export function setCompletionMonaco(m: unknown) {
       const maxTokens = midLine || cfg.length === 'line' ? Math.min(cfg.maxTokens, 48) : cfg.maxTokens;
       token.onCancellationRequested(() => { void api.completeCancel(id); });
       setState('busy');
+      const sentAt = Date.now();
       let res: Awaited<ReturnType<typeof api.complete>>;
       try {
         res = await api.complete({
           id, prefix, suffix, fileName: u.scheme === 'file' ? u.fsPath : undefined, languageId: lang,
-          singleLine: midLine, stopAtBlank: !midLine && cfg.length === 'block',
+          singleLine: midLine, stopAtBlank: !midLine && cfg.length === 'block', lineMode: !midLine && cfg.length === 'line', model: cfg.model,
           maxTokens, temperature: cfg.temperature, prefixChars: cfg.prefixChars, suffixChars: cfg.suffixChars, count: cfg.count
         });
       } catch {
@@ -159,9 +171,10 @@ export function setCompletionMonaco(m: unknown) {
         return empty;
       }
       sched = onOutcome(sched, 'ok', Date.now());
+      recordLatency(Date.now() - sentAt);
       setState('idle');
 
-      const shape = { languageId: lang, tabSize: mo.tabSize, insertSpaces: mo.insertSpaces, baseIndent: indentWidth(lineText, mo.tabSize), nextLine };
+      const shape = { languageId: lang, tabSize: mo.tabSize, insertSpaces: mo.insertSpaces, baseIndent: indentWidth(lineText, mo.tabSize), nextLine, truncated: res.truncated === true };
       const range = new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column);
       const texts = (res.alternatives?.length ? res.alternatives : res.text ? [res.text] : [])
         .map((t) => shapeSuggestion(t, cfg.length, lineRest, shape))

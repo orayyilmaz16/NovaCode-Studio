@@ -1,4 +1,4 @@
-// Ayar geçişi (v1 → v2) testi: eski AI tamamlama varsayılanları yeni hızlı varsayılanlara taşınır, kullanıcının özel değerleri korunur.
+// Ayar geçişi (v1 → v2 → v3) testi: eski AI tamamlama varsayılanları Hızlı profile taşınır, kullanıcının özel değerleri korunur.
 // Gerçek src/services/settings.ts, Vite SSR yükleyicisiyle çalıştırılır. Çalıştırma: node scripts/tests/settings-migrate.test.cjs
 const path = require('path');
 
@@ -19,27 +19,41 @@ const ok = (c, m, extra) => { if (!c) { fails++; process.exitCode = 1; } console
     // 1) v1 kayıt, eski varsayılanlar: yeni varsayılana taşınır
     store.set(KEY, JSON.stringify({ v: 1, values: { ...OLD, fontSize: 18 } }));
     let s = m.loadSettings().values;
-    ok(s.aiCompletionDelay === 250 && s.aiCompletionCooldown === 300 && s.aiCompletionMaxTokens === 64 && s.aiCompletionPrefix === 4000 && s.aiCompletionSuffix === 1500, 'eski varsayılanlar yeni hızlı varsayılanlara taşınır', JSON.stringify(s));
+    ok(s.aiCompletionDelay === 100 && s.aiCompletionCooldown === 100 && s.aiCompletionMaxTokens === 32 && s.aiCompletionPrefix === 2000 && s.aiCompletionSuffix === 600 && s.aiCompletionEffort === 'fast' && s.aiCompletionTemperature === 0.05, 'v1 eski varsayılanlar zincirle (v2 → v3) Hızlı profile taşınır', JSON.stringify({ d: s.aiCompletionDelay, c: s.aiCompletionCooldown, t: s.aiCompletionMaxTokens, e: s.aiCompletionEffort }));
     ok(s.fontSize === 18, 'ilgisiz ayar korunur');
 
     // 2) v1 kayıt, kullanıcı kendi değerini seçmiş: dokunulmaz
     store.set(KEY, JSON.stringify({ v: 1, values: { ...OLD, aiCompletionDelay: 700, aiCompletionPrefix: 9000 } }));
     s = m.loadSettings().values;
     ok(s.aiCompletionDelay === 700 && s.aiCompletionPrefix === 9000, 'kullanıcının özel değerleri korunur');
-    ok(s.aiCompletionMaxTokens === 64, 'özel olmayanlar yine yeni varsayılana geçer');
+    ok(s.aiCompletionMaxTokens === 64 && s.aiCompletionCooldown === 300 && s.aiCompletionDelay === 700, 'özel olmayanlar v2 değerine geçer; biri bile özelse (gecikme 700) v3 Hızlı profile ZORLANMAZ');
 
     // 3) v2 kayıt: kullanıcı bilerek eski değeri seçtiyse geçiş uygulanmaz
     store.set(KEY, JSON.stringify({ v: 2, values: { ...OLD } }));
     s = m.loadSettings().values;
     ok(s.aiCompletionDelay === 450 && s.aiCompletionMaxTokens === 80, 'v2 kayıtta geçiş yok (bilinçli seçim korunur)');
 
-    // 4) Kayıt sürümü v2 yazılır; kayıt yoksa yeni varsayılanlar
+    // 4) v2 kayıt, tüm değerler v2 Dengeli varsayılanı: v3'te yeni varsayılan Hızlı profile geçer
+    store.set(KEY, JSON.stringify({ v: 2, values: { aiCompletionEffort: 'balanced', aiCompletionDelay: 250, aiCompletionCooldown: 300, aiCompletionMaxTokens: 64, aiCompletionPrefix: 4000, aiCompletionSuffix: 1500, aiCompletionTemperature: 0.1 } }));
+    s = m.loadSettings().values;
+    ok(s.aiCompletionDelay === 100 && s.aiCompletionMaxTokens === 32 && s.aiCompletionEffort === 'fast', 'v2 Dengeli varsayılanında kalan kullanıcı Hızlı profile geçer');
+    // 4b) v2 kayıt, bir değer bilerek değiştirilmiş: dokunulmaz
+    store.set(KEY, JSON.stringify({ v: 2, values: { aiCompletionEffort: 'balanced', aiCompletionDelay: 250, aiCompletionCooldown: 300, aiCompletionMaxTokens: 64, aiCompletionPrefix: 5000, aiCompletionSuffix: 1500 } }));
+    s = m.loadSettings().values;
+    ok(s.aiCompletionDelay === 250 && s.aiCompletionPrefix === 5000 && s.aiCompletionEffort === 'balanced', 'v2 kayıtta bir ayar bile özelse (önceki bağlam 5000) v3 geçişi uygulanmaz');
+    // 5) v3 kayıt: dokunulmaz
+    store.set(KEY, JSON.stringify({ v: 3, values: { aiCompletionEffort: 'balanced', aiCompletionDelay: 250, aiCompletionCooldown: 300, aiCompletionMaxTokens: 64, aiCompletionPrefix: 4000, aiCompletionSuffix: 1500 } }));
+    s = m.loadSettings().values;
+    ok(s.aiCompletionDelay === 250 && s.aiCompletionEffort === 'balanced', 'v3 kayıtta geçiş yok (bilinçli seçim korunur)');
+
+    // 6) Kayıt sürümü v3 yazılır; kayıt yoksa yeni varsayılanlar (Hızlı)
     m.saveSettings({ values: s });
-    ok(JSON.parse(store.get(KEY)).v === 2, 'kayıt v2 olarak yazılır');
+    ok(JSON.parse(store.get(KEY)).v === 3, 'kayıt v3 olarak yazılır');
     store.clear();
     s = m.loadSettings().values;
-    ok(s.aiCompletionDelay === 250 && s.aiCompletionCooldown === 300, 'kayıt yokken varsayılanlar hızlı değerler');
-    ok(m.sanitizeAll({ aiCompletionDelay: 50 }).aiCompletionDelay === 100, 'gecikme alt sınırı 100 ms');
+    ok(s.aiCompletionDelay === 100 && s.aiCompletionCooldown === 100 && s.aiCompletionEffort === 'fast' && s.aiCompletionModel === 'qwen2.5-coder:7b', 'kayıt yokken varsayılanlar: Hızlı profil, 7b model');
+    ok(m.sanitizeAll({ aiCompletionDelay: -5 }).aiCompletionDelay === 0 && m.sanitizeAll({ aiCompletionDelay: 99999 }).aiCompletionDelay === 1500, 'gecikme sınırı 0–1500 ms');
+    ok(m.sanitizeAll({ aiCompletionEffort: 'instant' }).aiCompletionEffort === 'instant' && m.sanitizeAll({ aiCompletionEffort: 'bogus' }).aiCompletionEffort === 'fast', 'Anında profili geçerli, bilinmeyen değer varsayılana döner');
   } finally {
     await vite.close();
   }

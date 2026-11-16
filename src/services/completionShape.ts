@@ -12,6 +12,8 @@ export interface ShapeOpts {
   baseIndent?: number;
   /** İmleçten sonraki ilk boş olmayan satır (aynı satırdaki kalan kısım hariç) */
   nextLine?: string;
+  /** Model token sınırında kesildi: çok satırlı önerinin yarım kalmış son satırı atılır */
+  truncated?: boolean;
 }
 
 /** Süslü parantezle kapsam belirleyen diller: öneri, açık kapsam kapanınca biter. */
@@ -144,6 +146,7 @@ export function shapeSuggestion(raw: string, length: SuggestLength, lineRest: st
   let text = raw.replace(/\r/g, '').replace(/^```[a-z]*\n?|\n?```$/g, '');
   const lang = (opts.languageId || '').toLowerCase();
   const tabSize = opts.tabSize || 4;
+  if (opts.truncated && text.includes('\n')) text = text.slice(0, text.lastIndexOf('\n'));
   if (opts.insertSpaces !== undefined) text = normalizeIndent(text, tabSize, opts.insertSpaces);
 
   // Dile göre kapsam sonu: model bir sonraki fonksiyona/bloğa taşmasın

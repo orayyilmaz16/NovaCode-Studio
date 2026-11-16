@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, Settings2, Wand2, ChevronRight } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
-import { EFFORT_PRESETS, useCompletionStatus } from '../services/aiCompletion';
+import { DEFAULT_MODEL, EFFORT_PRESETS, useCompletionStatus, type CompletionEffort } from '../services/aiCompletion';
 import { runEditorAction } from '../services/editorBridge';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextAi';
@@ -27,8 +27,8 @@ const Switch: React.FC<{ on: boolean; onChange: (v: boolean) => void; label: str
   <button role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} className={`cm-switch ${FOCUS}`} />
 );
 
-const Segmented: React.FC<{ value: string; options: { value: string; label: string }[]; onChange: (v: string) => void; label: string }> = ({ value, options, onChange, label }) => (
-  <div role="radiogroup" aria-label={label} className={`cm-seg grid grid-flow-col auto-cols-fr ${CTRL_W} rounded-md bg-nv-input border border-nv-border p-0.5 gap-0.5`} style={{ '--n': options.length, '--i': Math.max(0, options.findIndex((o) => o.value === value)) } as React.CSSProperties}>
+const Segmented: React.FC<{ value: string; options: { value: string; label: string }[]; onChange: (v: string) => void; label: string; wide?: boolean }> = ({ value, options, onChange, label, wide }) => (
+  <div role="radiogroup" aria-label={label} className={`cm-seg grid grid-flow-col auto-cols-fr ${wide ? 'w-full' : CTRL_W} rounded-md bg-nv-input border border-nv-border p-0.5 gap-0.5`} style={{ '--n': options.length, '--i': Math.max(0, options.findIndex((o) => o.value === value)) } as React.CSSProperties}>
     <span aria-hidden className="cm-seg-pill" />
     {options.map((o) => (
       <button
@@ -70,7 +70,15 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
   const ref = useRef<HTMLDivElement>(null);
   const num = (k: string, d: number) => (Number.isFinite(Number(values[k])) && values[k] !== '' && values[k] !== undefined ? Number(values[k]) : d);
   const enabled = values.aiCompletion !== false;
-  const effort = (['fast', 'balanced', 'deep'] as const).find((x) => x === values.aiCompletionEffort) ?? 'balanced';
+  const effort = (['instant', 'fast', 'balanced', 'deep'] as const).find((x) => x === values.aiCompletionEffort) ?? 'fast';
+  const model = String(values.aiCompletionModel || DEFAULT_MODEL);
+  const [installed, setInstalled] = useState<string[]>([]);
+  useEffect(() => {
+    let alive = true;
+    window.electronAPI?.ai?.ollamaModels?.().then((r) => { if (alive) setInstalled((r?.models ?? []).filter((m) => /^qwen2\.5-coder/i.test(m))); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  const modelOptions = Array.from(new Set([...installed, model]));
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); onClose(); } };
@@ -79,7 +87,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const applyEffort = (k: 'fast' | 'balanced' | 'deep') => {
+  const applyEffort = (k: CompletionEffort) => {
     const p = EFFORT_PRESETS[k];
     set('aiCompletionEffort', k);
     set('aiCompletionDelay', p.delay);
@@ -101,8 +109,8 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
 
   const statusText = !enabled || status.state === 'off' ? t('cmStatusOff')
     : status.state === 'busy' ? t('aiCompBusy')
-      : status.state === 'unavailable' ? (status.reason === 'no-api' ? t('cmNoApi') : status.reason === 'no-model' ? t('cmNoModel') : t('cmNoOllama'))
-        : t('cmStatusOn');
+      : status.state === 'unavailable' ? (status.reason === 'no-api' ? t('cmNoApi') : status.reason === 'no-model' ? t('cmNoModel').replace('{m}', model) : t('cmNoOllama'))
+        : t('cmStatusOn') + (status.latency != null ? ` · ${status.latency} ms` : '');
   const statusColor = !enabled || status.state === 'off' ? 'bg-zinc-500' : status.state === 'busy' ? 'bg-amber-400 animate-pulse' : status.state === 'unavailable' ? 'bg-rose-400' : 'bg-emerald-400';
 
   const left = Math.max(8, Math.min(anchor.x - 200, window.innerWidth - 408));
@@ -128,7 +136,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
           </span>
           <div className="flex-1 min-w-0 leading-tight">
             <div className="text-[13px] font-semibold text-zinc-100 truncate">{t('grpAiCompletion')}</div>
-            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-zinc-400" title={t('cmModel').replace('{m}', 'qwen2.5-coder:7b')}>
+            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-zinc-400" title={t('cmModel').replace('{m}', model)}>
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusColor}`} />
               <span className="truncate">{statusText}</span>
             </div>
@@ -151,14 +159,29 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
             />
           </Row>
           <Divider />
-          <Row label={t('set_aiCompletionEffort')}>
+          <div className="px-3.5 pt-1 pb-1.5">
+            <div className="text-xs text-zinc-300 mb-1">{t('set_aiCompletionEffort')}</div>
             <Segmented
+              wide
               label={t('set_aiCompletionEffort')}
               value={effort}
-              options={[{ value: 'fast', label: t('optThinkFast') }, { value: 'balanced', label: t('optThinkBalanced') }, { value: 'deep', label: t('optThinkDeep') }]}
-              onChange={(v) => applyEffort(v as 'fast' | 'balanced' | 'deep')}
+              options={[{ value: 'instant', label: t('optCompInstant') }, { value: 'fast', label: t('optThinkFast') }, { value: 'balanced', label: t('optThinkBalanced') }, { value: 'deep', label: t('optThinkDeep') }]}
+              onChange={(v) => applyEffort(v as CompletionEffort)}
             />
+          </div>
+          <Row label={t('set_aiCompletionModel')}>
+            <select
+              aria-label={t('set_aiCompletionModel')}
+              value={model}
+              onChange={(e) => set('aiCompletionModel', e.target.value)}
+              className={`h-6 w-full min-w-0 rounded-md bg-nv-input border border-nv-border px-1.5 text-[11px] text-zinc-200 cursor-pointer ${FOCUS}`}
+            >
+              {modelOptions.map((m) => <option key={m} value={m}>{m}</option>)}
+            </select>
           </Row>
+          {status.latency != null && status.latency > 800 && /:(7|8|14|32)b/i.test(model) && (
+            <div className="px-3.5 pb-1 text-[11px] leading-snug text-zinc-500">{t('cmFasterHint')}</div>
+          )}
           <Row label={t('set_aiCompletionLength')}>
             <Segmented
               label={t('set_aiCompletionLength')}
@@ -167,8 +190,8 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
               onChange={(v) => set('aiCompletionLength', v)}
             />
           </Row>
-          <Range id="aiCompletionDelay" min={100} max={1500} step={50} value={num('aiCompletionDelay', 250)} set={set} label={t('set_aiCompletionDelay')} fmt={(n) => `${n} ms`} />
-          <Range id="aiCompletionCooldown" min={0} max={5000} step={100} value={num('aiCompletionCooldown', 300)} set={set} label={t('set_aiCompletionCooldown')} fmt={(n) => `${n} ms`} />
+          <Range id="aiCompletionDelay" min={0} max={1500} step={25} value={num('aiCompletionDelay', 100)} set={set} label={t('set_aiCompletionDelay')} fmt={(n) => `${n} ms`} />
+          <Range id="aiCompletionCooldown" min={0} max={5000} step={100} value={num('aiCompletionCooldown', 100)} set={set} label={t('set_aiCompletionCooldown')} fmt={(n) => `${n} ms`} />
 
           <Divider />
           <button onClick={() => setAdv((v) => !v)} aria-expanded={adv} className={`cm-adv w-full flex items-center gap-1.5 px-3.5 h-8 text-xs ${adv ? 'text-zinc-100' : 'text-zinc-400'} hover:text-zinc-100 hover:bg-nv-hover cursor-pointer ${FOCUS}`}>
@@ -177,10 +200,10 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
           </button>
           <div className="cm-collapse" data-open={adv} aria-hidden={!adv}>
             <div className="pb-1">
-              <Range id="aiCompletionMaxTokens" min={16} max={256} step={8} value={num('aiCompletionMaxTokens', 64)} set={set} d={0} label={t('set_aiCompletionMaxTokens')} />
-              <Range id="aiCompletionPrefix" min={500} max={12000} step={500} value={num('aiCompletionPrefix', 4000)} set={set} d={1} label={t('set_aiCompletionPrefix')} />
-              <Range id="aiCompletionSuffix" min={0} max={4000} step={250} value={num('aiCompletionSuffix', 1500)} set={set} d={2} label={t('set_aiCompletionSuffix')} />
-              <Range id="aiCompletionTemperature" min={0} max={1} step={0.05} value={num('aiCompletionTemperature', 0.1)} set={set} d={3} label={t('set_aiCompletionTemperature')} fmt={(n) => n.toFixed(2)} />
+              <Range id="aiCompletionMaxTokens" min={16} max={256} step={8} value={num('aiCompletionMaxTokens', 32)} set={set} d={0} label={t('set_aiCompletionMaxTokens')} />
+              <Range id="aiCompletionPrefix" min={500} max={12000} step={500} value={num('aiCompletionPrefix', 2000)} set={set} d={1} label={t('set_aiCompletionPrefix')} />
+              <Range id="aiCompletionSuffix" min={0} max={4000} step={250} value={num('aiCompletionSuffix', 600)} set={set} d={2} label={t('set_aiCompletionSuffix')} />
+              <Range id="aiCompletionTemperature" min={0} max={1} step={0.05} value={num('aiCompletionTemperature', 0.05)} set={set} d={3} label={t('set_aiCompletionTemperature')} fmt={(n) => n.toFixed(2)} />
               <Range id="aiCompletionCount" min={1} max={3} step={1} value={num('aiCompletionCount', 1)} set={set} d={4} label={t('set_aiCompletionCount')} />
               <Row d={5} label={t('set_aiCompletionToolbar')}>
                 <Switch on={values.aiCompletionToolbar !== false} onChange={(v) => set('aiCompletionToolbar', v)} label={t('set_aiCompletionToolbar')} />

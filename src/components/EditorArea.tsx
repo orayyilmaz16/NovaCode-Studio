@@ -155,17 +155,18 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     setCompletionConfig({
       enabled: values.aiCompletion !== false,
       trigger: values.aiCompletionTrigger === 'manual' ? 'manual' : 'auto',
-      delay: num(values.aiCompletionDelay, 250),
-      cooldown: num(values.aiCompletionCooldown, 300),
-      maxTokens: num(values.aiCompletionMaxTokens, 64),
-      prefixChars: num(values.aiCompletionPrefix, 4000),
-      suffixChars: num(values.aiCompletionSuffix, 1500),
-      temperature: num(values.aiCompletionTemperature, 0.1),
+      delay: num(values.aiCompletionDelay, 100),
+      cooldown: num(values.aiCompletionCooldown, 100),
+      model: String(values.aiCompletionModel || 'qwen2.5-coder:7b'),
+      maxTokens: num(values.aiCompletionMaxTokens, 32),
+      prefixChars: num(values.aiCompletionPrefix, 2000),
+      suffixChars: num(values.aiCompletionSuffix, 600),
+      temperature: num(values.aiCompletionTemperature, 0.05),
       count: num(values.aiCompletionCount, 1),
       length: len === 'line' || len === 'long' ? len : 'block',
       offLangs: String(values.aiCompletionOffLangs ?? '').split(/[,\s]+/).map((x) => x.trim().toLowerCase()).filter(Boolean)
     });
-  }, [values.aiCompletion, values.aiCompletionTrigger, values.aiCompletionDelay, values.aiCompletionCooldown, values.aiCompletionMaxTokens, values.aiCompletionPrefix, values.aiCompletionSuffix, values.aiCompletionTemperature, values.aiCompletionCount, values.aiCompletionLength, values.aiCompletionOffLangs]);
+  }, [values.aiCompletion, values.aiCompletionTrigger, values.aiCompletionDelay, values.aiCompletionCooldown, values.aiCompletionModel, values.aiCompletionMaxTokens, values.aiCompletionPrefix, values.aiCompletionSuffix, values.aiCompletionTemperature, values.aiCompletionCount, values.aiCompletionLength, values.aiCompletionOffLangs]);
 
   // Hatalı satırlar kırmızı, uyarılı satırlar sarı çizgiyle işaretlenir
   useEffect(() => {
