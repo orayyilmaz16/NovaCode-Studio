@@ -509,14 +509,19 @@ const COMPLETION_LOAD_TIMEOUT_MS = 180000; // modeli belleğe yükleme (6 GB GPU
 const COMPLETION_NUM_CTX = 4096;
 const ABORTED = Symbol('aborted');
 
-// Modeli belleğe yükleme: iptalden BAĞIMSIZ, taban adres başına tek ortak işlem. Neden: yazarken her tuş vuruşu isteği iptal ediyordu;
-// model yüklenirken istemci bağlantısı kapanınca Ollama yüklemeyi yarıda bırakıp baştan başlatıyor ve model hiç yüklenemiyordu.
-const pendingLoads = new Map(); // base -> Promise<{success, error?}>
-const readyUntil = new Map(); // base -> ms (bu ana kadar yüklü sayılır)
+// Yalnız Qwen2.5-Coder ailesi (FIM jetonları buna göre): boyut seçilebilir (0.5b/1.5b/3b/7b/14b/32b). Küçük model = kat kat hızlı.
+const MODEL_RE = /^qwen2\.5-coder(?::[a-z0-9._-]{1,30})?$/i;
+const pickModel = (m) => { const v = String(m || '').trim(); return MODEL_RE.test(v) ? v : COMPLETION_MODEL; };
 
-function ensureCompletionModel(base) {
-  if ((readyUntil.get(base) || 0) > Date.now()) return Promise.resolve({ success: true });
-  const running = pendingLoads.get(base);
+// Modeli belleğe yükleme: iptalden BAĞIMSIZ, (taban adres + model) başına tek ortak işlem. Neden: yazarken her tuş vuruşu isteği iptal ediyordu;
+// model yüklenirken istemci bağlantısı kapanınca Ollama yüklemeyi yarıda bırakıp baştan başlatıyor ve model hiç yüklenemiyordu.
+const pendingLoads = new Map(); // anahtar -> Promise<{success, error?}>
+const readyUntil = new Map(); // anahtar -> ms (bu ana kadar yüklü sayılır)
+
+function ensureCompletionModel(base, model = COMPLETION_MODEL) {
+  const key = base + '|' + model;
+  if ((readyUntil.get(key) || 0) > Date.now()) return Promise.resolve({ success: true });
+  const running = pendingLoads.get(key);
   if (running) return running;
   const p = (async () => {
     try {
@@ -524,18 +529,18 @@ function ensureCompletionModel(base) {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         signal: AbortSignal.timeout(COMPLETION_LOAD_TIMEOUT_MS),
-        body: JSON.stringify({ model: COMPLETION_MODEL, prompt: '', stream: false, keep_alive: COMPLETION_KEEP_ALIVE, options: { num_ctx: COMPLETION_NUM_CTX } })
+        body: JSON.stringify({ model, prompt: '', stream: false, keep_alive: COMPLETION_KEEP_ALIVE, options: { num_ctx: COMPLETION_NUM_CTX } })
       });
       if (!res.ok) return { success: false, error: `http-${res.status}` };
-      readyUntil.set(base, Date.now() + 25 * 60 * 1000);
+      readyUntil.set(key, Date.now() + 25 * 60 * 1000);
       return { success: true };
     } catch (err) {
       return { success: false, error: err && err.name === 'TimeoutError' ? 'timeout' : 'unavailable' };
     } finally {
-      pendingLoads.delete(base);
+      pendingLoads.delete(key);
     }
   })();
-  pendingLoads.set(base, p);
+  pendingLoads.set(key, p);
   return p;
 }
 
@@ -549,11 +554,44 @@ function raceAbort(promise, signal) {
   });
 }
 
-// Açılışta/etkinleştirmede çağrılır: ilk öneri gecikmesin. Yalnız yerel Ollama'ya gider, kullanıcı kodu gönderilmez.
-async function warmCompletion() {
+// Açılışta/etkinleştirmede/model değişince çağrılır: ilk öneri gecikmesin. Yalnız yerel Ollama'ya gider, kullanıcı kodu gönderilmez.
+async function warmCompletion(model) {
   const base = safeBase('ollama').replace(/\/v1$/, '');
   if (!isLoopback(base)) return { success: false, error: 'not-local' };
-  return ensureCompletionModel(base);
+  return ensureCompletionModel(base, pickModel(model));
+}
+
+// Tek satır modu için akışlı okuma: ilk boş olmayan satır tamamlanır tamamlanmaz bırakır (kalan üretim iptal edilir) → tam yanıtı beklemeden öneri.
+const hasFirstLine = (t) => /\S[^\n]*\n/.test(t);
+async function readFirstLine(res, abortRest) {
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '';
+  let text = '';
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line) continue;
+        let j;
+        try { j = JSON.parse(line); } catch { continue; }
+        if (typeof j.response === 'string') text += j.response;
+        if (j.done) return text;
+        if (hasFirstLine(text)) { abortRest(); return text; }
+      }
+    }
+    return text;
+  } catch (err) {
+    if (hasFirstLine(text)) return text;
+    throw err;
+  } finally {
+    reader.cancel().catch(() => {});
+  }
 }
 
 const clampNum = (v, lo, hi, d) => Math.min(hi, Math.max(lo, Number.isFinite(Number(v)) ? Number(v) : d));
@@ -570,45 +608,54 @@ async function completeCode(req, signal) {
   const prefix = req.prefix.slice(-Math.round(clampNum(req.prefixChars, 200, 12000, 6000)));
   const suffix = req.suffix.slice(0, Math.round(clampNum(req.suffixChars, 0, 4000, 2000)));
   if (!prefix.trim() && !suffix.trim()) return { success: true, text: '', alternatives: [] };
+  const model = pickModel(req.model);
+  const key = base + '|' + model;
   // Model yüklü değilse önce yüklenir; iptal yalnız bu bekleyişi keser, yüklemeyi değil
-  const loaded = await raceAbort(ensureCompletionModel(base), signal);
+  const loaded = await raceAbort(ensureCompletionModel(base, model), signal);
   if (loaded === ABORTED) return { success: false, error: 'aborted' };
   if (!loaded.success) return { success: false, error: loaded.error };
   const header = fileHeader(req.fileName, req.languageId);
   // Satır ortasında ilk satırda, blok modunda ilk boş satırda dur: daha az token, daha hızlı öneri
   const stop = req.singleLine ? [...FIM_STOP, '\n'] : req.stopAtBlank ? [...FIM_STOP, '\n\n'] : FIM_STOP;
+  // Tek satır modu (imleç satır sonunda): akışla ilk satır gelir gelmez bitir
+  const lineMode = req.lineMode === true;
   const alternatives = [];
+  let truncated = false; // ilk önerinin kaynağı token sınırında mı kesildi (yarım son satır olabilir)
   for (let i = 0; i < count; i++) {
     if (signal.aborted) break;
+    const inner = new AbortController();
     let res;
+    let text = '';
     try {
       res = await fetch(base + '/api/generate', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        signal: AbortSignal.any([signal, AbortSignal.timeout(COMPLETION_GEN_TIMEOUT_MS)]),
+        signal: AbortSignal.any([signal, inner.signal, AbortSignal.timeout(COMPLETION_GEN_TIMEOUT_MS)]),
         body: JSON.stringify({
-          model: COMPLETION_MODEL,
+          model,
           prompt: `${header}<|fim_prefix|>${prefix}<|fim_suffix|>${suffix}<|fim_middle|>`,
           raw: true,
-          stream: false,
+          stream: lineMode,
           keep_alive: COMPLETION_KEEP_ALIVE,
           // Ek alternatifler daha yüksek sıcaklıkla üretilir ki ilkinden farklı olsun
           options: { temperature: i === 0 ? temperature : Math.min(1, Math.max(temperature, 0.5) + 0.2 * (i - 1)), top_p: 0.9, num_predict: maxTokens, num_ctx: COMPLETION_NUM_CTX, stop }
         })
       });
+      if (res.ok) {
+        if (lineMode) text = await readFirstLine(res, () => inner.abort());
+        else { const json = await res.json(); text = typeof json.response === 'string' ? json.response : ''; if (i === 0) truncated = json.done_reason === 'length'; }
+      }
     } catch (err) {
       // İptal dışındaki bağlantı hatası (Ollama yeniden başlamış olabilir): yüklü sayma, sonraki istek yeniden yükletsin
-      if (!signal.aborted) readyUntil.delete(base);
+      if (!signal.aborted) readyUntil.delete(key);
       throw err;
     }
-    if (!res.ok) { readyUntil.delete(base); if (i === 0) return { success: false, error: `http-${res.status}` }; break; }
-    const json = await res.json();
-    let text = typeof json.response === 'string' ? json.response : '';
+    if (!res.ok) { readyUntil.delete(key); if (i === 0) return { success: false, error: `http-${res.status}` }; break; }
     for (const st of FIM_STOP) { const k = text.indexOf(st); if (k >= 0) text = text.slice(0, k); }
     text = text.replace(/\r/g, '').slice(0, 2500);
     if (text.trim() && !alternatives.includes(text)) alternatives.push(text);
   }
-  return { success: true, text: alternatives[0] || '', alternatives };
+  return { success: true, text: alternatives[0] || '', alternatives, truncated };
 }
 
 // ---------- IPC ----------
@@ -753,7 +800,7 @@ function register({ getWindow, getRoot }) {
     const ac = new AbortController();
     completions.set(id, ac);
     try {
-      return await completeCode({ prefix: req.prefix, suffix: req.suffix, fileName: req.fileName, maxTokens: req.maxTokens, temperature: req.temperature, prefixChars: req.prefixChars, suffixChars: req.suffixChars, count: req.count, languageId: req.languageId, singleLine: req.singleLine === true, stopAtBlank: req.stopAtBlank === true }, ac.signal);
+      return await completeCode({ prefix: req.prefix, suffix: req.suffix, fileName: req.fileName, maxTokens: req.maxTokens, temperature: req.temperature, prefixChars: req.prefixChars, suffixChars: req.suffixChars, count: req.count, languageId: req.languageId, singleLine: req.singleLine === true, stopAtBlank: req.stopAtBlank === true, model: req.model, lineMode: req.lineMode === true }, ac.signal);
     } catch (err) {
       return { success: false, error: ac.signal.aborted ? 'aborted' : (err && err.name === 'TimeoutError' ? 'timeout' : 'unavailable') };
     } finally {
@@ -761,7 +808,7 @@ function register({ getWindow, getRoot }) {
     }
   });
 
-  ipcMain.handle('ai:completeWarm', () => warmCompletion());
+  ipcMain.handle('ai:completeWarm', (_e, model) => warmCompletion(model));
 
   ipcMain.handle('ai:completeCancel', (_e, id) => {
     const a = completions.get(String(id));
@@ -839,4 +886,4 @@ function register({ getWindow, getRoot }) {
   });
 }
 
-module.exports = { register, stopWhisper, _test: { runTool, isSafeCommand, extractToolCalls, completeCode, ensureCompletionModel } };
+module.exports = { register, stopWhisper, _test: { runTool, isSafeCommand, extractToolCalls, completeCode, ensureCompletionModel, pickModel } };

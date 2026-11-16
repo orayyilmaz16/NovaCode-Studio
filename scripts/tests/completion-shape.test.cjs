@@ -61,5 +61,10 @@ const ok = (c, m, extra) => { if (!c) { fails++; process.exitCode = 1; } console
   eq(shapeSuggestion('fmt.Println("a")\n}\n```', 'block', '', { languageId: 'go', tabSize: 4, insertSpaces: false, baseIndent: 4, nextLine: '}' }), 'fmt.Println("a")', 'Go: kod çiti ve kapanış temizlenir');
   eq(shapeSuggestion('   \n  ', 'block', '', js), '', 'boşluk önerisi boş döner');
 
+  // 6) Token sınırında kesilen yanıt: çok satırlıda yarım son satır atılır, tek satırlıda korunur
+  eq(shapeSuggestion('const a = 1;\nconst b = foo(', 'block', '', { ...js, truncated: true }), 'const a = 1;', 'kesilmiş çok satırlı öneri: yarım son satır atılır');
+  eq(shapeSuggestion('const b = foo(x, y', 'block', '', { ...js, truncated: true }), 'const b = foo(x, y', 'kesilmiş tek satırlı öneri korunur (atılacak tam satır yok)');
+  eq(shapeSuggestion('const a = 1;\nconst b = 2;', 'block', '', { ...js, truncated: false }), 'const a = 1;\nconst b = 2;', 'kesilmemiş öneride satır atılmaz');
+
   console.log(fails ? `\n${fails} test başarısız` : '\ntüm testler geçti');
 })();

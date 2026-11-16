@@ -28,6 +28,18 @@ export const COMP_TEXT = {
   set_aiCompletionCooldown: {
     tr: "Tamamlama soğuma süresi (ms)", en: "Completion cooldown (ms)", de: "Vervollständigungs-Abkühlzeit (ms)", ru: "Пауза между подсказками (мс)", ar: "فترة التهدئة بين الاقتراحات (مللي ثانية)", es: "Enfriamiento del autocompletado (ms)", fr: "Temps de récupération de la complétion (ms)", az: "Tamamlama soyuma müddəti (ms)",
   },
+  optCompInstant: {
+    tr: "Anında", en: "Instant", de: "Sofort", ru: "Мгновенно", ar: "فوري", es: "Instantáneo", fr: "Instantané", az: "Ani",
+  },
+  cmFasterHint: {
+    tr: "Daha hızlı için küçük model: ollama pull qwen2.5-coder:1.5b, sonra yukarıdan seç.", en: "For faster suggestions use a smaller model: ollama pull qwen2.5-coder:1.5b, then pick it above.", de: "Für schnellere Vorschläge ein kleineres Modell nutzen: ollama pull qwen2.5-coder:1.5b, dann oben wählen.", ru: "Для более быстрых подсказок возьмите малую модель: ollama pull qwen2.5-coder:1.5b, затем выберите её выше.", ar: "لاقتراحات أسرع استخدم نموذجًا أصغر: ollama pull qwen2.5-coder:1.5b ثم اخترْه أعلاه.", es: "Para sugerencias más rápidas usa un modelo menor: ollama pull qwen2.5-coder:1.5b y elígelo arriba.", fr: "Pour des suggestions plus rapides, utilisez un modèle plus petit : ollama pull qwen2.5-coder:1.5b, puis choisissez-le ci-dessus.", az: "Daha sürətli təkliflər üçün kiçik model: ollama pull qwen2.5-coder:1.5b, sonra yuxarıdan seçin.",
+  },
+  set_aiCompletionModel: {
+    tr: "Tamamlama modeli", en: "Completion model", de: "Vervollständigungsmodell", ru: "Модель автодополнения", ar: "نموذج الإكمال", es: "Modelo de autocompletado", fr: "Modèle de complétion", az: "Tamamlama modeli",
+  },
+  setDesc_aiCompletionModel: {
+    tr: "Yalnız Qwen2.5-Coder ailesi (ör. qwen2.5-coder:1.5b). Küçük model kat kat hızlıdır, büyük model daha doğrudur. Kurmak için: ollama pull qwen2.5-coder:1.5b", en: "Qwen2.5-Coder family only (e.g. qwen2.5-coder:1.5b). Smaller models are many times faster, larger ones are more accurate. To install: ollama pull qwen2.5-coder:1.5b", de: "Nur die Qwen2.5-Coder-Familie (z. B. qwen2.5-coder:1.5b). Kleine Modelle sind um ein Vielfaches schneller, große genauer. Installieren: ollama pull qwen2.5-coder:1.5b", ru: "Только семейство Qwen2.5-Coder (например, qwen2.5-coder:1.5b). Малые модели во много раз быстрее, большие точнее. Установка: ollama pull qwen2.5-coder:1.5b", ar: "عائلة Qwen2.5-Coder فقط (مثل qwen2.5-coder:1.5b). النماذج الصغيرة أسرع بعدة مرات والكبيرة أدق. للتثبيت: ollama pull qwen2.5-coder:1.5b", es: "Solo la familia Qwen2.5-Coder (p. ej. qwen2.5-coder:1.5b). Los modelos pequeños son mucho más rápidos y los grandes más precisos. Para instalar: ollama pull qwen2.5-coder:1.5b", fr: "Famille Qwen2.5-Coder uniquement (ex. qwen2.5-coder:1.5b). Les petits modèles sont bien plus rapides, les grands plus précis. Pour installer : ollama pull qwen2.5-coder:1.5b", az: "Yalnız Qwen2.5-Coder ailəsi (məs. qwen2.5-coder:1.5b). Kiçik modellər dəfələrlə sürətlidir, böyüklər daha dəqiqdir. Quraşdırmaq üçün: ollama pull qwen2.5-coder:1.5b",
+  },
   set_aiCompletionMaxTokens: {
     tr: "Öneri uzunluğu üst sınırı (token)", en: "Max suggestion length (tokens)", de: "Max. Vorschlagslänge (Token)", ru: "Макс. длина подсказки (токены)", ar: "أقصى طول للاقتراح (رموز)", es: "Longitud máxima de sugerencia (tokens)", fr: "Longueur max. de suggestion (tokens)", az: "Maks. təklif uzunluğu (token)",
   },
@@ -80,7 +92,7 @@ export const COMP_TEXT = {
     tr: "Uygulama güncellendi: yeniden başlatman gerekiyor", en: "App was updated: restart required", de: "App wurde aktualisiert: Neustart nötig", ru: "Приложение обновлено: нужен перезапуск", ar: "تم تحديث التطبيق: يلزم إعادة التشغيل", es: "App actualizada: reinicia la aplicación", fr: "Application mise à jour : redémarrage requis", az: "Tətbiq yeniləndi: yenidən başlatmaq lazımdır",
   },
   cmNoModel: {
-    tr: "Model kurulu değil: ollama pull qwen2.5-coder:7b", en: "Model not installed: ollama pull qwen2.5-coder:7b", de: "Modell nicht installiert: ollama pull qwen2.5-coder:7b", ru: "Модель не установлена: ollama pull qwen2.5-coder:7b", ar: "النموذج غير مثبّت: ollama pull qwen2.5-coder:7b", es: "Modelo no instalado: ollama pull qwen2.5-coder:7b", fr: "Modèle non installé : ollama pull qwen2.5-coder:7b", az: "Model quraşdırılmayıb: ollama pull qwen2.5-coder:7b",
+    tr: "Model kurulu değil: ollama pull {m}", en: "Model not installed: ollama pull {m}", de: "Modell nicht installiert: ollama pull {m}", ru: "Модель не установлена: ollama pull {m}", ar: "النموذج غير مثبّت: ollama pull {m}", es: "Modelo no instalado: ollama pull {m}", fr: "Modèle non installé : ollama pull {m}", az: "Model quraşdırılmayıb: ollama pull {m}",
   },
   cmNoOllama: {
     tr: "Ollama çalışmıyor", en: "Ollama is not running", de: "Ollama läuft nicht", ru: "Ollama не запущен", ar: "Ollama لا يعمل", es: "Ollama no está activo", fr: "Ollama n’est pas actif", az: "Ollama işləmir",

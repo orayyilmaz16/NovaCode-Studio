@@ -42,10 +42,12 @@ const BY_ID = new Map(SCHEMA.map((s) => [s.id, s]));
 export const DEFAULTS: SettingsValues = Object.fromEntries(SCHEMA.map((s) => [s.id, s.default]));
 
 export const STORAGE_KEY = 'nova.settings.v1';
-const STORAGE_VERSION = 2;
+const STORAGE_VERSION = 3;
 
 // v2: AI tamamlama varsayılanları hızlandı. Kullanıcı değiştirmemişse (değer eski varsayılanla aynı) yenisine taşınır;
 // ayarlar tüm değerlerle kaydedildiği için bu olmadan eski varsayılanlar sonsuza dek kalırdı.
+const V2_BALANCED: Record<string, number> = { aiCompletionDelay: 250, aiCompletionCooldown: 300, aiCompletionMaxTokens: 64, aiCompletionPrefix: 4000, aiCompletionSuffix: 1500 };
+const V3_FAST: Record<string, number | string> = { aiCompletionEffort: 'fast', aiCompletionDelay: 100, aiCompletionCooldown: 100, aiCompletionMaxTokens: 32, aiCompletionPrefix: 2000, aiCompletionSuffix: 600, aiCompletionTemperature: 0.05 };
 const MIGRATE_V2: Record<string, [number, number]> = {
   aiCompletionDelay: [450, 250], aiCompletionCooldown: [600, 300], aiCompletionMaxTokens: [80, 64], aiCompletionPrefix: [6000, 4000], aiCompletionSuffix: [2000, 1500]
 };
@@ -92,6 +94,8 @@ export function loadSettings(): StoredSettings {
       const j = JSON.parse(raw);
       const values = sanitizeAll(j.values);
       if ((j.v ?? 1) < 2) for (const [k, [oldDef, newDef]] of Object.entries(MIGRATE_V2)) if (values[k] === oldDef) values[k] = newDef;
+      // v3: hiçbirini değiştirmemiş (v2 Dengeli varsayılanları) kullanıcı yeni varsayılan Hızlı profile geçer; birini bile değiştirmişse dokunulmaz
+      if ((j.v ?? 1) < 3 && Object.entries(V2_BALANCED).every(([k, v]) => values[k] === v)) Object.assign(values, V3_FAST);
       return { values };
     }
     // İlk açılış: eski anahtarlardan taşı (token hariç; o ayrıca şifreli depoya taşınır)
