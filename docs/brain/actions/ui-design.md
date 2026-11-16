@@ -1,7 +1,7 @@
 ---
 action: ui-design
 purpose: Arayüz, tema, logo ve animasyon değişiklikleri
-reads: [CLAUDE, PROJECT, i18n, settings]
+reads: [CLAUDE, PROJECT, i18n, settings, motion]
 writes: [CHANGELOG, DECISIONS]
 triggers: ["tasarım", "tema", "logo", "renk", "animasyon", "arayüz"]
 ---
@@ -37,7 +37,7 @@ Başlık çubuğu (36 px, özel; pencere düğmeleri sistemden) → etkinlik çu
 Gereksiz yer kaplayan öğeler yok: sürüm etiketi başlık çubuğunda değil (Hakkında/Karşılama'da), durum çubuğunda yalnız anlamlı bilgi (dal, hesap, kaydedilmedi, boşluk/kodlama/dil), terminal paneli varsayılan kapalı, tek satırlık boş durumlar.
 
 ## Hareket
-Tanımlı sınıflar: `animate-fade-in`, `animate-sidebar-in`, `animate-panel-up`, `animate-tab-in`, `ab-item`, `icon-btn`, `status-item`, logo çizim animasyonu. Süre 120–250 ms, `ease-out-soft`. `prefers-reduced-motion` ile hepsi kapanır; bunu bozma.
+Tüm geçiş, animasyon, hover ve gecikme kuralları ile jetonlar ([[motion]]) tek yerdedir; burada tekrar edilmez. Yeni etkileşimde önce oradaki yardımcı sınıfları kullan.
 
 ## Logo ve simgeler
 - Kaynak: `public/logo.svg` (arka plansız; kod ayracı + yapay zekâ kıvılcımı, indigo→turkuaz). `public/favicon.svg` aynıdır. React: `src/components/Logo.tsx`.
@@ -77,12 +77,11 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 - **Sürükleme:** üst çubuk kartının üstündeki dar boşlukta `app-drag` şeridi vardır (pencere taşınabilsin). Sağ paneller dar ekranda (`compactRight`) editörün üstüne biner (`right/top-[var(--frame)]`).
 - **Alt çubuk:** `@container`; ikincil bilgiler (girinti, UTF-8) `hidden @lg:inline-flex` ile dar genişlikte gizlenir.
 
-## Logo plakası ve karşılama ekranı
-- **Logo plakası (`<Logo plate />`):** `size` plakanın toplam boyutudur, işaret %64'ü kadardır, köşe `size×0.27`. Plaka zemini, kenarlığı ve gölgesi `style.css` jetonlarından gelir: `--logo-plate`, `--logo-plate-border`, `--logo-shadow`. **Koyu tema:** koyu zemin (`nv-side` + siyah) + vurgu renkli parıltı. **Açık tema:** beyaza yakın zemin + yumuşak gölge. Jetonlar `--color-indigo-*` ile `color-mix` kullandığından vurgu rengi değişince plaka da değişir. `plate` varsayılan kapalıdır; başlık çubuğundaki 18 px logo plakasızdır.
-- **Kullanım yerleri:** açılış ekranı (104), karşılama başlığı (84), boş editör durumu (88). Logo **çizimi** değişmedi (`public/logo.svg`, `favicon.svg`, `icon.png` aynı).
-- **Karşılama (`LandingPage.tsx`):** üstte plakalı logo + hızlı eylemler (Klasör Aç birincil, Yeni Dosya); solda Başlangıç ve Son açılanlar; sağda Keşfet kartları (`.welcome-card`, kademeli `.welcome-rise`) ve İpuçları (kısayol rozetleri: Ctrl+P, Ctrl+Shift+P, Ctrl+Shift+F, Ctrl+Shift+L, Ctrl+\`, Ctrl+,). Zemin `.welcome-bg`: üstte vurgu parıltısı + ince ızgara (`--welcome-glow`, `--welcome-grid`).
-- **İstisna notu:** "Çerçeve" bölümündeki "degrade/renkli vurgu ekleme" kuralı panel çerçevesi içindir. Karşılama ve logo plakası bilinçli olarak bu süslemeyi kullanır; editör, paneller ve tema renkleri değişmedi.
-- **Kurallar:** yalnız jeton sınıfları ve CSS değişkenleri; RTL için `text-start`, `ms-auto`, `rtl:rotate-180`; hareket `data-motion="off"` ve `prefers-reduced-motion` ile kapanır. Yeni metinler `welTips`, `welTip*` (8 dil, [[i18n]]).
+## Logo gölgesi ve karşılama ekranı
+- **Logo gölgesi (`<Logo shadow />`):** zemin/plaka yok; yalnız `filter: var(--logo-shadow)` (`.logo-shadow`). Koyu temada siyah, açık temada yumuşak gri gölge; jeton `style.css` içinde. Başlık çubuğundaki 18 px logo gölgesizdir. Kullanım: açılış (88), karşılama (60), boş editör (72). Logo **çizimi** ve ikon dosyaları değişmedi.
+- **Arka plan eski haliyle kalır:** karşılama `bg-nv-editor`, açılış `bg-nv-side`. Izgara, parıltı, degrade zemin **yok**; ekleme.
+- **Karşılama (`LandingPage.tsx`):** üstte logo + hızlı eylemler (`btn-primary` Klasör Aç, `btn-ghost` Yeni Dosya); solda Başlangıç ve Son açılanlar; sağda Keşfet kartları (`motion-card`) ve İpuçları. Hepsi kademeli `motion-rise` ile girer.
+- **Sade kural:** düz yüzey, tek vurgu rengi, gölge yığını yok. Hareket kuralları ve yardımcı sınıflar: [[motion]]. Yeni metinler `welTips`, `welTip*` (8 dil, [[i18n]]); RTL için `text-start`, `ms-auto`.
 
 ## ✦ tamamlama menüsü (`CompletionMenu.tsx`)
 - **Yüzey:** `bg-nv-side`, `border-nv-border`, `rounded-[var(--frame-r)]`, tek `shadow-xl`; katman `z-[70]` (açılır menü). Sabit hex ve `zinc-700/70` gibi yarı saydam kenarlık yok; açık/koyu modda kod aynı.

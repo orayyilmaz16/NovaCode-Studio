@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### tr
-- **Yeni karşılama ekranı ve temaya uyumlu logo:** Karşılama sayfası yenilendi: üstte hızlı eylemler, vurgu parıltılı arka plan, kartlarda giriş animasyonu ve kısayol ipuçları bölümü. NovaCode logosu açılış, karşılama ve boş editör ekranında temaya uyumlu plaka ve gölgeyle çiziliyor (koyu temada koyu zemin, açık temada açık zemin; vurgu rengini izler).
+- **Yeni karşılama ekranı, logo gölgesi ve hareket sistemi:** Karşılama sayfası yenilendi: üstte hızlı eylemler, kartlarda kademeli giriş ve hover efektleri, kısayol ipuçları. Arka plan eskisi gibi sade kaldı. NovaCode logosu temaya uyumlu gölge alıyor (koyu temada siyah, açık temada yumuşak gri). Geçiş, hover, alt çizgi ve gecikme efektleri tek bir jeton ve sınıf setine bağlandı; azaltılmış hareket ayarlarına uyuyor.
 - **AI tamamlama menüsü yeniden tasarlandı:** ✦ menüsü artık editör temasına (açık ve koyu) ve tek hizalama ızgarasına uyuyor: anahtarlar, segment düğmeleri ve kaydırıcılar aynı sağ kenarda bitiyor, satır aralıkları eşit, alt düğmeler eşit yarılar. Klavye odak halkaları eklendi.
 - **GitHub giriş kodu otomatik kopyalanır:** 8 haneli cihaz kodu giriş başlayınca panoya otomatik kopyalanır; tarayıcıda yapıştırmanız yeterli.
 - **AI tamamlama menüsü (Copilot gibi):** Alt çubuktaki ✦ düğmesi menü açar: aç/kapat, bu dilde kapat, tetikleme (otomatik / manuel Alt+\), düşünme seviyesi (Hızlı/Dengeli/Derin ön ayarı), öneri biçimi (satır/blok/uzun), gecikme, uzunluk, önceki/sonraki bağlam, yaratıcılık ve alternatif sayısı kaydırıcıları, "şimdi öner". Aynı ayarlar Ayarlar → Yapay zekâ'da.
@@ -98,7 +98,7 @@
 - 10 yeni ayar: kenar çubuğu konumu, etkinlik/durum çubuğu, breadcrumb, açık düzenleyiciler, ağaç yoğunluğu ve kılavuzları, terminal satır yüksekliği/geçmiş/imleç.
 
 ### en
-- **New welcome screen and theme-aware logo:** The welcome page is redesigned: quick actions on top, an accent-glow background, staggered card animations and a keyboard-shortcut tips section. The NovaCode logo now sits on a theme-aware plate with a soft shadow on the splash, welcome and empty-editor screens (dark plate in dark theme, light plate in light theme; follows the accent color).
+- **New welcome screen, logo shadow and motion system:** The welcome page is redesigned: quick actions on top, staggered card entrances with hover effects, and shortcut tips. The background stays plain as before. The NovaCode logo gets a theme-aware shadow (black in dark theme, soft gray in light theme). Transitions, hover, underline and delay effects now share one set of tokens and classes and respect reduced-motion settings.
 - **Redesigned AI completion menu:** The ✦ menu now follows the editor theme (light and dark) with one alignment grid: all switches, segmented buttons and sliders end on the same right edge, rows are evenly spaced, and the bottom buttons are equal halves. Keyboard focus rings added.
 - **GitHub login code auto-copied:** The 8-character device code is now copied to the clipboard automatically when sign-in starts, so you can just paste it in the browser.
 - **AI completion menu (like Copilot):** The ✦ button in the status bar opens a menu: on/off, disable for this language, trigger (automatic / manual Alt+\), thinking level (Fast/Balanced/Deep preset), suggestion style (line/block/long), sliders for delay, length, context before/after, creativity and number of alternatives, and "suggest now". The same settings are in Settings → AI.

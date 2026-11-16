@@ -27,6 +27,7 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[git-github]] | Git paneli, GitHub hesabı, PR, eşzamanlama |
 | [[source-control]] | Fark sekmesi, dal/etiket seçici, merge, stash, geçmiş; Sorunlar sayacı ve hata renkleri |
 | [[ui-design]] | Arayüz, tema (koyu/açık), logo, animasyon |
+| [[motion]] | Geçiş, animasyon, hover, after ve gecikme efektleri; hareket jetonları |
 | [[settings]] | Ayarlar sistemi: yeni ayar, tema/font/editör |
 | [[i18n]] | Arayüze metin eklemek (8 dil) |
 | [[security-kvkk]] | IPC, dosya sistemi, token, kişisel veri |

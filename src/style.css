@@ -90,20 +90,21 @@
   --ansi-12: #1f6fd0; --ansi-13: #8f56d6; --ansi-14: #1488a6; --ansi-15: #1f1f1f;
 }
 
-/* Logo plakası: koyu temada koyu zemin + vurgu parıltısı, açık temada açık zemin + yumuşak gölge. Vurgu rengi değişince canlı güncellenir. */
+/* Hareket jetonları: süre ve eğriler tek yerden. Yeni geçiş/animasyonda sabit ms veya cubic-bezier yazma, bunları kullan (docs/brain/actions/motion.md). */
 :root {
-  --logo-plate: linear-gradient(145deg, color-mix(in srgb, var(--color-indigo-500) 16%, var(--color-nv-editor)), color-mix(in srgb, var(--color-nv-side) 70%, black));
-  --logo-plate-border: color-mix(in srgb, var(--color-indigo-400) 30%, transparent);
-  --logo-shadow: 0 14px 34px -10px color-mix(in srgb, var(--color-indigo-500) 55%, transparent), 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.07);
-  --welcome-glow: color-mix(in srgb, var(--color-indigo-500) 16%, transparent);
-  --welcome-grid: rgba(255, 255, 255, 0.035);
+  --dur-fast: 120ms;   /* basma, renk, kenarlık */
+  --dur-base: 180ms;   /* hover kalkış, ok kayması, menü öğesi */
+  --dur-slow: 260ms;   /* panel, boyut, kaybolma */
+  --dur-enter: 380ms;  /* sayfa/kart girişi */
+  --stagger: 60ms;     /* kademeli girişte öğe başına gecikme */
+  --hover-delay: 140ms; /* ipucu/ikincil bilgi hover sonrası gecikmesi */
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Logo gölgesi: koyu temada siyah, açık temada yumuşak gri. Zemin değişmez. */
+  --logo-shadow: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
 }
 :root[data-theme="light"] {
-  --logo-plate: linear-gradient(145deg, #ffffff, color-mix(in srgb, var(--color-indigo-500) 9%, #ffffff));
-  --logo-plate-border: color-mix(in srgb, var(--color-indigo-500) 22%, transparent);
-  --logo-shadow: 0 14px 30px -12px color-mix(in srgb, var(--color-indigo-500) 45%, transparent), 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --welcome-glow: color-mix(in srgb, var(--color-indigo-500) 10%, transparent);
-  --welcome-grid: rgba(0, 0, 0, 0.04);
+  --logo-shadow: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.22)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
 }
 
 @layer base {
@@ -394,37 +395,7 @@ button.status-item:hover {
   transform-origin: center;
   animation: starIn 650ms 520ms var(--ease-out-soft) both;
 }
-.logo-plate {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: var(--logo-plate);
-  border: 1px solid var(--logo-plate-border);
-  box-shadow: var(--logo-shadow);
-}
-
-/* Karşılama ekranı: üstte vurgu parıltısı + ince ızgara, kartlara kademeli giriş */
-.welcome-bg {
-  background-color: var(--color-nv-editor);
-  background-image:
-    radial-gradient(ellipse 70% 38% at 50% 0%, var(--welcome-glow), transparent 70%),
-    linear-gradient(var(--welcome-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--welcome-grid) 1px, transparent 1px);
-  background-size: auto, 32px 32px, 32px 32px;
-  background-position: 0 0, center top, center top;
-}
-.welcome-rise { animation: panelUp 380ms var(--ease-out-soft) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
-.welcome-card {
-  background: color-mix(in srgb, var(--color-nv-side) 80%, transparent);
-  border: 1px solid var(--color-nv-border);
-  transition: border-color 160ms var(--ease-out-soft), box-shadow 160ms var(--ease-out-soft), transform 160ms var(--ease-out-soft);
-}
-.welcome-card:hover {
-  border-color: color-mix(in srgb, var(--color-indigo-400) 45%, var(--color-nv-border));
-  box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--color-indigo-500) 55%, transparent);
-  transform: translateY(-1px);
-}
+.logo-shadow { filter: var(--logo-shadow); }
 
 .load-bar::after {
   content: "";
@@ -620,4 +591,82 @@ button.status-item:hover {
 
 @media (prefers-reduced-motion: reduce) {
   .cm-panel, .cm-collapse, .cm-collapse * , .cm-switch, .cm-switch::after, .cm-seg-pill, .cm-row::before { animation: none !important; transition: none !important; }
+}
+
+/* ---- Hareket yardımcıları (katmanlı: Tailwind yardımcıları gerekirse ezer) ---- */
+@layer components {
+  /* Basılabilir öğe: renk/kenarlık/gölge geçişi, basınca hafif küçülme */
+  .motion-press {
+    transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, border-color var(--dur-fast) ease,
+      transform var(--dur-fast) var(--ease-out-soft);
+  }
+  .motion-press:active { transform: scale(0.97); }
+
+  /* Kart: hover'da 1 px kalkar, kenarlık vurguya döner. Gölge yığını yok. */
+  .motion-card {
+    border: 1px solid var(--color-nv-border);
+    transition: border-color var(--dur-base) var(--ease-out-soft), background-color var(--dur-base) ease,
+      transform var(--dur-base) var(--ease-out-soft);
+  }
+  .motion-card:hover {
+    border-color: color-mix(in srgb, var(--color-indigo-400) 50%, var(--color-nv-border));
+    background-color: var(--color-nv-side);
+    transform: translateY(-1px);
+  }
+  .motion-card:active { transform: translateY(0) scale(0.995); }
+
+  /* Kademeli giriş: style={{ '--i': n }} ile sıra verilir */
+  .motion-rise {
+    animation: panelUp var(--dur-enter) var(--ease-out-soft) both;
+    animation-delay: calc(var(--i, 0) * var(--stagger) + 80ms);
+  }
+
+  /* Ok/simge: üst .group hover'ında yana kayar (RTL'de ters) */
+  .motion-arrow {
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity var(--dur-base) ease, transform var(--dur-base) var(--ease-out-soft);
+  }
+  .group:hover .motion-arrow, .group:focus-visible .motion-arrow { opacity: 1; transform: translateX(0); }
+  :dir(rtl) .motion-arrow { transform: translateX(4px) scaleX(-1); }
+  :dir(rtl) .group:hover .motion-arrow, :dir(rtl) .group:focus-visible .motion-arrow { transform: translateX(0) scaleX(-1); }
+
+  /* İkincil bilgi (kısayol, yol): hover sonrası kısa gecikmeyle belirginleşir */
+  .motion-hint { opacity: 0.7; transition: opacity var(--dur-base) ease; }
+  .group:hover .motion-hint { opacity: 1; transition-delay: var(--hover-delay); }
+
+  /* Bağlantı alt çizgisi: ::after soldan sağa (RTL'de tersine) çizilir */
+  .motion-underline { position: relative; }
+  .motion-underline::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-base) var(--ease-out-soft);
+  }
+  :dir(rtl) .motion-underline::after { transform-origin: right; }
+  .motion-underline:hover::after, .motion-underline:focus-visible::after { transform: scaleX(1); }
+
+  /* Düğmeler: sade, düz yüzey */
+  .btn-primary, .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2rem;
+    padding-inline: 0.875rem;
+    border-radius: 0.375rem;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, color var(--dur-fast) ease,
+      transform var(--dur-fast) var(--ease-out-soft);
+  }
+  .btn-primary { background: var(--color-indigo-600); color: #fff; }
+  .btn-primary:hover { background: var(--color-indigo-500); }
+  .btn-ghost { background: var(--color-nv-side); border: 1px solid var(--color-nv-border); color: var(--color-zinc-200); }
+  .btn-ghost:hover { background: var(--color-nv-hover); border-color: color-mix(in srgb, var(--color-indigo-400) 45%, var(--color-nv-border)); }
+  .btn-primary:active, .btn-ghost:active { transform: scale(0.97); }
 }
