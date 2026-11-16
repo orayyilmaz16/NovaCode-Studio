@@ -25,10 +25,10 @@ const T = 1_000_000;
   ok(planRequest(T, st, { delay: 450, cooldown: 0 }).wait === 450, 'soğuma 0 ise kapalı');
 
   // 3) Uyum: boşa giden istekler gecikmeyi uzatır, öneri gelince sıfırlanır
-  ok(effectiveDelay(400, 0) === 400 && effectiveDelay(400, 2) === 600 && effectiveDelay(400, 99) === 1000, 'gecikme çarpanı 1 → 1,5 → üst sınır 2,5');
+  ok(effectiveDelay(400, 0) === 400 && effectiveDelay(400, 2) === 520 && effectiveDelay(400, 99) === 800, 'gecikme çarpanı 1 → 1,3 → üst sınır 2');
   let w = newScheduleState();
   w = onOutcome(w, 'wasted', T); w = onOutcome(w, 'wasted', T + 1000);
-  ok(w.wasted === 2 && planRequest(T + 2000, w, { delay: 450, cooldown: 0 }).wait === 675, '2 boşa giden istek: 450 → 675 ms');
+  ok(w.wasted === 2 && planRequest(T + 2000, w, { delay: 450, cooldown: 0 }).wait === 585, '2 boşa giden istek: 450 → 585 ms');
   ok(onOutcome(w, 'ok', T + 3000).wasted === 0, 'öneri gelince boşa giden sayacı sıfırlanır');
   ok(planRequest(T + 1000 + WASTED_DECAY_MS + 1, w, { delay: 450, cooldown: 0 }).wait === 450, '30 sn sonra eski boşa gidenler sayılmaz');
   ok(onOutcome(w, 'wasted', T + 1000 + WASTED_DECAY_MS + 1).wasted === 1, 'eski seri üstüne eklenmez, yeniden başlar');

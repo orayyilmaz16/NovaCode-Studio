@@ -42,6 +42,14 @@ const BY_ID = new Map(SCHEMA.map((s) => [s.id, s]));
 export const DEFAULTS: SettingsValues = Object.fromEntries(SCHEMA.map((s) => [s.id, s.default]));
 
 export const STORAGE_KEY = 'nova.settings.v1';
+const STORAGE_VERSION = 2;
+
+// v2: AI tamamlama varsayılanları hızlandı. Kullanıcı değiştirmemişse (değer eski varsayılanla aynı) yenisine taşınır;
+// ayarlar tüm değerlerle kaydedildiği için bu olmadan eski varsayılanlar sonsuza dek kalırdı.
+const MIGRATE_V2: Record<string, [number, number]> = {
+  aiCompletionDelay: [450, 250], aiCompletionCooldown: [600, 300], aiCompletionMaxTokens: [80, 64], aiCompletionPrefix: [6000, 4000], aiCompletionSuffix: [2000, 1500]
+};
+
 
 // ---------- Doğrulama ----------
 export function sanitizeValue(def: SettingDef, raw: unknown): SettingValue {
@@ -82,7 +90,9 @@ export function loadSettings(): StoredSettings {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const j = JSON.parse(raw);
-      return { values: sanitizeAll(j.values) };
+      const values = sanitizeAll(j.values);
+      if ((j.v ?? 1) < 2) for (const [k, [oldDef, newDef]] of Object.entries(MIGRATE_V2)) if (values[k] === oldDef) values[k] = newDef;
+      return { values };
     }
     // İlk açılış: eski anahtarlardan taşı (token hariç; o ayrıca şifreli depoya taşınır)
     const legacy: Record<string, unknown> = {};
@@ -98,7 +108,7 @@ export function loadSettings(): StoredSettings {
 
 export function saveSettings(s: StoredSettings) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, values: s.values }));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: STORAGE_VERSION, values: s.values }));
   } catch {
     /* depolama kapalı: ayarlar bu oturumda kalır */
   }

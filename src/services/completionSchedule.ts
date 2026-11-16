@@ -23,7 +23,7 @@ export type Outcome = 'ok' | 'wasted' | 'timeout' | 'fail';
 /** Boşa giden sayı bu süreden eskiyse yazma ritmi değişmiş sayılır ve sıfırlanır. */
 export const WASTED_DECAY_MS = 30000;
 /** Uyumlu gecikme çarpanının üst sınırı. */
-export const MAX_DELAY_FACTOR = 2.5;
+export const MAX_DELAY_FACTOR = 2;
 
 export const newScheduleState = (): ScheduleState => ({ lastDoneAt: 0, wasted: 0, fails: 0, blockedUntil: 0 });
 
@@ -33,9 +33,9 @@ export function failBackoff(fails: number): number {
   return [3000, 10000, 30000][fails - 1] ?? 60000;
 }
 
-/** Boşa giden her istek gecikmeyi %25 uzatır (en çok 2,5 kat). */
+/** Boşa giden her istek gecikmeyi %15 uzatır (en çok 2 kat). */
 export function effectiveDelay(delay: number, wasted: number): number {
-  return Math.round(delay * Math.min(MAX_DELAY_FACTOR, 1 + 0.25 * Math.max(0, wasted)));
+  return Math.round(delay * Math.min(MAX_DELAY_FACTOR, 1 + 0.15 * Math.max(0, wasted)));
 }
 
 /**
