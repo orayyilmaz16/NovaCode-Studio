@@ -17,30 +17,38 @@ interface LandingPageProps {
   onToggleStartup: (value: boolean) => void;
 }
 
-// VS Code "Karşılama" sayfası: solda başlangıç bağlantıları ve son klasörler, sağda keşfet kartları.
+// VS Code "Karşılama" sayfası: üstte plakalı logo ve hızlı eylemler, solda başlangıç/son klasörler, sağda keşfet kartları ve ipuçları.
 const LinkRow: React.FC<{ icon: React.ReactNode; label: string; hint?: string; onClick: () => void }> = ({ icon, label, hint, onClick }) => (
   <button
     onClick={onClick}
-    className="group flex items-center gap-2.5 h-7 px-1.5 -mx-1.5 rounded text-[13px] text-indigo-300 hover:text-indigo-200 hover:bg-nv-hover transition-colors w-full text-left"
+    className="group flex items-center gap-2.5 h-8 px-2 -mx-2 rounded-md text-[13px] text-indigo-300 hover:text-indigo-200 hover:bg-nv-hover transition-colors w-full text-start"
   >
     <span className="shrink-0 text-indigo-400">{icon}</span>
     <span className="truncate">{label}</span>
-    {hint && <kbd className="ml-auto text-[11px] font-mono text-zinc-500 group-hover:text-zinc-400">{hint}</kbd>}
+    {hint && <kbd className="ms-auto text-[11px] font-mono text-zinc-500 group-hover:text-zinc-400">{hint}</kbd>}
   </button>
 );
 
-const Card: React.FC<{ icon: React.ReactNode; title: string; desc: string; onClick: () => void }> = ({ icon, title, desc, onClick }) => (
+const Card: React.FC<{ icon: React.ReactNode; title: string; desc: string; onClick: () => void; index: number }> = ({ icon, title, desc, onClick, index }) => (
   <button
     onClick={onClick}
-    className="group flex items-start gap-3 p-3 rounded-md text-left border border-transparent hover:border-nv-border hover:bg-nv-side transition-colors w-full"
+    style={{ ['--i' as string]: index }}
+    className="welcome-rise welcome-card group flex items-start gap-3 p-3.5 rounded-lg text-start w-full"
   >
-    <span className="mt-0.5 text-indigo-400 shrink-0">{icon}</span>
+    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-nv-active text-indigo-300">{icon}</span>
     <span className="min-w-0 flex-1">
       <span className="block text-[13px] text-zinc-100">{title}</span>
       <span className="block text-[12px] text-zinc-500 leading-relaxed mt-0.5">{desc}</span>
     </span>
-    <ChevronRight size={14} className="mt-1 text-zinc-600 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+    <ChevronRight size={14} className="mt-2.5 text-zinc-600 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all rtl:rotate-180" />
   </button>
+);
+
+const Tip: React.FC<{ label: string; keys: string }> = ({ label, keys }) => (
+  <li className="flex items-center justify-between gap-3 h-7 text-[12px] text-zinc-400">
+    <span className="truncate">{label}</span>
+    <kbd className="shrink-0 px-1.5 py-px rounded border border-nv-border bg-nv-input text-[11px] font-mono text-zinc-300">{keys}</kbd>
+  </li>
 );
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -57,14 +65,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onToggleStartup
 }) => {
   return (
-    <div className="animate-fade-in flex-1 h-full w-full bg-nv-editor overflow-y-auto select-none">
-      <div className="min-h-full max-w-[880px] mx-auto px-10 pt-14 pb-8 flex flex-col">
-        {/* Başlık */}
-        <header className="flex items-center gap-4 mb-12">
-          <Logo size={48} animated />
-          <div>
-            <h1 className="text-[28px] leading-tight font-light tracking-tight text-zinc-100">NovaCode Studio</h1>
-            <p className="text-[14px] text-zinc-500 mt-0.5">{t('splashTagline')}</p>
+    <div className="animate-fade-in welcome-bg flex-1 h-full w-full overflow-y-auto select-none">
+      <div className="min-h-full max-w-[920px] mx-auto px-10 pt-12 pb-8 flex flex-col">
+        {/* Başlık: plakalı logo + hızlı eylemler */}
+        <header className="flex flex-col sm:flex-row sm:items-center gap-6 mb-12">
+          <Logo size={84} animated plate />
+          <div className="flex-1 min-w-0">
+            <h1 className="text-[30px] leading-tight font-light tracking-tight text-zinc-50">NovaCode Studio</h1>
+            <p className="text-[14px] text-zinc-500 mt-1">{t('splashTagline')}</p>
+            <div className="flex flex-wrap gap-2 mt-4">
+              <button
+                onClick={onOpenFolder}
+                className="inline-flex items-center gap-2 h-8 px-3.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-[13px] text-white shadow-sm transition-colors"
+              >
+                <FolderOpen size={15} />
+                {t('openFolder')}
+              </button>
+              <button
+                onClick={onNewFile}
+                className="inline-flex items-center gap-2 h-8 px-3.5 rounded-md border border-nv-border bg-nv-side hover:bg-nv-hover text-[13px] text-zinc-200 transition-colors"
+              >
+                <FilePlus size={15} className="text-indigo-400" />
+                {t('newFile')}
+              </button>
+            </div>
           </div>
         </header>
 
@@ -97,28 +121,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     key={f.path}
                     onClick={() => onOpenRecent(f.path)}
                     title={f.path}
-                    className="group flex items-baseline gap-3 h-7 px-1.5 -mx-1.5 rounded text-[13px] hover:bg-nv-hover transition-colors w-full text-left"
+                    className="group flex items-baseline gap-3 h-8 px-2 -mx-2 rounded-md text-[13px] hover:bg-nv-hover transition-colors w-full text-start"
                   >
                     <Folder size={14} className="self-center shrink-0 text-zinc-500" />
                     <span className="text-indigo-300 group-hover:text-indigo-200 shrink-0">{f.name}</span>
-                    <span className="text-zinc-600 text-[12px] truncate">{f.path}</span>
+                    <span className="text-zinc-600 text-[12px] truncate" dir="ltr">{f.path}</span>
                   </button>
                 ))
               )}
             </section>
           </div>
 
-          {/* Sağ: keşfet */}
-          <section aria-labelledby="wel-walk">
-            <h2 id="wel-walk" className="text-[16px] font-normal text-zinc-200 mb-3">
-              {t('welWalkthroughs')}
-            </h2>
-            <div className="space-y-1.5 -mx-3">
-              <Card icon={<GitBranch size={18} />} title={t('welGitTitle')} desc={t('welGitDesc')} onClick={onOpenGit} />
-              <Card icon={<Sparkles size={18} />} title={t('welAiTitle')} desc={t('welAiDesc')} onClick={onOpenAI} />
-              <Card icon={<SquareTerminal size={18} />} title={t('welTermTitle')} desc={t('welTermDesc')} onClick={onOpenTerminal} />
-            </div>
-          </section>
+          {/* Sağ: keşfet + ipuçları */}
+          <div className="space-y-9">
+            <section aria-labelledby="wel-walk">
+              <h2 id="wel-walk" className="text-[16px] font-normal text-zinc-200 mb-3">
+                {t('welWalkthroughs')}
+              </h2>
+              <div className="space-y-2">
+                <Card index={0} icon={<GitBranch size={18} />} title={t('welGitTitle')} desc={t('welGitDesc')} onClick={onOpenGit} />
+                <Card index={1} icon={<Sparkles size={18} />} title={t('welAiTitle')} desc={t('welAiDesc')} onClick={onOpenAI} />
+                <Card index={2} icon={<SquareTerminal size={18} />} title={t('welTermTitle')} desc={t('welTermDesc')} onClick={onOpenTerminal} />
+              </div>
+            </section>
+
+            <section aria-labelledby="wel-tips">
+              <h2 id="wel-tips" className="text-[16px] font-normal text-zinc-200 mb-2">
+                {t('welTips')}
+              </h2>
+              <ul>
+                <Tip label={t('welTipQuickOpen')} keys="Ctrl+P" />
+                <Tip label={t('welTipPalette')} keys="Ctrl+Shift+P" />
+                <Tip label={t('welTipSearch')} keys="Ctrl+Shift+F" />
+                <Tip label={t('welTipAi')} keys="Ctrl+Shift+L" />
+                <Tip label={t('welTipTerminal')} keys="Ctrl+`" />
+                <Tip label={t('welTipSettings')} keys="Ctrl+," />
+              </ul>
+            </section>
+          </div>
         </div>
 
         {/* Alt: açılışta göster */}

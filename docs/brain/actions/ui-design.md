@@ -77,6 +77,13 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 - **Sürükleme:** üst çubuk kartının üstündeki dar boşlukta `app-drag` şeridi vardır (pencere taşınabilsin). Sağ paneller dar ekranda (`compactRight`) editörün üstüne biner (`right/top-[var(--frame)]`).
 - **Alt çubuk:** `@container`; ikincil bilgiler (girinti, UTF-8) `hidden @lg:inline-flex` ile dar genişlikte gizlenir.
 
+## Logo plakası ve karşılama ekranı
+- **Logo plakası (`<Logo plate />`):** `size` plakanın toplam boyutudur, işaret %64'ü kadardır, köşe `size×0.27`. Plaka zemini, kenarlığı ve gölgesi `style.css` jetonlarından gelir: `--logo-plate`, `--logo-plate-border`, `--logo-shadow`. **Koyu tema:** koyu zemin (`nv-side` + siyah) + vurgu renkli parıltı. **Açık tema:** beyaza yakın zemin + yumuşak gölge. Jetonlar `--color-indigo-*` ile `color-mix` kullandığından vurgu rengi değişince plaka da değişir. `plate` varsayılan kapalıdır; başlık çubuğundaki 18 px logo plakasızdır.
+- **Kullanım yerleri:** açılış ekranı (104), karşılama başlığı (84), boş editör durumu (88). Logo **çizimi** değişmedi (`public/logo.svg`, `favicon.svg`, `icon.png` aynı).
+- **Karşılama (`LandingPage.tsx`):** üstte plakalı logo + hızlı eylemler (Klasör Aç birincil, Yeni Dosya); solda Başlangıç ve Son açılanlar; sağda Keşfet kartları (`.welcome-card`, kademeli `.welcome-rise`) ve İpuçları (kısayol rozetleri: Ctrl+P, Ctrl+Shift+P, Ctrl+Shift+F, Ctrl+Shift+L, Ctrl+\`, Ctrl+,). Zemin `.welcome-bg`: üstte vurgu parıltısı + ince ızgara (`--welcome-glow`, `--welcome-grid`).
+- **İstisna notu:** "Çerçeve" bölümündeki "degrade/renkli vurgu ekleme" kuralı panel çerçevesi içindir. Karşılama ve logo plakası bilinçli olarak bu süslemeyi kullanır; editör, paneller ve tema renkleri değişmedi.
+- **Kurallar:** yalnız jeton sınıfları ve CSS değişkenleri; RTL için `text-start`, `ms-auto`, `rtl:rotate-180`; hareket `data-motion="off"` ve `prefers-reduced-motion` ile kapanır. Yeni metinler `welTips`, `welTip*` (8 dil, [[i18n]]).
+
 ## ✦ tamamlama menüsü (`CompletionMenu.tsx`)
 - **Yüzey:** `bg-nv-side`, `border-nv-border`, `rounded-[var(--frame-r)]`, tek `shadow-xl`; katman `z-[70]` (açılır menü). Sabit hex ve `zinc-700/70` gibi yarı saydam kenarlık yok; açık/koyu modda kod aynı.
 - **Hizalama ızgarası:** her satır `h-8`, yan boşluk `px-3.5`, etiket solda (`flex-1 truncate`), kontrol sağda **sabit sütunda** (`CTRL_W` = `w-[176px]`). Anahtar, segment ve kaydırıcı aynı sağ kenarda biter; kaydırıcı değeri `w-[44px]` `tabular-nums`. Yeni satır eklerken `Row` / `Range` kullan, kendi genişliğini verme.

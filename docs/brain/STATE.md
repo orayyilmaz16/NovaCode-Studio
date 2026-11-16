@@ -67,8 +67,8 @@
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 899 |
 | `src/components/GithubAccount.tsx` | 134 |
-| `src/components/LandingPage.tsx` | 135 |
-| `src/components/Logo.tsx` | 34 |
+| `src/components/LandingPage.tsx` | 175 |
+| `src/components/Logo.tsx` | 43 |
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
 | `src/components/MenuBar.tsx` | 95 |
@@ -115,7 +115,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1607 |
+| `src/i18n/uiText.ts` | 1628 |
 | `src/i18n/uiTextAi.ts` | 525 |
 | `src/i18n/uiTextComp.ts` | 107 |
 | `src/i18n/uiTextDev.ts` | 126 |
@@ -176,7 +176,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 826 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 833 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 107 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
