@@ -34,8 +34,13 @@ const ok = (c, m) => { if (!c) { fails++; process.exitCode = 1; } console.log(c 
 
   let r = await _test.completeCode({ prefix: 'function add(a, b) {\n', suffix: '\n}', fileName: 'a.js', baseUrl: base }, sig);
   ok(r.success && r.text === '  return a + b;', 'öneri döner, durdurma jetonundan sonrası kesilir: ' + JSON.stringify(r.text));
-  const body = seen[0].body;
-  ok(seen[0].url === '/api/generate' && body.raw === true && body.stream === false, 'yerel /api/generate, ham FIM isteği');
+  ok(seen[0].body.prompt === '' && seen[0].body.options.num_ctx === 4096 && seen[0].body.keep_alive === '30m', 'ilk istekten önce model boş istekle yüklenir (aynı num_ctx, 30 dk bellekte)');
+  const body = seen[1].body;
+  ok(seen[1].url === '/api/generate' && body.raw === true && body.stream === false, 'yerel /api/generate, ham FIM isteği');
+  ok(body.options.num_ctx === seen[0].body.options.num_ctx, 'yükleme ve üretim AYNI num_ctx (farklıysa Ollama modeli yeniden yükler)');
+  const before = seen.length;
+  await _test.completeCode({ prefix: 'y = ', suffix: '', fileName: 'a.js', baseUrl: base }, sig);
+  ok(seen.length === before + 1, 'model yüklüyken yeniden yükleme isteği gitmez');
   ok(body.prompt === '<|fim_prefix|>function add(a, b) {\n<|fim_suffix|>\n}<|fim_middle|>', 'FIM istem biçimi doğru');
   ok(body.model === 'qwen2.5-coder:7b' && body.options.num_predict <= 128, 'sabit model, kısa çıktı sınırı');
 
@@ -83,9 +88,40 @@ const ok = (c, m) => { if (!c) { fails++; process.exitCode = 1; } console.log(c 
 
   mode = 'slow';
   const ac = new AbortController();
-  const p = _test.completeCode({ prefix: 'x', suffix: '', fileName: 'a.js', baseUrl: base }, ac.signal).then(() => 'bitti', () => 'iptal');
+  const p = _test.completeCode({ prefix: 'x', suffix: '', fileName: 'a.js', baseUrl: base }, ac.signal).then((v) => (v.error === 'aborted' ? 'iptal' : 'bitti'), () => 'iptal');
   setTimeout(() => ac.abort(), 150);
   ok((await p) === 'iptal', 'iptal sinyali isteği keser');
+
+  // --- yükleme iptalden bağımsız (Ollama 499 döngüsü): yazarken iptal edilen istek model yüklemesini kesmemeli ---
+  let loadStarts = 0; let loadClosedEarly = false; let loadDone = 0;
+  const srv2 = http.createServer((req, res) => {
+    let b = '';
+    req.on('data', (d) => (b += d));
+    req.on('end', () => {
+      const j = b ? JSON.parse(b) : {};
+      res.on('close', () => { if (!res.writableEnded) loadClosedEarly = true; });
+      if (j.prompt === '') {
+        loadStarts++;
+        return setTimeout(() => { res.setHeader('content-type', 'application/json'); res.end('{"done":true}'); loadDone++; }, 500);
+      }
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({ response: 'ok' }));
+    });
+  }).listen(0, '127.0.0.1');
+  await new Promise((r) => srv2.on('listening', r));
+  const base2 = `http://127.0.0.1:${srv2.address().port}`;
+  const cancelled = [new AbortController(), new AbortController(), new AbortController()];
+  const calls = cancelled.map((c) => _test.completeCode({ prefix: 'a', suffix: '', fileName: 'a.js', baseUrl: base2 }, c.signal));
+  setTimeout(() => cancelled.forEach((c) => c.abort()), 100); // yükleme sürerken hepsi iptal (yazmaya devam edildi)
+  const res2 = await Promise.all(calls);
+  ok(res2.every((v) => v.error === 'aborted'), 'yükleme sırasında iptal edilen istekler hemen "aborted" döner');
+  await new Promise((r) => setTimeout(r, 600));
+  ok(loadStarts === 1, '3 eşzamanlı istek tek bir yükleme paylaşır (' + loadStarts + ')');
+  ok(loadDone === 1 && !loadClosedEarly, 'iptal yüklemeyi KESMEZ: yükleme sonuna kadar tamamlanır');
+  const after = await _test.completeCode({ prefix: 'a', suffix: '', fileName: 'a.js', baseUrl: base2 }, new AbortController().signal);
+  ok(after.success && after.text === 'ok' && loadStarts === 1, 'yükleme bitince sonraki istek yeniden yüklemeden öneri alır');
+  srv2.closeAllConnections?.();
+  srv2.close();
 
   srv.closeAllConnections?.();
   srv.close();
