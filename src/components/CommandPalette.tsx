@@ -3,6 +3,7 @@ import { Palette, ChevronRight, Hash, Search as SearchIcon, Terminal } from 'luc
 import { t } from '../i18n/uiText';
 import { baseName } from '../services/lang';
 import { FileTypeIcon } from './FileTypeIcon';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 export interface PaletteCommand {
   id: string;

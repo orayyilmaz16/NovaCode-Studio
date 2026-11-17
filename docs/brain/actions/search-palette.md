@@ -31,3 +31,6 @@ Paletin içinde önek yazarak mod değişir (`>`, `:`); önek yoksa dosya modudu
 
 ## Denetim düzeltmeleri (17.11.2026)
 `search:text` istek kimliği alır, yeni arama eskisini iptal eder (`search:cancel`); 12'şerli paralel okuma; `search:files` için 10 sn TTL önbellek (ajan yazınca geçersiz).
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+**Bul-değiştir** (`search:replace`, `preview` diske dokunmaz, `apply` yalnız seçili satırları yazar): regex/büyük-küçük harf/tam kelime, dosya ve satır bazında hariç tutma, `electron-paths` doğrulaması, atomik yazma (temp+rename), CRLF/dosya modu korunur, gizli dosya/.git/node_modules reddedilir, boş eşleşen regex reddedilir; uygulamadan önce onay, kaydedilmemiş açık sekme uyarısı. **Görev çalıştırıcı** (`src/services/tasks.ts`): `.nova/tasks.json` ve `package.json` scripts; etiket/komut/cwd doğrulanır; komut terminale metin olarak gider; palet ve Çalıştır menüsü. Çoklu imleç komutları palette (Tüm eşleşmeleri seç, Üste/Alta imleç ekle). Test: `replace.test.cjs`.

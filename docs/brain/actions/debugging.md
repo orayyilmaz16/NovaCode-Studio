@@ -32,3 +32,6 @@ Yeni metin [[i18n]] ile `src/i18n/uiTextDev.ts` içine (8 dil).
 
 ## Denetim düzeltmeleri (17.11.2026)
 Debug alt süreci `safeEnv` ile başlar: hata ayıklanan programın kabuktaki özel ortam değişkenlerini görmez. Durdurma/kapanışta `killSync` (Windows `taskkill /T /F`).
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+Güvenilmeyen klasörde `dbg:start` hiç başlamaz; hata ayıklama konsoluna `trRestrictedShort` yazılır.

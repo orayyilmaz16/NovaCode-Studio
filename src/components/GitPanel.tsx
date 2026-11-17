@@ -36,6 +36,7 @@ import { languageFromName } from '../services/lang';
 import { FileTypeIcon } from './FileTypeIcon';
 import { PopupMenu, type MenuItem } from './Menu';
 import type { PickerMode } from './BranchPicker';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 interface GitPanelProps {
   status: GitStatus;

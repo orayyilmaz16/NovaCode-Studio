@@ -229,14 +229,14 @@ export function commandForEvent(e: KeyEventLike, bindings: Bindings, scope?: KbS
 
 /**
  * Monaco'nun varsayılan tuşunu kullanan ve kullanıcı tarafından değiştirilmiş/kaldırılmış editör komutlarının
- * eski birleşimleri: bunlar yakalama aşamasında yutulur (başka komuta atanmadıysa), böylece "kaldırdım ama hâlâ çalışıyor" olmaz.
+ * eski birleşimleri: bunlar yakalama aşamasında yutulur (o tuşu başka bir uygulama komutu tutuyorsa App onu çalıştırır),
+ * böylece "kaldırdım ama hâlâ çalışıyor" olmaz.
  */
 export function shadowedEditorDefaults(bindings: Bindings): Set<string> {
-  const taken = new Set(Object.values(bindings).filter(Boolean) as string[]);
   const out = new Set<string>();
   for (const c of COMMANDS) {
     if (c.scope !== 'editor' || !c.def) continue;
-    if (bindings[c.id] !== c.def && !taken.has(c.def)) out.add(c.def);
+    if (bindings[c.id] !== c.def) out.add(c.def);
   }
   return out;
 }

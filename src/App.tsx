@@ -1378,7 +1378,8 @@ export function App() {
       activeId: activeIdRef.current,
       files: openFilesRef.current,
       getContent: (id) => liveContent.current.get(id) ?? openFilesRef.current.find((f) => f.id === id)?.content,
-      withDrafts
+      withDrafts,
+      split: splitRef.current
     });
   };
   useEffect(() => {
@@ -1386,7 +1387,7 @@ export function App() {
     const id = window.setTimeout(() => persistSession(), 800);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openFiles, activeFileId, currentRootPath, liveTick, restoreOffer]);
+  }, [openFiles, activeFileId, currentRootPath, liveTick, restoreOffer, split]);
   useEffect(() => {
     const onHide = () => { if (sessionLive.current) persistSession(true, true); };
     // Tarayıcıda (Electron dışı) kaydedilmemiş değişiklik varken sekme kapatılırsa tarayıcı uyarısı
@@ -1418,6 +1419,7 @@ export function App() {
       }
     }
     const items: FileItem[] = [];
+    const idByTab: Record<number, string> = {};
     let activeId: string | null = null;
     for (let i = 0; i < s.tabs.length; i++) {
       const tab = s.tabs[i];
@@ -1438,6 +1440,7 @@ export function App() {
       }
       if (!item) continue;
       if (i === s.active) activeId = item.id;
+      idByTab[i] = item.id;
       items.push(item);
     }
     if (items.length > 0) {
@@ -1445,7 +1448,9 @@ export function App() {
         const ids = new Set(prev.map((f) => f.id));
         return [...prev, ...items.filter((f) => !ids.has(f.id))];
       });
-      setActiveFileId(activeId ?? items[0].id);
+      const restoredSplit = savedToSplit(s.split, (i) => idByTab[i]);
+      setSplitRaw(restoredSplit);
+      setActiveFileId(restoredSplit ? activeOf(restoredSplit, restoredSplit.focus) ?? activeId ?? items[0].id : activeId ?? items[0].id);
       setShowLanding(false);
       setShowSettings(false);
     }
@@ -1749,6 +1754,7 @@ export function App() {
   const eOpenPath = useEvent((p: string) => void openFileAt(p));
   const eSelectA = useEvent((id: string) => selectInGroupTab(id, 'a'));
   const eSelectB = useEvent((id: string) => selectInGroupTab(id, 'b'));
+  const eCloseTab = useEvent((id: string) => void handleCloseTab(id)); // Açık Editörler listesi: dosyayı her yerden kapatır
   const eCloseA = useEvent((id: string) => closeInGroup(id, 'a'));
   const eCloseB = useEvent((id: string) => closeInGroup(id, 'b'));
   const eFocusGroup = useEvent((g: GroupId) => focusGroupId(g));

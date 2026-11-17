@@ -97,7 +97,7 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
       draggable
       onDragStart={(e) => {
         e.dataTransfer.setData(TAB_MIME, JSON.stringify({ id: file.id, from: group }));
-        e.dataTransfer.effectAllowed = 'copyMove';
+        e.dataTransfer.effectAllowed = 'move';
       }}
       onClick={() => onSelect(file.id)}
       onKeyDown={(e) => {
@@ -466,7 +466,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
         const z = zoneOf(e);
         if (!z) { if (dropZone) setDropZone(null); return; }
         e.preventDefault();
-        e.dataTransfer.dropEffect = e.ctrlKey ? 'copy' : 'move';
+        e.dataTransfer.dropEffect = 'move';
         if (z !== dropZone) setDropZone(z);
       } : undefined}
       onDragLeaveCapture={onDropTab ? (e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropZone(null); } : undefined}

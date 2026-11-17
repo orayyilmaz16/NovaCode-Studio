@@ -7,14 +7,14 @@ Son tarama: 17.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 | Alan | Bulgu |
 |---|---|
 | Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 21 |
-| Performans | kritik 0 · yüksek 0 · orta 3 · düşük 61 |
+| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 61 |
 | Kalite | kritik 0 · yüksek 0 · orta 2 · düşük 10 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
 - Yeni/artan: yok
-- Giderilen: yok
+- Giderilen: `PERF-BIGFILE src/i18n/uiText.ts`
 
 ## Güvenlik
 | Önem | Kural | Konum | Sorun |
@@ -37,10 +37,9 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 ## Performans
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | PERF-BIGFILE | `src/App.tsx:1` | 2329 satır: bölünmeli / memo ile ayrıştırılmalı |
-| orta | PERF-BIGFILE | `src/i18n/uiText.ts:1` | 1636 satır: bölünmeli / memo ile ayrıştırılmalı |
+| orta | PERF-BIGFILE | `src/App.tsx:1` | 2335 satır: bölünmeli / memo ile ayrıştırılmalı |
 | orta | PERF-LISTENER-LEAK | `src/components/Preview.tsx:1` | addEventListener (4) > removeEventListener (1): temizlenmeyen dinleyici olabilir |
-| düşük | PERF-LS-WRITE | `src/App.tsx:1495` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/App.tsx:1500` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ResizeHandle.tsx:60` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/services/aiClient.ts:144` | localStorage yazımı: sık tetikleniyorsa debounce et |
@@ -76,5 +75,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:348` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2329, `src/i18n/uiText.ts` 1636, `electron-ai.cjs` 1029, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 883, `src/components/AIAssistant.tsx` 835
-- Üretim paketi (dist varsa): toplam JS 2809 KB; en büyük: index-CPtWP5yk.js 489 KB, PtyView-gL6gM7vC.js 327 KB, fileIconLoaders-W59Nxzuc.js 184 KB, uiText-azHSDOE1.js 171 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2335, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 1029, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `src/components/AIAssistant.tsx` 835
+- Üretim paketi (dist varsa): toplam JS 2904 KB; en büyük: index-BWL4YM1A.js 596 KB, PtyView-CeJumSNh.js 327 KB, fileIconLoaders-KKHWngyZ.js 184 KB, uiTextTheme-BARjDFkM.js 136 KB

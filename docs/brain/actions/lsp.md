@@ -31,3 +31,6 @@ python (pyright / pylsp), rust (rust-analyzer), go (gopls), c/cpp (clangd), csha
 
 ## Denetim düzeltmeleri (17.11.2026)
 Sunucu `textDocumentSync` türüne göre artımlı `didChange` (`lsp:start` sonucunda `syncKind`); EOL değişimi veya 100'den fazla birikmiş değişiklikte tam metin. Kapanışta `stopAll({fast:true})`. Alt süreç ortamı `safeEnv` izin listesiyle.
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+Güvenilmeyen klasörde `lsp:start` `trust-required` döner, `lsp:status` `restricted: true`. Arayüzde ayrı "kısıtlı" durum metni yok (açık iş).

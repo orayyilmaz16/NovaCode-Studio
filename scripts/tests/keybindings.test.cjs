@@ -100,7 +100,7 @@ const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     ok(sh.has('Ctrl+F') && sh.size === 1, 'değişen editör komutunun eski tuşu yutulur');
     ok(K.shadowedEditorDefaults(base).size === 0, 'değişiklik yoksa yutulan yok');
     const sh2 = K.shadowedEditorDefaults(K.resolveBindings({ find: 'Ctrl+Alt+F', quickOpen: 'Ctrl+F' }));
-    ok(!sh2.has('Ctrl+F'), 'eski tuş başka komuta atandıysa yutulmaz');
+    ok(sh2.has('Ctrl+F'), 'eski tuş başka komuta atandıysa da Monaco\'dan yutulur (App o komutu çalıştırır)');
 
     // ---- Menü etiketi ----
     ok(K.remapShortcutLabel('Ctrl+N', K.resolveBindings({ newFile: 'Ctrl+Alt+N' })) === 'Ctrl+Alt+N', 'menü etiketi güncel atamayı gösterir');

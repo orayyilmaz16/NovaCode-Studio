@@ -36,3 +36,6 @@ Sonucu [[AGENT]] **Durum**'a tek satır yaz (ne doğrulandı, ne doğrulanamadı
 Yeni testler: `paths.test.cjs` (yol doğrulama, symlink), `ai-security.test.cjs`, `syncserver.test.cjs` (sync sunucusu sertleştirme).
 
 - Test dosyalarında sahte anahtar/özel anahtar değerleri kaynakta bütün yazılmaz, çalışma zamanında birleştirilir (`check-hygiene.mjs` sır taraması kaynakta eşleşme görmesin; bkz. `ai-security.test.cjs`).
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+Yeni testler: `services.test.cjs` (saf servisler, Vite SSR ile `.ts` yükleme), `i18n.test.cjs` (909+ anahtar 8 dil, yer tutucu, `MSG` tablosu; kullanılmayan anahtar yalnız uyarı), `electron-misc.test.cjs` (ext/llm/search saf kısımları), `replace.test.cjs`, `trust.test.cjs`, `preview-csp.test.cjs`, `history.test.cjs`, `snippets.test.cjs`, `keybindings.test.cjs`. Windows'ta sembolik bağ oluşturulamadığı için ilgili senaryolar atlanır. Hâlâ testsiz: `electron-secrets/update/github` (ayıklama gerekir), `electron-main` fs işleyicileri.

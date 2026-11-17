@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { LogOut, Copy, Check, Loader2, UserPlus } from 'lucide-react';
 import { t } from '../i18n/uiText';
 import { useGithubAuth } from '../services/useGithubAuth';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 const Github: React.FC<{ size?: number; className?: string }> = ({ size = 14, className }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className={className}>

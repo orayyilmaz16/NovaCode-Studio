@@ -7,11 +7,6 @@
    "sev": "orta"
   },
   {
-   "k": "PERF-BIGFILE|src/i18n/uiText.ts",
-   "n": 1,
-   "sev": "orta"
-  },
-  {
    "k": "PERF-LISTENER-LEAK|src/components/Preview.tsx",
    "n": 1,
    "sev": "orta"

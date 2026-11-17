@@ -2,6 +2,7 @@ import React from 'react';
 import { FilePlus, FileCode2, FolderOpen, Folder, GitBranch, Sparkles, SquareTerminal, ChevronRight } from 'lucide-react';
 import { Logo } from './Logo';
 import { t } from '../i18n/uiText';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 interface LandingPageProps {
   onNewFile: () => void;

@@ -4,6 +4,7 @@ import { t } from '../i18n/uiText';
 import { loadTasks, type Task } from '../services/tasks';
 import { useFocusTrap } from '../services/useFocusTrap';
 import '../i18n/uiTextAi';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 // "Görevi çalıştır": .nova/tasks.json + package.json scripts listesi; seçilen görev terminalde çalışır.
 interface Props {

@@ -11,6 +11,7 @@ import { ProblemsPanel } from './ProblemsPanel';
 import { useProblems } from '../services/problems';
 import { dropPty, pushPtyData } from '../services/ptyBus';
 import type { PtyHandle } from './PtyView';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 const PtyView = React.lazy(() => import('./PtyView')); // xterm.js yalnız ilk gerçek terminal açılınca yüklenir
 

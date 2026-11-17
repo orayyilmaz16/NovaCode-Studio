@@ -104,3 +104,6 @@ Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontra
 
 ## Denetim düzeltmeleri (17.11.2026)
 Gölge yığınları sadeleştirildi (tek odak halkası); AI avatarları düz `indigo`; `text-zinc-600` metinler `zinc-500`; FileTree bölüm başlıkları `role=button` + `aria-expanded` + Enter/Space. Kalan: ajan modu violet kullanımları ve `origin-left` fiziksel.
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+**Bölünmüş editör:** en çok 2 grup (sağa `Ctrl+\`, alta `Ctrl+Alt+\`), her grubun kendi sekmeleri; aynı dosya iki grupta aynı Monaco modelini paylaşır; sekme sürükleyerek gruba taşıma; ayırıcı oranı `nova.split.ratio`; 860 px altında gruplar yığılır; oturumda `Session.split`; ortak düzenleme yalnız ilk grupta. Mantık `src/services/splitLayout.ts` (saf). **Veri kaybı önlemleri:** kaydedilmemiş sekme ve pencere kapanışında Kaydet/Kaydetme/İptal (`app:close-request`/`app:close-response`), "Diskte yok" ve "Diskte değişti" çubukları, oturum geri yükleme (`session.ts`, yalnız yerel, onaylı), `Ctrl+Shift+T`, kök ve panel `ErrorBoundary`. **Performans:** içerik editör modelinde, 250 ms toplu bildirim; `key`'siz tek editör; imleç/tanı/tamamlama/LSP durumları `StatusCursor` altında; `EditorArea` memo; günlük en çok 500 satır.

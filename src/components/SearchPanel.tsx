@@ -4,6 +4,7 @@ import { t } from '../i18n/uiText';
 import { FileTypeIcon } from './FileTypeIcon';
 import type { ReplaceHit, SearchHit } from '../types';
 import '../i18n/uiTextAi'; // AI metinleri (gecikmeli yüklenen ek sözlük)
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 interface Props {
   hasFolder: boolean;

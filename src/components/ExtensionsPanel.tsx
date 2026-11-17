@@ -4,6 +4,7 @@ import { t, type UiTextKey } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
 import { checkUpdates, extThemeName, installExt, uninstallExt, useExtensions, type ExtDetails, type StoreItem } from '../services/extensionsService';
 import { Markdown } from './Markdown';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 type Tab = 'installed' | 'store';
 type Cat = 'Themes';

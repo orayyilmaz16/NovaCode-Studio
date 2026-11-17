@@ -44,7 +44,7 @@ export const KeybindingsEditor: React.FC<{ onClose?: () => void; embedded?: bool
       const combo = comboFromEvent(e);
       if (!combo) return; // yalnız değiştirici tuş
       const chk = checkAssignable(combo);
-      if (!chk.ok) { setErr(chk.reason === 'reserved' ? 'kbReserved' : chk.reason === 'needMod' ? 'kbNeedMod' : 'kbNeedMod'); return; }
+      if (!chk.ok) { setErr((chk as { reason: string }).reason === 'reserved' ? 'kbReserved' : 'kbNeedMod'); return; }
       const clash = conflictsFor(combo, id, bindingsRef.current);
       if (clash.length) { setPending({ id, combo, clash }); setCapturing(null); setErr(null); return; }
       setOverrides(assign(getOverrides(), id, combo).overrides);
