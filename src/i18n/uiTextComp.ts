@@ -250,6 +250,78 @@ export const COMP_TEXT = {
   appReopenTab: {
     tr: "Kapatılan sekmeyi yeniden aç", en: "Reopen closed tab", de: "Geschlossenen Tab erneut öffnen", ru: "Снова открыть закрытую вкладку", ar: "إعادة فتح علامة التبويب المغلقة", es: "Reabrir pestaña cerrada", fr: "Rouvrir l’onglet fermé", az: "Bağlanan vərəqi yenidən aç",
   },
+  cmdQuitApp: {
+    tr: "Uygulamadan çık", en: "Quit the app", de: "Anwendung beenden", ru: "Выйти из приложения", ar: "الخروج من التطبيق", es: "Salir de la aplicación", fr: "Quitter l’application", az: "Tətbiqdən çıx",
+  },
+  cmdSplitRight: {
+    tr: "Editörü sağa böl", en: "Split editor right", de: "Editor nach rechts teilen", ru: "Разделить редактор вправо", ar: "تقسيم المحرر إلى اليمين", es: "Dividir editor a la derecha", fr: "Fractionner l’éditeur à droite", az: "Redaktoru sağa böl",
+  },
+  cmdSplitDown: {
+    tr: "Editörü alta böl", en: "Split editor down", de: "Editor nach unten teilen", ru: "Разделить редактор вниз", ar: "تقسيم المحرر إلى الأسفل", es: "Dividir editor hacia abajo", fr: "Fractionner l’éditeur vers le bas", az: "Redaktoru aşağı böl",
+  },
+  cmdFocusOtherGroup: {
+    tr: "Diğer editör grubuna geç", en: "Focus other editor group", de: "Zur anderen Editorgruppe wechseln", ru: "Перейти в другую группу редактора", ar: "الانتقال إلى مجموعة المحرر الأخرى", es: "Ir al otro grupo de editores", fr: "Passer à l’autre groupe d’éditeurs", az: "Digər redaktor qrupuna keç",
+  },
+  cmdCloseSplit: {
+    tr: "Bölmeyi kapat", en: "Close split", de: "Teilung schließen", ru: "Закрыть разделение", ar: "إغلاق التقسيم", es: "Cerrar división", fr: "Fermer la division", az: "Bölməni bağla",
+  },
+  kbOpen: {
+    tr: "Klavye kısayollarını aç", en: "Open keyboard shortcuts", de: "Tastenkürzel öffnen", ru: "Открыть сочетания клавиш", ar: "فتح اختصارات لوحة المفاتيح", es: "Abrir atajos de teclado", fr: "Ouvrir les raccourcis clavier", az: "Klaviatura qısayollarını aç",
+  },
+  kbTitle: {
+    tr: "Klavye kısayolları", en: "Keyboard shortcuts", de: "Tastenkürzel", ru: "Сочетания клавиш", ar: "اختصارات لوحة المفاتيح", es: "Atajos de teclado", fr: "Raccourcis clavier", az: "Klaviatura qısayolları",
+  },
+  kbSearch: {
+    tr: "Komut ara…", en: "Search commands…", de: "Befehle suchen…", ru: "Поиск команд…", ar: "ابحث عن أمر…", es: "Buscar comandos…", fr: "Rechercher des commandes…", az: "Əmr axtar…",
+  },
+  kbColCommand: {
+    tr: "Komut", en: "Command", de: "Befehl", ru: "Команда", ar: "الأمر", es: "Comando", fr: "Commande", az: "Əmr",
+  },
+  kbColKey: {
+    tr: "Kısayol", en: "Shortcut", de: "Kürzel", ru: "Сочетание", ar: "الاختصار", es: "Atajo", fr: "Raccourci", az: "Qısayol",
+  },
+  kbChange: {
+    tr: "Değiştir", en: "Change", de: "Ändern", ru: "Изменить", ar: "تغيير", es: "Cambiar", fr: "Modifier", az: "Dəyiş",
+  },
+  kbRemove: {
+    tr: "Kaldır", en: "Remove", de: "Entfernen", ru: "Удалить", ar: "إزالة", es: "Quitar", fr: "Supprimer", az: "Sil",
+  },
+  kbReset: {
+    tr: "Sıfırla", en: "Reset", de: "Zurücksetzen", ru: "Сбросить", ar: "إعادة تعيين", es: "Restablecer", fr: "Réinitialiser", az: "Sıfırla",
+  },
+  kbResetAll: {
+    tr: "Tümünü varsayılana döndür", en: "Reset all to defaults", de: "Alle auf Standard zurücksetzen", ru: "Сбросить всё по умолчанию", ar: "إعادة الكل إلى الافتراضي", es: "Restablecer todo a los valores predeterminados", fr: "Tout réinitialiser par défaut", az: "Hamısını susmaya görə qaytar",
+  },
+  kbPress: {
+    tr: "Yeni kısayola bas… (Esc: vazgeç)", en: "Press the new shortcut… (Esc: cancel)", de: "Neues Kürzel drücken… (Esc: abbrechen)", ru: "Нажмите новое сочетание… (Esc: отмена)", ar: "اضغط الاختصار الجديد… (Esc: إلغاء)", es: "Pulsa el nuevo atajo… (Esc: cancelar)", fr: "Appuyez sur le nouveau raccourci… (Échap : annuler)", az: "Yeni qısayola bas… (Esc: ləğv)",
+  },
+  kbConflict: {
+    tr: "{k} kısayolu “{c}” komutunda kullanılıyor.", en: "{k} is already used by “{c}”.", de: "{k} wird bereits von „{c}“ verwendet.", ru: "{k} уже используется командой «{c}».", ar: "الاختصار {k} مستخدم بالفعل للأمر «{c}».", es: "{k} ya lo usa «{c}».", fr: "{k} est déjà utilisé par « {c} ».", az: "{k} qısayolu artıq “{c}” əmrində işlənir.",
+  },
+  kbAssignAnyway: {
+    tr: "Yine de ata (çakışan komutun kısayolu kalkar)", en: "Assign anyway (the other command loses its shortcut)", de: "Trotzdem zuweisen (der andere Befehl verliert sein Kürzel)", ru: "Всё равно назначить (у другой команды сочетание удалится)", ar: "تعيين على أي حال (يفقد الأمر الآخر اختصاره)", es: "Asignar igualmente (el otro comando pierde su atajo)", fr: "Attribuer quand même (l’autre commande perd son raccourci)", az: "Yenə də təyin et (digər əmr qısayolunu itirir)",
+  },
+  kbNeedMod: {
+    tr: "Kısayol Ctrl veya Alt içermeli (ya da F1–F12 tuşu olmalı); düz harf yazmayı bozar.", en: "A shortcut needs Ctrl or Alt (or must be an F1–F12 key); plain letters would break typing.", de: "Ein Kürzel braucht Strg oder Alt (oder eine F1–F12-Taste); einfache Buchstaben würden das Tippen stören.", ru: "Сочетание должно включать Ctrl или Alt (или быть клавишей F1–F12); одиночные буквы мешают вводу.", ar: "يجب أن يتضمن الاختصار Ctrl أو Alt (أو مفتاح F1–F12)؛ الأحرف المفردة تعطّل الكتابة.", es: "Un atajo necesita Ctrl o Alt (o ser una tecla F1–F12); las letras sueltas impedirían escribir.", fr: "Un raccourci doit contenir Ctrl ou Alt (ou être une touche F1–F12) ; les lettres seules gêneraient la saisie.", az: "Qısayolda Ctrl və ya Alt olmalıdır (ya da F1–F12 düyməsi); tək hərflər yazmağı pozar.",
+  },
+  kbReserved: {
+    tr: "Bu tuş sabit (kopyala/yapıştır, geri al, hata ayıklama, yardım) ve atanamaz.", en: "This key is fixed (copy/paste, undo, debugging, help) and cannot be assigned.", de: "Diese Taste ist fest belegt (Kopieren/Einfügen, Rückgängig, Debuggen, Hilfe) und kann nicht zugewiesen werden.", ru: "Эта клавиша зарезервирована (копирование/вставка, отмена, отладка, справка) и не назначается.", ar: "هذا المفتاح ثابت (نسخ/لصق، تراجع، تصحيح، مساعدة) ولا يمكن تعيينه.", es: "Esta tecla es fija (copiar/pegar, deshacer, depuración, ayuda) y no se puede asignar.", fr: "Cette touche est fixe (copier/coller, annuler, débogage, aide) et ne peut pas être attribuée.", az: "Bu düymə sabitdir (kopyala/yapışdır, geri al, sazlama, kömək) və təyin edilə bilməz.",
+  },
+  kbCustom: {
+    tr: "Özel", en: "Custom", de: "Benutzerdefiniert", ru: "Свое", ar: "مخصص", es: "Personalizado", fr: "Personnalisé", az: "Xüsusi",
+  },
+  kbNone: {
+    tr: "Atanmamış", en: "Unassigned", de: "Nicht zugewiesen", ru: "Не назначено", ar: "غير معيّن", es: "Sin asignar", fr: "Non attribué", az: "Təyin edilməyib",
+  },
+  kbNote: {
+    tr: "Kısayollar yalnız bu bilgisayarda saklanır. F1, F5, F10, F11, Esc ve kopyala/yapıştır/geri al tuşları sabittir.", en: "Shortcuts are stored only on this computer. F1, F5, F10, F11, Esc and copy/paste/undo keys are fixed.", de: "Kürzel werden nur auf diesem Computer gespeichert. F1, F5, F10, F11, Esc sowie Kopieren/Einfügen/Rückgängig sind fest.", ru: "Сочетания хранятся только на этом компьютере. F1, F5, F10, F11, Esc и копирование/вставка/отмена зарезервированы.", ar: "تُحفظ الاختصارات على هذا الجهاز فقط. المفاتيح F1 وF5 وF10 وF11 وEsc ونسخ/لصق/تراجع ثابتة.", es: "Los atajos se guardan solo en este equipo. F1, F5, F10, F11, Esc y copiar/pegar/deshacer son fijos.", fr: "Les raccourcis sont stockés uniquement sur cet ordinateur. F1, F5, F10, F11, Échap et copier/coller/annuler sont fixes.", az: "Qısayollar yalnız bu kompüterdə saxlanır. F1, F5, F10, F11, Esc və kopyala/yapışdır/geri al sabitdir.",
+  },
+  kbEditorTag: {
+    tr: "Editör", en: "Editor", de: "Editor", ru: "Редактор", ar: "المحرر", es: "Editor", fr: "Éditeur", az: "Redaktor",
+  },
+  kbConflictsBanner: {
+    tr: "Çakışan kısayol var: aynı tuş birden fazla komuta atanmış.", en: "Conflicting shortcuts: the same key is assigned to more than one command.", de: "Kürzelkonflikt: dieselbe Taste ist mehreren Befehlen zugewiesen.", ru: "Конфликт сочетаний: одна клавиша назначена нескольким командам.", ar: "اختصارات متعارضة: المفتاح نفسه معيّن لأكثر من أمر.", es: "Atajos en conflicto: la misma tecla está asignada a más de un comando.", fr: "Raccourcis en conflit : la même touche est attribuée à plusieurs commandes.", az: "Toqquşan qısayollar: eyni düymə bir neçə əmrə təyin edilib.",
+  },
 } satisfies Record<string, Dict>;
 
 export type CompTextKey = keyof typeof COMP_TEXT;

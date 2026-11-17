@@ -22,6 +22,11 @@
    "sev": "orta"
   },
   {
+   "k": "Q-I18N-HARD|src/components/TimelinePanel.tsx",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
    "k": "SEC-HTML|src/components/Preview.tsx",
    "n": 1,
    "sev": "orta"
@@ -63,7 +68,7 @@
   },
   {
    "k": "PERF-LS-WRITE|src/services/collabRoom.ts",
-   "n": 2,
+   "n": 3,
    "sev": "düşük"
   },
   {
@@ -158,7 +163,12 @@
   },
   {
    "k": "Q-ANY|src/components/EditorArea.tsx",
-   "n": 2,
+   "n": 3,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-CONSOLE|src/components/SnippetsEditor.tsx",
+   "n": 1,
    "sev": "düşük"
   },
   {

@@ -12,6 +12,7 @@ import {
   Puzzle,
   Keyboard,
   Info,
+  ShieldCheck,
   Search,
   RotateCcw,
   X,
@@ -32,6 +33,7 @@ import { getPalette } from '../services/palettes';
 import { useUpdate } from '../services/updateService';
 import { BUILTIN_THEMES, extThemeName, listExtThemes, uninstallExt, useActiveEditorTheme, useExtensions, setMonacoForExtensions } from '../services/extensionsService';
 import { saveCollabToken, useCollabToken } from '../services/useCollabToken';
+import { getCollabRoomId, regenerateCollabRoomId, setCollabRoomId } from '../services/collabRoom';
 import { defineNovaThemes } from '../services/editorTheme';
 import {
   ACCENTS,
@@ -56,7 +58,8 @@ const ICONS: Record<string, React.ReactNode> = {
   Play: <Play size={16} />,
   Puzzle: <Puzzle size={16} />,
   Keyboard: <Keyboard size={16} />,
-  Info: <Info size={16} />
+  Info: <Info size={16} />,
+  ShieldCheck: <ShieldCheck size={16} />
 };
 
 const tk = (key: string) => t(key as TextKey);
@@ -479,6 +482,124 @@ const About: React.FC = () => {
   );
 };
 
+// ---------- Güven ve rıza (ana süreçteki kalıcı depo; yalnız kaldırma, ekleme yok) ----------
+type TrustList = { folders: { key: string; label: string }[]; consent: string[]; bases: string[] };
+
+const useTrustList = () => {
+  const [list, setList] = useState<TrustList | null>(null);
+  const [root, setRoot] = useState('');
+  const reload = React.useCallback(async () => {
+    const api = window.electronAPI?.trust;
+    if (!api) return;
+    const [l, s] = await Promise.all([api.list(), api.status()]);
+    setList(l);
+    setRoot(s.root);
+  }, []);
+  useEffect(() => {
+    void reload();
+    return window.electronAPI?.trust?.onChange(() => void reload());
+  }, [reload]);
+  return { list, root, reload };
+};
+
+const TrustGroup: React.FC<{ title: string; desc: string; items: { value: string; label: string; tag?: string }[]; kind: 'folders' | 'consent' | 'bases'; onDone: () => void }> = ({ title, desc, items, kind, onDone }) => (
+  <div className="py-3 border-b border-nv-border/70">
+    <div className="text-[13px] text-zinc-100">{title}</div>
+    <p className="mt-1 text-[12px] text-zinc-500 leading-relaxed max-w-[560px]">{desc}</p>
+    {items.length === 0 ? (
+      <p className="mt-2 text-[12px] text-zinc-500">{tk('trSetNone')}</p>
+    ) : (
+      <ul className="mt-2 divide-y divide-nv-border/70 rounded border border-nv-border/70">
+        {items.map((it) => (
+          <li key={it.value} className="flex items-center gap-3 px-3 py-2 min-w-0">
+            <div className="min-w-0 flex-1 text-[12.5px] font-mono text-zinc-200 truncate" title={it.label}>{it.label}</div>
+            {it.tag && <span className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-indigo-500/25 text-indigo-200 whitespace-nowrap">{it.tag}</span>}
+            <button
+              onClick={async () => {
+                if (!window.confirm(tk('trRevokeConfirm'))) return;
+                await window.electronAPI?.trust?.revoke(kind, it.value);
+                onDone();
+              }}
+              className="h-7 px-2.5 rounded text-[12px] text-zinc-400 hover:text-rose-300 hover:bg-nv-hover whitespace-nowrap transition-colors"
+            >{tk('trRevoke')}</button>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
+
+const TrustSettings: React.FC = () => {
+  const { list, root, reload } = useTrustList();
+  if (!window.electronAPI?.trust) return <p className="text-[12px] text-zinc-500">{tk('trWebOnly')}</p>;
+  if (!list) return null;
+  const rootLabel = root.toLowerCase();
+  return (
+    <div>
+      <p className="text-[12px] text-zinc-500 leading-relaxed max-w-[560px]">{tk('trLocalNote')}</p>
+      <TrustGroup
+        title={tk('trSetFolders')}
+        desc={tk('trSetFoldersDesc')}
+        kind="folders"
+        onDone={() => void reload()}
+        items={list.folders.map((f) => ({ value: f.key, label: f.label, tag: root && (f.label === root || f.key.toLowerCase() === rootLabel) ? tk('trOpenTag') : undefined }))}
+      />
+      <TrustGroup title={tk('trSetConsent')} desc={tk('trSetConsentDesc')} kind="consent" onDone={() => void reload()} items={list.consent.map((c) => ({ value: c, label: c }))} />
+      <TrustGroup title={tk('trSetBases')} desc={tk('trSetBasesDesc')} kind="bases" onDone={() => void reload()} items={list.bases.map((c) => ({ value: c, label: c }))} />
+    </div>
+  );
+};
+
+// ---------- Ortak düzenleme oda kimliği (S-14): yerel yol sunucuya gitmez, kimlik yerelde tutulur ----------
+const RoomIdField: React.FC = () => {
+  const [root, setRoot] = useState<string | null>(null);
+  const [value, setValue] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    void (async () => {
+      const r = (await window.electronAPI?.trust?.status())?.root ?? '';
+      if (!live) return;
+      setRoot(r);
+      setValue(r ? getCollabRoomId(r) : '');
+    })();
+    return () => { live = false; };
+  }, []);
+  const none = !root;
+  return (
+    <div className="flex flex-col @lg:flex-row items-start @lg:justify-between gap-2 @lg:gap-6 py-3 border-b border-nv-border/70">
+      <div className="min-w-0 flex-1">
+        <div className="text-[13px] text-zinc-100">{tk('trRoomTitle')}</div>
+        <p className="mt-1 text-[12px] text-zinc-500 leading-relaxed max-w-[520px]">{tk('trRoomDesc')}</p>
+        {none && root !== null && <p className="mt-1 text-[12px] text-zinc-500">{tk('trRoomNone')}</p>}
+        {msg && <p className="mt-1 text-[12px] text-emerald-400">{msg}</p>}
+      </div>
+      <div className="@lg:shrink-0 flex flex-wrap gap-2 max-w-full">
+        <input
+          aria-label={tk('trRoomTitle')}
+          value={value}
+          disabled={none}
+          onChange={(e) => { setValue(e.target.value); setMsg(null); }}
+          maxLength={128}
+          spellCheck={false}
+          autoComplete="off"
+          className={`${field} w-[260px] max-w-full font-mono`}
+        />
+        <button
+          disabled={none || !value.trim()}
+          onClick={() => { setCollabRoomId(root ?? '', value); setMsg(tk('trRoomSaved')); }}
+          className="h-7 px-3 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[12px] transition-colors disabled:opacity-50"
+        >{tk('trRoomSave')}</button>
+        <button
+          disabled={none}
+          onClick={() => { setValue(regenerateCollabRoomId(root ?? '')); setMsg(tk('trRoomSaved')); }}
+          className="h-7 px-3 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[12px] transition-colors disabled:opacity-50"
+        >{tk('trRoomRegen')}</button>
+      </div>
+    </div>
+  );
+};
+
 // ---------- Sayfa ----------
 interface SettingsPageProps {
   onClose: () => void;
@@ -493,7 +614,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
     try {
       const want = window.localStorage.getItem('nova.settings.category');
       window.localStorage.removeItem('nova.settings.category');
-      if (want && ['shortcuts', 'about', 'ai', 'extensions'].includes(want)) return want;
+      if (want && ['shortcuts', 'about', 'ai', 'extensions', 'trust'].includes(want)) return want;
     } catch { /* depolama kapalı */ }
     return 'appearance';
   });
@@ -522,7 +643,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
     <div className="@container animate-fade-in flex flex-col flex-1 h-full min-w-0 bg-nv-editor select-none">
       <header className="flex items-center gap-2 @md:gap-4 h-12 px-3 @md:px-6 border-b border-nv-border shrink-0">
         <h1 className="text-[15px] @md:text-[16px] font-normal text-zinc-100 whitespace-nowrap">{t('setTitle')}</h1>
-        <div className="relative flex-1 max-w-[460px]">
+        <div className="relative flex-1 min-w-0 max-w-[460px]">
           <Search size={14} className="absolute start-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
             value={query}
@@ -551,6 +672,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
                   setCat(c.id);
                 }}
                 aria-current={active ? 'page' : undefined}
+                ref={active ? (el) => el?.scrollIntoView({ inline: 'center', block: 'nearest' }) : undefined}
                 className={`@2xl:w-full shrink-0 flex items-center gap-2.5 h-8 px-2.5 rounded text-[13px] text-start whitespace-nowrap transition-colors ${
                   active ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
                 }`}
@@ -596,12 +718,14 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
                 {current.id === 'collab' && (
                   <>
                     <TokenField />
+                    <RoomIdField />
                     {String(values.collabUrl) && !/^(wss:\/\/|ws:\/\/(localhost|127\.0\.0\.1)[:/])/.test(String(values.collabUrl).trim()) && (
                       <p className="mt-2 text-[12px] text-rose-400">{t('setCollabUrlInvalid')}</p>
                     )}
                   </>
                 )}
                 {current.id === 'extensions' && <ExtensionsSettings onOpenStore={onOpenExtensions} />}
+                {current.id === 'trust' && <TrustSettings />}
                 {current.id === 'shortcuts' && <Shortcuts />}
                 {current.id === 'about' && <About />}
               </section>

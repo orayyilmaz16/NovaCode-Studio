@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -55,14 +55,14 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2015 |
+| `src/App.tsx` | 2245 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 487 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 824 |
+| `src/components/AIAssistant.tsx` | 834 |
 | `src/components/AppDialogs.tsx` | 66 |
 | `src/components/BranchPicker.tsx` | 199 |
 | `src/components/ChatSessions.tsx` | 340 |
@@ -71,13 +71,14 @@
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 623 |
+| `src/components/EditorArea.tsx` | 740 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 932 |
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 882 |
 | `src/components/GithubAccount.tsx` | 134 |
+| `src/components/KeybindingsEditor.tsx` | 146 |
 | `src/components/LandingPage.tsx` | 175 |
 | `src/components/Logo.tsx` | 36 |
 | `src/components/Markdown.tsx` | 73 |
@@ -88,12 +89,15 @@
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 213 |
-| `src/components/SettingsPage.tsx` | 614 |
+| `src/components/SettingsPage.tsx` | 738 |
+| `src/components/SnippetsEditor.tsx` | 83 |
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 79 |
 | `src/components/Terminal.tsx` | 582 |
 | `src/components/ThinkingMenu.tsx` | 146 |
+| `src/components/TimelinePanel.tsx` | 151 |
+| `src/components/TrustDialog.tsx` | 54 |
 | `src/components/UpdateDialog.tsx` | 156 |
 | `src/components/WindowControls.tsx` | 48 |
 
@@ -103,12 +107,12 @@
 | `src/services/SettingsContext.tsx` | 198 |
 | `src/services/aiClient.ts` | 265 |
 | `src/services/aiCompletion.ts` | 204 |
-| `src/services/collabRoom.ts` | 79 |
+| `src/services/collabRoom.ts` | 93 |
 | `src/services/completionSchedule.ts` | 69 |
 | `src/services/completionShape.ts` | 180 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
-| `src/services/debugStore.ts` | 143 |
+| `src/services/debugStore.ts` | 150 |
 | `src/services/editorBridge.ts` | 108 |
 | `src/services/editorTheme.ts` | 98 |
 | `src/services/extensionsService.ts` | 220 |
@@ -123,26 +127,28 @@
 | `src/services/problems.ts` | 161 |
 | `src/services/ptyBus.ts` | 24 |
 | `src/services/recentFolders.ts` | 28 |
-| `src/services/session.ts` | 93 |
+| `src/services/session.ts` | 103 |
 | `src/services/settings.ts` | 344 |
 | `src/services/splitLayout.ts` | 135 |
 | `src/services/tasks.ts` | 88 |
 | `src/services/terminalBridge.ts` | 54 |
 | `src/services/terminalText.ts` | 148 |
+| `src/services/trustService.ts` | 49 |
 | `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
 | `src/services/useDictation.ts` | 67 |
 | `src/services/useEvent.ts` | 13 |
 | `src/services/useFocusTrap.ts` | 59 |
 | `src/services/useGithubAuth.ts` | 32 |
+| `src/services/userSnippets.ts` | 57 |
 
 ### i18n
 | Dosya | Satır |
 |---|---|
 | `src/i18n/uiText.ts` | 1635 |
 | `src/i18n/uiTextAi.ts` | 597 |
-| `src/i18n/uiTextComp.ts` | 257 |
-| `src/i18n/uiTextDev.ts` | 126 |
+| `src/i18n/uiTextComp.ts` | 329 |
+| `src/i18n/uiTextDev.ts` | 235 |
 | `src/i18n/uiTextScm.ts` | 228 |
 | `src/i18n/uiTextTheme.ts` | 158 |
 
@@ -168,12 +174,13 @@
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
-| `scripts/tests/debug.test.cjs` | 112 |
+| `scripts/tests/debug.test.cjs` | 118 |
 | `scripts/tests/electron-misc.test.cjs` | 153 |
 | `scripts/tests/git.test.cjs` | 163 |
+| `scripts/tests/history.test.cjs` | 67 |
 | `scripts/tests/i18n.test.cjs` | 100 |
 | `scripts/tests/keybindings.test.cjs` | 154 |
-| `scripts/tests/lsp.test.cjs` | 97 |
+| `scripts/tests/lsp.test.cjs` | 104 |
 | `scripts/tests/palettes.test.cjs` | 75 |
 | `scripts/tests/paths.test.cjs` | 88 |
 | `scripts/tests/preview-csp.test.cjs` | 66 |
@@ -182,10 +189,12 @@
 | `scripts/tests/replace.test.cjs` | 71 |
 | `scripts/tests/services.test.cjs` | 140 |
 | `scripts/tests/settings-migrate.test.cjs` | 62 |
+| `scripts/tests/snippets.test.cjs` | 22 |
 | `scripts/tests/sync.test.cjs` | 58 |
 | `scripts/tests/syncserver.test.cjs` | 73 |
 | `scripts/tests/term.test.cjs` | 74 |
 | `scripts/tests/textbuffer.test.cjs` | 135 |
+| `scripts/tests/trust.test.cjs` | 74 |
 
 ### Sunucu
 | Dosya | Satır |
@@ -221,10 +230,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 958 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1018 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-112 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+112 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -277,8 +286,8 @@
 | Dosyalar ve kayıt | `formatOnSave` | Kayıtta kodu biçimlendir | toggle | `false` |  |
 | Dosyalar ve kayıt | `trimTrailingWhitespace` | Kayıtta satır sonu boşluklarını sil | toggle | `false` |  |
 | Dosyalar ve kayıt | `insertFinalNewline` | Kayıtta sona boş satır ekle | toggle | `false` |  |
-| Dosyalar ve kayıt | `localHistory` |  | toggle | `true` |  |
-| Dosyalar ve kayıt | `localHistoryMax` |  | slider | `30` | 5–30 |
+| Dosyalar ve kayıt | `localHistory` | Yerel geçmiş | toggle | `true` |  |
+| Dosyalar ve kayıt | `localHistoryMax` | Dosya başına sürüm sayısı | slider | `30` | 5–30 |
 | Dosyalar ve kayıt | `welcomeOnStartup` | Açılışta karşılama sayfasını göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showGitDecorations` | Dosya ağacında Git durumunu göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showOpenEditors` | Gezginde "Açık düzenleyiciler" | toggle | `true` |  |

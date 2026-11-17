@@ -10,6 +10,7 @@
     { "id": "extensions", "labelKey": "setCatExtensions", "icon": "Puzzle" },
     { "id": "ai", "labelKey": "setCatAI", "icon": "Sparkles" },
     { "id": "collab", "labelKey": "setCatCollab", "icon": "Users" },
+    { "id": "trust", "labelKey": "setCatTrust", "icon": "ShieldCheck" },
     { "id": "shortcuts", "labelKey": "setCatShortcuts", "icon": "Keyboard" },
     { "id": "about", "labelKey": "setCatAbout", "icon": "Info" }
   ],

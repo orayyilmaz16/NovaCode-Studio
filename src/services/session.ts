@@ -1,6 +1,8 @@
 // Oturum kalıcılığı (B-14 / F-01): açık sekmeler ve kaydedilmemiş taslaklar yalnız bu bilgisayarda (localStorage) tutulur.
 // Hiçbir veri ağa/3. tarafa gitmez. Amaç: çökme/elektrik kesintisinde kaydedilmemiş çalışmayı kurtarmak (hukuki sebep: kullanıcının
 // kendi çalışmasını koruma; saklama: sonraki açılışta geri yükle/yoksay seçilene veya yeni oturum yazılana kadar, yerelde).
+import { splitToSaved, type SplitSaved, type SplitState } from './splitLayout';
+
 const KEY = 'nova.session.v1';
 const MAX_DRAFT = 500_000; // tek dosya taslağı için karakter üst sınırı
 const MAX_TOTAL = 2_000_000; // tüm taslaklar için karakter üst sınırı
@@ -19,6 +21,8 @@ export interface Session {
   active: number;
   tabs: SessionTab[];
   savedAt: number;
+  /** Bölünmüş editör (F-03): gruplar `tabs` dizinleriyle tutulur. Yoksa tek grup. */
+  split?: SplitSaved;
 }
 
 export function loadSession(): Session | null {
@@ -27,6 +31,7 @@ export function loadSession(): Session | null {
     if (!raw) return null;
     const s = JSON.parse(raw) as Session;
     if (s?.v !== 1 || !Array.isArray(s.tabs)) return null;
+    if (s.split && (typeof s.split !== 'object' || !Array.isArray(s.split.a) || !Array.isArray(s.split.b))) delete s.split;
     s.tabs = s.tabs.filter((x) => x && typeof x.name === 'string' && (x.path === undefined || typeof x.path === 'string'));
     return s;
   } catch {
@@ -46,6 +51,7 @@ export interface SessionInput {
   getContent: (id: string) => string | undefined;
   /** false: taslaklar yazılmaz (kullanıcı bilerek "kaydetme" ile çıktı). */
   withDrafts?: boolean;
+  split?: SplitState | null;
 }
 
 export function saveSession(inp: SessionInput) {
@@ -53,6 +59,7 @@ export function saveSession(inp: SessionInput) {
     const tabs: SessionTab[] = [];
     let total = 0;
     let active = 0;
+    const tabIndex = new Map<string, number>();
     for (const f of inp.files) {
       if (f.diff) continue;
       const tab: SessionTab = { name: f.name, language: f.language };
@@ -65,6 +72,7 @@ export function saveSession(inp: SessionInput) {
         } else if (!f.path) continue; // adsız ve saklanamayacak kadar büyük: atla
       } else if (!f.path) continue; // taslaksız adsız dosyanın saklanacak bir şeyi yok
       if (f.id === inp.activeId) active = tabs.length;
+      tabIndex.set(f.id, tabs.length);
       tabs.push(tab);
     }
     if (tabs.length === 0 && !inp.root) {
@@ -72,6 +80,8 @@ export function saveSession(inp: SessionInput) {
       return;
     }
     const s: Session = { v: 1, root: inp.root, rootName: inp.rootName, active, tabs, savedAt: Date.now() };
+    const sp = inp.split ? splitToSaved(inp.split, (id) => tabIndex.get(id) ?? -1) : undefined;
+    if (sp) s.split = sp;
     window.localStorage.setItem(KEY, JSON.stringify(s));
   } catch {
     /* kota dolu veya depolama kapalı */

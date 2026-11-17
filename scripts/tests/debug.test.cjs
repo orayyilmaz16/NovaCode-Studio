@@ -44,6 +44,12 @@ const waitFor = (pred, ms = 15000) => new Promise((res) => {
 const nextPause = async () => { const i = events.findIndex((e) => e.type === 'paused'); if (i < 0) return null; return events.splice(i, 1)[0]; };
 
 (async () => {
+  // --- çalışma klasörü güveni: güvenilmeyen klasörde hata ayıklayıcı başlamaz ---
+  const trust = require(path.join(__dirname, '..', '..', 'electron-trust.cjs'));
+  const trustDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nova-dbg-trust-'));
+  trust._test.setStoreDir(trustDir);
+  ok((await call('dbg:start', { file: script })).error === 'trust-required', 'güvenilmeyen klasörde hata ayıklayıcı başlamaz');
+  trust.trustFolder(root);
   // --- güvenlik / doğrulama ---
   ok((await call('dbg:start', { file: path.join(os.tmpdir(), 'dışarıda.js') })).error === 'invalid-file', 'çalışma klasörü dışındaki dosya reddedilir');
   ok((await call('dbg:start', { file: '../etc/passwd' })).error === 'invalid-file', 'yol kaçışı reddedilir');

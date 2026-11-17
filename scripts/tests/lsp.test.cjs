@@ -32,6 +32,13 @@ const waitFor = (pred, ms = 60000) => new Promise((res) => {
 });
 
 (async () => {
+  // --- çalışma klasörü güveni: güvenilmeyen klasörde dil sunucusu başlamaz ---
+  const trust = require(path.join(__dirname, '..', '..', 'electron-trust.cjs'));
+  trust._test.setStoreDir(fs.mkdtempSync(path.join(os.tmpdir(), 'nova-lsp-trust-')));
+  const pre = await call('lsp:status', { lang: 'python' });
+  ok(pre.restricted === true, 'güvenilmeyen klasörde durum "kısıtlı" bildirir');
+  if (pre.available) ok((await call('lsp:start', { lang: 'python' })).error === 'trust-required', 'güvenilmeyen klasörde dil sunucusu başlamaz');
+  trust.trustFolder(root);
   // --- doğrulama ---
   ok((await call('lsp:status', { lang: 'cobol' })).supported === false, 'desteklenmeyen dil bildirilir');
   const st = await call('lsp:status', { lang: 'python' });

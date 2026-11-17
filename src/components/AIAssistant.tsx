@@ -26,7 +26,7 @@ interface AIAssistantProps {
   onOpenSettings: () => void;
 }
 
-type Image = { mediaType: string; data: string; url: string };
+type Image = { id: string; mediaType: string; data: string; url: string };
 const SLASH_BUILTIN = ['new', 'ask', 'agent'] as const;
 const gb = (n: number) => (n / 1024 ** 3).toFixed(1);
 
@@ -51,10 +51,20 @@ const CodeBlock: React.FC<{ lang: string; code: string }> = ({ lang, code }) => 
   );
 };
 
+// Kararlı anahtar: parçanın metindeki başlangıç konumu (akış yalnız sona eklediği için önceki parçaların anahtarı değişmez)
+const keyedParts = (text: string) => {
+  let off = 0;
+  return splitParts(text).map((p) => {
+    const key = `${p.kind}:${off}`;
+    off += p.kind === 'code' ? p.code.length + (p.lang?.length ?? 0) + 8 : p.text.length;
+    return { key, p };
+  });
+};
+
 const MessageText: React.FC<{ text: string }> = ({ text }) => (
   <div className="min-w-0 break-words [overflow-wrap:anywhere]">
-    {splitParts(text).map((p, i) =>
-      p.kind === 'code' ? <CodeBlock key={i} lang={p.lang} code={p.code} /> : p.text.trim() ? <div key={i} className="whitespace-pre-wrap">{p.text.replace(/^\n+|\n+$/g, '')}</div> : null
+    {keyedParts(text).map(({ key, p }) =>
+      p.kind === 'code' ? <CodeBlock key={key} lang={p.lang} code={p.code} /> : p.text.trim() ? <div key={key} className="whitespace-pre-wrap">{p.text.replace(/^\n+|\n+$/g, '')}</div> : null
     )}
   </div>
 );
@@ -510,7 +520,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     const out: Image[] = [];
     for (const f of Array.from(files).slice(0, 4 - images.length)) {
       const img = await fileToImage(f);
-      if (img) out.push({ ...img, url: `data:${img.mediaType};base64,${img.data}` });
+      if (img) out.push({ ...img, id: uid(), url: `data:${img.mediaType};base64,${img.data}` });
     }
     if (out.length) setImages((prev) => [...prev, ...out].slice(0, 4));
   };
@@ -652,7 +662,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
                     </div>
                     {active && (
                       <div className="mt-1.5">
-                        <div className="h-1.5 rounded-full bg-zinc-700 overflow-hidden"><div className="h-full bg-indigo-400 transition-[width] duration-300" style={{ width: `${pct}%` }} /></div>
+                        <div className="h-1.5 rounded-full bg-zinc-700 overflow-hidden"><div className="h-full bg-indigo-400 transition-[width] duration-(--dur-slow)" style={{ width: `${pct}%` }} /></div>
                         <div className="mt-0.5 text-[10.5px] text-indigo-200/80">{t('aiBuiltinProgress').replace('{p}', String(pct))}</div>
                       </div>
                     )}
@@ -766,10 +776,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         <div className={`rounded-xl border border-zinc-700/80 bg-nv-input/50 transition-colors ${isAgent ? 'focus-within:border-violet-500' : 'focus-within:border-indigo-500'}`}>
           {images.length > 0 && (
             <div className="flex gap-1.5 px-2 pt-2 flex-wrap">
-              {images.map((im, i) => (
-                <div key={i} className="relative">
+              {images.map((im) => (
+                <div key={im.id} className="relative">
                   <img src={im.url} alt="" className="h-10 w-10 object-cover rounded-md border border-zinc-700" />
-                  <button className="absolute -top-1 -end-1 bg-zinc-900 rounded-full" onClick={() => setImages((p) => p.filter((_, j) => j !== i))} aria-label={t('aiRemove')}><X size={12} /></button>
+                  <button className="absolute -top-1 -end-1 bg-zinc-900 rounded-full" onClick={() => setImages((p) => p.filter((x) => x.id !== im.id))} aria-label={t('aiRemove')}><X size={12} /></button>
                 </div>
               ))}
             </div>

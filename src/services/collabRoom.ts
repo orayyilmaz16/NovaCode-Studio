@@ -48,6 +48,20 @@ export function setCollabRoomId(rootPath: string, id: string): void {
   }
 }
 
+// Klasör için yeni rastgele oda kimliği üretir ve kaydeder (eski odadan ayrılınır). Yeni kimliği döndürür.
+export function regenerateCollabRoomId(rootPath: string): string {
+  if (!rootPath) return '';
+  const id = randomId();
+  try {
+    const map = readMap();
+    map[rootPath] = id;
+    window.localStorage.setItem(KEY, JSON.stringify(map));
+  } catch {
+    /* depolama kapalı: kimlik bu oturumda geçerli değil */
+  }
+  return id;
+}
+
 function relativePath(root: string, file: string): string {
   const norm = (p: string) => p.replace(/\\/g, '/');
   const r = norm(root).replace(/\/+$/, '');

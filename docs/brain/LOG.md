@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 17.11.2026 16:41 · auto/20261117-130721
+<!-- sig:c2NyaXB0cy90ZXN0cy9kZWJ1Zy50ZXN0LmNqcyxz -->
+- Alan: [[debugging]], [[lsp]], [[ui-design]], [[ai-assistant]], [[settings]], [[i18n]], [[testing]]
+- Kod (21): `scripts/tests/debug.test.cjs`, `scripts/tests/lsp.test.cjs`, `src/App.tsx`, `src/components/AIAssistant.tsx`, `src/components/EditorArea.tsx`, `src/components/SettingsPage.tsx`, `src/i18n/uiTextComp.ts`, `src/i18n/uiTextDev.ts`, `src/services/collabRoom.ts`, `src/services/debugStore.ts`, `src/services/session.ts`, `src/services/settingsSchema.json` … (+9)
+- Belge (0): —
+- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
+
 ## 17.11.2026 16:38 · auto/20261117-130721
 <!-- sig:c3JjL0FwcC50c3gsc3JjL2kxOG4vdWlUZXh0VGhl -->
 - Alan: [[ui-design]], [[i18n]]
