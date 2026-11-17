@@ -1,4 +1,5 @@
 // Monaco teması: VS Code "Dark Modern" ile uyumlu, düz ve sakin renkler.
+import { definePaletteThemes } from './palettes';
 // Monaco türü kasıtlı olarak gevşek tutuldu (@monaco-editor/react'in beforeMount parametresi).
 type MonacoLike = {
   editor: {
@@ -10,6 +11,7 @@ export const NOVA_DARK = 'nova-dark';
 export const NOVA_LIGHT = 'nova-light';
 
 export function defineNovaThemes(monaco: MonacoLike) {
+  definePaletteThemes(monaco); // renk temalarının editör karşılıkları (nova-<id>)
   monaco.editor.defineTheme(NOVA_DARK, {
     base: 'vs-dark',
     inherit: true,

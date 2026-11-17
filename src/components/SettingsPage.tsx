@@ -25,8 +25,10 @@ import {
 import { t, type TextKey, type UiTextKey } from '../i18n/uiText';
 import '../i18n/uiTextAi'; // AI ve ayar metinleri (gecikmeli yüklenen ek sözlük)
 import '../i18n/uiTextComp'; // AI kod tamamlama ayar metinleri
+import '../i18n/uiTextTheme'; // renk teması, ek vurgu ve yazı tipi metinleri
 import '../i18n/uiTextDev'; // hata ayıklama/terminal ayar metinleri (gecikmeli yüklenen ek sözlük)
 import { useSettings } from '../services/SettingsContext';
+import { getPalette } from '../services/palettes';
 import { useUpdate } from '../services/updateService';
 import { BUILTIN_THEMES, extThemeName, listExtThemes, uninstallExt, useActiveEditorTheme, useExtensions, setMonacoForExtensions } from '../services/extensionsService';
 import { saveCollabToken, useCollabToken } from '../services/useCollabToken';
@@ -154,6 +156,48 @@ const Control: React.FC<{ def: SettingDef; value: SettingValue; onChange: (v: Se
           onChange={(e) => onChange(e.target.value)}
           className={`${field} w-[280px] font-mono`}
         />
+      );
+    case 'palette':
+      return (
+        <div className="grid grid-cols-2 @lg:grid-cols-3 gap-2 w-full @lg:w-[444px]" role="radiogroup" aria-label={label}>
+          {def.options?.map((o) => {
+            const id = String(o.value);
+            const p = getPalette(id);
+            const on = id === String(value);
+            const k = p?.tokens;
+            return (
+              <button
+                key={id}
+                role="radio"
+                aria-checked={on}
+                onClick={() => onChange(o.value)}
+                title={optLabel(o)}
+                className={`motion-press group text-start rounded-[var(--r-md)] border p-1.5 cursor-pointer ${on ? 'border-indigo-500' : 'border-nv-border hover:border-zinc-600'}`}
+              >
+                {/* Mini önizleme: kenar çubuğu + editör + üç renkli satır (seçilen temanın gerçek renkleri) */}
+                <div className="relative flex h-11 overflow-hidden rounded-[var(--r-sm)] border border-black/10" style={p ? { background: p.editor } : undefined}>
+                  {p ? (
+                    <>
+                      <div className="w-3.5 shrink-0" style={{ background: p.side }} />
+                      <div className="flex flex-col justify-center gap-1 px-2 flex-1">
+                        <span className="h-1 w-3/5 rounded-full" style={{ background: `#${k!.keyword}` }} />
+                        <span className="h-1 w-4/5 rounded-full" style={{ background: `#${k!.string}` }} />
+                        <span className="h-1 w-2/5 rounded-full" style={{ background: `#${k!.fn}` }} />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-1/2" style={{ background: '#1f1f1f' }} />
+                      <div className="w-1/2" style={{ background: '#ffffff' }} />
+                    </>
+                  )}
+                  {on && <span className="absolute top-1 end-1 w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center"><Check size={11} className="text-white" strokeWidth={3} /></span>}
+                </div>
+                <div className={`mt-1.5 px-0.5 text-[12px] truncate ${on ? 'text-zinc-100' : 'text-zinc-400 group-hover:text-zinc-200'}`}>{optLabel(o)}</div>
+              </button>
+            );
+          })}
+        </div>
       );
     case 'accent':
       return (

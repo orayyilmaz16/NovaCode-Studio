@@ -35,6 +35,19 @@ Ayar listesinin güncel hali: [[STATE]] → **Ayarlar** tablosu (şemadan üreti
 
 Doğrulama kuralları şemadan gelir: bilinmeyen anahtar atılır, seçenek dışı değer varsayılana döner, sayı aralığa kırpılır, metin uzunluğa kesilir. İçe aktarılan dosya da aynı süzgeçten geçer.
 
+## Renk temaları (17.11.2026)
+`colorTheme` (`palette` türü, varsayılan `auto`): 10 hazır tema, tek kaynak `src/services/palettes.ts` (`PALETTES`). Koyu: `midnight`, `forest`, `orchid`, `ember`, `atlas` (Arduvaz), `ink` (saf siyah); açık: `paper`, `mist`, `mint`, `rose`.
+- Her tema yalnız tohum renklerle tanımlanır: `editor`, `side`, `fg`, `accent`, `mode` ve 7 sözdizimi rengi. `paletteVars()` bundan `--color-zinc-50…950`, `--color-nv-*` ve `--selection` türetir (oranlar Nova Dark/Light ölçeğinden çıkarılmıştır); `applyAppearance` bunları `<html>` üzerine satır içi yazar, `auto`da kaldırır (style.css'teki Nova geçerli).
+- **Mod temadan gelir:** tema seçiliyse `mode` temanın kendisidir ve `themeMode` satırı gizlenir (`showWhen: colorTheme = auto`); `auto`da `themeMode` (koyu/açık/sistem) geçerlidir. `SettingsContext` bunu `getPalette(...)?.mode ?? resolveMode(...)` ile çözer.
+- **Vurgu temanın üstüne biner:** `accent` ayarı (11 renk: indigo, blue, teal, green, orange, pink, violet, cyan, red, amber, lime) her temada çalışır; `--selection` `color-mix` ile vurguyu izler.
+- **Monaco:** `definePaletteThemes` her temaya `nova-<id>` editör teması tanımlar (`defineNovaThemes` içinden çağrılır, tüm editörlerde hazırdır). `resolveEditorTheme(editorTheme, mode, colorTheme)`: `editorTheme = auto` ve tema seçiliyse `nova-<id>`; açıkça seçilmiş editör teması (VS Dark vb.) renk temasını ezer.
+- **Geçiş:** mod ya da renk teması değişince `data-theme-fading` ile renkler yumuşakça döner ([[motion]]). Terminal `style` değişimini izleyip renklerini yeniler.
+- **Ayar arayüzü:** `SettingsPage` → `palette` denetimi: tema başına gerçek renklerle mini önizleme kartı (kenar çubuğu + editör + 3 sözdizimi çizgisi), seçili kartta işaret. Test: `scripts/tests/palettes.test.cjs` (hex geçerliliği, WCAG kontrastı: gövde ≥ 7, ikincil ≥ 3.5, sözdizimi ≥ 4 / yorum ≥ 2.8, düğme ≥ 3; şema↔tablo birebirliği).
+- **Yeni tema ekleme:** `PALETTES`'e kayıt (7 token + 4 tohum) → `settingsSchema.json` `colorTheme` seçeneği → `pal_<id>` (8 dil, `uiTextTheme.ts`) → `npm test` (kontrast kapısı).
+
+## Yazı tipleri
+Arayüz (`uiFont`, 14 seçenek) ve kod (`fontFamily`, 12 seçenek + özel) tabloları `UI_FONTS`/`CODE_FONTS`. **Yazı tipi paketlenmez** (bağımlılık/boyut yok): cihazda kuruluysa kullanılır, değilse yığındaki yedeğe düşer (açıklama `setDesc_uiFont`/`setDesc_fontFamily`). Her yığın genel yedekle (`sans-serif`/`serif`/`monospace`) biter; test denetler.
+
 ## Tema ve görünüm
 - `<html data-theme="dark|light">`; `themeMode: system` iken `prefers-color-scheme` canlı izlenir. Koyu/açık fark `src/style.css` içindeki jeton değişkenleridir ([[ui-design]]).
 - Vurgu rengi: `ACCENTS` tablosu (koyu/açık için ayrı tonlar); `--color-indigo-200…700` değişkenleri satır içi uygulanır.

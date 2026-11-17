@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { setUiLang } from '../i18n/uiText';
+import { PALETTE_VAR_KEYS, getPalette, paletteVars, type PaletteSeed } from './palettes';
 import {
   ACCENTS,
   ACCENT_VARS,
@@ -37,17 +38,23 @@ export function useSettings(): SettingsApi {
 }
 
 let fadeTimer = 0;
+let lastThemeKey = '';
 
 // Görünümü anında uygular: tema, vurgu rengi, yazı tipi, hareket (yakınlaştırma ve pencere rengi ayrı efektlerde).
-function applyAppearance(values: SettingsValues, mode: ResolvedMode) {
+function applyAppearance(values: SettingsValues, mode: ResolvedMode, palette: PaletteSeed | null) {
   const root = document.documentElement;
-  // Tema gerçekten değişiyorsa (ilk yükleme değil) renkler yumuşakça döner: kısa süre data-theme-fading
-  if (root.dataset.theme && root.dataset.theme !== mode) {
+  // Tema (mod veya renk teması) gerçekten değişiyorsa (ilk yükleme değil) renkler yumuşakça döner: kısa süre data-theme-fading
+  const themeKey = `${mode}:${palette ? String(values.colorTheme) : 'auto'}`;
+  if (lastThemeKey && lastThemeKey !== themeKey) {
     root.dataset.themeFading = '';
     window.clearTimeout(fadeTimer);
     fadeTimer = window.setTimeout(() => { delete root.dataset.themeFading; }, 320);
   }
+  lastThemeKey = themeKey;
   root.dataset.theme = mode;
+  // Renk teması yüzeyleri: seçiliyse satır içi yazılır, "auto"da kaldırılır (style.css'teki Nova geçerli olur)
+  if (palette) for (const [k, v] of Object.entries(paletteVars(palette))) root.style.setProperty(k, v);
+  else for (const k of PALETTE_VAR_KEYS) root.style.removeProperty(k);
   root.dataset.motion = values.animations === false ? 'off' : 'on';
   root.style.setProperty('--font-sans', UI_FONTS[String(values.uiFont)] ?? UI_FONTS.system);
 
@@ -79,14 +86,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return () => mq.removeEventListener('change', on);
   }, []);
 
-  const mode = resolveMode(values.themeMode, prefersDark);
+  // Renk teması seçiliyse mod temadan gelir (koyu/açık temanın kendisine bağlıdır); "auto"da Tema modu geçerlidir
+  const palette = getPalette(values.colorTheme);
+  const mode = palette ? palette.mode : resolveMode(values.themeMode, prefersDark);
 
   // Dil render sırasında ayarlanır: aynı render'da t() yeni dili kullanır (idempotent, yan etkisi yok)
   setUiLang(String(values.language));
 
   useEffect(() => {
-    applyAppearance(values, mode);
-  }, [values.themeMode, values.accent, values.uiFont, values.animations, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+    applyAppearance(values, mode, palette);
+  }, [values.themeMode, values.colorTheme, values.accent, values.uiFont, values.animations, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pencere zemin rengi yalnız mod değişince
   useEffect(() => { void window.electronAPI?.ui.setTheme(mode); }, [mode]);
