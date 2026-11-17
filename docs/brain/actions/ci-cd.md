@@ -38,3 +38,4 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 ## PR #66 inceleme düzeltmeleri (17.11.2026)
 - **gitleaks:** `.gitleaks.toml` varsayılan kuralları genişletir; yalnız `ai-security.test.cjs` ve `syncserver.test.cjs` içindeki bilinen sahte test değerleri (token fixture, standart örnek `Sec-WebSocket-Key`) için dar izin (yol + desen birlikte). Gerçek sır yoktu.
 - **CodeQL:** `Preview.tsx` köprüsünde script içine gömülen JSON artık `<`, `>`, `&`, U+2028/2029 için `\u` kaçışı yapar; `audit-scan.mjs` `replace` yerine `split/join`; bilinçli katastrofik regex girdileri içeren `search-redos.test.cjs` yalnız o dosya için `codeql-config.yml` `paths-ignore`.
+- gitleaks için `.gitleaksignore` (3 bilinen test parmak izi) ve eski/yeni sürümlerle uyumlu `[allowlist]` regex izni eklendi; gömülü gitleaks `[[allowlists]]` biçimini uygulamadı.

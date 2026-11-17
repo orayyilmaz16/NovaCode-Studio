@@ -1,0 +1,5 @@
+# Bilinen test sahte değerleri (gerçek sır yok): ai-security testi sahte token fixture'ı ve
+# RFC 6455 örnek Sec-WebSocket-Key değeri. Ayrıntı: .gitleaks.toml
+b59f667f7f6f81125e8e5d17f85e4afa601fb375:scripts/tests/ai-security.test.cjs:generic-api-key:55
+3d66374d84680a887a36ad3acaaff2d4c4eb3db8:scripts/tests/ai-security.test.cjs:generic-api-key:54
+3d66374d84680a887a36ad3acaaff2d4c4eb3db8:scripts/tests/syncserver.test.cjs:generic-api-key:45
