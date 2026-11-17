@@ -161,6 +161,13 @@ function createWindow() {
     closeTimer = setTimeout(() => settleClose(true), CLOSE_TIMEOUT_MS);
     wc.send('app:close-request');
   });
+  // Renderer onay penceresini açtıysa kullanıcıyı beklemek için zamanlayıcı durur; donma/çökme olursa yeniden başlar
+  mainWindow.webContents.on('render-process-gone', () => settleClose(true));
+  mainWindow.webContents.on('unresponsive', () => {
+    if (!closePending) return;
+    if (closeTimer) clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => settleClose(true), CLOSE_TIMEOUT_MS);
+  });
 
   mainWindow.on('closed', () => {
     stopFileWatcher();
@@ -352,6 +359,11 @@ ipcMain.handle('app:quit', (e) => {
   if (!fromMain(e)) return;
   quitAfterClose = true;
   mainWindow.close();
+});
+// Renderer "yaşıyorum, kullanıcıya soruyorum" der: kapanış zamanlayıcısı karar gelene kadar durur
+ipcMain.on('app:close-pending', (e) => {
+  if (!fromMain(e) || !closePending) return;
+  if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
 });
 // Renderer yanıtı: true = kapat, false = vazgeç
 ipcMain.on('app:close-response', (e, allow) => {

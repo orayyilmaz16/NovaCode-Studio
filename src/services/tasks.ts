@@ -3,6 +3,7 @@
 // Şema: { "tasks": [{ "label": string, "command": string, "cwd"?: string }] }
 // Komut kullanıcının kendi tanımıdır (terminale olduğu gibi gider); label ve cwd doğrulanır, cwd çalışma klasöründe kalır.
 import { sendTerminalWhenReady } from './terminalBridge';
+import { getTrust, grantTrust } from './trustService';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextAi';
 
@@ -72,15 +73,14 @@ export async function loadTasks(root: string): Promise<{ tasks: Task[]; invalid:
   return { tasks: [...v.tasks, ...scriptsToTasks(pkg)], invalid: v.invalid };
 }
 
-// Güven: AJAN H'nin güven modülü (electron-trust) bağlanana kadar oturum başına klasör onayı.
-const trusted = new Set<string>();
-
-/** Görevi terminalde çalıştırır; güvenilmeyen klasörde önce onay ister. false: iptal/başarısız. */
+/** Görevi terminalde çalıştırır; güvenilmeyen klasörde komut gösterilip onay (ve klasör güveni) istenir. false: iptal/başarısız. */
 export async function runTask(task: Task, root: string): Promise<boolean> {
   if (!isValidLabel(task.label) || !isValidCommand(task.command) || (task.cwd !== undefined && !isSafeCwd(task.cwd))) return false;
-  if (!trusted.has(root)) {
+  const tr = getTrust();
+  const trustedHere = tr.trusted && (tr.root === root || tr.root === ''); // web: güven kavramı yok, her zaman güvenilir
+  if (!trustedHere) {
     if (!window.confirm(t('taskTrust').replace('{cmd}', task.command))) return false;
-    trusted.add(root);
+    await grantTrust(); // onay klasör güveni olarak da kaydedilir (ana süreç kararı saklar)
   }
   await sendTerminalWhenReady({ action: 'cd', dir: task.cwd ? join(root, task.cwd) : root });
   await sendTerminalWhenReady({ action: 'run', command: task.command });

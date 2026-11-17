@@ -385,6 +385,8 @@ export interface ElectronBridge {
   /** Pencere kapatılmak istenince ana süreç sorar; yanıt `respondClose(true|false)` ile verilir. Abonelik kaldırıcı döner. */
   onCloseRequest?: (callback: () => void) => () => void;
   respondClose?: (allow: boolean) => void;
+  /** Onay penceresi açılınca çağrılır: ana süreç kapanış zaman aşımını karar gelene kadar durdurur. */
+  closePending?: () => void;
   platform?: string;
   windowControls?: {
     minimize: () => Promise<void>;

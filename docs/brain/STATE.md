@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -32,19 +32,19 @@
 |---|---|
 | `electron-ai.cjs` | 1028 |
 | `electron-debug.cjs` | 240 |
-| `electron-ext.cjs` | 323 |
+| `electron-ext.cjs` | 341 |
 | `electron-git.cjs` | 426 |
 | `electron-github.cjs` | 335 |
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
 | `electron-llm.cjs` | 280 |
 | `electron-lsp.cjs` | 301 |
-| `electron-main.cjs` | 821 |
+| `electron-main.cjs` | 833 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 270 |
+| `electron-preload.cjs` | 271 |
 | `electron-preview.cjs` | 78 |
 | `electron-pty.cjs` | 128 |
-| `electron-search.cjs` | 260 |
+| `electron-search.cjs` | 289 |
 | `electron-secrets.cjs` | 66 |
 | `electron-snippets.cjs` | 106 |
 | `electron-term.cjs` | 176 |
@@ -55,9 +55,9 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2334 |
+| `src/App.tsx` | 2335 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 487 |
+| `src/types.ts` | 489 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -89,12 +89,12 @@
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 214 |
-| `src/components/SettingsPage.tsx` | 738 |
+| `src/components/SettingsPage.tsx` | 750 |
 | `src/components/SnippetsEditor.tsx` | 83 |
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 80 |
-| `src/components/Terminal.tsx` | 583 |
+| `src/components/Terminal.tsx` | 599 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |
 | `src/components/TrustDialog.tsx` | 54 |
@@ -133,7 +133,7 @@
 | `src/services/tasks.ts` | 88 |
 | `src/services/terminalBridge.ts` | 54 |
 | `src/services/terminalText.ts` | 148 |
-| `src/services/trustService.ts` | 49 |
+| `src/services/trustService.ts` | 52 |
 | `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
 | `src/services/useDictation.ts` | 67 |
@@ -187,6 +187,7 @@
 | `scripts/tests/pty.test.cjs` | 84 |
 | `scripts/tests/release.test.cjs` | 140 |
 | `scripts/tests/replace.test.cjs` | 71 |
+| `scripts/tests/search-redos.test.cjs` | 47 |
 | `scripts/tests/services.test.cjs` | 140 |
 | `scripts/tests/settings-migrate.test.cjs` | 62 |
 | `scripts/tests/snippets.test.cjs` | 22 |
@@ -227,7 +228,7 @@
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
 - 1018 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.

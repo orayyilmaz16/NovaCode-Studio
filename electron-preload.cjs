@@ -139,6 +139,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('app:close-request', h);
     return () => ipcRenderer.removeListener('app:close-request', h);
   },
+  closePending: () => ipcRenderer.send('app:close-pending'),
   respondClose: (allow) => ipcRenderer.send('app:close-response', allow === true),
   // Özel pencere düğmeleri (macOS'ta sistemin trafik ışıkları kullanılır)
   platform: process.platform,

@@ -127,7 +127,7 @@ Kritik düzeyde bulgu yok. **Birinci ve ikinci dalga düzeltmeleri 17.11.2026'da
 | P-19 | etkileşim | orta | `App.tsx:~1010-1200` | Menü/komut dizileri her render'da yeniden kurulur | `useMemo`, MenuBar `React.memo` | giderildi (17.11.2026) |
 | P-20 | açılış | orta | `electron-main.cjs:1-6,454-499` | Tüm ana süreç modülleri `whenReady` öncesi senkron `require`; tek-örnek kilidi bunlardan sonra (ikinci örnek de hepsini yükler) | Kilidi en başa al; `ws`/`electron-ai`'yi ilk kullanımda yükle | giderildi (17.11.2026) |
 | P-21 | açılış | orta | `App.tsx:143`, `FileTree.tsx:208-212`, `electron-main.cjs:272-276` | `loadRecent` iki yerde, senkron `existsSync` | Tek çağrı, paylaş | giderildi (17.11.2026) |
-| P-22 | açılış | orta | `App.tsx:46,55,63` | 8 dilin tamamı (~260 KB) ana pakette | Dil başına dinamik import | sürüyor (K ajanı: bundle bütçesi) |
+| P-22 | açılış | orta | `App.tsx:46,55,63` | 8 dilin tamamı (~260 KB) ana pakette | Dil başına dinamik import | giderildi (17.11.2026); sözlüklerin 323 anahtarı lazy `uiTextTheme` dosyasına taşındı, ana paket 722 → 597 KB (bütçe 600 KB; payı dar, `uiTextComp` 46 KB ve `uiTextScm` 26 KB sonraki aday) |
 | P-23 | editör | düşük | `EditorArea.tsx:~214` | Sekmeler her render'da `problems.byPath[normPath]` hesaplar | Memo'lu `Tab` bileşeni | giderildi (17.11.2026) |
 | P-24 | editör | düşük | `problems.ts:31-69,129` | Marker deposu her olayda tüm modelleri tarar, `onDidChangeMarkers` debounce'suz | `apply`'i debounce et | giderildi (17.11.2026) |
 | P-25 | editör | düşük | `settingsSchema.json:53-61`, `settings.ts:304` | Minimap/smoothCaret/smoothScrolling/`automaticLayout` varsayılan açık | >2 MB veya >20k satırda minimap/folding/bracket renklendirmeyi otomatik kapat | giderildi (17.11.2026) |

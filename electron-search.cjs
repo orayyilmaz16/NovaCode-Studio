@@ -46,10 +46,27 @@ async function listFiles(root, signal, fresh = false) {
   return files;
 }
 
+// ReDoS koruması (ana süreç tek iş parçacığı): iç içe nicelik taşıyan desenler reddedilir, çok uzun satırlar regex'e verilmez
+// ve toplam çalışma süresi sınırlıdır. Tek bir `re.test` çağrısı yarıda kesilemez; bu yüzden sezgi + satır sınırı + zaman bütçesi birlikte kullanılır.
+const SEARCH_BUDGET_MS = 8000;
+const MAX_REGEX_LINE = 4000;
+// (\x5c = ters eğik çizgi: kaçışlı karakterler grup/nicelik sayılmaz)
+const NESTED_QUANT = /\((?:\?:)?(?:[^()\x5c]|\x5c.)*(?:[+*]|\{\d+,\d*\})(?:[^()\x5c]|\x5c.)*\)(?:[+*]|\{\d+,\d*\})/;
+function isRiskyRegex(src) {
+  // (…+…)+ , (…*…)* , (…{2,}…)+ gibi: nicelikli bir grubun içinde yine nicelik
+  if (NESTED_QUANT.test(src)) return true;
+  // (a|a)* tipi: aynı dalı tekrar eden alternatif
+  const m = /\(((?:[^()|\x5c]|\x5c.)+)\|(?:[^()|\x5c]|\x5c.)*\)(?:[+*]|\{\d+,\d*\})/.exec(src);
+  return !!(m && src.includes('|' + m[1] + ')'));
+}
+const newBudget = () => ({ until: Date.now() + SEARCH_BUDGET_MS, hit: false });
+const overBudget = (b) => { if (b.hit) return true; if (Date.now() > b.until) b.hit = true; return b.hit; };
+
 // Arama deseni: düz metin kaçışlanır; tam kelime seçeneği \b ile sarar. Geçersizse null.
 function buildRe(query, regex, caseSensitive, wholeWord, flags = '') {
   if (typeof query !== 'string' || !query || query.length > 300) return null;
   let src = regex ? query : query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (regex && isRiskyRegex(query)) return null;
   if (wholeWord) src = `\\b(?:${src})\\b`;
   try { return new RegExp(src, (caseSensitive ? '' : 'i') + flags); } catch { return null; }
 }
@@ -60,9 +77,10 @@ async function searchText(root, { query, regex = false, caseSensitive = false, w
   if (!re) return { results: [], truncated: false, error: 'regex' };
   const results = [];
   let truncated = false;
+  const budget = newBudget();
   // Bir dosyayı oku ve eşleşmelerini döndür (paralel çalışır; sonuç sırası dosya sırasına göre birleştirilir)
   const scan = async (file) => {
-    if (signal && signal.aborted) return [];
+    if ((signal && signal.aborted) || overBudget(budget)) return [];
     if (BINARY_EXT.test(file) || SECRET.test(file)) return [];
     let st;
     try { st = await fs.promises.stat(file); } catch { return []; }
@@ -73,6 +91,8 @@ async function searchText(root, { query, regex = false, caseSensitive = false, w
     const lines = text.split('\n');
     const hits = [];
     for (let i = 0; i < lines.length; i++) {
+      if (regex && lines[i].length > MAX_REGEX_LINE) continue;
+      if (overBudget(budget)) break;
       if (re.test(lines[i])) {
         hits.push({ path: file, rel: path.relative(root, file).split(path.sep).join('/'), line: i + 1, text: lines[i].trim().slice(0, 200) });
         if (hits.length >= maxResults) break;
@@ -83,6 +103,7 @@ async function searchText(root, { query, regex = false, caseSensitive = false, w
   const files = await listFiles(root, signal, true);
   for (let i = 0; i < files.length && !truncated; i += PARALLEL) {
     if (signal && signal.aborted) return { results, truncated, cancelled: true };
+    if (overBudget(budget)) break;
     const batch = await Promise.all(files.slice(i, i + PARALLEL).map(scan));
     for (const hits of batch) {
       for (const h of hits) {
@@ -93,6 +114,7 @@ async function searchText(root, { query, regex = false, caseSensitive = false, w
     }
   }
   if (signal && signal.aborted) return { results, truncated, cancelled: true };
+  if (budget.hit) return { results, truncated: true, timedOut: true };
   return { results, truncated };
 }
 
@@ -105,6 +127,7 @@ const SHOW_LEN = 300;
 function replaceLine(line, reTest, reGlobal, replacement, regex) {
   const cr = line.endsWith('\r');
   const body = cr ? line.slice(0, -1) : line;
+  if (regex && body.length > MAX_REGEX_LINE) return null; // ReDoS: çok uzun satırlar regex'e verilmez
   reTest.lastIndex = 0;
   if (!reTest.test(body)) return null;
   reGlobal.lastIndex = 0;
@@ -131,8 +154,9 @@ async function previewReplace(root, o, signal) {
   const files = await listFiles(root, signal, true);
   const results = [];
   let truncated = false;
+  const budget = newBudget();
   const scan = async (file) => {
-    if (signal && signal.aborted) return [];
+    if ((signal && signal.aborted) || overBudget(budget)) return [];
     if (BINARY_EXT.test(file) || SECRET.test(file)) return [];
     let st;
     try { st = await fs.promises.stat(file); } catch { return []; }
@@ -144,6 +168,7 @@ async function previewReplace(root, o, signal) {
     const hits = [];
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i++) {
+      if (overBudget(budget)) break;
       const after = replaceLine(lines[i], p.reTest, p.reGlobal, p.replacement, p.regex);
       if (after !== null && after !== lines[i]) hits.push({ path: file, rel, line: i + 1, before: lines[i].trim().slice(0, SHOW_LEN), after: after.trim().slice(0, SHOW_LEN) });
       if (hits.length >= MAX_PREVIEW) break;
@@ -152,6 +177,7 @@ async function previewReplace(root, o, signal) {
   };
   for (let i = 0; i < files.length && !truncated; i += PARALLEL) {
     if (signal && signal.aborted) return { results, truncated, cancelled: true };
+    if (overBudget(budget)) break;
     const batch = await Promise.all(files.slice(i, i + PARALLEL).map(scan));
     for (const hits of batch) {
       for (const h of hits) {
@@ -161,6 +187,7 @@ async function previewReplace(root, o, signal) {
       if (truncated) break;
     }
   }
+  if (budget.hit) return { results, truncated: true, timedOut: true };
   return { results, truncated };
 }
 
@@ -184,7 +211,9 @@ async function applyReplace(root, o, guards) {
   const sel = Array.isArray(o.selection) ? o.selection.slice(0, 5000) : [];
   let files = 0; let lines = 0; let skipped = 0;
   const failed = [];
+  const budget = newBudget();
   for (const item of sel) {
+    if (overBudget(budget)) { failed.push('(timeout)'); break; }
     const file = item && item.path;
     const wanted = new Set(Array.isArray(item && item.lines) ? item.lines.filter((n) => Number.isInteger(n) && n > 0) : []);
     if (typeof file !== 'string' || !wanted.size) continue;

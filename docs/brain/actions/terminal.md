@@ -46,3 +46,5 @@ Her komuttan sonra kabuğa `@@NOVA_CWD@@<yol>` yazdırılır; `makeCwdFilter` bu
 
 ## Denetim düzeltmeleri (17.11.2026)
 Klasik terminal `cwd` çalışma klasörüyle sınırlı; PowerShell `RemoteSigned` (Bypass kalktı). Kabuk hazır olunca `term:ready` olayı (renderer'da `setTimeout` yerine). Kapanışta süreç ağaçları `taskkill /T /F`; PTY'de ağaç öldürüldükten sonra `p.kill()` çağrılmaz (ConPTY).
+
+`cd` komutu `cdCommand(shell, dir)` ile kabuğa uygun alıntılanır (PowerShell tek tırnak, cmd çift tırnak); denetim karakteri/yeni satır/4096+ karakter reddedilir, cmd'de `%` ve `"` içeren yolda `cd` yapılmaz. Bekleyen komutlar FIFO kuyruğu (`cd` ve `run` birbirini ezmez).

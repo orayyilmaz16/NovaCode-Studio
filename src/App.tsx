@@ -1469,6 +1469,7 @@ export function App() {
       flushEditorChanges();
       const dirty = openFilesRef.current.filter((f) => f.isModified && !f.diff);
       if (dirty.length > 0) {
+        api.closePending?.(); // kullanıcı karar verirken ana süreç 5 sn sonra zorla kapatmasın
         const c = await askUnsaved(dirty);
         if (c === 'cancel') { api.respondClose(false); return; }
         if (c === 'save') {

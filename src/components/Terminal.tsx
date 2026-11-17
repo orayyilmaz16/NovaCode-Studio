@@ -42,6 +42,14 @@ interface Session {
   cwd: string;
 }
 
+/** Kabuğa uygun, güvenli `cd`. PowerShell: tek tırnak (içteki ' ve akıllı tırnaklar ikilenir); CMD: çift tırnak. Tehlikeli yol için null. */
+export function cdCommand(shell: ShellId, dir: string): string | null {
+  // eslint-disable-next-line no-control-regex
+  if (!dir || dir.length > 4096 || /[\u0000-\u001f\u007f\u2028\u2029]/.test(dir)) return null;
+  if (shell === 'cmd') return /["%]/.test(dir) ? null : `cd /d "${dir}"`;
+  return `Set-Location -LiteralPath '${dir.replace(/['\u2018\u2019\u201a\u201b]/g, (c) => c + c)}'`;
+}
+
 const SHELL_LABEL: Record<ShellId, string> = { powershell: 'PowerShell', cmd: 'CMD' };
 const ESC = '\u001b';
 const MAX_HISTORY = 100;
@@ -186,7 +194,19 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   );
 
   // Menü / komut paleti köprüsü: yeni terminal, temizle, komut çalıştır (ör. dosyayı çalıştır)
-  const pendingRun = useRef<string | null>(null);
+  // Terminal hazır olmadan gelen komutlar sırayla çalışır (cd, ardından run): tek yuva olsaydı sonraki öncekini ezerdi
+  const pendingRun = useRef<string[]>([]);
+  const flushing = useRef(false);
+  const flushPending = async (send: (line: string) => Promise<void>) => {
+    if (flushing.current) return;
+    flushing.current = true;
+    try {
+      while (pendingRun.current.length) {
+        const c = pendingRun.current.shift() as string;
+        await send(c);
+      }
+    } finally { flushing.current = false; }
+  };
   const readyIds = useRef<Set<string>>(new Set());
   const activeRef = useRef(active);
   activeRef.current = active;
@@ -196,13 +216,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear' | 'tab'; command?: string; dir?: string; tab?: PanelTab }>).detail;
       if (!d) return;
       if (d.action === 'tab') { if (d.tab === 'problems' || d.tab === 'terminal' || d.tab === 'log') setTab(d.tab); return; }
-      // cd: etkin kabuğa uygun komut (CMD'de sürücü değiştirmek için /d gerekir); tırnak içeren yol reddedilir
-      if (d.action === 'cd' && d.dir && !/["`$&|<>^%\r\n]/.test(d.dir)) {
-        const cmd = active?.shell === 'cmd' ? `cd /d "${d.dir}"` : `Set-Location -LiteralPath "${d.dir}"`;
+      // cd: etkin kabuğa uygun komut (CMD'de sürücü değiştirmek için /d gerekir). Özel karakterler (& $ ^ vb.) kabuğa uygun alıntılanır;
+      // yalnız denetim karakteri/yeni satır (ve CMD'de alıntı içinde bile genişleyen %) içeren yollar reddedilir
+      const cdCmd = d.action === 'cd' && d.dir ? cdCommand(active?.shell ?? 'powershell', d.dir) : null;
+      if (d.action === 'cd' && d.dir && cdCmd) {
+        const cmd = cdCmd;
         setTab('terminal');
-        if (active?.running) void runLine(cmd);
+        if (active?.running && !pendingRun.current.length) void runLine(cmd);
         else {
-          pendingRun.current = cmd;
+          pendingRun.current.push(cmd);
           if (visible && sessions.length === 0 && cwd) { autoOpened.current = true; void createSession(defaultShell); }
         }
         return;
@@ -211,9 +233,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       else if (d.action === 'clear') clearActive();
       else if (d.action === 'run' && d.command) {
         setTab('terminal');
-        if (active?.running) void runLine(d.command);
+        if (active?.running && !pendingRun.current.length) void runLine(d.command);
         else {
-          pendingRun.current = d.command;
+          pendingRun.current.push(d.command);
           if (visible && sessions.length === 0 && cwd) { autoOpened.current = true; void createSession(defaultShell); }
         }
       }
@@ -227,21 +249,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       readyIds.current.add(id);
       window.dispatchEvent(new CustomEvent('nova:term-ready', { detail: { id } }));
       const cur = activeRef.current;
-      if (pendingRun.current && cur && cur.id === id && cur.running) {
-        const c = pendingRun.current;
-        pendingRun.current = null;
-        void runLineRef.current(c);
-      }
+      if (pendingRun.current.length && cur && cur.id === id && cur.running) void flushPending((c) => runLineRef.current(c));
     });
     return () => off?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     // pipe oturumlarında `term:ready` beklenir (kabuk henüz komut almayabilir); olay desteği yoksa ya da pty ise doğrudan gönderilir
-    if (pendingRun.current && active?.running && (active.kind !== 'pipe' || !api?.onTermReady || readyIds.current.has(active.id))) {
-      const c = pendingRun.current;
-      pendingRun.current = null;
-      void runLine(c);
+    if (pendingRun.current.length && active?.running && (active.kind !== 'pipe' || !api?.onTermReady || readyIds.current.has(active.id))) {
+      void flushPending((c) => runLine(c));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active?.running, active?.id]);

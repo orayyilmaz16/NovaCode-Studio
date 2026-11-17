@@ -31,6 +31,9 @@ export function trustOnOpen(root: string, trusted: boolean | undefined) {
   set({ root, trusted: ok, prompt: !ok });
 }
 
+/** Anlık durum (React dışı kullanım: görev çalıştırıcı vb.). */
+export const getTrust = (): TrustState => state;
+
 export function openTrustPrompt() { set({ prompt: true }); }
 export function closeTrustPrompt() { set({ prompt: false }); }
 

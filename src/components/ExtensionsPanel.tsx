@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpCircle, Check, Download, ExternalLink, Loader2, Palette, Puzzle, RefreshCw, Search as SearchIcon, Star, Trash2 } from 'lucide-react';
-import { t, type UiTextKey } from '../i18n/uiText';
+import { t, type TextKey } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
 import { checkUpdates, extThemeName, installExt, uninstallExt, useExtensions, type ExtDetails, type StoreItem } from '../services/extensionsService';
 import { Markdown } from './Markdown';
@@ -11,7 +11,7 @@ type Cat = 'Themes';
 type Ref = { id: string; namespace: string; name: string; icon: string; displayName: string };
 
 const fmt = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}K` : String(n));
-const errKey = (e?: string): UiTextKey =>
+const errKey = (e?: string): TextKey =>
   e === 'runs-code' ? 'extErrRunsCode' : e === 'nothing-supported' ? 'extErrNothing' : e === 'too-big' ? 'extErrTooBig'
   : e === 'offline' ? 'extOffline' : e === 'timeout' ? 'extTimeout' : e?.startsWith('http-') ? 'extHttp' : 'extErrFailed';
 const netMsg = (e: string) => t(errKey(e)).replace('{c}', e.replace('http-', ''));

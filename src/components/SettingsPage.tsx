@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import {
   Palette,
@@ -23,7 +23,7 @@ import {
   Trash2,
   Check
 } from 'lucide-react';
-import { t, type TextKey, type UiTextKey } from '../i18n/uiText';
+import { t, type TextKey } from '../i18n/uiText';
 import '../i18n/uiTextAi'; // AI ve ayar metinleri (gecikmeli yüklenen ek sözlük)
 import '../i18n/uiTextComp'; // AI kod tamamlama ayar metinleri
 import '../i18n/uiTextTheme'; // renk teması, ek vurgu ve yazı tipi metinleri
@@ -31,6 +31,8 @@ import '../i18n/uiTextDev'; // hata ayıklama/terminal ayar metinleri (gecikmeli
 import { useSettings } from '../services/SettingsContext';
 import { getPalette } from '../services/palettes';
 import { useUpdate } from '../services/updateService';
+import { ErrorBoundary } from './ErrorBoundary';
+const KeybindingsEditor = lazy(() => import('./KeybindingsEditor').then((m) => ({ default: m.KeybindingsEditor })));
 import { BUILTIN_THEMES, extThemeName, listExtThemes, uninstallExt, useActiveEditorTheme, useExtensions, setMonacoForExtensions } from '../services/extensionsService';
 import { saveCollabToken, useCollabToken } from '../services/useCollabToken';
 import { getCollabRoomId, regenerateCollabRoomId, setCollabRoomId } from '../services/collabRoom';
@@ -378,7 +380,7 @@ const ExtensionsSettings: React.FC<{ onOpenStore?: () => void }> = ({ onOpenStor
 };
 
 // ---------- Kısayollar ve hakkında ----------
-const SHORTCUTS: [string, UiTextKey][] = [
+const SHORTCUTS: [string, TextKey][] = [
   ['Ctrl+N', 'newFile'],
   ['Ctrl+O', 'openFolder'],
   ['Ctrl+Shift+O', 'openFiles'],
@@ -398,7 +400,8 @@ const SHORTCUTS: [string, UiTextKey][] = [
   ['Ctrl+Q', 'quit']
 ];
 
-const Shortcuts: React.FC = () => (
+// Yüklenirken ve hata olursa gösterilen sabit varsayılan kısayol listesi
+const ShortcutsStatic: React.FC = () => (
   <div>
     {SHORTCUTS.map(([keys, label]) => (
       <div key={keys} className="flex items-center justify-between py-2.5 border-b border-nv-border/70 last:border-0 text-[13px]">
@@ -407,6 +410,15 @@ const Shortcuts: React.FC = () => (
       </div>
     ))}
   </div>
+);
+
+// Düzenlenebilir kısayollar (KeybindingsEditor, gömülü); modül yüklenene kadar varsayılan liste görünür
+const Shortcuts: React.FC = () => (
+  <ErrorBoundary kind="panel">
+    <Suspense fallback={<ShortcutsStatic />}>
+      <KeybindingsEditor embedded />
+    </Suspense>
+  </ErrorBoundary>
 );
 
 const About: React.FC = () => {

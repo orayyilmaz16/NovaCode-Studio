@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 17.11.2026 16:57 · auto/20261117-130721
+<!-- sig:ZWxlY3Ryb24tZXh0LmNqcyxlbGVjdHJvbi1tYWlu -->
+- Alan: [[extensions]], [[security-kvkk]], [[search-palette]], [[ui-design]], [[settings]], [[terminal]], [[testing]]
+- Kod (12): `electron-ext.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-search.cjs`, `src/App.tsx`, `src/components/ExtensionsPanel.tsx`, `src/components/SettingsPage.tsx`, `src/components/Terminal.tsx`, `src/services/tasks.ts`, `src/services/trustService.ts`, `src/types.ts`, `scripts/tests/search-redos.test.cjs`
+- Belge (6): `CHANGELOG.md`, `docs/brain/BACKLOG.md`, `docs/brain/actions/i18n.md`, `docs/brain/actions/search-palette.md`, `docs/brain/actions/terminal.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.4.2 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 17.11.2026 16:47 · auto/20261117-130721
 <!-- sig:c2NyaXB0cy90ZXN0cy9rZXliaW5kaW5ncy50ZXN0 -->
 - Alan: [[testing]], [[ui-design]], [[search-palette]], [[extensions]], [[git-github]], [[terminal]], [[i18n]]

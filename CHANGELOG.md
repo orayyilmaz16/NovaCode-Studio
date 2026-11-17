@@ -16,6 +16,10 @@
 - [fix] **Veri kaybı önlemleri:** Kaydedilmemiş sekme kapatılırken veya pencere kapanırken Kaydet/Kaydetme/İptal sorulur; silme başarısızsa sekme kapanmaz, klasör silinince içindeki sekmeler de kapanır; diskte silinen ya da değişen dosya sekmede uyarı olarak görünür ve otomatik kayıt onu ezmez; yazarken kayıt tamamlanırsa yeni yazılanlar kaybolmaz.
 - [fix] **Beyaz ekran yerine hata ekranı:** Bir bileşen hatasında "Yeniden yükle" gösterilir. Silinen dosyalar önce çöp kutusuna gider.
 - [improve] **Daha az gecikme:** Yazarken içerik dosya ağacına kopyalanmıyor, sekme geçişinde editör yeniden kurulmuyor, imleç hareketi tüm uygulamayı çizmiyor; ağaç yenilemesi yalnız değişen klasörleri okur ve `.gitignore` klasörlerinin derinine inmez.
+- [fix] **Kapanış ve terminal:** Kaydet penceresinde karar verirken uygulama artık 5 sn sonra kapanmıyor; terminalde `cd` ve komut sırası bozulmuyor, özel karakterli klasör yollarına `cd` çalışıyor; ön sürümlü eklenti güncellemesi doğru karşılaştırılıyor.
+- [security] **Arama ve görev güveni:** Regex aramasında iç içe nicelikli desenler ve çok uzun satırlar sınırlandı, aramaya 8 sn süre bütçesi getirildi; görev çalıştırma klasör güvenine bağlandı.
+- [improve] **Kısayollar ve paket boyutu:** Ayarlar > Kısayollar artık düzenlenebilir; ana paket küçüldü, ayar ve Git metinleri paneller açılınca yükleniyor.
+
 ### en
 
 - [feat] **Split editor:** Split the editor right or down (Ctrl+\ / Ctrl+Alt+\) and drag tabs between groups. The same file can be open in both groups with shared content, and the split is restored with the session.
@@ -30,6 +34,10 @@
 - [fix] **Data-loss protections:** Closing an unsaved tab or the window asks Save/Don't save/Cancel; a failed delete keeps the tab, deleting a folder closes its tabs; files deleted or changed on disk show a warning on the tab and auto-save will not overwrite them; typing while a save completes no longer loses new text.
 - [fix] **Error screen instead of a white screen:** A component error shows "Reload". Deleted files go to the recycle bin first.
 - [improve] **Less lag:** Typing no longer copies content into the file tree, switching tabs no longer rebuilds the editor, cursor moves no longer redraw the whole app; tree refresh reads only changed folders and does not descend into `.gitignore` folders.
+- [fix] **Quit and terminal:** The app no longer closes after 5 s while you decide in the Save dialog; terminal `cd` and the command keep their order and `cd` works for folder paths with special characters; pre-release extension updates compare correctly.
+- [security] **Search and task trust:** Regex search limits nested quantifiers and very long lines and has an 8 s time budget; running tasks now depends on folder trust.
+- [improve] **Shortcuts and bundle size:** Settings > Shortcuts is now editable; the main bundle shrank and settings and Git texts load when their panels open.
+
 ## 1.4.2 - 17.11.2026
 <!-- level: patch -->
 ### Türkçe
