@@ -35,6 +35,7 @@ import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
 const CompletionMenu = lazy(() => import('./components/CompletionMenu').then((m) => ({ default: m.CompletionMenu })));
 const BranchPicker = lazy(() => import('./components/BranchPicker').then((m) => ({ default: m.BranchPicker })));
+const TaskPicker = lazy(() => import('./components/TaskPicker').then((m) => ({ default: m.TaskPicker })));
 const DebugPanel = lazy(() => import('./components/DebugPanel').then((m) => ({ default: m.DebugPanel })));
 const ExtensionsPanel = lazy(() => import('./components/ExtensionsPanel').then((m) => ({ default: m.ExtensionsPanel })));
 import type { PaletteCommand } from './components/CommandPalette';
@@ -117,6 +118,10 @@ export function App() {
   const [currentRootName, setCurrentRootName] = useState<string>('NovaCode-Studio');
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
   const [picker, setPicker] = useState<PickerMode | null>(null);
+  const [taskPicker, setTaskPicker] = useState(false);
+  // Görev/bul-değiştir/çoklu imleç metinleri gecikmeli sözlükte (paket bütçesi): boşta yüklenir, menüler yenilenir
+  const [extraTexts, setExtraTexts] = useState(false);
+  useEffect(() => { void import('./i18n/uiTextAi').then(() => setExtraTexts(true)); }, []);
   const [gitNotice, setGitNotice] = useState<{ id: number; ok: boolean; text: string } | null>(null);
   const [noticeShown, setNoticeShown] = useState(false);
   const [syncing, setSyncing] = useState(false);

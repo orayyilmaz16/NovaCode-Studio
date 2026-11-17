@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, protocol } = require('electron');
 
 // Tek örnek kilidi EN BAŞTA: ikinci örnek ağır modülleri yüklemeden hemen çıkar (P-20).
 if (!app.requestSingleInstanceLock()) {
@@ -13,6 +13,17 @@ const { execFile } = require('child_process');
 const github = require('./electron-github.cjs');
 const secrets = require('./electron-secrets.cjs');
 const { createGuards, isValidPath } = require('./electron-paths.cjs');
+const { createIgnoreMatcher } = require('./electron-gitignore.cjs');
+const localHistory = require('./electron-history.cjs').create({
+  userDataDir: app.getPath('userData'),
+  getRoot: () => workspaceRoot,
+  isInside: (p) => withinWorkspace(p)
+});
+const preview = require('./electron-preview.cjs');
+
+// Önizleme ayrı köken (S-01): `nova-preview://` şeması 'ready' öncesi kaydedilmeli; içerik app.whenReady içinde sunulur.
+protocol.registerSchemesAsPrivileged([preview.PREVIEW_SCHEME_REGISTRATION]);
+const previewStore = preview.createPreviewStore();
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const DEV_ORIGIN = 'http://localhost:5173';
@@ -195,7 +206,19 @@ const isSelfWrite = (p) => {
 };
 
 // Asenkron tarama: ana süreç bloklanmaz, toplam düğüm sayısı sınırlıdır.
-async function scanDirectory(dirPath, budget = { left: MAX_TREE_NODES }, maxDepth = 4, currentDepth = 0) {
+// Kök .gitignore (P-16): eşleşen klasörler ağaçta görünür ama yalnız ilk düzeyi taranır (out/, build/ gibi büyük çıktılar bütçeyi yemez).
+async function loadIgnoreCtx(dirPath) {
+  const root = workspaceRoot && path.resolve(dirPath).toLowerCase().startsWith(path.resolve(workspaceRoot).toLowerCase()) ? path.resolve(workspaceRoot) : path.resolve(dirPath);
+  try {
+    const st = await fs.promises.stat(path.join(root, '.gitignore'));
+    if (!st.isFile() || st.size > 64 * 1024) return { root, isIgnored: () => false };
+    return { root, isIgnored: createIgnoreMatcher(await fs.promises.readFile(path.join(root, '.gitignore'), 'utf8')) };
+  } catch {
+    return { root, isIgnored: () => false };
+  }
+}
+
+async function scanDirectory(dirPath, budget = { left: MAX_TREE_NODES }, maxDepth = 4, currentDepth = 0, ctx = null) {
   if (currentDepth > maxDepth || budget.left <= 0) return [];
   let entries;
   try {
@@ -203,6 +226,7 @@ async function scanDirectory(dirPath, budget = { left: MAX_TREE_NODES }, maxDept
   } catch (err) {
     return [];
   }
+  if (!ctx) ctx = await loadIgnoreCtx(dirPath);
   const items = [];
   for (const entry of entries) {
     if (budget.left <= 0) break;
@@ -210,13 +234,14 @@ async function scanDirectory(dirPath, budget = { left: MAX_TREE_NODES }, maxDept
     budget.left--;
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory()) {
+      const ignoredDir = ctx.isIgnored(path.relative(ctx.root, fullPath), true);
       items.push({
         id: fullPath,
         name: entry.name,
         path: fullPath,
         type: 'folder',
-        isOpen: currentDepth < 1,
-        children: await scanDirectory(fullPath, budget, maxDepth, currentDepth + 1)
+        isOpen: currentDepth < 1 && !ignoredDir,
+        children: await scanDirectory(fullPath, budget, ignoredDir ? currentDepth + 1 : maxDepth, currentDepth + 1, ctx)
       });
     } else {
       const ext = path.extname(entry.name).toLowerCase().replace('.', '');
@@ -391,6 +416,7 @@ async function openWorkspace(folderPath) {
   return {
     rootPath: folderPath,
     rootName: path.basename(folderPath),
+    trusted: trustModule.isTrusted(folderPath),
     tree: await scanDirectory(folderPath)
   };
 }
@@ -490,6 +516,17 @@ ipcMain.handle('dialog:openFiles', async () => {
   return files;
 });
 
+// Önizleme içeriği (HTML) kısa ömürlü kimlikle bellekte tutulur; iframe `nova-preview://<kimlik>/` adresinden yükler. Yalnız ana pencerenin ana çerçevesi yazabilir.
+ipcMain.handle('preview:put', (event, html) => {
+  if (!mainWindow || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents || !event.senderFrame || event.senderFrame.parent) return null;
+  return previewStore.put(html);
+});
+ipcMain.handle('preview:drop', (event, id) => {
+  if (!mainWindow || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents) return false;
+  previewStore.drop(id);
+  return true;
+});
+
 // Önizleme için yerel varlık (görsel/yazı tipi) → data URL. Yalnız çalışma klasörü (veya diyalogla açılmış dosya), izinli uzantılar, en çok 4 MB.
 const DATA_MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', ico: 'image/x-icon', bmp: 'image/bmp', woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf', otf: 'font/otf' };
 ipcMain.handle('fs:readDataUrl', async (_event, filePath) => {
@@ -554,6 +591,7 @@ ipcMain.handle('fs:writeFile', async (_event, filePath, content) => {
     // Okurken BOM atıldıysa geri eklenir (dosyanın özgün kodlaması korunur)
     const data = bomFiles.has(approvalKey(filePath)) && content.charCodeAt(0) !== 0xFEFF ? '\uFEFF' + content : content;
     markSelfWrite(filePath);
+    await localHistory.snapshot(filePath, data); // F-07: eski içerik yerel geçmişe (hata fırlatmaz, kaydı engellemez)
     await atomicWrite(filePath, data);
     return { success: true };
   } catch (err) {
@@ -585,11 +623,22 @@ ipcMain.handle('fs:createFolder', async (_event, folderPath) => {
   }
 });
 
-ipcMain.handle('fs:deleteItem', async (_event, targetPath) => {
+// Silme (B-04): varsayılan olarak çöp kutusuna taşınır (geri alınabilir). Çöp kutusu başarısızsa { trashFailed: true } döner;
+// arayüz kullanıcıdan onay alırsa `{ permanent: true }` ile kalıcı silme istenir. Tek dosya silinirse yerel geçmişe de anlık görüntü alınır (F-07).
+ipcMain.handle('fs:deleteItem', async (_event, targetPath, opts) => {
   try {
     if (!insideWorkspaceLink(targetPath)) return OUTSIDE; // kök klasörün kendisi de silinemez; symlink ise bağın kendisi silinir
-    await fs.promises.rm(targetPath, { recursive: true, force: true });
-    return { success: true };
+    try { if ((await fs.promises.lstat(targetPath)).isFile()) await localHistory.snapshot(targetPath); } catch { /* yok/okunamaz */ }
+    if (opts && opts.permanent === true) {
+      await fs.promises.rm(targetPath, { recursive: true, force: true });
+      return { success: true, trashed: false };
+    }
+    try {
+      await shell.trashItem(path.resolve(targetPath));
+      return { success: true, trashed: true };
+    } catch (e) {
+      return { success: false, trashFailed: true, error: e && e.message ? e.message : 'trash-failed' };
+    }
   } catch (err) {
     return { success: false, error: err.message };
   }
@@ -626,11 +675,16 @@ ipcMain.handle('app:reveal', async (_event, target) => {
 // Kabuk kullanılmaz (execFile): argümanlar doğrudan git'e gider, enjeksiyon olmaz.
 // Güvenilmeyen depodaki .git/config kod çalıştırmasın diye (S-07): fsmonitor kapalı, sayfalayıcı `cat`, ext:: aktarımı yasak,
 // ssh komutu ortamdan ya da düz `ssh` (depodaki core.sshCommand yok sayılır; GIT_SSH_COMMAND yapılandırmadan önceliklidir).
+const trustModule = require('./electron-trust.cjs');
 const GIT_SAFE_ARGS = ['-c', 'core.fsmonitor=false', '-c', 'core.pager=cat', '-c', 'protocol.ext.allow=never'];
 async function runGitCommand(args, cwd, { auth = false, raw = false, timeout = 120000 } = {}) {
   if (!isValidPath(cwd) || !(await pathExists(cwd))) {
     return { success: false, stdout: '', stderr: 'Geçersiz depo yolu.' };
   }
+  // Güvenilmeyen klasörde (kısıtlı mod) yalnız okuma komutları çalışır; hook/filtre/harici fark kapalıdır (electron-trust.cjs).
+  const gate = trustModule.gateGit(args, workspaceRoot || cwd, trustModule.isTrusted(workspaceRoot));
+  if (!gate.allow) return { success: false, stdout: '', stderr: gate.error };
+  args = gate.args;
   // GIT_TERMINAL_PROMPT=0: kimlik sorusunda sonsuza dek beklemek yerine hata ver.
   const env = {
     ...process.env,
@@ -668,6 +722,7 @@ ipcMain.handle('ui:setTheme', async (_event, mode) => {
 // Depo yolu = açık çalışma klasörü (veya içi); rastgele klasörde git/GitHub işlemi yapılamaz
 github.register({ getWindow: () => mainWindow, runGit: runGitCommand, isValidPath: withinWorkspace });
 gitModule.register({ runGit: runGitCommand, github, isValidPath: withinWorkspace });
+trustModule.register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
 
 // ----------------------------------------------------
 // Entegre terminal: çoklu kabuk oturumları (electron-term.cjs)
@@ -681,6 +736,11 @@ ptyModule.register({ getWindow: () => mainWindow, isValidPath: withinWorkspace }
 
 // Arama (Ctrl+P / Ctrl+Shift+F)
 require('./electron-search.cjs').register({ getRoot: () => workspaceRoot });
+
+// Kullanıcı snippet'leri (F-06): çalışma klasörü .nova/snippets.json + genel dosya (userData)
+require('./electron-snippets.cjs').register({ getRoot: () => workspaceRoot, userDataDir: app.getPath('userData'), isInside: insideWorkspace, fromMain });
+// Yerel geçmiş IPC (F-07); anlık görüntü kancası fs:writeFile / fs:deleteItem içinde
+localHistory.register({ ipcMain, fromMain });
 
 // Ağır modüller (eklenti mağazası, güncelleme, yerel model, hata ayıklayıcı+ws, dil sunucusu, yapay zekâ) pencere
 // oluşturulduktan SONRA yüklenir: renderer süreci paralel başlar. IPC işleyicileri aynı turda kaydedilir; renderer
@@ -740,6 +800,10 @@ app.on('second-instance', () => {
 });
 
 app.whenReady().then(() => {
+  protocol.handle(preview.PREVIEW_SCHEME, (request) => {
+    const r = preview.previewResponse(previewStore, request.url, request.method);
+    return new Response(r.body || null, { status: r.status, headers: r.headers });
+  });
   createWindow();
   registerDeferredModules();
 });

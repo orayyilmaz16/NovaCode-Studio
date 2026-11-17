@@ -10,16 +10,18 @@ const crypto = require('crypto');
 
 // Yalnız Apache-2.0 lisanslı modeller (ticari kullanıma uygun).
 // sha256 (isteğe bağlı, 64 hex): doldurulursa indirilen dosya bu özetle doğrulanır; boşsa yalnız boyut denetlenir ve uyarı yazılır.
-// Gerçek özetler kaynak sayfasından (Hugging Face "Files" > SHA256) alınarak eklenmelidir; tahmin edilmez.
+// Özetler Hugging Face'in herkese açık LFS işaretçisinden (raw/main/<dosya> içindeki "oid sha256") alındı (17.11.2026); yeni model eklerken aynı yolla alınır, tahmin edilmez.
 const MODELS = {
   'qwen2.5-coder-1.5b': {
     label: 'Qwen2.5-Coder 1.5B', tier: 'fast', size: 1117320768, ctx: 8192, ramGb: 3,
     file: 'qwen2.5-coder-1.5b-instruct-q4_k_m.gguf',
+    sha256: 'cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046',
     url: 'https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF/resolve/main/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf'
   },
   'qwen2.5-coder-7b': {
     label: 'Qwen2.5-Coder 7B', tier: 'strong', size: 4683073536, ctx: 8192, ramGb: 8,
     file: 'qwen2.5-coder-7b-instruct-q4_k_m.gguf',
+    sha256: '509287f78cb4d4cf6b3843734733b914b2c158e43e22a7f4bf5e963800894d3c',
     url: 'https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/main/qwen2.5-coder-7b-instruct-q4_k_m.gguf'
   }
 };

@@ -54,27 +54,10 @@ function killAll() {
 // ---------- Güven, rıza ve izin listesi (kalıcı, yalnız bu bilgisayarda: userData/ai-trust.json) ----------
 // Veri: güvenilen klasör yolları, rıza verilen sağlayıcı adresleri, anahtar gönderimine izin verilen özel adresler. Amaç: güvenlik kararlarının hatırlanması.
 // Hukuki sebep: kullanıcının açık onayı. Saklama: kullanıcı dosyayı silene dek. Yurt dışı aktarım yok (dosya yerel).
-const emptyStore = () => ({ folders: [], consent: [], bases: [] });
-function loadStore() {
-  try {
-    const j = JSON.parse(fs.readFileSync(path.join(app.getPath('userData'), 'ai-trust.json'), 'utf8'));
-    const arr = (x) => (Array.isArray(x) ? x.filter((v) => typeof v === 'string').slice(0, 200) : []);
-    return { folders: arr(j.folders), consent: arr(j.consent), bases: arr(j.bases) };
-  } catch { return emptyStore(); }
-}
-function saveStore(st) {
-  try { fs.writeFileSync(path.join(app.getPath('userData'), 'ai-trust.json'), JSON.stringify(st), { mode: 0o600 }); } catch { /* yazılamadı: bu oturumda geçerli kalır */ }
-}
-const folderKey = (root) => {
-  let p = root;
-  try { p = fs.realpathSync(root); } catch { /* yol yok */ }
-  return process.platform === 'win32' ? p.toLowerCase() : p;
-};
-const isTrustedFolder = (root) => !!root && loadStore().folders.includes(folderKey(root));
-function addToStore(field, value) {
-  const st = loadStore();
-  if (!st[field].includes(value)) { st[field].push(value); saveStore(st); }
-}
+// Depo ve klasör güveni tek modülde (electron-trust.cjs): ajan, git, LSP ve hata ayıklayıcı aynı kararı kullanır.
+const trust = require('./electron-trust.cjs');
+const { loadStore, folderKey, addToStore } = trust;
+const isTrustedFolder = (root) => trust.isTrusted(root);
 
 // Kullanıcıya görünen onay metinleri (8 dil; istek dilinden seçilir)
 const MSG = {
@@ -884,7 +867,7 @@ function register({ getWindow, getRoot }) {
         requestTrust() {
           if (!this._trustP) {
             this._trustP = approve({ tool: 'trust', summary: tx('trustTitle', uiLang) + ' ' + path.basename(root || ''), preview: tx('trustBody', uiLang) }).then((ok) => {
-              if (ok) { addToStore('folders', folderKey(root)); this.trusted = true; }
+              if (ok) { trust.trustFolder(root); this.trusted = true; }
               return ok;
             });
           }
@@ -928,7 +911,7 @@ function register({ getWindow, getRoot }) {
           if (u.name === 'run_command') lastCmdFailed = cmdFailed; // başarısız komuttan sonra model durursa "düzelt" uyarısı gider
           else if (FILE_EDIT_TOOLS.has(u.name) && !isError) lastCmdFailed = false;
           emit({ type: 'tool_result', id: u.id, ok: !isError && !cmdFailed, text: clip(out, 1500) });
-          results.push({ type: 'tool_result', tool_use_id: u.id, content: out, ...(isError ? { is_error: true } : {}) });
+          results.push({ type: 'tool_result', tool_use_id: u.id, content: clean(out), ...(isError ? { is_error: true } : {}) });
         }
         if (run.abort.signal.aborted) break;
         messages.push({ role: 'user', content: results });

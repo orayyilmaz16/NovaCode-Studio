@@ -68,6 +68,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   search: {
     files: () => ipcRenderer.invoke('search:files'),
     text: (opts) => ipcRenderer.invoke('search:text', opts),
+    replace: (opts) => ipcRenderer.invoke('search:replace', opts),
     cancel: (id) => ipcRenderer.invoke('search:cancel', id)
   },
   update: {
@@ -119,6 +120,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return () => ipcRenderer.removeListener('ai:event', listener);
     }
   },
+  // Çalışma klasörü güveni ve kalıcı rızalar (electron-trust.cjs). Ekleme yok: yalnız açık klasöre güven verme ve kaldırma.
+  trust: {
+    status: () => ipcRenderer.invoke('trust:status'),
+    grant: () => ipcRenderer.invoke('trust:grant'),
+    list: () => ipcRenderer.invoke('trust:list'),
+    revoke: (kind, value) => ipcRenderer.invoke('trust:revoke', kind, value),
+    onChange: (callback) => {
+      const listener = (_event, data) => callback(data);
+      ipcRenderer.on('trust:changed', listener);
+      return () => ipcRenderer.removeListener('trust:changed', listener);
+    }
+  },
   quitApp: () => ipcRenderer.invoke('app:quit'),
   // Pencere kapanırken ana süreç kaydedilmemiş değişiklik sorar; renderer respondClose(true=kapat, false=vazgeç) ile yanıtlar (5 sn içinde)
   onCloseRequest: (cb) => {
@@ -148,10 +161,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Başarı: içerik (dize). Başarısız: { success:false, error:'file-too-large'|'binary-file', size }. opts.maxBytes eşiği artırır.
   readFile: (filePath, opts) => ipcRenderer.invoke('fs:readFile', filePath, opts),
   readDataUrl: (filePath) => ipcRenderer.invoke('fs:readDataUrl', filePath),
+  // Önizleme içeriği (HTML) → kısa ömürlü kimlik; iframe nova-preview://<kimlik>/ adresinden yüklenir (S-01)
+  previewPut: (html) => ipcRenderer.invoke('preview:put', html),
+  previewDrop: (id) => ipcRenderer.invoke('preview:drop', id),
   writeFile: (filePath, content) => ipcRenderer.invoke('fs:writeFile', filePath, content),
   createFile: (filePath) => ipcRenderer.invoke('fs:createFile', filePath),
   createFolder: (folderPath) => ipcRenderer.invoke('fs:createFolder', folderPath),
-  deleteItem: (targetPath) => ipcRenderer.invoke('fs:deleteItem', targetPath),
+  // Çöp kutusuna taşır; başarısızsa { trashFailed:true }. opts.permanent=true yalnız kullanıcı onayından sonra.
+  deleteItem: (targetPath, opts) => ipcRenderer.invoke('fs:deleteItem', targetPath, opts),
+  // Yerel geçmiş (F-07) ve kullanıcı snippet'leri (F-06)
+  history: {
+    list: (filePath) => ipcRenderer.invoke('history:list', filePath),
+    read: (filePath, id) => ipcRenderer.invoke('history:read', filePath, id),
+    deleted: () => ipcRenderer.invoke('history:deleted'),
+    clear: (scope, filePath) => ipcRenderer.invoke('history:clear', scope, filePath),
+    config: (cfg) => ipcRenderer.invoke('history:config', cfg)
+  },
+  snippets: {
+    load: () => ipcRenderer.invoke('snippets:load'),
+    read: (scope) => ipcRenderer.invoke('snippets:read', scope),
+    save: (scope, text) => ipcRenderer.invoke('snippets:save', scope, text)
+  },
   renameItem: (oldPath, newPath) => ipcRenderer.invoke('fs:renameItem', oldPath, newPath),
   getGitStatus: (repoPath) => ipcRenderer.invoke('git:status', repoPath),
   gitCommit: (repoPath, message) => ipcRenderer.invoke('git:commit', repoPath, message),

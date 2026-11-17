@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 17.11.2026 16:37 · auto/20261117-130721
+<!-- sig:ZWxlY3Ryb24tYWkuY2pzLGVsZWN0cm9uLWRlYnVn -->
+- Alan: [[ai-assistant]], [[debugging]], [[lsp]], [[security-kvkk]], [[search-palette]], [[explorer]], [[preview]], [[ui-design]], [[terminal]], [[i18n]], [[settings]], [[git-github]], [[testing]]
+- Kod (29): `electron-ai.cjs`, `electron-debug.cjs`, `electron-llm.cjs`, `electron-lsp.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-search.cjs`, `src/components/FileTree.tsx`, `src/components/Preview.tsx`, `src/components/SearchPanel.tsx`, `src/components/Terminal.tsx`, `src/i18n/uiTextAi.ts` … (+17)
+- Belge (0): —
+- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
+
 ## 17.11.2026 16:32 · auto/20261117-130721
 <!-- sig:c2NyaXB0cy90ZXN0cy9haS1zZWN1cml0eS50ZXN0 -->
 - Alan: [[testing]]

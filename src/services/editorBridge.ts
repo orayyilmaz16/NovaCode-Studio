@@ -19,6 +19,10 @@ let editor: Ed | null = null;
 export function setActiveEditor(ed: unknown) {
   editor = (ed as Ed) || null;
 }
+/** Kapanan düzenleyici hâlâ etkin sayılıyorsa bırakır (bölünmüş editörde öteki grup devralır). */
+export function releaseActiveEditor(ed: unknown) {
+  if (editor === (ed as Ed)) editor = null;
+}
 
 export function getSelectedText(): string {
   try {
@@ -98,6 +102,7 @@ export async function pasteClipboard() {
 export const hasEditor = () => !!editor;
 
 // Bekleyen (debounce'lu) editör değişikliğini hemen uygulamaya aktarır: kayıt/kapatma/oturum yazmadan önce çağrılır.
-let flushFn: (() => void) | null = null;
-export const setFlushHandler = (fn: (() => void) | null) => { flushFn = fn; };
-export const flushEditorChanges = () => { try { flushFn?.(); } catch { /* editör kapanmış */ } };
+// Bölünmüş editörde her grup kendi bekleyen değişikliğini kaydeder; hepsi birlikte aktarılır.
+const flushFns = new Set<() => void>();
+export const addFlushHandler = (fn: () => void) => { flushFns.add(fn); return () => { flushFns.delete(fn); }; };
+export const flushEditorChanges = () => { for (const fn of [...flushFns]) { try { fn(); } catch { /* editör kapanmış */ } } };

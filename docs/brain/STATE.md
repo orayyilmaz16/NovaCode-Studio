@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -30,29 +30,34 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 1045 |
-| `electron-debug.cjs` | 237 |
+| `electron-ai.cjs` | 1028 |
+| `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 426 |
 | `electron-github.cjs` | 335 |
-| `electron-llm.cjs` | 278 |
-| `electron-lsp.cjs` | 298 |
-| `electron-main.cjs` | 757 |
+| `electron-gitignore.cjs` | 65 |
+| `electron-history.cjs` | 171 |
+| `electron-llm.cjs` | 280 |
+| `electron-lsp.cjs` | 301 |
+| `electron-main.cjs` | 821 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 240 |
+| `electron-preload.cjs` | 270 |
+| `electron-preview.cjs` | 78 |
 | `electron-pty.cjs` | 128 |
-| `electron-search.cjs` | 118 |
+| `electron-search.cjs` | 260 |
 | `electron-secrets.cjs` | 66 |
+| `electron-snippets.cjs` | 106 |
 | `electron-term.cjs` | 176 |
 | `electron-textbuffer.cjs` | 309 |
+| `electron-trust.cjs` | 170 |
 | `electron-update.cjs` | 165 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1988 |
+| `src/App.tsx` | 1993 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 428 |
+| `src/types.ts` | 487 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -69,7 +74,7 @@
 | `src/components/EditorArea.tsx` | 623 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
-| `src/components/FileTree.tsx` | 931 |
+| `src/components/FileTree.tsx` | 932 |
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 882 |
 | `src/components/GithubAccount.tsx` | 134 |
@@ -78,15 +83,16 @@
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
 | `src/components/MenuBar.tsx` | 95 |
-| `src/components/Preview.tsx` | 351 |
+| `src/components/Preview.tsx` | 368 |
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
-| `src/components/SearchPanel.tsx` | 99 |
+| `src/components/SearchPanel.tsx` | 213 |
 | `src/components/SettingsPage.tsx` | 614 |
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
-| `src/components/Terminal.tsx` | 560 |
+| `src/components/TaskPicker.tsx` | 79 |
+| `src/components/Terminal.tsx` | 582 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/UpdateDialog.tsx` | 156 |
 | `src/components/WindowControls.tsx` | 48 |
@@ -103,10 +109,11 @@
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
-| `src/services/editorBridge.ts` | 103 |
+| `src/services/editorBridge.ts` | 108 |
 | `src/services/editorTheme.ts` | 98 |
 | `src/services/extensionsService.ts` | 220 |
 | `src/services/gitExplain.ts` | 18 |
+| `src/services/keybindings.ts` | 288 |
 | `src/services/lang.ts` | 26 |
 | `src/services/lspClient.ts` | 213 |
 | `src/services/lspStore.ts` | 34 |
@@ -118,6 +125,8 @@
 | `src/services/recentFolders.ts` | 28 |
 | `src/services/session.ts` | 93 |
 | `src/services/settings.ts` | 344 |
+| `src/services/splitLayout.ts` | 135 |
+| `src/services/tasks.ts` | 88 |
 | `src/services/terminalBridge.ts` | 54 |
 | `src/services/terminalText.ts` | 148 |
 | `src/services/updateService.ts` | 28 |
@@ -131,7 +140,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/i18n/uiText.ts` | 1635 |
-| `src/i18n/uiTextAi.ts` | 528 |
+| `src/i18n/uiTextAi.ts` | 597 |
 | `src/i18n/uiTextComp.ts` | 257 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
@@ -160,12 +169,18 @@
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
 | `scripts/tests/debug.test.cjs` | 112 |
+| `scripts/tests/electron-misc.test.cjs` | 153 |
 | `scripts/tests/git.test.cjs` | 163 |
+| `scripts/tests/i18n.test.cjs` | 100 |
+| `scripts/tests/keybindings.test.cjs` | 154 |
 | `scripts/tests/lsp.test.cjs` | 97 |
 | `scripts/tests/palettes.test.cjs` | 75 |
 | `scripts/tests/paths.test.cjs` | 88 |
+| `scripts/tests/preview-csp.test.cjs` | 66 |
 | `scripts/tests/pty.test.cjs` | 84 |
 | `scripts/tests/release.test.cjs` | 140 |
+| `scripts/tests/replace.test.cjs` | 71 |
+| `scripts/tests/services.test.cjs` | 140 |
 | `scripts/tests/settings-migrate.test.cjs` | 62 |
 | `scripts/tests/sync.test.cjs` | 58 |
 | `scripts/tests/syncserver.test.cjs` | 73 |
@@ -188,24 +203,28 @@
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDataUrl`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:amend`, `git:branches`, `git:checkout`, `git:checkoutRef`, `git:commit`, `git:commitFiles`, `git:createBranch`, `git:createBranchFrom`, `git:createTag`, `git:deleteBranch`, `git:deleteTag`, `git:diffFile`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:merge`, `git:mergeAbort`, `git:mergeContinue`, `git:pull`, `git:push`, `git:pushTag`, `git:refs`, `git:resolve`, `git:stage`, `git:stageAll`, `git:stashApply`, `git:stashDrop`, `git:stashList`, `git:stashPop`, `git:stashPush`, `git:status`, `git:sync`, `git:undoCommit`, `git:unstage` |
 | github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
+| history | `history:clear`, `history:config`, `history:deleted`, `history:list`, `history:read` |
 | llm | `llm:cancel`, `llm:delete`, `llm:download`, `llm:status` |
 | lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
+| preview | `preview:drop`, `preview:put` |
 | pty | `pty:available`, `pty:resize`, `pty:start`, `pty:stop`, `pty:write` |
-| search | `search:cancel`, `search:files`, `search:text` |
+| search | `search:cancel`, `search:files`, `search:replace`, `search:text` |
 | secrets | `secrets:get`, `secrets:has`, `secrets:set` |
+| snippets | `snippets:load`, `snippets:read`, `snippets:save` |
 | term | `term:input`, `term:start`, `term:stop` |
+| trust | `trust:grant`, `trust:list`, `trust:revoke`, `trust:status` |
 | ui | `ui:setTheme` |
 | update | `update:check`, `update:download`, `update:install`, `update:releases`, `update:state` |
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `update:state`, `win:maximized`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 909 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 932 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-110 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+112 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -258,6 +277,8 @@
 | Dosyalar ve kayıt | `formatOnSave` | Kayıtta kodu biçimlendir | toggle | `false` |  |
 | Dosyalar ve kayıt | `trimTrailingWhitespace` | Kayıtta satır sonu boşluklarını sil | toggle | `false` |  |
 | Dosyalar ve kayıt | `insertFinalNewline` | Kayıtta sona boş satır ekle | toggle | `false` |  |
+| Dosyalar ve kayıt | `localHistory` |  | toggle | `true` |  |
+| Dosyalar ve kayıt | `localHistoryMax` |  | slider | `30` | 5–30 |
 | Dosyalar ve kayıt | `welcomeOnStartup` | Açılışta karşılama sayfasını göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showGitDecorations` | Dosya ağacında Git durumunu göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showOpenEditors` | Gezginde "Açık düzenleyiciler" | toggle | `true` |  |

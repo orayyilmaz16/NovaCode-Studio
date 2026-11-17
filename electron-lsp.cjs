@@ -13,6 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const { pathToFileURL, fileURLToPath } = require('url');
 const { safeEnv, killTreeSync } = require('./electron-paths.cjs');
+const trust = require('./electron-trust.cjs');
 
 const SERVERS = {
   python: [{ name: 'pyright', cmd: 'pyright-langserver', args: ['--stdio'], hint: 'npm install -g pyright' }, { name: 'pylsp', cmd: 'pylsp', args: [], hint: 'pip install python-lsp-server' }],
@@ -145,6 +146,8 @@ async function ensure(lang) {
   const def = pick.def;
   let s = servers.get(def.name);
   if (s && s.root !== root) { await stopOne(def.name); s = null; }
+  // Güvenilmeyen klasörde dil sunucusu başlamaz: sunucu proje yapılandırmasını (eklenti/betik) çalıştırabilir (kısıtlı mod).
+  if (!trust.isTrusted(root)) return { success: false, error: 'trust-required' };
   if (s && s.state === 'ready') return { success: true, name: def.name, state: s.state, syncKind: syncKindOf(s.caps), triggers: s.caps.completionProvider?.triggerCharacters ?? [], signatureTriggers: s.caps.signatureHelpProvider?.triggerCharacters ?? [] };
   if (s && s.starting) return s.starting;
 
@@ -245,7 +248,7 @@ function register({ getWindow, getRoot }) {
     const pick = pickServer(lang);
     if (!pick.supported) return { supported: false };
     const s = servers.get(pick.def.name);
-    return { supported: true, name: pick.def.name, available: !!pick.exe, hint: pick.def.hint, state: s ? s.state : 'idle' };
+    return { supported: true, name: pick.def.name, available: !!pick.exe, hint: pick.def.hint, state: s ? s.state : 'idle', restricted: !trust.isTrusted(api.getRoot()) };
   }));
 
   ipcMain.handle('lsp:start', guard((req) => ensure(String(req && req.lang || ''))));

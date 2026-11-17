@@ -28,6 +28,7 @@ import { useSettings } from '../services/SettingsContext';
 import { FileTypeIcon } from './FileTypeIcon';
 import { PopupMenu, type MenuItem } from './Menu';
 import { useProblems } from '../services/problems';
+import { getRecentFolders } from '../services/recentFolders';
 
 type Density = 'compact' | 'comfortable' | 'spacious';
 type SortMode = 'foldersFirst' | 'filesFirst' | 'mixed' | 'type';
@@ -206,8 +207,8 @@ export const FileTree: React.FC<FileTreeProps> = ({
 
   // Son açılan klasörler (klasör açık değilken boş durumda gösterilir)
   useEffect(() => {
-    if (rootName || !window.electronAPI?.recentFolders) return;
-    void window.electronAPI.recentFolders().then((r) => setRecent(r.slice(0, 5))).catch(() => undefined);
+    if (rootName) return;
+    void getRecentFolders().then((r) => setRecent(r.slice(0, 5))).catch(() => undefined);
   }, [rootName]);
 
   const isOpen = useCallback((it: FileItem) => filtering || (expanded[it.id] ?? it.isOpen ?? false), [expanded, filtering]);

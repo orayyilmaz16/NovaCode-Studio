@@ -9,6 +9,16 @@ export interface DiffInfo {
   source?: { repo: string; path: string; orig?: string; staged?: boolean };
 }
 
+/** Kullanıcı snippet'i (ana süreçte doğrulanmış). */
+export interface UserSnippet {
+  name: string;
+  prefix: string[];
+  body: string;
+  description: string;
+  language?: string;
+  scope?: 'workspace' | 'user';
+}
+
 export interface ReadFileFailure {
   success: false;
   error: 'file-too-large' | 'binary-file' | string;
@@ -176,6 +186,30 @@ export interface ReleaseInfo {
 
 export type SecretKey = 'collabToken' | 'aiKey_anthropic' | 'aiKey_openai';
 
+/** Bul-değiştir isteği: 'preview' diske dokunmaz; 'apply' yalnız `selection` satırlarını değiştirir. */
+export interface ReplaceOpts {
+  mode: 'preview' | 'apply';
+  query: string;
+  replacement: string;
+  regex?: boolean;
+  caseSensitive?: boolean;
+  wholeWord?: boolean;
+  id?: string;
+  selection?: { path: string; lines: number[] }[];
+}
+export interface ReplaceHit { path: string; rel: string; line: number; before: string; after: string }
+export interface ReplaceResult {
+  results?: ReplaceHit[];
+  truncated?: boolean;
+  cancelled?: boolean;
+  error?: string;
+  success?: boolean;
+  files?: number;
+  lines?: number;
+  skipped?: number;
+  failed?: string[];
+}
+
 export interface SearchHit {
   path: string;
   rel: string;
@@ -268,8 +302,9 @@ export interface ElectronBridge {
   };
   search: {
     files: () => Promise<{ root: string; files: string[] }>;
-    text: (opts: { query: string; regex?: boolean; caseSensitive?: boolean; id?: string }) => Promise<{ results: SearchHit[]; truncated: boolean; error?: string; cancelled?: boolean }>;
+    text: (opts: { query: string; regex?: boolean; caseSensitive?: boolean; wholeWord?: boolean; id?: string }) => Promise<{ results: SearchHit[]; truncated: boolean; error?: string; cancelled?: boolean }>;
     cancel: (id: string) => Promise<{ success: boolean }>;
+    replace: (opts: ReplaceOpts) => Promise<ReplaceResult>;
   };
   update: {
     state: () => Promise<UpdateState>;
@@ -338,6 +373,14 @@ export interface ElectronBridge {
     evaluate: (expr: string, frameId?: string | null) => Promise<{ success: boolean; value?: string; type?: string; ref?: string | null; error?: string }>;
     onEvent: (cb: (ev: DebugEvent) => void) => () => void;
   };
+  /** Çalışma klasörü güveni ve kalıcı rızalar. Ekleme yok: yalnız açık klasöre güven verme ve kaldırma. */
+  trust?: {
+    status: () => Promise<{ root: string; trusted: boolean }>;
+    grant: () => Promise<{ success: boolean; trusted: boolean }>;
+    list: () => Promise<{ folders: { key: string; label: string }[]; consent: string[]; bases: string[] }>;
+    revoke: (kind: 'folders' | 'consent' | 'bases', value: string) => Promise<{ success: boolean }>;
+    onChange: (callback: (s: { root: string; trusted: boolean }) => void) => () => void;
+  };
   quitApp: () => Promise<void>;
   /** Pencere kapatılmak istenince ana süreç sorar; yanıt `respondClose(true|false)` ile verilir. Abonelik kaldırıcı döner. */
   onCloseRequest?: (callback: () => void) => () => void;
@@ -350,18 +393,33 @@ export interface ElectronBridge {
     isMaximized: () => Promise<boolean>;
     onMaximized: (cb: (maximized: boolean) => void) => () => void;
   };
-  openFolderDialog: () => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | { error: string } | null>;
+  openFolderDialog: () => Promise<{ rootPath: string; rootName: string; trusted?: boolean; tree: FileItem[] } | { error: string } | null>;
   recentFolders: () => Promise<{ path: string; name: string }[]>;
-  openRecentFolder: (folderPath: string) => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | { error: string }>;
+  openRecentFolder: (folderPath: string) => Promise<{ rootPath: string; rootName: string; trusted?: boolean; tree: FileItem[] } | { error: string }>;
   openFileDialog: () => Promise<FileItem[]>;
   readDirectory: (dirPath: string) => Promise<FileItem[]>;
   /** Başarıda metin; çok büyük/ikili dosyada `{ success:false, error:'file-too-large' | 'binary-file' }`. */
   readFile: (filePath: string) => Promise<string | ReadFileFailure>;
   readDataUrl: (filePath: string) => Promise<{ success: boolean; dataUrl?: string; error?: string }>;
+  /** Önizleme HTML'ini ayrı kökene (nova-preview://) yükler; kimlik döner (null: reddedildi/çok büyük). */
+  previewPut?: (html: string) => Promise<string | null>;
+  previewDrop?: (id: string) => Promise<boolean>;
   writeFile: (filePath: string, content: string) => Promise<{ success: boolean; error?: string }>;
   createFile: (filePath: string) => Promise<{ success: boolean; error?: string }>;
   createFolder: (folderPath: string) => Promise<{ success: boolean; error?: string }>;
-  deleteItem: (targetPath: string) => Promise<{ success: boolean; error?: string }>;
+  deleteItem: (targetPath: string, opts?: { permanent?: boolean }) => Promise<{ success: boolean; error?: string; trashed?: boolean; trashFailed?: boolean }>;
+  history?: {
+    list: (filePath: string) => Promise<{ id: string; time: number; size: number }[]>;
+    read: (filePath: string, id: string) => Promise<{ success: boolean; content?: string }>;
+    deleted: () => Promise<{ path: string; versions: number; last: number }[]>;
+    clear: (scope: 'file' | 'workspace' | 'all', filePath?: string) => Promise<{ success: boolean }>;
+    config: (cfg: { enabled?: boolean; maxVersions?: number }) => Promise<{ success: boolean }>;
+  };
+  snippets?: {
+    load: () => Promise<{ snippets: UserSnippet[]; errors: string[] }>;
+    read: (scope: 'workspace' | 'user') => Promise<{ success: boolean; text?: string; error?: string }>;
+    save: (scope: 'workspace' | 'user', text: string) => Promise<{ success: boolean; error?: string; errors?: string[]; count?: number }>;
+  };
   renameItem: (oldPath: string, newPath: string) => Promise<{ success: boolean; error?: string }>;
   getGitStatus: (repoPath: string) => Promise<GitStatus>;
   gitCommit: (repoPath: string, message: string) => Promise<{ success: boolean; stdout?: string; stderr?: string }>;
@@ -374,6 +432,7 @@ export interface ElectronBridge {
   onTermOutput: (callback: (data: { id: string; shell: 'powershell' | 'cmd'; text: string; stream?: 'stdout' | 'stderr' }) => void) => () => void;
   onTermExit: (callback: (data: { id: string; shell: 'powershell' | 'cmd'; code: number | null }) => void) => () => void;
   onTermCwd: (callback: (data: { id: string; shell: 'powershell' | 'cmd'; cwd: string }) => void) => () => void;
+  onTermReady?: (callback: (data: { id: string; shell: 'powershell' | 'cmd'; cwd: string; reused?: boolean }) => void) => () => void;
   gitFetch: (repoPath: string) => Promise<GitResult>;
   gitStage: (repoPath: string, paths: string[]) => Promise<GitResult>;
   gitStageAll: (repoPath: string) => Promise<GitResult>;

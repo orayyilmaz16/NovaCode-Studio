@@ -186,6 +186,10 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
 
   // Menü / komut paleti köprüsü: yeni terminal, temizle, komut çalıştır (ör. dosyayı çalıştır)
   const pendingRun = useRef<string | null>(null);
+  const readyIds = useRef<Set<string>>(new Set());
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const runLineRef = useRef<(line: string) => Promise<void>>(async () => {});
   useEffect(() => {
     const onBridge = (e: Event) => {
       const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear' | 'tab'; command?: string; dir?: string; tab?: PanelTab }>).detail;
@@ -216,8 +220,24 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     window.addEventListener('nova:term', onBridge);
     return () => window.removeEventListener('nova:term', onBridge);
   });
+  // Ana süreçteki `term:ready` (kabuk ilk işareti): bekleyen komut sabit gecikme olmadan burada gönderilir (B-12)
   useEffect(() => {
-    if (pendingRun.current && active?.running) {
+    const off = api?.onTermReady?.(({ id }) => {
+      readyIds.current.add(id);
+      window.dispatchEvent(new CustomEvent('nova:term-ready', { detail: { id } }));
+      const cur = activeRef.current;
+      if (pendingRun.current && cur && cur.id === id && cur.running) {
+        const c = pendingRun.current;
+        pendingRun.current = null;
+        void runLineRef.current(c);
+      }
+    });
+    return () => off?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    // pipe oturumlarında `term:ready` beklenir (kabuk henüz komut almayabilir); olay desteği yoksa ya da pty ise doğrudan gönderilir
+    if (pendingRun.current && active?.running && (active.kind !== 'pipe' || !api?.onTermReady || readyIds.current.has(active.id))) {
       const c = pendingRun.current;
       pendingRun.current = null;
       void runLine(c);
@@ -294,6 +314,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     const res = await api.termInput(active.id, line);
     if (!res.success) patch(active.id, (s) => ({ ...s, status: t('termSendFailed') }));
   };
+
+  runLineRef.current = runLine;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();

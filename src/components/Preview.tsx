@@ -8,7 +8,8 @@ import '../i18n/uiTextTheme'; // köprü hata metinleri (pvBridge*) ve simge dü
 // Önizleme: localhost veya sunucu gerekmeden HTML / SVG / Markdown dosyalarını uygulama içinde gösterir.
 //  - HTML: yerel CSS, JS, görsel ve yazı tipleri diskten çözülür ve sayfaya gömülür; kaydedilmemiş (editördeki) içerik önceliklidir;
 //    yazdıkça ve dosyalar değişince canlı yenilenir. Sayfa sandbox'lı iframe'de çalışır (allow-same-origin YOK: uygulamanın
-//    API'lerine erişemez); konsol/hata mesajları ve bağlantı tıklamaları köprüyle buraya taşınır. Yerel sunucu (URL) kipi de
+//    API'lerine erişemez) ve Electron'da ayrı kökenden (nova-preview://<kimlik>/, kendi CSP'si) yüklenir; uygulamanın sıkı CSP'sini
+//    miras almaz (S-01). Electron dışında (salt tarayıcı geliştirme) srcDoc'a düşer; konsol/hata mesajları ve bağlantı tıklamaları köprüyle buraya taşınır. Yerel sunucu (URL) kipi de
 //    aynı sandbox'ta çalışır (yalnız localhost/127.0.0.1/[::1]).
 //  - CSS/JS: aynı klasördeki index.html önizlenir. SVG: görsel olarak, Markdown: biçimlendirilmiş gösterilir.
 //  - Terminalde çalışan bir geliştirme sunucusu (http://localhost:PORT) görününce tek tıkla önizlenir; adres yazmak gerekmez.
@@ -78,6 +79,8 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
   const kind = previewKind(file?.name);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [srcDoc, setSrcDoc] = useState('');
+  const [srcUrl, setSrcUrl] = useState(''); // nova-preview://<kimlik>/ (Electron); boşsa srcDoc
+  const previewId = useRef<string | null>(null);
   const [building, setBuilding] = useState(false);
   const [problem, setProblem] = useState<'' | 'noindex' | 'fail'>('');
   const [lines, setLines] = useState<Line[]>([]);
@@ -181,10 +184,18 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
   const fileContent = file?.content ?? '';
   const filePath = file?.path;
 
+  // Ana süreçteki önizleme belleğini temizle (yeni kimlik gelince eskisi, kapanınca sonuncusu)
+  const dropPreview = useCallback(() => {
+    const id = previewId.current;
+    previewId.current = null;
+    if (id) void window.electronAPI?.previewDrop?.(id);
+  }, []);
+  useEffect(() => dropPreview, [dropPreview]);
+
   // Önizleme içeriğini üret (yazdıkça gecikmeli; dosya/disk değişince)
   useEffect(() => {
     if (urlMode) return;
-    if (kind !== 'html' && kind !== 'webasset') { setSrcDoc(''); setProblem(''); return; }
+    if (kind !== 'html' && kind !== 'webasset') { setSrcDoc(''); setSrcUrl(''); dropPreview(); setProblem(''); return; }
     const my = ++buildSeq.current;
     const id = window.setTimeout(async () => {
       setBuilding(true);
@@ -196,12 +207,17 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
           const dir = filePath ? dirOf(filePath) : '';
           const idx = dir ? joinPath(dir, 'index.html') : '';
           const text = idx ? await readText(idx) : null;
-          if (text === null) { if (my === buildSeq.current) { setProblem('noindex'); setSrcDoc(''); } return; }
+          if (text === null) { if (my === buildSeq.current) { setProblem('noindex'); setSrcDoc(''); setSrcUrl(''); dropPreview(); } return; }
           html = text;
           htmlPath = idx;
         }
         const out = await buildHtml(html, htmlPath);
-        if (my === buildSeq.current) { setSrcDoc(out); setProblem(''); }
+        const api = window.electronAPI;
+        const id = api?.previewPut ? await api.previewPut(out) : null;
+        if (my !== buildSeq.current) { if (id) void api?.previewDrop?.(id); return; }
+        if (id) { dropPreview(); previewId.current = id; setSrcUrl(`nova-preview://${id}/`); setSrcDoc(''); }
+        else { setSrcUrl(''); setSrcDoc(out); }
+        setProblem('');
       } catch {
         if (my === buildSeq.current) setProblem('fail');
       } finally {
@@ -209,7 +225,7 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
       }
     }, 350);
     return () => window.clearTimeout(id);
-  }, [kind, fileContent, filePath, tick, urlMode, buildHtml, readText, liveMap]);
+  }, [kind, fileContent, filePath, tick, urlMode, buildHtml, readText, liveMap, dropPreview]);
 
   // Dosya değişince konsolu sıfırla
   useEffect(() => { setLines([]); }, [filePath, kind, urlMode]);
@@ -252,7 +268,8 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
     try {
       const u = new URL(raw.trim());
       if (u.protocol !== 'http:' || u.username || u.password) return null;
-      if (!['localhost', '127.0.0.1', '[::1]'].includes(u.hostname)) return null;
+      // [::1] CSP frame-src'ta geçerli kaynak değil (S-01): yalnız localhost / 127.0.0.1
+      if (!['localhost', '127.0.0.1'].includes(u.hostname)) return null;
       if (u.origin === window.location.origin) return null;
       return u.toString();
     } catch { return null; }
@@ -316,7 +333,7 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
         {urlMode ? (
           <iframe ref={iframeRef} key={urlMode} title={t('tbPreview')} src={urlMode} referrerPolicy="no-referrer" sandbox="allow-scripts allow-forms allow-modals allow-popups" className="absolute inset-0 w-full h-full bg-white border-0" />
         ) : kind === 'html' || (kind === 'webasset' && !problem) ? (
-          <iframe ref={iframeRef} title={t('tbPreview')} srcDoc={srcDoc} sandbox="allow-scripts allow-forms allow-modals allow-popups allow-downloads" className="absolute inset-0 w-full h-full bg-white border-0" />
+          <iframe ref={iframeRef} title={t('tbPreview')} {...(srcUrl ? { src: srcUrl } : { srcDoc })} referrerPolicy="no-referrer" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-downloads" className="absolute inset-0 w-full h-full bg-white border-0" />
         ) : kind === 'svg' ? (
           <div className="absolute inset-0 overflow-auto p-4 flex items-center justify-center bg-[conic-gradient(#2a2a2a_25%,#222_0_50%,#2a2a2a_0_75%,#222_0)] bg-[length:16px_16px]">
             <img alt={file?.name} src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(fileContent)}`} className="max-w-full max-h-full" />

@@ -13,6 +13,7 @@ const fs = require('fs');
 const { fileURLToPath, pathToFileURL } = require('url');
 const WebSocket = require('ws');
 const { safeEnv, killTree, killTreeSync } = require('./electron-paths.cjs');
+const trust = require('./electron-trust.cjs');
 
 let api = { getWindow: () => null, getRoot: () => '' };
 let sess = null; // { child, ws, nextId, pending, scripts, frames, bpIds, exited }
@@ -119,6 +120,8 @@ async function start({ file, args, stopOnEntry }) {
   if (!root) return { success: false, error: 'no-folder' };
   const abs = insideRoot(file);
   if (!abs || !/\.(c|m)?js$/i.test(abs) || !fs.statSync(abs).isFile()) return { success: false, error: 'invalid-file' };
+  // Güvenilmeyen klasörde hata ayıklayıcı başlamaz: klasördeki betik çalıştırılır (kısıtlı mod).
+  if (!trust.isTrusted(root)) return { success: false, error: 'trust-required' };
   const extra = (Array.isArray(args) ? args : []).slice(0, 20).map(String).filter((a) => a.length < 500 && !a.includes('\0'));
 
   const child = spawn(process.execPath, ['--inspect-brk=0', abs, ...extra], {

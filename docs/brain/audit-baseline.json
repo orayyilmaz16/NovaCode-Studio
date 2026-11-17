@@ -72,6 +72,11 @@
    "sev": "düşük"
   },
   {
+   "k": "PERF-LS-WRITE|src/services/keybindings.ts",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
    "k": "PERF-LS-WRITE|src/services/session.ts",
    "n": 1,
    "sev": "düşük"
@@ -83,7 +88,7 @@
   },
   {
    "k": "PERF-SYNC-FS|electron-ai.cjs",
-   "n": 22,
+   "n": 20,
    "sev": "düşük"
   },
   {
@@ -139,6 +144,11 @@
   {
    "k": "PERF-SYNC-FS|electron-term.cjs",
    "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-trust.cjs",
+   "n": 4,
    "sev": "düşük"
   },
   {
@@ -204,6 +214,11 @@
   {
    "k": "SEC-IPC-NOEVT|electron-search.cjs",
    "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-trust.cjs",
+   "n": 3,
    "sev": "düşük"
   },
   {
