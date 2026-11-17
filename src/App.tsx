@@ -1574,7 +1574,8 @@ export function App() {
   const hasRoot = !!currentRootPath;
   const dbgIdle = dbgStatus === 'idle';
   const fewTabs = openFiles.length < 2;
-  const menus: MenuGroup[] = useMemo(() => {
+  const isSplit = !!split;
+  const menusRaw: MenuGroup[] = useMemo(() => {
     // Kapalı menü öğeleri: soluk görünür, üzerine gelince nedenini söyler
     const F = { disabled: !hasFile, hint: !hasFile ? t('mnHintNoFile') : undefined };
     const D = { disabled: !hasRoot, hint: !hasRoot ? t('mnHintNoFolder') : undefined };
@@ -1636,6 +1637,11 @@ export function App() {
       { label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', onClick: () => { L.toggleAI(); } },
       { label: t('tbPreview'), disabled: !canPreview, hint: !canPreview ? t('mnHintHtml') : undefined, onClick: togglePreview },
       { separator: true },
+      { label: t('cmdSplitRight'), shortcut: 'Ctrl+\\', ...F, onClick: L.splitRight },
+      { label: t('cmdSplitDown'), shortcut: 'Ctrl+Alt+\\', ...F, onClick: L.splitDown },
+      { label: t('cmdFocusOtherGroup'), disabled: !isSplit, onClick: L.focusOtherGroup },
+      { label: t('cmdCloseSplit'), disabled: !isSplit, onClick: L.closeSplitView },
+      { separator: true },
       { label: t('mnZoomIn'), onClick: () => L.zoomBy(10) },
       { label: t('mnZoomOut'), onClick: () => L.zoomBy(-10) },
       { label: t('mnZoomReset'), onClick: () => setSetting('uiZoom', 100) },
@@ -1683,7 +1689,12 @@ export function App() {
     ] }
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uiLang, extraTexts, hasFile, hasRoot, canPreview, canDebug, dbgIdle, fewTabs]);
+  }, [uiLang, extraTexts, hasFile, hasRoot, canPreview, canDebug, dbgIdle, fewTabs, isSplit]);
+  // Menü etiketlerindeki sabit kısayol metni, kullanıcının atadığı kısayola çevrilir (F-04)
+  const menus: MenuGroup[] = useMemo(
+    () => menusRaw.map((g) => ({ ...g, items: g.items.map((i) => ('shortcut' in i && i.shortcut ? { ...i, shortcut: remapShortcutLabel(i.shortcut, kbBindings) } : i)) })),
+    [menusRaw, kbBindings]
+  );
 
   const paletteCommands: PaletteCommand[] = useMemo(() => {
     const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
