@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Sparkles, Settings2, Wand2, ChevronRight } from 'lucide-react';
+import { Settings2, Wand2, ChevronRight } from 'lucide-react';
+import { CompletionIcon } from './CompletionIcon';
 import { useSettings } from '../services/SettingsContext';
-import { DEFAULT_MODEL, EFFORT_PRESETS, useCompletionStatus, type CompletionEffort } from '../services/aiCompletion';
+import { DEFAULT_MODEL, useCompletionStatus } from '../services/aiCompletion';
 import { runEditorAction } from '../services/editorBridge';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextAi';
@@ -9,7 +10,7 @@ import '../i18n/uiTextScm';
 import '../i18n/uiTextComp';
 
 // Alt çubuktaki ✦ düğmesinin açtığı AI kod tamamlama menüsü (GitHub Copilot durum menüsü gibi):
-// aç/kapa, tetikleme, çaba (düşünme seviyesi) ön ayarı, öneri biçimi, aralık (slider) ayarları ve kısayollar.
+// aç/kapa, tetikleme, model, öneri biçimi, tamamlama süresi (slider) ve kısayollar.
 interface Props {
   /** Düğmenin ekran konumu: menü bunun üstünde açılır. */
   anchor: { x: number; y: number };
@@ -70,7 +71,6 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
   const ref = useRef<HTMLDivElement>(null);
   const num = (k: string, d: number) => (Number.isFinite(Number(values[k])) && values[k] !== '' && values[k] !== undefined ? Number(values[k]) : d);
   const enabled = values.aiCompletion !== false;
-  const effort = (['instant', 'fast', 'balanced', 'deep'] as const).find((x) => x === values.aiCompletionEffort) ?? 'fast';
   const model = String(values.aiCompletionModel || DEFAULT_MODEL);
   const [installed, setInstalled] = useState<string[]>([]);
   useEffect(() => {
@@ -86,18 +86,6 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
     ref.current?.focus();
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
-
-  const applyEffort = (k: CompletionEffort) => {
-    const p = EFFORT_PRESETS[k];
-    set('aiCompletionEffort', k);
-    set('aiCompletionDelay', p.delay);
-    set('aiCompletionCooldown', p.cooldown);
-    set('aiCompletionMaxTokens', p.maxTokens);
-    set('aiCompletionPrefix', p.prefixChars);
-    set('aiCompletionSuffix', p.suffixChars);
-    set('aiCompletionTemperature', p.temperature);
-    set('aiCompletionLength', p.length);
-  };
 
   const offList = String(values.aiCompletionOffLangs ?? '').split(/[,\s]+/).map((x) => x.trim().toLowerCase()).filter(Boolean);
   const langOn = !!language && !offList.includes(language.toLowerCase());
@@ -132,7 +120,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
       >
         <div className="flex items-center gap-3 px-3.5 py-3 border-b border-nv-border">
           <span className="w-8 h-8 rounded-md bg-nv-active flex items-center justify-center shrink-0">
-            <Sparkles size={15} className="text-indigo-300" />
+            <CompletionIcon size={15} off={!enabled || status.state === 'off'} className="text-indigo-300" />
           </span>
           <div className="flex-1 min-w-0 leading-tight">
             <div className="text-[13px] font-semibold text-zinc-100 truncate">{t('grpAiCompletion')}</div>
@@ -159,16 +147,6 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
             />
           </Row>
           <Divider />
-          <div className="px-3.5 pt-1 pb-1.5">
-            <div className="text-xs text-zinc-300 mb-1">{t('set_aiCompletionEffort')}</div>
-            <Segmented
-              wide
-              label={t('set_aiCompletionEffort')}
-              value={effort}
-              options={[{ value: 'instant', label: t('optCompInstant') }, { value: 'fast', label: t('optThinkFast') }, { value: 'balanced', label: t('optThinkBalanced') }, { value: 'deep', label: t('optThinkDeep') }]}
-              onChange={(v) => applyEffort(v as CompletionEffort)}
-            />
-          </div>
           <Row label={t('set_aiCompletionModel')}>
             <select
               aria-label={t('set_aiCompletionModel')}
@@ -190,8 +168,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
               onChange={(v) => set('aiCompletionLength', v)}
             />
           </Row>
-          <Range id="aiCompletionDelay" min={0} max={1500} step={25} value={num('aiCompletionDelay', 100)} set={set} label={t('set_aiCompletionDelay')} fmt={(n) => `${n} ms`} />
-          <Range id="aiCompletionCooldown" min={0} max={5000} step={100} value={num('aiCompletionCooldown', 100)} set={set} label={t('set_aiCompletionCooldown')} fmt={(n) => `${n} ms`} />
+          <Range id="aiCompletionDelay" min={0} max={3000} step={25} value={num('aiCompletionDelay', 100)} set={set} label={t('set_aiCompletionDelay')} fmt={(n) => `${n} ms`} />
 
           <Divider />
           <button onClick={() => setAdv((v) => !v)} aria-expanded={adv} className={`cm-adv w-full flex items-center gap-1.5 px-3.5 h-8 text-xs ${adv ? 'text-zinc-100' : 'text-zinc-400'} hover:text-zinc-100 hover:bg-nv-hover cursor-pointer ${FOCUS}`}>

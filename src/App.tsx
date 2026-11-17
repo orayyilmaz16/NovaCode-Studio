@@ -59,6 +59,7 @@ import type { PickerMode } from './components/BranchPicker';
 import { useProblems } from './services/problems';
 import { useCursor } from './services/cursorStore';
 import { useCompletionState } from './services/aiCompletion';
+import { CompletionIcon } from './components/CompletionIcon';
 import './i18n/uiTextScm';
 
 export function App() {
@@ -1582,7 +1583,7 @@ export function App() {
                     aria-haspopup="dialog"
                     onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setCompMenu({ x: r.left + r.width / 2, y: r.top }); }}
                   >
-                    <Sparkles size={12} className={compState === 'off' ? 'text-zinc-600' : compState === 'busy' ? 'text-indigo-400 animate-pulse' : compState === 'unavailable' ? 'text-rose-400' : 'text-indigo-300'} />
+                    <CompletionIcon size={12} off={compState === 'off'} className={compState === 'off' ? 'text-zinc-500' : compState === 'busy' ? 'text-indigo-400 animate-pulse' : compState === 'unavailable' ? 'text-rose-400' : 'text-indigo-300'} />
                   </button>
                 )}
                 {lspEntry && (

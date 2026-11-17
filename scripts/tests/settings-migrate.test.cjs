@@ -52,7 +52,7 @@ const ok = (c, m, extra) => { if (!c) { fails++; process.exitCode = 1; } console
     store.clear();
     s = m.loadSettings().values;
     ok(s.aiCompletionDelay === 100 && s.aiCompletionCooldown === 100 && s.aiCompletionEffort === 'fast' && s.aiCompletionModel === 'qwen2.5-coder:7b', 'kayıt yokken varsayılanlar: Hızlı profil, 7b model');
-    ok(m.sanitizeAll({ aiCompletionDelay: -5 }).aiCompletionDelay === 0 && m.sanitizeAll({ aiCompletionDelay: 99999 }).aiCompletionDelay === 1500, 'gecikme sınırı 0–1500 ms');
+    ok(m.sanitizeAll({ aiCompletionDelay: -5 }).aiCompletionDelay === 0 && m.sanitizeAll({ aiCompletionDelay: 99999 }).aiCompletionDelay === 3000, 'tamamlama süresi sınırı 0–3000 ms');
     ok(m.sanitizeAll({ aiCompletionEffort: 'instant' }).aiCompletionEffort === 'instant' && m.sanitizeAll({ aiCompletionEffort: 'bogus' }).aiCompletionEffort === 'fast', 'Anında profili geçerli, bilinmeyen değer varsayılana döner');
   } finally {
     await vite.close();
