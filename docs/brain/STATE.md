@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -55,7 +55,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1993 |
+| `src/App.tsx` | 2015 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 487 |
 
@@ -144,7 +144,7 @@
 | `src/i18n/uiTextComp.ts` | 257 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
-| `src/i18n/uiTextTheme.ts` | 80 |
+| `src/i18n/uiTextTheme.ts` | 158 |
 
 ### Betikler
 | Dosya | Satır |
@@ -221,7 +221,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 932 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 958 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 112 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

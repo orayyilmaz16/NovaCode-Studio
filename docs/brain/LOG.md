@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 17.11.2026 16:38 · auto/20261117-130721
+<!-- sig:c3JjL0FwcC50c3gsc3JjL2kxOG4vdWlUZXh0VGhl -->
+- Alan: [[ui-design]], [[i18n]]
+- Kod (2): `src/App.tsx`, `src/i18n/uiTextTheme.ts`
+- Belge (0): —
+- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
+
 ## 17.11.2026 16:37 · auto/20261117-130721
 <!-- sig:ZWxlY3Ryb24tYWkuY2pzLGVsZWN0cm9uLWRlYnVn -->
 - Alan: [[ai-assistant]], [[debugging]], [[lsp]], [[security-kvkk]], [[search-palette]], [[explorer]], [[preview]], [[ui-design]], [[terminal]], [[i18n]], [[settings]], [[git-github]], [[testing]]

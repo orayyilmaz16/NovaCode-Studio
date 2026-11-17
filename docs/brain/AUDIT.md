@@ -13,7 +13,7 @@ Son tarama: 17.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `PERF-LS-WRITE` src/services/keybindings.ts, `PERF-SYNC-FS` electron-trust.cjs, `SEC-IPC-NOEVT` electron-trust.cjs
+- Yeni/artan: yok
 - Giderilen: yok
 
 ## Güvenlik
@@ -37,7 +37,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 ## Performans
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | PERF-BIGFILE | `src/App.tsx:1` | 1994 satır: bölünmeli / memo ile ayrıştırılmalı |
+| orta | PERF-BIGFILE | `src/App.tsx:1` | 2016 satır: bölünmeli / memo ile ayrıştırılmalı |
 | orta | PERF-BIGFILE | `src/i18n/uiText.ts:1` | 1636 satır: bölünmeli / memo ile ayrıştırılmalı |
 | orta | PERF-LISTENER-LEAK | `src/components/Preview.tsx:1` | addEventListener (4) > removeEventListener (1): temizlenmeyen dinleyici olabilir |
 | düşük | PERF-LS-WRITE | `src/App.tsx:1292` | localStorage yazımı: sık tetikleniyorsa debounce et |
@@ -74,5 +74,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:348` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 1994, `src/i18n/uiText.ts` 1636, `electron-ai.cjs` 1029, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 883, `src/components/AIAssistant.tsx` 825
+- En büyük kaynak dosyalar: `src/App.tsx` 2016, `src/i18n/uiText.ts` 1636, `electron-ai.cjs` 1029, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 883, `src/components/AIAssistant.tsx` 825
 - Üretim paketi (dist varsa): toplam JS 2809 KB; en büyük: index-CPtWP5yk.js 489 KB, PtyView-gL6gM7vC.js 327 KB, fileIconLoaders-W59Nxzuc.js 184 KB, uiText-azHSDOE1.js 171 KB

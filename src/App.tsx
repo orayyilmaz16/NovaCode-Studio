@@ -1346,6 +1346,7 @@ export function App() {
     zoomBy, toggleThemeMode, checkUpdatesNow, newTerminal: () => { setShowBottomTerminal(true); void sendTerminalWhenReady({ action: 'new' }); },
     clearTerminal: () => sendTerminal({ action: 'clear' }),
     openGitBranch: () => { if (rootRef.current && gitRepoRef.current) setPicker('checkout'); },
+    openTaskPicker: () => { if (rootRef.current) setTaskPicker(true); else { addLog('warn', t('taskNoFolder')); setShowBottomTerminal(true); } },
     openAi: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); },
     openSettings: () => { setShowLanding(false); setShowSettings(true); },
   };
@@ -1404,6 +1405,7 @@ export function App() {
       { label: t('mnSelectAll'), shortcut: 'Ctrl+A', ...F, onClick: () => act('editor.action.selectAll') },
       { label: t('mnExpandLine'), ...F, onClick: () => act('expandLineSelection') },
       { label: t('mnNextMatch'), shortcut: 'Ctrl+D', ...F, onClick: () => act('editor.action.addSelectionToNextFindMatch') },
+      { label: t('mnSelectMatches'), ...F, onClick: () => act('editor.action.selectHighlights') },
       { separator: true },
       { label: t('mnCopyLineDown'), shortcut: 'Shift+Alt+↓', ...F, onClick: () => act('editor.action.copyLinesDownAction') },
       { label: t('mnMoveLineUp'), shortcut: 'Alt+↑', ...F, onClick: () => act('editor.action.moveLinesUpAction') },
@@ -1442,6 +1444,7 @@ export function App() {
     ] },
     { id: 'run', label: t('mnRun'), items: [
       { label: t('mnRunFile'), shortcut: 'F5', ...F, onClick: L.handleRunCode },
+      { label: t('taskRun'), disabled: !hasRoot, hint: !hasRoot ? t('mnHintNoFolder') : undefined, onClick: L.openTaskPicker },
       { label: t('tbPreview'), disabled: !canPreview, hint: !canPreview ? t('mnHintHtml') : undefined, onClick: togglePreview },
       { separator: true },
       dbgIdle
@@ -1472,7 +1475,7 @@ export function App() {
     ] }
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uiLang, hasFile, hasRoot, canPreview, canDebug, dbgIdle, fewTabs]);
+  }, [uiLang, extraTexts, hasFile, hasRoot, canPreview, canDebug, dbgIdle, fewTabs]);
 
   const paletteCommands: PaletteCommand[] = useMemo(() => {
     const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
@@ -1498,10 +1501,15 @@ export function App() {
     { id: 'extensions', label: t('extTitle'), run: () => L.pickSidebarForce('extensions') },
     { id: 'ai', label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', run: L.openAi },
     { id: 'settings', label: t('actSettings'), shortcut: 'Ctrl+,', run: L.openSettings },
-    { id: 'themeToggle', label: t('cmdToggleTheme'), run: L.toggleThemeMode }
+    { id: 'themeToggle', label: t('cmdToggleTheme'), run: L.toggleThemeMode },
+    { id: 'runTask', label: t('taskRun'), run: L.openTaskPicker },
+    { id: 'addNextMatch', label: t('mnNextMatch'), shortcut: 'Ctrl+D', run: () => runEditorAction('editor.action.addSelectionToNextFindMatch') },
+    { id: 'selectMatches', label: t('mnSelectMatches'), run: () => runEditorAction('editor.action.selectHighlights') },
+    { id: 'cursorAbove', label: t('mnCursorAbove'), shortcut: 'Ctrl+Alt+↑', run: () => runEditorAction('editor.action.insertCursorAbove') },
+    { id: 'cursorBelow', label: t('mnCursorBelow'), shortcut: 'Ctrl+Alt+↓', run: () => runEditorAction('editor.action.insertCursorBelow') }
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uiLang]);
+  }, [uiLang, extraTexts]);
 
   // Projesiz/dosyasız işe yaramayan düğmeler: soluk görünür, üzerine gelince nedenini söyler, tıklayınca bir şey yapmaz
   const dis = (off: boolean, hint: string) => (off ? ({ 'aria-disabled': true, 'data-disabled': true, title: hint } as const) : {});
@@ -1783,7 +1791,7 @@ export function App() {
               )}
               {activeSidebarTab === 'search' && (
                 <div key="search" className="animate-sidebar-in h-full">
-                  <LazyPanel><SearchPanel hasFolder={!!currentRootPath} onOpenResult={(p, line) => void openFileAt(p, line)} /></LazyPanel>
+                  <LazyPanel><SearchPanel hasFolder={!!currentRootPath} onOpenResult={(p, line) => void openFileAt(p, line)} dirtyPaths={openFiles.filter((f) => f.isModified && f.path).map((f) => f.path as string)} /></LazyPanel>
                 </div>
               )}
               {activeSidebarTab === 'git' && (
@@ -1927,6 +1935,20 @@ export function App() {
       {compMenu && (
         <LazyPanel>
           <CompletionMenu anchor={compMenu} onClose={() => setCompMenu(null)} onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }} />
+        </LazyPanel>
+      )}
+
+      {taskPicker && currentRootPath && (
+        <LazyPanel>
+          <TaskPicker
+            root={currentRootPath}
+            onClose={() => setTaskPicker(false)}
+            onPick={(task) => {
+              setTaskPicker(false);
+              setShowBottomTerminal(true);
+              void import('./services/tasks').then((m) => m.runTask(task, currentRootPath));
+            }}
+          />
         </LazyPanel>
       )}
 
