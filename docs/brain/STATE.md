@@ -47,7 +47,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1604 |
+| `src/App.tsx` | 1605 |
 | `src/main.tsx` | 21 |
 | `src/types.ts` | 412 |
 
@@ -59,7 +59,8 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
-| `src/components/CompletionMenu.tsx` | 233 |
+| `src/components/CompletionIcon.tsx` | 14 |
+| `src/components/CompletionMenu.tsx` | 210 |
 | `src/components/DebugPanel.tsx` | 198 |
 | `src/components/EditorArea.tsx` | 527 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
@@ -89,7 +90,7 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
-| `src/services/aiCompletion.ts` | 187 |
+| `src/services/aiCompletion.ts` | 199 |
 | `src/services/completionSchedule.ts` | 69 |
 | `src/services/completionShape.ts` | 180 |
 | `src/services/cursorStore.ts` | 15 |
@@ -118,7 +119,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/i18n/uiText.ts` | 1634 |
-| `src/i18n/uiTextAi.ts` | 525 |
+| `src/i18n/uiTextAi.ts` | 528 |
 | `src/i18n/uiTextComp.ts` | 122 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
@@ -181,7 +182,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 840 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 841 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 110 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
@@ -276,7 +277,7 @@
 | Yapay Zekâ | `aiCompletionEffort` | Düşünme seviyesi / çaba | select | `"fast"` | instant, fast, balanced, deep |
 | Yapay Zekâ | `aiCompletionModel` | Tamamlama modeli | text | `"qwen2.5-coder:7b"` | ≤60 karakter |
 | Yapay Zekâ | `aiCompletionLength` | Öneri biçimi | select | `"block"` | line, block, long |
-| Yapay Zekâ | `aiCompletionDelay` | Tamamlama gecikmesi (ms) | slider | `100` | 0–1500 |
+| Yapay Zekâ | `aiCompletionDelay` | Tamamlama süresi | slider | `100` | 0–3000 ms |
 | Yapay Zekâ | `aiCompletionCooldown` | Tamamlama soğuma süresi (ms) | slider | `100` | 0–5000 |
 | Yapay Zekâ | `aiCompletionMaxTokens` | Öneri uzunluğu üst sınırı (token) | slider | `32` | 16–256 |
 | Yapay Zekâ | `aiCompletionPrefix` | İmleçten önceki bağlam (karakter) | slider | `2000` | 500–12000 |

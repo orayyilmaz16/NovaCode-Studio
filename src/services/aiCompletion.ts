@@ -14,6 +14,10 @@ export type CompletionState = 'idle' | 'busy' | 'unavailable' | 'off';
 export type CompletionReason = 'no-api' | 'no-model' | 'no-ollama' | null;
 export type CompletionEffort = 'instant' | 'fast' | 'balanced' | 'deep';
 export const DEFAULT_MODEL = 'qwen2.5-coder:7b';
+/** Tamamlama süresi üst sınırı (ms). */
+export const MAX_DELAY = 3000;
+/** İstek öncesi sessizlik (ms): tuş başına istek yağmasın. Öneri süresi bundan bağımsızdır, cfg.delay ile sabitlenir. */
+const REQUEST_DEBOUNCE = 50;
 
 export interface CompletionConfig {
   enabled: boolean;
@@ -85,7 +89,7 @@ export function warmCompletion() {
 export function setCompletionConfig(c: Partial<CompletionConfig>) {
   const wasEnabled = cfg.enabled;
   const next = { ...cfg, ...c };
-  next.delay = Math.min(1500, Math.max(0, Number.isFinite(next.delay) ? next.delay : 100));
+  next.delay = Math.min(MAX_DELAY, Math.max(0, Number.isFinite(next.delay) ? next.delay : 100));
   next.model = typeof next.model === 'string' && next.model.trim() ? next.model.trim() : DEFAULT_MODEL;
   const modelChanged = next.model !== cfg.model;
   next.cooldown = Math.min(5000, Math.max(0, Number.isFinite(next.cooldown) ? next.cooldown : 100));
@@ -121,12 +125,13 @@ export function setCompletionMonaco(m: unknown) {
       if (!(u.scheme === 'file' || (u.scheme === 'inmemory' && u.authority === 'untitled'))) return empty;
       const lang = model.getLanguageId();
       if (lang === 'plaintext' || cfg.offLangs.includes(lang)) return empty;
+      const t0 = Date.now(); // son tuş vuruşu: öneri süresi buradan sayılır
       const explicit = ctx.triggerKind === 1; // Alt+\ veya menüden "şimdi öner"
       if (cfg.trigger === 'manual' && !explicit) return empty;
       // Otomatik tetikleme: gecikme (son tuştan sessizlik) + soğuma (önceki istekten bekleme) + hata geri çekilmesi.
       // Her tuşta Monaco eski çağrıyı iptal eder; bekleme iptal olursa yeni çağrı süreyi baştan sayar (debounce).
       if (!explicit) {
-        const plan = planRequest(Date.now(), sched, { delay: cfg.delay, cooldown: cfg.cooldown });
+        const plan = planRequest(Date.now(), sched, { delay: Math.min(cfg.delay, REQUEST_DEBOUNCE), cooldown: 0 });
         if (plan.skip) return empty;
         if (!(await waitOrCancel(plan.wait, token))) return empty;
       }
@@ -179,6 +184,13 @@ export function setCompletionMonaco(m: unknown) {
       const texts = (res.alternatives?.length ? res.alternatives : res.text ? [res.text] : [])
         .map((t) => shapeSuggestion(t, cfg.length, lineRest, shape))
         .filter((t, i, a) => t.trim() && a.indexOf(t) === i);
+      if (!texts.length) return empty;
+      // Öneri süresi modelden bağımsız: ayarlanan süre dolmadan önizleme gösterilmez (model yavaşsa hazır olunca gösterilir).
+      // Elle tetiklemede (Alt+\) bekleme yok.
+      if (!explicit) {
+        const rest = cfg.delay - (Date.now() - t0);
+        if (rest > 0 && !(await waitOrCancel(rest, token))) return empty;
+      }
       return { items: texts.map((insertText) => ({ insertText, range })) };
     },
     freeInlineCompletions() {},
