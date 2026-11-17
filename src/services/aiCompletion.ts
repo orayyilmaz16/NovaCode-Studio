@@ -34,13 +34,12 @@ export interface CompletionConfig {
   count: number;
   length: SuggestLength;
   /** Kapalı dil kimlikleri (küçük harf) */
-  offLangs: string[];
   /** Ollama modeli (yalnız qwen2.5-coder ailesi; küçük = hızlı) */
   model: string;
 }
 
 export const DEFAULT_COMPLETION: CompletionConfig = {
-  enabled: true, trigger: 'auto', delay: 100, cooldown: 100, maxTokens: 32, prefixChars: 2000, suffixChars: 600, temperature: 0.05, count: 1, length: 'block', offLangs: [], model: DEFAULT_MODEL
+  enabled: true, trigger: 'auto', delay: 100, cooldown: 100, maxTokens: 32, prefixChars: 2000, suffixChars: 600, temperature: 0.05, count: 1, length: 'block', model: DEFAULT_MODEL
 };
 
 /** "Çaba" ön ayarları: seçilince gecikme, uzunluk ve bağlam birlikte güncellenir. */
@@ -124,7 +123,7 @@ export function setCompletionMonaco(m: unknown) {
       const u = model.uri;
       if (!(u.scheme === 'file' || (u.scheme === 'inmemory' && u.authority === 'untitled'))) return empty;
       const lang = model.getLanguageId();
-      if (lang === 'plaintext' || cfg.offLangs.includes(lang)) return empty;
+      if (lang === 'plaintext') return empty; // her kod dili otomatik algılanır; yalnız düz metin hariç
       const t0 = Date.now(); // son tuş vuruşu: öneri süresi buradan sayılır
       const explicit = ctx.triggerKind === 1; // Alt+\ veya menüden "şimdi öner"
       if (cfg.trigger === 'manual' && !explicit) return empty;

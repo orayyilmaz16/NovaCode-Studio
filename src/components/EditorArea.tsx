@@ -163,10 +163,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
       suffixChars: num(values.aiCompletionSuffix, 600),
       temperature: num(values.aiCompletionTemperature, 0.05),
       count: num(values.aiCompletionCount, 1),
-      length: len === 'line' || len === 'long' ? len : 'block',
-      offLangs: String(values.aiCompletionOffLangs ?? '').split(/[,\s]+/).map((x) => x.trim().toLowerCase()).filter(Boolean)
+      length: len === 'line' || len === 'long' ? len : 'block'
     });
-  }, [values.aiCompletion, values.aiCompletionTrigger, values.aiCompletionDelay, values.aiCompletionCooldown, values.aiCompletionModel, values.aiCompletionMaxTokens, values.aiCompletionPrefix, values.aiCompletionSuffix, values.aiCompletionTemperature, values.aiCompletionCount, values.aiCompletionLength, values.aiCompletionOffLangs]);
+  }, [values.aiCompletion, values.aiCompletionTrigger, values.aiCompletionDelay, values.aiCompletionCooldown, values.aiCompletionModel, values.aiCompletionMaxTokens, values.aiCompletionPrefix, values.aiCompletionSuffix, values.aiCompletionTemperature, values.aiCompletionCount, values.aiCompletionLength]);
 
   // Hatalı satırlar kırmızı, uyarılı satırlar sarı çizgiyle işaretlenir
   useEffect(() => {

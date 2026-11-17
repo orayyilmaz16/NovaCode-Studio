@@ -147,7 +147,6 @@
     { "id": "aiCompletionTemperature", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 0.05, "min": 0, "max": 1, "step": 0.05 },
     { "id": "aiCompletionCount", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 1, "min": 1, "max": 3, "step": 1, "desc": true },
     { "id": "aiCompletionToolbar", "category": "ai", "group": "grpAiCompletion", "type": "toggle", "default": true, "desc": true },
-    { "id": "aiCompletionOffLangs", "category": "ai", "group": "grpAiCompletion", "type": "text", "default": "", "maxLength": 200, "placeholder": "markdown, json", "desc": true },
 
     { "id": "aiDefaultMode", "category": "ai", "group": "grpAiGeneral", "type": "select", "default": "ask",
       "options": [{ "value": "ask", "labelKey": "optAiAsk" }, { "value": "agent", "labelKey": "optAiAgent" }] },

@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 17.11.2026 (AI tamamlama: dil ayarı kalktı)
+- **`aiCompletionOffLangs` ve menüdeki "Bu dilde etkin" kaldırıldı; dil otomatik algılanır.** Neden: kullanıcı talebi, ayar yüzeyi sadeleşsin. Sonuç: sağlayıcı yalnız `plaintext` modelini atlar. Eski kayıtlardaki değer şema süzgecinde atılır. Geri alma: yeni kayıt + şema satırı.
+
 ## 17.11.2026 (AI tamamlama süresi)
 - **Öneri süresi tek ayar: `aiCompletionDelay` ("Tamamlama süresi", 0–3000 ms); modelden bağımsız.** Neden: hız profilleri + soğuma + gecikme birlikte olunca süre modele ve profile göre değişiyor, kullanıcı ne bekleyeceğini kestiremiyordu. Sonuç: `aiCompletion.ts` isteği kısa sabit bekleme (`REQUEST_DEBOUNCE` = 50 ms) sonrası hemen yollar, yanıt süreden önce gelirse son tuştan itibaren `delay` dolana kadar tutar (`waitOrCancel`); model yavaşsa hazır olunca gösterir. Alt+\ ile elle tetikte bekleme yok. `aiCompletionEffort` ve `aiCompletionCooldown` şemada `hidden` (eski kayıt/test uyumu için durur), arayüzde yok; soğuma 0 geçirilir, hata geri çekilmesi (`planRequest`) sürer. Kapalıyken ✦ simgesi üstü çizgili (`CompletionIcon`, `off`). Ayrıntı: [[ai-assistant]].
 

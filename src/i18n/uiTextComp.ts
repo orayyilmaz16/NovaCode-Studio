@@ -76,12 +76,6 @@ export const COMP_TEXT = {
   setDesc_aiCompletionToolbar: {
     tr: "Öneri görünürken kabul et, kelime, satır ve sonraki öneri düğmelerini gösterir (önizleme).", en: "While a suggestion is shown, displays accept, word, line and next-suggestion buttons (preview).", de: "Zeigt bei einem Vorschlag Schaltflächen für Übernehmen, Wort, Zeile und nächster Vorschlag (Vorschau).", ru: "Пока показана подсказка, отображает кнопки «принять», «слово», «строка» и «следующая» (предпросмотр).", ar: "أثناء عرض اقتراح تظهر أزرار القبول والكلمة والسطر والاقتراح التالي (معاينة).", es: "Mientras hay una sugerencia, muestra botones de aceptar, palabra, línea y siguiente (vista previa).", fr: "Pendant une suggestion, affiche les boutons accepter, mot, ligne et suivante (aperçu).", az: "Təklif görünərkən qəbul, söz, sətir və növbəti təklif düymələrini göstərir (önbaxış).",
   },
-  set_aiCompletionOffLangs: {
-    tr: "Kapalı diller", en: "Disabled languages", de: "Deaktivierte Sprachen", ru: "Отключённые языки", ar: "اللغات المعطّلة", es: "Lenguajes desactivados", fr: "Langages désactivés", az: "Deaktiv dillər",
-  },
-  setDesc_aiCompletionOffLangs: {
-    tr: "Virgülle ayır (ör. markdown, json). Alt çubuktaki ✦ menüsünden geçerli dili de kapatabilirsin.", en: "Comma-separated (e.g. markdown, json). You can also disable the current language from the ✦ menu in the status bar.", de: "Kommagetrennt (z. B. markdown, json). Die aktuelle Sprache lässt sich auch im ✦-Menü der Statusleiste deaktivieren.", ru: "Через запятую (напр. markdown, json). Текущий язык можно отключить и в меню ✦ в строке состояния.", ar: "افصل بفاصلة (مثل markdown, json). يمكنك أيضاً تعطيل اللغة الحالية من قائمة ✦ في شريط الحالة.", es: "Separados por comas (p. ej. markdown, json). También puedes desactivar el lenguaje actual en el menú ✦ de la barra de estado.", fr: "Séparés par des virgules (ex. markdown, json). Tu peux aussi désactiver le langage courant depuis le menu ✦ de la barre d’état.", az: "Vergüllə ayır (məs. markdown, json). Cari dili status panelindəki ✦ menyusundan da söndürə bilərsən.",
-  },
   cmStatusOn: {
     tr: "Hazır", en: "Ready", de: "Bereit", ru: "Готово", ar: "جاهز", es: "Listo", fr: "Prêt", az: "Hazır",
   },
@@ -96,9 +90,6 @@ export const COMP_TEXT = {
   },
   cmNoOllama: {
     tr: "Ollama çalışmıyor", en: "Ollama is not running", de: "Ollama läuft nicht", ru: "Ollama не запущен", ar: "Ollama لا يعمل", es: "Ollama no está activo", fr: "Ollama n’est pas actif", az: "Ollama işləmir",
-  },
-  cmThisLang: {
-    tr: "Bu dilde etkin ({l})", en: "Enabled for this language ({l})", de: "Für diese Sprache aktiv ({l})", ru: "Включено для этого языка ({l})", ar: "مفعّل لهذه اللغة ({l})", es: "Activado para este lenguaje ({l})", fr: "Activé pour ce langage ({l})", az: "Bu dildə aktiv ({l})",
   },
   cmNow: {
     tr: "Şimdi öneri iste (Alt+\\)", en: "Suggest now (Alt+\\)", de: "Jetzt vorschlagen (Alt+\\)", ru: "Предложить сейчас (Alt+\\)", ar: "اقترح الآن (Alt+\\)", es: "Sugerir ahora (Alt+\\)", fr: "Suggérer maintenant (Alt+\\)", az: "İndi təklif et (Alt+\\)",
