@@ -40,7 +40,7 @@ const DebugPanel = lazy(() => import('./components/DebugPanel').then((m) => ({ d
 const ExtensionsPanel = lazy(() => import('./components/ExtensionsPanel').then((m) => ({ default: m.ExtensionsPanel })));
 import type { PaletteCommand } from './components/CommandPalette';
 const CommandPalette = lazy(() => import('./components/CommandPalette').then((m) => ({ default: m.CommandPalette })));
-import { goToLine, runEditorAction, copySelection, pasteClipboard } from './services/editorBridge';
+import { goToLine, runEditorAction, formatActiveDocument, copySelection, pasteClipboard } from './services/editorBridge';
 import { MenuBar, type MenuGroup } from './components/MenuBar';
 import { WindowControls } from './components/WindowControls';
 import './i18n/uiTextDev'; // hata ayıklama/dil sunucusu/terminal metinleri (menü ve komutlarda gerekir)
@@ -71,7 +71,7 @@ export function App() {
   const untitledCounter = useRef(0);
   const [openFiles, setOpenFiles] = useState<FileItem[]>([]);
   const openFilesRef = useRef<FileItem[]>([]);
-  const handleSaveFileRef = useRef<(f: FileItem) => Promise<void>>(async () => {});
+  const handleSaveFileRef = useRef<(f: FileItem, manual?: boolean) => Promise<void>>(async () => {});
   const refreshGitStatusRef = useRef<() => Promise<void>>(async () => {});
   openFilesRef.current = openFiles;
   const rootPathRef = useRef<string | null>(null);
@@ -579,11 +579,17 @@ export function App() {
     setFiles((prev) => updateRecursive(prev));
   };
 
-  const handleSaveFile = async (file: FileItem) => {
+  // manual=false: otomatik kayıt/çalıştırma öncesi kayıt; yazarken biçimlendirme yapılmaz (yalnız Ctrl+S, menü, düğme, palet)
+  const handleSaveFile = async (file: FileItem, manual = true) => {
     if (file.diff) return; // fark sekmesi salt okunur
     if (file.path && window.electronAPI?.writeFile) {
       // Ayarlara göre kayıt dönüşümleri
       let content = file.content || '';
+      // Kayıtta biçimlendir: yalnız etkin sekme (düzenleyici o dosyayı tutar), makul boyutta dosyalar
+      if (manual && settings.formatOnSave === true && file.id === activeFileId && content.length <= 1_000_000) {
+        const formatted = await formatActiveDocument();
+        if (formatted !== null) content = formatted;
+      }
       if (settings.trimTrailingWhitespace === true) content = content.replace(/[ \t]+$/gm, '');
       if (settings.insertFinalNewline === true && content && !content.endsWith('\n')) content += '\n';
       const res = await window.electronAPI.writeFile(file.path, content);
@@ -613,12 +619,12 @@ export function App() {
     if (autoSave !== 'afterDelay') return;
     const dirty = openFiles.filter((f) => f.isModified && f.path);
     if (dirty.length === 0) return;
-    const timer = setTimeout(() => dirty.forEach((f) => void handleSaveFileRef.current(f)), autoSaveDelay);
+    const timer = setTimeout(() => dirty.forEach((f) => void handleSaveFileRef.current(f, false)), autoSaveDelay);
     return () => clearTimeout(timer);
   }, [openFiles, autoSave, autoSaveDelay]);
   useEffect(() => {
     if (autoSave !== 'onFocusChange') return;
-    const onBlur = () => openFilesRef.current.filter((f) => f.isModified && f.path).forEach((f) => void handleSaveFileRef.current(f));
+    const onBlur = () => openFilesRef.current.filter((f) => f.isModified && f.path).forEach((f) => void handleSaveFileRef.current(f, false));
     window.addEventListener('blur', onBlur);
     return () => window.removeEventListener('blur', onBlur);
   }, [autoSave]);
@@ -946,7 +952,7 @@ export function App() {
     const custom = { node: String(settings.runCommandNode || ''), ts: String(settings.runCommandTs || ''), python: String(settings.runCommandPython || ''), go: String(settings.runCommandGo || ''), php: String(settings.runCommandPhp || '') };
     const cmd = runCommandFor(f.path, f.language, custom);
     if (!cmd) { addLog('warn', t('mnRunNoRunner')); setShowBottomTerminal(true); return; }
-    if (f.isModified && settings.runSaveBefore !== false) void handleSaveFile(f);
+    if (f.isModified && settings.runSaveBefore !== false) void handleSaveFile(f, false);
     if (settings.runClearTerminal === true) sendTerminal({ action: 'clear' });
     runInTerminal(cmd);
   };

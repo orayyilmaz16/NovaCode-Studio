@@ -8,6 +8,7 @@ type Ed = {
   revealLineInCenter: (line: number) => void;
   setPosition: (p: { lineNumber: number; column: number }) => void;
   focus: () => void;
+  getValue?: () => string;
   trigger: (src: string, id: string, payload?: unknown) => void;
   getContribution: (id: string) => { insert?: (tpl: string) => void } | null;
   getAction?: (id: string) => { run: () => Promise<void> } | null;
@@ -60,6 +61,23 @@ export function runEditorAction(id: string) {
     if (action) void action.run();
     else editor.trigger('nova-menu', id); // undo, redo, expandLineSelection gibi doğrudan komutlar
   } catch { /* eylem yok */ }
+}
+
+/**
+ * Etkin düzenleyicideki belgeyi Monaco biçimlendiricisiyle biçimlendirir ve son metni döndürür.
+ * Düzenleyici yoksa, bu dil için biçimlendirici yoksa, hata olursa ya da süre aşılırsa `null` döner
+ * (çağıran kayıt akışını bozmadan olduğu gibi kaydeder).
+ */
+export async function formatActiveDocument(timeoutMs = 3000): Promise<string | null> {
+  if (!editor) return null;
+  try {
+    const action = editor.getAction?.('editor.action.formatDocument');
+    if (!action) return null;
+    await Promise.race([action.run(), new Promise<void>((_, rej) => setTimeout(() => rej(new Error('timeout')), timeoutMs))]);
+    return editor.getValue?.() ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /** Seçimi panoya kopyalar (kes = true ise siler). */
