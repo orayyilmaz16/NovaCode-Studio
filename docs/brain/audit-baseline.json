@@ -1,0 +1,230 @@
+{
+ "date": "17.11.2026",
+ "items": [
+  {
+   "k": "SEC-SANDBOX|electron-main.cjs",
+   "n": 1,
+   "sev": "yüksek"
+  },
+  {
+   "k": "PERF-BIGFILE|src/App.tsx",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
+   "k": "PERF-BIGFILE|src/i18n/uiText.ts",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
+   "k": "PERF-LISTENER-LEAK|src/components/Preview.tsx",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
+   "k": "SEC-CSP|index.html",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
+   "k": "SEC-HTML|src/components/Preview.tsx",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
+   "k": "SEC-OPENEXT|electron-github.cjs",
+   "n": 2,
+   "sev": "orta"
+  },
+  {
+   "k": "SEC-OPENEXT|electron-main.cjs",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
+   "k": "SEC-OPENEXT|electron-update.cjs",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/App.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/components/ChatSessions.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/components/ResizeHandle.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/services/aiClient.ts",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/services/debugStore.ts",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/services/settings.ts",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-ai.cjs",
+   "n": 17,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-debug.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-ext.cjs",
+   "n": 3,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-git.cjs",
+   "n": 3,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-github.cjs",
+   "n": 5,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-llm.cjs",
+   "n": 3,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-lsp.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-main.cjs",
+   "n": 18,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-pty.cjs",
+   "n": 2,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-secrets.cjs",
+   "n": 5,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-term.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-ANY|src/App.tsx",
+   "n": 2,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-ANY|src/components/EditorArea.tsx",
+   "n": 2,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-CONSOLE|src/mockFiles.ts",
+   "n": 3,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-EMPTY-CATCH|electron-main.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-EMPTY-CATCH|src/components/Preview.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-HARDMS|src/components/FileTree.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-HARDMS|src/components/SplashScreen.tsx",
+   "n": 2,
+   "sev": "düşük"
+  },
+  {
+   "k": "Q-TODO|src/i18n/uiTextAi.ts",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-ACTION-PIN|.github/workflows/ci-cd.yml",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-ACTION-PIN|.github/workflows/security.yml",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-HTTP|electron-ai.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-ai.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-ext.cjs",
+   "n": 2,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-github.cjs",
+   "n": 4,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-llm.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-main.cjs",
+   "n": 4,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-pty.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-search.cjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-update.cjs",
+   "n": 4,
+   "sev": "düşük"
+  }
+ ]
+}

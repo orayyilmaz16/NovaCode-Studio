@@ -30,7 +30,7 @@ const RISKY = /(^|\/)(\.env(\..*)?|.*\.(pem|key|pfx|p12)|id_rsa.*|credentials.*)
 // ---------- Sınıflandırma ----------
 const isCode = (f) => /^(src\/|server\/|electron-[^/]+\.cjs$|scripts\/|\.github\/)/.test(f);
 const isUi = (f) => /^(src\/|electron-[^/]+\.cjs$|server\/)/.test(f) && !/\.test\.[cm]?[jt]sx?$/.test(f);
-const isGenerated = (f) => f === "docs/brain/STATE.md" || f === LOG;
+const isGenerated = (f) => f === "docs/brain/STATE.md" || f === "docs/brain/AUDIT.md" || f === LOG;
 const isDoc = (f) => /^(CHANGELOG\.md|AGENT\.md|CLAUDE\.md|docs\/brain\/.+\.md)$/.test(f) && !isGenerated(f);
 const isBrainDoc = (f) => /^(AGENT\.md|CLAUDE\.md|docs\/brain\/(actions\/.+|DECISIONS|PROJECT|BRAIN)\.md)$/.test(f);
 
@@ -55,6 +55,7 @@ const AREAS = [
   [/^\.github\/|check-bundle/, "ci-cd"],
   [/scripts\/tests\//, "testing"],
   [/electron-main|electron-preload|electron-secrets/, "security-kvkk"],
+  [/^scripts\/audit-scan/, "audit"],
   [/^scripts\/(brain|doc-sync|auto-commit)/, "brain-maintenance"],
   [/.*/, "ui-design"],
 ];

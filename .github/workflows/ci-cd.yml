@@ -46,6 +46,9 @@ jobs:
       - name: Proje beyni tutarlılığı (md bağlantıları, IPC, i18n)
         run: npm run brain:check
 
+      - name: Sürekli denetim (yeni yüksek/kritik güvenlik-performans bulgusu varsa durur)
+        run: npm run audit:check
+
       - name: Sürüm denetimi (package.json ↔ lock ↔ etiket ↔ CHANGELOG ↔ güncelleyici)
         run: node scripts/check-version.mjs
 

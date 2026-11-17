@@ -124,6 +124,9 @@ try {
   // Proje beyni: STATE.md'yi koddan yeniden üret; değişiklikler aynı commit'e girer. Hata commit'i engellemez.
   try { run(process.execPath, ["scripts/brain.mjs", "--quiet"], { timeout: 30000 }); } catch { /* beyin güncellenemezse devam */ }
 
+  // Sürekli denetim: AUDIT.md + temel çizgi her turda tazelenir (ağsız, <1 sn). Hata commit'i engellemez.
+  try { run(process.execPath, ["scripts/audit-scan.mjs", "--quiet"], { timeout: 30000 }); } catch { /* denetim çalışmazsa devam */ }
+
   const entries = git("status", "--porcelain").split("\n").filter(Boolean);
   const paths = entries.map((l) => l.slice(3).replace(/^"|"$/g, ""));
 

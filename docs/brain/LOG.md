@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 17.11.2026 16:07 · auto/20261117-125013
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvY2ktY2QueW1sLC5n -->
+- Alan: [[ci-cd]], [[brain-maintenance]], [[audit]]
+- Kod (5): `.github/workflows/ci-cd.yml`, `.github/workflows/security.yml`, `scripts/auto-commit.mjs`, `scripts/doc-sync.mjs`, `scripts/audit-scan.mjs`
+- Belge (2): `docs/brain/BRAIN.md`, `docs/brain/actions/audit.md`
+- Durum: ✓ belgelendi · sürüm: CHANGELOG Unreleased boş: sürüm çıkmaz
+
 ## 17.11.2026 15:50 · auto/20261117-085910
 <!-- sig:c3JjL0FwcC50c3gsc3JjL3NlcnZpY2VzL2xhbmcu -->
 - Alan: [[ui-design]]

@@ -45,6 +45,23 @@ jobs:
         with:
           fail-on-severity: high
 
+  audit-scan:
+    name: Sürekli denetim raporu
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: node scripts/audit-scan.mjs
+      - name: Özeti iş özetine yaz
+        run: cat docs/brain/AUDIT.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: audit-raporu
+          path: docs/brain/AUDIT.md
+
   audit-weekly:
     name: Haftalık npm audit
     if: github.event_name == 'schedule'
