@@ -13,7 +13,7 @@ triggers: ["belgele", "dökümante", "beyne kaydet", "md güncelle", "otomasyon"
 | Ne zaman | Komut | Ne yapar |
 |---|---|---|
 | Her kullanıcı istemi (`UserPromptSubmit`) | `doc-sync.mjs prompt` | Claude'un bağlamına belgeleme kuralını ekler. İstem metni **okunmaz/saklanmaz**. |
-| Her tur sonu (`Stop`) | `doc-sync.mjs stop` | 1) Commit edilmemiş değişiklikleri sınıflar. 2) Kod var, belge eksikse turu **bir kez** engeller (`decision: block`), eksikleri söyler. 3) Değilse [[LOG]]'a kayıt yazar. 4) `scripts/auto-commit.mjs`'i çalıştırır (brain + commit + push). |
+| Her tur sonu (`Stop`) | `doc-sync.mjs stop` | 1) Commit edilmemiş değişiklikleri sınıflar. 2) Kod var, belge eksikse turu **bir kez** engeller (`decision: block`), eksikleri söyler. 3) Değilse [[LOG]]'a kayıt yazar. 4) Belge tamamsa `scripts/release.mjs prepare` ile **sürümü hazırlar** ([[versioning]]). 5) `scripts/auto-commit.mjs`'i çalıştırır (brain + commit + PR). |
 | Elle | `node scripts/doc-sync.mjs check` | Yalnız denetim: eksik varsa çıkış kodu 1. |
 
 ## Ne "eksik" sayılır

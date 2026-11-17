@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Sürüm denetimi: package.json (tek kaynak) ↔ package-lock ↔ son etiket ↔ CHANGELOG ↔ uygulamadaki sürüm göstergesi.
 // Kullanım: node scripts/check-version.mjs [--quiet]   (hata varsa çıkış kodu 1; her Claude turunda hook ve CI çalıştırır)
-// Kurallar CI'ın sürüm işiyle aynıdır (scripts/bump-version.mjs): package.json sürümü son etiketten BÜYÜKSE olduğu gibi
-// yayınlanır; eşit/küçükse CI PATCH artırır. Yalnız docs:/ci:/test: değişiklikleri sürüm çıkarmaz.
+// Sürüm akışı (scripts/release.mjs, kural: docs/brain/actions/versioning.md): sürüm PR içinde hazırlanır (package.json, CHANGELOG,
+// release-notes/vX.Y.Z.md, docs/brain/VERSIONS.md); package.json sürümü son etiketten BÜYÜKSE hazır ve etiket bekliyor demektir,
+// birleşince CI etiketi atar. Bu durumda release-notes/vX.Y.Z.md bulunmalıdır.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 
@@ -40,8 +41,11 @@ try {
 } catch { /* git yok */ }
 if (lastTag && SEMVER.test(version)) {
   const c = cmp(version, lastTag.slice(1));
-  if (c > 0) notes.push(`sürüm ${version} > son etiket ${lastTag}: CI ${version}'i olduğu gibi yayınlar`);
-  else notes.push(`sürüm ${version} ≤ son etiket ${lastTag}: değişiklik sürüm gerektiriyorsa CI PATCH artırır`);
+  if (c > 0) {
+    notes.push(`sürüm ${version} > son etiket ${lastTag}: hazır, PR birleşince CI etiketler`);
+    if (!existsSync(`release-notes/v${version}.md`)) errors.push(`release-notes/v${version}.md yok: sürüm hazırlanmamış ("node scripts/release.mjs prepare")`);
+    if (existsSync("docs/brain/VERSIONS.md") && !read("docs/brain/VERSIONS.md").includes(`| v${version} |`)) notes.push(`docs/brain/VERSIONS.md'de v${version} satırı yok`);
+  } else notes.push(`sürüm ${version} ≤ son etiket ${lastTag}: yeni sürüm için CHANGELOG Unreleased maddesi yaz (Stop hook sürümü hazırlar)`);
 } else if (!lastTag) notes.push("henüz sürüm etiketi yok");
 
 // CHANGELOG: Unreleased bölümü ve tr/en başlıkları
@@ -57,6 +61,10 @@ else {
       const s = section(lang);
       if (!s) errors.push(`CHANGELOG Unreleased bölümünde '### ${lang}' yok`);
       else if (!/^- /m.test(s[1])) notes.push(`CHANGELOG Unreleased/${lang} boş (kullanıcıya görünen değişiklik varsa madde ekle)`);
+      else {
+        const un = s[1].split("\n").filter((l) => /^- /.test(l) && !/^- \[(feat|fix|perf|improve|security|breaking|docs)\]/.test(l)).length;
+        if (un) notes.push(`${lang}: ${un} etiketsiz madde (başına [feat]/[fix]/[improve]/[perf]/[security]/[breaking]/[docs] koy; etiketsiz = patch)`);
+      }
     }
   }
 }

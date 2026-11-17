@@ -1,47 +1,44 @@
 ---
 name: nova-release
-description: NovaCode Studio için değişiklikleri analiz edip SemVer sürümünü hesaplar, commit mesajını hazırlar; onaydan sonra sürümü yükseltir, commit ve push eder, CI'yı izler. "sürüm yükselt", "commitle", "push et", "release hazırla" denince kullan.
+description: NovaCode Studio sürümleme ve yayın becerisi. Değişikliğin patch/minor/major düzeyini hesaplar, sürüm notlarını (CHANGELOG TR+EN, release-notes, VERSIONS) hazırlar, etiket ve GitHub Release akışını izler. "sürüm", "versiyon", "major/minor/patch", "bugfix", "changelog", "release", "etiket", "tag", "commitle", "push et" denince kullan.
 ---
 
 # nova-release
 
-Amaç: en az token ile güvenli, tutarlı commit + sürüm + push.
+Amaç: değişiklikten **otomatik, tutarlı** sürüm üretmek. Sürüm düzeyini insan tahmini değil, CHANGELOG madde etiketleri belirler. Tam kural: `docs/brain/actions/versioning.md`.
+
+## Neyi otomatik yapar (sen yazmazsın)
+Stop hook, belge tamamsa `node scripts/release.mjs prepare` çalıştırır → `package.json`+lock, `CHANGELOG.md` (kategorili yeni bölüm), `release-notes/vX.Y.Z.md` (TR+EN), `docs/brain/VERSIONS.md`, `CLAUDE.md`/`AGENT.md` sürüm blokları. PR birleşince CI açıklamalı `vX.Y.Z` etiketini atar ve GitHub Release çıkarır. **Sen yalnız doğru maddeyi doğru etiketle yazarsın.**
 
 ## Adımlar
-1. **Durum**
+1. **Değişikliği sınıfla** (her madde bir etiket alır):
+   | Etiket | Ne zaman | Sürüm |
+   |---|---|---|
+   | `[breaking]` | Geriye uyumsuz: ayar/veri bozulur, özellik kalkar | MAJOR |
+   | `[feat]` | Yeni özellik | MINOR |
+   | `[fix]` | Hata düzeltmesi (bugfix) | PATCH |
+   | `[perf]` `[improve]` `[security]` | Hız, iyileştirme, güvenlik | PATCH |
+   | `[docs]` | Yalnız belge | sürüm yok |
+2. **Madde yaz** (`CHANGELOG.md` → `## Unreleased`, TR ve EN, aynı sıra, aynı etiket):
    ```
-   git status --short
-   git diff --stat
-   git log --oneline -5
+   ### tr
+   - [feat] **Başlık:** kullanıcıya etkisi, sade.
+   ### en
+   - [feat] **Title:** user-facing effect, plain.
    ```
-   Diff içeriğini yalnız türü belirlemek için gerekiyorsa oku; tamamını sohbete basma.
-2. **Ön kontrol** (hata varsa dur, düzelt)
-   ```
-   npx tsc --noEmit
-   npm run build --silent
-   ```
-3. **Sürüm kararı** (`AGENT.md` §3 tablosu): fix/perf/refactor → patch, feat → minor, breaking → major, yalnız docs/chore/test/ci → artış yok.
-4. **Taslak göster** (kısa):
-   ```
-   Sürüm: 1.0.0 → 1.1.0 (minor)
-   Commit: feat: add search box to FileTree
-   Dosyalar: src/components/FileTree.tsx, ...
-   ```
-5. **Onay bekle.** Onay yoksa hiçbir git yazma komutu çalıştırma.
-6. **Uygula** (onay sonrası)
-   ```
-   npm version <patch|minor|major> --no-git-tag-version
-   git add <açık dosya listesi> package.json package-lock.json
-   git commit -m "<tür>: <özet>"
-   git push origin <aktif-dal>
-   ```
-   Secret/`.env`/`release/`/`dist/` stage'e girmesin; girdiyse çıkar.
-7. **CI izle:** `gh run watch --exit-status`. Başarısızsa kısa hata özeti ver; "yayında" deme.
+3. **Önizle:** `node scripts/release.mjs plan` → `current → next`, düzey, uyarılar (etiketsiz madde, TR/EN sayı farkı).
+4. **Doğrula:** `npx tsc --noEmit`, `npm run build --silent`, `npm test --silent`, `node scripts/check-version.mjs`.
+5. **Bitir:** turu normal bitir; Stop hook sürümü hazırlar, commit + PR açar. `release.mjs prepare` çıktısı `docs/brain/LOG.md` durum satırında görünür.
+6. **İzle:** PR yeşil → birleşir → CI `version` etiketi atar → `release-desktop` Release çıkarır. `gh run list` ile bak. **Yeşil olmadan "yayında" deme.**
 
-## Geri dönüş
-Push sonrası sorun: `git revert <sha>` (yeni commit), sürümü `npm version` ile düzelt. `--force` kullanma.
+## Özel durumlar
+- **Düzeyi zorlamak:** `node scripts/release.mjs prepare --level minor|major` (yalnız yükseltir). MAJOR için kullanıcı onayı al ve `DECISIONS.md`'ye gerekçe yaz.
+- **Bekleyen sürüm:** `plan` "pending" derse (hazır ama etiketsiz) yeni maddeler Unreleased'te bekler; PR birleşip etiket atılınca sonraki sürüme girer. Ek işlem yok.
+- **`check-version` "release-notes yok":** `node scripts/release.mjs prepare`.
+- **Etiket/Release düzeltme:** etiket silinmez, `--force` yok; düzeltme = yeni PATCH sürümü. Release atlanmışsa Actions'ta `release-desktop` yeniden çalıştırılır.
+- **Elle commit gerekirse:** `git add <belirli dosyalar>` (asla körlemesine `-A`; `.env`, `dist/`, `release/` hariç), Conventional Commits (`fix:`, `feat:`, `feat!:`), ≤72 karakter, emir kipi, İngilizce. Push/force-push, tag silme onaysız yapılmaz.
 
 ## Kurallar
-- Commit mesajı: Conventional Commits, ≤72 karakter, emir kipi, İngilizce.
-- Tek mantıksal değişiklik = tek commit. Karışık değişiklikleri böl.
-- Tag ve GitHub Release yalnız ayrıca istenirse; CI'ın otomatik release'i sürüm sabitliği sorunu için `AGENT.md` §4'e bak.
+- main korumalıdır: CI **commit atmaz**, yalnız etiket atar. Sürüm dosyalarını elle düzenleme; `release.mjs` yazar.
+- `VERSIONS.md`, `LOG.md`, `STATE.md` ve `CLAUDE.md`/`AGENT.md` içindeki `<!-- version/release:start -->` blokları otomatiktir; elle yazma.
+- Belgeler Türkçe, commit mesajları İngilizce; sürüm notu TR + EN birlikte.

@@ -12,6 +12,7 @@
 //    (decision: block); Claude eksik belgeyi yazıp tekrar bitirir. İkinci kez (stop_hook_active) engellenmez: döngü yok, eksik günlüğe işlenir.
 //  - Engellenirse auto-commit çalışmaz (yarım belgeli commit çıkmaz); belgeler tamamlanınca sonraki Stop'ta gider.
 //  - Günlüğe istem METNİ yazılmaz (gizli bilgi/kişisel veri riski, KVKK); yalnız dosya yolları, alanlar ve belge durumu.
+//  - Belge tamamsa sürüm de hazırlanır (scripts/release.mjs prepare; kapatmak için NOVA_RELEASE=off).
 // Kapatmak için: NOVA_DOCSYNC=off
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -50,7 +51,8 @@ const AREAS = [
   [/UpdateDialog|UpdateIndicator|electron-update/i, "updates"],
   [/textbuffer|text-buffer|TextBuffer/i, "text-buffer"],
   [/Diff|source-control|Problems/, "source-control"],
-  [/^\.github\/|check-bundle|bump-version|check-version/, "ci-cd"],
+  [/release\.mjs|release\.test|check-version/, "versioning"],
+  [/^\.github\/|check-bundle/, "ci-cd"],
   [/scripts\/tests\//, "testing"],
   [/electron-main|electron-preload|electron-secrets/, "security-kvkk"],
   [/^scripts\/(brain|doc-sync|auto-commit)/, "brain-maintenance"],
@@ -173,7 +175,13 @@ if (MODE === "stop") {
     });
     process.exit(0); // auto-commit çalışmaz: yarım belgeli commit çıkmasın
   }
-  const status = a.need.length ? `⚠ eksik belge: ${a.need.map((x) => x.split(" (")[0].split(" →")[0]).join("; ")}` : a.code.length ? "✓ belgelendi" : "✓ yalnız belge değişti";
+  let status = a.need.length ? `⚠ eksik belge: ${a.need.map((x) => x.split(" (")[0].split(" →")[0]).join("; ")}` : a.code.length ? "✓ belgelendi" : "✓ yalnız belge değişti";
+  // Sürüm hazırlığı: belge tamamsa CHANGELOG Unreleased maddelerinden sürümü hazırlar (package.json, CHANGELOG, release-notes, VERSIONS.md,
+  // CLAUDE.md/AGENT.md blokları). Etiketi PR birleşince CI atar. Belgesiz tur sürüm çıkarmaz. Kural: docs/brain/actions/versioning.md
+  if (!a.need.length && process.env.NOVA_RELEASE !== "off") {
+    const firstLine = (t) => String(t).split(/\r?\n/).find(Boolean) || "";
+    try { status += " · " + firstLine(run(process.execPath, ["scripts/release.mjs", "prepare"])); } catch (e) { status += " · sürüm hazırlanamadı: " + firstLine(e.stderr || e.message); }
+  }
   try { writeLog(a, status); } catch { /* günlük yazılamadıysa akış durmaz */ }
   try { execFileSync(process.execPath, ["scripts/auto-commit.mjs"], { stdio: ["ignore", "inherit", "inherit"] }); } catch { /* auto-commit kendi raporunu verir */ }
 }

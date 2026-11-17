@@ -14,6 +14,7 @@ Bu klasör, projeyi çalıştıran her ajanın (Claude Code, alt ajanlar, CI bot
 | [[PROJECT]] | Ürün, mimari, süreçler, veri akışları | Elle (mimari değişince) |
 | [[DECISIONS]] | Neden böyle yaptık (tarihli karar günlüğü) | Elle (karar alınınca) |
 | [[STATE]] | Sürüm, dosya haritası, IPC, i18n, CI | `scripts/brain.mjs` (otomatik) |
+| [[VERSIONS]] | Sürüm geçmişi: her etiket, tür (major/minor/patch), özet, notlar | `scripts/release.mjs` (otomatik) |
 | [[LOG]] | Tur başına değişiklik günlüğü (dosya, alan, belge durumu; son 40) | `scripts/doc-sync.mjs` (otomatik) |
 | [[AGENT]] | Akış, döngü kuralları, **Durum** | Elle (görev bitince) |
 | [[CHANGELOG]] | Kullanıcıya dönük sürüm notları (TR + EN) | Elle (`Unreleased`), CI (sürüm bölümü) |
@@ -24,7 +25,8 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 
 | Aksiyon | Ne zaman kullanılır |
 |---|---|
-| [[release]] | Commit, sürüm, push, release |
+| [[release]] | Commit, push, elle release akışı |
+| [[versioning]] | Sürümleme otomasyonu: patch/minor/major kuralı, sürüm notları, etiket, GitHub Release |
 | [[git-github]] | Git paneli, GitHub hesabı, PR, eşzamanlama |
 | [[source-control]] | Fark sekmesi, dal/etiket seçici, merge, stash, geçmiş; Sorunlar sayacı ve hata renkleri |
 | [[ui-design]] | Arayüz, tema (koyu/açık), logo, animasyon |

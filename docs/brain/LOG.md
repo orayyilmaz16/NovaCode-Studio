@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 17.11.2026 11:59 · auto/20261117-084338
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvY2ktY2QueW1sLHNj -->
+- Alan: [[ci-cd]], [[ui-design]], [[versioning]], [[brain-maintenance]]
+- Kod (6): `.github/workflows/ci-cd.yml`, `scripts/bump-version.mjs`, `scripts/check-version.mjs`, `scripts/doc-sync.mjs`, `scripts/release.mjs`, `scripts/tests/release.test.cjs`
+- Belge (11): `AGENT.md`, `CHANGELOG.md`, `CLAUDE.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/doc-sync.md`, `docs/brain/actions/release.md` … (+3)
+- Durum: ✓ belgelendi · sürüm hazırlandı: v1.3.0 → v1.4.0 (minor) · uyarı: 90 etiketsiz madde (iyileştirme/patch sayıldı; [feat] [fix] [improve] [perf] [security] [breaking] [docs] kullan)
+
 ## 17.11.2026 11:43 · auto/20261117-083449
 <!-- sig:c2NyaXB0cy9icmFpbi5tanMsc3JjL2NvbXBvbmVu -->
 - Alan: [[brain-maintenance]], [[settings]], [[i18n]], [[ui-design]], [[testing]]

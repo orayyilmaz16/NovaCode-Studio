@@ -2,6 +2,17 @@
 
 Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) izleyeceği iş akışıdır. Kısa tut, uygula.
 
+## Son sürüm (otomatik)
+<!-- release:start -->
+**Son sürüm v1.4.0** (minor, 17.11.2026) · notlar `release-notes/v1.4.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- Yeni özellikler: Yeni renk temaları, vurgu renkleri ve yazı tipleri
+- Yeni özellikler: Kayıtta kodu otomatik biçimlendir
+- Yeni özellikler: Yeni karşılama ekranı, logo gölgesi ve hareket sistemi
+- Yeni özellikler: AI tamamlama menüsü (Copilot gibi)
+- Yeni özellikler: Öneri önizlemesi ve kısmi kabul
+- … ve 91 madde daha (`release-notes/v1.4.0.md`)
+<!-- release:end -->
+
 ## 1. Çalışma döngüsü (hızlı)
 1. **Anla** — İstek tek cümleye indirilebiliyorsa direkt işe başla. Belirsizse tek soru sor.
 2. **Bul** — `Grep`/`Glob` → ilgili dosya → gerekli satır aralığı. Tüm repoyu okuma.
@@ -18,37 +29,41 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 ## 3. Commit ve sürüm otomasyonu
 
 ### Sürüm kuralı (SemVer, kaynak: `package.json`) — otomatik
-| Commit türü | Artış |
-|---|---|
-| `feat:`, `fix:`, `perf:`, `refactor:`, `chore(auto):` (kod/içerik) | **patch** (1.1.0 → 1.1.1) |
-| `feat!:` / `BREAKING CHANGE:` | major (1.1.1 → 2.0.0) |
-| yalnız `docs:`/`ci:`/`test:` | sürüm artmaz |
+Düzey, `CHANGELOG.md` → `## Unreleased` maddelerinin **türünden** gelir (commit mesajından değil: otomatik commit'ler hep `chore(auto)`):
 
-Sürüm elle artırılmaz; CI hesaplar. İstisna: `package.json` sürümü son `vX.Y.Z` etiketinden büyükse (bilinçli minor/major, ör. `npm version minor --no-git-tag-version`) CI o sürümü olduğu gibi yayınlar ve etiketler. Elle sürüm değiştirmek gerekiyorsa (ör. 1.1.0 gibi bilinçli bir sürüm) `package.json` ve `package-lock.json` düzenlenip etiketlenir; CI ilk çalıştırmada o sürümü olduğu gibi yayınlar.
+| Madde etiketi | Anlamı | Artış | Örnek |
+|---|---|---|---|
+| `[breaking]` | Kırıcı değişiklik (veri/ayar uyumsuzluğu, kaldırılan özellik) | **MAJOR** | 1.4.2 → 2.0.0 |
+| `[feat]` | Yeni özellik | **MINOR** | 1.4.2 → 1.5.0 |
+| `[fix]` `[perf]` `[improve]` `[security]` | Düzeltme, hız, iyileştirme, güvenlik (etiketsiz = `[improve]`) | **PATCH** | 1.4.2 → 1.4.3 |
+| `[docs]` | Yalnız belge | sürüm çıkmaz | — |
 
-### Sürüm notları (TR + EN)
-- Her kullanıcıya görünen değişiklikte `CHANGELOG.md` içindeki `## Unreleased` bölümüne iki dilde madde yaz:
+Commit'te `feat!:` / `BREAKING CHANGE:` MAJOR, `feat:` MINOR sinyali ekler; en yüksek düzey kazanır. Maddesi olmayan tur sürüm çıkarmaz. Elle sürüm yükseltme gerekmez; zorlamak için `node scripts/release.mjs prepare --level minor|major` (yalnız yükseltir). Tam kural ve gerekçe: `docs/brain/actions/versioning.md`.
+
+### Sürüm notları (TR + EN) — madde yazma biçimi
+- Kullanıcıya görünen her değişiklikte `## Unreleased` altına iki dilde, **aynı sırayla ve aynı etiketle** madde yaz:
   ```
   ## Unreleased
   ### tr
-  - Boş editöre Klasör Aç düğmesi eklendi.
+  - [feat] **Kayıtta biçimlendirme:** Ayarlardan açılır; Ctrl+S ile dosya biçimlenir.
   ### en
-  - Added an Open folder button to the empty editor.
+  - [feat] **Format on save:** Turn it on in Settings; Ctrl+S formats the file.
   ```
-- CI bu maddeleri alır, `CHANGELOG.md` içinde yeni sürüm bölümüne taşır ve `release-notes/vX.Y.Z.md` dosyasını yazar (önce Türkçe, sonra English). Madde yoksa İngilizce kısım commit konularından üretilir, Türkçe kısım uyarı olur; bu durumda Unreleased'i yine de doldur.
+- `scripts/release.mjs prepare` (Stop hook, belge tamamsa) bu maddeleri sürüme bağlar: `package.json`+lock sürümü, `CHANGELOG.md` yeni sürüm bölümü (kategorili: Yeni özellikler / Düzeltmeler / İyileştirmeler / Güvenlik), `release-notes/vX.Y.Z.md`, `docs/brain/VERSIONS.md` satırı ve `CLAUDE.md`/`AGENT.md` sürüm blokları. Etiketler notlara yazılmaz.
+- Henüz etiketlenmemiş hazır sürüm varken (PR birleşmedi) yeni maddeler Unreleased'te bekler; PR birleşip etiket atılınca sonraki sürüme girer.
 
-### Sürüm derlemesi ve release (CI, otomatik)
-1. `push` → `main` (her Claude turu sonundaki `chore(auto)` dahil).
-2. `quality`: hijyen, `tsc --noEmit`, `npm audit --audit-level=high`, `npm run build`, bundle bütçesi.
-3. `version`: `scripts/bump-version.mjs` → patch/major sürümü, `package.json`, `package-lock.json`, `CHANGELOG.md`, `release-notes/vX.Y.Z.md` → `chore(release): vX.Y.Z [skip ci]` commit'i → `vX.Y.Z` etiketi.
+### Sürüm derlemesi ve release (otomatik)
+1. **Yerelde (Stop hook):** `scripts/doc-sync.mjs stop` belgeyi denetler → `scripts/release.mjs prepare` sürümü hazırlar → `scripts/auto-commit.mjs` hepsini `auto/*` dalına commit'ler, PR açar.
+2. **PR:** CI `quality` (hijyen, `tsc --noEmit`, sürüm denetimi, `npm audit`, build, bundle bütçesi). Yeşilse auto-merge birleştirir.
+3. **main'e push (CI `version`):** `scripts/release.mjs tag` → `vX.Y.Z` etiketi yoksa ve `release-notes/vX.Y.Z.md` varsa **açıklamalı etiket** (`git tag -a -F release-notes/vX.Y.Z.md`) atılır. **CI main'e commit atmaz** (main korumalı: PR zorunlu; eski akışta bot push'u reddediliyor, etiketler main geçmişi dışında kalıyordu).
 4. `release-desktop` (Windows runner): `npm run electron:build` → `release/*.exe` → GitHub Release `vX.Y.Z`, gövde = `release-notes/vX.Y.Z.md`.
-5. Yeşil değilse "yayında" deme; hatayı raporla. Yerelde `gh` kurulu değil; kontrol için GitHub Actions ve Releases sayfası kullanılır.
+5. Yeşil değilse "yayında" deme; hatayı raporla. Kontrol: `gh run list` / GitHub Actions ve Releases sayfası.
 
 ### Akış (elle commit gerekirse)
 1. `git status --short` + `git diff --stat` ile değişikliği gör.
 2. Türü belirle, `CHANGELOG.md` Unreleased maddelerini yaz.
 3. **Taslağı göster:** commit mesajı, beklenen yeni sürüm, etkilenen dosyalar.
-   - Not: Her Claude turu sonunda `scripts/auto-commit.mjs` otomatik commit + push yapar (`chore(auto)` mesajı). Otomatik commit'ler de CI'da patch sürüm alır.
+   - Not: Her Claude turu sonunda `scripts/doc-sync.mjs stop` → `scripts/release.mjs prepare` → `scripts/auto-commit.mjs` çalışır (commit + PR). Sürümü CHANGELOG maddelerinin etiketi belirler.
 4. Elle commit gerekiyorsa `git add <belirli dosyalar>` (asla körlemesine `git add -A`; `.env`, `release/`, `dist/` hariç) ve `git commit -m "<tür>: <kısa özet>"`.
 5. Push sonrası CI'yı izle. Yeşil değilse "yayında" deme.
 
@@ -56,9 +71,9 @@ Sürüm elle artırılmaz; CI hesaplar. İstisna: `package.json` sürümü son `
 1. `git status --short` + `git diff --stat` ile değişikliği gör.
 2. Türü belirle, sürüm artışını hesapla.
 3. **Taslağı göster:** commit mesajı, yeni sürüm, etkilenen dosyalar.
-   - Not: Her Claude turu sonunda `scripts/auto-commit.mjs` otomatik commit + push yapar (`chore(auto)` mesajı). Bu akış o commit'leri kapsamaz; sürüm artışı ve anlamlı mesaj için yine bu akış kullanılır.
+   - Not: Her Claude turu sonunda otomatik commit + PR + sürüm hazırlığı çalışır (`chore(auto)`). Bu akış yalnız elle, anlamlı mesajlı commit içindir.
 4. **Kullanıcı onayı gelince:**
-   - `npm version <patch|minor|major> --no-git-tag-version`
+   - Sürümü elle değil `node scripts/release.mjs plan` ile gör; gerekirse `prepare --level minor|major`.
    - `git add <belirli dosyalar>` (asla `git add -A` körlemesine; `.env`, `release/`, `dist/` hariç)
    - `git commit -m "<tür>: <kısa özet>"`
    - `git push origin <aktif-dal>`
@@ -120,6 +135,7 @@ Belirt: veri, amaç, hukuki sebep, saklama süresi, yurt dışı aktarım. Gizli
 | `docs/brain/actions/*.md` | Aksiyon başına oyun kitabı (`reads`/`writes` ile haberleşir): release, git-github, ui-design, motion, i18n, security-kvkk, terminal, ci-cd, testing, brain-maintenance | İlgili işte |
 | `docs/brain/PROJECT.md`, `DECISIONS.md` | Mimari ve tarihli karar günlüğü | İhtiyaç olunca |
 | `docs/brain/LOG.md` | Tur başına **otomatik** değişiklik günlüğü (`scripts/doc-sync.mjs`; istem metni yok) | Gerekince |
+| `docs/brain/VERSIONS.md` | Tüm sürümlerin **otomatik** geçmişi (tür: major/minor/patch, özet, notlar) | Gerekince |
 | `docs/brain/STATE.md` | Koddan **otomatik** üretilen durum (`npm run brain`; hook her turda günceller) | Görev başında |
 | Hafıza (`memory/`) | Kullanıcı tercihleri ve bağlam; repo kuralını kopyalamaz, işaret eder | Claude |
 
@@ -139,6 +155,7 @@ Kurallar:
 - `main` ruleset (PR zorunlu, `quality` check zorunlu, force push/silme yasak): PR #5 birleştikten sonra açılır.
 
 ## Durum
+- 17.11.2026: Sürümleme otomasyonu (`scripts/release.mjs` plan/prepare/tag/history, aksiyon `versioning`, `VERSIONS.md`, skill `nova-release` yeniden yazıldı). Kök neden: main korumalı olduğu için CI'nın `chore(release)` push'u reddediliyordu; 1.3.0'dan beri sürüm takılıydı, etiketler main dışındaydı. Artık sürüm PR içinde hazırlanır (düzey CHANGELOG madde etiketlerinden), CI yalnız etiket atar. İlk otomatik sürüm 1.4.0 (minor). Açık: ilk PR birleşince CI `version` + `release-desktop` işlerinin v1.4.0'ı çıkardığını Actions'ta doğrula.
 - 17.11.2026: Belge otomasyonu kuruldu (`scripts/doc-sync.mjs`, UserPromptSubmit + Stop hook, `docs/brain/LOG.md`, aksiyon `doc-sync`); kod değişen tur belgesiz bitmez (tek sefer engel). Ayrıca: kayıtta biçimlendirme (`formatOnSave`), AI tamamlama süresi tek ayar + dil ayarı kalktı, yumuşak geçişler/`nova-tab`. Açık: uygulamada elle görsel doğrulama.
 - 10.11.2026: v1.2.0 hazırlığı: GitHub hesabıyla Git (sahneleme, dal, eşzamanla, PR, yayınlama, canlı takip), VS Code çizgisinde yeni arayüz + arka plansız logo + karşılama ekranı, proje beyni (`docs/brain/`, `scripts/brain.mjs`, hook `auto-commit.mjs` her turda STATE'i yeniler). Testler `npm test`, beyin denetimi `npm run brain:check` (CI'da).
 - 12.11.2026 (8): Kaynak denetimi genişledi (fark sekmesi, dal/etiket seçici, merge+çakışma, stash, etiket, amend/geri al, commit dosyaları, dosya simgeleri), Sorunlar (durum çubuğu sayacı, alt panel sekmesi, hata renkleri/kırmızı satır). git.test 63 kontrol, izole Electron UI testi geçti. Açık: sayaç yalnız açık dosyaları kapsar; JS'de anlamsal denetim kapalı; uzak dal/etiket gönderme akışı gerçek GitHub'la denenmedi.
