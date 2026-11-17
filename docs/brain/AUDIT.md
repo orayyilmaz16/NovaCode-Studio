@@ -7,19 +7,19 @@ Son tarama: 17.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 | Alan | Bulgu |
 |---|---|
 | Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 21 |
-| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 61 |
+| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 62 |
 | Kalite | kritik 0 · yüksek 0 · orta 2 · düşük 10 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: yok
+- Yeni/artan: `PERF-DYN-RE` src/components/Preview.tsx
 - Giderilen: yok
 
 ## Güvenlik
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | SEC-HTML | `src/components/Preview.tsx:180` | Ham HTML basımı; DOMPurify ile temizlendiğini doğrula |
+| orta | SEC-HTML | `src/components/Preview.tsx:184` | Ham HTML basımı; DOMPurify ile temizlendiğini doğrula |
 | orta | SEC-OPENEXT | `electron-github.cjs:189,245` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
 | orta | SEC-OPENEXT | `electron-main.cjs:70` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | orta | SEC-OPENEXT | `electron-update.cjs:159` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
@@ -39,6 +39,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 |---|---|---|---|
 | orta | PERF-BIGFILE | `src/App.tsx:1` | 2336 satır: bölünmeli / memo ile ayrıştırılmalı |
 | orta | PERF-LISTENER-LEAK | `src/components/Preview.tsx:1` | addEventListener (4) > removeEventListener (1): temizlenmeyen dinleyici olabilir |
+| düşük | PERF-DYN-RE | `src/components/Preview.tsx:58` | Döngüde dinamik RegExp üretimi olabilir |
 | düşük | PERF-LS-WRITE | `src/App.tsx:1501` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ResizeHandle.tsx:60` | localStorage yazımı: sık tetikleniyorsa debounce et |
@@ -71,9 +72,9 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-ANY | `src/components/EditorArea.tsx:75,146,630` | `any` kullanımı (strict tip güvenliği) (3×) |
 | düşük | Q-CONSOLE | `src/components/SnippetsEditor.tsx:11` | Kalan console.log |
 | düşük | Q-CONSOLE | `src/mockFiles.ts:89,91,112` | Kalan console.log (3×) |
-| düşük | Q-EMPTY-CATCH | `src/components/Preview.tsx:58` | Boş catch: hata yutuluyor |
+| düşük | Q-EMPTY-CATCH | `src/components/Preview.tsx:62` | Boş catch: hata yutuluyor |
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:348` | Açık TODO/FIXME |
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 2336, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 1029, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `src/components/AIAssistant.tsx` 835
-- Üretim paketi (dist varsa): toplam JS 2905 KB; en büyük: index-CfUIrI3d.js 597 KB, PtyView-Do606lvb.js 327 KB, fileIconLoaders-CEzGvRhP.js 184 KB, uiTextTheme-DVw56si4.js 136 KB
+- Üretim paketi (dist varsa): toplam JS 2905 KB; en büyük: index-CdqR6ld2.js 597 KB, PtyView-CmQkOFRn.js 327 KB, fileIconLoaders-DS3X3xLl.js 184 KB, uiTextTheme-CG3J1ZbA.js 136 KB

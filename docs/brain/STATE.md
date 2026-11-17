@@ -84,7 +84,7 @@
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
 | `src/components/MenuBar.tsx` | 95 |
-| `src/components/Preview.tsx` | 368 |
+| `src/components/Preview.tsx` | 372 |
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |

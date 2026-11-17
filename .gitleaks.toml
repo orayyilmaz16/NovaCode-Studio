@@ -1,0 +1,20 @@
+# gitleaks yapılandırması: varsayılan kurallar + yalnız bilinen test sahte değerleri için dar izin.
+title = "NovaCode gitleaks"
+
+[extend]
+useDefault = true
+
+# Gerçek sır değildir: ajan gizli-kalıp temizleme testinin sahte girdileri ve
+# WebSocket el sıkışması testindeki standart örnek Sec-WebSocket-Key değeri.
+[[allowlists]]
+description = "Test fixture: sahte token/anahtar değerleri (gerçek sır yok)"
+condition = "AND"
+paths = [
+  '''scripts/tests/ai-security\.test\.cjs''',
+  '''scripts/tests/syncserver\.test\.cjs''',
+]
+regexTarget = "match"
+regexes = [
+  '''(?i)token\s*=\s*"abcd1234efgh5678"''',
+  '''(?i)Sec-WebSocket-Key:\s*[A-Za-z0-9+/=]{16,}''',
+]

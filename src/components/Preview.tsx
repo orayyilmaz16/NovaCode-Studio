@@ -53,9 +53,13 @@ const stripQuery = (u: string) => u.split('#')[0].split('?')[0];
 // Metinler dil ayarına göre dışarıdan verilir (I-04). Hedef köken: uygulama http(s) ise kendi kökeni, değilse (file:) '*'.
 // Bağlantı mesajı yalnız gerçek kullanıcı tıklamasında (isTrusted) gönderilir.
 function buildBridge(): string {
-  const txt = JSON.stringify({ err: t('pvBridgeError'), line: t('pvBridgeLine'), rej: t('pvBridgeRejection') }).replace(/</g, String.fromCharCode(92) + 'u003c');
+  // <script> içine gömülecek JSON: <, >, & ve satır ayırıcıları \u kaçışıyla etkisizleştirilir (betik/HTML kırılması olmaz).
+  const BS = String.fromCharCode(92);
+  const ESC_RE = new RegExp('[<>&' + String.fromCharCode(0x2028, 0x2029) + ']', 'g');
+  const forScript = (v: unknown) => JSON.stringify(v).replace(ESC_RE, (c) => BS + 'u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+  const txt = forScript({ err: t('pvBridgeError'), line: t('pvBridgeLine'), rej: t('pvBridgeRejection') });
   const origin = /^https?:$/.test(window.location.protocol) ? window.location.origin : '*';
-  return `<script>(function(){var X=${txt};var O=${JSON.stringify(origin)};var p=function(m){try{parent.postMessage(m,O)}catch(e){}};
+  return `<script>(function(){var X=${txt};var O=${forScript(origin)};var p=function(m){try{parent.postMessage(m,O)}catch(e){}};
 ['log','info','warn','error'].forEach(function(l){var o=console[l];console[l]=function(){var a=[].slice.call(arguments).map(function(x){try{return typeof x==='object'?JSON.stringify(x):String(x)}catch(e){return String(x)}}).join(' ');p({nova:1,t:'console',level:l,text:a});o&&o.apply(console,arguments)}});
 addEventListener('error',function(e){p({nova:1,t:'console',level:'error',text:(e.message||X.err)+(e.lineno?' ('+X.line+' '+e.lineno+')':'')})});
 addEventListener('unhandledrejection',function(e){p({nova:1,t:'console',level:'error',text:X.rej+': '+(e.reason&&e.reason.message||e.reason)})});

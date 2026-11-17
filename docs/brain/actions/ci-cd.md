@@ -34,3 +34,7 @@ triggers: ["ci", "actions", "workflow", "audit", "pipeline", "deploy"]
 
 ## Denetim düzeltmeleri (17.11.2026)
 Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Release işinde `npm ci --ignore-scripts` (native modüller için ilk release'te izle). `CSC_LINK`/`CSC_KEY_PASSWORD` secret'ları tanımlıysa Windows imzası; yoksa imzasız devam (`publisherName` sertifika alınınca eklenir). Dependabot auto-merge yalnız `github_actions` ve `direct:development`. Electron fuse'ları: `onlyLoadAppFromAsar`, asar bütünlüğü. `audit:check` CI adımı ve `security.yml` içinde `audit-scan` işi: [[audit]].
+
+## PR #66 inceleme düzeltmeleri (17.11.2026)
+- **gitleaks:** `.gitleaks.toml` varsayılan kuralları genişletir; yalnız `ai-security.test.cjs` ve `syncserver.test.cjs` içindeki bilinen sahte test değerleri (token fixture, standart örnek `Sec-WebSocket-Key`) için dar izin (yol + desen birlikte). Gerçek sır yoktu.
+- **CodeQL:** `Preview.tsx` köprüsünde script içine gömülen JSON artık `<`, `>`, `&`, U+2028/2029 için `\u` kaçışı yapar; `audit-scan.mjs` `replace` yerine `split/join`; bilinçli katastrofik regex girdileri içeren `search-redos.test.cjs` yalnız o dosya için `codeql-config.yml` `paths-ignore`.

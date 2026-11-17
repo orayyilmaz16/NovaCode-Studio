@@ -190,7 +190,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Önceki taramaya göre
 - Yeni/artan: ${added.length ? added.map((g) => `\`${g.id}\` ${g.file}`).slice(0, 15).join(", ") : "yok"}
-- Giderilen: ${resolved.length ? resolved.map((k) => `\`${k.replace("|", " ")}\``).slice(0, 15).join(", ") : "yok"}
+- Giderilen: ${resolved.length ? resolved.map((k) => `\`${k.split("|").join(" ")}\``).slice(0, 15).join(", ") : "yok"}
 
 ${section("Güvenlik", "güvenlik")}
 ${section("Performans", "performans")}

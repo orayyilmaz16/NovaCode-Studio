@@ -42,6 +42,11 @@
    "sev": "orta"
   },
   {
+   "k": "PERF-DYN-RE|src/components/Preview.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
    "k": "PERF-LS-WRITE|src/App.tsx",
    "n": 1,
    "sev": "düşük"
