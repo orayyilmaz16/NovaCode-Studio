@@ -34,7 +34,7 @@ export const UpdateDialog: React.FC<{ initialTab: Tab; autoDownload: boolean; on
   return (
     <div className="fixed inset-0 z-[210] flex items-center justify-center bg-black/50 px-4" onMouseDown={onClose}>
       <div role="dialog" aria-label={t('updTitle')} onMouseDown={(e) => e.stopPropagation()} className="animate-menu w-[min(580px,94vw)] max-h-[82vh] flex flex-col rounded-xl border border-nv-border bg-nv-side shadow-[0_18px_60px_rgba(0,0,0,0.55)] overflow-hidden">
-        <div className="flex items-center justify-between gap-3 pl-4 pr-2 h-11 border-b border-nv-border shrink-0">
+        <div className="flex items-center justify-between gap-3 ps-4 pe-2 h-11 border-b border-nv-border shrink-0">
           <div className="flex items-center gap-1 min-w-0 h-full">
             <button className={tabBtn(tab === 'update')} onClick={() => setTab('update')}>{t('updTabUpdate')}</button>
             <button className={tabBtn(tab === 'notes')} onClick={() => setTab('notes')}>{t('updTabNotes')}</button>
@@ -71,7 +71,7 @@ export const UpdateDialog: React.FC<{ initialTab: Tab; autoDownload: boolean; on
 
               {u.status === 'downloading' && (
                 <div>
-                  <div className="h-2 rounded-full bg-zinc-700 overflow-hidden"><div className="h-full bg-indigo-400 transition-[width] duration-300" style={{ width: `${u.percent}%` }} /></div>
+                  <div className="h-2 rounded-full bg-zinc-700 overflow-hidden"><div className="h-full bg-indigo-400 transition-[width] duration-(--dur-slow)" style={{ width: `${u.percent}%` }} /></div>
                   <div className="mt-1 flex justify-between text-[11px] text-zinc-500">
                     <span>%{u.percent}</span>
                     <span>{formatBytes(u.transferred)} / {formatBytes(u.total)}{u.speed ? ` · ${formatBytes(u.speed)}/s` : ''}</span>
@@ -110,7 +110,7 @@ export const UpdateDialog: React.FC<{ initialTab: Tab; autoDownload: boolean; on
               {releases?.map((r) => (
                 <div key={r.version} className="min-w-0">
                   <div className="flex items-center justify-between gap-2 min-w-0">
-                    <div className="text-[13.5px] font-semibold text-zinc-100 truncate">v{r.version}{r.version === u.current ? <span className="ml-2 text-[10.5px] font-normal px-1.5 py-0.5 rounded-full bg-nv-active text-indigo-200">{t('updInstalledTag')}</span> : null}</div>
+                    <div className="text-[13.5px] font-semibold text-zinc-100 truncate">v{r.version}{r.version === u.current ? <span className="ms-2 text-[10.5px] font-normal px-1.5 py-0.5 rounded-full bg-nv-active text-indigo-200">{t('updInstalledTag')}</span> : null}</div>
                     <div className="flex items-center gap-2 shrink-0 text-[11px] text-zinc-500">
                       {r.date && <span>{new Date(r.date).toLocaleDateString()}</span>}
                       {r.url && <button className="hover:text-indigo-300" title={t('updOpenGithub')} aria-label={t('updOpenGithub')} onClick={() => void window.electronAPI?.openLink(r.url)}><ExternalLink size={12} /></button>}

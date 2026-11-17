@@ -1,5 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { setUiLang } from '../i18n/uiText';
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { setUiLang, getUiLang } from '../i18n/uiText';
 import { PALETTE_VAR_KEYS, getPalette, paletteVars, type PaletteSeed } from './palettes';
 import {
   ACCENTS,
@@ -31,6 +31,31 @@ export interface SettingsApi {
 
 const Ctx = createContext<SettingsApi | null>(null);
 
+// Seçici erişim (P-13): değerler küçük bir dış depoda tutulur; useSettingValue(id) yalnız o anahtar değişince bileşeni yeniden çizer.
+interface SettingsStore {
+  values: SettingsValues;
+  listeners: Set<() => void>;
+}
+const StoreCtx = createContext<SettingsStore | null>(null);
+// Eylemler (set/reset/...) kararlıdır; değerler değişince bu bağlamı kullananlar yeniden çizilmez.
+type SettingsActions = Pick<SettingsApi, 'set' | 'reset' | 'resetAll' | 'exportJson' | 'importJson'>;
+const ActionsCtx = createContext<SettingsActions | null>(null);
+
+/** Tek bir ayarı okur; yalnız o ayar değişince yeniden çizilir (useSettings() tüm değişikliklerde çizer). */
+export function useSettingValue(id: string): SettingValue {
+  const store = useContext(StoreCtx);
+  if (!store) throw new Error('useSettingValue: SettingsProvider eksik');
+  const subscribe = useCallback((fn: () => void) => { store.listeners.add(fn); return () => { store.listeners.delete(fn); }; }, [store]);
+  return useSyncExternalStore(subscribe, () => store.values[id]);
+}
+
+/** Ayar değiştirici eylemler (değer okumaz, değişimde yeniden çizilmez). */
+export function useSettingsActions(): SettingsActions {
+  const v = useContext(ActionsCtx);
+  if (!v) throw new Error('useSettingsActions: SettingsProvider eksik');
+  return v;
+}
+
 export function useSettings(): SettingsApi {
   const v = useContext(Ctx);
   if (!v) throw new Error('useSettings: SettingsProvider eksik');
@@ -48,13 +73,17 @@ function applyAppearance(values: SettingsValues, mode: ResolvedMode, palette: Pa
   if (lastThemeKey && lastThemeKey !== themeKey) {
     root.dataset.themeFading = '';
     window.clearTimeout(fadeTimer);
-    fadeTimer = window.setTimeout(() => { delete root.dataset.themeFading; }, 320);
+    fadeTimer = window.setTimeout(() => { delete root.dataset.themeFading; }, Math.round(parseFloat(getComputedStyle(root).getPropertyValue('--dur-slow')) || 260) + 60);
   }
   lastThemeKey = themeKey;
   root.dataset.theme = mode;
   // Renk teması yüzeyleri: seçiliyse satır içi yazılır, "auto"da kaldırılır (style.css'teki Nova geçerli olur)
   if (palette) for (const [k, v] of Object.entries(paletteVars(palette))) root.style.setProperty(k, v);
   else for (const k of PALETTE_VAR_KEYS) root.style.removeProperty(k);
+  // Dil ve yazı yönü: ekran okuyucu/yazım denetimi doğru dili bilir, Arapça arayüz sağdan sola akar (editör/terminal kendi alanında dir="ltr" tutar)
+  const lang = getUiLang();
+  root.lang = lang;
+  root.dir = lang === 'ar' ? 'rtl' : 'ltr';
   root.dataset.motion = values.animations === false ? 'off' : 'on';
   root.style.setProperty('--font-sans', UI_FONTS[String(values.uiFont)] ?? UI_FONTS.system);
 
@@ -95,7 +124,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     applyAppearance(values, mode, palette);
-  }, [values.themeMode, values.colorTheme, values.accent, values.uiFont, values.animations, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [values.themeMode, values.colorTheme, values.accent, values.uiFont, values.animations, values.language, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pencere zemin rengi yalnız mod değişince
   useEffect(() => { void window.electronAPI?.ui.setTheme(mode); }, [mode]);
@@ -139,6 +168,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return true;
   }, []);
 
+  // Seçici depo: render sırasında güncel değer yazılır (aynı geçişteki çocuklar taze okur), aboneler yerleşimden sonra uyarılır
+  const store = useRef<SettingsStore>({ values, listeners: new Set() }).current;
+  store.values = values;
+  useLayoutEffect(() => { store.listeners.forEach((fn) => fn()); }, [values, store]);
+  const actions = useMemo<SettingsActions>(() => ({ set, reset, resetAll, exportJson: () => JSON.stringify({ v: 1, values: store.values }, null, 2), importJson }), [set, reset, resetAll, importJson, store]);
+
   const api = useMemo<SettingsApi>(
     () => ({
       values,
@@ -153,5 +188,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [values, mode, set, reset, resetAll, exportJson, importJson]
   );
 
-  return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
+  return (
+    <StoreCtx.Provider value={store}>
+      <ActionsCtx.Provider value={actions}>
+        <Ctx.Provider value={api}>{children}</Ctx.Provider>
+      </ActionsCtx.Provider>
+    </StoreCtx.Provider>
+  );
 };

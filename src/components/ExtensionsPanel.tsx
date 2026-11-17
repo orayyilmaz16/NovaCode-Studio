@@ -1,16 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpCircle, Check, Download, ExternalLink, Loader2, Palette, Puzzle, RefreshCw, Search as SearchIcon, Star, Trash2 } from 'lucide-react';
-import { t, type UiTextKey } from '../i18n/uiText';
+import { t, type TextKey } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
 import { checkUpdates, extThemeName, installExt, uninstallExt, useExtensions, type ExtDetails, type StoreItem } from '../services/extensionsService';
 import { Markdown } from './Markdown';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 type Tab = 'installed' | 'store';
 type Cat = 'Themes';
 type Ref = { id: string; namespace: string; name: string; icon: string; displayName: string };
 
 const fmt = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}K` : String(n));
-const errKey = (e?: string): UiTextKey =>
+const errKey = (e?: string): TextKey =>
   e === 'runs-code' ? 'extErrRunsCode' : e === 'nothing-supported' ? 'extErrNothing' : e === 'too-big' ? 'extErrTooBig'
   : e === 'offline' ? 'extOffline' : e === 'timeout' ? 'extTimeout' : e?.startsWith('http-') ? 'extHttp' : 'extErrFailed';
 const netMsg = (e: string) => t(errKey(e)).replace('{c}', e.replace('http-', ''));
@@ -179,7 +180,7 @@ export const ExtensionsPanel: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full min-h-0 text-[12px]">
-      <div className="h-9 flex items-center pl-4 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">{t('extTitle')}</div>
+      <div className="h-9 flex items-center ps-4 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">{t('extTitle')}</div>
       <div className="px-3 pb-2 space-y-2 shrink-0">
         <div className="flex gap-1 p-0.5 rounded bg-nv-input/60">
           <button className={seg(tab === 'installed')} onClick={() => setTab('installed')}>{t('extInstalled')}{installed.length ? ` (${installed.length})` : ''}</button>
@@ -215,7 +216,7 @@ export const ExtensionsPanel: React.FC = () => {
           ) : (
             installed.map((e) => (
               <div key={e.id} className="p-2 mb-1.5 rounded border border-zinc-800 hover:border-zinc-700 min-w-0">
-                <button className="flex gap-2 min-w-0 w-full text-left" onClick={() => open(e)}>
+                <button className="flex gap-2 min-w-0 w-full text-start" onClick={() => open(e)}>
                   <Icon src={e.icon} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 min-w-0">
@@ -269,7 +270,7 @@ export const ExtensionsPanel: React.FC = () => {
               <div key={it.id} className="flex gap-2 p-2 mb-1.5 rounded border border-zinc-800 hover:border-zinc-700 min-w-0">
                 <button onClick={() => open(it)} aria-label={it.displayName}><Icon src={it.icon} /></button>
                 <div className="min-w-0 flex-1">
-                  <button className="block w-full text-left min-w-0" onClick={() => open(it)}>
+                  <button className="block w-full text-start min-w-0" onClick={() => open(it)}>
                     <span className="flex items-center gap-1.5 min-w-0">
                       <span className="text-zinc-100 truncate font-medium">{it.displayName}</span>
                       <span className="text-zinc-500 shrink-0">{it.version}</span>

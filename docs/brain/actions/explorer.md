@@ -28,3 +28,9 @@ Ana süreçteki dosya IPC'leri yolu doğrular (`electron-main.cjs`): `fs:renameI
 
 ## Doğrulama
 Geçici bir çalışma alanında (depo dışı) gerçek Electron + CDP: dosya→klasör, klasör→klasör taşıma diskte doğrulandı, klasörü kendi içine bırakma engellendi; IPC güvenliği (dışarı/dışarıdan taşıma, üzerine yazma) test edildi. **Not:** Vite'ın dosya izleyicisi silinen klasörü kısa süre "silinmeyi bekliyor" tutabilir (Windows); testleri depo içinde değil geçici klasörde yap.
+
+## Denetim düzeltmeleri (17.11.2026)
+Dosya izleyici: kendi içerik yazımımız 800 ms bastırılır, azami bekleme 1 sn, ignore listesi `out, build, target, .cache, .turbo, dist, .next`. `workspace:recent` asenkron ve 1 sn paylaşımlı.
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+Silme önce çöp kutusuna (`shell.trashItem`); başarısızsa onayla kalıcı silme. Klasör silinince alt sekmeler kapanır. Kök `.gitignore` desenleri (`electron-gitignore.cjs`): eşleşen klasörler görünür kalır ama yalnız ilk düzeyi taranır. Watcher olayında yalnız değişen klasörler (en çok 6) yeniden okunur. Yerel geçmiş ve zaman çizelgesi: bkz. [[security-kvkk]]; `electron-history.cjs`, `history:*` IPC, ayarlar `localHistory` ve `localHistoryMax`; Diff sekmesiyle karşılaştır, geri yükle, silinenleri kurtar. Sınır: yeniden adlandırılan dosyanın geçmişi eski yolda kalır.

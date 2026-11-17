@@ -12,6 +12,8 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { pathToFileURL, fileURLToPath } = require('url');
+const { safeEnv, killTreeSync } = require('./electron-paths.cjs');
+const trust = require('./electron-trust.cjs');
 
 const SERVERS = {
   python: [{ name: 'pyright', cmd: 'pyright-langserver', args: ['--stdio'], hint: 'npm install -g pyright' }, { name: 'pylsp', cmd: 'pylsp', args: [], hint: 'pip install python-lsp-server' }],
@@ -58,6 +60,13 @@ function insideRoot(file) {
     const rel = path.relative(fs.realpathSync(root), real);
     return rel.startsWith('..') || path.isAbsolute(rel) ? null : real;
   } catch { return null; }
+}
+
+// Sunucunun belge eşitleme türü: 0 yok, 1 tam metin, 2 artımlı (textDocumentSync sayı ya da { change } olabilir)
+function syncKindOf(caps) {
+  const sync = caps && caps.textDocumentSync;
+  const k = typeof sync === 'number' ? sync : sync && typeof sync === 'object' ? sync.change : 1;
+  return k === 2 ? 2 : k === 0 ? 0 : 1;
 }
 
 const toUri = (p) => pathToFileURL(p).href;
@@ -122,9 +131,10 @@ function pickServer(lang) {
 function spawnServer(def, exe, root) {
   if (process.platform === 'win32' && /\.(cmd|bat)$/i.test(exe)) {
     // .cmd dosyaları cmd.exe üzerinden çalışır; komut ve argümanlar izin listesinden gelir, kullanıcı girdisi içermez
-    return spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', `"\"${exe}\" ${def.args.join(' ')}"`], { cwd: root, windowsHide: true, windowsVerbatimArguments: true, stdio: ['pipe', 'pipe', 'pipe'] });
+    return spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', `"\"${exe}\" ${def.args.join(' ')}"`], { cwd: root, env: safeEnv(), windowsHide: true, windowsVerbatimArguments: true, stdio: ['pipe', 'pipe', 'pipe'] });
   }
-  return spawn(exe, def.args, { cwd: root, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+  // Ortam izin listesiyle (S-13): gizli değişkenler dil sunucusuna geçmez
+  return spawn(exe, def.args, { cwd: root, env: safeEnv(), windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
 }
 
 async function ensure(lang) {
@@ -136,7 +146,9 @@ async function ensure(lang) {
   const def = pick.def;
   let s = servers.get(def.name);
   if (s && s.root !== root) { await stopOne(def.name); s = null; }
-  if (s && s.state === 'ready') return { success: true, name: def.name, state: s.state, triggers: s.caps.completionProvider?.triggerCharacters ?? [], signatureTriggers: s.caps.signatureHelpProvider?.triggerCharacters ?? [] };
+  // Güvenilmeyen klasörde dil sunucusu başlamaz: sunucu proje yapılandırmasını (eklenti/betik) çalıştırabilir (kısıtlı mod).
+  if (!trust.isTrusted(root)) return { success: false, error: 'trust-required' };
+  if (s && s.state === 'ready') return { success: true, name: def.name, state: s.state, syncKind: syncKindOf(s.caps), triggers: s.caps.completionProvider?.triggerCharacters ?? [], signatureTriggers: s.caps.signatureHelpProvider?.triggerCharacters ?? [] };
   if (s && s.starting) return s.starting;
 
   s = { def, proc: null, rpc: null, state: 'starting', caps: {}, root, restarts: s ? s.restarts : 0, starting: null };
@@ -190,7 +202,7 @@ async function ensure(lang) {
       s.rpc.notify('initialized', {});
       s.state = 'ready';
       emit({ type: 'state', name: def.name, state: 'ready' });
-      return { success: true, name: def.name, state: 'ready', triggers: s.caps.completionProvider?.triggerCharacters ?? [], signatureTriggers: s.caps.signatureHelpProvider?.triggerCharacters ?? [] };
+      return { success: true, name: def.name, state: 'ready', syncKind: syncKindOf(s.caps), triggers: s.caps.completionProvider?.triggerCharacters ?? [], signatureTriggers: s.caps.signatureHelpProvider?.triggerCharacters ?? [] };
     } catch (err) {
       s.state = 'error';
       emit({ type: 'state', name: def.name, state: 'error', detail: String(err.message || err).slice(0, 200) + (stderrTail ? ' | ' + stderrTail.slice(-200) : '') });
@@ -201,13 +213,15 @@ async function ensure(lang) {
   return s.starting;
 }
 
-async function stopOne(name) {
+async function stopOne(name, { fast = false } = {}) {
   const s = servers.get(name);
   if (!s) return;
   servers.delete(name);
   s.state = 'stopped';
-  try { await s.rpc.request('shutdown', null, 2000); s.rpc.notify('exit', null); } catch { /* yanıt vermedi */ }
+  // fast (uygulama kapanışı): shutdown RPC'si beklenmez, süreç ağacı hemen kapatılır (P-03)
+  if (!fast) { try { await s.rpc.request('shutdown', null, 2000); s.rpc.notify('exit', null); } catch { /* yanıt vermedi */ } }
   try { s.rpc.dispose(); } catch { /* kapalı */ }
+  if (fast) { try { s.proc.kill(); } catch { /* bitmiş */ } killTreeSync([s.proc.pid]); return; }
   // Windows'ta .cmd sarmalayıcısı (cmd.exe) altında asıl sunucu süreci yaşar: tüm süreç ağacı kapatılır
   if (process.platform === 'win32' && s.proc.pid) {
     await new Promise((res) => { const k = spawn('taskkill', ['/pid', String(s.proc.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' }); k.on('exit', res); k.on('error', res); });
@@ -234,7 +248,7 @@ function register({ getWindow, getRoot }) {
     const pick = pickServer(lang);
     if (!pick.supported) return { supported: false };
     const s = servers.get(pick.def.name);
-    return { supported: true, name: pick.def.name, available: !!pick.exe, hint: pick.def.hint, state: s ? s.state : 'idle' };
+    return { supported: true, name: pick.def.name, available: !!pick.exe, hint: pick.def.hint, state: s ? s.state : 'idle', restricted: !trust.isTrusted(api.getRoot()) };
   }));
 
   ipcMain.handle('lsp:start', guard((req) => ensure(String(req && req.lang || ''))));
@@ -245,8 +259,9 @@ function register({ getWindow, getRoot }) {
     const pick = pickServer(String(r.lang || ''));
     const s = pick.def && servers.get(pick.def.name);
     if (!file || !s || s.state !== 'ready' || !NOTIFY_OK.has(r.method)) return { success: false };
-    const params = JSON.parse(JSON.stringify(r.params || {}));
-    params.textDocument = { ...(params.textDocument || {}), uri: toUri(file) };
+    // Yapılandırılmış kopya IPC'den zaten geldi: ek JSON klonu yok, yalnız yüzeysel kopya (P-08)
+    const params = { ...(r.params && typeof r.params === 'object' ? r.params : {}) };
+    params.textDocument = { ...(params.textDocument && typeof params.textDocument === 'object' ? params.textDocument : {}), uri: toUri(file) };
     if (typeof params.textDocument.text === 'string' && params.textDocument.text.length > MAX_TEXT) return { success: false, error: 'too-large' };
     if (Array.isArray(params.contentChanges) && params.contentChanges.some((c) => typeof c.text !== 'string' || c.text.length > MAX_TEXT)) return { success: false, error: 'too-large' };
     s.rpc.notify(r.method, params);
@@ -259,13 +274,28 @@ function register({ getWindow, getRoot }) {
     const pick = pickServer(String(r.lang || ''));
     const s = pick.def && servers.get(pick.def.name);
     if (!file || !s || s.state !== 'ready' || !REQUEST_OK.has(r.method)) return { success: false, error: 'not-ready' };
-    const params = JSON.parse(JSON.stringify(r.params || {}));
+    const params = { ...(r.params && typeof r.params === 'object' ? r.params : {}) };
     params.textDocument = { uri: toUri(file) };
     const result = await s.rpc.request(r.method, params, 10000);
     return { success: true, result: r.method === 'textDocument/definition' ? mapLocations(result) : result };
   }));
 }
 
-async function stopAll() { for (const name of [...servers.keys()]) await stopOne(name); }
+// { fast: true }: eşzamanlı kapanış (tüm süreç ağaçları tek taskkill ile); varsayılan: nazik kapatma
+function stopAll(opts) {
+  if (opts && opts.fast) {
+    const pids = [];
+    for (const [name, s] of [...servers]) {
+      servers.delete(name);
+      s.state = 'stopped';
+      try { s.rpc && s.rpc.dispose(); } catch { /* kapalı */ }
+      try { s.proc && s.proc.kill(); } catch { /* bitmiş */ }
+      if (s.proc && s.proc.pid) pids.push(s.proc.pid);
+    }
+    killTreeSync(pids);
+    return Promise.resolve();
+  }
+  return (async () => { for (const name of [...servers.keys()]) await stopOne(name); })();
+}
 
 module.exports = { register, stopAll, _test: { SERVERS, findExe } };

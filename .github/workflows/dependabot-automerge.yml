@@ -17,8 +17,14 @@ jobs:
     timeout-minutes: 5
     if: github.actor == 'dependabot[bot]'
     steps:
+      # Çalışma zamanı bağımlılıkları (dependencies) otomatik birleşmez: yalnız devDependencies ve github-actions (S-21)
+      - name: Dependabot üst verisi
+        id: meta
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Sürüm atlamasını denetle ve auto-merge aç
-        env:
+        if: steps.meta.outputs.package-ecosystem == 'github_actions' || steps.meta.outputs.dependency-type == 'direct:development'        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           # Başlık, betiğe ortam değişkeniyle geçer (komut enjeksiyonu yok)

@@ -1,7 +1,7 @@
 {
   "name": "novacode-studio",
   "productName": "NovaCode Studio",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "novaGithubClientId": "Ov23libmIBCtfaaE8qON",
   "description": "Profesyonel Masaüstü ve Web Destekli Kod Editörü",
   "license": "MIT",
@@ -17,9 +17,11 @@
     "electron:dev": "concurrently -k \"cross-env BROWSER=none vite\" \"wait-on tcp:5173 && cross-env NODE_ENV=development electron .\"",
     "electron:build": "vite build && electron-builder --publish never",
     "sync:server": "node server/sync-server.mjs",
-    "test": "node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs",
+    "test": "node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs",
     "brain": "node scripts/brain.mjs",
     "brain:check": "node scripts/brain.mjs --check",
+    "audit": "node scripts/audit-scan.mjs",
+    "audit:check": "node scripts/audit-scan.mjs --check",
     "version:check": "node scripts/check-version.mjs",
     "sync": "node scripts/auto-commit.mjs",
     "icons:gen": "node scripts/gen-file-icons.mjs"
@@ -47,11 +49,21 @@
       "electron-pty.cjs",
       "electron-lsp.cjs",
       "electron-textbuffer.cjs",
+      "electron-paths.cjs",
+      "electron-preview.cjs",
+      "electron-gitignore.cjs",
+      "electron-history.cjs",
+      "electron-snippets.cjs",
+      "electron-trust.cjs",
       "package.json",
       "!**/node_modules/@node-llama-cpp/win-x64-cuda/**",
       "!**/node_modules/@node-llama-cpp/win-x64-cuda-ext/**",
       "!**/node_modules/@node-llama-cpp/win-arm64/**"
     ],
+    "electronFuses": {
+      "onlyLoadAppFromAsar": true,
+      "enableEmbeddedAsarIntegrityValidation": true
+    },
     "win": {
       "icon": "public/icon.png",
       "target": [
@@ -105,7 +117,6 @@
     "@types/react-dom": "^19.3.0",
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/xterm": "^6.0.0",
-    "dompurify": "^3.4.17",
     "electron-is-dev": "^3.0.1",
     "electron-updater": "6.8.11",
     "lib0": "0.2.120",
@@ -124,7 +135,7 @@
   },
   "overrides": {
     "monaco-editor": {
-      "dompurify": "$dompurify"
+      "dompurify": "^3.4.17"
     },
     "minimatch@^9": "11.0.1",
     "minimatch@^10": "11.0.1"

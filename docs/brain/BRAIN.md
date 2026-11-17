@@ -15,6 +15,8 @@ Bu klasör, projeyi çalıştıran her ajanın (Claude Code, alt ajanlar, CI bot
 | [[DECISIONS]] | Neden böyle yaptık (tarihli karar günlüğü) | Elle (karar alınınca) |
 | [[STATE]] | Sürüm, dosya haritası, IPC, i18n, CI | `scripts/brain.mjs` (otomatik) |
 | [[VERSIONS]] | Sürüm geçmişi: her etiket, tür (major/minor/patch), özet, notlar | `scripts/release.mjs` (otomatik) |
+| [[AUDIT]] | Otomatik sezgisel denetim raporu (güvenlik, performans, kalite; önceki taramaya göre fark) | `scripts/audit-scan.mjs` (otomatik) |
+| [[BACKLOG]] | Doğrulanmış açık bulgular ve yapılacaklar (durumlu) | Elle/ajan taraması |
 | [[LOG]] | Tur başına değişiklik günlüğü (dosya, alan, belge durumu; son 40) | `scripts/doc-sync.mjs` (otomatik) |
 | [[AGENT]] | Akış, döngü kuralları, **Durum** | Elle (görev bitince) |
 | [[CHANGELOG]] | Kullanıcıya dönük sürüm notları (TR + EN) | Elle (`Unreleased`), CI (sürüm bölümü) |
@@ -47,6 +49,7 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[ci-cd]] | GitHub Actions, audit, bundle bütçesi |
 | [[testing]] | Doğrulama: tsc, build, birim ve entegrasyon testleri |
 | [[brain-maintenance]] | Bu beyni güncel tutmak |
+| [[audit]] | Sürekli denetim: güvenlik, performans, hata/arayüz/özellik taraması; [[AUDIT]] (otomatik) ve [[BACKLOG]] (doğrulanmış bulgular) |
 | [[doc-sync]] | Belge otomasyonu: her istemde hatırlatma, tur sonunda denetim ve günlük |
 
 ## Haberleşme kuralları

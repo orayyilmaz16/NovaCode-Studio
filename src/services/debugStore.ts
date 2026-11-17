@@ -115,6 +115,13 @@ export async function startDebug(file: string) {
   if (!d || state.status !== 'idle') return;
   set({ status: 'starting', lines: [], frames: [], location: null });
   const r = await d.start({ file });
+  if (!r.success && r.error === 'trust-required') {
+    // Kısıtlı mod: güvenilmeyen klasörde hata ayıklayıcı başlamaz; kısa bilgi (metinler gecikmeli yüklenir)
+    const [{ t }] = await Promise.all([import('../i18n/uiText'), import('../i18n/uiTextTheme')]);
+    log('error', t('trRestrictedShort' as Parameters<typeof t>[0]));
+    set({ status: 'idle' });
+    return;
+  }
   if (!r.success) { log('error', r.error === 'invalid-file' ? 'invalid-file' : String(r.error ?? 'error')); set({ status: 'idle' }); return; }
   for (const f of Object.keys(state.breakpoints)) void syncBps(f);
 }

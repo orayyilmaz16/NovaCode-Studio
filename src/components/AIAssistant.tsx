@@ -26,7 +26,7 @@ interface AIAssistantProps {
   onOpenSettings: () => void;
 }
 
-type Image = { mediaType: string; data: string; url: string };
+type Image = { id: string; mediaType: string; data: string; url: string };
 const SLASH_BUILTIN = ['new', 'ask', 'agent'] as const;
 const gb = (n: number) => (n / 1024 ** 3).toFixed(1);
 
@@ -51,10 +51,20 @@ const CodeBlock: React.FC<{ lang: string; code: string }> = ({ lang, code }) => 
   );
 };
 
+// Kararlı anahtar: parçanın metindeki başlangıç konumu (akış yalnız sona eklediği için önceki parçaların anahtarı değişmez)
+const keyedParts = (text: string) => {
+  let off = 0;
+  return splitParts(text).map((p) => {
+    const key = `${p.kind}:${off}`;
+    off += p.kind === 'code' ? p.code.length + (p.lang?.length ?? 0) + 8 : p.text.length;
+    return { key, p };
+  });
+};
+
 const MessageText: React.FC<{ text: string }> = ({ text }) => (
   <div className="min-w-0 break-words [overflow-wrap:anywhere]">
-    {splitParts(text).map((p, i) =>
-      p.kind === 'code' ? <CodeBlock key={i} lang={p.lang} code={p.code} /> : p.text.trim() ? <div key={i} className="whitespace-pre-wrap">{p.text.replace(/^\n+|\n+$/g, '')}</div> : null
+    {keyedParts(text).map(({ key, p }) =>
+      p.kind === 'code' ? <CodeBlock key={key} lang={p.lang} code={p.code} /> : p.text.trim() ? <div key={key} className="whitespace-pre-wrap">{p.text.replace(/^\n+|\n+$/g, '')}</div> : null
     )}
   </div>
 );
@@ -81,7 +91,7 @@ const ToolRow: React.FC<{ c: ToolCard }> = ({ c }) => {
   const Ico = c.name === 'run_command' ? TermIcon : c.name.includes('file') ? FileCode : Wrench;
   return (
     <div className="rounded-md border border-zinc-800 bg-zinc-900/40 min-w-0">
-      <button className="w-full flex items-center gap-1.5 px-2 h-6 text-left text-[11px] text-zinc-400 min-w-0" onClick={() => c.result && setOpen((v) => !v)}>
+      <button className="w-full flex items-center gap-1.5 px-2 h-6 text-start text-[11px] text-zinc-400 min-w-0" onClick={() => c.result && setOpen((v) => !v)}>
         {c.status === 'running' ? <Loader2 size={12} className="animate-spin shrink-0" /> : c.status === 'ok' ? <Check size={12} className="text-emerald-400 shrink-0" /> : <X size={12} className="text-rose-400 shrink-0" />}
         <Ico size={12} className="shrink-0" />
         <span className="font-mono truncate min-w-0 flex-1">{c.name}{toolTarget(c.input) ? ` · ${toolTarget(c.input)}` : ''}</span>
@@ -93,19 +103,23 @@ const ToolRow: React.FC<{ c: ToolCard }> = ({ c }) => {
 };
 
 // Ajan çalışırken durum şeridi: adım, çalışan araç, geçen süre, durdur; onay beklerken uyarır
-const AgentStatus: React.FC<{ msg?: ChatMsg; startedAt: number; onStop: () => void }> = ({ msg, startedAt, onStop }) => {
+// Süre metni ayrı bileşende: saniyede bir yalnız bu metin yeniden çizilir (şerit değil)
+const ElapsedTime: React.FC<{ startedAt: number }> = React.memo(({ startedAt }) => {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const i = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(i); }, []);
   const secs = Math.max(0, Math.floor((now - startedAt) / 1000));
+  return <span className="font-mono text-[10.5px] text-indigo-300/80 shrink-0">{Math.floor(secs / 60)}:{String(secs % 60).padStart(2, '0')}</span>;
+});
+const AgentStatus: React.FC<{ msg?: ChatMsg; startedAt: number; onStop: () => void }> = ({ msg, startedAt, onStop }) => {
   const running = msg?.tools?.find((c) => c.status === 'running');
   const waiting = !!msg?.approvals?.some((a) => !a.decided);
   return (
-    <div className="mx-3 mb-1 flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-2.5 h-8 text-[11.5px] text-violet-100 shrink-0 animate-fade-in" role="status">
-      <span className={`w-2 h-2 rounded-full shrink-0 ${waiting ? 'bg-amber-400' : 'bg-violet-400 animate-pulse'}`} />
+    <div className="mx-3 mb-1 flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 h-8 text-[11.5px] text-indigo-100 shrink-0 animate-fade-in" role="status">
+      <span className={`w-2 h-2 rounded-full shrink-0 ${waiting ? 'bg-amber-400' : 'bg-indigo-400 animate-pulse'}`} />
       <span className="font-medium shrink-0">{waiting ? t('aiAgentWaitingApproval') : t('aiAgentWorking')}</span>
-      <span className="text-violet-300/80 shrink-0">· {t('aiAgentStepN').replace('{n}', String(msg?.tools?.length ?? 0))}</span>
-      <span className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-violet-200/70">{running ? `${running.name}${toolTarget(running.input) ? ' · ' + toolTarget(running.input) : ''}` : ''}</span>
-      <span className="font-mono text-[10.5px] text-violet-300/80 shrink-0">{Math.floor(secs / 60)}:{String(secs % 60).padStart(2, '0')}</span>
+      <span className="text-indigo-300/80 shrink-0">· {t('aiAgentStepN').replace('{n}', String(msg?.tools?.length ?? 0))}</span>
+      <span className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-indigo-200/70">{running ? `${running.name}${toolTarget(running.input) ? ' · ' + toolTarget(running.input) : ''}` : ''}</span>
+      <ElapsedTime startedAt={startedAt} />
       <button type="button" onClick={onStop} title={t('aiStop')} aria-label={t('aiStop')} className="w-6 h-6 rounded-md bg-rose-600/80 hover:bg-rose-500 text-white flex items-center justify-center shrink-0"><Square size={10} /></button>
     </div>
   );
@@ -132,7 +146,7 @@ const AgentSummary: React.FC<{ tools: ToolCard[]; rootPath?: string | null; onOp
         )}
       </div>
       {files.map((f) => (
-        <button key={f} type="button" disabled={!onOpenFile} onClick={() => onOpenFile?.(abs(f))} title={`${t('aiAgentOpenFile')}: ${f}`} className="w-full flex items-center gap-1.5 rounded px-1.5 h-6 text-left text-[11px] font-mono text-zinc-300 hover:bg-white/5 hover:text-zinc-50 disabled:hover:bg-transparent transition-colors">
+        <button key={f} type="button" disabled={!onOpenFile} onClick={() => onOpenFile?.(abs(f))} title={`${t('aiAgentOpenFile')}: ${f}`} className="w-full flex items-center gap-1.5 rounded px-1.5 h-6 text-start text-[11px] font-mono text-zinc-300 hover:bg-white/5 hover:text-zinc-50 disabled:hover:bg-transparent transition-colors">
           <FileCode size={11} className="shrink-0 text-violet-300" /><span className="truncate">{f}</span>
         </button>
       ))}
@@ -261,8 +275,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   useEffect(() => {
     let alive = true;
     if (provider === 'ollama' || provider === 'builtin') { setHasKey(true); return; }
-    void window.electronAPI?.secrets.get(provider === 'anthropic' ? 'aiKey_anthropic' : 'aiKey_openai').then((r) => {
-      if (alive) setHasKey('value' in r && !!r.value);
+    void window.electronAPI?.secrets.has(provider === 'anthropic' ? 'aiKey_anthropic' : 'aiKey_openai').then((r) => {
+      if (alive) setHasKey('has' in r && r.has);
     });
     return () => { alive = false; };
   }, [provider, busy]);
@@ -506,7 +520,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     const out: Image[] = [];
     for (const f of Array.from(files).slice(0, 4 - images.length)) {
       const img = await fileToImage(f);
-      if (img) out.push({ ...img, url: `data:${img.mediaType};base64,${img.data}` });
+      if (img) out.push({ ...img, id: uid(), url: `data:${img.mediaType};base64,${img.data}` });
     }
     if (out.length) setImages((prev) => [...prev, ...out].slice(0, 4));
   };
@@ -530,7 +544,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   if (!api) {
     return (
       <div className="flex flex-col h-full bg-nv-side p-4 text-[12px] text-zinc-400">
-        <div className="flex items-center gap-2 mb-2 text-zinc-200"><Sparkles size={15} className="text-purple-400" />{t('aiTitle')}</div>
+        <div className="flex items-center gap-2 mb-2 text-zinc-200"><Sparkles size={15} className="text-indigo-400" />{t('aiTitle')}</div>
         {t('aiDesktopOnly')}
       </div>
     );
@@ -546,7 +560,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden bg-nv-side text-zinc-300">
       {/* Başlık: sohbet seçici + eylemler */}
       <div className={`relative flex items-center gap-1 px-2 h-10 border-b shrink-0 transition-colors ${isAgent ? 'border-violet-500/30' : 'border-nv-border'}`}>
-        <div className={`w-6 h-6 rounded-md bg-gradient-to-br flex items-center justify-center shrink-0 transition-colors ${isAgent ? 'from-violet-500 to-fuchsia-500' : 'from-indigo-500 to-purple-500'}`}>{isAgent ? <Zap size={13} className="text-white" /> : <Sparkles size={13} className="text-white" />}</div>
+        <div className={`w-6 h-6 rounded-md bg-indigo-500 flex items-center justify-center shrink-0`}>{isAgent ? <Zap size={13} className="text-white" /> : <Sparkles size={13} className="text-white" />}</div>
         <ChatSessions
           sessions={modeSessions}
           current={session}
@@ -648,7 +662,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
                     </div>
                     {active && (
                       <div className="mt-1.5">
-                        <div className="h-1.5 rounded-full bg-zinc-700 overflow-hidden"><div className="h-full bg-indigo-400 transition-[width] duration-300" style={{ width: `${pct}%` }} /></div>
+                        <div className="h-1.5 rounded-full bg-zinc-700 overflow-hidden"><div className="h-full bg-indigo-400 transition-[width] duration-(--dur-slow)" style={{ width: `${pct}%` }} /></div>
                         <div className="mt-0.5 text-[10.5px] text-indigo-200/80">{t('aiBuiltinProgress').replace('{p}', String(pct))}</div>
                       </div>
                     )}
@@ -662,11 +676,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         )}
         {!session?.messages.length && (
           <div className="pt-4 text-zinc-400 leading-relaxed">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center mb-3"><Bot size={20} className="text-purple-300" /></div>
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/25 flex items-center justify-center mb-3"><Bot size={20} className="text-indigo-300" /></div>
             <p>{t('aiWelcome')}</p>
             <div className="grid grid-cols-2 gap-1.5 mt-4">
               {(isAgent ? (['aiQuickAgent1', 'aiQuickAgent2', 'aiQuickAgent3', 'aiQuickAgent4'] as const) : (['aiQuickExplain', 'aiQuickBugs', 'aiQuickRefactor', 'aiQuickTests'] as const)).map((k) => (
-                <button key={k} className="min-h-8 px-2 py-1 rounded-lg border border-zinc-700/70 hover:bg-nv-hover text-zinc-300 text-[12px] text-left leading-snug" onClick={() => quick(t(k))}>{t(k)}</button>
+                <button key={k} className="min-h-8 px-2 py-1 rounded-lg border border-zinc-700/70 hover:bg-nv-hover text-zinc-300 text-[12px] text-start leading-snug" onClick={() => quick(t(k))}>{t(k)}</button>
               ))}
             </div>
           </div>
@@ -675,14 +689,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
           m.role === 'user' ? (
             <div key={m.id} className="group/msg flex justify-end items-start gap-1 min-w-0">
               <CopyMsg text={m.text} className="mt-1" />
-              <div className="max-w-[88%] rounded-2xl rounded-br-md bg-nv-active text-zinc-50 px-3 py-2 leading-relaxed min-w-0">
+              <div className="max-w-[88%] rounded-2xl rounded-ee-md bg-nv-active text-zinc-50 px-3 py-2 leading-relaxed min-w-0">
                 {m.imageCount ? <div className="flex items-center gap-1 text-[10px] opacity-80 mb-1"><ImagePlus size={11} />×{m.imageCount}</div> : null}
                 <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{m.text}</div>
               </div>
             </div>
           ) : (
             <div key={m.id} className="group/msg flex gap-2 min-w-0">
-              <div className="w-5 h-5 mt-0.5 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0"><Sparkles size={11} className="text-white" /></div>
+              <div className="w-5 h-5 mt-0.5 rounded-md bg-indigo-500 flex items-center justify-center shrink-0"><Sparkles size={11} className="text-white" /></div>
               <div className="min-w-0 flex-1 text-zinc-200 leading-relaxed">
                 {m.text ? <MessageText text={m.text} /> : m.streaming && !m.approvals?.some((a) => !a.decided) ? (
                   <span className="flex items-center gap-1.5 text-zinc-500"><Loader2 size={12} className="animate-spin" />{t('aiThinking')}</span>
@@ -721,7 +735,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
           onClick={toBottom}
           title={t('aiScrollDown')}
           aria-label={t('aiScrollDown')}
-          className="absolute bottom-2 right-4 w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 shadow-lg flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 animate-fade-in"
+          className="absolute bottom-2 end-4 w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 shadow-lg flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 animate-fade-in"
         ><ArrowDown size={14} /></button>
       )}
       </div>
@@ -762,10 +776,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         <div className={`rounded-xl border border-zinc-700/80 bg-nv-input/50 transition-colors ${isAgent ? 'focus-within:border-violet-500' : 'focus-within:border-indigo-500'}`}>
           {images.length > 0 && (
             <div className="flex gap-1.5 px-2 pt-2 flex-wrap">
-              {images.map((im, i) => (
-                <div key={i} className="relative">
+              {images.map((im) => (
+                <div key={im.id} className="relative">
                   <img src={im.url} alt="" className="h-10 w-10 object-cover rounded-md border border-zinc-700" />
-                  <button className="absolute -top-1 -right-1 bg-zinc-900 rounded-full" onClick={() => setImages((p) => p.filter((_, j) => j !== i))} aria-label={t('aiRemove')}><X size={12} /></button>
+                  <button className="absolute -top-1 -end-1 bg-zinc-900 rounded-full" onClick={() => setImages((p) => p.filter((x) => x.id !== im.id))} aria-label={t('aiRemove')}><X size={12} /></button>
                 </div>
               ))}
             </div>
@@ -800,7 +814,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
               agent={isAgent ? { autonomy, onAutonomy: (a) => setSetting('aiAgentAutonomy', a), maxSteps: maxStepsNow, onMaxSteps: (n) => setSetting('aiAgentMaxSteps', n) } : undefined}
               disabled={busy}
             />
-            <button className="min-w-0 flex-1 text-left px-1.5 text-[10.5px] text-zinc-500 hover:text-zinc-300 truncate" onClick={onOpenSettings} title={t('aiOpenSettings')}>
+            <button className="min-w-0 flex-1 text-start px-1.5 text-[10.5px] text-zinc-500 hover:text-zinc-300 truncate" onClick={onOpenSettings} title={t('aiOpenSettings')}>
               {PROVIDER_LABEL[provider]} · {modelLabel}
             </button>
             {busy ? (
@@ -811,7 +825,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
           </div>
         </div>
         {!voiceOn && provider !== 'builtin' && <p className="mt-1 text-[10px] leading-snug text-zinc-500">{t('aiVoiceConsent')}</p>}
-        <p className="mt-1 text-[10px] leading-snug text-zinc-600">
+        <p className="mt-1 text-[10px] leading-snug text-zinc-500">
           {isLocal ? t('aiPrivacyLocal') : t('aiPrivacy').replace('{provider}', PROVIDER_LABEL[provider])}
         </p>
       </div>

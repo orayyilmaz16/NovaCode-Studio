@@ -73,3 +73,9 @@ Ayarlar yalnız `localStorage` (`nova.settings.v1`) içinde, cihazda. Token `loc
 
 ## Yeni kategoriler
 `run` (Çalıştır ve önizleme: previewAutoOpen, runSaveBefore, runClearTerminal, runCommand*) ve `extensions` (extAutoUpdate + tema seçici/yüklü eklenti listesi, `ExtensionsSettings`). Tema seçimi anında uygulanır (`useActiveEditorTheme`).
+
+## Denetim düzeltmeleri (17.11.2026)
+Ayar bağlamı seçicili: `useSettingValue(id)` ve `useSettingsActions()` (`useSettings()` korunur). Büyük dosyada (>2 MB veya >20k satır) `toMonacoOptionsForFile` minimap/folding/parantez renklendirmeyi kapatır. `applyAppearance` `html.lang` ve `html.dir` (ar → rtl) yazar.
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+Yeni ayarlar: `localHistory` (varsayılan açık), `localHistoryMax` (5-30). Kullanıcı snippet'leri: `.nova/snippets.json` (çalışma klasörü) ve `userData/snippets.json` (genel); doğrulama, 256 KB / 500 snippet sınırı; palet "Snippet ekle/düzenle". Kısayol özelleştirme: `src/services/keybindings.ts` katalog ve çözümleme, geçersiz kılmalar `nova.keybindings.v1` (yalnız cihazda), çakışma denetimi, sabit kısayollar (Ctrl+C/V/X/Z/Y/A, F1, F5, F10, F11, Esc); `KeybindingsEditor` palet ve Ayarlar'da. Monaco içi varsayılan bağlama kaldırılmaz, eski tuş yakalama aşamasında yutulur. Ayarlar > Güven ve rıza ve oda kimliği alanı: [[security-kvkk]].

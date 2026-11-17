@@ -4,6 +4,7 @@
 const { app, ipcMain } = require('electron');
 const fs = require('fs');
 const { execFileSync, spawn } = require('child_process');
+const { killTree, killTreeSync } = require('./electron-paths.cjs');
 
 const MAX_SESSIONS = 12;
 const ID_RE = /^[a-z0-9-]{1,40}$/;
@@ -66,6 +67,9 @@ function hasPwsh() {
   return cachedPwsh;
 }
 
+let killAll = () => {};
+function killAllSync() { killAll(); }
+
 function register({ getWindow, isValidPath }) {
   const sessions = new Map(); // id -> { proc, cwd, shell }
 
@@ -77,7 +81,9 @@ function register({ getWindow, isValidPath }) {
   const stop = (id) => {
     const entry = sessions.get(id);
     if (entry) {
+      // Kabuğun torunları (npm run dev vb.) yetim kalmasın: Windows'ta tüm süreç ağacı kapatılır (P-10)
       try { entry.proc.kill(); } catch { /* zaten kapalı */ }
+      if (entry.proc.exitCode === null) void killTree(entry.proc.pid);
       sessions.delete(id);
     }
   };
@@ -91,6 +97,7 @@ function register({ getWindow, isValidPath }) {
     const existing = sessions.get(id);
     if (existing && existing.cwd === cwd && existing.proc.exitCode === null) {
       existing.proc.stdin.write(cwdProbe(shell)); // arayüz istemi güncel çalışma klasörünü öğrensin
+      send('term:ready', { id, shell, cwd: existing.cwd, reused: true }); // oturum zaten hazır
       return { success: true, shell, reused: true };
     }
     stop(id);
@@ -98,7 +105,7 @@ function register({ getWindow, isValidPath }) {
 
     const isCmd = shell === 'cmd';
     const command = isCmd ? 'cmd.exe' : process.platform === 'win32' ? (hasPwsh() ? 'pwsh.exe' : 'powershell.exe') : 'bash';
-    const args = isCmd ? ['/Q'] : process.platform === 'win32' ? ['-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', '-'] : [];
+    const args = isCmd ? ['/Q'] : process.platform === 'win32' ? ['-NoLogo', '-NoProfile', '-ExecutionPolicy', 'RemoteSigned', '-Command', '-'] : [];
     let proc;
     try {
       proc = spawn(command, args, {
@@ -120,7 +127,12 @@ function register({ getWindow, isValidPath }) {
       proc.stdin.write('[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; if ($PSStyle) { $PSStyle.OutputRendering = "Ansi" }\n');
     }
     proc.stdin.write(cwdProbe(shell));
-    const filter = makeCwdFilter(shell, (dir) => send('term:cwd', { id, shell, cwd: dir }));
+    // İlk işaret = kabuk komut almaya hazır: arayüz `cd` vb. için zamanlayıcı yerine `term:ready` olayını bekler (B-12)
+    let readySent = false;
+    const filter = makeCwdFilter(shell, (dir) => {
+      send('term:cwd', { id, shell, cwd: dir });
+      if (!readySent) { readySent = true; send('term:ready', { id, shell, cwd: dir }); }
+    });
     proc.stdout.on('data', (chunk) => {
       const text = filter(chunk.toString('utf8'));
       if (text) send('term:output', { id, shell, text, stream: 'stdout' });
@@ -147,9 +159,18 @@ function register({ getWindow, isValidPath }) {
     return { success: true };
   });
 
-  app.on('before-quit', () => {
-    for (const id of [...sessions.keys()]) stop(id);
-  });
+  // Kapanışta: tüm kabukların süreç ağacı tek `taskkill` ile eşzamanlı kapatılır (P-03/P-10)
+  const killAllSync = () => {
+    const pids = [];
+    for (const [id, entry] of sessions) {
+      if (entry.proc.exitCode === null && entry.proc.pid) pids.push(entry.proc.pid);
+      try { entry.proc.kill(); } catch { /* zaten kapalı */ }
+      sessions.delete(id);
+    }
+    killTreeSync(pids);
+  };
+  killAll = killAllSync;
+  app.on('before-quit', killAllSync);
 }
 
-module.exports = { register, makeCwdFilter, cwdProbe, CWD_MARK, MAX_SESSIONS };
+module.exports = { register, killAllSync, makeCwdFilter, cwdProbe, CWD_MARK, MAX_SESSIONS };

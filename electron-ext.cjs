@@ -209,10 +209,28 @@ function parseVsix(buf) {
   return { themes, runsCode, version: String(pkg.version || '0.0.0').slice(0, 40) };
 }
 
+// SemVer §11: sürüm çekirdeği sayısal; ön sürümlü (1.0.0-beta) çekirdeği aynı olan sürümden küçüktür; build (+x) yok sayılır.
 const semverGt = (a, b) => {
-  const pa = String(a).split(/[.+-]/).map((x) => parseInt(x, 10) || 0);
-  const pb = String(b).split(/[.+-]/).map((x) => parseInt(x, 10) || 0);
-  for (let i = 0; i < 4; i++) { if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0); }
+  const split = (v) => {
+    const [core, ...pre] = String(v).trim().replace(/^v/i, '').split('+')[0].split('-');
+    return { nums: core.split('.').map((x) => parseInt(x, 10) || 0), pre: pre.length ? pre.join('-').split('.') : [] };
+  };
+  const pa = split(a), pb = split(b);
+  for (let i = 0; i < Math.max(3, pa.nums.length, pb.nums.length); i++) {
+    const x = pa.nums[i] || 0, y = pb.nums[i] || 0;
+    if (x !== y) return x > y;
+  }
+  if (!pa.pre.length || !pb.pre.length) return !pa.pre.length && pb.pre.length > 0;
+  for (let i = 0; i < Math.max(pa.pre.length, pb.pre.length); i++) {
+    const x = pa.pre[i], y = pb.pre[i];
+    if (x === undefined) return false;
+    if (y === undefined) return true;
+    if (x === y) continue;
+    const nx = /^\d+$/.test(x), ny = /^\d+$/.test(y);
+    if (nx && ny) return Number(x) > Number(y);
+    if (nx !== ny) return ny;
+    return x > y;
+  }
   return false;
 };
 

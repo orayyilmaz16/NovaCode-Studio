@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
+import React, { lazy, useState, useEffect, useRef, useMemo, useSyncExternalStore } from 'react';
 import {
   Files,
   Bug,
@@ -14,13 +14,12 @@ import {
   PanelLeft,
   PanelBottom,
   UserRound,
-  XCircle,
-  TriangleAlert,
   RefreshCcw
 } from 'lucide-react';
 import { FileTree, normGitPath } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
 const Terminal = lazy(() => import('./components/Terminal').then((m) => ({ default: m.Terminal })));
+const KeybindingsEditor = lazy(() => import('./components/KeybindingsEditor').then((m) => ({ default: m.KeybindingsEditor })));
 const Preview = lazy(() => import('./components/Preview').then((m) => ({ default: m.Preview })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then((m) => ({ default: m.AIAssistant })));
 const LandingPage = lazy(() => import('./components/LandingPage').then((m) => ({ default: m.LandingPage })));
@@ -29,38 +28,77 @@ const GitPanel = lazy(() => import('./components/GitPanel').then((m) => ({ defau
 const GithubAccount = lazy(() => import('./components/GithubAccount').then((m) => ({ default: m.GithubAccount })));
 import { Logo } from './components/Logo';
 const SettingsPage = lazy(() => import('./components/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const TrustDialog = lazy(() => import('./components/TrustDialog').then((m) => ({ default: m.TrustDialog })));
+const TrustBadge = lazy(() => import('./components/TrustDialog').then((m) => ({ default: m.TrustBadge })));
+import { trustOnOpen, useTrust } from './services/trustService';
 import { useSettings } from './services/SettingsContext';
 import { useCollabToken } from './services/useCollabToken';
+import { getCollabRoomId } from './services/collabRoom';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
 const CompletionMenu = lazy(() => import('./components/CompletionMenu').then((m) => ({ default: m.CompletionMenu })));
 const BranchPicker = lazy(() => import('./components/BranchPicker').then((m) => ({ default: m.BranchPicker })));
+const TaskPicker = lazy(() => import('./components/TaskPicker').then((m) => ({ default: m.TaskPicker })));
 const DebugPanel = lazy(() => import('./components/DebugPanel').then((m) => ({ default: m.DebugPanel })));
+const TimelinePanel = lazy(() => import('./components/TimelinePanel').then((m) => ({ default: m.TimelinePanel })));
+const SnippetsEditor = lazy(() => import('./components/SnippetsEditor').then((m) => ({ default: m.SnippetsEditor })));
 const ExtensionsPanel = lazy(() => import('./components/ExtensionsPanel').then((m) => ({ default: m.ExtensionsPanel })));
 import type { PaletteCommand } from './components/CommandPalette';
 const CommandPalette = lazy(() => import('./components/CommandPalette').then((m) => ({ default: m.CommandPalette })));
-import { goToLine, runEditorAction, formatActiveDocument, copySelection, pasteClipboard } from './services/editorBridge';
+import { goToLine, runEditorAction, formatActiveDocument, copySelection, pasteClipboard, flushEditorChanges } from './services/editorBridge';
 import { MenuBar, type MenuGroup } from './components/MenuBar';
 import { WindowControls } from './components/WindowControls';
 import './i18n/uiTextDev'; // hata ayıklama/dil sunucusu/terminal metinleri (menü ve komutlarda gerekir)
-import { useLsp } from './services/lspStore';
-import { getDebugState, initDebug, isDebuggable, resumeDebug, setLocationHandler, startDebug, stepInto, stepOut, stepOver, stopDebug, useDebug } from './services/debugStore';
+import { getDebugState, initDebug, isDebuggable, resumeDebug, setLocationHandler, startDebug, stepInto, stepOut, stepOver, stopDebug, subscribeDebug } from './services/debugStore';
 import { UpdateDialog, UpdateIndicator } from './components/UpdateDialog';
 import { checkForUpdates } from './services/updateService';
 import { BUILTIN_THEMES, autoUpdateExtensions, listExtThemes, useExtensions } from './services/extensionsService';
-import { sendTerminal, runCommandFor } from './services/terminalBridge';
+import { sendTerminal, sendTerminalWhenReady, runCommandFor } from './services/terminalBridge';
 import { baseName, languageFromName, languageLabel } from './services/lang';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
-import { t } from './i18n/uiText';
+import { splitInto, moveToGroup, removeFromGroup, selectInGroup, focusGroup, normalizeSplit, neighborIn, otherGroup, savedToSplit, activeOf, type SplitState, type GroupId, type SplitDir } from './services/splitLayout';
+import { getBindings, getOverrides, subscribeBindings, commandForEvent, comboFromEvent, shadowedEditorDefaults, remapShortcutLabel, getCommand, COMMANDS as KB_COMMANDS } from './services/keybindings';
+import { t, getUiLang } from './i18n/uiText';
 import { previewKind } from './services/previewKind';
 import type { FileItem, ConsoleLog, GitStatus } from './types';
 import type { PickerMode } from './components/BranchPicker';
-import { useProblems } from './services/problems';
-import { useCursor } from './services/cursorStore';
-import { useCompletionState } from './services/aiCompletion';
-import { CompletionIcon } from './components/CompletionIcon';
+import { normPath } from './services/problems';
 import './i18n/uiTextScm';
+import './i18n/uiTextComp'; // oturum, onay ve günlük metinleri (açılışta gerekir)
+import { LazyPanel } from './components/ErrorBoundary';
+import { UnsavedDialog, RestoreSessionDialog, type UnsavedChoice } from './components/AppDialogs';
+import { StatusProblems, StatusCursor, StatusCompletion, StatusLsp } from './components/StatusCursor';
+import { useEvent } from './services/useEvent';
+import { useFocusTrap } from './services/useFocusTrap';
+import { getRecentFolders, invalidateRecentFolders } from './services/recentFolders';
+import { reloadSnippets } from './services/userSnippets';
+import { loadSession, saveSession, clearSession, isRestorable, rememberClosed, popClosed, type Session } from './services/session';
+
+interface ReadResult { ok: boolean; text: string; error: string; reason?: 'large' | 'binary' }
+/** fs:readFile sonucunu (metin veya {success:false,error}) tek biçime çevirir. */
+async function readText(path: string): Promise<ReadResult> {
+  try {
+    const r = await window.electronAPI!.readFile(path);
+    if (typeof r === 'string') return { ok: true, text: r, error: '' };
+    if (r && r.success === false) return { ok: false, text: '', error: r.error, reason: r.error === 'file-too-large' ? 'large' : r.error === 'binary-file' ? 'binary' : undefined };
+    return { ok: false, text: '', error: 'unknown' };
+  } catch (e) {
+    return { ok: false, text: '', error: e instanceof Error ? e.message : String(e) };
+  }
+}
+const sepOf = (p: string) => (p.includes('\\') ? '\\' : '/');
+/** Yolu (ayırıcı ve büyük/küçük harf farkı gözetmeden) from → to taşır; etkilenmezse aynısını döner (B-10). */
+function remapPath(p: string, from: string, to: string): string {
+  const a = normPath(p);
+  const b = normPath(from);
+  if (a === b) return to;
+  if (a.startsWith(b + '/')) return to + p.slice(from.length).replace(/[\\/]/g, sepOf(to));
+  return p;
+}
+const setNodeContent = (items: FileItem[], id: string, content: string): FileItem[] =>
+  items.map((it) => (it.id === id ? { ...it, content, isModified: false } : it.children ? { ...it, children: setNodeContent(it.children, id, content) } : it));
+const useDebugStatus = () => useSyncExternalStore(subscribeDebug, () => getDebugState().status, () => getDebugState().status);
 
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -69,14 +107,29 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
   // Açılışta hiçbir proje/dosya otomatik açılmaz: ağaç yalnız kullanıcının açtığı klasörden gelir.
   const [files, setFiles] = useState<FileItem[]>([]);
+  const filesRef = useRef(files);
+  filesRef.current = files;
   const untitledCounter = useRef(0);
   const [openFiles, setOpenFiles] = useState<FileItem[]>([]);
   const openFilesRef = useRef<FileItem[]>([]);
-  const handleSaveFileRef = useRef<(f: FileItem, manual?: boolean) => Promise<void>>(async () => {});
+  const handleSaveFileRef = useRef<(f: FileItem, manual?: boolean) => Promise<boolean>>(async () => true);
   const refreshGitStatusRef = useRef<() => Promise<void>>(async () => {});
   openFilesRef.current = openFiles;
+  // İçerik editörün modelinde yaşar; burada yalnız kaydedilmemiş son metinler tutulur (P-01/P-07). liveTick: değişiklik toplu geldiğinde artar.
+  const liveContent = useRef(new Map<string, string>());
+  const [liveTick, setLiveTick] = useState(0);
+  const recentSaves = useRef(new Map<string, number>());
+  const getContent = (f: { id: string; content?: string }) => liveContent.current.get(f.id) ?? f.content ?? '';
   const rootPathRef = useRef<string | null>(null);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
+
+  // Bölünmüş editör (F-03): en çok iki grup; activeFileId her zaman ODAKTAKİ grubun etkin dosyasıdır (kaydet/çalıştır/önizleme değişmeden çalışır).
+  const [splitRaw, setSplitRaw] = useState<SplitState | null>(null);
+  const [splitRatio, setSplitRatio] = useState(() => clamp(loadStoredNumber('nova.split.ratio', 0.5), 0.2, 0.8));
+  const closeNextHint = useRef<string | null>(null);
+  const [showKeybindings, setShowKeybindings] = useState(false);
+  useSyncExternalStore(subscribeBindings, getOverrides, getOverrides); // kısayol değişince yeniden çiz (menü/palet etiketleri)
+  const kbBindings = getBindings();
 
   // Yerel Proje ve Git Durumu
   const [currentRootPath, setCurrentRootPath] = useState<string | null>(null);
@@ -84,12 +137,14 @@ export function App() {
   const [currentRootName, setCurrentRootName] = useState<string>('NovaCode-Studio');
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
   const [picker, setPicker] = useState<PickerMode | null>(null);
+  const [devDlg, setDevDlg] = useState<null | 'timeline' | 'snippets'>(null); // zaman çizelgesi (F-07) / snippet düzenleyici (F-06)
+  const [taskPicker, setTaskPicker] = useState(false);
+  // Görev/bul-değiştir/çoklu imleç metinleri gecikmeli sözlükte (paket bütçesi): boşta yüklenir, menüler yenilenir
+  const [extraTexts, setExtraTexts] = useState(false);
+  useEffect(() => { void import('./i18n/uiTextAi').then(() => setExtraTexts(true)); }, []);
   const [gitNotice, setGitNotice] = useState<{ id: number; ok: boolean; text: string } | null>(null);
   const [noticeShown, setNoticeShown] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const problems = useProblems();
-  const cursor = useCursor();
-  const compState = useCompletionState();
   const [compMenu, setCompMenu] = useState<{ x: number; y: number } | null>(null);
 
   // Paneller
@@ -108,9 +163,16 @@ export function App() {
   // Pencere genişliği: dar ekranda paneller editörü ezmesin (sağ paneller üstüne biner, kenar çubuğu daralır)
   const [vw, setVw] = useState(() => window.innerWidth);
   useEffect(() => {
-    const on = () => setVw(window.innerWidth);
+    let raf = 0;
+    const on = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setVw((cur) => (cur === window.innerWidth ? cur : window.innerWidth));
+      });
+    };
     window.addEventListener('resize', on);
-    return () => window.removeEventListener('resize', on);
+    return () => { window.removeEventListener('resize', on); if (raf) cancelAnimationFrame(raf); };
   }, []);
   const compactRight = vw < 1100;
   const compactMenu = vw < 1280; // dar pencerede menü başlıkları tek "Menü" düğmesine toplanır
@@ -135,47 +197,141 @@ export function App() {
   const collabEnabled = settings.collabEnabled === true;
   const collabUrl = String(settings.collabUrl);
 
-  // Son açılan klasörler (yalnız yerelde, ana süreçte tutulur)
+  // Son açılan klasörler (yalnız yerelde, ana süreçte tutulur): tek paylaşılan çağrı (P-21)
   const [recentFolders, setRecentFolders] = useState<{ path: string; name: string }[]>([]);
-  const loadRecent = () => {
-    void window.electronAPI?.recentFolders?.().then(setRecentFolders).catch(() => setRecentFolders([]));
+  const [recentLoaded, setRecentLoaded] = useState(false);
+  const loadRecent = (force = false) => {
+    void getRecentFolders(force).then((l) => { setRecentFolders(l); setRecentLoaded(true); });
   };
-  useEffect(loadRecent, []);
+  useEffect(() => {
+    loadRecent();
+    const fallback = window.setTimeout(() => setRecentLoaded(true), 3000);
+    return () => window.clearTimeout(fallback);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const collabUrlValid = /^(wss:\/\/|ws:\/\/(localhost|127\.0\.0\.1)[:/])/.test(collabUrl.trim());
 
-  // Terminal Logları
-  const [logs, setLogs] = useState<ConsoleLog[]>([
+  // Terminal Logları (en çok 500 satır; yoğun yazımda kare başına tek güncelleme: P-12)
+  const [logs, setLogs] = useState<ConsoleLog[]>(() => [
     {
       id: '0',
       type: 'info',
-      text: `NovaCode IDE v${__APP_VERSION__} başlatıldı. Gerçek zamanlı dosya & Git motoru devrede.`,
+      text: t('appBootLog').replace('{v}', __APP_VERSION__),
       time: new Date().toLocaleTimeString()
     }
   ]);
+  const logBuf = useRef<ConsoleLog[]>([]);
+  const logRaf = useRef(0);
+  const logSeq = useRef(0);
+  const pushLog = (type: ConsoleLog['type'], text: string) => {
+    logBuf.current.push({ id: `${Date.now()}-${++logSeq.current}`, type, text, time: new Date().toLocaleTimeString() });
+    if (logRaf.current) return;
+    logRaf.current = requestAnimationFrame(() => {
+      logRaf.current = 0;
+      const batch = logBuf.current;
+      logBuf.current = [];
+      setLogs((prev) => [...prev, ...batch].slice(-500));
+    });
+  };
 
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const { auth } = useGithubAuth();
 
-  // Iframe console dinleyicisi
+  // Iframe console dinleyicisi: yalnız sayfadaki bir iframe'den gelen iletiler kabul edilir (S-28)
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'CONSOLE_LOG') {
-        setLogs((prev) => [
-          ...prev,
-          {
-            id: Date.now().toString() + Math.random(),
-            type: event.data.level || 'log',
-            text: event.data.message,
-            time: new Date().toLocaleTimeString()
-          }
-        ]);
-      }
+      if (event.data?.type !== 'CONSOLE_LOG') return;
+      if (!event.source || event.source === window) return;
+      const fromFrame = Array.from(document.querySelectorAll('iframe')).some((f) => f.contentWindow === event.source);
+      if (!fromFrame) return;
+      const level = ['log', 'info', 'warn', 'error'].includes(event.data.level) ? event.data.level : 'log';
+      pushLog(level, String(event.data.message ?? '').slice(0, 2000));
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Gerçek Zamanlı Disk Değişikliği Dinleyicisi (File Watcher)
+  // Ağaç yenilemesi birleştirilir (B-11): bir okuma sürerken gelen olaylar tek bir ek okumaya indirilir, eski sonuç yeniyi ezmez.
+  const watchBusy = useRef(false);
+  const watchQueued = useRef(false);
+  const treeSeq = useRef(0);
+  const loadTree = async (root: string) => {
+    const api = window.electronAPI;
+    if (!api) return;
+    const n = ++treeSeq.current;
+    const tree = await api.readDirectory(root);
+    if (n === treeSeq.current && root === rootPathRef.current) setFiles(tree);
+  };
+  // P-04: izleyici değişen yolları verir; yalnız o klasörler yeniden okunup ağaca yamanır (az sayıdaysa), aksi halde tam okuma.
+  const watchDirs = useRef<Set<string> | null>(null); // null = tam yenileme gerekli
+  const dirOf = (p: string) => p.replace(/[\\/][^\\/]*$/, '');
+  const patchDirs = async (root: string, dirs: Set<string>): Promise<boolean> => {
+    const api = window.electronAPI;
+    if (!api) return true;
+    const rootN = normPath(root);
+    const known = new Set<string>();
+    const collect = (items: FileItem[]) => { for (const it of items) if (it.type === 'folder') { known.add(normPath(it.path ?? it.id)); if (it.children) collect(it.children); } };
+    collect(filesRef.current);
+    // Ağaçta olmayan klasör: bilinen en yakın üst klasöre çıkılır; kök çıkarsa tam okuma
+    const targets = new Map<string, string>();
+    for (const d of dirs) {
+      let cur = d;
+      while (normPath(cur) !== rootN && !known.has(normPath(cur))) {
+        const up = dirOf(cur);
+        if (!up || up === cur) return false;
+        cur = up;
+      }
+      if (normPath(cur) === rootN) return false;
+      targets.set(normPath(cur), cur);
+    }
+    // Başka bir hedefin altındaki hedefler gereksizdir
+    const keys = [...targets.keys()];
+    const list = keys.filter((k) => !keys.some((o) => o !== k && k.startsWith(o + '/'))).map((k) => targets.get(k) as string);
+    if (list.length === 0 || list.length > 6) return false;
+    const read = await Promise.all(list.map((d) => api.readDirectory(d)));
+    if (root !== rootPathRef.current) return true;
+    const byDir = new Map(list.map((d, i) => [normPath(d), read[i]]));
+    const mergeOpen = (fresh: FileItem[], old: FileItem[] = []): FileItem[] => {
+      const prev = new Map(old.map((o) => [o.id, o]));
+      return fresh.map((f) => {
+        if (f.type !== 'folder') return f;
+        const o = prev.get(f.id);
+        return { ...f, isOpen: o?.isOpen ?? false, children: mergeOpen(f.children ?? [], o?.children) };
+      });
+    };
+    const apply = (items: FileItem[]): FileItem[] =>
+      items.map((it) => {
+        if (it.type !== 'folder') return it;
+        const hit = byDir.get(normPath(it.path ?? it.id));
+        if (hit) return { ...it, children: mergeOpen(hit, it.children) };
+        return it.children ? { ...it, children: apply(it.children) } : it;
+      });
+    treeSeq.current++; // uçuştaki eski tam okuma bu yamayı ezmesin
+    setFiles((prev) => apply(prev));
+    return true;
+  };
+  const scheduleTreeReload = async (root: string, changed?: string[]) => {
+    if (!changed || changed.length === 0 || changed.length >= 200) watchDirs.current = null;
+    else {
+      watchDirs.current ??= new Set();
+      for (const p of changed) watchDirs.current.add(dirOf(p));
+      if (watchDirs.current.size > 6) watchDirs.current = null;
+    }
+    if (watchBusy.current) { watchQueued.current = true; return; }
+    watchBusy.current = true;
+    try {
+      do {
+        watchQueued.current = false;
+        const dirs = watchDirs.current;
+        watchDirs.current = new Set();
+        if (!dirs || dirs.size === 0 || !(await patchDirs(root, dirs))) await loadTree(root);
+      } while (watchQueued.current && root === rootPathRef.current);
+    } finally {
+      watchBusy.current = false;
+    }
+  };
   useEffect(() => {
     const api = window.electronAPI;
     if (!api?.onFileChanged) return;
@@ -183,31 +339,53 @@ export function App() {
       try {
         // Yalnız şu an açık olan klasörün değişiklikleri işlenir (yeniden başlatmada eski izleyici ağacı sızdırmasın).
         if (rootPath && rootPath === rootPathRef.current) {
-          const updatedTree = await api.readDirectory(rootPath);
-          setFiles(updatedTree);
+          void scheduleTreeReload(rootPath, changed);
           refreshGitStatus(rootPath);
         }
-        // Açık, kaydedilmemiş değişikliği olmayan sekmeleri diskten canlı yenile.
-        const changedSet = new Set(changed ?? []);
-        const targets = openFilesRef.current.filter(
-          (f) => f.path && !f.isModified && changedSet.has(f.path)
-        );
+        // Açık sekmeler (B-05): değişmemiş sekme diskten yenilenir; kaydedilmemiş düzenlemesi olan sekmede uyarı gösterilir;
+        // diskten silinen/taşınan dosyanın sekmesi "diskte yok" olarak işaretlenir (içerik korunur).
+        const changedSet = new Set((changed ?? []).map((p) => normPath(p)));
+        const targets = openFilesRef.current.filter((f) => f.path && changedSet.has(normPath(f.path)));
         for (const f of targets) {
-          try {
-            const fresh = await api.readFile(f.path as string);
-            setOpenFiles((prev) =>
-              prev.map((o) => (o.id === f.id && !o.isModified && o.content !== fresh ? { ...o, content: fresh } : o))
-            );
-          } catch {
-            /* dosya silinmiş veya okunamıyor olabilir */
+          const r = await readText(f.path as string);
+          if (!r.ok) {
+            if (!r.reason && /ENOENT|no such file/i.test(r.error)) {
+              setOpenFiles((prev) => prev.map((o) => (o.id === f.id && !o.missing ? { ...o, missing: true } : o)));
+            }
+            continue;
           }
+          const text = r.text;
+          const savedAt = recentSaves.current.get(f.id);
+          const own = savedAt !== undefined && Date.now() - savedAt < 1500; // kendi kaydımızın yankısı
+          setOpenFiles((prev) =>
+            prev.map((o) => {
+              if (o.id !== f.id) return o;
+              if (!o.isModified) {
+                return o.content === text && !o.missing && !o.externalChange ? o : { ...o, content: text, missing: false, externalChange: false };
+              }
+              if (text === o.content || own) return o.missing ? { ...o, missing: false } : o;
+              return o.externalChange && !o.missing ? o : { ...o, externalChange: true, missing: false };
+            })
+          );
         }
       } catch (err) {
-        addLog('error', `Dosya ağacı yenilenemedi: ${filename || ''} ${String(err)}`);
+        addLog('error', t('appTreeRefreshFail').replace('{e}', `${filename || ''} ${String(err)}`.trim()));
       }
     });
     return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Yerel geçmiş ayarı ana sürece iletilir (F-07); kapatılınca tüm yerel geçmiş silinir (KVKK: kullanıcı kontrolü)
+  useEffect(() => {
+    const h = window.electronAPI?.history;
+    if (!h) return;
+    const enabled = settings.localHistory !== false;
+    void h.config({ enabled, maxVersions: Number(settings.localHistoryMax) || 30 });
+    if (!enabled) void h.clear('all');
+  }, [settings.localHistory, settings.localHistoryMax]);
+  // Kullanıcı snippet'leri: açılışta ve çalışma klasörü değişince yeniden okunur (F-06)
+  useEffect(() => { void reloadSnippets(); }, [currentRootPath]);
 
   // GitHub bağlanınca/çıkınca Git durumu hemen yenilenir (bağlı değilken Git verisi kilitlidir).
   useEffect(() => {
@@ -272,19 +450,110 @@ export function App() {
 
   // Kısayol tuşları. Dinleyici tek sefer kurulur; her render'da güncel işleyiciye yönlenir.
   // Hata ayıklama: durum deposu, kesme noktaları çalışma klasörüne göre yüklenir; durunca dosya ve satır açılır
-  const dbg = useDebug();
-  const prevDbgStatus = useRef(dbg.status);
+  const dbgStatus = useDebugStatus();
+  const prevDbgStatus = useRef(dbgStatus);
   useEffect(() => { initDebug(currentRootPath); }, [currentRootPath]);
   useEffect(() => {
-    if (dbg.status === 'paused' && prevDbgStatus.current !== 'paused') { setActiveSidebarTab('debug'); setSidebarVisible(true); }
-    prevDbgStatus.current = dbg.status;
-  }, [dbg.status]);
+    if (dbgStatus === 'paused' && prevDbgStatus.current !== 'paused') { setActiveSidebarTab('debug'); setSidebarVisible(true); }
+    prevDbgStatus.current = dbgStatus;
+  }, [dbgStatus]);
+
+  // ---- Bölünmüş editör: türetilmiş durum ve işlemler ----
+  const poolIds = useMemo(() => openFiles.map((f) => f.id), [openFiles]);
+  const split = useMemo(() => normalizeSplit(splitRaw, poolIds, activeFileId), [splitRaw, poolIds, activeFileId]);
+  useEffect(() => { if (split !== splitRaw) setSplitRaw(split); }, [split, splitRaw]);
+  const splitRef = useRef(split);
+  splitRef.current = split;
+  const groupFiles = useMemo(() => {
+    if (!split) return null;
+    const by = new Map(openFiles.map((f) => [f.id, f]));
+    const pick = (ids: string[]) => ids.map((id) => by.get(id)).filter((f): f is FileItem => !!f);
+    return { a: pick(split.a), b: pick(split.b) };
+  }, [split, openFiles]);
+  useEffect(() => {
+    const id = window.setTimeout(() => saveStoredNumber('nova.split.ratio', splitRatio), 300);
+    return () => window.clearTimeout(id);
+  }, [splitRatio]);
+
+  const doSplit = (dir: SplitDir) => {
+    const next = splitInto(splitRef.current, openFilesRef.current.map((f) => f.id), activeFileId, dir);
+    if (!next || next === splitRef.current) return;
+    setSplitRaw(next);
+    setActiveFileId(activeOf(next, next.focus));
+  };
+  const closeSplitView = () => setSplitRaw(null);
+  const focusGroupId = (g: GroupId) => {
+    const s0 = splitRef.current;
+    if (!s0 || s0.focus === g) return;
+    setSplitRaw(focusGroup(s0, g));
+    const id = activeOf(s0, g);
+    if (id) setActiveFileId(id);
+  };
+  const focusOtherGroup = () => { const s0 = splitRef.current; if (s0) focusGroupId(otherGroup(s0.focus)); };
+  /** Sekmeyi bir gruptan kapatır: dosya öteki grupta da açıksa yalnız bu gruptan çıkar, değilse normal kapatma (kirli onayı dahil). */
+  const closeInGroup = (id: string, g: GroupId) => {
+    const s0 = splitRef.current;
+    if (!s0) { void handleCloseTab(id); return; }
+    const here = g === 'a' ? s0.a : s0.b;
+    const there = g === 'a' ? s0.b : s0.a;
+    if (there.includes(id)) {
+      const next = removeFromGroup(s0, id, g);
+      setSplitRaw(next);
+      if (s0.focus === g && activeFileId === id) { const n = activeOf(next, g); if (n) setActiveFileId(n); }
+      return;
+    }
+    closeNextHint.current = neighborIn(here, id);
+    void handleCloseTab(id).finally(() => { closeNextHint.current = null; });
+  };
+  const selectInGroupTab = (id: string, g: GroupId) => {
+    const s0 = splitRef.current;
+    if (s0) setSplitRaw(selectInGroup(s0, g, id));
+    setActiveFileId(id);
+  };
+  const dropTab = (id: string, from: GroupId, to: GroupId | 'new-right' | 'new-down') => {
+    const s0 = splitRef.current;
+    const pool = openFilesRef.current.map((f) => f.id);
+    if (!pool.includes(id)) return;
+    if (to === 'new-right' || to === 'new-down') {
+      if (s0) return;
+      const base = splitInto(null, pool, id, to === 'new-right' ? 'row' : 'col');
+      if (!base) return;
+      setSplitRaw(pool.length > 1 ? removeFromGroup(base, id, 'a') : base);
+      setActiveFileId(id);
+      return;
+    }
+    if (!s0) return;
+    setSplitRaw(moveToGroup(s0, id, from, to));
+    setActiveFileId(id);
+  };
 
   const shortcutHandler = useRef<(e: KeyboardEvent) => void>(() => {});
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => shortcutHandler.current(e);
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    // Editör komutlarına atanan özel kısayollar (F-04): Monaco tuşu yakalamadan önce, yakalama aşamasında en dar yolla çalıştırılır.
+    // Kullanıcının değiştirdiği/kaldırdığı komutun eski Monaco tuşu yutulur (varsa o tuşu tutan uygulama komutu çalışır).
+    const onKeyCapture = (e: KeyboardEvent) => {
+      if (document.body.dataset.kbCapture) return;
+      const combo = comboFromEvent(e);
+      if (!combo) return;
+      const inEditor = !!(e.target as HTMLElement | null)?.closest?.('.monaco-editor');
+      if (!inEditor) return;
+      const b = getBindings();
+      const id = commandForEvent(e, b, 'editor');
+      if (id) {
+        const c = getCommand(id);
+        if (c?.monaco && c.def !== combo) { e.preventDefault(); e.stopPropagation(); runEditorAction(c.monaco); }
+        return;
+      }
+      if (shadowedEditorDefaults(b).has(combo)) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (commandForEvent(e, b, 'app')) shortcutHandler.current(e);
+      }
+    };
+    window.addEventListener('keydown', onKeyCapture, true);
+    return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keydown', onKeyCapture, true); };
   }, []);
 
   shortcutHandler.current = (e: KeyboardEvent) => {
@@ -296,47 +565,48 @@ export function App() {
     if (e.key === 'F10' && dbgStatus === 'paused') { e.preventDefault(); void stepOver(); return; }
     if (e.key === 'F11' && dbgStatus === 'paused') { e.preventDefault(); void (e.shiftKey ? stepOut() : stepInto()); return; }
     if (e.key === 'F5') { e.preventDefault(); handleRunCode(); return; }
-    const mod = e.ctrlKey || e.metaKey;
-    if (!mod) return;
-    const key = e.key.toLowerCase();
+    if (document.body.dataset.kbCapture) return; // kısayol düzenleyicisi tuş yakalıyor
 
+    // Komut -> kısayol eşlemesi services/keybindings.ts'te (varsayılanlar + kullanıcı geçersiz kılmaları, F-04)
+    const cmd = commandForEvent(e, getBindings(), 'app');
+    if (!cmd) return;
+    const go = (fn: () => void) => { e.preventDefault(); fn(); };
     // Komut paleti ve arama (VS Code ile aynı): Ctrl+P dosya, Ctrl+Shift+P komut, Ctrl+G satır, Ctrl+Shift+F proje araması
-    if (key === 'p') { e.preventDefault(); setPalette(e.shiftKey ? '>' : ''); return; }
-    if (key === 'g' && !e.shiftKey) { e.preventDefault(); setPalette(':'); return; }
-    if (key === 'f' && e.shiftKey) { e.preventDefault(); if (currentRootPath) pickSidebarForce('search'); return; }
-    if (key === 'x' && e.shiftKey) { e.preventDefault(); pickSidebarForce('extensions'); return; }
-    if (key === 'l' && e.shiftKey) { e.preventDefault(); toggleAI(); return; }
-    if (key === 'm' && e.shiftKey) { e.preventDefault(); openProblems(); return; }
-
-    if (key === 'q') { e.preventDefault(); handleQuit(); return; }
-    if (key === 'b') { e.preventDefault(); setSidebarVisible((v) => !v); return; }
-    if (key === ',') { e.preventDefault(); setShowLanding(false); setShowSettings((v) => !v); return; }
-    if (e.key === '`') { e.preventDefault(); if (currentRootPath) setShowBottomTerminal((v) => !v); return; }
-    if (key === 's') {
-      e.preventDefault();
-      const activeFile = openFiles.find((f) => f.id === activeFileId);
-      if (activeFile) handleSaveFile(activeFile);
-      return;
+    switch (cmd) {
+      case 'commandPalette': return go(() => setPalette('>'));
+      case 'quickOpen': return go(() => setPalette(''));
+      case 'goLine': return go(() => setPalette(':'));
+      case 'findInFiles': return go(() => { if (currentRootPath) pickSidebarForce('search'); });
+      case 'extensions': return go(() => pickSidebarForce('extensions'));
+      case 'ai': return go(toggleAI);
+      case 'problems': return go(openProblems);
+      case 'quit': return go(handleQuit);
+      case 'sidebar': return go(() => setSidebarVisible((v) => !v));
+      case 'settings': return go(() => { setShowLanding(false); setShowSettings((v) => !v); });
+      case 'terminal': return go(() => { if (currentRootPath) setShowBottomTerminal((v) => !v); });
+      case 'save': return go(() => {
+        const activeFile = openFiles.find((f) => f.id === activeFileId);
+        if (activeFile) handleSaveFile(activeFile);
+      });
+      case 'run': return go(handleRunCode);
+      case 'keybindings': return go(() => setShowKeybindings(true));
     }
 
     // Terminalde yazarken Ctrl+N/O/W/Tab gibi tuşlar kabuğa aittir.
     if ((e.target as HTMLElement | null)?.closest?.('[data-terminal]')) return;
 
-    if (key === 'o') {
-      e.preventDefault();
-      if (e.shiftKey) handleOpenFileDialog();
-      else handleOpenFolderDialog();
-    } else if (key === 'n') {
-      e.preventDefault();
-      handleNewUntitled();
-    } else if (key === 'w') {
-      if (activeFileId) { e.preventDefault(); handleCloseTab(activeFileId); }
-    } else if (e.key === 'Tab' && openFiles.length > 1) {
-      e.preventDefault();
-      const idx = openFiles.findIndex((f) => f.id === activeFileId);
-      const step = e.shiftKey ? -1 : 1;
-      const next = openFiles[(idx + step + openFiles.length) % openFiles.length];
-      setActiveFileId(next.id);
+    switch (cmd) {
+      case 'openFolder': return go(handleOpenFolderDialog);
+      case 'openFiles': return go(handleOpenFileDialog);
+      case 'newFile': return go(handleNewUntitled);
+      case 'reopenTab': return go(() => void reopenClosedTab());
+      case 'closeTab': if (activeFileId) go(() => closeInGroup(activeFileId, splitRef.current?.focus ?? 'a')); return;
+      case 'nextTab': if (openFiles.length > 1) go(() => cycleTab(1)); return;
+      case 'prevTab': if (openFiles.length > 1) go(() => cycleTab(-1)); return;
+      case 'splitRight': return go(() => doSplit('row'));
+      case 'splitDown': return go(() => doSplit('col'));
+      case 'focusOtherGroup': return go(focusOtherGroup);
+      case 'closeSplit': return go(closeSplitView);
     }
   };
 
@@ -375,36 +645,43 @@ export function App() {
   };
 
   const handleQuit = () => {
-    if (window.electronAPI?.quitApp) {
-      window.electronAPI.quitApp();
-    } else {
-      window.close();
-    }
+    const api = window.electronAPI;
+    // Pencere kapatma yolu kaydedilmemiş değişiklik onayından geçer (B-02)
+    if (api?.onCloseRequest && api.windowControls?.close) void api.windowControls.close();
+    else if (api?.quitApp) void api.quitApp();
+    else window.close();
   };
 
-  const addLog = (type: 'info' | 'log' | 'warn' | 'error', text: string) => {
-    setLogs((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString() + Math.random(),
-        type,
-        text,
-        time: new Date().toLocaleTimeString()
-      }
-    ]);
-  };
+  const addLog = (type: 'info' | 'log' | 'warn' | 'error', text: string) => pushLog(type, text);
+
+  // ----------------------------------------------------
+  // Kaydedilmemiş değişiklik onayı (B-01/B-02)
+  // ----------------------------------------------------
+  const [unsavedAsk, setUnsavedAsk] = useState<{ files: FileItem[]; resolve: (c: UnsavedChoice) => void } | null>(null);
+  const askUnsaved = (list: FileItem[]) =>
+    new Promise<UnsavedChoice>((resolve) => {
+      setUnsavedAsk((prev) => {
+        prev?.resolve('cancel');
+        return { files: list, resolve };
+      });
+    });
 
   // ----------------------------------------------------
   // Gerçek Klasör ve Dosya Seçimi
   // ----------------------------------------------------
-  const applyWorkspace = (result: { rootPath: string; rootName: string; tree: FileItem[] }) => {
+  const trustState = useTrust();
+  const applyWorkspace = (result: { rootPath: string; rootName: string; trusted?: boolean; tree: FileItem[] }) => {
+    trustOnOpen(result.rootPath, result.trusted); // güvenilmeyen klasör: güven penceresi + kısıtlı mod rozeti
     // Başka bir klasöre geçilirken eski projenin kaydedilmiş sekmeleri kapanır (kaydedilmemişler korunur).
     if (rootPathRef.current && rootPathRef.current !== result.rootPath) {
       const kept = openFilesRef.current.filter((f) => f.isModified || !f.path);
+      const keptIds = new Set(kept.map((f) => f.id));
+      for (const k of [...liveContent.current.keys()]) if (!keptIds.has(k)) liveContent.current.delete(k);
       setOpenFiles(kept);
       setActiveFileId((cur) => (kept.some((f) => f.id === cur) ? cur : kept[0]?.id ?? null));
     }
     rootPathRef.current = result.rootPath;
+    treeSeq.current++;
     setCurrentRootPath(result.rootPath);
     setCurrentRootName(result.rootName);
     setFiles(result.tree);
@@ -412,9 +689,10 @@ export function App() {
     setShowSettings(false);
     setActiveSidebarTab('files');
     setSidebarVisible(true);
-    addLog('info', `Çalışma alanı açıldı: ${result.rootPath}`);
+    addLog('info', t('appWorkspaceOpened').replace('{p}', result.rootPath));
     refreshGitStatus(result.rootPath);
-    loadRecent();
+    invalidateRecentFolders();
+    loadRecent(true);
   };
 
   const handleOpenFolderDialog = async () => {
@@ -423,12 +701,12 @@ export function App() {
       try {
         const result = await window.electronAPI.openFolderDialog();
         if (result && 'error' in result) {
-          addLog('error', `Klasör açılamadı: ${result.error}`);
+          addLog('error', t('appFolderOpenFail').replace('{e}', result.error));
           return;
         }
         if (result && 'rootPath' in result) applyWorkspace(result);
       } catch (err) {
-        addLog('error', `Klasör açılamadı: ${String(err)}`);
+        addLog('error', t('appFolderOpenFail').replace('{e}', String(err)));
       } finally {
         setIsLoadingProject(false);
       }
@@ -444,13 +722,14 @@ export function App() {
     try {
       const result = await window.electronAPI.openRecentFolder(folderPath);
       if ('error' in result) {
-        addLog('error', `Klasör açılamadı: ${result.error}`);
-        loadRecent();
+        addLog('error', t('appFolderOpenFail').replace('{e}', result.error));
+        invalidateRecentFolders();
+        loadRecent(true);
         return;
       }
       applyWorkspace(result);
     } catch (err) {
-      addLog('error', `Klasör açılamadı: ${String(err)}`);
+      addLog('error', t('appFolderOpenFail').replace('{e}', String(err)));
     } finally {
       setIsLoadingProject(false);
     }
@@ -463,33 +742,25 @@ export function App() {
     input.onchange = async (e: any) => {
       const fileList = e.target.files as FileList;
       if (!fileList || fileList.length === 0) return;
-      
+
       const newItems: FileItem[] = [];
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
         const content = await file.text();
-        const ext = file.name.split('.').pop()?.toLowerCase();
-        let language = 'plaintext';
-        if (['js', 'jsx'].includes(ext || '')) language = 'javascript';
-        else if (['ts', 'tsx'].includes(ext || '')) language = 'typescript';
-        else if (['html'].includes(ext || '')) language = 'html';
-        else if (['css'].includes(ext || '')) language = 'css';
-        else if (['json'].includes(ext || '')) language = 'json';
-
         newItems.push({
           id: file.name + '-' + Date.now(),
           name: file.name,
           type: 'file',
           content,
-          language
+          language: languageFromName(file.name)
         });
       }
       setFiles((prev) => [...newItems, ...prev]);
       setOpenFiles((prev) => [...newItems, ...prev]);
       setActiveFileId(newItems[0].id);
       setShowLanding(false);
-    setShowSettings(false);
-      addLog('info', `${newItems.length} dosya çalışma alanına yüklendi.`);
+      setShowSettings(false);
+      addLog('info', t('appFilesLoaded').replace('{n}', String(newItems.length)));
     };
     input.click();
   };
@@ -504,8 +775,8 @@ export function App() {
         });
         setActiveFileId(opened[0].id);
         setShowLanding(false);
-    setShowSettings(false);
-        addLog('info', `${opened.length} dosya editörde açıldı.`);
+        setShowSettings(false);
+        addLog('info', t('appFilesOpened').replace('{n}', String(opened.length)));
       }
     } else {
       handleOpenFilesViaInput();
@@ -519,7 +790,8 @@ export function App() {
     const target = repoPath || currentRootPath;
     if (window.electronAPI?.getGitStatus && target) {
       const status = await window.electronAPI.getGitStatus(target);
-      setGitStatus(status);
+      // İçerik aynıysa durumu bırak: gitDecor/ağaç boşuna yeniden hesaplanmaz (P-17)
+      setGitStatus((prev) => (JSON.stringify(prev) === JSON.stringify(status) ? prev : status));
     }
   };
 
@@ -528,111 +800,161 @@ export function App() {
   // ----------------------------------------------------
   // Dosya Seçim & Okuma & Kaydetme
   // ----------------------------------------------------
+  const logReadFail = (r: ReadResult, name: string) => {
+    if (r.reason === 'large') addLog('warn', t('appFileTooLarge').replace('{n}', name));
+    else if (r.reason === 'binary') addLog('warn', t('appFileBinary').replace('{n}', name));
+    else addLog('error', t('appReadFail').replace('{e}', r.error));
+  };
+
   const handleSelectFile = async (file: FileItem) => {
     if (file.type === 'folder') return;
-
+    // Zaten açıksa yalnız etkinleştir: kaydedilmemiş düzenlemenin üzerine yazılmaz
+    if (openFilesRef.current.some((f) => f.id === file.id)) {
+      setActiveFileId(file.id);
+      return;
+    }
     let targetFile = file;
-    // Eğer disktdeki bir dosyaysa ve içeriği henüz okunmadıysa doğrudan diskten oku
+    // Disktedki bir dosyaysa ve içeriği henüz okunmadıysa doğrudan diskten oku
     if (file.path && file.content === undefined && window.electronAPI?.readFile) {
-      try {
-        const loadedContent = await window.electronAPI.readFile(file.path);
-        targetFile = { ...file, content: loadedContent };
-      } catch (err: any) {
-        addLog('error', `Dosya okunamadı: ${err.message}`);
+      const r = await readText(file.path);
+      if (!r.ok) {
+        logReadFail(r, file.name);
         return;
       }
+      targetFile = { ...file, content: r.text };
     }
-
-    if (!openFiles.some((f) => f.id === targetFile.id)) {
-      setOpenFiles((prev) => [...prev, targetFile]);
-    } else {
-      setOpenFiles((prev) =>
-        prev.map((f) => (f.id === targetFile.id && targetFile.content !== undefined ? { ...f, content: targetFile.content } : f))
-      );
-    }
+    setOpenFiles((prev) => (prev.some((f) => f.id === targetFile.id) ? prev : [...prev, targetFile]));
     setActiveFileId(targetFile.id);
   };
 
-  const handleCloseTab = (id: string) => {
-    const nextOpen = openFiles.filter((f) => f.id !== id);
-    setOpenFiles(nextOpen);
-    if (activeFileId === id) {
-      setActiveFileId(nextOpen.length > 0 ? nextOpen[nextOpen.length - 1].id : null);
+  /** Sekmeleri onaysız kapatır (onay çağıranın işi). */
+  const closeTabsNow = (ids: string[], remember = true) => {
+    const idSet = new Set(ids);
+    for (const f of openFilesRef.current) {
+      if (!idSet.has(f.id)) continue;
+      if (remember) rememberClosed(f);
+      liveContent.current.delete(f.id);
     }
+    const next = openFilesRef.current.filter((f) => !idSet.has(f.id));
+    openFilesRef.current = next;
+    setOpenFiles((prev) => prev.filter((f) => !idSet.has(f.id)));
+    const hint = closeNextHint.current;
+    setActiveFileId((cur) => (cur && idSet.has(cur) ? (hint && next.some((f) => f.id === hint) ? hint : next[next.length - 1]?.id ?? null) : cur));
   };
 
-  const handleContentChange = (id: string, newContent: string) => {
-    setOpenFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, content: newContent, isModified: true } : f))
-    );
+  /** Kaydedilmemiş değişiklik varsa Kaydet/Kaydetme/İptal sorar; devam edilebilirse true döner. */
+  const confirmDirty = async (list: FileItem[]): Promise<boolean> => {
+    if (list.length === 0) return true;
+    const c = await askUnsaved(list);
+    if (c === 'cancel') return false;
+    if (c === 'save') {
+      for (const f of list) if (!(await handleSaveFile(f, false))) return false;
+    }
+    return true;
+  };
 
-    const updateRecursive = (items: FileItem[]): FileItem[] => {
-      return items.map((item) => {
-        if (item.id === id) {
-          return { ...item, content: newContent, isModified: true };
-        }
-        if (item.children) {
-          return { ...item, children: updateRecursive(item.children) };
-        }
-        return item;
-      });
-    };
-    setFiles((prev) => updateRecursive(prev));
+  const handleCloseTab = async (id: string) => {
+    flushEditorChanges();
+    const f = openFilesRef.current.find((x) => x.id === id);
+    if (!f) return;
+    if (f.isModified && !f.diff && !(await confirmDirty([f]))) return;
+    closeTabsNow([id]);
+  };
+
+  // İçerik editörde (model) yaşar; buraya 250 ms sessizlikten sonra toplu gelir ve durum yerine bir bellek haritasına yazılır (P-01).
+  const markDirty = (id: string) => {
+    const f = openFilesRef.current.find((x) => x.id === id);
+    if (!f || f.isModified || f.diff) return;
+    openFilesRef.current = openFilesRef.current.map((x) => (x.id === id ? { ...x, isModified: true } : x));
+    setOpenFiles((prev) => prev.map((x) => (x.id === id && !x.isModified ? { ...x, isModified: true } : x)));
+  };
+  const handleContentChange = (id: string, newContent: string) => {
+    if (!openFilesRef.current.some((x) => x.id === id)) return; // sekme bu arada kapandı
+    liveContent.current.set(id, newContent);
+    markDirty(id);
+    setLiveTick((n) => n + 1);
   };
 
   // manual=false: otomatik kayıt/çalıştırma öncesi kayıt; yazarken biçimlendirme yapılmaz (yalnız Ctrl+S, menü, düğme, palet)
-  const handleSaveFile = async (file: FileItem, manual = true) => {
-    if (file.diff) return; // fark sekmesi salt okunur
-    if (file.path && window.electronAPI?.writeFile) {
-      // Ayarlara göre kayıt dönüşümleri
-      let content = file.content || '';
+  const handleSaveFile = async (file: FileItem, manual = true): Promise<boolean> => {
+    if (file.diff) return true; // fark sekmesi salt okunur
+    flushEditorChanges();
+    const cur = openFilesRef.current.find((f) => f.id === file.id) ?? file;
+    let content = getContent(cur);
+    if (cur.path && window.electronAPI?.writeFile) {
       // Kayıtta biçimlendir: yalnız etkin sekme (düzenleyici o dosyayı tutar), makul boyutta dosyalar
-      if (manual && settings.formatOnSave === true && file.id === activeFileId && content.length <= 1_000_000) {
+      if (manual && settings.formatOnSave === true && cur.id === activeFileId && content.length <= 1_000_000) {
         const formatted = await formatActiveDocument();
         if (formatted !== null) content = formatted;
       }
+      const edited = content; // dönüşümlerden önceki, editördeki sürüm
+      // Ayarlara göre kayıt dönüşümleri
       if (settings.trimTrailingWhitespace === true) content = content.replace(/[ \t]+$/gm, '');
       if (settings.insertFinalNewline === true && content && !content.endsWith('\n')) content += '\n';
-      const res = await window.electronAPI.writeFile(file.path, content);
-      if (res.success) {
-        addLog('info', `Kaydedildi: ${file.name}`);
-        setOpenFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, content, isModified: false } : f))
-        );
-        refreshGitStatus();
-      } else {
-        addLog('error', `Kaydetme hatası: ${res.error}`);
+      recentSaves.current.set(cur.id, Date.now());
+      const res = await window.electronAPI.writeFile(cur.path, content);
+      recentSaves.current.set(cur.id, Date.now());
+      if (!res.success) {
+        addLog('error', t('appSaveFail').replace('{e}', res.error ?? ''));
+        return false;
       }
-    } else {
+      // Yazma sürerken kullanıcı yazdıysa yeni yazılanın üzerine dokunma (B-06): yalnız temel sürüm güncellenir
+      flushEditorChanges();
+      const now = liveContent.current.get(cur.id);
+      const typedMeanwhile = now !== undefined && now !== edited;
+      if (!typedMeanwhile) liveContent.current.delete(cur.id);
       setOpenFiles((prev) =>
-        prev.map((f) => (f.id === file.id ? { ...f, isModified: false } : f))
+        prev.map((f) => (f.id === cur.id ? { ...f, content, isModified: typedMeanwhile, missing: false, externalChange: false } : f))
       );
-      addLog('info', `Yerel belleğe kaydedildi: ${file.name}`);
+      addLog('info', t('appSaved').replace('{n}', cur.name));
+      refreshGitStatus();
+      return true;
     }
+    // Diskte olmayan dosya
+    if (findItem(files, cur.id)) {
+      setFiles((prev) => setNodeContent(prev, cur.id, content));
+      liveContent.current.delete(cur.id);
+      setOpenFiles((prev) => prev.map((f) => (f.id === cur.id ? { ...f, content, isModified: false } : f)));
+      addLog('info', t('appSavedLocal').replace('{n}', cur.name));
+      return true;
+    }
+    // Adsız dosya: farklı kaydet penceresi olmadığı için bilgisayara indirilir
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = cur.name;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 10000);
+    liveContent.current.delete(cur.id);
+    setOpenFiles((prev) => prev.map((f) => (f.id === cur.id ? { ...f, content, isModified: false } : f)));
+    addLog('info', t('appDownloaded').replace('{n}', cur.name));
+    return true;
   };
 
   handleSaveFileRef.current = handleSaveFile;
 
   // Otomatik kayıt: gecikmeyle (yazmayı bırakınca) veya pencere odağını kaybedince
+  // (diskte değişmiş/silinmiş dosyalar sessizce ezilmez)
   const autoSave = String(settings.autoSave);
   const autoSaveDelay = Number(settings.autoSaveDelay);
   useEffect(() => {
     if (autoSave !== 'afterDelay') return;
-    const dirty = openFiles.filter((f) => f.isModified && f.path);
+    const dirty = openFiles.filter((f) => f.isModified && f.path && !f.externalChange && !f.missing);
     if (dirty.length === 0) return;
     const timer = setTimeout(() => dirty.forEach((f) => void handleSaveFileRef.current(f, false)), autoSaveDelay);
     return () => clearTimeout(timer);
-  }, [openFiles, autoSave, autoSaveDelay]);
+  }, [openFiles, liveTick, autoSave, autoSaveDelay]);
   useEffect(() => {
     if (autoSave !== 'onFocusChange') return;
-    const onBlur = () => openFilesRef.current.filter((f) => f.isModified && f.path).forEach((f) => void handleSaveFileRef.current(f, false));
+    const onBlur = () => openFilesRef.current.filter((f) => f.isModified && f.path && !f.externalChange && !f.missing).forEach((f) => void handleSaveFileRef.current(f, false));
     window.addEventListener('blur', onBlur);
     return () => window.removeEventListener('blur', onBlur);
   }, [autoSave]);
 
   const refreshTree = async () => {
     if (currentRootPath && window.electronAPI) {
-      setFiles(await window.electronAPI.readDirectory(currentRootPath));
+      await loadTree(currentRootPath);
       refreshGitStatus();
     }
   };
@@ -641,16 +963,16 @@ export function App() {
     if (currentRootPath && window.electronAPI) {
       const baseDir = parentDir || currentRootPath;
       // Klasörün kendi ayırıcısını kullan (Windows'ta '\', diğerlerinde '/')
-      const sep = baseDir.includes('\\') ? '\\' : '/';
+      const sep = sepOf(baseDir);
       const relative = name.split(/[\\/]+/).filter(Boolean).join(sep);
       const targetPath = baseDir.replace(/[\\/]+$/, '') + sep + relative;
       const res = isFolder ? await window.electronAPI.createFolder(targetPath) : await window.electronAPI.createFile(targetPath);
       if (res && res.success === false) {
-        addLog('error', `Oluşturulamadı: ${res.error ?? name}`);
+        addLog('error', t('appCreateFail').replace('{e}', res.error ?? name));
         return;
       }
       await refreshTree();
-      addLog('info', `Yeni ${isFolder ? 'klasör' : 'dosya'} oluşturuldu: ${name}`);
+      addLog('info', t(isFolder ? 'appCreatedFolder' : 'appCreatedFile').replace('{n}', name));
       if (!isFolder) {
         const created = getAllFiles(await window.electronAPI.readDirectory(currentRootPath)).find((f) => f.path === targetPath);
         if (created) void handleSelectFile(created);
@@ -659,19 +981,11 @@ export function App() {
     }
 
     // Mock fallback
-    const ext = name.split('.').pop()?.toLowerCase();
-    let language = 'plaintext';
-    if (['js', 'jsx'].includes(ext || '')) language = 'javascript';
-    else if (['ts', 'tsx'].includes(ext || '')) language = 'typescript';
-    else if (['html'].includes(ext || '')) language = 'html';
-    else if (['css'].includes(ext || '')) language = 'css';
-    else if (['json'].includes(ext || '')) language = 'json';
-
     const newItem: FileItem = {
       id: Date.now().toString(),
       name,
       type: isFolder ? 'folder' : 'file',
-      language,
+      language: languageFromName(name),
       content: isFolder ? undefined : `// ${name}\n`,
       children: isFolder ? [] : undefined,
       isOpen: true
@@ -693,69 +1007,94 @@ export function App() {
     return undefined;
   };
 
+  /** Açık sekmeleri (ve bellekteki düzenlemeleri) taşınan/yeniden adlandırılan yola çevirir (B-10: ayırıcıdan bağımsız eşleşme). */
+  const remapTabs = (from: string, to: string, newName?: string) => {
+    for (const f of openFilesRef.current) {
+      if (!f.path) continue;
+      const np = remapPath(f.path, from, to);
+      if (np === f.path) continue;
+      const live = liveContent.current.get(f.id);
+      if (live !== undefined) { liveContent.current.set(np, live); liveContent.current.delete(f.id); }
+    }
+    setOpenFiles((prev) =>
+      prev.map((f) => {
+        if (!f.path) return f;
+        const np = remapPath(f.path, from, to);
+        return np === f.path ? f : { ...f, id: np, path: np, name: normPath(np) === normPath(to) && newName ? newName : f.name };
+      })
+    );
+    setActiveFileId((cur) => {
+      const f = cur ? openFilesRef.current.find((x) => x.id === cur) : undefined;
+      return f?.path ? remapPath(f.path, from, to) : cur;
+    });
+  };
+
   const handleRename = async (item: FileItem, newName: string) => {
     if (!item.path || !window.electronAPI?.renameItem) return;
     const oldPath = item.path;
-    const sep = oldPath.includes('\\') ? '\\' : '/';
-    const next = oldPath.slice(0, oldPath.lastIndexOf(sep)) + sep + newName;
+    const sep = sepOf(oldPath);
+    const next = oldPath.slice(0, Math.max(oldPath.lastIndexOf('\\'), oldPath.lastIndexOf('/'))) + sep + newName;
     const res = await window.electronAPI.renameItem(oldPath, next);
     if (!res.success) {
-      addLog('error', `Yeniden adlandırılamadı: ${res.error ?? newName}`);
+      addLog('error', t('appRenameFail').replace('{e}', res.error ?? newName));
       return;
     }
     // Açık sekmeleri yeni yola taşı (klasör adı değiştiyse içindeki dosyalar da)
-    const remap = (id: string) => (id === oldPath ? next : id.startsWith(oldPath + sep) ? next + id.slice(oldPath.length) : id);
-    setOpenFiles((prev) =>
-      prev.map((f) => {
-        const nid = remap(f.id);
-        return nid === f.id ? f : { ...f, id: nid, path: nid, name: nid === next ? newName : f.name };
-      })
-    );
-    setActiveFileId((cur) => (cur ? remap(cur) : cur));
+    remapTabs(oldPath, next, newName);
     await refreshTree();
-    addLog('info', `Yeniden adlandırıldı: ${item.name} → ${newName}`);
+    addLog('info', t('appRenamed').replace('{a}', item.name).replace('{b}', newName));
   };
 
   // Sürükle-bırak taşıma (Gezgin): kaynak, çalışma klasörü içindeki hedef klasöre taşınır; açık sekmeler yeni yola geçer.
   // Güvenlik ana süreçte de denetlenir (fs:renameItem: kapsam + üzerine yazmama).
   const handleMove = async (srcPath: string, targetDir: string) => {
     if (!window.electronAPI?.renameItem) return;
-    const sep = srcPath.includes('\\') ? '\\' : '/';
-    const name = srcPath.slice(srcPath.lastIndexOf(sep) + 1);
+    const sep = sepOf(srcPath);
+    const name = srcPath.slice(Math.max(srcPath.lastIndexOf('\\'), srcPath.lastIndexOf('/')) + 1);
     const next = targetDir.replace(/[\\/]+$/, '') + sep + name;
     const res = await window.electronAPI.renameItem(srcPath, next);
     if (!res.success) {
-      addLog('error', `Taşınamadı: ${res.error ?? name}`);
+      addLog('error', t('appMoveFail').replace('{e}', res.error ?? name));
       return;
     }
-    const remap = (id: string) => (id === srcPath ? next : id.startsWith(srcPath + sep) ? next + id.slice(srcPath.length) : id);
-    setOpenFiles((prev) => prev.map((f) => { const nid = remap(f.id); return nid === f.id ? f : { ...f, id: nid, path: nid }; }));
-    setActiveFileId((cur) => (cur ? remap(cur) : cur));
+    remapTabs(srcPath, next);
     await refreshTree();
-    addLog('info', `Taşındı: ${name} → ${targetDir}`);
+    addLog('info', t('appMoved').replace('{a}', name).replace('{b}', targetDir));
   };
 
-  const handleCloseAll = () => {
-    if (openFiles.some((f) => f.isModified) && !window.confirm(t('expCloseAllConfirm'))) return;
-    setOpenFiles([]);
-    setActiveFileId(null);
+  const handleCloseAll = async () => {
+    flushEditorChanges();
+    const dirty = openFilesRef.current.filter((f) => f.isModified && !f.diff);
+    if (!(await confirmDirty(dirty))) return;
+    closeTabsNow(openFilesRef.current.map((f) => f.id));
   };
 
   const handleOpenInTerminal = (dir: string) => {
     setShowBottomTerminal(true);
-    window.setTimeout(() => sendTerminal({ action: 'cd', dir }), 80);
+    void sendTerminalWhenReady({ action: 'cd', dir });
   };
 
   const handleDeleteFile = async (id: string) => {
-    const file = openFiles.find(f => f.id === id) || findItem(files, id);
+    const file = openFilesRef.current.find(f => f.id === id) || findItem(files, id);
     if (file?.path && window.electronAPI?.deleteItem) {
-      await window.electronAPI.deleteItem(file.path);
-      if (currentRootPath) {
-        const tree = await window.electronAPI.readDirectory(currentRootPath);
-        setFiles(tree);
+      // Önce çöp kutusu (B-04); taşınamazsa kullanıcıya sorulur, onaylarsa kalıcı silinir
+      let res = await window.electronAPI.deleteItem(file.path);
+      if (!res?.success && res?.trashFailed && window.confirm(t('appDeletePermanentConfirm'))) {
+        res = await window.electronAPI.deleteItem(file.path, { permanent: true });
       }
-      handleCloseTab(id);
-      addLog('warn', `Silindi: ${file.name}`);
+      // Silme başarısızsa sekme kapanmaz, "Silindi" yazılmaz (B-03)
+      if (!res?.success) {
+        addLog('error', t('appDeleteFail').replace('{e}', res?.error ?? file.name));
+        return;
+      }
+      // Klasör silindiyse içindeki açık dosyaların sekmeleri de kapanır (B-04); kaydedilmemiş düzenleme silinen dosyaya ait olduğundan sorulmaz
+      const gone = normPath(file.path);
+      const ids = openFilesRef.current
+        .filter((f) => f.path && (normPath(f.path) === gone || normPath(f.path).startsWith(gone + '/')))
+        .map((f) => f.id);
+      if (ids.length > 0) closeTabsNow(ids, false);
+      if (currentRootPath) await loadTree(currentRootPath);
+      addLog('warn', t('appDeleted').replace('{n}', file.name));
       refreshGitStatus();
       return;
     }
@@ -771,7 +1110,54 @@ export function App() {
         });
     };
     setFiles((prev) => deleteRecursive(prev));
-    handleCloseTab(id);
+    closeTabsNow([id], false);
+  };
+
+  // Disk değişti uyarısı: diskten yükle (düzenlemeler atılır) veya benimkini koru (kayıtta disk ezilir)
+  const reloadFromDisk = async (id: string) => {
+    const f = openFilesRef.current.find((x) => x.id === id);
+    if (!f?.path) return;
+    const r = await readText(f.path);
+    if (!r.ok) { logReadFail(r, f.name); return; }
+    liveContent.current.delete(id);
+    setOpenFiles((prev) => prev.map((o) => (o.id === id ? { ...o, content: r.text, isModified: false, externalChange: false, missing: false } : o)));
+  };
+  // Yerel geçmişten geri yükleme (F-07): sürüm diske yazılır (mevcut içerik ana süreçte geçmişe alınır), açık sekme yenilenir.
+  // Silinmiş dosya için üst klasör yeniden oluşturulur; sekme yoksa dosya açılır.
+  const restoreFromHistory = async (p: string, content: string): Promise<boolean> => {
+    const api = window.electronAPI;
+    if (!api?.writeFile) return false;
+    const dir = p.replace(/[\\/][^\\/]*$/, '');
+    if (dir && dir !== p) await api.createFolder?.(dir);
+    const res = await api.writeFile(p, content);
+    if (!res.success) {
+      addLog('error', t('tlRestoreFail').replace('{e}', res.error ?? p));
+      return false;
+    }
+    const open = openFilesRef.current.find((f) => f.path && normPath(f.path) === normPath(p));
+    if (open) await reloadFromDisk(open.id);
+    else await openFileAt(p);
+    if (currentRootPath) void loadTree(currentRootPath);
+    refreshGitStatus();
+    addLog('info', t('tlRestored').replace('{n}', p.split(/[\\/]/).pop() ?? p));
+    return true;
+  };
+  const keepMine = async (id: string) => {
+    const f = openFilesRef.current.find((x) => x.id === id);
+    if (!f?.path) return;
+    const r = await readText(f.path);
+    setOpenFiles((prev) => prev.map((o) => (o.id === id ? { ...o, ...(r.ok ? { content: r.text } : {}), externalChange: false } : o)));
+  };
+
+  // Kapatılan sekmeyi yeniden aç (Ctrl+Shift+T, F-01)
+  const reopenClosedTab = async () => {
+    for (let i = 0; i < 20; i++) {
+      const c = popClosed();
+      if (!c) return;
+      if (openFilesRef.current.some((f) => f.id === c.path)) continue;
+      await openFileAt(c.path);
+      return;
+    }
   };
 
   // Kaydedilmemiş (diskte olmayan) JS'i uygulamanın sayfasında DEĞİL, sandbox'lı bir iframe'de çalıştırır (uygulama API'lerine erişemez)
@@ -798,7 +1184,7 @@ export function App() {
     if (k === 'html' || k === 'svg' || k === 'md') { setShowLanding(false); setShowRightPanel('preview'); return; }
     if (current.path) { runActiveFile(); return; }
     if (current.language === 'javascript') {
-      addLog('info', `[Çalıştırılıyor: ${current.name}]`);
+      addLog('info', t('appRunning').replace('{n}', current.name));
       runSandboxed(current.content || '');
       setShowBottomTerminal(true);
     } else {
@@ -817,6 +1203,17 @@ export function App() {
   };
 
   const activeFile = openFiles.find((f) => f.id === activeFileId);
+  // Önizleme/AI paneline giden metin: editör değişiklikleri toplu geldiğinde (liveTick) yenilenir
+  const activeView = useMemo(
+    () => (activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: getContent(activeFile) } : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeFile, liveTick]
+  );
+  const previewLive = useMemo(
+    () => openFiles.map((o) => ({ path: o.path, content: getContent(o) })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [openFiles, liveTick]
+  );
   const isElectron = !!window.electronAPI?.isElectron;
   const projectName = currentRootPath ? currentRootName : '';
   // Yapay zekâ paneli: üst çubuktaki simgeyle (ve Ctrl+Shift+L) açılıp kapanır; panel sağda yerleşik kalır
@@ -876,7 +1273,7 @@ export function App() {
   // Alt panelde Sorunlar sekmesini aç
   const openProblems = () => {
     setShowBottomTerminal(true);
-    window.setTimeout(() => sendTerminal({ action: 'tab', tab: 'problems' }), 80);
+    void sendTerminalWhenReady({ action: 'tab', tab: 'problems' });
   };
 
   // Dal seçici / durum çubuğu eşzamanlama gibi işlemlerin sonucu: günlüğe yazılır, durum çubuğunda kısa süre görünür, Git paneline iletilir
@@ -944,7 +1341,7 @@ export function App() {
 
   const runInTerminal = (command: string) => {
     setShowBottomTerminal(true);
-    window.setTimeout(() => sendTerminal({ action: 'run', command }), 80);
+    void sendTerminalWhenReady({ action: 'run', command });
   };
 
   const runActiveFile = () => {
@@ -958,18 +1355,153 @@ export function App() {
     runInTerminal(cmd);
   };
 
+  // ----------------------------------------------------
+  // Oturum kalıcılığı (B-14), kapanış denetimi (B-02), web'de çıkış uyarısı
+  // Veri yalnız bu bilgisayarda (localStorage) tutulur; sonraki açılışta kullanıcıya geri yükleme sorulur, onaysız hiçbir şey açılmaz.
+  // ----------------------------------------------------
+  const [restoreOffer, setRestoreOffer] = useState<Session | null>(null);
+  const sessionLive = useRef(false);
+  const activeIdRef = useRef<string | null>(null);
+  activeIdRef.current = activeFileId;
+  const rootNameRef = useRef('');
+  rootNameRef.current = currentRootName;
+  useEffect(() => {
+    const s = loadSession();
+    if (isRestorable(s)) setRestoreOffer(s);
+    else sessionLive.current = true;
+  }, []);
+  const persistSession = (withDrafts = true, flush = false) => {
+    if (flush) flushEditorChanges();
+    saveSession({
+      root: rootPathRef.current,
+      rootName: rootNameRef.current,
+      activeId: activeIdRef.current,
+      files: openFilesRef.current,
+      getContent: (id) => liveContent.current.get(id) ?? openFilesRef.current.find((f) => f.id === id)?.content,
+      withDrafts,
+      split: splitRef.current
+    });
+  };
+  useEffect(() => {
+    if (!sessionLive.current) return;
+    const id = window.setTimeout(() => persistSession(), 800);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openFiles, activeFileId, currentRootPath, liveTick, restoreOffer, split]);
+  useEffect(() => {
+    const onHide = () => { if (sessionLive.current) persistSession(true, true); };
+    // Tarayıcıda (Electron dışı) kaydedilmemiş değişiklik varken sekme kapatılırsa tarayıcı uyarısı
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (window.electronAPI?.onCloseRequest) return;
+      flushEditorChanges();
+      if (openFilesRef.current.some((f) => f.isModified && !f.diff)) { e.preventDefault(); e.returnValue = ''; }
+    };
+    window.addEventListener('pagehide', onHide);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => { window.removeEventListener('pagehide', onHide); window.removeEventListener('beforeunload', onBeforeUnload); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const restoreSession = async (s: Session) => {
+    setRestoreOffer(null);
+    sessionLive.current = true;
+    const api = window.electronAPI;
+    if (s.root && api?.openRecentFolder) {
+      setIsLoadingProject(true);
+      try {
+        const r = await api.openRecentFolder(s.root);
+        if ('error' in r) addLog('error', t('appFolderOpenFail').replace('{e}', r.error));
+        else applyWorkspace(r);
+      } catch (err) {
+        addLog('error', t('appFolderOpenFail').replace('{e}', String(err)));
+      } finally {
+        setIsLoadingProject(false);
+      }
+    }
+    const items: FileItem[] = [];
+    const idByTab: Record<number, string> = {};
+    let activeId: string | null = null;
+    for (let i = 0; i < s.tabs.length; i++) {
+      const tab = s.tabs[i];
+      let item: FileItem | null = null;
+      if (tab.path) {
+        item = { id: tab.path, name: tab.name, path: tab.path, type: 'file', language: tab.language ?? languageFromName(tab.name) };
+        const r: ReadResult = api?.readFile ? await readText(tab.path) : { ok: false, text: '', error: 'no-api' };
+        if (r.ok) item.content = r.text;
+        else if (tab.draft !== undefined) { item.content = ''; item.missing = /ENOENT|no such file/i.test(r.error); }
+        else continue;
+        if (tab.draft !== undefined && tab.draft !== item.content) {
+          liveContent.current.set(item.id, tab.draft);
+          item.isModified = true;
+        }
+      } else if (tab.draft) {
+        untitledCounter.current += 1;
+        item = { id: `untitled-${Date.now()}-${i}`, name: tab.name, type: 'file', language: tab.language ?? 'plaintext', content: tab.draft, isModified: true };
+      }
+      if (!item) continue;
+      if (i === s.active) activeId = item.id;
+      idByTab[i] = item.id;
+      items.push(item);
+    }
+    if (items.length > 0) {
+      setOpenFiles((prev) => {
+        const ids = new Set(prev.map((f) => f.id));
+        return [...prev, ...items.filter((f) => !ids.has(f.id))];
+      });
+      const restoredSplit = savedToSplit(s.split, (i) => idByTab[i]);
+      setSplitRaw(restoredSplit);
+      setActiveFileId(restoredSplit ? activeOf(restoredSplit, restoredSplit.focus) ?? activeId ?? items[0].id : activeId ?? items[0].id);
+      setShowLanding(false);
+      setShowSettings(false);
+    }
+  };
+  const dismissRestore = () => {
+    setRestoreOffer(null);
+    sessionLive.current = true;
+    clearSession();
+  };
+
+  // Pencere kapatılmak istenince (X, Alt+F4, Ctrl+Q): kaydedilmemiş değişiklik varsa Kaydet/Kaydetme/İptal sorulur
+  const onCloseRequest = useEvent(async () => {
+    const api = window.electronAPI;
+    if (!api?.respondClose) return;
+    try {
+      flushEditorChanges();
+      const dirty = openFilesRef.current.filter((f) => f.isModified && !f.diff);
+      if (dirty.length > 0) {
+        api.closePending?.(); // kullanıcı karar verirken ana süreç 5 sn sonra zorla kapatmasın
+        const c = await askUnsaved(dirty);
+        if (c === 'cancel') { api.respondClose(false); return; }
+        if (c === 'save') {
+          for (const f of dirty) {
+            if (!(await handleSaveFileRef.current(f, false))) { api.respondClose(false); return; }
+          }
+        } else {
+          persistSession(false); // bilerek kaydedilmeyenler taslak olarak saklanmaz
+          api.respondClose(true);
+          return;
+        }
+      }
+      persistSession(false);
+      api.respondClose(true);
+    } catch {
+      // Beklenmedik hata pencereyi kilitlemesin; taslaklar oturum dosyasında durur
+      try { persistSession(true); } catch { /* yoksay */ }
+      api.respondClose(true);
+    }
+  });
+  useEffect(() => {
+    const off = window.electronAPI?.onCloseRequest?.(() => { void onCloseRequest(); });
+    return () => off?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const openDocs = (path: string) => void window.electronAPI?.github.openExternal(`https://github.com/orayyilmaz16/NovaCode-Studio${path}`);
   const openSettingsAt = (cat: string) => {
     try { window.localStorage.setItem('nova.settings.category', cat); } catch { /* depolama kapalı */ }
     setShowLanding(false);
     setShowSettings(true);
   };
-  // Kapalı menü öğeleri: soluk görünür, üzerine gelince nedenini söyler
-  const F = { disabled: !activeFile, hint: !activeFile ? t('mnHintNoFile') : undefined };
-  const D = { disabled: !currentRootPath, hint: !currentRootPath ? t('mnHintNoFolder') : undefined };
-  const act = runEditorAction;
-  // Bazı etiketler kısayolu parantez içinde taşır; menüde kısayol ayrı sütunda gösterilir
-  const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
 
   // Renk teması seçici: gezilirken canlı uygulanır; Esc özgün temayı geri yükler
   const extThemeList = listExtThemes(extInstalled);
@@ -996,14 +1528,6 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openFiles, currentRootPath]);
 
-  // Dil sunucusu durumu: etkin dosyanın diline göre durum çubuğunda gösterilir
-  const lspMap = useLsp();
-  const lspEntry = activeFile ? lspMap[languageFromName(activeFile.name)] : undefined;
-  const lspTip = !lspEntry ? '' : lspEntry.state === 'ready' ? t('lspReady').replace('{n}', lspEntry.name)
-    : lspEntry.state === 'starting' ? t('lspStarting').replace('{n}', lspEntry.name)
-      : lspEntry.state === 'missing' ? t('lspMissing').replace('{n}', lspEntry.name).replace('{h}', lspEntry.hint ?? '')
-        : t('lspError').replace('{n}', lspEntry.name);
-
   // Hata ayıklama: yalnız klasör açıkken ve etkin dosya JavaScript ise başlatılabilir
   const canDebug = !!currentRootPath && !!activeFile?.path && isDebuggable(activeFile.name);
   const startDebugActive = () => { if (canDebug && activeFile?.path) void startDebug(activeFile.path); };
@@ -1013,16 +1537,69 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openFiles, currentRootPath]);
 
-  const menus: MenuGroup[] = [
+  // Menü/komut dizileri useMemo ile kurulur (P-19): işleyiciler her zaman en güncel sürümü çağıran vekil (L) üzerinden gider.
+  const saveActive = () => { const f = openFilesRef.current.find((x) => x.id === activeFileId); if (f) void handleSaveFile(f); };
+  const closeActive = () => { if (activeFileId) closeInGroup(activeFileId, splitRef.current?.focus ?? 'a'); };
+  const cycleTab = (delta: number) => {
+    const s0 = splitRef.current;
+    const all = openFilesRef.current;
+    const list = s0 ? (s0.focus === 'a' ? s0.a : s0.b).map((id) => all.find((f) => f.id === id)).filter((f): f is FileItem => !!f) : all;
+    if (list.length < 2) return;
+    const i = list.findIndex((f) => f.id === activeFileId);
+    selectInGroupTab(list[(i + delta + list.length) % list.length].id, s0?.focus ?? 'a');
+  };
+  const zoomBy = (d: number) => setSetting('uiZoom', Math.max(80, Math.min(150, Number(settings.uiZoom || 100) + d)));
+  const toggleThemeMode = () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+  const checkUpdatesNow = () => { setUpdateDlg('update'); void checkForUpdates(settings.updateAutoDownload === true); };
+  const actions = {
+    handleNewUntitled, handleOpenFolderDialog, handleOpenFileDialog, saveActive, closeActive, cycleTab, handleRunCode, runActiveFile,
+    splitRight: () => doSplit('row'), splitDown: () => doSplit('col'), focusOtherGroup, closeSplitView, openKeybindings: () => setShowKeybindings(true),
+    startDebugActive, openSettingsAt, openDocs, openProblems, pickSidebarForce, toggleAI, openThemePicker, reopenClosedTab,
+    zoomBy, toggleThemeMode, checkUpdatesNow, newTerminal: () => { setShowBottomTerminal(true); void sendTerminalWhenReady({ action: 'new' }); },
+    clearTerminal: () => sendTerminal({ action: 'clear' }),
+    openGitBranch: () => { if (rootRef.current && gitRepoRef.current) setPicker('checkout'); },
+    openTaskPicker: () => { if (rootRef.current) setTaskPicker(true); else { addLog('warn', t('taskNoFolder')); setShowBottomTerminal(true); } },
+    openAi: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); },
+    openSettings: () => { setShowLanding(false); setShowSettings(true); },
+    openTimeline: () => setDevDlg('timeline'),
+    openSnippets: () => setDevDlg('snippets'),
+  };
+  const liveActions = useRef(actions);
+  liveActions.current = actions;
+  const L = useMemo(
+    () => new Proxy({} as typeof actions, { get: (_t, k) => (...a: unknown[]) => (liveActions.current as unknown as Record<string, (...x: unknown[]) => unknown>)[k as string](...a) }),
+    []
+  );
+  const rootRef = useRef(currentRootPath);
+  rootRef.current = currentRootPath;
+  const gitRepoRef = useRef(gitStatus.isRepo);
+  gitRepoRef.current = gitStatus.isRepo;
+
+  const uiLang = getUiLang();
+  const hasFile = !!activeFile;
+  const hasRoot = !!currentRootPath;
+  const dbgIdle = dbgStatus === 'idle';
+  const fewTabs = openFiles.length < 2;
+  const isSplit = !!split;
+  const menusRaw: MenuGroup[] = useMemo(() => {
+    // Kapalı menü öğeleri: soluk görünür, üzerine gelince nedenini söyler
+    const F = { disabled: !hasFile, hint: !hasFile ? t('mnHintNoFile') : undefined };
+    const D = { disabled: !hasRoot, hint: !hasRoot ? t('mnHintNoFolder') : undefined };
+    const act = runEditorAction;
+    // Bazı etiketler kısayolu parantez içinde taşır; menüde kısayol ayrı sütunda gösterilir
+    const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
+    const togglePreview = () => setShowRightPanel((v) => (v === 'preview' ? null : 'preview'));
+    return [
     { id: 'file', label: t('mnFile'), items: [
-      { label: t('newFile'), shortcut: 'Ctrl+N', onClick: handleNewUntitled },
-      { label: t('openFolder'), shortcut: 'Ctrl+O', onClick: () => void handleOpenFolderDialog() },
-      { label: t('openFiles'), shortcut: 'Ctrl+Shift+O', onClick: () => void handleOpenFileDialog() },
+      { label: t('newFile'), shortcut: 'Ctrl+N', onClick: L.handleNewUntitled },
+      { label: t('openFolder'), shortcut: 'Ctrl+O', onClick: () => void L.handleOpenFolderDialog() },
+      { label: t('openFiles'), shortcut: 'Ctrl+Shift+O', onClick: () => void L.handleOpenFileDialog() },
       { separator: true },
-      { label: t('cmdSave'), shortcut: 'Ctrl+S', ...F, onClick: () => { if (activeFile) void handleSaveFile(activeFile); } },
-      { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', ...F, onClick: () => { if (activeFileId) handleCloseTab(activeFileId); } },
+      { label: t('cmdSave'), shortcut: 'Ctrl+S', ...F, onClick: L.saveActive },
+      { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', ...F, onClick: L.closeActive },
+      { label: t('appReopenTab'), shortcut: 'Ctrl+Shift+T', onClick: () => void L.reopenClosedTab() },
       { separator: true },
-      { label: t('actSettings'), shortcut: 'Ctrl+,', onClick: () => { setShowLanding(false); setShowSettings(true); } },
+      { label: t('actSettings'), shortcut: 'Ctrl+,', onClick: L.openSettings },
     ] },
     { id: 'edit', label: t('mnEdit'), items: [
       { label: t('mnUndo'), shortcut: 'Ctrl+Z', ...F, onClick: () => act('undo') },
@@ -1034,7 +1611,7 @@ export function App() {
       { separator: true },
       { label: t('cmdFind'), shortcut: 'Ctrl+F', ...F, onClick: () => act('actions.find') },
       { label: t('cmdReplace'), shortcut: 'Ctrl+H', ...F, onClick: () => act('editor.action.startFindReplace') },
-      { label: t('cmdFindInFiles'), shortcut: 'Ctrl+Shift+F', ...D, onClick: () => pickSidebarForce('search') },
+      { label: t('cmdFindInFiles'), shortcut: 'Ctrl+Shift+F', ...D, onClick: () => L.pickSidebarForce('search') },
       { separator: true },
       { label: t('mnComment'), shortcut: 'Ctrl+/', ...F, onClick: () => act('editor.action.commentLine') },
       { label: t('cmdFormat'), shortcut: 'Shift+Alt+F', ...F, onClick: () => act('editor.action.formatDocument') }
@@ -1043,6 +1620,7 @@ export function App() {
       { label: t('mnSelectAll'), shortcut: 'Ctrl+A', ...F, onClick: () => act('editor.action.selectAll') },
       { label: t('mnExpandLine'), ...F, onClick: () => act('expandLineSelection') },
       { label: t('mnNextMatch'), shortcut: 'Ctrl+D', ...F, onClick: () => act('editor.action.addSelectionToNextFindMatch') },
+      { label: t('mnSelectMatches'), ...F, onClick: () => act('editor.action.selectHighlights') },
       { separator: true },
       { label: t('mnCopyLineDown'), shortcut: 'Shift+Alt+↓', ...F, onClick: () => act('editor.action.copyLinesDownAction') },
       { label: t('mnMoveLineUp'), shortcut: 'Alt+↑', ...F, onClick: () => act('editor.action.moveLinesUpAction') },
@@ -1055,115 +1633,214 @@ export function App() {
       { label: t('cpTitle'), shortcut: 'Ctrl+Shift+P', onClick: () => setPalette('>') },
       { label: t('cmdQuickOpen'), shortcut: 'Ctrl+P', onClick: () => setPalette('') },
       { separator: true },
-      { label: t('actExplorer'), onClick: () => pickSidebarForce('files') },
-      { label: t('actSearch'), shortcut: 'Ctrl+Shift+F', ...D, onClick: () => pickSidebarForce('search') },
-      { label: t('actGit'), onClick: () => pickSidebarForce('git') },
-      { label: t('extTitle'), onClick: () => pickSidebarForce('extensions') },
+      { label: t('actExplorer'), onClick: () => L.pickSidebarForce('files') },
+      { label: t('actSearch'), shortcut: 'Ctrl+Shift+F', ...D, onClick: () => L.pickSidebarForce('search') },
+      { label: t('actGit'), onClick: () => L.pickSidebarForce('git') },
+      { label: t('extTitle'), onClick: () => L.pickSidebarForce('extensions') },
       { separator: true },
       { label: plain(t('tbSidebar')), shortcut: 'Ctrl+B', onClick: () => setSidebarVisible((v) => !v) },
       { label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', ...D, onClick: () => setShowBottomTerminal((v) => !v) },
-      { label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', onClick: () => { toggleAI(); } },
-      { label: t('tbPreview'), disabled: !canPreview, hint: !canPreview ? t('mnHintHtml') : undefined, onClick: () => setShowRightPanel((v) => (v === 'preview' ? null : 'preview')) },
+      { label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', onClick: () => { L.toggleAI(); } },
+      { label: t('tbPreview'), disabled: !canPreview, hint: !canPreview ? t('mnHintHtml') : undefined, onClick: togglePreview },
       { separator: true },
-      { label: t('mnZoomIn'), onClick: () => setSetting('uiZoom', Math.min(150, Number(settings.uiZoom || 100) + 10)) },
-      { label: t('mnZoomOut'), onClick: () => setSetting('uiZoom', Math.max(80, Number(settings.uiZoom || 100) - 10)) },
+      { label: t('cmdSplitRight'), shortcut: 'Ctrl+\\', ...F, onClick: L.splitRight },
+      { label: t('cmdSplitDown'), shortcut: 'Ctrl+Alt+\\', ...F, onClick: L.splitDown },
+      { label: t('cmdFocusOtherGroup'), disabled: !isSplit, onClick: L.focusOtherGroup },
+      { label: t('cmdCloseSplit'), disabled: !isSplit, onClick: L.closeSplitView },
+      { separator: true },
+      { label: t('mnZoomIn'), onClick: () => L.zoomBy(10) },
+      { label: t('mnZoomOut'), onClick: () => L.zoomBy(-10) },
       { label: t('mnZoomReset'), onClick: () => setSetting('uiZoom', 100) },
-      { label: t('mnThemePicker'), onClick: openThemePicker },
-      { label: t('cmdToggleTheme'), onClick: () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light') }
+      { label: t('mnThemePicker'), onClick: L.openThemePicker },
+      { label: t('cmdToggleTheme'), onClick: L.toggleThemeMode }
     ] },
     { id: 'go', label: t('mnGo'), items: [
       { label: t('cmdQuickOpen'), shortcut: 'Ctrl+P', onClick: () => setPalette('') },
       { label: t('cmdGoToLine'), shortcut: 'Ctrl+G', ...F, onClick: () => setPalette(':') },
       { label: t('cmdGoToSymbol'), ...F, onClick: () => act('editor.action.quickOutline') },
       { separator: true },
-      { label: t('mnNextTab'), shortcut: 'Ctrl+Tab', disabled: openFiles.length < 2, hint: openFiles.length < 2 ? t('mnHintTwoTabs') : undefined, onClick: () => { const i = openFiles.findIndex((f) => f.id === activeFileId); setActiveFileId(openFiles[(i + 1) % openFiles.length].id); } },
-      { label: t('mnPrevTab'), shortcut: 'Ctrl+Shift+Tab', disabled: openFiles.length < 2, hint: openFiles.length < 2 ? t('mnHintTwoTabs') : undefined, onClick: () => { const i = openFiles.findIndex((f) => f.id === activeFileId); setActiveFileId(openFiles[(i - 1 + openFiles.length) % openFiles.length].id); } }
+      { label: t('mnNextTab'), shortcut: 'Ctrl+Tab', disabled: fewTabs, hint: fewTabs ? t('mnHintTwoTabs') : undefined, onClick: () => L.cycleTab(1) },
+      { label: t('mnPrevTab'), shortcut: 'Ctrl+Shift+Tab', disabled: fewTabs, hint: fewTabs ? t('mnHintTwoTabs') : undefined, onClick: () => L.cycleTab(-1) }
     ] },
     { id: 'run', label: t('mnRun'), items: [
-      { label: t('mnRunFile'), shortcut: 'F5', ...F, onClick: handleRunCode },
-      { label: t('tbPreview'), disabled: !canPreview, hint: !canPreview ? t('mnHintHtml') : undefined, onClick: () => setShowRightPanel((v) => (v === 'preview' ? null : 'preview')) },
+      { label: t('mnRunFile'), shortcut: 'F5', ...F, onClick: L.handleRunCode },
+      { label: t('taskRun'), disabled: !hasRoot, hint: !hasRoot ? t('mnHintNoFolder') : undefined, onClick: L.openTaskPicker },
+      { label: t('tbPreview'), disabled: !canPreview, hint: !canPreview ? t('mnHintHtml') : undefined, onClick: togglePreview },
       { separator: true },
-      dbg.status === 'idle'
-        ? { label: t('dbgStart'), disabled: !canDebug, hint: !canDebug ? t('dbgOnlyJs') : undefined, onClick: startDebugActive }
+      dbgIdle
+        ? { label: t('dbgStart'), disabled: !canDebug, hint: !canDebug ? t('dbgOnlyJs') : undefined, onClick: L.startDebugActive }
         : { label: t('dbgStop'), shortcut: 'Shift+F5', onClick: () => void stopDebug() },
       { label: t('dbgToggleBp'), shortcut: 'F9', ...F, onClick: () => runEditorAction('nova.toggleBreakpoint') },
       { separator: true },
-      { label: t('mnRunSettings'), onClick: () => openSettingsAt('run') }
+      { label: t('mnRunSettings'), onClick: () => L.openSettingsAt('run') }
     ] },
     { id: 'terminal', label: t('mnTerminal'), items: [
-      { label: t('mnNewTerminal'), ...D, onClick: () => { setShowBottomTerminal(true); window.setTimeout(() => sendTerminal({ action: 'new' }), 80); } },
+      { label: t('mnNewTerminal'), ...D, onClick: L.newTerminal },
       { label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', ...D, onClick: () => setShowBottomTerminal((v) => !v) },
-      { label: t('termClear'), ...D, onClick: () => sendTerminal({ action: 'clear' }) },
+      { label: t('termClear'), ...D, onClick: L.clearTerminal },
       { separator: true },
-      { label: t('mnRunFile'), ...F, onClick: runActiveFile }
+      { label: t('mnRunFile'), ...F, onClick: L.runActiveFile }
     ] },
     { id: 'help', label: t('mnHelp'), items: [
       { label: t('mnWelcome'), onClick: () => { setShowSettings(false); setShowLanding(true); } },
-      { label: t('mnShortcuts'), onClick: () => openSettingsAt('shortcuts') },
+      { label: t('mnShortcuts'), onClick: () => L.openSettingsAt('shortcuts') },
       { separator: true },
-      { label: t('mnDocs'), onClick: () => openDocs('#readme') },
+      { label: t('mnDocs'), onClick: () => L.openDocs('#readme') },
       { separator: true },
-      { label: t('mnCheckUpdates'), onClick: () => { setUpdateDlg('update'); void checkForUpdates(settings.updateAutoDownload === true); } },
+      { label: t('mnCheckUpdates'), onClick: L.checkUpdatesNow },
       { label: t('mnReleaseNotes'), onClick: () => setUpdateDlg('notes') },
-      { label: t('mnReportIssue'), onClick: () => openDocs('/issues/new') },
+      { label: t('mnReportIssue'), onClick: () => L.openDocs('/issues/new') },
       { separator: true },
-      { label: t('mnAbout'), onClick: () => openSettingsAt('about') }
+      { label: t('mnAbout'), onClick: () => L.openSettingsAt('about') }
     ] }
-  ];
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uiLang, extraTexts, hasFile, hasRoot, canPreview, canDebug, dbgIdle, fewTabs, isSplit]);
+  // Menü etiketlerindeki sabit kısayol metni, kullanıcının atadığı kısayola çevrilir (F-04)
+  const menus: MenuGroup[] = useMemo(
+    () => menusRaw.map((g) => ({ ...g, items: g.items.map((i) => ('shortcut' in i && i.shortcut ? { ...i, shortcut: remapShortcutLabel(i.shortcut, kbBindings) } : i)) })),
+    [menusRaw, kbBindings]
+  );
 
-  const paletteCommands: PaletteCommand[] = [
-    { id: 'themePicker', label: t('mnThemePicker'), run: openThemePicker },
+  const paletteCommandsRaw: PaletteCommand[] = useMemo(() => {
+    const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
+    return [
+    { id: 'themePicker', label: t('mnThemePicker'), run: L.openThemePicker },
     { id: 'quickOpen', label: t('cmdQuickOpen'), shortcut: 'Ctrl+P', run: () => setPalette('') },
     { id: 'goLine', label: t('cmdGoToLine'), shortcut: 'Ctrl+G', run: () => setPalette(':') },
     { id: 'goSymbol', label: t('cmdGoToSymbol'), run: () => runEditorAction('editor.action.quickOutline') },
-    { id: 'findInFiles', label: t('cmdFindInFiles'), shortcut: 'Ctrl+Shift+F', run: () => pickSidebarForce('search') },
+    { id: 'findInFiles', label: t('cmdFindInFiles'), shortcut: 'Ctrl+Shift+F', run: () => L.pickSidebarForce('search') },
+    { id: 'timeline', label: t('cmdTimeline'), run: L.openTimeline },
+    { id: 'snippets', label: t('cmdSnippets'), run: L.openSnippets },
     { id: 'find', label: t('cmdFind'), shortcut: 'Ctrl+F', run: () => runEditorAction('actions.find') },
     { id: 'replace', label: t('cmdReplace'), shortcut: 'Ctrl+H', run: () => runEditorAction('editor.action.startFindReplace') },
     { id: 'format', label: t('cmdFormat'), run: () => runEditorAction('editor.action.formatDocument') },
-    { id: 'newFile', label: t('newFile'), shortcut: 'Ctrl+N', run: handleNewUntitled },
-    { id: 'openFolder', label: t('openFolder'), shortcut: 'Ctrl+O', run: () => void handleOpenFolderDialog() },
-    { id: 'save', label: t('cmdSave'), shortcut: 'Ctrl+S', run: () => { const f = openFiles.find((x) => x.id === activeFileId); if (f) void handleSaveFile(f); } },
-    { id: 'closeTab', label: t('cmdCloseTab'), shortcut: 'Ctrl+W', run: () => { if (activeFileId) handleCloseTab(activeFileId); } },
+    { id: 'newFile', label: t('newFile'), shortcut: 'Ctrl+N', run: L.handleNewUntitled },
+    { id: 'openFolder', label: t('openFolder'), shortcut: 'Ctrl+O', run: () => void L.handleOpenFolderDialog() },
+    { id: 'save', label: t('cmdSave'), shortcut: 'Ctrl+S', run: L.saveActive },
+    { id: 'closeTab', label: t('cmdCloseTab'), shortcut: 'Ctrl+W', run: L.closeActive },
+    { id: 'reopenTab', label: t('appReopenTab'), shortcut: 'Ctrl+Shift+T', run: () => void L.reopenClosedTab() },
     { id: 'sidebar', label: plain(t('tbSidebar')), shortcut: 'Ctrl+B', run: () => setSidebarVisible((v) => !v) },
     { id: 'terminal', label: plain(t('tbTerminal')), shortcut: 'Ctrl+`', run: () => setShowBottomTerminal((v) => !v) },
-    { id: 'git', label: t('actGit'), run: () => pickSidebarForce('git') },
-    { id: 'gitBranch', label: t('scmBranchTip'), run: () => { if (currentRootPath && gitStatus.isRepo) setPicker('checkout'); } },
-    { id: 'problems', label: t('prbTab'), shortcut: 'Ctrl+Shift+M', run: openProblems },
-    { id: 'extensions', label: t('extTitle'), run: () => pickSidebarForce('extensions') },
-    { id: 'ai', label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', run: () => { setShowLanding(false); setShowSettings(false); setShowRightPanel('ai'); } },
-    { id: 'settings', label: t('actSettings'), shortcut: 'Ctrl+,', run: () => { setShowLanding(false); setShowSettings(true); } },
-    { id: 'themeToggle', label: t('cmdToggleTheme'), run: () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light') }
-  ];
+    { id: 'git', label: t('actGit'), run: () => L.pickSidebarForce('git') },
+    { id: 'gitBranch', label: t('scmBranchTip'), run: L.openGitBranch },
+    { id: 'problems', label: t('prbTab'), shortcut: 'Ctrl+Shift+M', run: L.openProblems },
+    { id: 'extensions', label: t('extTitle'), run: () => L.pickSidebarForce('extensions') },
+    { id: 'ai', label: t('cmdOpenAI'), shortcut: 'Ctrl+Shift+L', run: L.openAi },
+    { id: 'settings', label: t('actSettings'), shortcut: 'Ctrl+,', run: L.openSettings },
+    { id: 'themeToggle', label: t('cmdToggleTheme'), run: L.toggleThemeMode },
+    { id: 'runTask', label: t('taskRun'), run: L.openTaskPicker },
+    { id: 'addNextMatch', label: t('mnNextMatch'), shortcut: 'Ctrl+D', run: () => runEditorAction('editor.action.addSelectionToNextFindMatch') },
+    { id: 'selectMatches', label: t('mnSelectMatches'), run: () => runEditorAction('editor.action.selectHighlights') },
+    { id: 'cursorAbove', label: t('mnCursorAbove'), shortcut: 'Ctrl+Alt+↑', run: () => runEditorAction('editor.action.insertCursorAbove') },
+    { id: 'cursorBelow', label: t('mnCursorBelow'), shortcut: 'Ctrl+Alt+↓', run: () => runEditorAction('editor.action.insertCursorBelow') },
+    { id: 'splitRight', label: t('cmdSplitRight'), shortcut: 'Ctrl+\\', run: L.splitRight },
+    { id: 'splitDown', label: t('cmdSplitDown'), shortcut: 'Ctrl+Alt+\\', run: L.splitDown },
+    { id: 'focusOtherGroup', label: t('cmdFocusOtherGroup'), run: L.focusOtherGroup },
+    { id: 'closeSplit', label: t('cmdCloseSplit'), run: L.closeSplitView },
+    { id: 'keybindings', label: t('kbOpen'), run: L.openKeybindings }
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uiLang, extraTexts]);
+  // Paletteki sabit kısayol metinleri kullanıcının atadığı kısayola çevrilir (F-04)
+  const paletteCommands: PaletteCommand[] = useMemo(
+    () => paletteCommandsRaw.map((c) => (c.shortcut ? { ...c, shortcut: remapShortcutLabel(c.shortcut, kbBindings) || undefined } : c)),
+    [paletteCommandsRaw, kbBindings]
+  );
 
   // Projesiz/dosyasız işe yaramayan düğmeler: soluk görünür, üzerine gelince nedenini söyler, tıklayınca bir şey yapmaz
   const dis = (off: boolean, hint: string) => (off ? ({ 'aria-disabled': true, 'data-disabled': true, title: hint } as const) : {});
+
+  // Sabit kimlikli işleyiciler: React.memo'lu EditorArea/FileTree gereksiz yeniden çizilmez (P-01)
+  const eOpenPath = useEvent((p: string) => void openFileAt(p));
+  const eSelectA = useEvent((id: string) => selectInGroupTab(id, 'a'));
+  const eSelectB = useEvent((id: string) => selectInGroupTab(id, 'b'));
+  const eCloseTab = useEvent((id: string) => void handleCloseTab(id)); // Açık Editörler listesi: dosyayı her yerden kapatır
+  const eCloseA = useEvent((id: string) => closeInGroup(id, 'a'));
+  const eCloseB = useEvent((id: string) => closeInGroup(id, 'b'));
+  const eFocusGroup = useEvent((g: GroupId) => focusGroupId(g));
+  const eDropTab = useEvent((id: string, from: GroupId, to: GroupId | 'new-right' | 'new-down') => dropTab(id, from, to));
+  const eSplitRight = useEvent(() => doSplit('row'));
+  const eCloseSplit = useEvent(() => closeSplitView());
+  const groupsRef = useRef<HTMLDivElement>(null);
+  const stackCol = !!split && (split.dir === 'col' || vw < 860);
+  const resizeGroups = (d: number) => {
+    const el = groupsRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const sign = !stackCol && getComputedStyle(el).direction === 'rtl' ? -1 : 1;
+    setSplitRatio((v) => clamp(v + (sign * d) / Math.max(200, stackCol ? r.height : r.width), 0.2, 0.8));
+  };
+  const eChangeContent = useEvent((id: string, c: string) => handleContentChange(id, c));
+  const eDirty = useEvent((id: string) => markDirty(id));
+  const eSave = useEvent((file: FileItem) => void handleSaveFile(file));
+  const eRun = useEvent(() => handleRunCode());
+  const eTogglePreview = useEvent(() => setShowRightPanel((v) => (v === 'preview' ? null : 'preview')));
+  const eNewFile = useEvent(() => handleNewUntitled());
+  const eOpenFolder = useEvent(() => void handleOpenFolderDialog());
+  const eOpenFiles = useEvent(() => void handleOpenFileDialog());
+  const eInitial = useEvent((file: FileItem) => getContent(file));
+  const eReload = useEvent((id: string) => void reloadFromDisk(id));
+  const eKeep = useEvent((id: string) => void keepMine(id));
+  const eTreeSelect = useEvent((file: FileItem) => { setShowLanding(false); setShowSettings(false); void handleSelectFile(file); });
+  const eCreate = useEvent((name: string, isFolder: boolean, parentDir?: string) => void handleCreateFile(name, isFolder, parentDir));
+  const eMove = useEvent((src: string, dir: string) => void handleMove(src, dir));
+  const eCloseAll = useEvent(() => void handleCloseAll());
+  const eTerm = useEvent((dir: string) => handleOpenInTerminal(dir));
+  const eRecent = useEvent((p: string) => void handleOpenRecent(p));
+  const eRename = useEvent((item: FileItem, name: string) => void handleRename(item, name));
+  const eDelete = useEvent((id: string) => void handleDeleteFile(id));
+  const eRefresh = useEvent(() => void refreshTree());
+  const collabCfg = useMemo(() => ({ enabled: collabEnabled && collabUrlValid, url: collabUrl.trim(), token: collabToken, room: collabEnabled && currentRootPath ? getCollabRoomId(currentRootPath) : '', root: currentRootPath || '' }), [collabEnabled, collabUrlValid, collabUrl, collabToken, currentRootPath]);
+  const settingsRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(settingsRef, showSettings);
 
   const barBtn = (active: boolean) => ({ 'data-active': active, className: 'ab-item' }) as const;
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-nv-side text-zinc-300 font-sans relative">
       {/* Açılış animasyonu */}
-      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+      {showSplash && <SplashScreen ready={recentLoaded} onFinish={() => setShowSplash(false)} />}
 
       {/* Ayarlar: uygulamanın üstünde, ayrı pencere (z-katmanı: bkz. ui-design.md → Katman sırası) */}
       {showSettings && (
         <div className="app-no-drag fixed inset-0 z-[150] flex items-center justify-center bg-black/65 p-3 sm:p-6 animate-editor-in" onMouseDown={() => setShowSettings(false)}>
           <div
+            ref={settingsRef}
             role="dialog"
             aria-modal="true"
             aria-label={t('setTitle')}
             onMouseDown={(e) => e.stopPropagation()}
-            className="animate-dialog flex w-[min(1120px,100%)] h-[min(780px,100%)] rounded-xl border border-nv-border bg-nv-editor shadow-[0_24px_80px_rgba(0,0,0,0.6)] overflow-hidden"
+            className="animate-dialog flex w-[min(1120px,100%)] h-[min(780px,100%)] rounded-xl border border-nv-border bg-nv-editor overflow-hidden"
           >
-            <Suspense fallback={null}><SettingsPage onClose={() => setShowSettings(false)} onOpenExtensions={() => { setShowSettings(false); pickSidebarForce('extensions'); }} /></Suspense>
+            <LazyPanel><SettingsPage onClose={() => setShowSettings(false)} onOpenExtensions={() => { setShowSettings(false); pickSidebarForce('extensions'); }} /></LazyPanel>
           </div>
         </div>
       )}
 
+      {unsavedAsk && (
+        <UnsavedDialog
+          names={unsavedAsk.files.map((x) => x.name)}
+          hasUntitled={unsavedAsk.files.some((x) => !x.path)}
+          onChoose={(c) => { unsavedAsk.resolve(c); setUnsavedAsk(null); }}
+        />
+      )}
+      {restoreOffer && (
+        <RestoreSessionDialog
+          tabs={restoreOffer.tabs.length}
+          unsaved={restoreOffer.tabs.filter((x) => x.draft !== undefined).length}
+          onRestore={() => void restoreSession(restoreOffer)}
+          onDismiss={dismissRestore}
+        />
+      )}
+
+      {trustState.root && !trustState.trusted && trustState.prompt && <LazyPanel><TrustDialog /></LazyPanel>}
+      {showKeybindings && <LazyPanel><KeybindingsEditor onClose={() => setShowKeybindings(false)} /></LazyPanel>}
+
       {updateDlg && <UpdateDialog initialTab={updateDlg} autoDownload={settings.updateAutoDownload === true} onClose={() => setUpdateDlg(null)} />}
 
       {palette !== null && (
-        <Suspense fallback={null}>
+        <LazyPanel>
         <CommandPalette
           key={palette} // mod değişince (ör. komuttan tema seçiciye) palet yeniden kurulur: eski yazı kalmaz
           initial={palette === 'theme' ? '' : palette}
@@ -1178,7 +1855,7 @@ export function App() {
           onGoToLine={goToLine}
           onClose={() => setPalette(null)}
         />
-        </Suspense>
+        </LazyPanel>
       )}
 
       {/* Başlık çubuğu: ince kenarlıklı, yuvarlak çerçeve; üstteki dar boşluk da pencereyi sürüklemeye yarar */}
@@ -1272,7 +1949,7 @@ export function App() {
       <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${settings.statusBarVisible === false ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
-        <nav aria-label="Activity bar" className={`w-[50px] bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-1' : 'mr-1'} py-1 flex flex-col items-center justify-between select-none shrink-0 overflow-hidden`}>
+        <nav aria-label={t('appActivityBar')} className={`w-[50px] bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-1' : 'mr-1'} py-1 flex flex-col items-center justify-between select-none shrink-0 overflow-hidden`}>
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} title={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
               <Files size={24} strokeWidth={1.5} />
@@ -1293,7 +1970,7 @@ export function App() {
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} title={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
               <Bug size={24} strokeWidth={1.5} />
-              {dbg.status === 'paused' && <span className="absolute bottom-2.5 right-2.5 w-2 h-2 rounded-full bg-amber-400" />}
+              {dbgStatus === 'paused' && <span className="absolute bottom-2.5 right-2.5 w-2 h-2 rounded-full bg-amber-400" />}
             </button>
           </div>
 
@@ -1348,59 +2025,55 @@ export function App() {
                     density={settings.treeDensity === 'comfortable' ? 'comfortable' : settings.treeDensity === 'spacious' ? 'spacious' : 'compact'}
                     indentGuides={settings.treeIndentGuides !== false}
                     showOpenEditors={settings.showOpenEditors !== false}
-                    onSelectFile={(f) => {
-                      setShowLanding(false);
-                      setShowSettings(false);
-                      void handleSelectFile(f);
-                    }}
-                    onCloseOpenFile={handleCloseTab}
-                    onCreate={handleCreateFile}
-                    onMove={handleMove}
-                    onCloseAll={handleCloseAll}
-                    onOpenInTerminal={handleOpenInTerminal}
-                    onOpenRecent={(p) => void handleOpenRecent(p)}
-                    onRename={handleRename}
-                    onDelete={handleDeleteFile}
-                    onRefresh={refreshTree}
-                    onOpenFolder={handleOpenFolderDialog}
-                    onOpenFiles={handleOpenFileDialog}
+                    onSelectFile={eTreeSelect}
+                    onCloseOpenFile={eCloseTab}
+                    onCreate={eCreate}
+                    onMove={eMove}
+                    onCloseAll={eCloseAll}
+                    onOpenInTerminal={eTerm}
+                    onOpenRecent={eRecent}
+                    onRename={eRename}
+                    onDelete={eDelete}
+                    onRefresh={eRefresh}
+                    onOpenFolder={eOpenFolder}
+                    onOpenFiles={eOpenFiles}
                   />
                 </div>
               )}
               {activeSidebarTab === 'extensions' && (
                 <div key="extensions" className="animate-sidebar-in h-full">
-                  <Suspense fallback={null}><ExtensionsPanel /></Suspense>
+                  <LazyPanel><ExtensionsPanel /></LazyPanel>
                 </div>
               )}
               {activeSidebarTab === 'search' && (
                 <div key="search" className="animate-sidebar-in h-full">
-                  <Suspense fallback={null}><SearchPanel hasFolder={!!currentRootPath} onOpenResult={(p, line) => void openFileAt(p, line)} /></Suspense>
+                  <LazyPanel><SearchPanel hasFolder={!!currentRootPath} onOpenResult={(p, line) => void openFileAt(p, line)} dirtyPaths={openFiles.filter((f) => f.isModified && f.path).map((f) => f.path as string)} /></LazyPanel>
                 </div>
               )}
               {activeSidebarTab === 'git' && (
                 <div key="git" className="animate-sidebar-in h-full flex flex-col">
                   <div className="h-9 flex items-center pl-4 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">{t('actGit')}</div>
-                  <Suspense fallback={null}><GithubAccount /></Suspense>
+                  <LazyPanel><GithubAccount /></LazyPanel>
                   <div className="flex-1 min-h-0">
-                    <Suspense fallback={null}><GitPanel status={gitStatus} currentRepoPath={currentRootPath} onRefresh={() => refreshGitStatus()} onLog={(type, text) => addLog(type, text)} onOpenDiff={openDiffTab} onOpenFile={(p) => void openFileAt(p)} onPicker={setPicker} notice={gitNotice} /></Suspense>
+                    <LazyPanel><GitPanel status={gitStatus} currentRepoPath={currentRootPath} onRefresh={() => refreshGitStatus()} onLog={(type, text) => addLog(type, text)} onOpenDiff={openDiffTab} onOpenFile={(p) => void openFileAt(p)} onPicker={setPicker} notice={gitNotice} /></LazyPanel>
                   </div>
                 </div>
               )}
               {activeSidebarTab === 'debug' && (
                 <div key="debug" className="animate-sidebar-in h-full">
-                  <Suspense fallback={null}><DebugPanel rootPath={currentRootPath} activeFile={activeFile ? { path: activeFile.path, name: activeFile.name } : null} onOpenFile={(p, line) => void openFileAt(p, line)} /></Suspense>
+                  <LazyPanel><DebugPanel rootPath={currentRootPath} activeFile={activeFile ? { path: activeFile.path, name: activeFile.name } : null} onOpenFile={(p, line) => void openFileAt(p, line)} /></LazyPanel>
                 </div>
               )}
             </div>
           )}
         </div>
-        {sidebarShown && <ResizeHandle direction="horizontal" title="Kenar çubuğu genişliği" onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
+        {sidebarShown && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
 
         {/* Ana sütun: görünüm (ayarlar / karşılama / editör) + terminal paneli (oturumlar panel gizliyken de canlı kalır) */}
         <div className="flex flex-col flex-1 h-full min-w-0 rounded-[var(--frame-r)] border border-nv-border bg-nv-editor overflow-hidden">
           <div className="flex-1 min-h-0 flex flex-col min-w-0">
             {showLanding ? (
-          <Suspense fallback={null}><LandingPage
+          <LazyPanel><LandingPage
             onNewFile={handleNewUntitled}
             onOpenFiles={handleOpenFileDialog}
             onOpenFolder={handleOpenFolderDialog}
@@ -1420,34 +2093,83 @@ export function App() {
             githubLogin={auth.connected ? auth.profile?.login : null}
             showOnStartup={settings.welcomeOnStartup === true}
             onToggleStartup={(v) => setSetting('welcomeOnStartup', v)}
-          /></Suspense>
+          /></LazyPanel>
             ) : (
-              <EditorArea
-                onOpenPath={(p) => void openFileAt(p)}
-                openFiles={openFiles}
-                activeFileId={activeFileId}
-                onSelectTab={(id) => setActiveFileId(id)}
-                onCloseTab={handleCloseTab}
-                onNewFile={handleNewUntitled}
-                onOpenFolder={handleOpenFolderDialog}
-                onOpenFiles={handleOpenFileDialog}
-                rootPath={currentRootPath}
-                rootName={projectName}
-                onChangeContent={handleContentChange}
-                onSaveFile={handleSaveFile}
-                onRunCode={handleRunCode}
-                canPreview={previewable}
-                previewOpen={showRightPanel === 'preview'}
-                onTogglePreview={() => setShowRightPanel((v) => (v === 'preview' ? null : 'preview'))}
-                collab={{ enabled: collabEnabled && collabUrlValid, url: collabUrl.trim(), token: collabToken, room: currentRootPath || '' }}
-              />
+              <div ref={groupsRef} className={`flex flex-1 min-h-0 min-w-0 ${stackCol ? 'flex-col' : 'flex-row'}`}>
+                <div className="flex min-w-0 min-h-0" style={split ? { flex: `0 0 ${(splitRatio * 100).toFixed(2)}%` } : { flex: '1 1 0%' }}>
+                  <EditorArea
+                    groupId="a"
+                    split={!!split}
+                    focused={!split || split.focus === 'a'}
+                    poolFiles={openFiles}
+                    onFocusGroup={eFocusGroup}
+                    onDropTab={eDropTab}
+                    onSplitRight={split ? undefined : eSplitRight}
+                    onOpenPath={eOpenPath}
+                    openFiles={groupFiles ? groupFiles.a : openFiles}
+                    activeFileId={split ? split.aActive : activeFileId}
+                    onSelectTab={eSelectA}
+                    onCloseTab={eCloseA}
+                    onNewFile={eNewFile}
+                    onOpenFolder={eOpenFolder}
+                    onOpenFiles={eOpenFiles}
+                    rootPath={currentRootPath}
+                    rootName={projectName}
+                    onChangeContent={eChangeContent}
+                    onDirty={eDirty}
+                    getInitialContent={eInitial}
+                    onReloadDisk={eReload}
+                    onKeepMine={eKeep}
+                    onSaveFile={eSave}
+                    onRunCode={eRun}
+                    canPreview={previewable}
+                    previewOpen={showRightPanel === 'preview'}
+                    onTogglePreview={eTogglePreview}
+                    collab={collabCfg}
+                  />
+                </div>
+                {split && groupFiles && (
+                  <>
+                    <ResizeHandle direction={stackCol ? 'vertical' : 'horizontal'} title={t('cmdSplitRight')} onResize={resizeGroups} />
+                    <div className="flex flex-1 min-w-0 min-h-0">
+                      <EditorArea
+                        groupId="b"
+                        split
+                        focused={split.focus === 'b'}
+                        poolFiles={openFiles}
+                        onFocusGroup={eFocusGroup}
+                        onDropTab={eDropTab}
+                        onCloseSplit={eCloseSplit}
+                        onOpenPath={eOpenPath}
+                        openFiles={groupFiles.b}
+                        activeFileId={split.bActive}
+                        onSelectTab={eSelectB}
+                        onCloseTab={eCloseB}
+                        onNewFile={eNewFile}
+                        rootPath={currentRootPath}
+                        rootName={projectName}
+                        onChangeContent={eChangeContent}
+                        onDirty={eDirty}
+                        getInitialContent={eInitial}
+                        onReloadDisk={eReload}
+                        onKeepMine={eKeep}
+                        onSaveFile={eSave}
+                        onRunCode={eRun}
+                        canPreview={previewable}
+                        previewOpen={showRightPanel === 'preview'}
+                        onTogglePreview={eTogglePreview}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
 
           {showBottomTerminal && (
             <ResizeHandle
               direction="vertical"
-              title="Terminal yüksekliği"
+              title={t('appTerminalHeight')}
               onResize={(d) => {
                 setTerminalMaximized(false);
                 setTerminalHeight((h) => clamp(h - d, 120, 640));
@@ -1459,7 +2181,7 @@ export function App() {
             className="terminal-shell shrink-0 overflow-hidden border-nv-border"
             style={{ height: showBottomTerminal ? (terminalMaximized ? '70%' : terminalHeight) : 0, borderTopWidth: showBottomTerminal ? 1 : 0 }}
           >
-            <Suspense fallback={null}><Terminal
+            <LazyPanel><Terminal
               logs={logs}
               onClear={() => setLogs([])}
               cwd={currentRootPath}
@@ -1472,55 +2194,87 @@ export function App() {
                 setTerminalMaximized(false);
               }}
               onOpenFolder={handleOpenFolderDialog}
-            /></Suspense>
+            /></LazyPanel>
           </div>
         </div>
 
         {/* Sağ panel: önizleme veya yapay zekâ */}
         {!showLanding && showRightPanel === 'preview' && canPreview && (
-          <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex shadow-[-14px_0_32px_rgba(0,0,0,0.4)]' : 'contents'}>
+          <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex border-s border-nv-border' : 'contents'}>
             <ResizeHandle direction="horizontal" title={t('tbPreview')} onResize={(d) => setPreviewWidth((w) => clamp(w - d, 320, 1200))} />
             <div style={{ width: Math.min(previewWidth, compactRight ? vw - 56 : Math.round(vw * 0.5)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden shrink-0 min-w-0">
-              <Suspense fallback={null}><Preview
-                file={activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: activeFile.content } : null}
+              <LazyPanel><Preview
+                file={activeView}
                 rootPath={currentRootPath}
-                live={openFiles.map((f) => ({ path: f.path, content: f.content }))}
+                live={previewLive}
                 localUrl={localUrl}
                 onClose={() => setShowRightPanel(null)}
                 onOpenFile={(p) => void openFileAt(p)}
-              /></Suspense>
+              /></LazyPanel>
             </div>
           </div>
         )}
 
         {!showLanding && showRightPanel === 'ai' && (
-          <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex shadow-[-14px_0_32px_rgba(0,0,0,0.4)]' : 'contents'}>
+          <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex border-s border-nv-border' : 'contents'}>
           <ResizeHandle direction="horizontal" title={t('aiTitle')} onResize={(d) => setAiWidth((w) => clamp(w - d, 300, 720))} />
           <div style={{ width: Math.min(aiWidth, compactRight ? vw - 56 : Math.round(vw * 0.4)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] border border-nv-border overflow-hidden shrink-0 min-w-0">
-            <Suspense fallback={null}>
+            <LazyPanel>
             <AIAssistant
-              activeFile={activeFile ? { name: activeFile.name, path: activeFile.path, language: activeFile.language, content: activeFile.content } : null}
+              activeFile={activeView}
               hasWorkspace={!!currentRootPath}
               rootPath={currentRootPath}
               onOpenFile={(p) => void openFileAt(p)}
               onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }}
             />
-            </Suspense>
+            </LazyPanel>
           </div>
           </div>
         )}
       </div>
 
       {compMenu && (
-        <Suspense fallback={null}>
+        <LazyPanel>
           <CompletionMenu anchor={compMenu} onClose={() => setCompMenu(null)} onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }} />
-        </Suspense>
+        </LazyPanel>
+      )}
+
+      {taskPicker && currentRootPath && (
+        <LazyPanel>
+          <TaskPicker
+            root={currentRootPath}
+            onClose={() => setTaskPicker(false)}
+            onPick={(task) => {
+              setTaskPicker(false);
+              setShowBottomTerminal(true);
+              void import('./services/tasks').then((m) => m.runTask(task, currentRootPath));
+            }}
+          />
+        </LazyPanel>
+      )}
+
+      {devDlg === 'timeline' && (
+        <LazyPanel>
+          <TimelinePanel
+            filePath={activeFile && !activeFile.diff ? activeFile.path ?? null : null}
+            enabled={settings.localHistory !== false}
+            getCurrent={() => (activeFile ? getContent(activeFile) : '')}
+            onOpenDiff={openDiffTab}
+            onRestore={restoreFromHistory}
+            onClose={() => setDevDlg(null)}
+          />
+        </LazyPanel>
+      )}
+      {devDlg === 'snippets' && (
+        <LazyPanel>
+          <SnippetsEditor hasFolder={!!currentRootPath} onSaved={() => void reloadSnippets()} onClose={() => setDevDlg(null)} />
+        </LazyPanel>
       )}
 
       {picker && currentRootPath && gitStatus.isRepo && (
-        <Suspense fallback={null}>
+        <LazyPanel>
           <BranchPicker repo={currentRootPath} mode={picker} current={gitStatus.branch} onClose={() => setPicker(null)} onResult={(r) => pushGitNotice(r.ok, r.text)} />
-        </Suspense>
+        </LazyPanel>
       )}
 
       {/* Durum çubuğu: yalnız anlamlı bilgiler */}
@@ -1550,12 +2304,8 @@ export function App() {
                 )}
               </>
             )}
-            <button className="status-item" onClick={openProblems} title={t('prbTip').replace('{e}', String(problems.errors)).replace('{w}', String(problems.warnings))} aria-label={t('prbTab')}>
-              <XCircle size={12} className={problems.errors ? 'text-rose-400' : ''} />
-              <span>{problems.errors}</span>
-              <TriangleAlert size={12} className={problems.warnings ? 'text-amber-300' : ''} />
-              <span>{problems.warnings}</span>
-            </button>
+            {trustState.root && !trustState.trusted && <LazyPanel><TrustBadge /></LazyPanel>}
+            <StatusProblems onOpen={openProblems} />
             <button className="status-item" onClick={() => pickSidebar('git')} title={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}>
               <UserRound size={12} />
               <span>{auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}</span>
@@ -1567,31 +2317,11 @@ export function App() {
             {activeFile?.isModified && <span className="status-item text-amber-300">{t('stUnsaved')}</span>}
             {activeFile && (
               <>
-                {cursor && !activeFile.diff && (
-                  <button className="status-item" onClick={() => setPalette(':')} title={`${t('cmdGoToLine')} (Ctrl+G)`}>
-                    {t('scmLnCol').replace('{l}', String(cursor.line)).replace('{c}', String(cursor.col))}
-                    {cursor.selected > 0 && <span className="text-zinc-500">{t('scmSelected').replace('{n}', String(cursor.selected))}</span>}
-                  </button>
-                )}
+                {!activeFile.diff && <StatusCursor onOpen={() => setPalette(':')} />}
                 <span className="status-item hidden @lg:inline-flex">{t('stSpaces').replace(/\d+/, String(tabSize))}</span>
                 <span className="status-item hidden @lg:inline-flex">UTF-8</span>
-                {!activeFile.diff && (
-                  <button
-                    className="status-item"
-                    title={compState === 'busy' ? t('aiCompBusy') : compState === 'unavailable' ? t('aiCompUnavailable') : t('aiCompReady')}
-                    aria-label={t('set_aiCompletion')}
-                    aria-haspopup="dialog"
-                    onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setCompMenu({ x: r.left + r.width / 2, y: r.top }); }}
-                  >
-                    <CompletionIcon size={12} off={compState === 'off'} className={compState === 'off' ? 'text-zinc-500' : compState === 'busy' ? 'text-indigo-400 animate-pulse' : compState === 'unavailable' ? 'text-rose-400' : 'text-indigo-300'} />
-                  </button>
-                )}
-                {lspEntry && (
-                  <span className="status-item" title={lspTip}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${lspEntry.state === 'ready' ? 'bg-emerald-400' : lspEntry.state === 'starting' ? 'bg-amber-400 animate-pulse' : lspEntry.state === 'missing' ? 'bg-zinc-500' : 'bg-rose-400'}`} />
-                    <span className="hidden @md:inline">{lspEntry.name}</span>
-                  </span>
-                )}
+                {!activeFile.diff && <StatusCompletion onOpenMenu={setCompMenu} />}
+                <StatusLsp fileName={activeFile.name} />
                 <span className="status-item">{activeFile.language ? languageLabel(activeFile.language) : t('stPlain')}</span>
               </>
             )}

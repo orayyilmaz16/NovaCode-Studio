@@ -2,6 +2,19 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 17.11.2026 (Güven modeli ve önizleme izolasyonu)
+- **Çalışma klasörü güveni** tek modülde (`electron-trust.cjs`): güvenilmeyen klasör kısıtlı modda açılır; LSP ve hata ayıklayıcı kapalı, git yalnız okuma. Güvenilen klasör, AI rızası ve izinli adresler yalnız **geri alınabilir**, yönetici adına verilemez (KVKK ilkesi). Entegre terminal kullanıcının kendi kabuğu olduğu için kısıtlanmadı.
+- **Önizleme ayrı köken** (`nova-preview://`): uygulama CSP'sinden `unsafe-eval`/satır içi betik kaldırıldı; gevşek CSP yalnız önizleme yanıtında. `style-src unsafe-inline` ve `img-src https:` bilinçli kabul (React/Monaco, eklenti simgeleri).
+- **Oturum geri yükleme** onaylıdır ve yalnız `localStorage`; yerel geçmiş yalnız `userData`, varsayılan açık, kapatınca silinir.
+- **OAuth kapsamı `repo` kalır** (özel depo/push için gerekli); GitHub App'e geçiş ayrı ürün kararı. Kimlik imzalama sertifika alınınca açılır (`publisherName` o zaman eklenir).
+- Ana paket bütçesi (JS 600 KB, gzip 200 KB) yükseltilmez; aşılırsa lazy import ile düşürülür.
+
+## 17.11.2026 (Denetim bulgularının düzeltilmesi)
+Kurucu talimatıyla [[BACKLOG]] bulguları ajanlarla dosya sahipliğine göre bölünerek çözülüyor (aynı dosyaya iki ajan dokunmaz; i18n anahtarları ajan başına ayrı dosyaya). Kapsam dışı bırakılanlar: uzaktan geliştirme ve çoklu kök (ayrı ürün projesi), test paneli, I-05 yedek dil (ürün kararı), S-04 imza (sertifika gerekir), S-18 OAuth kapsamı (`repo` özel depo için gerekli; ince ayarlı GitHub App ayrı karar). Bilinçli kabuller: ana CSP önizleme ayrıştırılana kadar geniş kalmıştı (G ajanı ayrıştırıyor); model SHA-256 değerleri yalnız doğrulanabilenler için yazılır.
+
+## 17.11.2026 (Sürekli denetim)
+Güvenlik, performans, hata/arayüz/özellik taramasını sürekli ve belgeli yapmak için üç katman kuruldu ([[audit]]): (1) `scripts/audit-scan.mjs` sezgisel tarama her Claude turunda (`auto-commit.mjs`) ve CI'da çalışır, [[AUDIT]] + `audit-baseline.json` üretir; (2) `npm run audit:check` temel çizgiye göre **yeni** yüksek/kritik bulgu varsa CI'ı durdurur (mevcut borç CI'ı kırmaz); (3) doğrulanmış derin bulgular [[BACKLOG]]'da durumlu tutulur. `security.yml` haftalık/her push'ta raporu iş özetine ve artifact'a yazar. Ağsız, yapay zekâsız, değer/sır yazdırmaz (KVKK). İlk derin tarama (17.11.2026): kritik yok, 30 güvenlik, 28 performans, 16 hata, 5 i18n, 8 arayüz, 9 özellik, 3 test maddesi.
+
 ## 17.11.2026 (Dil adı yazımı)
 Durum çubuğunda dil adı resmi yazımla gösterilir (`languageLabel`, `src/services/lang.ts`); dil adları özel ad olduğu için i18n dışıdır.
 

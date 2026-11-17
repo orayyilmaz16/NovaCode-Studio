@@ -30,3 +30,25 @@ export function runCommandFor(file: string, language?: string, custom: RunOverri
     default: return language === 'python' ? pick(custom.python, `python ${q}`) : null;
   }
 }
+
+// Terminal paneli tembel yüklenir: ilk kullanımda parça inip dinleyici kurulana kadar bekler (sabit gecikme yok).
+// Terminal hazır olunca 'nova:term-ready' olayı yayınlayabilir; yayınlamazsa parça yüklenip iki çizim karesi geçince hazır sayılır.
+let termReady = false;
+let readyPromise: Promise<void> | null = null;
+const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+function whenTerminalReady(): Promise<void> {
+  if (termReady) return Promise.resolve();
+  readyPromise ??= new Promise<void>((resolve) => {
+    const done = () => { termReady = true; resolve(); };
+    window.addEventListener('nova:term-ready', done, { once: true });
+    import('../components/Terminal').then(() => nextFrame().then(nextFrame).then(done), done);
+  });
+  return readyPromise;
+}
+
+/** Terminal hazır olunca (ve panelin görünürlük durumu işlendikten sonra) komutu gönderir. */
+export async function sendTerminalWhenReady(detail: TerminalAction) {
+  await whenTerminalReady();
+  await nextFrame();
+  sendTerminal(detail);
+}

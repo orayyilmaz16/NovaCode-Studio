@@ -3,7 +3,7 @@
 > Bu dosya `scripts/brain.mjs` tarafından koddan üretilir; **elle düzenleme**. Yenilemek için `npm run brain`. Bkz. [[BRAIN]].
 
 ## Sürümler
-- Uygulama: **1.4.1**
+- Uygulama: **1.4.2**
 - Electron ^45.2.3 · React ^19.3.1 · Vite ^8.3.5 · TypeScript ~7.0.2 · Tailwind ^4.3.5
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.57.0
 - GitHub OAuth Client ID tanımlı: evet
@@ -17,9 +17,11 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
+| `audit` | `node scripts/audit-scan.mjs` |
+| `audit:check` | `node scripts/audit-scan.mjs --check` |
 | `version:check` | `node scripts/check-version.mjs` |
 | `sync` | `node scripts/auto-commit.mjs` |
 | `icons:gen` | `node scripts/gen-file-icons.mjs` |
@@ -28,113 +30,138 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 889 |
-| `electron-debug.cjs` | 226 |
-| `electron-ext.cjs` | 323 |
-| `electron-git.cjs` | 406 |
-| `electron-github.cjs` | 331 |
-| `electron-llm.cjs` | 256 |
-| `electron-lsp.cjs` | 271 |
-| `electron-main.cjs` | 520 |
-| `electron-preload.cjs` | 224 |
-| `electron-pty.cjs` | 118 |
-| `electron-search.cjs` | 74 |
-| `electron-secrets.cjs` | 58 |
-| `electron-term.cjs` | 155 |
+| `electron-ai.cjs` | 1028 |
+| `electron-debug.cjs` | 240 |
+| `electron-ext.cjs` | 341 |
+| `electron-git.cjs` | 426 |
+| `electron-github.cjs` | 335 |
+| `electron-gitignore.cjs` | 65 |
+| `electron-history.cjs` | 171 |
+| `electron-llm.cjs` | 280 |
+| `electron-lsp.cjs` | 301 |
+| `electron-main.cjs` | 833 |
+| `electron-paths.cjs` | 134 |
+| `electron-preload.cjs` | 271 |
+| `electron-preview.cjs` | 78 |
+| `electron-pty.cjs` | 128 |
+| `electron-search.cjs` | 289 |
+| `electron-secrets.cjs` | 66 |
+| `electron-snippets.cjs` | 106 |
+| `electron-term.cjs` | 176 |
 | `electron-textbuffer.cjs` | 309 |
-| `electron-update.cjs` | 164 |
+| `electron-trust.cjs` | 170 |
+| `electron-update.cjs` | 165 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1605 |
-| `src/main.tsx` | 21 |
-| `src/types.ts` | 412 |
+| `src/App.tsx` | 2335 |
+| `src/main.tsx` | 30 |
+| `src/types.ts` | 489 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 820 |
+| `src/components/AIAssistant.tsx` | 834 |
+| `src/components/AppDialogs.tsx` | 66 |
 | `src/components/BranchPicker.tsx` | 199 |
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
-| `src/components/CommandPalette.tsx` | 165 |
+| `src/components/CommandPalette.tsx` | 166 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 533 |
-| `src/components/ExtensionsPanel.tsx` | 302 |
-| `src/components/FileTree.tsx` | 925 |
+| `src/components/EditorArea.tsx` | 740 |
+| `src/components/ErrorBoundary.tsx` | 70 |
+| `src/components/ExtensionsPanel.tsx` | 303 |
+| `src/components/FileTree.tsx` | 932 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitPanel.tsx` | 899 |
-| `src/components/GithubAccount.tsx` | 134 |
-| `src/components/LandingPage.tsx` | 175 |
+| `src/components/GitPanel.tsx` | 883 |
+| `src/components/GithubAccount.tsx` | 135 |
+| `src/components/KeybindingsEditor.tsx` | 146 |
+| `src/components/LandingPage.tsx` | 176 |
 | `src/components/Logo.tsx` | 36 |
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
 | `src/components/MenuBar.tsx` | 95 |
-| `src/components/Preview.tsx` | 317 |
+| `src/components/Preview.tsx` | 372 |
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
-| `src/components/SearchPanel.tsx` | 98 |
-| `src/components/SettingsPage.tsx` | 614 |
-| `src/components/SplashScreen.tsx` | 38 |
-| `src/components/Terminal.tsx` | 560 |
+| `src/components/SearchPanel.tsx` | 214 |
+| `src/components/SettingsPage.tsx` | 750 |
+| `src/components/SnippetsEditor.tsx` | 83 |
+| `src/components/SplashScreen.tsx` | 56 |
+| `src/components/StatusCursor.tsx` | 66 |
+| `src/components/TaskPicker.tsx` | 80 |
+| `src/components/Terminal.tsx` | 599 |
 | `src/components/ThinkingMenu.tsx` | 146 |
+| `src/components/TimelinePanel.tsx` | 151 |
+| `src/components/TrustDialog.tsx` | 54 |
 | `src/components/UpdateDialog.tsx` | 156 |
 | `src/components/WindowControls.tsx` | 48 |
 
 ### Servisler
 | Dosya | Satır |
 |---|---|
-| `src/services/SettingsContext.tsx` | 157 |
+| `src/services/SettingsContext.tsx` | 198 |
 | `src/services/aiClient.ts` | 265 |
-| `src/services/aiCompletion.ts` | 198 |
+| `src/services/aiCompletion.ts` | 204 |
+| `src/services/collabRoom.ts` | 93 |
 | `src/services/completionSchedule.ts` | 69 |
 | `src/services/completionShape.ts` | 180 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
-| `src/services/debugStore.ts` | 143 |
-| `src/services/editorBridge.ts` | 98 |
+| `src/services/debugStore.ts` | 150 |
+| `src/services/editorBridge.ts` | 108 |
 | `src/services/editorTheme.ts` | 98 |
 | `src/services/extensionsService.ts` | 220 |
 | `src/services/gitExplain.ts` | 18 |
+| `src/services/keybindings.ts` | 288 |
 | `src/services/lang.ts` | 26 |
-| `src/services/lspClient.ts` | 190 |
+| `src/services/lspClient.ts` | 213 |
 | `src/services/lspStore.ts` | 34 |
 | `src/services/monacoShim.ts` | 28 |
 | `src/services/palettes.ts` | 168 |
 | `src/services/previewKind.ts` | 11 |
-| `src/services/problems.ts` | 141 |
+| `src/services/problems.ts` | 161 |
 | `src/services/ptyBus.ts` | 24 |
-| `src/services/settings.ts` | 308 |
-| `src/services/terminalBridge.ts` | 32 |
+| `src/services/recentFolders.ts` | 28 |
+| `src/services/session.ts` | 103 |
+| `src/services/settings.ts` | 344 |
+| `src/services/splitLayout.ts` | 135 |
+| `src/services/tasks.ts` | 88 |
+| `src/services/terminalBridge.ts` | 54 |
 | `src/services/terminalText.ts` | 148 |
+| `src/services/trustService.ts` | 52 |
 | `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
 | `src/services/useDictation.ts` | 67 |
+| `src/services/useEvent.ts` | 13 |
+| `src/services/useFocusTrap.ts` | 59 |
 | `src/services/useGithubAuth.ts` | 32 |
+| `src/services/userSnippets.ts` | 57 |
 
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1635 |
-| `src/i18n/uiTextAi.ts` | 528 |
-| `src/i18n/uiTextComp.ts` | 113 |
-| `src/i18n/uiTextDev.ts` | 126 |
+| `src/i18n/uiText.ts` | 666 |
+| `src/i18n/uiTextAi.ts` | 597 |
+| `src/i18n/uiTextComp.ts` | 329 |
+| `src/i18n/uiTextDev.ts` | 235 |
 | `src/i18n/uiTextScm.ts` | 228 |
-| `src/i18n/uiTextTheme.ts` | 71 |
+| `src/i18n/uiTextTheme.ts` | 1127 |
 
 ### Betikler
 | Dosya | Satır |
 |---|---|
-| `scripts/auto-commit.mjs` | 216 |
+| `scripts/audit-scan.mjs` | 205 |
+| `scripts/auto-commit.mjs` | 219 |
 | `scripts/brain.mjs` | 297 |
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
 | `scripts/check-version.mjs` | 82 |
-| `scripts/doc-sync.mjs` | 187 |
+| `scripts/doc-sync.mjs` | 188 |
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/make-icons.cjs` | 29 |
 | `scripts/release.mjs` | 286 |
@@ -143,24 +170,37 @@
 | Dosya | Satır |
 |---|---|
 | `scripts/tests/ai-complete.test.cjs` | 205 |
+| `scripts/tests/ai-security.test.cjs` | 84 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
-| `scripts/tests/debug.test.cjs` | 112 |
+| `scripts/tests/debug.test.cjs` | 118 |
+| `scripts/tests/electron-misc.test.cjs` | 153 |
 | `scripts/tests/git.test.cjs` | 163 |
-| `scripts/tests/lsp.test.cjs` | 97 |
+| `scripts/tests/history.test.cjs` | 66 |
+| `scripts/tests/i18n.test.cjs` | 100 |
+| `scripts/tests/keybindings.test.cjs` | 154 |
+| `scripts/tests/lsp.test.cjs` | 104 |
 | `scripts/tests/palettes.test.cjs` | 75 |
+| `scripts/tests/paths.test.cjs` | 88 |
+| `scripts/tests/preview-csp.test.cjs` | 66 |
 | `scripts/tests/pty.test.cjs` | 84 |
 | `scripts/tests/release.test.cjs` | 140 |
+| `scripts/tests/replace.test.cjs` | 71 |
+| `scripts/tests/search-redos.test.cjs` | 47 |
+| `scripts/tests/services.test.cjs` | 140 |
 | `scripts/tests/settings-migrate.test.cjs` | 62 |
+| `scripts/tests/snippets.test.cjs` | 22 |
 | `scripts/tests/sync.test.cjs` | 58 |
+| `scripts/tests/syncserver.test.cjs` | 73 |
 | `scripts/tests/term.test.cjs` | 74 |
 | `scripts/tests/textbuffer.test.cjs` | 135 |
+| `scripts/tests/trust.test.cjs` | 74 |
 
 ### Sunucu
 | Dosya | Satır |
 |---|---|
-| `server/sync-server.mjs` | 144 |
+| `server/sync-server.mjs` | 275 |
 
 ## IPC kanalları
 | Grup | Kanallar |
@@ -173,24 +213,28 @@
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDataUrl`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:amend`, `git:branches`, `git:checkout`, `git:checkoutRef`, `git:commit`, `git:commitFiles`, `git:createBranch`, `git:createBranchFrom`, `git:createTag`, `git:deleteBranch`, `git:deleteTag`, `git:diffFile`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:merge`, `git:mergeAbort`, `git:mergeContinue`, `git:pull`, `git:push`, `git:pushTag`, `git:refs`, `git:resolve`, `git:stage`, `git:stageAll`, `git:stashApply`, `git:stashDrop`, `git:stashList`, `git:stashPop`, `git:stashPush`, `git:status`, `git:sync`, `git:undoCommit`, `git:unstage` |
 | github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
+| history | `history:clear`, `history:config`, `history:deleted`, `history:list`, `history:read` |
 | llm | `llm:cancel`, `llm:delete`, `llm:download`, `llm:status` |
 | lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
+| preview | `preview:drop`, `preview:put` |
 | pty | `pty:available`, `pty:resize`, `pty:start`, `pty:stop`, `pty:write` |
-| search | `search:files`, `search:text` |
-| secrets | `secrets:get`, `secrets:set` |
+| search | `search:cancel`, `search:files`, `search:replace`, `search:text` |
+| secrets | `secrets:get`, `secrets:has`, `secrets:set` |
+| snippets | `snippets:load`, `snippets:read`, `snippets:save` |
 | term | `term:input`, `term:start`, `term:stop` |
+| trust | `trust:grant`, `trust:list`, `trust:revoke`, `trust:status` |
 | ui | `ui:setTheme` |
 | update | `update:check`, `update:download`, `update:install`, `update:releases`, `update:state` |
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 858 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1018 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-110 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+112 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -243,6 +287,8 @@
 | Dosyalar ve kayıt | `formatOnSave` | Kayıtta kodu biçimlendir | toggle | `false` |  |
 | Dosyalar ve kayıt | `trimTrailingWhitespace` | Kayıtta satır sonu boşluklarını sil | toggle | `false` |  |
 | Dosyalar ve kayıt | `insertFinalNewline` | Kayıtta sona boş satır ekle | toggle | `false` |  |
+| Dosyalar ve kayıt | `localHistory` | Yerel geçmiş | toggle | `true` |  |
+| Dosyalar ve kayıt | `localHistoryMax` | Dosya başına sürüm sayısı | slider | `30` | 5–30 |
 | Dosyalar ve kayıt | `welcomeOnStartup` | Açılışta karşılama sayfasını göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showGitDecorations` | Dosya ağacında Git durumunu göster | toggle | `true` |  |
 | Dosyalar ve kayıt | `showOpenEditors` | Gezginde "Açık düzenleyiciler" | toggle | `true` |  |
@@ -311,7 +357,7 @@
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `release-desktop` (Windows Kurulum (.exe) ve Release) |
 | `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
-| `.github/workflows/security.yml` | Güvenlik Taraması | `codeql` (CodeQL), `secrets` (Gizli anahtar taraması (gitleaks)), `dependency-review` (Bağımlılık incelemesi), `audit-weekly` (Haftalık npm audit) |
+| `.github/workflows/security.yml` | Güvenlik Taraması | `codeql` (CodeQL), `secrets` (Gizli anahtar taraması (gitleaks)), `dependency-review` (Bağımlılık incelemesi), `audit-scan` (Sürekli denetim raporu), `audit-weekly` (Haftalık npm audit) |
 
 ## Md haritası
 | Ad | Yol | Amaç |
@@ -320,6 +366,7 @@
 | [[CHANGELOG]] | `CHANGELOG.md` | Changelog |
 | [[CLAUDE]] | `CLAUDE.md` | NovaCode Studio |
 | [[ai-assistant]] | `docs/brain/actions/ai-assistant.md` | Yapay zekâ asistanı: çoklu sağlayıcı, Ask/Agent modları, araçlar, oturumlar, görsel girdi, sesli dikte, özel komutlar |
+| [[audit]] | `docs/brain/actions/audit.md` | Sürekli denetim: güvenlik açıkları, performans kayıpları, hatalar, arayüz ve özellik eksikleri |
 | [[brain-maintenance]] | `docs/brain/actions/brain-maintenance.md` | Proje beynini (docs/brain) güncel ve tutarlı tutmak |
 | [[ci-cd]] | `docs/brain/actions/ci-cd.md` | GitHub Actions, audit, bundle bütçesi ve yayın hattı |
 | [[debugging]] | `docs/brain/actions/debugging.md` | Hata ayıklayıcı (Node/JavaScript): kesme noktası, adım adım, değişkenler, çağrı yığını |
@@ -342,6 +389,8 @@
 | [[ui-design]] | `docs/brain/actions/ui-design.md` | Arayüz, tema, logo ve animasyon değişiklikleri |
 | [[updates]] | `docs/brain/actions/updates.md` | Uygulama güncelleme sistemi: denetle, indir (yüzde), yeniden başlat ve kur; sürüm notları; yayın hattı |
 | [[versioning]] | `docs/brain/actions/versioning.md` | SemVer sürümleme otomasyonu: patch/minor/major kararı, sürüm notları, sürüm geçmişi, etiket ve GitHub Release |
+| [[AUDIT]] | `docs/brain/AUDIT.md` | Denetim raporu (otomatik) |
+| [[BACKLOG]] | `docs/brain/BACKLOG.md` | Denetim yapılacaklar listesi (doğrulanmış bulgular) |
 | [[BRAIN]] | `docs/brain/BRAIN.md` | NovaCode Studio — Proje Beyni |
 | [[DECISIONS]] | `docs/brain/DECISIONS.md` | Karar günlüğü |
 | [[LOG]] | `docs/brain/LOG.md` | Değişiklik günlüğü (otomatik) |

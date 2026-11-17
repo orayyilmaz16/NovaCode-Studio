@@ -8,6 +8,7 @@
 const { ipcMain } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const { killTree, killTreeSync } = require('./electron-paths.cjs');
 
 let lib = null; // null: denenmedi, false: yok
 const loadLib = () => {
@@ -42,10 +43,14 @@ function shellCommand(shell) {
 
 const clampInt = (n, lo, hi, def) => (Number.isInteger(n) ? Math.min(hi, Math.max(lo, n)) : def);
 
-function kill(s) {
+function kill(s, sync = false) {
   // Çıkmış sürece kill çağrısı ConPTY'de "AttachConsole failed" hatasıyla süreci düşürür: yalnız canlıysa
   if (s.exited) return;
   s.exited = true;
+  // Kabuğun torunları (dev sunucusu vb.) yetim kalmasın (P-10): Windows'ta süreç ağacı `taskkill /T /F` ile kapanır;
+  // ağaç öldürüldükten sonra ayrıca p.kill() çağrılmaz (ölmüş sürece ConPTY kill'i "AttachConsole failed" verir), onExit temizler.
+  const pid = s.p && s.p.pid;
+  if (process.platform === 'win32' && pid) { if (sync) killTreeSync([pid]); else void killTree(pid); return; }
   try { s.p.kill(); } catch { /* bitmiş */ }
 }
 
@@ -111,8 +116,13 @@ function register({ getWindow, isValidPath }) {
   ipcMain.handle('pty:available', () => ({ available: !!loadLib() }));
 }
 
+// Kapanışta eşzamanlı: ağaçlar tek `taskkill` çağrısıyla kapatılır
 function stopAll() {
-  for (const [id, s] of sessions) { kill(s); sessions.delete(id); }
+  const live = [...sessions.values()].filter((s) => !s.exited);
+  killTreeSync(live.map((s) => s.p && s.p.pid));
+  if (process.platform !== 'win32') for (const s of live) { try { s.p.kill(); } catch { /* bitmiş */ } }
+  for (const s of sessions.values()) s.exited = true;
+  sessions.clear();
 }
 
 module.exports = { register, stopAll };

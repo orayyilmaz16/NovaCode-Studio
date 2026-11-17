@@ -521,6 +521,75 @@ export const AI_TEXT = {
   aiYou: {
     tr: "Sen", en: "You", de: "Du", ru: "Вы", ar: "أنت", es: "Tú", fr: "Toi", az: "Sən",
   },
+  srReplaceToggle: {
+    tr: "Değiştirmeyi aç/kapat", en: "Toggle replace", de: "Ersetzen ein/aus", ru: "Показать/скрыть замену", ar: "إظهار/إخفاء الاستبدال", es: "Mostrar/ocultar reemplazo", fr: "Afficher/masquer le remplacement", az: "Əvəzləməni aç/bağla",
+  },
+  srReplacePlaceholder: {
+    tr: "Değiştir", en: "Replace", de: "Ersetzen", ru: "Заменить на", ar: "استبدال", es: "Reemplazar", fr: "Remplacer", az: "Əvəz et",
+  },
+  srWord: {
+    tr: "Tam kelime", en: "Whole word", de: "Ganzes Wort", ru: "Слово целиком", ar: "كلمة كاملة", es: "Palabra completa", fr: "Mot entier", az: "Tam söz",
+  },
+  srPreview: {
+    tr: "Önizle", en: "Preview", de: "Vorschau", ru: "Предпросмотр", ar: "معاينة", es: "Vista previa", fr: "Aperçu", az: "Önbaxış",
+  },
+  srReplaceAll: {
+    tr: "Tümünü değiştir", en: "Replace all", de: "Alle ersetzen", ru: "Заменить все", ar: "استبدال الكل", es: "Reemplazar todo", fr: "Tout remplacer", az: "Hamısını əvəz et",
+  },
+  srApply: {
+    tr: "Seçilenleri uygula ({n})", en: "Apply selected ({n})", de: "Auswahl anwenden ({n})", ru: "Применить выбранные ({n})", ar: "تطبيق المحدد ({n})", es: "Aplicar seleccionados ({n})", fr: "Appliquer la sélection ({n})", az: "Seçilənləri tətbiq et ({n})",
+  },
+  srBack: {
+    tr: "Geri", en: "Back", de: "Zurück", ru: "Назад", ar: "رجوع", es: "Atrás", fr: "Retour", az: "Geri",
+  },
+  srPreviewCount: {
+    tr: "{n} satır, {f} dosyada değişecek", en: "{n} lines in {f} files will change", de: "{n} Zeilen in {f} Dateien ändern sich", ru: "Изменится строк: {n}, файлов: {f}", ar: "سيتغير {n} سطرًا في {f} ملفًا", es: "Cambiarán {n} líneas en {f} archivos", fr: "{n} lignes dans {f} fichiers seront modifiées", az: "{f} faylda {n} sətir dəyişəcək",
+  },
+  srNoChange: {
+    tr: "Değişecek bir şey yok", en: "Nothing to replace", de: "Nichts zu ersetzen", ru: "Нечего заменять", ar: "لا يوجد ما يُستبدل", es: "Nada que reemplazar", fr: "Rien à remplacer", az: "Dəyişəcək heç nə yoxdur",
+  },
+  srExclude: {
+    tr: "Dahil et / hariç tut", en: "Include / exclude", de: "Einschließen / ausschließen", ru: "Включить / исключить", ar: "تضمين / استبعاد", es: "Incluir / excluir", fr: "Inclure / exclure", az: "Daxil et / çıxar",
+  },
+  srDirtyWarn: {
+    tr: "{n} açık dosyada kaydedilmemiş değişiklik var. Değiştirme diskteki içeriği günceller; açık sekme yenilenir.", en: "{n} open files have unsaved changes. Replace edits the content on disk; open tabs get refreshed.", de: "{n} geöffnete Dateien haben ungespeicherte Änderungen. Ersetzen ändert den Inhalt auf der Festplatte; offene Tabs werden aktualisiert.", ru: "В {n} открытых файлах есть несохранённые изменения. Замена меняет содержимое на диске; открытые вкладки обновятся.", ar: "في {n} ملفات مفتوحة تغييرات غير محفوظة. الاستبدال يغيّر المحتوى على القرص وسيتم تحديث علامات التبويب المفتوحة.", es: "{n} archivos abiertos tienen cambios sin guardar. Reemplazar modifica el contenido en disco; las pestañas abiertas se actualizan.", fr: "{n} fichiers ouverts ont des modifications non enregistrées. Le remplacement modifie le contenu sur le disque ; les onglets ouverts sont actualisés.", az: "{n} açıq faylda yadda saxlanmamış dəyişiklik var. Əvəzləmə diskdəki məzmunu dəyişir; açıq sekmə yenilənir.",
+  },
+  srConfirm: {
+    tr: "{n} satırdaki değişiklik diske yazılacak. Devam edilsin mi?", en: "Changes on {n} lines will be written to disk. Continue?", de: "Änderungen in {n} Zeilen werden auf die Festplatte geschrieben. Fortfahren?", ru: "Изменения в {n} строках будут записаны на диск. Продолжить?", ar: "سيتم كتابة التغييرات في {n} سطرًا على القرص. هل تريد المتابعة؟", es: "Los cambios en {n} líneas se escribirán en disco. ¿Continuar?", fr: "Les modifications de {n} lignes seront écrites sur le disque. Continuer ?", az: "{n} sətirdəki dəyişiklik diskə yazılacaq. Davam edilsin?",
+  },
+  srDone: {
+    tr: "{n} satır, {f} dosyada değiştirildi", en: "Replaced {n} lines in {f} files", de: "{n} Zeilen in {f} Dateien ersetzt", ru: "Заменено строк: {n}, файлов: {f}", ar: "تم استبدال {n} سطرًا في {f} ملفًا", es: "Reemplazadas {n} líneas en {f} archivos", fr: "{n} lignes remplacées dans {f} fichiers", az: "{f} faylda {n} sətir əvəz edildi",
+  },
+  srSkipped: {
+    tr: "{n} satır artık eşleşmediği için atlandı", en: "{n} lines skipped because they no longer match", de: "{n} Zeilen übersprungen, da sie nicht mehr passen", ru: "Пропущено строк, которые больше не совпадают: {n}", ar: "تم تخطي {n} سطرًا لأنها لم تعد مطابقة", es: "{n} líneas omitidas porque ya no coinciden", fr: "{n} lignes ignorées car elles ne correspondent plus", az: "{n} sətir artıq uyğun gəlmədiyi üçün keçildi",
+  },
+  srFailed: {
+    tr: "{n} dosya yazılamadı", en: "{n} files could not be written", de: "{n} Dateien konnten nicht geschrieben werden", ru: "Не удалось записать файлов: {n}", ar: "تعذّرت كتابة {n} ملفات", es: "No se pudieron escribir {n} archivos", fr: "{n} fichiers n’ont pas pu être écrits", az: "{n} fayl yazıla bilmədi",
+  },
+  srEmptyMatch: {
+    tr: "Boş eşleşen desen değiştirmede kullanılamaz", en: "A pattern that matches empty text cannot be used to replace", de: "Ein Muster, das leeren Text trifft, kann nicht zum Ersetzen verwendet werden", ru: "Шаблон, совпадающий с пустой строкой, нельзя использовать для замены", ar: "لا يمكن استخدام نمط يطابق نصًا فارغًا للاستبدال", es: "No se puede reemplazar con un patrón que coincide con texto vacío", fr: "Un motif qui correspond à un texte vide ne peut pas servir au remplacement", az: "Boş mətnə uyğun gələn nümunə əvəzləmədə istifadə edilə bilməz",
+  },
+  mnSelectMatches: {
+    tr: "Tüm eşleşmeleri seç", en: "Select all occurrences", de: "Alle Vorkommen auswählen", ru: "Выбрать все вхождения", ar: "تحديد كل التطابقات", es: "Seleccionar todas las coincidencias", fr: "Sélectionner toutes les occurrences", az: "Bütün uyğunluqları seç",
+  },
+  taskRun: {
+    tr: "Görevi çalıştır", en: "Run task", de: "Aufgabe ausführen", ru: "Запустить задачу", ar: "تشغيل مهمة", es: "Ejecutar tarea", fr: "Exécuter une tâche", az: "Tapşırığı işlət",
+  },
+  taskPlaceholder: {
+    tr: "Görev ara…", en: "Search tasks…", de: "Aufgaben suchen …", ru: "Поиск задач…", ar: "ابحث عن مهمة…", es: "Buscar tareas…", fr: "Rechercher une tâche…", az: "Tapşırıq axtar…",
+  },
+  taskNone: {
+    tr: "Görev yok. .nova/tasks.json oluştur ya da package.json'a script ekle.", en: "No tasks. Create .nova/tasks.json or add scripts to package.json.", de: "Keine Aufgaben. Lege .nova/tasks.json an oder füge Skripte zu package.json hinzu.", ru: "Задач нет. Создай .nova/tasks.json или добавь скрипты в package.json.", ar: "لا توجد مهام. أنشئ ‎.nova/tasks.json أو أضف سكربتات إلى package.json.", es: "No hay tareas. Crea .nova/tasks.json o añade scripts a package.json.", fr: "Aucune tâche. Crée .nova/tasks.json ou ajoute des scripts à package.json.", az: "Tapşırıq yoxdur. .nova/tasks.json yarat və ya package.json-a skript əlavə et.",
+  },
+  taskInvalid: {
+    tr: "{n} görev geçersiz olduğu için atlandı (etiket, komut veya cwd hatalı)", en: "{n} tasks skipped as invalid (label, command or cwd)", de: "{n} Aufgaben als ungültig übersprungen (Label, Befehl oder cwd)", ru: "Пропущено недопустимых задач: {n} (метка, команда или cwd)", ar: "تم تخطي {n} مهام غير صالحة (التسمية أو الأمر أو cwd)", es: "{n} tareas omitidas por no ser válidas (etiqueta, comando o cwd)", fr: "{n} tâches ignorées car invalides (libellé, commande ou cwd)", az: "{n} tapşırıq yararsız olduğu üçün keçildi (etiket, əmr və ya cwd)",
+  },
+  taskNoFolder: {
+    tr: "Görev çalıştırmak için önce bir klasör aç", en: "Open a folder first to run tasks", de: "Öffne zuerst einen Ordner, um Aufgaben auszuführen", ru: "Сначала открой папку, чтобы запускать задачи", ar: "افتح مجلدًا أولًا لتشغيل المهام", es: "Abre primero una carpeta para ejecutar tareas", fr: "Ouvre d’abord un dossier pour exécuter des tâches", az: "Tapşırıq işlətmək üçün əvvəlcə qovluq aç",
+  },
+  taskTrust: {
+    tr: "Bu klasördeki görev komutu terminalde çalışacak:\n\n{cmd}\n\nBu klasöre güveniyor musun?", en: "This folder's task command will run in the terminal:\n\n{cmd}\n\nDo you trust this folder?", de: "Der Aufgabenbefehl dieses Ordners wird im Terminal ausgeführt:\n\n{cmd}\n\nVertraust du diesem Ordner?", ru: "Команда задачи из этой папки будет выполнена в терминале:\n\n{cmd}\n\nТы доверяешь этой папке?", ar: "سيتم تشغيل أمر المهمة من هذا المجلد في الطرفية:\n\n{cmd}\n\nهل تثق بهذا المجلد؟", es: "El comando de tarea de esta carpeta se ejecutará en el terminal:\n\n{cmd}\n\n¿Confías en esta carpeta?", fr: "La commande de tâche de ce dossier sera exécutée dans le terminal :\n\n{cmd}\n\nFais-tu confiance à ce dossier ?", az: "Bu qovluqdakı tapşırıq əmri terminalda işləyəcək:\n\n{cmd}\n\nBu qovluğa güvənirsən?",
+  },
 } satisfies Record<string, Dict>;
 
 export type AiTextKey = keyof typeof AI_TEXT;

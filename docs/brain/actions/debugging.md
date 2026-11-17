@@ -29,3 +29,9 @@ Yalnız Node/JavaScript. TypeScript için kaynak haritası yok (derlenmiş `.js`
 ## Test
 `scripts/tests/debug.test.cjs` (gerçek Node süreci: duraklama, adım, değişken, ifade, çıkış, yol reddi). Arayüz: [[testing]] gizli profil + CDP.
 Yeni metin [[i18n]] ile `src/i18n/uiTextDev.ts` içine (8 dil).
+
+## Denetim düzeltmeleri (17.11.2026)
+Debug alt süreci `safeEnv` ile başlar: hata ayıklanan programın kabuktaki özel ortam değişkenlerini görmez. Durdurma/kapanışta `killSync` (Windows `taskkill /T /F`).
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+Güvenilmeyen klasörde `dbg:start` hiç başlamaz; hata ayıklama konsoluna `trRestrictedShort` yazılır.

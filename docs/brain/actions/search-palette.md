@@ -28,3 +28,11 @@ Paletin içinde önek yazarak mod değişir (`>`, `:`); önek yoksa dosya modudu
 - Arama yalnız açık çalışma klasöründe; `node_modules`, `.git`, `dist` vb. atlanır; ikili, >1 MB ve gizli dosyalar (`.env`, `*.pem`…) taranmaz; en çok 300 sonuç.
 - Yeni komut = `paletteCommands` içine satır + [[i18n]] anahtarı (8 dil). Yeni kısayol `SettingsPage.tsx` → `SHORTCUTS` listesine de yazılır.
 - `Ctrl+L` terminalde "temizle"dir; yapay zekâ paneli bu yüzden `Ctrl+Shift+L`.
+
+## Denetim düzeltmeleri (17.11.2026)
+`search:text` istek kimliği alır, yeni arama eskisini iptal eder (`search:cancel`); 12'şerli paralel okuma; `search:files` için 10 sn TTL önbellek (ajan yazınca geçersiz).
+
+## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
+**Bul-değiştir** (`search:replace`, `preview` diske dokunmaz, `apply` yalnız seçili satırları yazar): regex/büyük-küçük harf/tam kelime, dosya ve satır bazında hariç tutma, `electron-paths` doğrulaması, atomik yazma (temp+rename), CRLF/dosya modu korunur, gizli dosya/.git/node_modules reddedilir, boş eşleşen regex reddedilir; uygulamadan önce onay, kaydedilmemiş açık sekme uyarısı. **Görev çalıştırıcı** (`src/services/tasks.ts`): `.nova/tasks.json` ve `package.json` scripts; etiket/komut/cwd doğrulanır; komut terminale metin olarak gider; palet ve Çalıştır menüsü. Çoklu imleç komutları palette (Tüm eşleşmeleri seç, Üste/Alta imleç ekle). Test: `replace.test.cjs`.
+
+Regex güvenliği: iç içe nicelik (`(a+)+`, `(a|a)*`) `buildRe` içinde reddedilir, regex modunda 4000 karakterden uzun satırlar atlanır, `searchText`/`previewReplace`/`applyReplace` için 8 sn toplam bütçe (`truncated`+`timedOut`). Sınır: tek bir `re.test` kesilemez. Görev çalıştırma klasör güvenine bağlı (`trustService.getTrust`). Test: `search-redos.test.cjs`.

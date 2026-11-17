@@ -1,18 +1,20 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Editor, { DiffEditor } from '@monaco-editor/react';
-import { bindProblemDecorations, normPath, setProblemsMonaco, useProblems } from '../services/problems';
+import { bindProblemDecorations, setProblemsMonaco, useFileProblems } from '../services/problems';
 import { FileTypeIcon } from './FileTypeIcon';
 import { bindDebugEditor } from '../services/debugEditor';
 import { bindLsp, setLspMonaco } from '../services/lspClient';
-import { setActiveEditor } from '../services/editorBridge';
+import { setActiveEditor, releaseActiveEditor, addFlushHandler } from '../services/editorBridge';
+import { getBindings, formatCombo } from '../services/keybindings';
+import type { GroupId } from '../services/splitLayout';
 import { setCursor } from '../services/cursorStore';
 import { setCompletionConfig, setCompletionMonaco } from '../services/aiCompletion';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
-import { X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink } from 'lucide-react';
+import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal } from 'lucide-react';
 import { Logo } from './Logo';
 import { defineNovaThemes } from '../services/editorTheme';
 import { useSettings } from '../services/SettingsContext';
-import { toMonacoOptions } from '../services/settings';
+import { toMonacoOptions, toMonacoOptionsForFile } from '../services/settings';
 import type { FileItem } from '../types';
 import { t } from '../i18n/uiText';
 
@@ -20,7 +22,8 @@ export interface CollabConfig {
   enabled: boolean;
   url: string;      // wss:// veya yerel ws://
   token: string;    // sunucu NOVA_SYNC_TOKEN değeri
-  room: string;     // proje kimliği (kök klasör yolu)
+  room: string;     // rastgele oda kimliği (yerel yol değil, bkz. services/collabRoom.ts)
+  root: string;     // kök klasör yolu: yalnız göreli yolu hesaplamak için, sunucuya gitmez
 }
 
 interface EditorAreaProps {
@@ -44,7 +47,97 @@ interface EditorAreaProps {
   collab?: CollabConfig;
   /** Fark sekmesinden gerçek dosyayı aç. */
   onOpenPath?: (path: string) => void;
+  /** Sekme ilk değişiklikte hemen "kaydedilmemiş" olur (içerik debounce'la gelir). */
+  onDirty?: (id: string) => void;
+  /** Yeni model kurulurken kullanılacak metin (taslak/diskten); modeli olan sekmede kullanılmaz. */
+  getInitialContent?: (f: FileItem) => string;
+  onReloadDisk?: (id: string) => void;
+  onKeepMine?: (id: string) => void;
+  /** Bölünmüş editör (F-03): bu bileşen bir grubu çizer. Varsayılan: tek grup. */
+  groupId?: GroupId;
+  /** İki grup açık mı (sekme sürüklemede hedef, kapat düğmesi). */
+  split?: boolean;
+  /** Bu grup odakta mı: yalnız odaktaki grup imleç durumu ve etkin düzenleyici köprüsünü yazar. */
+  focused?: boolean;
+  /** Modeli korunacak tüm açık dosyalar (grup yalnız kendi sekmelerini gösterir ama öteki grubun modeli silinmemeli). */
+  poolFiles?: FileItem[];
+  onFocusGroup?: (g: GroupId) => void;
+  /** Sekme bırakıldı: kaynak grup, hedef grup ya da yeni bölme yönü. */
+  onDropTab?: (id: string, from: GroupId, to: GroupId | 'new-right' | 'new-down') => void;
+  onSplitRight?: () => void;
+  onCloseSplit?: () => void;
 }
+
+const TAB_MIME = 'application/x-nova-tab';
+
+// Aynı Monaco modelini iki düzenleyici (grup) gösterebilir; dil sunucusu belgesi model başına bir kez açılır.
+const lspShared = new Map<string, { n: number; off: () => void }>();
+function bindLspShared(ed: any, path: string, enabled: boolean): () => void {
+  const m = ed?.getModel?.();
+  if (!m || !enabled) return bindLsp(ed, path, enabled);
+  let e = lspShared.get(m.id);
+  if (!e) { e = { n: 0, off: bindLsp(ed, path, enabled) }; lspShared.set(m.id, e); }
+  e.n++;
+  const entry = e;
+  return () => {
+    entry.n--;
+    if (entry.n <= 0) { entry.off(); if (lspShared.get(m.id) === entry) lspShared.delete(m.id); }
+  };
+}
+
+/** Sekme: kendi tanı sayısına abone olur; yalnız kendi dosyası değişince çizilir (P-23). */
+const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onClose, group }: { file: FileItem; isActive: boolean; onSelect: (id: string) => void; onClose: (id: string) => void; group: GroupId }) {
+  const pc = useFileProblems(file.path);
+  const nameTone = file.missing ? 'text-zinc-500 line-through' : pc?.e ? 'text-rose-400' : pc?.w ? 'text-amber-300' : '';
+  return (
+    <div
+      role="tab"
+      aria-selected={isActive}
+      tabIndex={0}
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData(TAB_MIME, JSON.stringify({ id: file.id, from: group }));
+        e.dataTransfer.effectAllowed = 'move';
+      }}
+      onClick={() => onSelect(file.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(file.id);
+        }
+      }}
+      onAuxClick={(e) => {
+        if (e.button === 1) onClose(file.id);
+      }}
+      title={file.missing ? `${file.path || file.name} — ${t('appTabMissing')}` : file.path || file.name}
+      className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] cursor-pointer border border-b-0 text-[13px] ${
+        isActive
+          ? 'bg-nv-editor text-zinc-100 border-nv-border'
+          : 'border-transparent text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
+      }`}
+    >
+      {file.diff ? <GitCompare size={14} className="shrink-0 text-indigo-400" /> : <FileTypeIcon name={file.name} size={14} />}
+      <span className={`truncate ${nameTone}`} title={pc ? `${pc.e} ✕ · ${pc.w} ⚠` : undefined}>{file.name}</span>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose(file.id);
+        }}
+        aria-label={`${file.name} — ${t('closeTab')}`}
+        title={t('closeTab')}
+        className="nova-tab-close ml-auto relative flex items-center justify-center w-5 h-5 text-zinc-400 hover:bg-[var(--hover-overlay)] hover:text-zinc-100"
+      >
+        {file.isModified && (
+          <span className="absolute w-2 h-2 rounded-full bg-zinc-200 transition-opacity group-hover:opacity-0" />
+        )}
+        <X
+          size={14}
+          className={`transition-opacity ${file.isModified ? 'opacity-0 group-hover:opacity-100' : isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+        />
+      </button>
+    </div>
+  );
+});
 
 /**
  * Monaco DiffEditor sarmalayıcı: @monaco-editor/react 4.7, yeni Monaco'da kapanırken modeli editörden önce yok edip
@@ -97,7 +190,7 @@ function extColor(name: string): string {
   return 'text-zinc-400';
 }
 
-export const EditorArea: React.FC<EditorAreaProps> = ({
+const EditorAreaImpl: React.FC<EditorAreaProps> = ({
   openFiles,
   activeFileId,
   onSelectTab,
@@ -115,6 +208,18 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   rootName,
   collab,
   onOpenPath,
+  onDirty,
+  getInitialContent,
+  onReloadDisk,
+  onKeepMine,
+  groupId = 'a',
+  split = false,
+  focused = true,
+  poolFiles,
+  onFocusGroup,
+  onDropTab,
+  onSplitRight,
+  onCloseSplit,
 }) => {
   // Ayarlar: yazı tipi, tema, imleç... değiştiği an editöre yansır (gerçek zamanlı)
   const { values } = useSettings();
@@ -137,7 +242,6 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   useEffect(() => {
     tabListRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
   }, [activeFileId, openFiles.length]);
-  const problems = useProblems();
   const [collabStatus, setCollabStatus] = useState<'off' | 'connecting' | 'synced' | 'error'>('off');
   const activeFile = openFiles.find((f) => f.id === activeFileId);
 
@@ -146,12 +250,69 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   useEffect(() => {
     const m = monacoRef.current;
     if (!m) return;
-    const want = new Set(openFiles.filter((f) => !f.diff).map((f) => m.Uri.parse(fileModelPath(f)).toString()));
+    const want = new Set((poolFiles ?? openFiles).filter((f) => !f.diff).map((f) => m.Uri.parse(fileModelPath(f)).toString()));
     for (const model of m.editor.getModels()) {
       const u = model.uri;
       if ((u.scheme === 'file' || (u.scheme === 'inmemory' && u.authority === 'untitled')) && !want.has(u.toString())) model.dispose();
     }
-  }, [openFiles]);
+  }, [openFiles, poolFiles]);
+
+  // Model tabanlı düzenleme (P-06/P-07): içerik her tuşta React durumuna yazılmaz; değişiklik 250 ms sonra toplu aktarılır,
+  // "kaydedilmemiş" işareti ise ilk tuşta hemen konur. Kayıt/kapatma öncesi flush ile bekleyen değişiklik hemen aktarılır.
+  const cb = useRef({ onChangeContent, onDirty });
+  cb.current = { onChangeContent, onDirty };
+  const activeIdRef = useRef<string | undefined>(undefined);
+  activeIdRef.current = activeFile?.id;
+  const suppressRef = useRef(false);
+  const flushRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    const off = addFlushHandler(() => flushRef.current());
+    return () => { flushRef.current(); off(); };
+  }, []);
+  // Odak: yalnız odaktaki grup imleç durumunu ve etkin düzenleyici köprüsünü (komut paleti, AI) yazar
+  const focusedRef = useRef(focused);
+  focusedRef.current = focused;
+  const reportRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    if (!focused || !editorInstance) return;
+    setActiveEditor(editorInstance);
+    reportRef.current();
+  }, [focused, editorInstance]);
+  // Sekme sürükleme: bırakma bölgesi (tek grupta sağ/alt kenar = yeni bölme, iki grupta öteki grubun tamamı)
+  const [dropZone, setDropZone] = useState<null | 'self' | 'right' | 'down'>(null);
+  const zoneOf = (e: React.DragEvent<HTMLElement>): 'self' | 'right' | 'down' | null => {
+    if (!e.dataTransfer.types.includes(TAB_MIME)) return null;
+    if (split) return 'self';
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / Math.max(1, r.width);
+    const y = (e.clientY - r.top) / Math.max(1, r.height);
+    return x > 0.65 ? 'right' : y > 0.7 ? 'down' : null;
+  };
+
+  // Dışarıdan (diskten, kayıt dönüşümünden) gelen içerik: kaydedilmemiş düzenleme yoksa modele yansıt
+  useEffect(() => {
+    const ed = editorInstance;
+    const mon = monacoRef.current;
+    const m = ed?.getModel?.();
+    if (!ed || !m || !mon || !activeFile || activeFile.diff || activeFile.isModified || activeFile.content === undefined) return;
+    if (m.uri.toString() !== mon.Uri.parse(fileModelPath(activeFile)).toString()) return;
+    if (m.getValue() === activeFile.content) return;
+    suppressRef.current = true;
+    try {
+      m.pushEditOperations([], [{ range: m.getFullModelRange(), text: activeFile.content }], () => null);
+    } finally {
+      suppressRef.current = false;
+    }
+  }, [editorInstance, activeFile?.id, activeFile?.content, activeFile?.isModified]);
+
+  // Büyük dosyada (>2 MB / >20k satır) minimap/katlama/parantez renklendirme kapanır (P-25)
+  useEffect(() => {
+    const ed = editorInstance;
+    const m = ed?.getModel?.();
+    if (!ed || !m || !activeFile || activeFile.diff) return;
+    ed.updateOptions({ ...toMonacoOptionsForFile(values, { chars: m.getValueLength(), lines: m.getLineCount() }), inlineSuggest: (editorOptions as { inlineSuggest: unknown }).inlineSuggest });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorInstance, activeFile?.id, editorOptions]);
 
   // AI kod tamamlama ayarları (açık/kapalı, gecikme) anında yansır
   useEffect(() => {
@@ -187,7 +348,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   // Dil sunucusu (LSP): Python, Rust, Go, C/C++ vb. için tanılama, tamamlama, üzerine gelme, tanıma git
   useEffect(() => {
     if (!editorInstance || !activeFile?.path) return;
-    return bindLsp(editorInstance, activeFile.path, values.lspEnabled !== false);
+    return bindLspShared(editorInstance, activeFile.path, values.lspEnabled !== false);
   }, [editorInstance, activeFile?.path, values.lspEnabled]);
 
   // Ortak düzenleme: aktif dosya için bir Yjs odası aç ve Monaco modeline bağla.
@@ -209,12 +370,13 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     let cleanup = () => {};
     setCollabStatus('connecting');
     void (async () => {
-      const [Y, { WebsocketProvider }, { MonacoBinding }] = await Promise.all([import('yjs'), import('y-websocket'), import('y-monaco')]);
+      const [Y, { WebsocketProvider }, { MonacoBinding }, room] = await Promise.all([import('yjs'), import('y-websocket'), import('y-monaco'), import('../services/collabRoom')]);
+      // KVKK: oda adı mutlak yol içermez; token URL yerine WebSocket alt protokolüyle gider
+      const roomName = await room.collabFileRoom(collab.room, collab.root, activePath);
       if (disposed) return;
       const doc = new Y.Doc();
-      const roomName = `${encodeURIComponent(collab.room)}/${encodeURIComponent(activePath)}`;
       const provider = new WebsocketProvider(collab.url, roomName, doc, {
-        params: collab.token ? { token: collab.token } : {},
+        protocols: room.collabProtocols(collab.token),
         connect: true
       });
       const ytext = doc.getText('monaco');
@@ -251,9 +413,14 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collabOn, collab?.url, collab?.token, collab?.room, activeId, activePath, editorInstance]);
 
+  const liveText = () => {
+    const m = editorInstance?.getModel?.();
+    return m && activeFile && !activeFile.diff ? (m.getValue() as string) : activeFile?.content;
+  };
   const handleCopy = () => {
-    if (activeFile?.content) {
-      navigator.clipboard.writeText(activeFile.content);
+    const text = liveText();
+    if (text) {
+      navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -261,7 +428,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
   const handleDownload = () => {
     if (!activeFile) return;
-    const blob = new Blob([activeFile.content || ''], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([liveText() || ''], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -291,60 +458,45 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   })();
 
   return (
-    <div className="@container flex flex-col flex-1 h-full min-w-0 bg-nv-editor overflow-hidden">
+    <div
+      className="@container relative flex flex-col flex-1 h-full min-w-0 min-h-0 bg-nv-editor overflow-hidden"
+      data-editor-group={groupId}
+      onMouseDownCapture={split ? () => onFocusGroup?.(groupId) : undefined}
+      onDragOverCapture={onDropTab ? (e) => {
+        const z = zoneOf(e);
+        if (!z) { if (dropZone) setDropZone(null); return; }
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (z !== dropZone) setDropZone(z);
+      } : undefined}
+      onDragLeaveCapture={onDropTab ? (e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropZone(null); } : undefined}
+      onDropCapture={onDropTab ? (e) => {
+        const z = zoneOf(e);
+        setDropZone(null);
+        if (!z) return;
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+          const d = JSON.parse(e.dataTransfer.getData(TAB_MIME)) as { id?: unknown; from?: unknown };
+          if (typeof d.id !== 'string' || (d.from !== 'a' && d.from !== 'b')) return;
+          if (z === 'self') { if (d.from !== groupId) onDropTab(d.id, d.from, groupId); }
+          else onDropTab(d.id, d.from, z === 'right' ? 'new-right' : 'new-down');
+        } catch { /* geçersiz sürükleme verisi */ }
+      } : undefined}
+    >
+      {dropZone && (
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute z-20 border border-indigo-500/60 bg-indigo-500/10 ${dropZone === 'self' ? 'inset-0' : dropZone === 'right' ? 'top-0 bottom-0 right-0 w-[35%]' : 'left-0 right-0 bottom-0 h-[30%]'}`}
+        />
+      )}
       {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
       {openFiles.length > 0 && (
       <div className="animate-tabbar-in flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[35px] select-none">
         <div ref={tabListRef} role="tablist" className="flex items-end gap-px flex-1 min-w-0 overflow-x-auto pt-1 pl-1 [scrollbar-width:none] scroll-smooth">
-          {openFiles.map((file) => {
-            const isActive = file.id === activeFileId;
-            const pc = file.path ? problems.byPath[normPath(file.path)] : undefined;
-            const nameTone = pc?.e ? 'text-rose-400' : pc?.w ? 'text-amber-300' : '';
-            return (
-              <div
-                key={file.id}
-                role="tab"
-                aria-selected={isActive}
-                tabIndex={0}
-                onClick={() => onSelectTab(file.id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onSelectTab(file.id);
-                  }
-                }}
-                onAuxClick={(e) => {
-                  if (e.button === 1) onCloseTab(file.id);
-                }}
-                title={file.path || file.name}
-                className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] cursor-pointer border border-b-0 text-[13px] ${
-                  isActive
-                    ? 'bg-nv-editor text-zinc-100 border-nv-border'
-                    : 'border-transparent text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
-                }`}
-              >
-                {file.diff ? <GitCompare size={14} className="shrink-0 text-indigo-400" /> : <FileTypeIcon name={file.name} size={14} />}
-                <span className={`truncate ${nameTone}`} title={pc ? `${pc.e} ✕ · ${pc.w} ⚠` : undefined}>{file.name}</span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCloseTab(file.id);
-                  }}
-                  aria-label={`${file.name} — ${t('closeTab')}`}
-                  title={t('closeTab')}
-                  className="nova-tab-close ml-auto relative flex items-center justify-center w-5 h-5 text-zinc-400 hover:bg-[var(--hover-overlay)] hover:text-zinc-100"
-                >
-                  {file.isModified && (
-                    <span className="absolute w-2 h-2 rounded-full bg-zinc-200 transition-opacity group-hover:opacity-0" />
-                  )}
-                  <X
-                    size={14}
-                    className={`transition-opacity ${file.isModified ? 'opacity-0 group-hover:opacity-100' : isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                  />
-                </button>
-              </div>
-            );
-          })}
+          {openFiles.map((file) => (
+            <EditorTab key={file.id} file={file} isActive={file.id === activeFileId} onSelect={onSelectTab} onClose={onCloseTab} group={groupId} />
+          ))}
           {onNewFile && openFiles.length > 0 && (
             <button
               onClick={onNewFile}
@@ -356,6 +508,22 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             </button>
           )}
         </div>
+
+        {/* Bölme düğmeleri */}
+        {activeFile && (onSplitRight || (split && onCloseSplit)) && (
+          <div className="flex items-center gap-0.5 pl-2 shrink-0">
+            {onSplitRight && (
+              <button onClick={onSplitRight} title={`${t('cmdSplitRight')}${getBindings().splitRight ? ` (${formatCombo(getBindings().splitRight)})` : ''}`} aria-label={t('cmdSplitRight')} className="icon-btn">
+                <SquareSplitHorizontal size={15} />
+              </button>
+            )}
+            {split && onCloseSplit && (
+              <button onClick={onCloseSplit} title={t('cmdCloseSplit')} aria-label={t('cmdCloseSplit')} className="icon-btn">
+                <X size={15} />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Eylem düğmeleri */}
         {activeFile && !activeFile.diff && (
@@ -414,9 +582,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
       {/* Yol göstergesi */}
       {activeFile && !activeFile.diff && values.showBreadcrumbs !== false && (
-        <div className="flex items-center gap-1 h-[22px] px-3 text-[12px] text-zinc-500 bg-nv-editor select-none overflow-hidden whitespace-nowrap" aria-label="Dosya yolu">
+        <div className="flex items-center gap-1 h-[22px] px-3 text-[12px] text-zinc-500 bg-nv-editor select-none overflow-hidden whitespace-nowrap" aria-label={t('appBreadcrumbs')}>
           {crumbs.map((c, i) => (
-            <React.Fragment key={`${c}-${i}`}>
+            <React.Fragment key={crumbs.slice(0, i + 1).join('/')}>
               {i > 0 && <ChevronRight size={12} className="shrink-0 text-zinc-600" />}
               <span className={i === crumbs.length - 1 ? 'text-zinc-300' : ''}>{c}</span>
             </React.Fragment>
@@ -424,8 +592,19 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
         </div>
       )}
 
-      {/* Editör */}
-      <div className="flex-1 w-full h-full relative">
+      {/* Dosya diskte silindi / değişti uyarısı (B-05) */}
+      {activeFile && !activeFile.diff && (activeFile.missing || activeFile.externalChange) && (
+        <div role="alert" className="flex flex-wrap items-center gap-2 px-3 py-1.5 border-b border-nv-border bg-nv-side text-[12px] text-amber-300">
+          <TriangleAlert size={13} className="shrink-0" />
+          <span className="flex-1 min-w-0">{activeFile.missing ? t('appMissingOnDisk') : t('appChangedOnDisk')}</span>
+          {activeFile.externalChange && !activeFile.missing && onReloadDisk && <button className="btn-ghost !h-6" onClick={() => onReloadDisk(activeFile.id)}>{t('appReloadDisk')}</button>}
+          {activeFile.externalChange && !activeFile.missing && onKeepMine && <button className="btn-ghost !h-6" onClick={() => onKeepMine(activeFile.id)}>{t('appKeepMine')}</button>}
+          {onSaveFile && <button className="btn-ghost !h-6" onClick={() => onSaveFile(activeFile)}>{t('cmdSave')}</button>}
+        </div>
+      )}
+
+      {/* Editör (kod her zaman soldan sağa: RTL arayüzde de dir=ltr, I-01) */}
+      <div className="flex-1 w-full h-full relative" dir="ltr">
         {activeFile?.diff ? (
           <div className="flex flex-col h-full">
             <div className="flex items-center gap-2 h-8 px-3 border-b border-nv-border text-[12px] text-zinc-400 bg-nv-editor shrink-0 select-none">
@@ -458,9 +637,8 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             </div>
           </div>
         ) : activeFile ? (
-          <div key={activeFile.id} className="animate-editor-in h-full">
+          <div className="animate-editor-in h-full">
           <Editor
-            key={activeFile.id}
             height="100%"
             theme={theme}
             path={fileModelPath(activeFile)}
@@ -474,26 +652,53 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
               setCompletionMonaco(monaco);
             }}
             language={activeFile.language || 'plaintext'}
-            value={activeFile.content || ''}
+            defaultValue={getInitialContent ? getInitialContent(activeFile) : activeFile.content || ''}
             onMount={(ed, mon) => {
               // Öneriyi satır satır kabul et (Tab = tümü, Ctrl+→ = kelime Monaco'da hazır)
               ed.addCommand(mon.KeyMod.CtrlCmd | mon.KeyMod.Alt | mon.KeyCode.RightArrow, () => ed.trigger('nova', 'editor.action.inlineSuggest.acceptNextLine', {}), 'inlineSuggestionVisible');
-              // Model sekmeler arasında yaşar: dışarıdan (diskten) yenilenen içerik varsa modele yansıt
-              if (activeFile.content !== undefined && ed.getValue() !== activeFile.content) ed.setValue(activeFile.content);
               setEditorInstance(ed);
-              setActiveEditor(ed);
+              if (focusedRef.current) setActiveEditor(ed);
+              ed.onDidFocusEditorText(() => { setActiveEditor(ed); reportRef.current(); onFocusGroup?.(groupId); });
               const report = () => {
+                if (!focusedRef.current) return;
                 const p = ed.getPosition();
                 const sel = ed.getSelection();
                 const m = ed.getModel();
                 setCursor(p ? { line: p.lineNumber, col: p.column, selected: sel && m && !sel.isEmpty() ? m.getValueInRange(sel).length : 0 } : null);
               };
+              reportRef.current = report;
               report();
               ed.onDidChangeCursorPosition(report);
               ed.onDidChangeCursorSelection(report);
-              ed.onDidDispose(() => setCursor(null));
+              // İçerik değişimi: wrapper'ın onChange'i (her tuşta getValue) yerine kendi debounce'lu dinleyicimiz
+              let pending: { id: string; model: { isDisposed: () => boolean; getValue: () => string } } | null = null;
+              let timer: number | undefined;
+              const flush = () => {
+                window.clearTimeout(timer);
+                if (!pending) return;
+                const p = pending;
+                pending = null;
+                if (!p.model.isDisposed()) cb.current.onChangeContent(p.id, p.model.getValue());
+              };
+              flushRef.current = flush;
+              ed.onDidChangeModelContent(() => {
+                if (suppressRef.current) return;
+                const id = activeIdRef.current;
+                const model = ed.getModel();
+                if (!id || !model) return;
+                if (pending && pending.id !== id) flush();
+                pending = { id, model };
+                cb.current.onDirty?.(id);
+                window.clearTimeout(timer);
+                timer = window.setTimeout(flush, 250);
+              });
+              ed.onDidDispose(() => {
+                flush();
+                releaseActiveEditor(ed);
+                if (focusedRef.current) setCursor(null);
+                setEditorInstance((cur: unknown) => (cur === ed ? null : cur));
+              });
             }}
-            onChange={(val) => onChangeContent(activeFile.id, val || '')}
             options={editorOptions}
           />
           </div>
@@ -531,3 +736,5 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     </div>
   );
 };
+
+export const EditorArea = React.memo(EditorAreaImpl);

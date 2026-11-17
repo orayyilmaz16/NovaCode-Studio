@@ -28,6 +28,7 @@ import { useSettings } from '../services/SettingsContext';
 import { FileTypeIcon } from './FileTypeIcon';
 import { PopupMenu, type MenuItem } from './Menu';
 import { useProblems } from '../services/problems';
+import { getRecentFolders } from '../services/recentFolders';
 
 type Density = 'compact' | 'comfortable' | 'spacious';
 type SortMode = 'foldersFirst' | 'filesFirst' | 'mixed' | 'type';
@@ -94,7 +95,7 @@ function folderIcon(open: boolean, style: 'color' | 'minimal', size = 15) {
 
 // Yumuşak açılıp kapanan bölüm (grid satır geçişi): içerik yüksekliğini ölçmeden animasyon verir.
 const Collapse: React.FC<{ open: boolean; children: React.ReactNode }> = ({ open, children }) => (
-  <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows 170ms var(--ease-out-soft)' }}>
+  <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows var(--dur-base) var(--ease-out-soft)' }}>
     <div className="overflow-hidden min-h-0">{children}</div>
   </div>
 );
@@ -112,7 +113,7 @@ interface NameInputProps {
 }
 
 const NameInput: React.FC<NameInputProps> = ({ depth, rowH, icon, placeholder, value, error, onChange, onCommit, onCancel }) => (
-  <div className="flex items-center gap-1.5 pr-2 animate-fade-in" style={{ height: rowH, paddingLeft: depth * 12 + 22 }}>
+  <div className="flex items-center gap-1.5 pe-2 animate-fade-in" style={{ height: rowH, paddingInlineStart: depth * 12 + 22 }}>
     {icon}
     <input
       autoFocus
@@ -206,8 +207,8 @@ export const FileTree: React.FC<FileTreeProps> = ({
 
   // Son açılan klasörler (klasör açık değilken boş durumda gösterilir)
   useEffect(() => {
-    if (rootName || !window.electronAPI?.recentFolders) return;
-    void window.electronAPI.recentFolders().then((r) => setRecent(r.slice(0, 5))).catch(() => undefined);
+    if (rootName) return;
+    void getRecentFolders().then((r) => setRecent(r.slice(0, 5))).catch(() => undefined);
   }, [rootName]);
 
   const isOpen = useCallback((it: FileItem) => filtering || (expanded[it.id] ?? it.isOpen ?? false), [expanded, filtering]);
@@ -629,26 +630,26 @@ export const FileTree: React.FC<FileTreeProps> = ({
                 setFocusedId(item.id);
                 setMenu({ x: e.clientX, y: e.clientY, item });
               }}
-              className={`relative flex items-center gap-1 pr-2 cursor-pointer text-[13px] transition-colors ${
+              className={`relative flex items-center gap-1 pe-2 cursor-pointer text-[13px] transition-colors ${
                 dropping
                   ? 'bg-indigo-500/25 outline outline-1 -outline-offset-1 outline-indigo-400'
                   : selected
                     ? 'bg-nv-active text-zinc-50 shadow-[inset_2px_0_0_var(--color-indigo-500)]'
                     : 'text-zinc-300 hover:bg-nv-hover'
               } ${focused && !dropping ? 'outline outline-1 -outline-offset-1 outline-indigo-500/70' : ''}`}
-              style={{ height: rowH, paddingLeft: depth * 12 + 6 }}
+              style={{ height: rowH, paddingInlineStart: depth * 12 + 6 }}
             >
               {indentGuides &&
                 Array.from({ length: depth }).map((_, i) => (
-                  <span key={i} className="absolute top-0 bottom-0 w-px bg-zinc-600/25 group-hover/tree:bg-zinc-600/60 transition-colors" style={{ left: 13 + i * 12 }} />
+                  <span key={i} className="absolute top-0 bottom-0 w-px bg-zinc-600/25 group-hover/tree:bg-zinc-600/60 transition-colors" style={{ insetInlineStart: 13 + i * 12 }} />
                 ))}
               {isFolder ? (
-                <ChevronRight size={14} className={`shrink-0 text-zinc-500 transition-transform duration-150 ${open ? 'rotate-90' : ''}`} />
+                <ChevronRight size={14} className={`shrink-0 text-zinc-500 transition-transform duration-(--dur-base) ${open ? 'rotate-90' : ''}`} />
               ) : (
                 <span className="w-[14px] shrink-0" />
               )}
               {isFolder ? folderIcon(open, iconStyle) : fileIcon(item.name, iconStyle)}
-              <span className={`truncate flex-1 ml-0.5 ${nameCls}`}>{hl(node.label)}</span>
+              <span className={`truncate flex-1 ms-0.5 ${nameCls}`}>{hl(node.label)}</span>
               {item.isModified && <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 shrink-0" />}
               {pb && (pb.e || pb.w) ? (
                 <span className={`font-mono text-[11px] shrink-0 ${pb.e ? 'text-rose-400' : 'text-amber-300'}`} title={`${pb.e} ✕ · ${pb.w} ⚠`}>{isFolder ? '●' : pb.e || pb.w}</span>
@@ -684,7 +685,13 @@ export const FileTree: React.FC<FileTreeProps> = ({
     });
 
   const hasContent = files.length > 0;
-  const sectionHead = 'group/head flex items-center h-[24px] pl-1 pr-2 cursor-pointer select-none text-[11px] font-semibold uppercase tracking-wide text-zinc-300 hover:bg-nv-hover/60 transition-colors';
+  const sectionHead = 'group/head flex items-center h-[24px] ps-1 pe-2 cursor-pointer select-none text-[11px] font-semibold uppercase tracking-wide text-zinc-300 hover:bg-nv-hover/60 transition-colors';
+  // Bölüm başlığı klavyeyle de açılır/kapanır (Enter/Space; iç düğmelerin olayları yutulmaz)
+  const headKey = (toggle: () => void) => (e: React.KeyboardEvent) => {
+    if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return;
+    e.preventDefault();
+    toggle();
+  };
   const headBtn = 'icon-btn !w-5 !h-5 opacity-0 group-hover/head:opacity-100 focus:opacity-100 transition-opacity';
   // Başlık araç çubuğu: klasör yokken soluk (aria-disabled), üzerine gelince nedenini söyler
   const tool = (label: string, needsFolder = true) => (needsFolder && noFolder ? ({ 'aria-disabled': true, title: `${label} — ${t('mnHintNoFolder')}` } as const) : { title: label });
@@ -692,7 +699,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   return (
     <div className="flex flex-col h-full min-w-0 bg-nv-side text-zinc-300 select-none">
       {/* Başlık + araç çubuğu */}
-      <div className="flex items-center justify-between h-9 pl-4 pr-1.5 shrink-0 gap-1">
+      <div className="flex items-center justify-between h-9 ps-4 pe-1.5 shrink-0 gap-1">
         <span className="text-[11px] uppercase tracking-wide text-zinc-400 truncate min-w-0">{t('actExplorer')}</span>
         <div className="flex items-center shrink-0">
           <button {...tool(t('newFile'))} aria-label={t('newFile')} onClick={() => startCreate(false)} className="icon-btn"><FilePlus size={15} /></button>
@@ -780,12 +787,12 @@ export const FileTree: React.FC<FileTreeProps> = ({
             {/* Açık düzenleyiciler */}
             {showOpenEditors && openFiles.length > 0 && (
               <section aria-label={t('expOpenEditors')}>
-                <div className={sectionHead} onClick={() => setOpenEditorsOpen((v) => !v)}>
-                  <ChevronRight size={14} className={`shrink-0 text-zinc-500 transition-transform duration-150 ${openEditorsOpen ? 'rotate-90' : ''}`} />
-                  <span className="ml-0.5 truncate">{t('expOpenEditors')}</span>
+                <div className={sectionHead} role="button" tabIndex={0} aria-expanded={openEditorsOpen} onClick={() => setOpenEditorsOpen((v) => !v)} onKeyDown={headKey(() => setOpenEditorsOpen((v) => !v))}>
+                  <ChevronRight size={14} className={`shrink-0 text-zinc-500 transition-transform duration-(--dur-base) ${openEditorsOpen ? 'rotate-90' : ''}`} />
+                  <span className="ms-0.5 truncate">{t('expOpenEditors')}</span>
                   <span className="flex-1" />
                   {onCloseAll && (
-                    <button onClick={(e) => { e.stopPropagation(); onCloseAll(); }} title={t('expCloseAll')} aria-label={t('expCloseAll')} className={`${headBtn} mr-1`}>
+                    <button onClick={(e) => { e.stopPropagation(); onCloseAll(); }} title={t('expCloseAll')} aria-label={t('expCloseAll')} className={`${headBtn} me-1`}>
                       <X size={13} />
                     </button>
                   )}
@@ -799,7 +806,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
                         key={f.id}
                         onClick={() => onSelectFile(f)}
                         title={f.path}
-                        className={`group/oe flex items-center gap-1.5 pl-5 pr-1 cursor-pointer text-[13px] transition-colors ${on ? 'bg-nv-active text-zinc-50 shadow-[inset_2px_0_0_var(--color-indigo-500)]' : 'text-zinc-300 hover:bg-nv-hover'}`}
+                        className={`group/oe flex items-center gap-1.5 ps-5 pe-1 cursor-pointer text-[13px] transition-colors ${on ? 'bg-nv-active text-zinc-50 shadow-[inset_2px_0_0_var(--color-indigo-500)]' : 'text-zinc-300 hover:bg-nv-hover'}`}
                         style={{ height: rowH }}
                       >
                         {fileIcon(f.name, iconStyle)}
@@ -828,9 +835,9 @@ export const FileTree: React.FC<FileTreeProps> = ({
             {/* Çalışma alanı */}
             {hasContent || rootName ? (
               <section aria-label={rootName}>
-                <div className={`${sectionHead} sticky top-0 z-[1] bg-nv-side`} onClick={() => setWorkspaceOpen((v) => !v)}>
-                  <ChevronRight size={14} className={`shrink-0 text-zinc-500 transition-transform duration-150 ${workspaceOpen ? 'rotate-90' : ''}`} />
-                  <span className="ml-0.5 truncate">{rootName || t('actExplorer')}</span>
+                <div className={`${sectionHead} sticky top-0 z-[1] bg-nv-side`} role="button" tabIndex={0} aria-expanded={workspaceOpen} onClick={() => setWorkspaceOpen((v) => !v)} onKeyDown={headKey(() => setWorkspaceOpen((v) => !v))}>
+                  <ChevronRight size={14} className={`shrink-0 text-zinc-500 transition-transform duration-(--dur-base) ${workspaceOpen ? 'rotate-90' : ''}`} />
+                  <span className="ms-0.5 truncate">{rootName || t('actExplorer')}</span>
                   <span className="flex-1" />
                   {rootPath && (
                     <span className="flex items-center" onClick={(e) => e.stopPropagation()}>
@@ -875,7 +882,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
                     <button onClick={onOpenFolder} className="flex items-center justify-center gap-2 h-8 px-3 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-[12.5px] whitespace-nowrap transition-colors">
                       <FolderOpen size={14} />
                       <span className="truncate">{t('openFolder')}</span>
-                      <kbd className="ml-1 px-1 rounded bg-white/15 text-[10px] font-mono hidden min-[240px]:inline">Ctrl+O</kbd>
+                      <kbd className="ms-1 px-1 rounded bg-white/15 text-[10px] font-mono hidden min-[240px]:inline">Ctrl+O</kbd>
                     </button>
                   )}
                   {onOpenFiles && (
@@ -889,7 +896,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
                   <div className="mt-5">
                     <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-zinc-500 mb-1"><History size={12} />{t('expRecent')}</div>
                     {recent.map((r) => (
-                      <button key={r.path} onClick={() => onOpenRecent(r.path)} title={r.path} className="w-full flex flex-col items-start px-2 py-1 rounded hover:bg-nv-hover text-left transition-colors min-w-0">
+                      <button key={r.path} onClick={() => onOpenRecent(r.path)} title={r.path} className="w-full flex flex-col items-start px-2 py-1 rounded hover:bg-nv-hover text-start transition-colors min-w-0">
                         <span className="text-[12.5px] text-zinc-200 truncate w-full">{r.name}</span>
                         <span className="text-[10.5px] text-zinc-500 truncate w-full">{r.path}</span>
                       </button>

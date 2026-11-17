@@ -12,6 +12,8 @@ const path = require('path');
 const fs = require('fs');
 const { fileURLToPath, pathToFileURL } = require('url');
 const WebSocket = require('ws');
+const { safeEnv, killTree, killTreeSync } = require('./electron-paths.cjs');
+const trust = require('./electron-trust.cjs');
 
 let api = { getWindow: () => null, getRoot: () => '' };
 let sess = null; // { child, ws, nextId, pending, scripts, frames, bpIds, exited }
@@ -118,11 +120,14 @@ async function start({ file, args, stopOnEntry }) {
   if (!root) return { success: false, error: 'no-folder' };
   const abs = insideRoot(file);
   if (!abs || !/\.(c|m)?js$/i.test(abs) || !fs.statSync(abs).isFile()) return { success: false, error: 'invalid-file' };
+  // Güvenilmeyen klasörde hata ayıklayıcı başlamaz: klasördeki betik çalıştırılır (kısıtlı mod).
+  if (!trust.isTrusted(root)) return { success: false, error: 'trust-required' };
   const extra = (Array.isArray(args) ? args : []).slice(0, 20).map(String).filter((a) => a.length < 500 && !a.includes('\0'));
 
   const child = spawn(process.execPath, ['--inspect-brk=0', abs, ...extra], {
     cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, ELECTRON_RUN_AS_NODE: '1', NOVA_DEBUG: '1' }
+    // Ortam izin listesiyle: API anahtarı/token gibi gizli değişkenler hata ayıklanan programa geçmez (S-13)
+    env: safeEnv({ ELECTRON_RUN_AS_NODE: '1', NOVA_DEBUG: '1' })
   });
   const s = { child, ws: null, nextId: 1, pending: new Map(), scripts: new Map(), frames: new Map(), bpIds: new Map(), bpFile: new Map(), exited: false, stopOnEntry: !!stopOnEntry, file: abs };
   sess = s;
@@ -167,6 +172,7 @@ async function stop() {
   const s = sess;
   if (!s) return { success: true };
   try { s.child.kill(); } catch { /* bitmiş */ }
+  if (!s.exited) void killTree(s.child.pid); // programın başlattığı torunlar yetim kalmasın
   const t0 = Date.now();
   while (!s.exited && Date.now() - t0 < 3000) await new Promise((r) => setTimeout(r, 30));
   if (sess === s) sess = null;
@@ -223,4 +229,12 @@ function register({ getWindow, getRoot }) {
   }));
 }
 
-module.exports = { register, stopAll: () => stop(), _test: { start, stop } };
+// Kapanışta eşzamanlı: süreç ağacı hemen kapatılır (async stop beklenmez)
+function killSync() {
+  const s = sess;
+  if (!s || s.exited) return;
+  try { s.child.kill(); } catch { /* bitmiş */ }
+  killTreeSync([s.child.pid]);
+}
+
+module.exports = { register, stopAll: () => stop(), killSync, _test: { start, stop } };

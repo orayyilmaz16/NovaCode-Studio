@@ -119,6 +119,115 @@ export const DEV_TEXT = {
   setDesc_lspEnabled: {
     tr: "Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua ve YAML için bilgisayarında kurulu dil sunucusuyla tamamlama, üzerine gelme, tanıma git ve hata işaretleri. Sunucu yalnız PATH'inden başlatılır; açtığın projenin içindeki programlar çalıştırılmaz. Kod bu bilgisayardan çıkmaz.", en: "Completion, hover, go to definition and error marks for Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua and YAML using a language server installed on your computer. The server is started only from your PATH; programs inside the project you open are never run. Code does not leave this computer.", de: "Vervollständigung, Hover, Gehe zu Definition und Fehlermarkierungen für Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua und YAML mit einem auf deinem Computer installierten Sprachserver. Der Server wird nur über deinen PATH gestartet; Programme im geöffneten Projekt werden nie ausgeführt. Code verlässt diesen Computer nicht.", ru: "Автодополнение, подсказки, переход к определению и отметки ошибок для Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua и YAML через языковой сервер, установленный на вашем компьютере. Сервер запускается только из PATH; программы внутри открытого проекта никогда не запускаются. Код не покидает этот компьютер.", ar: "إكمال تلقائي وتلميحات والانتقال إلى التعريف وعلامات الأخطاء للغات Python وRust وGo وC/C++ وC# وPHP وRuby وLua وYAML عبر خادم لغة مثبّت على حاسوبك. يُشغَّل الخادم من PATH فقط؛ لا تُشغَّل أبداً البرامج الموجودة داخل المشروع المفتوح. لا تغادر الشيفرة هذا الحاسوب.", es: "Autocompletado, información al pasar el cursor, ir a la definición y marcas de error para Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua y YAML con un servidor de lenguaje instalado en tu equipo. El servidor se inicia solo desde tu PATH; nunca se ejecutan programas del proyecto abierto. El código no sale de este equipo.", fr: "Complétion, survol, aller à la définition et marques d’erreur pour Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua et YAML avec un serveur de langage installé sur ton ordinateur. Le serveur n’est lancé que depuis ton PATH ; les programmes du projet ouvert ne sont jamais exécutés. Le code ne quitte pas cet ordinateur.", az: "Kompüterində quraşdırılmış dil serveri ilə Python, Rust, Go, C/C++, C#, PHP, Ruby, Lua və YAML üçün tamamlama, üzərinə gəlmə, tərifə keç və xəta işarələri. Server yalnız PATH-dən başladılır; açdığın layihənin içindəki proqramlar heç vaxt işlədilmir. Kod bu kompüterdən çıxmır.",
   },
+  // ---- Yerel geçmiş (F-07), snippet'ler (F-06), çöp kutusu (B-04) ----
+  set_localHistory: {
+    tr: "Yerel geçmiş", en: "Local history", de: "Lokaler Verlauf", ru: "Локальная история", ar: "السجل المحلي", es: "Historial local", fr: "Historique local", az: "Yerli tarixçə",
+  },
+  setDesc_localHistory: {
+    tr: "Her kayıtta dosyanın eski sürümü bu bilgisayarda saklanır (zaman çizelgesi). Hiçbir yere gönderilmez. Kapatınca tüm yerel geçmiş silinir.", en: "On every save the previous version of the file is kept on this computer (timeline). Nothing is sent anywhere. Turning this off deletes all local history.", de: "Bei jedem Speichern wird die vorherige Version der Datei auf diesem Computer aufbewahrt (Zeitleiste). Es wird nichts versendet. Beim Ausschalten wird der gesamte lokale Verlauf gelöscht.", ru: "При каждом сохранении предыдущая версия файла остаётся на этом компьютере (временная шкала). Ничего не отправляется. При отключении вся локальная история удаляется.", ar: "عند كل حفظ تُحفظ النسخة السابقة من الملف على هذا الحاسوب (الخط الزمني). لا يُرسل أي شيء إلى أي مكان. إيقاف الميزة يحذف كل السجل المحلي.", es: "En cada guardado se conserva la versión anterior del archivo en este equipo (línea de tiempo). No se envía nada. Al desactivarlo se borra todo el historial local.", fr: "À chaque enregistrement, la version précédente du fichier est conservée sur cet ordinateur (chronologie). Rien n'est envoyé. La désactivation supprime tout l'historique local.", az: "Hər yadda saxlamada faylın əvvəlki versiyası bu kompüterdə saxlanır (zaman xətti). Heç bir yerə göndərilmir. Söndürəndə bütün yerli tarixçə silinir.",
+  },
+  set_localHistoryMax: {
+    tr: "Dosya başına sürüm sayısı", en: "Versions per file", de: "Versionen pro Datei", ru: "Версий на файл", ar: "عدد النسخ لكل ملف", es: "Versiones por archivo", fr: "Versions par fichier", az: "Fayl başına versiya sayı",
+  },
+  setDesc_localHistoryMax: {
+    tr: "Eski sürümler bu sınırı aşınca en eskiden başlayarak silinir. 1 MB'tan büyük ve ikili dosyalar kaydedilmez.", en: "Older versions are deleted, oldest first, once this limit is exceeded. Files over 1 MB and binary files are not kept.", de: "Ältere Versionen werden bei Überschreitung dieses Limits gelöscht, die älteste zuerst. Dateien über 1 MB und Binärdateien werden nicht gespeichert.", ru: "Старые версии удаляются, начиная с самых старых, при превышении лимита. Файлы больше 1 МБ и двоичные файлы не сохраняются.", ar: "تُحذف النسخ الأقدم أولًا عند تجاوز هذا الحد. لا تُحفظ الملفات الأكبر من 1 ميغابايت ولا الملفات الثنائية.", es: "Las versiones antiguas se eliminan, empezando por la más antigua, al superar este límite. No se guardan archivos de más de 1 MB ni binarios.", fr: "Les anciennes versions sont supprimées, les plus anciennes d'abord, au-delà de cette limite. Les fichiers de plus de 1 Mo et les fichiers binaires ne sont pas conservés.", az: "Limit aşıldıqda köhnə versiyalar ən köhnədən başlayaraq silinir. 1 MB-dan böyük və ikili fayllar saxlanmır.",
+  },
+  cmdTimeline: {
+    tr: "Zaman çizelgesi (yerel geçmiş)", en: "Timeline (local history)", de: "Zeitleiste (lokaler Verlauf)", ru: "Временная шкала (локальная история)", ar: "الخط الزمني (السجل المحلي)", es: "Línea de tiempo (historial local)", fr: "Chronologie (historique local)", az: "Zaman xətti (yerli tarixçə)",
+  },
+  cmdSnippets: {
+    tr: "Snippet ekle/düzenle", en: "Add/edit snippets", de: "Snippets hinzufügen/bearbeiten", ru: "Добавить/изменить сниппеты", ar: "إضافة/تعديل المقتطفات", es: "Añadir/editar fragmentos", fr: "Ajouter/modifier des snippets", az: "Snippet əlavə et/redaktə et",
+  },
+  tlTitle: {
+    tr: "Zaman çizelgesi", en: "Timeline", de: "Zeitleiste", ru: "Временная шкала", ar: "الخط الزمني", es: "Línea de tiempo", fr: "Chronologie", az: "Zaman xətti",
+  },
+  tlLocalNote: {
+    tr: "Sürümler yalnız bu bilgisayarda saklanır.", en: "Versions are stored only on this computer.", de: "Versionen werden nur auf diesem Computer gespeichert.", ru: "Версии хранятся только на этом компьютере.", ar: "تُحفظ النسخ على هذا الحاسوب فقط.", es: "Las versiones se guardan solo en este equipo.", fr: "Les versions sont stockées uniquement sur cet ordinateur.", az: "Versiyalar yalnız bu kompüterdə saxlanır.",
+  },
+  tlTabFile: {
+    tr: "Bu dosya", en: "This file", de: "Diese Datei", ru: "Этот файл", ar: "هذا الملف", es: "Este archivo", fr: "Ce fichier", az: "Bu fayl",
+  },
+  tlTabDeleted: {
+    tr: "Silinenler", en: "Deleted", de: "Gelöscht", ru: "Удалённые", ar: "المحذوفة", es: "Eliminados", fr: "Supprimés", az: "Silinənlər",
+  },
+  tlNoFile: {
+    tr: "Etkin bir dosya yok. Bir dosya açıp tekrar dene.", en: "No active file. Open a file and try again.", de: "Keine aktive Datei. Öffne eine Datei und versuche es erneut.", ru: "Нет активного файла. Откройте файл и повторите.", ar: "لا يوجد ملف نشط. افتح ملفًا وحاول مجددًا.", es: "No hay archivo activo. Abre uno e inténtalo de nuevo.", fr: "Aucun fichier actif. Ouvre un fichier et réessaie.", az: "Aktiv fayl yoxdur. Fayl açıb yenidən yoxla.",
+  },
+  tlOff: {
+    tr: "Yerel geçmiş kapalı. Ayarlar > Dosyalar bölümünden açabilirsin.", en: "Local history is off. You can turn it on in Settings > Files.", de: "Der lokale Verlauf ist aus. Du kannst ihn unter Einstellungen > Dateien aktivieren.", ru: "Локальная история отключена. Включите её в Настройки > Файлы.", ar: "السجل المحلي متوقف. يمكنك تشغيله من الإعدادات > الملفات.", es: "El historial local está desactivado. Puedes activarlo en Ajustes > Archivos.", fr: "L'historique local est désactivé. Tu peux l'activer dans Paramètres > Fichiers.", az: "Yerli tarixçə söndürülüb. Parametrlər > Fayllar bölməsindən aça bilərsən.",
+  },
+  tlEmpty: {
+    tr: "Bu dosyanın kayıtlı sürümü yok. Dosyayı kaydettikçe sürümler burada görünür.", en: "No saved versions for this file yet. Versions appear here as you save.", de: "Noch keine gespeicherten Versionen. Beim Speichern erscheinen sie hier.", ru: "Сохранённых версий пока нет. Они появятся здесь при сохранении.", ar: "لا توجد نسخ محفوظة لهذا الملف بعد. ستظهر هنا عند الحفظ.", es: "Aún no hay versiones guardadas. Aparecerán aquí al guardar.", fr: "Aucune version enregistrée pour l'instant. Elles apparaîtront ici à chaque enregistrement.", az: "Hələ saxlanmış versiya yoxdur. Yadda saxladıqca burada görünəcək.",
+  },
+  tlDeletedNone: {
+    tr: "Kurtarılabilecek silinmiş dosya yok.", en: "No deleted files to recover.", de: "Keine gelöschten Dateien zum Wiederherstellen.", ru: "Нет удалённых файлов для восстановления.", ar: "لا توجد ملفات محذوفة يمكن استرجاعها.", es: "No hay archivos eliminados para recuperar.", fr: "Aucun fichier supprimé à récupérer.", az: "Bərpa ediləcək silinmiş fayl yoxdur.",
+  },
+  tlCompare: {
+    tr: "Güncel olanla karşılaştır", en: "Compare with current", de: "Mit aktuell vergleichen", ru: "Сравнить с текущим", ar: "مقارنة بالحالي", es: "Comparar con el actual", fr: "Comparer avec l'actuel", az: "Cari ilə müqayisə et",
+  },
+  tlRestore: {
+    tr: "Geri yükle", en: "Restore", de: "Wiederherstellen", ru: "Восстановить", ar: "استرجاع", es: "Restaurar", fr: "Restaurer", az: "Bərpa et",
+  },
+  tlRestoreConfirm: {
+    tr: "Bu sürüm dosyaya yazılacak. Mevcut içerik de yerel geçmişe eklenir. Devam edilsin mi?", en: "This version will be written to the file. The current content is also added to local history. Continue?", de: "Diese Version wird in die Datei geschrieben. Der aktuelle Inhalt wird ebenfalls im lokalen Verlauf gesichert. Fortfahren?", ru: "Эта версия будет записана в файл. Текущее содержимое тоже попадёт в локальную историю. Продолжить?", ar: "ستُكتب هذه النسخة في الملف، ويُضاف المحتوى الحالي إلى السجل المحلي. هل تريد المتابعة؟", es: "Esta versión se escribirá en el archivo. El contenido actual también se añade al historial local. ¿Continuar?", fr: "Cette version sera écrite dans le fichier. Le contenu actuel est aussi ajouté à l'historique local. Continuer ?", az: "Bu versiya fayla yazılacaq. Cari məzmun da yerli tarixçəyə əlavə olunur. Davam edilsin?",
+  },
+  tlRestored: {
+    tr: "Geri yüklendi: {n}", en: "Restored: {n}", de: "Wiederhergestellt: {n}", ru: "Восстановлено: {n}", ar: "تم الاسترجاع: {n}", es: "Restaurado: {n}", fr: "Restauré : {n}", az: "Bərpa edildi: {n}",
+  },
+  tlRestoreFail: {
+    tr: "Geri yüklenemedi: {e}", en: "Could not restore: {e}", de: "Wiederherstellung fehlgeschlagen: {e}", ru: "Не удалось восстановить: {e}", ar: "تعذّر الاسترجاع: {e}", es: "No se pudo restaurar: {e}", fr: "Restauration impossible : {e}", az: "Bərpa alınmadı: {e}",
+  },
+  tlDiffTitle: {
+    tr: "{n} (geçmiş ↔ güncel)", en: "{n} (history ↔ current)", de: "{n} (Verlauf ↔ aktuell)", ru: "{n} (история ↔ текущий)", ar: "{n} (السجل ↔ الحالي)", es: "{n} (historial ↔ actual)", fr: "{n} (historique ↔ actuel)", az: "{n} (tarixçə ↔ cari)",
+  },
+  tlVersionsCount: {
+    tr: "{n} sürüm", en: "{n} versions", de: "{n} Versionen", ru: "Версий: {n}", ar: "{n} نسخة", es: "{n} versiones", fr: "{n} versions", az: "{n} versiya",
+  },
+  tlClearFile: {
+    tr: "Bu dosyanın geçmişini sil", en: "Delete this file's history", de: "Verlauf dieser Datei löschen", ru: "Удалить историю файла", ar: "حذف سجل هذا الملف", es: "Borrar el historial de este archivo", fr: "Supprimer l'historique de ce fichier", az: "Bu faylın tarixçəsini sil",
+  },
+  tlClearAll: {
+    tr: "Tüm yerel geçmişi sil", en: "Delete all local history", de: "Gesamten lokalen Verlauf löschen", ru: "Удалить всю локальную историю", ar: "حذف كل السجل المحلي", es: "Borrar todo el historial local", fr: "Supprimer tout l'historique local", az: "Bütün yerli tarixçəni sil",
+  },
+  tlClearConfirm: {
+    tr: "Yerel geçmiş kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?", en: "Local history will be permanently deleted. This cannot be undone. Continue?", de: "Der lokale Verlauf wird endgültig gelöscht. Das lässt sich nicht rückgängig machen. Fortfahren?", ru: "Локальная история будет удалена безвозвратно. Продолжить?", ar: "سيُحذف السجل المحلي نهائيًا ولا يمكن التراجع. هل تريد المتابعة؟", es: "El historial local se borrará de forma permanente. No se puede deshacer. ¿Continuar?", fr: "L'historique local sera supprimé définitivement. Action irréversible. Continuer ?", az: "Yerli tarixçə həmişəlik silinəcək. Geri qaytarmaq olmaz. Davam edilsin?",
+  },
+  tlRecover: {
+    tr: "Kurtar", en: "Recover", de: "Wiederherstellen", ru: "Вернуть", ar: "استرجاع", es: "Recuperar", fr: "Récupérer", az: "Bərpa et",
+  },
+  appDeletePermanentConfirm: {
+    tr: "Çöp kutusuna taşınamadı. Kalıcı olarak silinsin mi? Bu işlem geri alınamaz.", en: "Could not move to the trash. Delete permanently? This cannot be undone.", de: "Verschieben in den Papierkorb fehlgeschlagen. Endgültig löschen? Das lässt sich nicht rückgängig machen.", ru: "Не удалось переместить в корзину. Удалить безвозвратно? Это нельзя отменить.", ar: "تعذّر النقل إلى سلة المحذوفات. هل تريد الحذف نهائيًا؟ لا يمكن التراجع.", es: "No se pudo mover a la papelera. ¿Eliminar de forma permanente? No se puede deshacer.", fr: "Impossible de déplacer vers la corbeille. Supprimer définitivement ? Action irréversible.", az: "Zibil qutusuna köçürülmədi. Həmişəlik silinsin? Geri qaytarmaq olmaz.",
+  },
+  snTitle: {
+    tr: "Snippet'ler", en: "Snippets", de: "Snippets", ru: "Сниппеты", ar: "المقتطفات", es: "Fragmentos", fr: "Snippets", az: "Snippet-lər",
+  },
+  snScopeUser: {
+    tr: "Genel (tüm klasörler)", en: "Global (all folders)", de: "Global (alle Ordner)", ru: "Глобальные (все папки)", ar: "عام (كل المجلدات)", es: "Globales (todas las carpetas)", fr: "Globaux (tous les dossiers)", az: "Ümumi (bütün qovluqlar)",
+  },
+  snScopeWorkspace: {
+    tr: "Bu klasör (.nova/snippets.json)", en: "This folder (.nova/snippets.json)", de: "Dieser Ordner (.nova/snippets.json)", ru: "Эта папка (.nova/snippets.json)", ar: "هذا المجلد (.nova/snippets.json)", es: "Esta carpeta (.nova/snippets.json)", fr: "Ce dossier (.nova/snippets.json)", az: "Bu qovluq (.nova/snippets.json)",
+  },
+  snHint: {
+    tr: "JSON biçimi: ad → { prefix, body (satır dizisi), description, language }. Gövdede $1, ${2:varsayılan} ve $0 kullanılabilir. Yalnız bu bilgisayarda saklanır.", en: "JSON format: name → { prefix, body (array of lines), description, language }. You can use $1, ${2:default} and $0 in the body. Stored only on this computer.", de: "JSON-Format: Name → { prefix, body (Zeilen-Array), description, language }. Im Body sind $1, ${2:Standard} und $0 nutzbar. Nur auf diesem Computer gespeichert.", ru: "Формат JSON: имя → { prefix, body (массив строк), description, language }. В теле доступны $1, ${2:по умолчанию} и $0. Хранится только на этом компьютере.", ar: "صيغة JSON: الاسم ← { prefix, body (مصفوفة أسطر), description, language }. يمكن استخدام $1 و ${2:افتراضي} و $0 في النص. يُحفظ على هذا الحاسوب فقط.", es: "Formato JSON: nombre → { prefix, body (lista de líneas), description, language }. En el cuerpo puedes usar $1, ${2:valor} y $0. Se guarda solo en este equipo.", fr: "Format JSON : nom → { prefix, body (tableau de lignes), description, language }. Dans le corps, utilise $1, ${2:défaut} et $0. Stocké uniquement sur cet ordinateur.", az: "JSON formatı: ad → { prefix, body (sətir massivi), description, language }. Gövdədə $1, ${2:susmaya görə} və $0 işlədə bilərsən. Yalnız bu kompüterdə saxlanır.",
+  },
+  snSave: {
+    tr: "Kaydet", en: "Save", de: "Speichern", ru: "Сохранить", ar: "حفظ", es: "Guardar", fr: "Enregistrer", az: "Yadda saxla",
+  },
+  snClose: {
+    tr: "Kapat", en: "Close", de: "Schließen", ru: "Закрыть", ar: "إغلاق", es: "Cerrar", fr: "Fermer", az: "Bağla",
+  },
+  snSaved: {
+    tr: "Kaydedildi: {n} snippet", en: "Saved: {n} snippets", de: "Gespeichert: {n} Snippets", ru: "Сохранено сниппетов: {n}", ar: "تم الحفظ: {n} مقتطف", es: "Guardado: {n} fragmentos", fr: "Enregistré : {n} snippets", az: "Yadda saxlandı: {n} snippet",
+  },
+  snInvalid: {
+    tr: "Geçersiz içerik: {e}", en: "Invalid content: {e}", de: "Ungültiger Inhalt: {e}", ru: "Недопустимое содержимое: {e}", ar: "محتوى غير صالح: {e}", es: "Contenido no válido: {e}", fr: "Contenu invalide : {e}", az: "Yanlış məzmun: {e}",
+  },
+  snNoFolder: {
+    tr: "Bu kapsam için önce bir klasör aç.", en: "Open a folder first to use this scope.", de: "Öffne zuerst einen Ordner für diesen Bereich.", ru: "Сначала откройте папку для этой области.", ar: "افتح مجلدًا أولًا لاستخدام هذا النطاق.", es: "Abre primero una carpeta para este ámbito.", fr: "Ouvre d'abord un dossier pour cette portée.", az: "Bu əhatə üçün əvvəlcə qovluq aç.",
+  },
+  snFailed: {
+    tr: "Kaydedilemedi.", en: "Could not save.", de: "Speichern fehlgeschlagen.", ru: "Не удалось сохранить.", ar: "تعذّر الحفظ.", es: "No se pudo guardar.", fr: "Échec de l'enregistrement.", az: "Yadda saxlamaq olmadı.",
+  },
 } satisfies Record<string, Dict>;
 
 export type DevTextKey = keyof typeof DEV_TEXT;

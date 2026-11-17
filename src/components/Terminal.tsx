@@ -11,6 +11,7 @@ import { ProblemsPanel } from './ProblemsPanel';
 import { useProblems } from '../services/problems';
 import { dropPty, pushPtyData } from '../services/ptyBus';
 import type { PtyHandle } from './PtyView';
+import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
 const PtyView = React.lazy(() => import('./PtyView')); // xterm.js yalnız ilk gerçek terminal açılınca yüklenir
 
@@ -39,6 +40,14 @@ interface Session {
   status: string;
   output: string;
   cwd: string;
+}
+
+/** Kabuğa uygun, güvenli `cd`. PowerShell: tek tırnak (içteki ' ve akıllı tırnaklar ikilenir); CMD: çift tırnak. Tehlikeli yol için null. */
+export function cdCommand(shell: ShellId, dir: string): string | null {
+  // eslint-disable-next-line no-control-regex
+  if (!dir || dir.length > 4096 || /[\u0000-\u001f\u007f\u2028\u2029]/.test(dir)) return null;
+  if (shell === 'cmd') return /["%]/.test(dir) ? null : `cd /d "${dir}"`;
+  return `Set-Location -LiteralPath '${dir.replace(/['\u2018\u2019\u201a\u201b]/g, (c) => c + c)}'`;
 }
 
 const SHELL_LABEL: Record<ShellId, string> = { powershell: 'PowerShell', cmd: 'CMD' };
@@ -185,19 +194,37 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   );
 
   // Menü / komut paleti köprüsü: yeni terminal, temizle, komut çalıştır (ör. dosyayı çalıştır)
-  const pendingRun = useRef<string | null>(null);
+  // Terminal hazır olmadan gelen komutlar sırayla çalışır (cd, ardından run): tek yuva olsaydı sonraki öncekini ezerdi
+  const pendingRun = useRef<string[]>([]);
+  const flushing = useRef(false);
+  const flushPending = async (send: (line: string) => Promise<void>) => {
+    if (flushing.current) return;
+    flushing.current = true;
+    try {
+      while (pendingRun.current.length) {
+        const c = pendingRun.current.shift() as string;
+        await send(c);
+      }
+    } finally { flushing.current = false; }
+  };
+  const readyIds = useRef<Set<string>>(new Set());
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const runLineRef = useRef<(line: string) => Promise<void>>(async () => {});
   useEffect(() => {
     const onBridge = (e: Event) => {
       const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear' | 'tab'; command?: string; dir?: string; tab?: PanelTab }>).detail;
       if (!d) return;
       if (d.action === 'tab') { if (d.tab === 'problems' || d.tab === 'terminal' || d.tab === 'log') setTab(d.tab); return; }
-      // cd: etkin kabuğa uygun komut (CMD'de sürücü değiştirmek için /d gerekir); tırnak içeren yol reddedilir
-      if (d.action === 'cd' && d.dir && !/["`$&|<>^%\r\n]/.test(d.dir)) {
-        const cmd = active?.shell === 'cmd' ? `cd /d "${d.dir}"` : `Set-Location -LiteralPath "${d.dir}"`;
+      // cd: etkin kabuğa uygun komut (CMD'de sürücü değiştirmek için /d gerekir). Özel karakterler (& $ ^ vb.) kabuğa uygun alıntılanır;
+      // yalnız denetim karakteri/yeni satır (ve CMD'de alıntı içinde bile genişleyen %) içeren yollar reddedilir
+      const cdCmd = d.action === 'cd' && d.dir ? cdCommand(active?.shell ?? 'powershell', d.dir) : null;
+      if (d.action === 'cd' && d.dir && cdCmd) {
+        const cmd = cdCmd;
         setTab('terminal');
-        if (active?.running) void runLine(cmd);
+        if (active?.running && !pendingRun.current.length) void runLine(cmd);
         else {
-          pendingRun.current = cmd;
+          pendingRun.current.push(cmd);
           if (visible && sessions.length === 0 && cwd) { autoOpened.current = true; void createSession(defaultShell); }
         }
         return;
@@ -206,9 +233,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       else if (d.action === 'clear') clearActive();
       else if (d.action === 'run' && d.command) {
         setTab('terminal');
-        if (active?.running) void runLine(d.command);
+        if (active?.running && !pendingRun.current.length) void runLine(d.command);
         else {
-          pendingRun.current = d.command;
+          pendingRun.current.push(d.command);
           if (visible && sessions.length === 0 && cwd) { autoOpened.current = true; void createSession(defaultShell); }
         }
       }
@@ -216,11 +243,21 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     window.addEventListener('nova:term', onBridge);
     return () => window.removeEventListener('nova:term', onBridge);
   });
+  // Ana süreçteki `term:ready` (kabuk ilk işareti): bekleyen komut sabit gecikme olmadan burada gönderilir (B-12)
   useEffect(() => {
-    if (pendingRun.current && active?.running) {
-      const c = pendingRun.current;
-      pendingRun.current = null;
-      void runLine(c);
+    const off = api?.onTermReady?.(({ id }) => {
+      readyIds.current.add(id);
+      window.dispatchEvent(new CustomEvent('nova:term-ready', { detail: { id } }));
+      const cur = activeRef.current;
+      if (pendingRun.current.length && cur && cur.id === id && cur.running) void flushPending((c) => runLineRef.current(c));
+    });
+    return () => off?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    // pipe oturumlarında `term:ready` beklenir (kabuk henüz komut almayabilir); olay desteği yoksa ya da pty ise doğrudan gönderilir
+    if (pendingRun.current.length && active?.running && (active.kind !== 'pipe' || !api?.onTermReady || readyIds.current.has(active.id))) {
+      void flushPending((c) => runLine(c));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active?.running, active?.id]);
@@ -295,6 +332,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     if (!res.success) patch(active.id, (s) => ({ ...s, status: t('termSendFailed') }));
   };
 
+  runLineRef.current = runLine;
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const line = input;
@@ -354,7 +393,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     >
       {label}
       {badge}
-      <span className={`absolute left-2 right-2 bottom-0 h-px bg-indigo-500 origin-left transition-transform duration-200 ${tab === id ? 'scale-x-100' : 'scale-x-0'}`} />
+      <span className={`absolute start-2 end-2 bottom-0 h-px bg-indigo-500 origin-left transition-transform duration-(--dur-base) ${tab === id ? 'scale-x-100' : 'scale-x-0'}`} />
     </button>
   );
 
@@ -363,9 +402,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
 
   return (
     <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
-      <div className="flex items-stretch justify-between h-9 pl-1 pr-2 border-b border-nv-border shrink-0 font-sans">
+      <div className="flex items-stretch justify-between h-9 ps-1 pe-2 border-b border-nv-border shrink-0 font-sans">
         <div className="flex items-stretch">
-          {tabBtn('problems', t('prbTab'), problemCount.errors + problemCount.warnings > 0 ? <span className={`ml-1.5 px-1.5 rounded-full text-[10px] normal-case ${problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200'}`}>{problemCount.errors + problemCount.warnings}</span> : null)}
+          {tabBtn('problems', t('prbTab'), problemCount.errors + problemCount.warnings > 0 ? <span className={`ms-1.5 px-1.5 rounded-full text-[10px] normal-case ${problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200'}`}>{problemCount.errors + problemCount.warnings}</span> : null)}
           {tabBtn('terminal', t('termTab'))}
           {tabBtn('log', t('termLog'))}
         </div>
@@ -428,15 +467,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
           {tab === 'problems' ? (
             <ProblemsPanel rootPath={cwd ?? undefined} />
           ) : tab === 'log' ? (
-            <div className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
+            <div dir="ltr" className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
               {logs.length === 0 ? (
-                <div className="text-zinc-600">{t('termLogEmpty')}</div>
+                <div className="text-zinc-500">{t('termLogEmpty')}</div>
               ) : (
                 logs.map((log) => {
                   const color = log.type === 'error' ? 'text-rose-400' : log.type === 'warn' ? 'text-amber-300' : log.type === 'info' ? 'text-sky-300' : 'text-zinc-300';
                   return (
                     <div key={log.id} className="flex gap-2">
-                      <span className="text-zinc-600 text-[10px] shrink-0 pt-px">{log.time}</span>
+                      <span className="text-zinc-500 text-[10px] shrink-0 pt-px">{log.time}</span>
                       <span className={`break-all whitespace-pre-wrap ${color}`}>{log.text}</span>
                     </div>
                   );
@@ -455,7 +494,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               )}
             </div>
           ) : active?.kind === 'pty' ? null : (
-            <div ref={scrollRef} onScroll={onScroll} onClick={focusInput} className="absolute inset-0 overflow-y-auto px-3 py-1.5" style={{ lineHeight }} data-terminal-scroll="">
+            <div ref={scrollRef} dir="ltr" onScroll={onScroll} onClick={focusInput} className="absolute inset-0 overflow-y-auto px-3 py-1.5" style={{ lineHeight }} data-terminal-scroll="">
               {active && (
                 <>
                   <Output text={active.output} />
@@ -494,14 +533,14 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                   )}
                 </>
               )}
-              {!active && cwd && <div className="text-zinc-600 font-sans">{t('termStarting')}</div>}
+              {!active && cwd && <div className="text-zinc-500 font-sans">{t('termStarting')}</div>}
             </div>
           )}
         </div>
 
         {/* Oturum listesi: birden fazla terminal varken (VS Code gibi) sağda */}
         {tab === 'terminal' && sessions.length > 1 && (
-          <div className="w-44 shrink-0 border-l border-nv-border overflow-y-auto font-sans animate-fade-in" role="tablist" aria-label={t('termTab')}>
+          <div className="w-44 shrink-0 border-s border-nv-border overflow-y-auto font-sans animate-fade-in" role="tablist" aria-label={t('termTab')}>
             {sessions.map((s) => {
               const on = s.id === activeId;
               return (
@@ -512,9 +551,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                   tabIndex={0}
                   onClick={() => setActiveId(s.id)}
                   onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setActiveId(s.id)}
-                  className={`group relative flex items-center gap-2 h-7 pl-3 pr-1 cursor-pointer text-[12px] transition-colors ${on ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'}`}
+                  className={`group relative flex items-center gap-2 h-7 ps-3 pe-1 cursor-pointer text-[12px] transition-colors ${on ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'}`}
                 >
-                  <span className={`absolute left-0 top-1 bottom-1 w-0.5 rounded-r bg-indigo-400 transition-transform ${on ? 'scale-y-100' : 'scale-y-0'}`} />
+                  <span className={`absolute start-0 top-1 bottom-1 w-0.5 rounded-e bg-indigo-400 transition-transform ${on ? 'scale-y-100' : 'scale-y-0'}`} />
                   <SquareTerminal size={13} className={s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0'} />
                   <span className="truncate flex-1">
                     {SHELL_LABEL[s.shell]}{ptyOk && s.kind === 'pipe' ? <span className="text-zinc-500"> · {t('termClassic')}</span> : null} <span className="text-zinc-500">{baseName(s.cwd)}</span>

@@ -9,7 +9,8 @@ const { app, ipcMain, net, shell } = require('electron');
 const OWNER = 'orayyilmaz16';
 const REPO = 'NovaCode-Studio';
 const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
-const FEED = process.env.NOVA_UPDATE_FEED || '';
+// Besleme geçersiz kılma yalnız geliştirmede: paketli uygulamada ortam değişkeni güncelleme kaynağını değiştiremez.
+const FEED = !app.isPackaged ? process.env.NOVA_UPDATE_FEED || '' : '';
 
 let updater = null;
 // Kanal: 'stable' = kurulu (paketli) uygulama → gerçek otomatik güncelleme; 'dev' = kaynaktan çalışan geliştirme sürümü → yalnız son yayınla KARŞILAŞTIRIR.

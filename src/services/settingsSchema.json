@@ -10,6 +10,7 @@
     { "id": "extensions", "labelKey": "setCatExtensions", "icon": "Puzzle" },
     { "id": "ai", "labelKey": "setCatAI", "icon": "Sparkles" },
     { "id": "collab", "labelKey": "setCatCollab", "icon": "Users" },
+    { "id": "trust", "labelKey": "setCatTrust", "icon": "ShieldCheck" },
     { "id": "shortcuts", "labelKey": "setCatShortcuts", "icon": "Keyboard" },
     { "id": "about", "labelKey": "setCatAbout", "icon": "Info" }
   ],
@@ -84,6 +85,8 @@
     { "id": "formatOnSave", "category": "files", "type": "toggle", "default": false, "desc": true },
     { "id": "trimTrailingWhitespace", "category": "files", "type": "toggle", "default": false, "desc": true },
     { "id": "insertFinalNewline", "category": "files", "type": "toggle", "default": false },
+    { "id": "localHistory", "category": "files", "type": "toggle", "default": true, "desc": true },
+    { "id": "localHistoryMax", "category": "files", "type": "slider", "default": 30, "min": 5, "max": 30, "step": 5, "desc": true, "showWhen": { "id": "localHistory", "equals": true } },
     { "id": "welcomeOnStartup", "category": "files", "type": "toggle", "default": true },
     { "id": "showGitDecorations", "category": "files", "type": "toggle", "default": true },
 

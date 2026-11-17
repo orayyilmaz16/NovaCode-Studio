@@ -4,3 +4,5 @@ paths-ignore:
   - public/vs/**
   - dist/**
   - release/**
+  # Bilinçli katastrofik regex girdileri (ReDoS korumasının testi); yalnız bu tek dosya
+  - scripts/tests/search-redos.test.cjs

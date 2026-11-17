@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/png" href="/icon.png" />
+    <!-- CSP (S-01): uygulamanın kendi ilkesi sıkıdır (script yalnız 'self', eval yok). Kod önizlemesi ayrı kökende (nova-preview://, kendi gevşek CSP'si:
+         electron-preview.cjs) çalıştığı için bu ilkeyi miras almaz. Dev'de vite.config.ts yalnız HMR için script/connect'i gevşetir. Test: scripts/tests/preview-csp.test.cjs -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self' data: blob: ws: wss:; frame-src nova-preview: http://localhost:* http://127.0.0.1:*; worker-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'none'" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#181818" />
     <meta name="description" content="NovaCode Studio — yapay zekâ destekli modern kod editörü." />

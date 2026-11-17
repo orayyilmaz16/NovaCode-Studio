@@ -4,7 +4,71 @@
 
 ### tr
 
+- [feat] **Bölünmüş editör:** Editörü sağa veya alta böl (Ctrl+\ / Ctrl+Alt+\), sekmeyi sürükleyerek gruplar arası taşı. Aynı dosya iki grupta açılabilir, içerik ortaktır, bölme oturumla geri yüklenir.
+- [feat] **Kısayol özelleştirme:** Komut paletinden "Klavye kısayollarını aç" ile kısayolları değiştir, kaldır, sıfırla. Çakışmalar uyarılır, atamalar yalnız bu bilgisayarda saklanır.
+- [feat] **Çalışma alanında bul-değiştir:** Arama panelinde değiştirme alanı ve tam kelime seçeneği; değişiklikler önce dosya ve satır bazında önizlenir, istediğin satırı hariç tutup onaylayarak uygularsın.
+- [feat] **Görev çalıştırıcı:** `.nova/tasks.json` ve `package.json` scriptleri komut paletinden ve Çalıştır menüsünden terminalde çalışır. "Tüm eşleşmeleri seç" ve çoklu imleç komutları palete eklendi.
+- [feat] **Yerel geçmiş ve zaman çizelgesi:** Her kayıtta eski sürüm yalnız bu bilgisayarda saklanır (dosya başına 30 sürüm, ayardan kapatılabilir); sürümleri karşılaştırıp geri yükleyebilir, silinen dosyaları kurtarabilirsin.
+- [feat] **Kullanıcı snippet'leri:** `.nova/snippets.json` ve genel dosyadan editörde tamamlama olarak gelir; paletten düzenlenir.
+- [feat] **Oturum geri yükleme:** Açık sekmeler ve kaydedilmemiş taslaklar açılışta (onayınla) geri yüklenir; Ctrl+Shift+T kapatılan sekmeyi geri açar. Veriler yalnız bu bilgisayarda tutulur.
+- [security] **Çalışma klasörü güveni:** Güvenilmeyen klasör kısıtlı modda açılır (dil sunucuları ve hata ayıklayıcı kapalı, git yalnız okuma). Ayarlar > Güven ve rıza'dan güvenilen klasörleri ve yapay zekâ rızalarını geri alır, ortak düzenleme oda kimliğini ayarlarsın.
+- [security] **Önizleme ayrı köken ve sıkı CSP:** Kod önizlemesi ayrı bir şemadan (nova-preview) kendi ilkesiyle çalışır; uygulamanın içerik güvenlik ilkesinde eval ve satır içi betik yok, ağ erişimi daraltıldı. Yerel model indirmeleri SHA-256 ile doğrulanır. Harici sağlayıcıya giden ajan araç sonuçları da anahtar kalıplarından temizlenir.
+- [fix] **Veri kaybı önlemleri:** Kaydedilmemiş sekme kapatılırken veya pencere kapanırken Kaydet/Kaydetme/İptal sorulur; silme başarısızsa sekme kapanmaz, klasör silinince içindeki sekmeler de kapanır; diskte silinen ya da değişen dosya sekmede uyarı olarak görünür ve otomatik kayıt onu ezmez; yazarken kayıt tamamlanırsa yeni yazılanlar kaybolmaz.
+- [fix] **Beyaz ekran yerine hata ekranı:** Bir bileşen hatasında "Yeniden yükle" gösterilir. Silinen dosyalar önce çöp kutusuna gider.
+- [improve] **Daha az gecikme:** Yazarken içerik dosya ağacına kopyalanmıyor, sekme geçişinde editör yeniden kurulmuyor, imleç hareketi tüm uygulamayı çizmiyor; ağaç yenilemesi yalnız değişen klasörleri okur ve `.gitignore` klasörlerinin derinine inmez.
+- [fix] **Kapanış ve terminal:** Kaydet penceresinde karar verirken uygulama artık 5 sn sonra kapanmıyor; terminalde `cd` ve komut sırası bozulmuyor, özel karakterli klasör yollarına `cd` çalışıyor; ön sürümlü eklenti güncellemesi doğru karşılaştırılıyor.
+- [security] **Arama ve görev güveni:** Regex aramasında iç içe nicelikli desenler ve çok uzun satırlar sınırlandı, aramaya 8 sn süre bütçesi getirildi; görev çalıştırma klasör güvenine bağlandı.
+- [improve] **Kısayollar ve paket boyutu:** Ayarlar > Kısayollar artık düzenlenebilir; ana paket küçüldü, ayar ve Git metinleri paneller açılınca yükleniyor.
+
 ### en
+
+- [feat] **Split editor:** Split the editor right or down (Ctrl+\ / Ctrl+Alt+\) and drag tabs between groups. The same file can be open in both groups with shared content, and the split is restored with the session.
+- [feat] **Customizable shortcuts:** Use "Open keyboard shortcuts" in the command palette to change, remove or reset shortcuts. Conflicts are flagged and assignments are stored only on this computer.
+- [feat] **Workspace find and replace:** The search panel has a replace field and a whole-word option; changes are previewed per file and line, and you can exclude lines and apply after confirming.
+- [feat] **Task runner:** Tasks from `.nova/tasks.json` and `package.json` scripts run in the terminal from the command palette and the Run menu. "Select all occurrences" and multi-cursor commands were added to the palette.
+- [feat] **Local history and timeline:** On every save the previous version is kept only on this computer (30 versions per file, can be turned off); compare versions, restore them and recover deleted files.
+- [feat] **User snippets:** Snippets from `.nova/snippets.json` and a global file appear as editor completions and are edited from the palette.
+- [feat] **Session restore:** Open tabs and unsaved drafts are restored on launch (with your confirmation); Ctrl+Shift+T reopens the last closed tab. Data stays on this computer.
+- [security] **Workspace trust:** Untrusted folders open in restricted mode (language servers and debugger off, git read-only). Settings > Trust and consent lets you revoke trusted folders and AI consents and set the collaboration room ID.
+- [security] **Isolated preview origin and strict CSP:** Code preview runs from a separate scheme (nova-preview) with its own policy; the app's content security policy has no eval or inline scripts and narrower network access. Local model downloads are verified with SHA-256. Agent tool results sent to external providers are also scrubbed of key patterns.
+- [fix] **Data-loss protections:** Closing an unsaved tab or the window asks Save/Don't save/Cancel; a failed delete keeps the tab, deleting a folder closes its tabs; files deleted or changed on disk show a warning on the tab and auto-save will not overwrite them; typing while a save completes no longer loses new text.
+- [fix] **Error screen instead of a white screen:** A component error shows "Reload". Deleted files go to the recycle bin first.
+- [improve] **Less lag:** Typing no longer copies content into the file tree, switching tabs no longer rebuilds the editor, cursor moves no longer redraw the whole app; tree refresh reads only changed folders and does not descend into `.gitignore` folders.
+- [fix] **Quit and terminal:** The app no longer closes after 5 s while you decide in the Save dialog; terminal `cd` and the command keep their order and `cd` works for folder paths with special characters; pre-release extension updates compare correctly.
+- [security] **Search and task trust:** Regex search limits nested quantifiers and very long lines and has an 8 s time budget; running tasks now depends on folder trust.
+- [improve] **Shortcuts and bundle size:** Settings > Shortcuts is now editable; the main bundle shrank and settings and Git texts load when their panels open.
+
+## 1.4.2 - 17.11.2026
+<!-- level: patch -->
+### Türkçe
+#### Düzeltmeler
+- **Dosya yazma ve kapanış:** Dosya yazma atomik ve eşzamansız; 5 MB üstü ve ikili dosyalar uyarıyla ele alınır; UTF-8 BOM korunur; kapanışta dil sunucuları, terminal, hata ayıklayıcı ve ajan komutları süreç ağacıyla sonlandırılır (yetim süreç kalmaz).
+
+#### Güvenlik
+- **Pencere ve alt süreç sertleştirmesi:** Pencere sandbox'ı açıldı; gezinme ve dış bağlantılar kısıtlandı (yalnız https). Dosya erişimi symlink/junction kaçışına karşı korunuyor. Git güvenilmeyen depolara karşı sertleştirildi; hata ayıklayıcı ve dil sunucuları yalnız izin verilen ortam değişkenleriyle başlıyor (hata ayıklanan program kabuktaki özel ortam değişkenlerini artık görmez). PowerShell oturumu `Bypass` yerine `RemoteSigned` çalışıyor.
+- **Yapay zekâ ajanı için güven ve rıza:** Ajan komutları güvenilmeyen klasörde onay ister; `.git` altına yazma ve ek gizli dosyaların okunması engellendi; dış sağlayıcıya ilk gönderimde açık rıza alınır ve anahtar kalıpları temizlenir; API anahtarları arayüze geçmez; özel API adresi ilk kullanımda onaylanır.
+- **Ortak düzenleme sunucusu:** Token artık URL yerine WebSocket alt protokolüyle gider; oda adında yerel yol yok (rastgele oda kimliği); bozuk istek sunucuyu düşürmez; başarısız deneme sınırı, Origin denetimi, bağlantı/oda üst sınırı ve boş odaların temizlenmesi eklendi. Eski istemciler için sunucuda `NOVA_SYNC_ALLOW_QUERY_TOKEN=1` gerekir.
+- **Önizleme sandbox'ı:** Yerel sunucu kipinde `allow-same-origin` kaldırıldı; bağlantı açma yalnız gerçek tıklamayla ve hız sınırlı.
+- **Paket ve CI:** Electron fuse'ları (yalnız asar'dan yükleme, asar bütünlüğü) açıldı; CI action'ları commit SHA'ya sabitlendi; Dependabot otomatik birleştirme yalnız geliştirme bağımlılıkları ve action'larla sınırlandı. Kod imzalama için `CSC_LINK` secret'ı tanımlanınca imzalı çıkar.
+
+#### İyileştirmeler
+- **Daha hızlı etkileşim:** Git durumu 7 yerine 3 süreçle okunur; kendi yazımımız dosya izleyiciyi tetiklemez; dil sunucusuna artımlı değişiklik gider; arama iptal edilebilir ve paralel; yapay zekâ tamamlaması yalnız gereken metin parçasını gönderir; ayar kaydırıcıları, Git paneli ve ajan durum şeridi daha az yeniden çizim yapar; büyük dosyada ağır editör özellikleri otomatik kapanır; açılış ekranı uygulama hazır olunca kapanır.
+- **Arapça sağdan sola ve erişilebilirlik:** Arapça arayüz RTL akar, sayfa dili ayarlanır; bölüm başlıkları klavyeyle açılır; düşük kontrastlı metinler düzeltildi; gölge yığınları ve degradeler sadeleşti; animasyon süreleri hareket jetonlarına bağlandı.
+
+### English
+#### Fixes
+- **File writes and shutdown:** File writes are atomic and asynchronous; files over 5 MB and binary files are handled with a warning; UTF-8 BOM is preserved; on quit, language servers, terminals, the debugger and agent commands are terminated as process trees (no orphan processes).
+
+#### Security
+- **Window and child-process hardening:** The window sandbox is on; navigation and external links are restricted (https only). File access is protected against symlink/junction escapes. Git is hardened against untrusted repositories; the debugger and language servers start with an allow-listed environment (a debugged program no longer sees custom shell environment variables). PowerShell sessions run `RemoteSigned` instead of `Bypass`.
+- **Trust and consent for the AI agent:** Agent commands ask for confirmation in untrusted folders; writes into `.git` and reads of more secret files are blocked; the first send to an external provider needs explicit consent and key patterns are scrubbed; API keys no longer reach the UI; a custom API address is confirmed on first use.
+- **Collaboration server:** The token now travels in a WebSocket subprotocol instead of the URL; room names no longer contain a local path (random room id); malformed requests cannot crash the server; failed-attempt limits, Origin checks, connection/room caps and cleanup of empty rooms were added. Old clients need `NOVA_SYNC_ALLOW_QUERY_TOKEN=1` on the server.
+- **Preview sandbox:** `allow-same-origin` was removed in local-server mode; opening links needs a real click and is rate-limited.
+- **Package and CI:** Electron fuses (load only from asar, asar integrity) are on; CI actions are pinned to commit SHAs; Dependabot auto-merge is limited to dev dependencies and actions. Releases are signed once the `CSC_LINK` secret is set.
+
+#### Improvements
+- **Faster interaction:** Git status uses 3 processes instead of 7; our own writes no longer trigger the file watcher; incremental changes go to the language server; search is cancellable and parallel; AI completion sends only the needed text slice; settings sliders, the Git panel and the agent status bar re-render less; heavy editor features turn off automatically for large files; the splash closes as soon as the app is ready.
+- **Arabic right-to-left and accessibility:** The Arabic UI flows RTL and the page language is set; section headers open with the keyboard; low-contrast text was fixed; shadow stacks and gradients were simplified; animation durations use the motion tokens.
 
 ## 1.4.1 - 17.11.2026
 <!-- level: patch -->
