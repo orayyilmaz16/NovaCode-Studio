@@ -15,7 +15,6 @@ interface Props {
   /** Düğmenin ekran konumu: menü bunun üstünde açılır. */
   anchor: { x: number; y: number };
   /** Etkin dosyanın dil kimliği (dil bazında kapatma için). */
-  language?: string;
   onClose: () => void;
   onOpenSettings: () => void;
 }
@@ -65,7 +64,7 @@ const Range: React.FC<{ id: string; min: number; max: number; step: number; valu
 
 const Divider: React.FC = () => <div className="h-px bg-nv-border mx-3.5 my-1" />;
 
-export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onOpenSettings }) => {
+export const CompletionMenu: React.FC<Props> = ({ anchor, onClose, onOpenSettings }) => {
   const { values, set } = useSettings();
   const status = useCompletionStatus();
   const ref = useRef<HTMLDivElement>(null);
@@ -86,14 +85,6 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
     ref.current?.focus();
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
-
-  const offList = String(values.aiCompletionOffLangs ?? '').split(/[,\s]+/).map((x) => x.trim().toLowerCase()).filter(Boolean);
-  const langOn = !!language && !offList.includes(language.toLowerCase());
-  const toggleLang = (on: boolean) => {
-    if (!language) return;
-    const l = language.toLowerCase();
-    set('aiCompletionOffLangs', (on ? offList.filter((x) => x !== l) : [...offList.filter((x) => x !== l), l]).join(', '));
-  };
 
   const statusText = !enabled || status.state === 'off' ? t('cmStatusOff')
     : status.state === 'busy' ? t('aiCompBusy')
@@ -133,11 +124,6 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, language, onClose, onO
         </div>
 
         <div className={`py-1.5 ${enabled ? '' : 'opacity-50 pointer-events-none'}`}>
-          {language && (
-            <Row label={t('cmThisLang').replace('{l}', language)}>
-              <Switch on={langOn} onChange={toggleLang} label={t('cmThisLang').replace('{l}', language)} />
-            </Row>
-          )}
           <Row label={t('set_aiCompletionTrigger')}>
             <Segmented
               label={t('set_aiCompletionTrigger')}

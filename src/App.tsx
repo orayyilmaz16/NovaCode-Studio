@@ -1513,7 +1513,7 @@ export function App() {
 
       {compMenu && (
         <Suspense fallback={null}>
-          <CompletionMenu anchor={compMenu} language={activeFile && !activeFile.diff ? activeFile.language : undefined} onClose={() => setCompMenu(null)} onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }} />
+          <CompletionMenu anchor={compMenu} onClose={() => setCompMenu(null)} onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }} />
         </Suspense>
       )}
 

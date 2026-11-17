@@ -60,9 +60,9 @@
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 165 |
 | `src/components/CompletionIcon.tsx` | 14 |
-| `src/components/CompletionMenu.tsx` | 210 |
+| `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 527 |
+| `src/components/EditorArea.tsx` | 526 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -90,7 +90,7 @@
 |---|---|
 | `src/services/SettingsContext.tsx` | 140 |
 | `src/services/aiClient.ts` | 265 |
-| `src/services/aiCompletion.ts` | 199 |
+| `src/services/aiCompletion.ts` | 198 |
 | `src/services/completionSchedule.ts` | 69 |
 | `src/services/completionShape.ts` | 180 |
 | `src/services/cursorStore.ts` | 15 |
@@ -120,7 +120,7 @@
 |---|---|
 | `src/i18n/uiText.ts` | 1634 |
 | `src/i18n/uiTextAi.ts` | 528 |
-| `src/i18n/uiTextComp.ts` | 122 |
+| `src/i18n/uiTextComp.ts` | 113 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
 
@@ -182,10 +182,10 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 841 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 838 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-110 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+109 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -285,7 +285,6 @@
 | Yapay Zekâ | `aiCompletionTemperature` | Yaratıcılık (sıcaklık) | slider | `0.05` | 0–1 |
 | Yapay Zekâ | `aiCompletionCount` | Alternatif öneri sayısı | slider | `1` | 1–3 |
 | Yapay Zekâ | `aiCompletionToolbar` | Öneri araç çubuğunu göster | toggle | `true` |  |
-| Yapay Zekâ | `aiCompletionOffLangs` | Kapalı diller | text | `""` | ≤200 karakter |
 | Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
 | Yapay Zekâ | `aiAskThinking` | Sohbet: düşünme seviyesi | select | `"balanced"` | fast, balanced, deep |
 | Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |
