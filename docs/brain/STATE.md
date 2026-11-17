@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -33,7 +33,7 @@
 | `electron-ai.cjs` | 1045 |
 | `electron-debug.cjs` | 237 |
 | `electron-ext.cjs` | 323 |
-| `electron-git.cjs` | 406 |
+| `electron-git.cjs` | 426 |
 | `electron-github.cjs` | 335 |
 | `electron-llm.cjs` | 278 |
 | `electron-lsp.cjs` | 298 |
@@ -51,7 +51,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/App.tsx` | 1606 |
-| `src/main.tsx` | 21 |
+| `src/main.tsx` | 30 |
 | `src/types.ts` | 428 |
 
 ### Bileşenler
@@ -66,7 +66,7 @@
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 535 |
+| `src/components/EditorArea.tsx` | 623 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 931 |
@@ -103,12 +103,12 @@
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
-| `src/services/editorBridge.ts` | 98 |
+| `src/services/editorBridge.ts` | 103 |
 | `src/services/editorTheme.ts` | 98 |
 | `src/services/extensionsService.ts` | 220 |
 | `src/services/gitExplain.ts` | 18 |
 | `src/services/lang.ts` | 26 |
-| `src/services/lspClient.ts` | 190 |
+| `src/services/lspClient.ts` | 213 |
 | `src/services/lspStore.ts` | 34 |
 | `src/services/monacoShim.ts` | 28 |
 | `src/services/palettes.ts` | 168 |
@@ -163,6 +163,7 @@
 | `scripts/tests/git.test.cjs` | 163 |
 | `scripts/tests/lsp.test.cjs` | 97 |
 | `scripts/tests/palettes.test.cjs` | 75 |
+| `scripts/tests/paths.test.cjs` | 88 |
 | `scripts/tests/pty.test.cjs` | 84 |
 | `scripts/tests/release.test.cjs` | 140 |
 | `scripts/tests/settings-migrate.test.cjs` | 62 |

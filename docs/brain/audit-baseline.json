@@ -17,11 +17,6 @@
    "sev": "orta"
   },
   {
-   "k": "SEC-CSP|index.html",
-   "n": 1,
-   "sev": "orta"
-  },
-  {
    "k": "SEC-HTML|src/components/Preview.tsx",
    "n": 1,
    "sev": "orta"

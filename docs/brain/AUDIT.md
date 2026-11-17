@@ -6,7 +6,7 @@ Son tarama: 17.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 ## Özet
 | Alan | Bulgu |
 |---|---|
-| Güvenlik | kritik 0 · yüksek 0 · orta 6 · düşük 18 |
+| Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 18 |
 | Performans | kritik 0 · yüksek 0 · orta 3 · düşük 57 |
 | Kalite | kritik 0 · yüksek 0 · orta 0 · düşük 9 |
 
@@ -14,12 +14,11 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Önceki taramaya göre
 - Yeni/artan: yok
-- Giderilen: yok
+- Giderilen: `SEC-CSP index.html`
 
 ## Güvenlik
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | SEC-CSP | `index.html:1` | Content-Security-Policy tanımı yok (index.html ve ana süreçte) |
 | orta | SEC-HTML | `src/components/Preview.tsx:177` | Ham HTML basımı; DOMPurify ile temizlendiğini doğrula |
 | orta | SEC-OPENEXT | `electron-github.cjs:189,245` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
 | orta | SEC-OPENEXT | `electron-main.cjs:59` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
@@ -51,7 +50,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-SYNC-FS | `electron-ai.cjs:60,66,148…(+19)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (22×) |
 | düşük | PERF-SYNC-FS | `electron-debug.cjs:121` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-ext.cjs:233,234,249` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
-| düşük | PERF-SYNC-FS | `electron-git.cjs:253,256,401` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
+| düşük | PERF-SYNC-FS | `electron-git.cjs:273,276,421` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
 | düşük | PERF-SYNC-FS | `electron-github.cjs:25,38,52…(+2)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (5×) |
 | düşük | PERF-SYNC-FS | `electron-llm.cjs:33,94,114` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
 | düşük | PERF-SYNC-FS | `electron-lsp.cjs:48` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
@@ -65,11 +64,11 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
 | düşük | Q-ANY | `src/App.tsx:464,541` | `any` kullanımı (strict tip güvenliği) (2×) |
-| düşük | Q-ANY | `src/components/EditorArea.tsx:54,453` | `any` kullanımı (strict tip güvenliği) (2×) |
+| düşük | Q-ANY | `src/components/EditorArea.tsx:109,516` | `any` kullanımı (strict tip güvenliği) (2×) |
 | düşük | Q-CONSOLE | `src/mockFiles.ts:89,91,112` | Kalan console.log (3×) |
 | düşük | Q-EMPTY-CATCH | `src/components/Preview.tsx:57` | Boş catch: hata yutuluyor |
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:348` | Açık TODO/FIXME |
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/i18n/uiText.ts` 1636, `src/App.tsx` 1607, `electron-ai.cjs` 1046, `src/components/FileTree.tsx` 932, `src/components/GitPanel.tsx` 883, `src/components/AIAssistant.tsx` 825
-- Üretim paketi (dist varsa): toplam JS 2780 KB; en büyük: index-DTLVzuxU.js 438 KB, PtyView-CuFzAXiS.js 327 KB, fileIconLoaders-C_rfHEER.js 184 KB, uiText-azHSDOE1.js 171 KB
+- Üretim paketi (dist varsa): toplam JS 2785 KB; en büyük: index-DrcIKY30.js 476 KB, PtyView-BzDm70S7.js 327 KB, fileIconLoaders-C4gN0E4i.js 184 KB, uiText-azHSDOE1.js 171 KB

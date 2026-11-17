@@ -30,64 +30,84 @@ function register({ runGit, github, isValidPath }) {
     return out;
   }
 
-  // ---- Durum: sahnelenmiş / sahnelenmemiş ayrımı (porcelain v1, NUL ayrımlı) ----
-  ipcMain.handle('git:status', async (_e, repoPath) => {
-    if (!github.isConnected()) return { isRepo: false, locked: true, changes: [], files: [] };
-    if (!isValidPath(repoPath)) return { isRepo: false, changes: [], files: [] };
-    const check = await runGit(['rev-parse', '--is-inside-work-tree'], repoPath);
-    if (!check.success || check.stdout !== 'true') return { isRepo: false, changes: [], files: [] };
-
-    const [branchRes, statusRes, abRes, remoteRes, headRes, mergeRes] = await Promise.all([
-      runGit(['branch', '--show-current'], repoPath),
-      runGit(['status', '--porcelain=v1', '-z', '--untracked-files=normal'], repoPath, { raw: true }),
-      runGit(['rev-list', '--left-right', '--count', '@{upstream}...HEAD'], repoPath),
+  // ---- Durum: sahnelenmiş / sahnelenmemiş ayrımı (porcelain v2 + dal başlığı, NUL ayrımlı) ----
+  // Tek `git status` dal/yukarı akış/ahead-behind/dosyaları birlikte verir (eskiden 7 süreç; şimdi 3: status, remote, MERGE_HEAD).
+  // Aynı depo için eşzamanlı çağrılar tek sonuca birleştirilir (GitPanel yoklaması + izleyici olayları üst üste binmesin).
+  const statusInflight = new Map();
+  async function readStatus(repoPath) {
+    const [statusRes, remoteRes, mergeRes] = await Promise.all([
+      runGit(['status', '--porcelain=v2', '--branch', '-z', '--untracked-files=normal'], repoPath, { raw: true }),
       runGit(['remote', 'get-url', 'origin'], repoPath),
-      runGit(['rev-parse', '--short', 'HEAD'], repoPath),
       runGit(['rev-parse', '-q', '--verify', 'MERGE_HEAD'], repoPath)
     ]);
+    if (!statusRes.success) return { isRepo: false, changes: [], files: [] }; // depo değil / erişilemiyor
 
     const files = [];
+    let head = '';
+    let oid = '';
+    let hasUpstream = false;
+    let ahead = 0;
+    let behind = 0;
+    const dot = (c) => (c === '.' || c === ' ' ? '' : c);
     const parts = (statusRes.stdout || '').split('\0');
     for (let i = 0; i < parts.length; i++) {
-      const entry = parts[i];
-      if (entry.length < 4) continue;
-      const x = entry[0];
-      const y = entry[1];
-      const file = entry.slice(3);
-      let orig;
-      if (x === 'R' || x === 'C') orig = parts[++i]; // yeniden adlandırmada eski ad sonraki alandadır
-      files.push({
-        path: file,
-        orig,
-        index: x === ' ' || x === '?' ? '' : x,
-        worktree: y === ' ' ? '' : y === '?' ? 'U' : y,
-        untracked: x === '?',
-        conflict: x === 'U' || y === 'U' || (x === 'A' && y === 'A') || (x === 'D' && y === 'D')
-      });
+      const rec = parts[i];
+      if (!rec) continue;
+      if (rec.startsWith('# ')) {
+        const m = /^# (\S+) ?(.*)$/.exec(rec);
+        if (!m) continue;
+        if (m[1] === 'branch.head') head = m[2];
+        else if (m[1] === 'branch.oid') oid = m[2];
+        else if (m[1] === 'branch.upstream') hasUpstream = true;
+        else if (m[1] === 'branch.ab') {
+          const ab = /^\+(\d+) -(\d+)$/.exec(m[2]);
+          if (ab) { ahead = Number(ab[1]); behind = Number(ab[2]); }
+        }
+        continue;
+      }
+      const type = rec[0];
+      if (type === '?') {
+        files.push({ path: rec.slice(2), index: '', worktree: 'U', untracked: true, conflict: false });
+      } else if (type === '1' || type === '2' || type === 'u') {
+        // 1: 8 alan + yol · 2: 9 alan + yol (+ sonraki kayıtta eski yol) · u: 10 alan + yol
+        const skip = type === '1' ? 8 : type === '2' ? 9 : 10;
+        const f = rec.split(' ');
+        if (f.length <= skip) continue;
+        const xy = f[1] || '..';
+        const file = f.slice(skip).join(' ');
+        let orig;
+        if (type === '2') orig = parts[++i]; // yeniden adlandırmada eski ad sonraki alandadır
+        files.push({ path: file, orig, index: dot(xy[0]), worktree: dot(xy[1]), untracked: false, conflict: type === 'u' });
+      }
     }
 
-    let behind = 0;
-    let ahead = 0;
-    let hasUpstream = false;
-    if (abRes.success) {
-      const [b, a] = abRes.stdout.split(/\s+/).map(Number);
-      behind = b || 0;
-      ahead = a || 0;
-      hasUpstream = true;
-    }
+    const detached = head === '(detached)';
+    const hasCommit = oid && oid !== '(initial)';
     return {
       isRepo: true,
-      branch: branchRes.stdout || (headRes.success ? `HEAD@${headRes.stdout}` : 'main'),
-      detached: !branchRes.stdout,
+      branch: !detached && head && head !== '(unknown)' ? head : hasCommit ? `HEAD@${oid.slice(0, 7)}` : 'main',
+      detached,
       ahead,
       behind,
-      hasUpstream,
+      hasUpstream: hasUpstream && !!head && !detached,
       hasRemote: remoteRes.success,
       merging: mergeRes.success,
       files,
       // Eski arayüzle uyum: tek liste
       changes: files.map((f) => ({ code: f.untracked ? '??' : `${f.index || ' '}${f.worktree || ' '}`.trim(), file: f.path }))
     };
+  }
+
+  ipcMain.handle('git:status', async (_e, repoPath) => {
+    if (!github.isConnected()) return { isRepo: false, locked: true, changes: [], files: [] };
+    if (!isValidPath(repoPath)) return { isRepo: false, changes: [], files: [] };
+    const key = path.resolve(repoPath);
+    let p = statusInflight.get(key);
+    if (!p) {
+      p = readStatus(repoPath).finally(() => statusInflight.delete(key));
+      statusInflight.set(key, p);
+    }
+    return p;
   });
 
   // ---- Sahneleme ----
@@ -230,7 +250,7 @@ function register({ runGit, github, isValidPath }) {
     const orig = o.orig ? safeRelPaths(repoPath, [o.orig]) : null;
     const base = (orig && orig[0]) || rel[0];
     const show = async (spec) => {
-      const r = await runGit(['show', spec], repoPath, { raw: true });
+      const r = await runGit(['show', '--no-ext-diff', '--no-textconv', spec], repoPath, { raw: true });
       return r.success ? r.stdout : null;
     };
     let original = '';

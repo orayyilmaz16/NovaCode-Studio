@@ -96,3 +96,8 @@ export async function pasteClipboard() {
 }
 
 export const hasEditor = () => !!editor;
+
+// Bekleyen (debounce'lu) editör değişikliğini hemen uygulamaya aktarır: kayıt/kapatma/oturum yazmadan önce çağrılır.
+let flushFn: (() => void) | null = null;
+export const setFlushHandler = (fn: (() => void) | null) => { flushFn = fn; };
+export const flushEditorChanges = () => { try { flushFn?.(); } catch { /* editör kapanmış */ } };

@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 17.11.2026 16:24 · auto/20261117-130721
+<!-- sig:ZWxlY3Ryb24tZ2l0LmNqcyxzcmMvY29tcG9uZW50 -->
+- Alan: [[git-github]], [[ui-design]], [[lsp]], [[testing]]
+- Kod (6): `electron-git.cjs`, `src/components/EditorArea.tsx`, `src/main.tsx`, `src/services/editorBridge.ts`, `src/services/lspClient.ts`, `scripts/tests/paths.test.cjs`
+- Belge (0): —
+- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
+
 ## 17.11.2026 16:20 · auto/20261117-130721
 <!-- sig:ZWxlY3Ryb24tZGVidWcuY2pzLGVsZWN0cm9uLWxz -->
 - Alan: [[debugging]], [[lsp]], [[terminal]], [[ui-design]]

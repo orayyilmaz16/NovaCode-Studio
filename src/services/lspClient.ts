@@ -7,7 +7,11 @@ import { setLspEntry, setLspStateByName } from './lspStore';
 // Monaco çalışma zamanı burada içe aktarılmaz (yalnız tip): örnek EditorArea'dan verilir.
 type Monaco = typeof MonacoNS;
 type Pos = { line: number; character: number };
-interface Entry { model: MonacoNS.editor.ITextModel; lang: string; path: string; version: number; timer: number | undefined }
+interface LspChange { range?: { start: Pos; end: Pos }; text: string }
+// syncKind: sunucunun belge eşitleme türü (0 yok, 1 tam metin, 2 artımlı). changes: henüz gönderilmemiş artımlı değişiklikler;
+// full: bir sonraki gönderim tam metin olmalı (ilk durum, satır sonu değişimi, çok sayıda birikmiş değişiklik)
+interface Entry { model: MonacoNS.editor.ITextModel; lang: string; path: string; version: number; timer: number | undefined; syncKind: number; changes: LspChange[]; full: boolean }
+const MAX_PENDING_CHANGES = 100;
 
 /** Monaco dil kimlikleri: ana süreçteki izinli sunucu tablosuyla aynı kümeler. */
 export const LSP_LANGS = new Set(['python', 'rust', 'go', 'c', 'cpp', 'csharp', 'php', 'ruby', 'lua', 'yaml']);
@@ -71,8 +75,26 @@ const find = (model: MonacoNS.editor.ITextModel) => open.get(model.id);
 
 /** Bekleyen değişiklikleri hemen gönderir (tamamlama/üzerine gelme güncel metinle sorulmalı). */
 function send(e: Entry) {
+  if (e.syncKind === 0) { e.changes = []; e.full = false; return; }
   e.version += 1;
-  void api()?.notify(e.lang, 'textDocument/didChange', e.path, { textDocument: { version: e.version }, contentChanges: [{ text: e.model.getValue() }] });
+  // Artımlı sunucuda yalnız değişen aralıklar gider; aksi halde tam metin (her duraklamada tüm belgeyi göndermek büyük dosyada pahalı)
+  const contentChanges: LspChange[] = e.syncKind === 2 && !e.full && e.changes.length ? e.changes : [{ text: e.model.getValue() }];
+  e.changes = [];
+  e.full = false;
+  void api()?.notify(e.lang, 'textDocument/didChange', e.path, { textDocument: { version: e.version }, contentChanges });
+}
+
+/** Monaco değişiklik olayını artımlı LSP değişikliklerine çevirir (Monaco sütunları UTF-16 birimidir, LSP ile aynı). */
+function record(e: Entry, ev: MonacoNS.editor.IModelContentChangedEvent) {
+  if (e.syncKind !== 2 || e.full) return;
+  if (ev.isFlush || ev.isEolChange || e.changes.length + ev.changes.length > MAX_PENDING_CHANGES) { e.full = true; e.changes = []; return; }
+  // Monaco değişiklikleri belgenin sonundan başına sıralı verir: sırayla uygulamak LSP için geçerlidir
+  for (const c of ev.changes) {
+    e.changes.push({
+      range: { start: { line: c.range.startLineNumber - 1, character: c.range.startColumn - 1 }, end: { line: c.range.endLineNumber - 1, character: c.range.endColumn - 1 } },
+      text: c.text
+    });
+  }
 }
 function flush(e: Entry) {
   if (e.timer === undefined) return;
@@ -166,11 +188,12 @@ export function bindLsp(editor: unknown, filePath: string, enabled: boolean): ()
     if (!r.success) { setLspEntry(lang, { name: st.name, state: r.error === 'missing' ? 'missing' : 'error', hint: st.hint }); return; }
     setLspEntry(lang, { name: st.name, state: 'ready', hint: st.hint });
     registerProviders(lang, r.triggers ?? []);
-    const e: Entry = { model, lang, path: filePath, version: 1, timer: undefined };
+    const e: Entry = { model, lang, path: filePath, version: 1, timer: undefined, syncKind: (r as { syncKind?: number }).syncKind ?? 1, changes: [], full: false };
     entry = e;
     open.set(model.id, e);
     await a.notify(lang, 'textDocument/didOpen', filePath, { textDocument: { languageId: lang, version: 1, text: model.getValue() } });
-    sub = model.onDidChangeContent(() => {
+    sub = model.onDidChangeContent((ev) => {
+      record(e, ev);
       if (e.timer !== undefined) window.clearTimeout(e.timer);
       e.timer = window.setTimeout(() => { e.timer = undefined; send(e); }, 250);
     });
