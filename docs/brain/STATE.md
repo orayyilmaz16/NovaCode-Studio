@@ -3,7 +3,7 @@
 > Bu dosya `scripts/brain.mjs` tarafından koddan üretilir; **elle düzenleme**. Yenilemek için `npm run brain`. Bkz. [[BRAIN]].
 
 ## Sürümler
-- Uygulama: **1.3.0**
+- Uygulama: **1.4.0**
 - Electron ^45.2.3 · React ^19.3.1 · Vite ^8.3.5 · TypeScript ~7.0.2 · Tailwind ^4.3.5
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.57.0
 - GitHub OAuth Client ID tanımlı: evet
@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `version:check` | `node scripts/check-version.mjs` |
@@ -131,13 +131,13 @@
 |---|---|
 | `scripts/auto-commit.mjs` | 216 |
 | `scripts/brain.mjs` | 297 |
-| `scripts/bump-version.mjs` | 130 |
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
-| `scripts/check-version.mjs` | 74 |
-| `scripts/doc-sync.mjs` | 179 |
+| `scripts/check-version.mjs` | 82 |
+| `scripts/doc-sync.mjs` | 187 |
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/make-icons.cjs` | 29 |
+| `scripts/release.mjs` | 286 |
 
 ### Testler
 | Dosya | Satır |
@@ -151,6 +151,7 @@
 | `scripts/tests/lsp.test.cjs` | 97 |
 | `scripts/tests/palettes.test.cjs` | 75 |
 | `scripts/tests/pty.test.cjs` | 84 |
+| `scripts/tests/release.test.cjs` | 140 |
 | `scripts/tests/settings-migrate.test.cjs` | 62 |
 | `scripts/tests/sync.test.cjs` | 58 |
 | `scripts/tests/term.test.cjs` | 74 |
@@ -340,11 +341,13 @@
 | [[text-buffer]] | `docs/brain/actions/text-buffer.md` | Özel metin tamponu (piece table) ve ajanın edit_lines aracı |
 | [[ui-design]] | `docs/brain/actions/ui-design.md` | Arayüz, tema, logo ve animasyon değişiklikleri |
 | [[updates]] | `docs/brain/actions/updates.md` | Uygulama güncelleme sistemi: denetle, indir (yüzde), yeniden başlat ve kur; sürüm notları; yayın hattı |
+| [[versioning]] | `docs/brain/actions/versioning.md` | SemVer sürümleme otomasyonu: patch/minor/major kararı, sürüm notları, sürüm geçmişi, etiket ve GitHub Release |
 | [[BRAIN]] | `docs/brain/BRAIN.md` | NovaCode Studio — Proje Beyni |
 | [[DECISIONS]] | `docs/brain/DECISIONS.md` | Karar günlüğü |
 | [[LOG]] | `docs/brain/LOG.md` | Değişiklik günlüğü (otomatik) |
 | [[PROJECT]] | `docs/brain/PROJECT.md` | Proje: NovaCode Studio |
 | [[STATE]] | `docs/brain/STATE.md` | Proje durumu (otomatik üretilir) |
+| [[VERSIONS]] | `docs/brain/VERSIONS.md` | Sürüm geçmişi (otomatik) |
 | [[README]] | `README.md` | NovaCode Studio |
 | [[SECURITY]] | `SECURITY.md` | Güvenlik Politikası / Security Policy |
 

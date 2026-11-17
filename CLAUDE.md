@@ -2,6 +2,11 @@
 
 Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil: Türkçe (kısa, sade). Kod ve commit mesajları İngilizce olabilir.
 
+## Sürüm (otomatik)
+<!-- version:start -->
+Güncel sürüm: **v1.4.0** (minor, 17.11.2026) · notlar: `release-notes/v1.4.0.md` · geçmiş: `docs/brain/VERSIONS.md` · kural: `docs/brain/actions/versioning.md`. Bu blok `scripts/release.mjs` ile otomatik güncellenir, elle yazma.
+<!-- version:end -->
+
 ## Komutlar
 - `npm run dev` — Vite (web)
 - `npm run build` — web build (tip kontrolü dahil değil; `npx tsc --noEmit` ayrıca çalıştır)
@@ -32,9 +37,9 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 ## Git ve sürüm (ayrıntı: `AGENT.md`, `.claude/skills/nova-release/SKILL.md`)
 - Conventional Commits. Sürüm SemVer, tek kaynak `package.json`.
 - **Commit/push otomatiktir (kullanıcı onayıyla kuruldu):** her Claude turu bitince `scripts/auto-commit.mjs` (`scripts/doc-sync.mjs stop` üzerinden, Stop hook, `.claude/settings.json`) değişiklikleri `chore(auto): ...` mesajıyla `origin main`'e push eder. Gizli dosya, `dist/`, `release/` atlanır; gizli dosya varsa o tur commit edilmez. Kullanıcı bu otomatik commit/push için kalıcı izin verdi (2026-11-06). `auto/*` dalındaysa dalda kalır, PR açar ve CI yeşilse auto-merge eder (`--force` yok, çakışmada durur).
-- **Sürüm, etiket ve GitHub Release otomatiktir (kullanıcı talimatıyla, 2026-11-08):** her güncelleme CI'da (`version` işi, `scripts/bump-version.mjs`) PATCH sürüm alır, `vX.Y.Z` etiketi atılır ve Türkçe + İngilizce notlarla GitHub Release çıkarılır. Kırıcı değişiklik (`feat!:` / `BREAKING CHANGE:`) MAJOR artırır; yalnız `docs:`/`ci:`/`test:` değişiklikleri sürüm çıkarmaz.
-- **Sürüm notu yazma kuralı:** Her kullanıcıya görünen değişiklikte `CHANGELOG.md` içindeki `## Unreleased` bölümüne `### tr` ve `### en` altında madde ekle. Tam akış ve derleme adımları: `AGENT.md` §3–4.
-- **Güvenlik/kalite taraması otomatik:** `ci-cd.yml` (tip, hijyen, npm audit high, build, bundle bütçesi) ve `security.yml` (CodeQL, gitleaks, dependency review, haftalık npm audit) her push/PR'da çalışır. `chore(auto)` commit'leri sürüm artırmaz.
+- **Sürüm, etiket ve GitHub Release otomatiktir (kullanıcı talimatıyla, 2026-11-08; 2026-11-17'de main korumasına uyarlandı):** sürüm düzeyini `CHANGELOG.md` Unreleased maddelerinin etiketi belirler: `[breaking]` MAJOR, `[feat]` MINOR, `[fix]/[perf]/[improve]/[security]` PATCH, `[docs]` sürüm çıkarmaz. Stop hook belge tamamsa `scripts/release.mjs prepare` ile sürümü PR içinde hazırlar (`package.json`, `CHANGELOG.md`, `release-notes/vX.Y.Z.md`, `docs/brain/VERSIONS.md`, bu dosyadaki sürüm bloğu, `AGENT.md`); PR birleşince CI açıklamalı `vX.Y.Z` etiketini atar ve GitHub Release'i Türkçe + İngilizce notlarla çıkarır. **CI main'e commit atmaz** (korumalı). Kural: `docs/brain/actions/versioning.md`.
+- **Sürüm notu yazma kuralı:** Her kullanıcıya görünen değişiklikte `CHANGELOG.md` `## Unreleased` altında `### tr` ve `### en` bölümlerine, **aynı sırada ve aynı etiketle** (`- [feat] **Başlık:** metin`) madde ekle. Etiketsiz madde = `[improve]` (patch). Tam akış: `AGENT.md` §3–4.
+- **Güvenlik/kalite taraması otomatik:** `ci-cd.yml` (tip, hijyen, npm audit high, build, bundle bütçesi) ve `security.yml` (CodeQL, gitleaks, dependency review, haftalık npm audit) her push/PR'da çalışır. 
 - Yeni bir zaafiyet veya kırık CI görülürse önce düzeltmeyi öner; CI yeşil olmadan "yayında" deme.
 - Deploy/CI kaydı yeşil bitmeden "yayında" deme.
 

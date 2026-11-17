@@ -61,7 +61,7 @@ jobs:
       - name: Performans bütçesi
         run: node scripts/check-bundle.mjs
 
-  # 2) Sürüm, .gitignore düzeltmesi, CHANGELOG, etiket (yalnız main push)
+  # 2) Etiket (PR'da hazırlanan sürüm için; yalnız main push)
   version:
     name: Otomatik Sürümleme
     needs: quality
@@ -85,34 +85,22 @@ jobs:
         with:
           node-version: 22
 
-      - name: Güncel main'e hizala (yarış önleme)
-        run: git pull --rebase origin main
-
-      - name: .gitignore ve indeks düzeltmesi
-        run: node scripts/check-hygiene.mjs --fix
-
-      - name: Sürümü hesapla
+      # Sürüm (package.json, CHANGELOG, release-notes, VERSIONS.md) PR'ın içinde hazırlanır (scripts/release.mjs prepare):
+      # main korumalı olduğundan CI commit atamaz. CI yalnız etiket kararını verir ve açıklamalı etiketi atar.
+      - name: Etiket kararı
         id: bump
-        run: node scripts/bump-version.mjs
+        run: node scripts/release.mjs tag
 
-      - name: Commit, etiket ve push
+      - name: Açıklamalı etiket ve push
         id: push
         run: |
-          git config user.name "novacode-bot"
-          git config user.email "novacode-bot@users.noreply.github.com"
-          git add -A -- .gitignore package.json package-lock.json CHANGELOG.md release-notes
-          if ! git diff --cached --quiet; then
-            git commit -m "chore(release): v${{ steps.bump.outputs.version }} [skip ci]"
-            for i in 1 2 3; do
-              git push origin HEAD:main && break
-              echo "Push reddedildi, rebase deneniyor ($i/3)"
-              git pull --rebase origin main
-            done
-            git push origin HEAD:main --dry-run >/dev/null
-          fi
-          if [ "${{ steps.bump.outputs.release }}" = "true" ] && ! git rev-parse "v${{ steps.bump.outputs.version }}" >/dev/null 2>&1; then
-            git tag "v${{ steps.bump.outputs.version }}"
+          if [ "${{ steps.bump.outputs.release }}" = "true" ]; then
+            git config user.name "novacode-bot"
+            git config user.email "novacode-bot@users.noreply.github.com"
+            git tag -a "v${{ steps.bump.outputs.version }}" -F "${{ steps.bump.outputs.tag_message_file }}"
             git push origin "v${{ steps.bump.outputs.version }}"
+          else
+            echo "Etiket atılmadı: ${{ steps.bump.outputs.reason }}"
           fi
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 

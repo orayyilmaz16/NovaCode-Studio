@@ -8,7 +8,7 @@ triggers: ["ci", "actions", "workflow", "audit", "pipeline", "deploy"]
 # Aksiyon: CI/CD
 
 ## Hat
-`.github/workflows/ci-cd.yml`: `quality` (hijyen, tsc, git testleri, beyin kontrolü, audit, build, bundle bütçesi) → `version` (sürüm, etiket, push; `concurrency: release-version`, push yarışında rebase + yeniden deneme) → `release-desktop` (Windows `.exe` + GitHub Release).
+`.github/workflows/ci-cd.yml`: `quality` (hijyen, tsc, git testleri, beyin kontrolü, audit, build, bundle bütçesi) → `version` (yalnız **etiket**: `scripts/release.mjs tag` → açıklamalı `vX.Y.Z` etiketi; **commit atmaz**, çünkü main korumalı; `concurrency: release-version`) → `release-desktop` (Windows `.exe` + GitHub Release).
 `.github/workflows/security.yml`: CodeQL, gitleaks, dependency review, haftalık `npm audit`. Güncel iş listesi: [[STATE]].
 
 ## Kurallar
@@ -28,5 +28,6 @@ triggers: ["ci", "actions", "workflow", "audit", "pipeline", "deploy"]
 
 ## Otomasyon (2026-11)
 - `scripts/auto-commit.mjs` (Stop hook): `auto/*` dalında kalır, `origin/main`'i birleştirir (çakışmada durur), açık PR yoksa açar ve `gh pr merge --auto --squash --delete-branch` ile CI yeşilse birleştirir; kapıları (`check-version`, tsc, `brain --check`) PR gövdesine yazar. `NOVA_AUTO_DRY=1` = kuru çalıştırma. `npm run sync` aynı betik.
-- `scripts/check-version.mjs` (`npm run version:check`): semver, lock eşleşmesi, son etiketle karşılaştırma, CHANGELOG Unreleased tr/en, `__APP_VERSION__`, `build.publish`. CI'da "Sürüm denetimi" adımı.
+- Sürüm hazırlığı CI'da değil **PR içinde** yapılır (`scripts/release.mjs prepare`, Stop hook); ayrıntı ve gerekçe: [[versioning]].
+- `scripts/check-version.mjs` (`npm run version:check`): semver, lock eşleşmesi, son etiketle karşılaştırma, hazır sürümde `release-notes/vX.Y.Z.md` varlığı, etiketsiz madde uyarısı, CHANGELOG Unreleased tr/en, `__APP_VERSION__`, `build.publish`. CI'da "Sürüm denetimi" adımı.
 - `ci-failure-issue.yml`: main/auto/* CI hatasında `ci-failure` issue'su açar/günceller, yeşilde kapatır. `dependabot-automerge.yml`: yalnız aynı-major güncellemeleri otomatik birleştirir; major'lar elle.

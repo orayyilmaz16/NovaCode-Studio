@@ -1,7 +1,7 @@
 ---
 action: release
 purpose: Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle
-reads: [CLAUDE, AGENT, CHANGELOG, ci-cd]
+reads: [CLAUDE, AGENT, CHANGELOG, ci-cd, versioning]
 writes: [CHANGELOG, AGENT, DECISIONS]
 triggers: ["sürüm yükselt", "commitle", "push et", "release hazırla"]
 ---
@@ -13,13 +13,13 @@ triggers: ["sürüm yükselt", "commitle", "push et", "release hazırla"]
 
 ## Kurallar
 - **Otomatik:** her Claude turu sonunda hook `chore(auto)` commit'ini `auto/<zaman>` dalına gönderir, PR açar; CI yeşilse birleşir. CI patch sürüm hesaplar. Ayrıntı: [[AGENT]] §3.
-- **Bilinçli sürüm (minor/major):** `npm version <minor|major> --no-git-tag-version` → `package.json` sürümü son `vX.Y.Z` etiketinden büyük olur; CI onu olduğu gibi yayınlar ve etiketler. Nedenini [[DECISIONS]] içine yaz.
+- **Sürüm düzeyi (patch/minor/major)** CHANGELOG maddelerinin etiketinden gelir (`[fix]`, `[feat]`, `[breaking]`…); hazırlığı `scripts/release.mjs prepare` yapar, etiketi PR birleşince CI atar. Ayrıntı: [[versioning]]. Zorlamak: `prepare --level minor|major`. MAJOR kararını [[DECISIONS]] içine yaz.
 - Elle commit gerekirse: belirli dosyalar (`git add <dosya>`), asla körlemesine `-A`; `.env`, `dist/`, `release/` girmez. Mesaj: Conventional Commits, ≤72 karakter, emir kipi.
 - `--force`, `reset --hard` yasak. Geri dönüş: `git revert <sha>`.
 
 ## Adımlar
 1. `git status --short` ve `git diff --stat` ile değişikliği gör.
-2. Türü belirle: `fix/perf/refactor` patch, `feat` minor (bilinçli), `feat!` major, yalnız `docs/ci/test` sürüm çıkarmaz.
+2. Türü belirle: `[fix]/[perf]/[improve]/[security]` patch, `[feat]` minor, `[breaking]` major, yalnız `[docs]` sürüm çıkarmaz. Görmek için `node scripts/release.mjs plan`.
 3. Taslağı göster (sürüm, commit mesajı, dosyalar); elle akışta onay bekle.
 4. Commit + push; CI'yı izle. Yeşil olmadan "yayında" deme.
 
