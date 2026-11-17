@@ -50,7 +50,7 @@ import { UpdateDialog, UpdateIndicator } from './components/UpdateDialog';
 import { checkForUpdates } from './services/updateService';
 import { BUILTIN_THEMES, autoUpdateExtensions, listExtThemes, useExtensions } from './services/extensionsService';
 import { sendTerminal, runCommandFor } from './services/terminalBridge';
-import { baseName, languageFromName } from './services/lang';
+import { baseName, languageFromName, languageLabel } from './services/lang';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { t } from './i18n/uiText';
 import { previewKind } from './services/previewKind';
@@ -1592,7 +1592,7 @@ export function App() {
                     <span className="hidden @md:inline">{lspEntry.name}</span>
                   </span>
                 )}
-                <span className="status-item">{activeFile.language ? activeFile.language : t('stPlain')}</span>
+                <span className="status-item">{activeFile.language ? languageLabel(activeFile.language) : t('stPlain')}</span>
               </>
             )}
           </div>

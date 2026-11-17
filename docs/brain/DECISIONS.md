@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 17.11.2026 (Dil adı yazımı)
+Durum çubuğunda dil adı resmi yazımla gösterilir (`languageLabel`, `src/services/lang.ts`); dil adları özel ad olduğu için i18n dışıdır.
+
 ## 17.11.2026 (Sürümleme otomasyonu ve main koruması)
 - **Sürüm hazırlığı CI'dan yerel Stop hook'una (PR içine) taşındı; CI yalnız etiket atar; düzey CHANGELOG madde etiketlerinden gelir.** Neden (kök neden, kanıtlı): main korumalı (PR + zorunlu kontrol) olduğundan CI botunun `chore(release)` push'u reddediliyordu ("Changes must be made through a pull request"); iş yine de "başarılı" bitip etiketi yerel commit'e atıyordu. Sonuç: v1.2.0/v1.3.0 etiketleri main geçmişinde değildi, `git describe` v1.1.1'i buluyor, bump hep "1.3.0, bumped=false" dönüyor, CHANGELOG'da 1.2/1.3 bölümleri yoktu ve 35 commit sürümsüz kaldı. Çözüm: (1) `scripts/release.mjs` (plan/prepare/tag/history) tek giriş; `bump-version.mjs` kaldırıldı. (2) Düzey: `[breaking]` MAJOR, `[feat]` MINOR, diğerleri PATCH, `[docs]` yok; commit `feat!:`/`feat:` ek sinyal; `--level` yalnız yükseltir. Neden commit türü değil: otomatik commit'ler hep `chore(auto)`. (3) Taban etiket en yüksek SemVer etiketi (ata olması gerekmez). (4) Hazır ama etiketsiz sürüm varken yenisi bindirilmez (bekleyen sürüm). (5) CI: `git tag -a -F release-notes/vX.Y.Z.md` + push; commit yok, döngü yok. (6) Çıktılar: `package.json`+lock, kategorili `CHANGELOG.md` bölümü, `release-notes/vX.Y.Z.md`, [[VERSIONS]], `CLAUDE.md`/`AGENT.md` sürüm blokları. (7) İlk otomatik sürüm: birikmiş maddelerde `[feat]` olduğundan 1.3.0 → **1.4.0 (minor)**. Ayrıntı: [[versioning]].
 

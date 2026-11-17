@@ -93,6 +93,9 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 - **Erişilebilirlik:** tüm düğmelerde `focus-visible` indigo halka, `role=switch|radio|dialog`, Esc kapatır.
 - **Sınır:** panel `w-[400px] max-w-[calc(100vw-16px)]`, uzunsa içeride kayar; konum düğmenin üstü, ekrandan taşmaz. Yeni metin eklenmez (mevcut `cm*`/`set_*` anahtarları, 8 dil [[i18n]]).
 
+## Dil adı (durum çubuğu)
+Durum çubuğundaki dil, Monaco kimliği yerine resmi yazımıyla görünür (JavaScript, TypeScript, C#, F#, HTML…): `languageLabel()` (`src/services/lang.ts`). Tabloda olmayan kimlik için ilk harf büyütülür; yeni dil eklenince `LABELS` tablosuna da yazılır. Dil adları çevrilmez, i18n gerekmez.
+
 ## Erişilebilirlik
 Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontrast ≥ 4.5:1. Metinler [[i18n]] ile 8 dilde.
 

@@ -4,13 +4,8 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.4.0** (minor, 17.11.2026) · notlar `release-notes/v1.4.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Yeni özellikler: Yeni renk temaları, vurgu renkleri ve yazı tipleri
-- Yeni özellikler: Kayıtta kodu otomatik biçimlendir
-- Yeni özellikler: Yeni karşılama ekranı, logo gölgesi ve hareket sistemi
-- Yeni özellikler: AI tamamlama menüsü (Copilot gibi)
-- Yeni özellikler: Öneri önizlemesi ve kısmi kabul
-- … ve 91 madde daha (`release-notes/v1.4.0.md`)
+**Son sürüm v1.4.1** (patch, 17.11.2026) · notlar `release-notes/v1.4.1.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- İyileştirmeler: Dil adları doğru yazılıyor
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)
