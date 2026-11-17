@@ -31,3 +31,6 @@ Ayrı profille Electron: `NOVA_HEADLESS=1 npx electron . --remote-debugging-port
 
 ## Çıktı
 Sonucu [[AGENT]] **Durum**'a tek satır yaz (ne doğrulandı, ne doğrulanamadı).
+
+## Denetim düzeltmeleri (17.11.2026)
+Yeni testler: `paths.test.cjs` (yol doğrulama, symlink), `ai-security.test.cjs`, `syncserver.test.cjs` (sync sunucusu sertleştirme).

@@ -115,3 +115,6 @@ Varsayılan Ollama ile hiçbir veri bilgisayardan çıkmaz (3. parti yok). Bulut
 
 ## Doğrulama
 `npx tsc --noEmit`, `npm run brain:check`. Motoru Electron dışında sınamak için `electron` modülünü taklit edip sahte OpenAI uyumlu sunucuya karşı `ai:run` çağır (araç turu, yol kaçışı, gizli dosya, onay, https dışı adres). Gerçek sağlayıcıyla deneme için ayarlardan anahtar gir.
+
+## Denetim düzeltmeleri (17.11.2026)
+Otonom komut yalnız güvenilen klasörde onaysız çalışır; ilk komutta "güveniyor musun" kartı. `.git` altına yazma ve ek gizli dosya kalıpları (`.pypirc`, `.docker/config.json`, `.aws/*`, `.ssh/*`, `.kube/config`) engelli. Uzak sağlayıcıda ilk gönderimde kalıcı rıza, mesajlar `scrubSecrets` ile temizlenir (görseller taranamaz). Tamamlama istemi renderer'da yalnız son `prefixChars`/ilk `suffixChars` kadar alır. Kapanışta ajan komutları ve whisper durdurulur; dikte rastgele yerel portta, whisper ikilisi ilk kullanımda hash ile sabitlenir. Test: `ai-security.test.cjs`.

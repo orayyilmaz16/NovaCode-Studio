@@ -108,7 +108,7 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
   const readText = useCallback(async (p: string): Promise<string | null> => {
     const l = liveRef.current.get(p.split('\\').join('/').toLowerCase());
     if (l !== undefined) return l;
-    try { return await window.electronAPI!.readFile(p); } catch { return null; }
+    try { const r = await window.electronAPI!.readFile(p); return typeof r === 'string' ? r : null; } catch { return null; }
   }, []);
   const readUrl = useCallback(async (p: string): Promise<string | null> => {
     const r = await window.electronAPI?.readDataUrl(p);

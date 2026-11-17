@@ -20,3 +20,6 @@ triggers: ["önizleme", "preview", "localhost", "F5", "çalıştır", "iframe", 
 
 ## Doğrulama
 Gerçek Electron + CDP ile uçtan uca: otomatik açılma, gömme, sandbox, canlı yenileme, konsol rozeti, localhost yakalama, F5.
+
+## Denetim düzeltmeleri (17.11.2026)
+Bağlantı açma yalnız gerçek tıklamadan (`isTrusted`), 1,5 sn hız sınırlı, yalnız https (loopback'te http), kimlik bilgisiz. URL kipinde `allow-same-origin` kaldırıldı, `referrerPolicy=no-referrer`; köprü mesajları yalnız `srcDoc` çerçevesinden kabul edilir. Köprü hata metinleri 8 dilde (`pvBridge*`).

@@ -29,3 +29,6 @@ triggers: ["git", "github", "commit", "pull", "push", "pr", "sync", "fetch"]
 
 ## Bilinen sınırlar
 Terminaldeki `git` komutları kullanıcının kendi kabuğudur; kilit yalnız uygulama arayüzü ve IPC içindir.
+
+## Denetim düzeltmeleri (17.11.2026)
+Git durumu 3 süreçle okunur (`status --porcelain=v2 --branch -z`, `remote get-url`, MERGE_HEAD); aynı depo için eşzamanlı çağrılar birleşir. Yapılandırma sertleştirmesi: [[security-kvkk]]. GitHub OAuth kapsamı `repo` kalır (özel depo/push için gerekli; daraltma ince ayarlı GitHub App kararı). Cihaz akışında `verification_uri` yalnız `https://github.com`.

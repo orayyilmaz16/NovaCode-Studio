@@ -101,3 +101,6 @@ Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontra
 
 ## Doğrulama
 [[testing]] + uygulamayı çalıştırıp görsel kontrol (yalnız uygulamanın kendi penceresi; ekran yakalama başka pencereleri içermemeli).
+
+## Denetim düzeltmeleri (17.11.2026)
+Gölge yığınları sadeleştirildi (tek odak halkası); AI avatarları düz `indigo`; `text-zinc-600` metinler `zinc-500`; FileTree bölüm başlıkları `role=button` + `aria-expanded` + Enter/Space. Kalan: ajan modu violet kullanımları ve `origin-left` fiziksel.

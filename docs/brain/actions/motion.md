@@ -56,3 +56,6 @@ Sekme çubuğu `scroll-smooth`; etkin sekme çubuk dışında kalırsa `scrollIn
 
 ## Doğrulama
 `npx tsc --noEmit`, uygulamada koyu/açık mod, Ayarlar → Animasyonlar kapalı, `prefers-reduced-motion` ve Arapça ile bak. Bkz. [[testing]].
+
+## Denetim düzeltmeleri (17.11.2026)
+`style.css` ve bileşenlerdeki sabit ms değerleri jetonlara çevrildi (`duration-(--dur-*)`); jetonda karşılığı olmayan süreler en yakın jetona veya `--dur-enter × n` ya da `--stagger` katına gitti. Açılış ekranı hazır olunca ~560 ms'de kapanır.

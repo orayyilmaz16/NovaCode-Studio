@@ -17,6 +17,11 @@
    "sev": "orta"
   },
   {
+   "k": "Q-I18N-HARD|src/App.tsx",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
    "k": "SEC-HTML|src/components/Preview.tsx",
    "n": 1,
    "sev": "orta"
@@ -138,7 +143,7 @@
   },
   {
    "k": "Q-ANY|src/App.tsx",
-   "n": 2,
+   "n": 1,
    "sev": "düşük"
   },
   {

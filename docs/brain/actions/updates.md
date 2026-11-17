@@ -37,3 +37,6 @@ Denetim ve notlar `github.com` / `api.github.com`'a gider: IP, uygulama sürüm�
 ## Kanallar ve otomatik davranış
 - `channel`: paketli uygulama = `stable` (electron-updater, gerçek güncelleme); geliştirme = `dev` (GitHub `/releases/latest` ile `semverGt` karşılaştırması, `releaseUrl` ile yayın sayfası açılır). `none` → "Son sürümdesiniz (v{v})".
 - `updateAutoDownload` varsayılanı artık **açık**; kurulum yine kullanıcı onayıyla. Menüden denetim aşamaları (denetleniyor → bulundu → indiriyor) pencerede görünür.
+
+## Denetim düzeltmeleri (17.11.2026)
+`NOVA_UPDATE_FEED` yalnız paketlenmemiş uygulamada geçerli.

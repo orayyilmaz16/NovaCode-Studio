@@ -73,3 +73,6 @@ Ayarlar yalnız `localStorage` (`nova.settings.v1`) içinde, cihazda. Token `loc
 
 ## Yeni kategoriler
 `run` (Çalıştır ve önizleme: previewAutoOpen, runSaveBefore, runClearTerminal, runCommand*) ve `extensions` (extAutoUpdate + tema seçici/yüklü eklenti listesi, `ExtensionsSettings`). Tema seçimi anında uygulanır (`useActiveEditorTheme`).
+
+## Denetim düzeltmeleri (17.11.2026)
+Ayar bağlamı seçicili: `useSettingValue(id)` ve `useSettingsActions()` (`useSettings()` korunur). Büyük dosyada (>2 MB veya >20k satır) `toMonacoOptionsForFile` minimap/folding/parantez renklendirmeyi kapatır. `applyAppearance` `html.lang` ve `html.dir` (ar → rtl) yazar.

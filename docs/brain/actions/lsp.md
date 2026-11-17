@@ -28,3 +28,6 @@ python (pyright / pylsp), rust (rust-analyzer), go (gopls), c/cpp (clangd), csha
 
 ## Test
 `scripts/tests/lsp.test.cjs`: doğrulama, güvenlik, ve PATH'te pyright varsa gerçek tanılama/hover/tamamlama. Yalnız pyright ile denendi; diğer sunucular aynı protokolü kullanır ama gerçek denemesi yapılmadı. `NOVA_TEST_PATH` ile ek PATH verilebilir. Bkz. [[testing]].
+
+## Denetim düzeltmeleri (17.11.2026)
+Sunucu `textDocumentSync` türüne göre artımlı `didChange` (`lsp:start` sonucunda `syncKind`); EOL değişimi veya 100'den fazla birikmiş değişiklikte tam metin. Kapanışta `stopAll({fast:true})`. Alt süreç ortamı `safeEnv` izin listesiyle.

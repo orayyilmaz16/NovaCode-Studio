@@ -6,6 +6,38 @@
 
 ### en
 
+## 1.4.2 - 17.11.2026
+<!-- level: patch -->
+### Türkçe
+#### Düzeltmeler
+- **Dosya yazma ve kapanış:** Dosya yazma atomik ve eşzamansız; 5 MB üstü ve ikili dosyalar uyarıyla ele alınır; UTF-8 BOM korunur; kapanışta dil sunucuları, terminal, hata ayıklayıcı ve ajan komutları süreç ağacıyla sonlandırılır (yetim süreç kalmaz).
+
+#### Güvenlik
+- **Pencere ve alt süreç sertleştirmesi:** Pencere sandbox'ı açıldı; gezinme ve dış bağlantılar kısıtlandı (yalnız https). Dosya erişimi symlink/junction kaçışına karşı korunuyor. Git güvenilmeyen depolara karşı sertleştirildi; hata ayıklayıcı ve dil sunucuları yalnız izin verilen ortam değişkenleriyle başlıyor (hata ayıklanan program kabuktaki özel ortam değişkenlerini artık görmez). PowerShell oturumu `Bypass` yerine `RemoteSigned` çalışıyor.
+- **Yapay zekâ ajanı için güven ve rıza:** Ajan komutları güvenilmeyen klasörde onay ister; `.git` altına yazma ve ek gizli dosyaların okunması engellendi; dış sağlayıcıya ilk gönderimde açık rıza alınır ve anahtar kalıpları temizlenir; API anahtarları arayüze geçmez; özel API adresi ilk kullanımda onaylanır.
+- **Ortak düzenleme sunucusu:** Token artık URL yerine WebSocket alt protokolüyle gider; oda adında yerel yol yok (rastgele oda kimliği); bozuk istek sunucuyu düşürmez; başarısız deneme sınırı, Origin denetimi, bağlantı/oda üst sınırı ve boş odaların temizlenmesi eklendi. Eski istemciler için sunucuda `NOVA_SYNC_ALLOW_QUERY_TOKEN=1` gerekir.
+- **Önizleme sandbox'ı:** Yerel sunucu kipinde `allow-same-origin` kaldırıldı; bağlantı açma yalnız gerçek tıklamayla ve hız sınırlı.
+- **Paket ve CI:** Electron fuse'ları (yalnız asar'dan yükleme, asar bütünlüğü) açıldı; CI action'ları commit SHA'ya sabitlendi; Dependabot otomatik birleştirme yalnız geliştirme bağımlılıkları ve action'larla sınırlandı. Kod imzalama için `CSC_LINK` secret'ı tanımlanınca imzalı çıkar.
+
+#### İyileştirmeler
+- **Daha hızlı etkileşim:** Git durumu 7 yerine 3 süreçle okunur; kendi yazımımız dosya izleyiciyi tetiklemez; dil sunucusuna artımlı değişiklik gider; arama iptal edilebilir ve paralel; yapay zekâ tamamlaması yalnız gereken metin parçasını gönderir; ayar kaydırıcıları, Git paneli ve ajan durum şeridi daha az yeniden çizim yapar; büyük dosyada ağır editör özellikleri otomatik kapanır; açılış ekranı uygulama hazır olunca kapanır.
+- **Arapça sağdan sola ve erişilebilirlik:** Arapça arayüz RTL akar, sayfa dili ayarlanır; bölüm başlıkları klavyeyle açılır; düşük kontrastlı metinler düzeltildi; gölge yığınları ve degradeler sadeleşti; animasyon süreleri hareket jetonlarına bağlandı.
+
+### English
+#### Fixes
+- **File writes and shutdown:** File writes are atomic and asynchronous; files over 5 MB and binary files are handled with a warning; UTF-8 BOM is preserved; on quit, language servers, terminals, the debugger and agent commands are terminated as process trees (no orphan processes).
+
+#### Security
+- **Window and child-process hardening:** The window sandbox is on; navigation and external links are restricted (https only). File access is protected against symlink/junction escapes. Git is hardened against untrusted repositories; the debugger and language servers start with an allow-listed environment (a debugged program no longer sees custom shell environment variables). PowerShell sessions run `RemoteSigned` instead of `Bypass`.
+- **Trust and consent for the AI agent:** Agent commands ask for confirmation in untrusted folders; writes into `.git` and reads of more secret files are blocked; the first send to an external provider needs explicit consent and key patterns are scrubbed; API keys no longer reach the UI; a custom API address is confirmed on first use.
+- **Collaboration server:** The token now travels in a WebSocket subprotocol instead of the URL; room names no longer contain a local path (random room id); malformed requests cannot crash the server; failed-attempt limits, Origin checks, connection/room caps and cleanup of empty rooms were added. Old clients need `NOVA_SYNC_ALLOW_QUERY_TOKEN=1` on the server.
+- **Preview sandbox:** `allow-same-origin` was removed in local-server mode; opening links needs a real click and is rate-limited.
+- **Package and CI:** Electron fuses (load only from asar, asar integrity) are on; CI actions are pinned to commit SHAs; Dependabot auto-merge is limited to dev dependencies and actions. Releases are signed once the `CSC_LINK` secret is set.
+
+#### Improvements
+- **Faster interaction:** Git status uses 3 processes instead of 7; our own writes no longer trigger the file watcher; incremental changes go to the language server; search is cancellable and parallel; AI completion sends only the needed text slice; settings sliders, the Git panel and the agent status bar re-render less; heavy editor features turn off automatically for large files; the splash closes as soon as the app is ready.
+- **Arabic right-to-left and accessibility:** The Arabic UI flows RTL and the page language is set; section headers open with the keyboard; low-contrast text was fixed; shadow stacks and gradients were simplified; animation durations use the motion tokens.
+
 ## 1.4.1 - 17.11.2026
 <!-- level: patch -->
 ### Türkçe

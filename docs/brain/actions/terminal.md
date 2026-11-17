@@ -43,3 +43,6 @@ Her komuttan sonra kabuğa `@@NOVA_CWD@@<yol>` yazdırılır; `makeCwdFilter` bu
 
 ## Test
 `npm test` → `scripts/tests/term.test.cjs`: süzgeç davranışı, kimlik/sınır reddi ve (Windows'ta) gerçek PowerShell + CMD turu. Arayüz için [[testing]] (gizli profil + DevTools).
+
+## Denetim düzeltmeleri (17.11.2026)
+Klasik terminal `cwd` çalışma klasörüyle sınırlı; PowerShell `RemoteSigned` (Bypass kalktı). Kabuk hazır olunca `term:ready` olayı (renderer'da `setTimeout` yerine). Kapanışta süreç ağaçları `taskkill /T /F`; PTY'de ağaç öldürüldükten sonra `p.kill()` çağrılmaz (ConPTY).
