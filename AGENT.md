@@ -4,13 +4,13 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.4.2** (patch, 17.11.2026) · notlar `release-notes/v1.4.2.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Düzeltmeler: Dosya yazma ve kapanış
-- Güvenlik: Pencere ve alt süreç sertleştirmesi
-- Güvenlik: Yapay zekâ ajanı için güven ve rıza
-- Güvenlik: Ortak düzenleme sunucusu
-- Güvenlik: Önizleme sandbox'ı
-- … ve 3 madde daha (`release-notes/v1.4.2.md`)
+**Son sürüm v1.5.0** (minor, 17.11.2026) · notlar `release-notes/v1.5.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- Yeni özellikler: Bölünmüş editör
+- Yeni özellikler: Kısayol özelleştirme
+- Yeni özellikler: Çalışma alanında bul-değiştir
+- Yeni özellikler: Görev çalıştırıcı
+- Yeni özellikler: Yerel geçmiş ve zaman çizelgesi
+- … ve 10 madde daha (`release-notes/v1.5.0.md`)
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)
