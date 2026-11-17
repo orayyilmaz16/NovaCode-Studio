@@ -31,12 +31,16 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 
 ## Git ve sürüm (ayrıntı: `AGENT.md`, `.claude/skills/nova-release/SKILL.md`)
 - Conventional Commits. Sürüm SemVer, tek kaynak `package.json`.
-- **Commit/push otomatiktir (kullanıcı onayıyla kuruldu):** her Claude turu bitince `scripts/auto-commit.mjs` (Stop hook, `.claude/settings.json`) değişiklikleri `chore(auto): ...` mesajıyla `origin main`'e push eder. Gizli dosya, `dist/`, `release/` atlanır; gizli dosya varsa o tur commit edilmez. Kullanıcı bu otomatik commit/push için kalıcı izin verdi (2026-11-06). `auto/*` dalındaysa dalda kalır, PR açar ve CI yeşilse auto-merge eder (`--force` yok, çakışmada durur).
+- **Commit/push otomatiktir (kullanıcı onayıyla kuruldu):** her Claude turu bitince `scripts/auto-commit.mjs` (`scripts/doc-sync.mjs stop` üzerinden, Stop hook, `.claude/settings.json`) değişiklikleri `chore(auto): ...` mesajıyla `origin main`'e push eder. Gizli dosya, `dist/`, `release/` atlanır; gizli dosya varsa o tur commit edilmez. Kullanıcı bu otomatik commit/push için kalıcı izin verdi (2026-11-06). `auto/*` dalındaysa dalda kalır, PR açar ve CI yeşilse auto-merge eder (`--force` yok, çakışmada durur).
 - **Sürüm, etiket ve GitHub Release otomatiktir (kullanıcı talimatıyla, 2026-11-08):** her güncelleme CI'da (`version` işi, `scripts/bump-version.mjs`) PATCH sürüm alır, `vX.Y.Z` etiketi atılır ve Türkçe + İngilizce notlarla GitHub Release çıkarılır. Kırıcı değişiklik (`feat!:` / `BREAKING CHANGE:`) MAJOR artırır; yalnız `docs:`/`ci:`/`test:` değişiklikleri sürüm çıkarmaz.
 - **Sürüm notu yazma kuralı:** Her kullanıcıya görünen değişiklikte `CHANGELOG.md` içindeki `## Unreleased` bölümüne `### tr` ve `### en` altında madde ekle. Tam akış ve derleme adımları: `AGENT.md` §3–4.
 - **Güvenlik/kalite taraması otomatik:** `ci-cd.yml` (tip, hijyen, npm audit high, build, bundle bütçesi) ve `security.yml` (CodeQL, gitleaks, dependency review, haftalık npm audit) her push/PR'da çalışır. `chore(auto)` commit'leri sürüm artırmaz.
 - Yeni bir zaafiyet veya kırık CI görülürse önce düzeltmeyi öner; CI yeşil olmadan "yayında" deme.
 - Deploy/CI kaydı yeşil bitmeden "yayında" deme.
+
+## Belge otomasyonu (her istem ve değişiklik)
+- Kod/ayar/davranış değişen her turda bitirmeden önce beyni güncelle: ilgili `docs/brain/actions/<alan>.md`, karar varsa `DECISIONS.md` (tarihli), kullanıcıya görünen değişiklikte `CHANGELOG.md` `Unreleased` tr+en. `docs/brain/LOG.md` ve `STATE.md` otomatiktir, elle yazma.
+- `UserPromptSubmit` hook'u her istemde bunu hatırlatır; `Stop` hook'u (`scripts/doc-sync.mjs`) eksik belgeyi tek sefer engeller, sonra günlüğe işler ve auto-commit'i çalıştırır. İstem metni hiçbir yere kaydedilmez. Ayrıntı: `docs/brain/actions/doc-sync.md`.
 
 ## KVKK ve gizlilik
 - Kullanıcı kodu/içeriği 3. partiye (AI, realtime sunucu, analitik) gönderilecekse veri, amaç, hukuki sebep, saklama ve yurt dışı aktarım etkisini belirt.

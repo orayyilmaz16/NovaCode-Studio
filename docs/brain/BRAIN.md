@@ -14,6 +14,7 @@ Bu klasör, projeyi çalıştıran her ajanın (Claude Code, alt ajanlar, CI bot
 | [[PROJECT]] | Ürün, mimari, süreçler, veri akışları | Elle (mimari değişince) |
 | [[DECISIONS]] | Neden böyle yaptık (tarihli karar günlüğü) | Elle (karar alınınca) |
 | [[STATE]] | Sürüm, dosya haritası, IPC, i18n, CI | `scripts/brain.mjs` (otomatik) |
+| [[LOG]] | Tur başına değişiklik günlüğü (dosya, alan, belge durumu; son 40) | `scripts/doc-sync.mjs` (otomatik) |
 | [[AGENT]] | Akış, döngü kuralları, **Durum** | Elle (görev bitince) |
 | [[CHANGELOG]] | Kullanıcıya dönük sürüm notları (TR + EN) | Elle (`Unreleased`), CI (sürüm bölümü) |
 | [[SECURITY]] | Güvenlik açığı bildirimi (insanlara dönük) | Elle |
@@ -44,9 +45,11 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[ci-cd]] | GitHub Actions, audit, bundle bütçesi |
 | [[testing]] | Doğrulama: tsc, build, birim ve entegrasyon testleri |
 | [[brain-maintenance]] | Bu beyni güncel tutmak |
+| [[doc-sync]] | Belge otomasyonu: her istemde hatırlatma, tur sonunda denetim ve günlük |
 
 ## Haberleşme kuralları
 - Bir aksiyon bitince `writes` listesindeki dosyaları günceller; **Durum** devir notu [[AGENT]] içine yazılır.
 - Bir kural değişirse önce [[CLAUDE]]/[[AGENT]], sonra ilgili aksiyon, sonra [[DECISIONS]] güncellenir.
 - Yeni aksiyon = `docs/brain/actions/<ad>.md` + bu tabloya satır. Tutarlılığı `npm run brain:check` denetler.
+- **Her değişiklik belgelenir:** kod değişen tur, ilgili aksiyon/karar/CHANGELOG güncellenmeden bitmez; `Stop` hook denetler ([[doc-sync]]). [[LOG]] otomatik yazılır.
 - [[STATE]] elle düzenlenmez; `npm run brain` (veya her Claude turu sonundaki hook) yeniden üretir.
