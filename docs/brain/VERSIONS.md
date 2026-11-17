@@ -4,6 +4,7 @@
 
 | Sürüm | Tarih | Tür | Özet | Notlar |
 |---|---|---|---|---|
+| v1.4.1 | 17.11.2026 | patch | 1 improved: Proper language names | [v1.4.1](../../release-notes/v1.4.1.md) |
 | v1.4.0 | 17.11.2026 | minor | 22 new, 3 fix, 70 improved, 1 security: New color themes, accent colors and fonts | [v1.4.0](../../release-notes/v1.4.0.md) |
 | v1.3.0 | 12.11.2026 | minor | geçmiş sürüm (otomasyondan önce) | — |
 | v1.2.0 | 12.11.2026 | minor | geçmiş sürüm (otomasyondan önce) | — |

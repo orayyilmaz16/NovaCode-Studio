@@ -6,6 +6,16 @@
 
 ### en
 
+## 1.4.1 - 17.11.2026
+<!-- level: patch -->
+### Türkçe
+#### İyileştirmeler
+- **Dil adları doğru yazılıyor:** Durum çubuğundaki dil adı artık dilin resmi yazımıyla görünür (JavaScript, TypeScript, C#, Python, F#, HTML…).
+
+### English
+#### Improvements
+- **Proper language names:** The language shown in the status bar now uses the official spelling (JavaScript, TypeScript, C#, Python, F#, HTML…).
+
 ## 1.4.0 - 17.11.2026
 <!-- level: minor -->
 ### Türkçe

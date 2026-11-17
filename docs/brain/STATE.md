@@ -3,7 +3,7 @@
 > Bu dosya `scripts/brain.mjs` tarafından koddan üretilir; **elle düzenleme**. Yenilemek için `npm run brain`. Bkz. [[BRAIN]].
 
 ## Sürümler
-- Uygulama: **1.4.0**
+- Uygulama: **1.4.1**
 - Electron ^45.2.3 · React ^19.3.1 · Vite ^8.3.5 · TypeScript ~7.0.2 · Tailwind ^4.3.5
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.57.0
 - GitHub OAuth Client ID tanımlı: evet
@@ -100,7 +100,7 @@
 | `src/services/editorTheme.ts` | 98 |
 | `src/services/extensionsService.ts` | 220 |
 | `src/services/gitExplain.ts` | 18 |
-| `src/services/lang.ts` | 13 |
+| `src/services/lang.ts` | 26 |
 | `src/services/lspClient.ts` | 190 |
 | `src/services/lspStore.ts` | 34 |
 | `src/services/monacoShim.ts` | 28 |
