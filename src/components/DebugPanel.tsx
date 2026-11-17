@@ -21,8 +21,8 @@ const Section: React.FC<{ title: string; count?: number; children: React.ReactNo
   const [open, setOpen] = useState(defaultOpen);
   return (
     <section className="border-t border-nv-border">
-      <div className="flex items-center h-7 pr-2">
-        <button className="flex-1 min-w-0 flex items-center gap-1 pl-1.5 h-full text-left text-[11px] uppercase tracking-wide text-zinc-400 hover:text-zinc-200" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+      <div className="flex items-center h-7 pe-2">
+        <button className="flex-1 min-w-0 flex items-center gap-1 ps-1.5 h-full text-start text-[11px] uppercase tracking-wide text-zinc-400 hover:text-zinc-200" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
           <ChevronRight size={13} className={`transition-transform ${open ? 'rotate-90' : ''}`} />
           <span className="truncate">{title}</span>
           {count !== undefined && count > 0 && <span className="px-1.5 rounded-full bg-white/10 text-[10px] text-zinc-300">{count}</span>}
@@ -48,7 +48,7 @@ const VarNode: React.FC<{ v: DebugVar; depth: number }> = ({ v, depth }) => {
   };
   return (
     <>
-      <div className="flex items-baseline gap-1.5 min-w-0 h-5 text-[12px] hover:bg-nv-hover" style={{ paddingLeft: 8 + depth * 12 }}>
+      <div className="flex items-baseline gap-1.5 min-w-0 h-5 text-[12px] hover:bg-nv-hover" style={{ paddingInlineStart: 8 + depth * 12 }}>
         <button className={`w-3 shrink-0 text-zinc-500 ${v.ref ? '' : 'invisible'}`} onClick={() => void toggle()} aria-label={v.name}><ChevronRight size={11} className={`transition-transform ${open ? 'rotate-90' : ''}`} /></button>
         <span className="text-sky-300 shrink-0 font-mono">{v.name}</span>
         <span className={`truncate font-mono min-w-0 ${v.type === 'string' ? 'text-amber-200' : v.type === 'number' ? 'text-emerald-300' : 'text-zinc-300'}`} title={v.value}>{v.value}</span>
@@ -69,10 +69,10 @@ const ScopeNode: React.FC<{ name: string; reference: string; open0: boolean }> =
   }, [open, kids, reference]);
   return (
     <div>
-      <button className="w-full flex items-center gap-1 h-5 pl-2 text-left text-[12px] text-zinc-200 hover:bg-nv-hover" onClick={() => setOpen((o) => !o)}>
+      <button className="w-full flex items-center gap-1 h-5 ps-2 text-start text-[12px] text-zinc-200 hover:bg-nv-hover" onClick={() => setOpen((o) => !o)}>
         <ChevronRight size={12} className={`transition-transform ${open ? 'rotate-90' : ''}`} />{name}
       </button>
-      {open && (kids === null ? null : kids.length === 0 ? <div className="pl-6 text-[11px] text-zinc-500">{t('dbgEmpty')}</div> : kids.map((k) => <VarNode key={k.name} v={k} depth={1} />))}
+      {open && (kids === null ? null : kids.length === 0 ? <div className="ps-6 text-[11px] text-zinc-500">{t('dbgEmpty')}</div> : kids.map((k) => <VarNode key={k.name} v={k} depth={1} />))}
     </div>
   );
 };
@@ -111,7 +111,7 @@ export const DebugPanel: React.FC<Props> = ({ rootPath, activeFile, onOpenFile }
 
   return (
     <div className="flex flex-col h-full min-h-0 text-zinc-300 bg-nv-side">
-      <div className="h-9 flex items-center gap-1.5 pl-4 pr-2 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">
+      <div className="h-9 flex items-center gap-1.5 ps-4 pe-2 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">
         <Bug size={13} />{t('dbgTitle')}
       </div>
 
@@ -130,7 +130,7 @@ export const DebugPanel: React.FC<Props> = ({ rootPath, activeFile, onOpenFile }
             <button className={btn} onClick={() => void stepInto()} disabled={s.status !== 'paused'} title={t('dbgStepInto')} aria-label={t('dbgStepInto')}><ArrowDownToLine size={14} /></button>
             <button className={btn} onClick={() => void stepOut()} disabled={s.status !== 'paused'} title={t('dbgStepOut')} aria-label={t('dbgStepOut')}><ArrowUpFromLine size={14} /></button>
             <button className={`${btn} text-rose-300`} onClick={() => void stopDebug()} title={t('dbgStop')} aria-label={t('dbgStop')}><Square size={13} className="fill-current" /></button>
-            <span className="ml-1 text-[11px] text-zinc-400 truncate">{statusText}</span>
+            <span className="ms-1 text-[11px] text-zinc-400 truncate">{statusText}</span>
           </>
         )}
       </div>
@@ -145,7 +145,7 @@ export const DebugPanel: React.FC<Props> = ({ rootPath, activeFile, onOpenFile }
           {shownFrames.map((f) => (
             <button
               key={f.id}
-              className={`w-full flex items-baseline gap-2 min-w-0 h-6 px-3 text-left text-[12px] hover:bg-nv-hover ${f.id === s.frameId ? 'bg-nv-active text-zinc-50' : f.file ? 'text-zinc-300' : 'text-zinc-500'}`}
+              className={`w-full flex items-baseline gap-2 min-w-0 h-6 px-3 text-start text-[12px] hover:bg-nv-hover ${f.id === s.frameId ? 'bg-nv-active text-zinc-50' : f.file ? 'text-zinc-300' : 'text-zinc-500'}`}
               onClick={() => { selectFrame(f.id); if (f.file) onOpenFile(f.file, f.line); }}
               title={f.file ?? f.url}
             >
@@ -164,7 +164,7 @@ export const DebugPanel: React.FC<Props> = ({ rootPath, activeFile, onOpenFile }
           {bpFiles.map(([file, lines]) => lines.map((l) => (
             <div key={`${file}:${l}`} className="group flex items-center gap-2 h-6 px-3 text-[12px] hover:bg-nv-hover">
               <span className="w-2.5 h-2.5 rounded-full bg-[#e51400] shrink-0" />
-              <button className="flex-1 min-w-0 flex items-baseline gap-2 text-left" onClick={() => onOpenFile(file, l)} title={file}>
+              <button className="flex-1 min-w-0 flex items-baseline gap-2 text-start" onClick={() => onOpenFile(file, l)} title={file}>
                 <span className="truncate">{baseName(file)}</span><span className="text-zinc-500 text-[11px]">:{l}</span>
               </button>
               <button className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-zinc-100" onClick={() => toggleBreakpoint(file, l)} aria-label={t('dbgToggleBp')}><X size={12} /></button>

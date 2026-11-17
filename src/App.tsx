@@ -31,6 +31,7 @@ import { Logo } from './components/Logo';
 const SettingsPage = lazy(() => import('./components/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 import { useSettings } from './services/SettingsContext';
 import { useCollabToken } from './services/useCollabToken';
+import { getCollabRoomId } from './services/collabRoom';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
@@ -1439,7 +1440,7 @@ export function App() {
                 canPreview={previewable}
                 previewOpen={showRightPanel === 'preview'}
                 onTogglePreview={() => setShowRightPanel((v) => (v === 'preview' ? null : 'preview'))}
-                collab={{ enabled: collabEnabled && collabUrlValid, url: collabUrl.trim(), token: collabToken, room: currentRootPath || '' }}
+                collab={{ enabled: collabEnabled && collabUrlValid, url: collabUrl.trim(), token: collabToken, room: collabEnabled && currentRootPath ? getCollabRoomId(currentRootPath) : '', root: currentRootPath || '' }}
               />
             )}
           </div>

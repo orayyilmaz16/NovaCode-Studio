@@ -7,6 +7,8 @@ const { app, clipboard, ipcMain, safeStorage, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+// Kapsam notu (S-18): 'repo', özel depolara git push/clone (HTTPS) ve özel depo listesi için GitHub OAuth'unun sunduğu TEK kapsamdır;
+// 'public_repo' özel depoları bozar. Daha dar yetki yalnız ince ayarlı GitHub App kurulumuyla mümkündür (ayrı bir ürün kararı), bu yüzden düşürülmedi.
 const GITHUB_SCOPES = 'repo read:user';
 const ALLOWED_OPEN = ['https://github.com/', 'https://docs.github.com/'];
 
@@ -179,6 +181,8 @@ function register({ getWindow, runGit, isValidPath }) {
 
       // Kod önceden doldurulmuş sayfa: oturum yoksa GitHub giriş/kayıt ekranına, varsa doğrudan yetkilendirmeye gider.
       const target = new URL(d.verification_uri);
+      // Sunucu yanıtı güvenilmez sayılır: yalnız https://github.com'a açılır
+      if (target.protocol !== 'https:' || target.hostname !== 'github.com') return { success: false, error: 'Doğrulama adresi geçersiz.' };
       target.searchParams.set('user_code', d.user_code);
       // Kodu otomatik panoya kopyala (tarayıcı odağı alınca renderer panoya yazamaz, bu yüzden ana süreçte).
       try { clipboard.writeText(d.user_code); } catch { /* pano yoksa kod ekranda görünür */ }

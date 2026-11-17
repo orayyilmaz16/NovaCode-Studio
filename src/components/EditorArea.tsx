@@ -20,7 +20,8 @@ export interface CollabConfig {
   enabled: boolean;
   url: string;      // wss:// veya yerel ws://
   token: string;    // sunucu NOVA_SYNC_TOKEN değeri
-  room: string;     // proje kimliği (kök klasör yolu)
+  room: string;     // rastgele oda kimliği (yerel yol değil, bkz. services/collabRoom.ts)
+  root: string;     // kök klasör yolu: yalnız göreli yolu hesaplamak için, sunucuya gitmez
 }
 
 interface EditorAreaProps {
@@ -209,12 +210,13 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     let cleanup = () => {};
     setCollabStatus('connecting');
     void (async () => {
-      const [Y, { WebsocketProvider }, { MonacoBinding }] = await Promise.all([import('yjs'), import('y-websocket'), import('y-monaco')]);
+      const [Y, { WebsocketProvider }, { MonacoBinding }, room] = await Promise.all([import('yjs'), import('y-websocket'), import('y-monaco'), import('../services/collabRoom')]);
+      // KVKK: oda adı mutlak yol içermez; token URL yerine WebSocket alt protokolüyle gider
+      const roomName = await room.collabFileRoom(collab.room, collab.root, activePath);
       if (disposed) return;
       const doc = new Y.Doc();
-      const roomName = `${encodeURIComponent(collab.room)}/${encodeURIComponent(activePath)}`;
       const provider = new WebsocketProvider(collab.url, roomName, doc, {
-        params: collab.token ? { token: collab.token } : {},
+        protocols: room.collabProtocols(collab.token),
         connect: true
       });
       const ytext = doc.getText('monaco');

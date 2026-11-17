@@ -54,7 +54,7 @@ export const ProblemsPanel: React.FC<{ rootPath?: string }> = ({ rootPath }) => 
           <div key={path}>
             <button
               onClick={() => setCollapsed((c) => ({ ...c, [path]: !c[path] }))}
-              className="w-full flex items-center gap-1.5 px-2 h-6 text-left hover:bg-nv-hover text-zinc-200"
+              className="w-full flex items-center gap-1.5 px-2 h-6 text-start hover:bg-nv-hover text-zinc-200"
               aria-expanded={!isClosed}
               title={path}
             >
@@ -62,19 +62,19 @@ export const ProblemsPanel: React.FC<{ rootPath?: string }> = ({ rootPath }) => 
               <FileTypeIcon name={name} size={14} />
               <span className="truncate">{name}</span>
               <span className="truncate text-zinc-500 text-[11px]">{rel(path)}</span>
-              <span className="ml-auto shrink-0 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300">{list.length}</span>
+              <span className="ms-auto shrink-0 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300">{list.length}</span>
             </button>
             {!isClosed &&
               list.map((p, i) => (
                 <button
                   key={`${p.line}:${p.col}:${i}`}
                   onClick={() => open(p)}
-                  className="w-full flex items-start gap-2 pl-8 pr-3 py-[3px] text-left hover:bg-nv-hover text-zinc-300"
+                  className="w-full flex items-start gap-2 ps-8 pe-3 py-[3px] text-start hover:bg-nv-hover text-zinc-300"
                 >
                   <span className="pt-[2px]">{ICON[p.severity]}</span>
                   <span className="min-w-0 flex-1 break-words">
                     {p.message}
-                    {(p.source || p.code) && <span className="ml-1.5 text-zinc-500">{[p.source, p.code].filter(Boolean).join(' ')}</span>}
+                    {(p.source || p.code) && <span className="ms-1.5 text-zinc-500">{[p.source, p.code].filter(Boolean).join(' ')}</span>}
                   </span>
                   <span className="shrink-0 text-zinc-500 font-mono text-[11px] pt-px">[{p.line}, {p.col}]</span>
                 </button>

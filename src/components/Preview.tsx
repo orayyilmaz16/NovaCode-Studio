@@ -3,11 +3,13 @@ import { AlertTriangle, ArrowLeft, Globe, Loader2, Play, RefreshCw, Terminal as 
 import { t } from '../i18n/uiText';
 import { Markdown } from './Markdown';
 import { previewKind } from '../services/previewKind';
+import '../i18n/uiTextTheme'; // köprü hata metinleri (pvBridge*) ve simge düğmesi etiketleri
 
 // Önizleme: localhost veya sunucu gerekmeden HTML / SVG / Markdown dosyalarını uygulama içinde gösterir.
 //  - HTML: yerel CSS, JS, görsel ve yazı tipleri diskten çözülür ve sayfaya gömülür; kaydedilmemiş (editördeki) içerik önceliklidir;
 //    yazdıkça ve dosyalar değişince canlı yenilenir. Sayfa sandbox'lı iframe'de çalışır (allow-same-origin YOK: uygulamanın
-//    API'lerine erişemez); konsol/hata mesajları ve bağlantı tıklamaları köprüyle buraya taşınır.
+//    API'lerine erişemez); konsol/hata mesajları ve bağlantı tıklamaları köprüyle buraya taşınır. Yerel sunucu (URL) kipi de
+//    aynı sandbox'ta çalışır (yalnız localhost/127.0.0.1/[::1]).
 //  - CSS/JS: aynı klasördeki index.html önizlenir. SVG: görsel olarak, Markdown: biçimlendirilmiş gösterilir.
 //  - Terminalde çalışan bir geliştirme sunucusu (http://localhost:PORT) görününce tek tıkla önizlenir; adres yazmak gerekmez.
 interface FileLike {
@@ -28,7 +30,7 @@ interface PreviewProps {
   onOpenFile: (path: string) => void;
 }
 
-type Line = { level: string; text: string };
+type Line = { id: number; level: string; text: string };
 
 // ---------- Yol yardımcıları (Windows/Unix) ----------
 const sepOf = (p: string) => (p.includes('\\') ? '\\' : '/');
@@ -47,12 +49,30 @@ const isExternal = (u: string) => /^(https?:|data:|blob:|\/\/|#|mailto:|tel:|jav
 const stripQuery = (u: string) => u.split('#')[0].split('?')[0];
 
 // ---------- Sayfaya yerleştirilen köprü: konsol, hata ve bağlantı tıklamaları ----------
-const BRIDGE = `<script>(function(){var p=function(m){try{parent.postMessage(m,'*')}catch(e){}};
+// Metinler dil ayarına göre dışarıdan verilir (I-04). Hedef köken: uygulama http(s) ise kendi kökeni, değilse (file:) '*'.
+// Bağlantı mesajı yalnız gerçek kullanıcı tıklamasında (isTrusted) gönderilir.
+function buildBridge(): string {
+  const txt = JSON.stringify({ err: t('pvBridgeError'), line: t('pvBridgeLine'), rej: t('pvBridgeRejection') }).replace(/</g, String.fromCharCode(92) + 'u003c');
+  const origin = /^https?:$/.test(window.location.protocol) ? window.location.origin : '*';
+  return `<script>(function(){var X=${txt};var O=${JSON.stringify(origin)};var p=function(m){try{parent.postMessage(m,O)}catch(e){}};
 ['log','info','warn','error'].forEach(function(l){var o=console[l];console[l]=function(){var a=[].slice.call(arguments).map(function(x){try{return typeof x==='object'?JSON.stringify(x):String(x)}catch(e){return String(x)}}).join(' ');p({nova:1,t:'console',level:l,text:a});o&&o.apply(console,arguments)}});
-addEventListener('error',function(e){p({nova:1,t:'console',level:'error',text:(e.message||'Hata')+(e.lineno?' (satır '+e.lineno+')':'')})});
-addEventListener('unhandledrejection',function(e){p({nova:1,t:'console',level:'error',text:'Yakalanmamış söz reddi: '+(e.reason&&e.reason.message||e.reason)})});
-document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(h.charAt(0)==='#'||/^javascript:/i.test(h))return;e.preventDefault();p({nova:1,t:'nav',href:h})},true);
+addEventListener('error',function(e){p({nova:1,t:'console',level:'error',text:(e.message||X.err)+(e.lineno?' ('+X.line+' '+e.lineno+')':'')})});
+addEventListener('unhandledrejection',function(e){p({nova:1,t:'console',level:'error',text:X.rej+': '+(e.reason&&e.reason.message||e.reason)})});
+document.addEventListener('click',function(e){if(!e.isTrusted)return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(h.charAt(0)==='#'||/^javascript:/i.test(h))return;e.preventDefault();p({nova:1,t:'nav',href:h})},true);
 })();<\/script>`;
+}
+
+// Dış bağlantı: yalnız https (yerel adreste http), kimlik bilgisi yok, makul uzunluk
+function safeExternalUrl(raw: string): string | null {
+  try {
+    if (raw.length > 2048) return null;
+    const u = new URL(raw);
+    if (u.username || u.password || !u.hostname) return null;
+    const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(u.hostname);
+    if (u.protocol === 'https:' || (u.protocol === 'http:' && loopback)) return u.toString();
+    return null;
+  } catch { return null; }
+}
 
 export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl, onClose, onOpenFile }) => {
   const kind = previewKind(file?.name);
@@ -67,6 +87,8 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
   const [urlDraft, setUrlDraft] = useState('');
   const [urlBad, setUrlBad] = useState(false);
   const buildSeq = useRef(0);
+  const lineSeq = useRef(0);
+  const lastNav = useRef(0);
 
   // Açık dosyalar → yol → içerik (kaydedilmemiş değişiklikler dahil)
   const liveMap = useMemo(() => {
@@ -152,7 +174,7 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
       }
     }
     const head = doc.head || doc.documentElement.insertBefore(doc.createElement('head'), doc.body);
-    head.insertAdjacentHTML('afterbegin', BRIDGE);
+    head.insertAdjacentHTML('afterbegin', buildBridge());
     return '<!doctype html>\n' + doc.documentElement.outerHTML;
   }, [readText, readUrl, inlineCssUrls, rootPath]);
 
@@ -192,26 +214,38 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
   // Dosya değişince konsolu sıfırla
   useEffect(() => { setLines([]); }, [filePath, kind, urlMode]);
 
-  // iframe → ana pencere mesajları: konsol ve bağlantılar
+  // iframe → ana pencere mesajları: konsol ve bağlantılar. Yalnız bizim köprülü (srcDoc, köken "null") çerçeveden;
+  // URL kipindeki sayfa (kendi kodu) köprü taklit edip bağlantı açtıramaz.
   useEffect(() => {
+    if (urlMode) return;
+    const NAV_GAP_MS = 1500;
     const onMsg = (e: MessageEvent) => {
-      if (e.source !== iframeRef.current?.contentWindow || !e.data || e.data.nova !== 1) return;
+      if (e.source !== iframeRef.current?.contentWindow || e.origin !== 'null' || !e.data || e.data.nova !== 1) return;
       if (e.data.t === 'console') {
-        setLines((prev) => [...prev, { level: String(e.data.level), text: String(e.data.text).slice(0, 400) }].slice(-100));
+        const line: Line = { id: ++lineSeq.current, level: String(e.data.level), text: String(e.data.text).slice(0, 400) };
+        setLines((prev) => [...prev, line].slice(-100));
         if (e.data.level === 'error') setShowConsole(true);
       } else if (e.data.t === 'nav') {
+        // Yalnız kullanıcı etkinleşmesinden (tıklama) sonra ve hız sınırıyla
+        const ua = (navigator as Navigator & { userActivation?: { isActive: boolean } }).userActivation;
+        if (ua && !ua.isActive) return;
+        const now = Date.now();
+        if (now - lastNav.current < NAV_GAP_MS) return;
+        lastNav.current = now;
         const href = String(e.data.href || '');
-        if (/^https?:\/\//i.test(href)) void window.electronAPI?.openLink(href);
-        else if (!isExternal(href) && filePath) {
+        if (/^https?:\/\//i.test(href)) {
+          const ok = safeExternalUrl(href);
+          if (ok) void window.electronAPI?.openLink(ok);
+        } else if (!isExternal(href) && filePath) {
           const clean = stripQuery(decodeURI(href));
-          const target = clean.startsWith('/') ? (rootPath ? joinPath(rootPath, clean) : '') : joinPath(kind === 'webasset' ? dirOf(filePath) : dirOf(filePath), clean);
+          const target = clean.startsWith('/') ? (rootPath ? joinPath(rootPath, clean) : '') : joinPath(dirOf(filePath), clean);
           if (target) onOpenFile(target);
         }
       }
     };
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
-  }, [filePath, kind, rootPath, onOpenFile]);
+  }, [filePath, rootPath, onOpenFile, urlMode]);
 
   // Yerel sunucu adresi: yalnız döngü adresi (loopback), kimlik bilgisi yok, uygulamanın kendi kökeni değil
   const safeLocalUrl = useCallback((raw: string): string | null => {
@@ -241,14 +275,14 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
     <div className="flex flex-col h-full min-w-0 bg-nv-side text-zinc-300">
       {/* Başlık */}
       <div className="flex items-center gap-1 px-2 h-10 border-b border-nv-border shrink-0">
-        <Globe size={14} className="text-sky-400 shrink-0 ml-1" />
+        <Globe size={14} className="text-sky-400 shrink-0 ms-1" />
         <span className="text-[12.5px] font-medium text-zinc-100 truncate min-w-0 flex-1" title={title}>{title}</span>
         {building && <Loader2 size={13} className="animate-spin text-zinc-500 shrink-0" />}
         {urlMode && <button className={btn} onClick={() => setUrlMode(null)} title={t('pvBackToFile')} aria-label={t('pvBackToFile')}><ArrowLeft size={14} /></button>}
         <button className={btn} onClick={() => { setTick((n) => n + 1); if (urlMode && iframeRef.current) iframeRef.current.src = urlMode; }} title={t('pvRefresh')} aria-label={t('pvRefresh')}><RefreshCw size={14} /></button>
         <button className={`${btn} ${showConsole ? '!text-zinc-100 bg-nv-hover' : ''} relative`} onClick={() => setShowConsole((v) => !v)} title={t('pvConsole')} aria-label={t('pvConsole')}>
           <TermIcon size={14} />
-          {errors > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-3.5 h-3.5 px-0.5 rounded-full bg-rose-500 text-white text-[9px] leading-[14px] text-center">{errors}</span>}
+          {errors > 0 && <span className="absolute -top-0.5 -end-0.5 min-w-3.5 h-3.5 px-0.5 rounded-full bg-rose-500 text-white text-[9px] leading-[14px] text-center">{errors}</span>}
         </button>
         <button className={btn} onClick={onClose} title={t('aiRemove')} aria-label={t('aiRemove')}><X size={15} /></button>
       </div>
@@ -280,9 +314,9 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
       {/* İçerik */}
       <div className="flex-1 min-h-0 relative mt-2">
         {urlMode ? (
-          <iframe ref={iframeRef} key={urlMode} title="preview" src={urlMode} sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups" className="absolute inset-0 w-full h-full bg-white border-0" />
+          <iframe ref={iframeRef} key={urlMode} title={t('tbPreview')} src={urlMode} referrerPolicy="no-referrer" sandbox="allow-scripts allow-forms allow-modals allow-popups" className="absolute inset-0 w-full h-full bg-white border-0" />
         ) : kind === 'html' || (kind === 'webasset' && !problem) ? (
-          <iframe ref={iframeRef} title="preview" srcDoc={srcDoc} sandbox="allow-scripts allow-forms allow-modals allow-popups allow-downloads" className="absolute inset-0 w-full h-full bg-white border-0" />
+          <iframe ref={iframeRef} title={t('tbPreview')} srcDoc={srcDoc} sandbox="allow-scripts allow-forms allow-modals allow-popups allow-downloads" className="absolute inset-0 w-full h-full bg-white border-0" />
         ) : kind === 'svg' ? (
           <div className="absolute inset-0 overflow-auto p-4 flex items-center justify-center bg-[conic-gradient(#2a2a2a_25%,#222_0_50%,#2a2a2a_0_75%,#222_0)] bg-[length:16px_16px]">
             <img alt={file?.name} src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(fileContent)}`} className="max-w-full max-h-full" />
@@ -308,7 +342,7 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
             <button onClick={() => setLines([])} title={t('pvClear')} aria-label={t('pvClear')} className="hover:text-zinc-200"><Trash2 size={11} /></button>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-2 pb-1 font-mono text-[11px] leading-snug">
-            {lines.length === 0 ? <span className="text-zinc-600">—</span> : lines.map((l, i) => <div key={i} className={`${levelCls(l.level)} break-all`}>{l.text}</div>)}
+            {lines.length === 0 ? <span className="text-zinc-500">—</span> : lines.map((l) => <div key={l.id} className={`${levelCls(l.level)} break-all`}>{l.text}</div>)}
           </div>
         </div>
       )}

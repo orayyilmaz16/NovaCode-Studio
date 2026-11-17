@@ -52,8 +52,8 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
 
   return (
     <nav
-      aria-label="Menu"
-      className="no-scrollbar app-no-drag flex items-center h-full pl-1 min-w-0 shrink overflow-x-auto overflow-y-hidden"
+      aria-label={t('mnMenu')}
+      className="no-scrollbar app-no-drag flex items-center h-full ps-1 min-w-0 shrink overflow-x-auto overflow-y-hidden"
       // Dar kapta başlıklar yatay kayar (fare tekerleği de yatay çevrilir)
       onWheel={(e) => { if (e.deltaY) e.currentTarget.scrollLeft += e.deltaY; }}
       onScroll={() => setOpen(null)}

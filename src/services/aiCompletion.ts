@@ -136,9 +136,15 @@ export function setCompletionMonaco(m: unknown) {
       }
 
       const id = `c${++seq}`;
-      const prefix = model.getValueInRange({ startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column });
+      // Yalnız imleçten önceki son prefixChars ve sonraki ilk suffixChars karakter alınır (büyük dosyada IPC'ye MB'larca metin gitmez)
       const last = model.getLineCount();
-      const suffix = model.getValueInRange({ startLineNumber: position.lineNumber, startColumn: position.column, endLineNumber: last, endColumn: model.getLineMaxColumn(last) });
+      const off = model.getOffsetAt(position);
+      const preN = Math.min(12000, Math.max(200, cfg.prefixChars));
+      const sufN = Math.min(4000, Math.max(0, cfg.suffixChars));
+      const startPos = model.getPositionAt(Math.max(0, off - preN));
+      const endPos = model.getPositionAt(Math.min(model.getValueLength(), off + sufN));
+      const prefix = model.getValueInRange({ startLineNumber: startPos.lineNumber, startColumn: startPos.column, endLineNumber: position.lineNumber, endColumn: position.column });
+      const suffix = model.getValueInRange({ startLineNumber: position.lineNumber, startColumn: position.column, endLineNumber: endPos.lineNumber, endColumn: endPos.column });
       // Dil ve imleç bağlamı: editörün girinti ayarı, imleç satırı, sonraki satır (modeli ve öneri şekillendirmeyi yönlendirir)
       const mo = model.getOptions();
       const lineText = model.getLineContent(position.lineNumber);

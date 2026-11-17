@@ -306,3 +306,39 @@ export function toMonacoOptions(v: SettingsValues): Record<string, unknown> {
     roundedSelection: true
   };
 }
+
+// ---------- Büyük dosya koruması (P-25) ----------
+// Çok büyük dosyada minimap, kıvırma ve parantez renklendirme editörü yavaşlatır; kullanıcı ayarına dokunmadan o dosya için kapatılır.
+export const LARGE_FILE_CHARS = 2 * 1024 * 1024;
+export const LARGE_FILE_LINES = 20000;
+
+export interface FileSize {
+  /** Karakter sayısı (model.getValueLength() veya içerik uzunluğu). */
+  chars: number;
+  /** Satır sayısı (model.getLineCount()). */
+  lines: number;
+}
+
+export function isLargeFile(size: FileSize): boolean {
+  return size.chars > LARGE_FILE_CHARS || size.lines > LARGE_FILE_LINES;
+}
+
+/** Büyük dosyada Monaco seçeneklerinin üstüne yazılacak ağır özelliklerin kapalı hali. */
+export function largeFileOverrides(): Record<string, unknown> {
+  return {
+    minimap: { enabled: false },
+    folding: false,
+    bracketPairColorization: { enabled: false },
+    guides: { bracketPairs: false, indentation: false },
+    cursorSmoothCaretAnimation: 'off',
+    smoothScrolling: false,
+    stickyScroll: { enabled: false },
+    renderWhitespace: 'none'
+  };
+}
+
+/** Ayarlardan Monaco seçenekleri; dosya büyükse ağır özellikler kapatılır. */
+export function toMonacoOptionsForFile(v: SettingsValues, size?: FileSize): Record<string, unknown> {
+  const base = toMonacoOptions(v);
+  return size && isLargeFile(size) ? { ...base, ...largeFileOverrides() } : base;
+}

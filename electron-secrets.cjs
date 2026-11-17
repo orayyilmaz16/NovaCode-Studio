@@ -31,9 +31,17 @@ async function readSecret(key) {
   }
 }
 
+// Renderer'a düz metin yalnız ortak düzenleme token'ı verilir; AI anahtarları ana süreçte kalır (yalnız var/yok bilgisi).
+const RENDERER_READABLE = new Set(['collabToken']);
+
 function register() {
-  ipcMain.handle('secrets:get', async (_e, key) => {
+  ipcMain.handle('secrets:has', async (_e, key) => {
     if (!ALLOWED.has(key)) return { error: 'invalid-key' };
+    return { has: !!(await readSecret(key)) };
+  });
+
+  ipcMain.handle('secrets:get', async (_e, key) => {
+    if (!ALLOWED.has(key) || !RENDERER_READABLE.has(key)) return { error: 'invalid-key' };
     try {
       if (!(await canEncrypt()) || !fs.existsSync(fileFor(key))) return { value: '' };
       const { result } = await safeStorage.decryptStringAsync(fs.readFileSync(fileFor(key)));

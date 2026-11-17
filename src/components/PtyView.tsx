@@ -116,7 +116,7 @@ export const PtyView: React.FC<Props> = ({ id, cwd, active, fontSize, lineHeight
     return () => window.clearTimeout(tm);
   }, [active]);
 
-  return <div ref={host} className={`${active ? 'absolute inset-0' : 'hidden'} px-2 py-1`} data-pty="" />;
+  return <div ref={host} dir="ltr" className={`${active ? 'absolute inset-0' : 'hidden'} px-2 py-1`} data-pty="" />;
 };
 
 export default PtyView;

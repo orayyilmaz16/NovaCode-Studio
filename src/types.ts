@@ -9,6 +9,12 @@ export interface DiffInfo {
   source?: { repo: string; path: string; orig?: string; staged?: boolean };
 }
 
+export interface ReadFileFailure {
+  success: false;
+  error: 'file-too-large' | 'binary-file' | string;
+  size?: number;
+}
+
 export interface FileItem {
   id: string;
   name: string;
@@ -19,6 +25,10 @@ export interface FileItem {
   children?: FileItem[];
   isOpen?: boolean;
   isModified?: boolean;
+  /** Dosya diskten silindi/taşındı (açık sekme korunur; kaydedilirse yeniden oluşturulur). */
+  missing?: boolean;
+  /** Kaydedilmemiş düzenleme varken dosya diskte de değişti. */
+  externalChange?: boolean;
   diff?: DiffInfo;
 }
 
@@ -253,11 +263,13 @@ export interface ElectronBridge {
   ui: { setZoom: (factor: number) => void; setTheme: (mode: 'dark' | 'light') => Promise<{ success: boolean }> };
   secrets: {
     get: (key: SecretKey) => Promise<{ value: string } | { error: string }>;
+    has: (key: SecretKey) => Promise<{ has: boolean } | { error: string }>;
     set: (key: SecretKey, value: string) => Promise<{ success: boolean; error?: string }>;
   };
   search: {
     files: () => Promise<{ root: string; files: string[] }>;
-    text: (opts: { query: string; regex?: boolean; caseSensitive?: boolean }) => Promise<{ results: SearchHit[]; truncated: boolean; error?: string }>;
+    text: (opts: { query: string; regex?: boolean; caseSensitive?: boolean; id?: string }) => Promise<{ results: SearchHit[]; truncated: boolean; error?: string; cancelled?: boolean }>;
+    cancel: (id: string) => Promise<{ success: boolean }>;
   };
   update: {
     state: () => Promise<UpdateState>;
@@ -327,6 +339,9 @@ export interface ElectronBridge {
     onEvent: (cb: (ev: DebugEvent) => void) => () => void;
   };
   quitApp: () => Promise<void>;
+  /** Pencere kapatılmak istenince ana süreç sorar; yanıt `respondClose(true|false)` ile verilir. Abonelik kaldırıcı döner. */
+  onCloseRequest?: (callback: () => void) => () => void;
+  respondClose?: (allow: boolean) => void;
   platform?: string;
   windowControls?: {
     minimize: () => Promise<void>;
@@ -340,7 +355,8 @@ export interface ElectronBridge {
   openRecentFolder: (folderPath: string) => Promise<{ rootPath: string; rootName: string; tree: FileItem[] } | { error: string }>;
   openFileDialog: () => Promise<FileItem[]>;
   readDirectory: (dirPath: string) => Promise<FileItem[]>;
-  readFile: (filePath: string) => Promise<string>;
+  /** Başarıda metin; çok büyük/ikili dosyada `{ success:false, error:'file-too-large' | 'binary-file' }`. */
+  readFile: (filePath: string) => Promise<string | ReadFileFailure>;
   readDataUrl: (filePath: string) => Promise<{ success: boolean; dataUrl?: string; error?: string }>;
   writeFile: (filePath: string, content: string) => Promise<{ success: boolean; error?: string }>;
   createFile: (filePath: string) => Promise<{ success: boolean; error?: string }>;

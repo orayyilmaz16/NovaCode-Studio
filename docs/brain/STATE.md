@@ -30,33 +30,34 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 889 |
+| `electron-ai.cjs` | 1045 |
 | `electron-debug.cjs` | 226 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 406 |
-| `electron-github.cjs` | 331 |
-| `electron-llm.cjs` | 256 |
+| `electron-github.cjs` | 335 |
+| `electron-llm.cjs` | 278 |
 | `electron-lsp.cjs` | 271 |
-| `electron-main.cjs` | 520 |
-| `electron-preload.cjs` | 224 |
+| `electron-main.cjs` | 757 |
+| `electron-paths.cjs` | 134 |
+| `electron-preload.cjs` | 240 |
 | `electron-pty.cjs` | 118 |
-| `electron-search.cjs` | 74 |
-| `electron-secrets.cjs` | 58 |
-| `electron-term.cjs` | 155 |
+| `electron-search.cjs` | 118 |
+| `electron-secrets.cjs` | 66 |
+| `electron-term.cjs` | 176 |
 | `electron-textbuffer.cjs` | 309 |
-| `electron-update.cjs` | 164 |
+| `electron-update.cjs` | 165 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 1605 |
+| `src/App.tsx` | 1606 |
 | `src/main.tsx` | 21 |
-| `src/types.ts` | 412 |
+| `src/types.ts` | 428 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 820 |
+| `src/components/AIAssistant.tsx` | 824 |
 | `src/components/BranchPicker.tsx` | 199 |
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
@@ -64,24 +65,24 @@
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 533 |
+| `src/components/EditorArea.tsx` | 535 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
-| `src/components/FileTree.tsx` | 925 |
+| `src/components/FileTree.tsx` | 931 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitPanel.tsx` | 899 |
+| `src/components/GitPanel.tsx` | 882 |
 | `src/components/GithubAccount.tsx` | 134 |
 | `src/components/LandingPage.tsx` | 175 |
 | `src/components/Logo.tsx` | 36 |
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
 | `src/components/MenuBar.tsx` | 95 |
-| `src/components/Preview.tsx` | 317 |
+| `src/components/Preview.tsx` | 351 |
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
-| `src/components/SearchPanel.tsx` | 98 |
+| `src/components/SearchPanel.tsx` | 99 |
 | `src/components/SettingsPage.tsx` | 614 |
-| `src/components/SplashScreen.tsx` | 38 |
+| `src/components/SplashScreen.tsx` | 56 |
 | `src/components/Terminal.tsx` | 560 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/UpdateDialog.tsx` | 156 |
@@ -90,9 +91,10 @@
 ### Servisler
 | Dosya | Satır |
 |---|---|
-| `src/services/SettingsContext.tsx` | 157 |
+| `src/services/SettingsContext.tsx` | 198 |
 | `src/services/aiClient.ts` | 265 |
-| `src/services/aiCompletion.ts` | 198 |
+| `src/services/aiCompletion.ts` | 204 |
+| `src/services/collabRoom.ts` | 79 |
 | `src/services/completionSchedule.ts` | 69 |
 | `src/services/completionShape.ts` | 180 |
 | `src/services/cursorStore.ts` | 15 |
@@ -110,12 +112,16 @@
 | `src/services/previewKind.ts` | 11 |
 | `src/services/problems.ts` | 141 |
 | `src/services/ptyBus.ts` | 24 |
-| `src/services/settings.ts` | 308 |
-| `src/services/terminalBridge.ts` | 32 |
+| `src/services/recentFolders.ts` | 28 |
+| `src/services/session.ts` | 93 |
+| `src/services/settings.ts` | 344 |
+| `src/services/terminalBridge.ts` | 54 |
 | `src/services/terminalText.ts` | 148 |
 | `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
 | `src/services/useDictation.ts` | 67 |
+| `src/services/useEvent.ts` | 13 |
+| `src/services/useFocusTrap.ts` | 59 |
 | `src/services/useGithubAuth.ts` | 32 |
 
 ### i18n
@@ -123,10 +129,10 @@
 |---|---|
 | `src/i18n/uiText.ts` | 1635 |
 | `src/i18n/uiTextAi.ts` | 528 |
-| `src/i18n/uiTextComp.ts` | 113 |
+| `src/i18n/uiTextComp.ts` | 257 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
-| `src/i18n/uiTextTheme.ts` | 71 |
+| `src/i18n/uiTextTheme.ts` | 80 |
 
 ### Betikler
 | Dosya | Satır |
@@ -146,6 +152,7 @@
 | Dosya | Satır |
 |---|---|
 | `scripts/tests/ai-complete.test.cjs` | 205 |
+| `scripts/tests/ai-security.test.cjs` | 83 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
@@ -157,13 +164,14 @@
 | `scripts/tests/release.test.cjs` | 140 |
 | `scripts/tests/settings-migrate.test.cjs` | 62 |
 | `scripts/tests/sync.test.cjs` | 58 |
+| `scripts/tests/syncserver.test.cjs` | 73 |
 | `scripts/tests/term.test.cjs` | 74 |
 | `scripts/tests/textbuffer.test.cjs` | 135 |
 
 ### Sunucu
 | Dosya | Satır |
 |---|---|
-| `server/sync-server.mjs` | 144 |
+| `server/sync-server.mjs` | 275 |
 
 ## IPC kanalları
 | Grup | Kanallar |
@@ -179,18 +187,18 @@
 | llm | `llm:cancel`, `llm:delete`, `llm:download`, `llm:status` |
 | lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
 | pty | `pty:available`, `pty:resize`, `pty:start`, `pty:stop`, `pty:write` |
-| search | `search:files`, `search:text` |
-| secrets | `secrets:get`, `secrets:set` |
+| search | `search:cancel`, `search:files`, `search:text` |
+| secrets | `secrets:get`, `secrets:has`, `secrets:set` |
 | term | `term:input`, `term:start`, `term:stop` |
 | ui | `ui:setTheme` |
 | update | `update:check`, `update:download`, `update:install`, `update:releases`, `update:state` |
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `update:state`, `win:maximized`
 
 ## i18n
-- 858 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 909 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 110 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

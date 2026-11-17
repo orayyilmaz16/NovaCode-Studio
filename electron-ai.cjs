@@ -4,7 +4,9 @@
 // - Araçlar yalnız açık çalışma klasörü içinde çalışır (gerçek yol + sembolik bağ denetimi); gizli dosyalar reddedilir.
 // - Yazma/komut araçları kullanıcı onayı ister (yazma için "otomatik onay" ayarı opsiyoneldir; komut her zaman sorar).
 // - Özel taban adres yalnız https:// veya yerel (localhost/127.0.0.1) http:// olabilir.
-const { ipcMain } = require('electron');
+const { ipcMain, app } = require('electron');
+const crypto = require('crypto');
+const net = require('net');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -17,7 +19,7 @@ const MAX_STEPS = 20;
 const MAX_READ = 200 * 1024;
 const MAX_OUT = 20 * 1024;
 const MAX_AUDIO = 25 * 1024 * 1024;
-const SECRET_FILE = /(^|[\\/])(\.env(\..*)?|.*\.(pem|key|p12|pfx)|id_(rsa|ed25519|ecdsa)(\.pub)?|\.npmrc|\.netrc|credentials(\.json)?)$/i;
+const SECRET_FILE = /(^|[\\/])(\.env(\..*)?|.*\.(pem|key|p12|pfx)|id_(rsa|ed25519|ecdsa)(\.pub)?|\.npmrc|\.netrc|\.pypirc|\.git-credentials|credentials(\.json)?|\.git[\\/]config|\.docker[\\/]config\.json|\.aws[\\/].*|\.ssh[\\/].*|\.kube[\\/]config)$/i;
 
 const PROVIDERS = {
   anthropic: { base: 'https://api.anthropic.com', secret: 'aiKey_anthropic' },
@@ -25,7 +27,100 @@ const PROVIDERS = {
   ollama: { base: 'http://localhost:11434/v1', secret: null }
 };
 
-const runs = new Map(); // runId -> { abort: AbortController, pending: Map<id, resolve> }
+const runs = new Map(); // runId -> { abort: AbortController, pending: Map<id, resolve>, procs: Set<ChildProcess> }
+
+// Komut ağacını öldür (kabuk + torunlar): Windows'ta taskkill /T, diğerlerinde süreç grubu.
+function killTree(child) {
+  if (!child || !child.pid) return;
+  try {
+    if (process.platform === 'win32') spawn('taskkill', ['/pid', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' }).on('error', () => {});
+    else { try { process.kill(-child.pid, 'SIGKILL'); } catch { child.kill('SIGKILL'); } }
+  } catch { /* çoktan bitti */ }
+}
+function abortRun(run) {
+  run.abort.abort();
+  for (const r of run.pending.values()) r(false);
+  run.pending.clear();
+  for (const c of run.procs) killTree(c);
+  run.procs.clear();
+}
+// Uygulama kapanırken (electron-main.cjs before-quit/will-quit): tüm ajan çalıştırmalarını, komut ağaçlarını, tamamlama isteklerini ve dikte sürecini durdurur.
+function killAll() {
+  for (const run of runs.values()) abortRun(run);
+  for (const a of completions.values()) a.abort();
+  stopWhisper();
+}
+
+// ---------- Güven, rıza ve izin listesi (kalıcı, yalnız bu bilgisayarda: userData/ai-trust.json) ----------
+// Veri: güvenilen klasör yolları, rıza verilen sağlayıcı adresleri, anahtar gönderimine izin verilen özel adresler. Amaç: güvenlik kararlarının hatırlanması.
+// Hukuki sebep: kullanıcının açık onayı. Saklama: kullanıcı dosyayı silene dek. Yurt dışı aktarım yok (dosya yerel).
+const emptyStore = () => ({ folders: [], consent: [], bases: [] });
+function loadStore() {
+  try {
+    const j = JSON.parse(fs.readFileSync(path.join(app.getPath('userData'), 'ai-trust.json'), 'utf8'));
+    const arr = (x) => (Array.isArray(x) ? x.filter((v) => typeof v === 'string').slice(0, 200) : []);
+    return { folders: arr(j.folders), consent: arr(j.consent), bases: arr(j.bases) };
+  } catch { return emptyStore(); }
+}
+function saveStore(st) {
+  try { fs.writeFileSync(path.join(app.getPath('userData'), 'ai-trust.json'), JSON.stringify(st), { mode: 0o600 }); } catch { /* yazılamadı: bu oturumda geçerli kalır */ }
+}
+const folderKey = (root) => {
+  let p = root;
+  try { p = fs.realpathSync(root); } catch { /* yol yok */ }
+  return process.platform === 'win32' ? p.toLowerCase() : p;
+};
+const isTrustedFolder = (root) => !!root && loadStore().folders.includes(folderKey(root));
+function addToStore(field, value) {
+  const st = loadStore();
+  if (!st[field].includes(value)) { st[field].push(value); saveStore(st); }
+}
+
+// Kullanıcıya görünen onay metinleri (8 dil; istek dilinden seçilir)
+const MSG = {
+  trustTitle: { tr: 'Bu klasöre güveniyor musun?', en: 'Do you trust this folder?', de: 'Vertraust du diesem Ordner?', ru: 'Вы доверяете этой папке?', ar: 'هل تثق بهذا المجلد؟', es: '¿Confías en esta carpeta?', fr: 'Fais-tu confiance à ce dossier ?', az: 'Bu qovluğa etibar edirsən?' },
+  trustBody: {
+    tr: 'Güvenilen klasörde ajan, güvenli derleme/test komutlarını (npm run build, pytest vb.) onaysız çalıştırır. Projedeki betikler bilgisayarında kod çalıştırabilir; yalnız kaynağına güvendiğin klasörlere izin ver. Karar bu bilgisayarda saklanır.',
+    en: 'In a trusted folder the agent runs safe build/test commands (npm run build, pytest, etc.) without asking. Scripts in the project can run code on your computer; allow only folders whose source you trust. The choice is stored on this computer.',
+    de: 'In einem vertrauenswürdigen Ordner führt der Agent sichere Build-/Testbefehle (npm run build, pytest usw.) ohne Rückfrage aus. Skripte im Projekt können Code auf deinem Computer ausführen; erlaube nur Ordner, deren Quelle du vertraust. Die Entscheidung wird auf diesem Computer gespeichert.',
+    ru: 'В доверенной папке агент запускает безопасные команды сборки/тестов (npm run build, pytest и др.) без запроса. Скрипты проекта могут выполнять код на вашем компьютере; разрешайте только папки, источнику которых доверяете. Выбор сохраняется на этом компьютере.',
+    ar: 'في المجلد الموثوق ينفّذ الوكيل أوامر البناء/الاختبار الآمنة (npm run build وpytest وغيرها) دون سؤال. قد تشغّل سكربتات المشروع شيفرة على جهازك؛ اسمح فقط بالمجلدات التي تثق بمصدرها. يُحفظ القرار على هذا الجهاز.',
+    es: 'En una carpeta de confianza el agente ejecuta comandos seguros de compilación/pruebas (npm run build, pytest, etc.) sin preguntar. Los scripts del proyecto pueden ejecutar código en tu equipo; permite solo carpetas cuyo origen conozcas. La decisión se guarda en este equipo.',
+    fr: 'Dans un dossier de confiance, l’agent exécute sans demander les commandes sûres de build/test (npm run build, pytest, etc.). Les scripts du projet peuvent exécuter du code sur ton ordinateur ; n’autorise que les dossiers dont tu connais la source. Le choix est conservé sur cet ordinateur.',
+    az: 'Etibarlı qovluqda agent təhlükəsiz build/test əmrlərini (npm run build, pytest və s.) soruşmadan icra edir. Layihədəki skriptlər kompüterində kod işlədə bilər; yalnız mənbəyinə etibar etdiyin qovluqlara icazə ver. Seçim bu kompüterdə saxlanır.'
+  },
+  consentTitle: { tr: 'Veriler {host} adresine gönderilecek', en: 'Data will be sent to {host}', de: 'Daten werden an {host} gesendet', ru: 'Данные будут отправлены на {host}', ar: 'ستُرسل البيانات إلى {host}', es: 'Los datos se enviarán a {host}', fr: 'Les données seront envoyées à {host}', az: 'Məlumatlar {host} ünvanına göndəriləcək' },
+  consentBody: {
+    tr: 'Mesajların, eklediğin kod/dosya bağlamı ve görseller yanıt üretmek için bu harici sağlayıcıya (yurt dışında olabilir) gönderilir. Anahtar ve gizli dosya kalıpları göndermeden önce temizlenir. Reddedersen hiçbir şey gönderilmez. Onay bu bilgisayarda saklanır.',
+    en: 'Your messages, attached code/file context and images are sent to this external provider (possibly abroad) to generate replies. Key and secret-file patterns are removed before sending. If you decline, nothing is sent. Your consent is stored on this computer.',
+    de: 'Deine Nachrichten, angehängter Code-/Dateikontext und Bilder werden zur Antworterzeugung an diesen externen Anbieter gesendet (ggf. im Ausland). Schlüssel- und Geheimdatei-Muster werden vorher entfernt. Bei Ablehnung wird nichts gesendet. Deine Zustimmung wird auf diesem Computer gespeichert.',
+    ru: 'Ваши сообщения, приложенный контекст кода/файлов и изображения отправляются этому внешнему провайдеру (возможно, за рубеж) для генерации ответов. Ключи и секретные файлы удаляются перед отправкой. При отказе ничего не отправляется. Согласие хранится на этом компьютере.',
+    ar: 'تُرسل رسائلك وسياق الشيفرة/الملفات المرفق والصور إلى هذا المزوّد الخارجي (وقد يكون خارج البلد) لتوليد الردود. تُزال أنماط المفاتيح والملفات السرية قبل الإرسال. عند الرفض لا يُرسل شيء. تُحفظ موافقتك على هذا الجهاز.',
+    es: 'Tus mensajes, el contexto de código/archivos adjunto y las imágenes se envían a este proveedor externo (posiblemente en el extranjero) para generar respuestas. Los patrones de claves y archivos secretos se eliminan antes del envío. Si rechazas, no se envía nada. Tu consentimiento se guarda en este equipo.',
+    fr: 'Tes messages, le contexte de code/fichiers joint et les images sont envoyés à ce fournisseur externe (possiblement à l’étranger) pour générer les réponses. Les clés et fichiers secrets sont retirés avant l’envoi. Si tu refuses, rien n’est envoyé. Ton consentement est conservé sur cet ordinateur.',
+    az: 'Mesajların, əlavə etdiyin kod/fayl konteksti və şəkillər cavab yaratmaq üçün bu xarici provayderə (xaricdə ola bilər) göndərilir. Açar və gizli fayl nümunələri göndərilmədən əvvəl təmizlənir. İmtina etsən heç nə göndərilmir. Razılıq bu kompüterdə saxlanır.'
+  },
+  baseNote: {
+    tr: 'Özel adres: API anahtarın da bu adrese gönderilecek. Yalnız güvendiğin bir hizmetse izin ver.',
+    en: 'Custom address: your API key will also be sent to it. Allow only a service you trust.',
+    de: 'Eigene Adresse: Dein API-Schlüssel wird ebenfalls dorthin gesendet. Erlaube nur einen Dienst, dem du vertraust.',
+    ru: 'Свой адрес: ваш API-ключ тоже будет отправлен на него. Разрешайте только сервис, которому доверяете.',
+    ar: 'عنوان مخصص: سيُرسل مفتاح API الخاص بك إليه أيضًا. اسمح فقط بخدمة تثق بها.',
+    es: 'Dirección personalizada: tu clave de API también se enviará allí. Permite solo un servicio de confianza.',
+    fr: 'Adresse personnalisée : ta clé d’API y sera aussi envoyée. N’autorise qu’un service de confiance.',
+    az: 'Xüsusi ünvan: API açarın da bura göndəriləcək. Yalnız etibar etdiyin xidmətə icazə ver.'
+  },
+  denied: { tr: 'Gönderim onaylanmadı.', en: 'Sending was not approved.', de: 'Senden wurde nicht genehmigt.', ru: 'Отправка не одобрена.', ar: 'لم تتم الموافقة على الإرسال.', es: 'El envío no fue aprobado.', fr: 'L’envoi n’a pas été approuvé.', az: 'Göndərmə təsdiqlənmədi.' }
+};
+const tx = (key, lang) => MSG[key][lang] || MSG[key].en;
+
+// Uzak sağlayıcıya giden bağlam metninde anahtar/gizli kalıplarını temizle (ana süreç; renderer'a güvenilmez).
+const PRIVATE_KEY_BLOCK = /-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)/g;
+const TOKEN_LIKE = /\b(?:sk-ant-[\w-]{16,}|sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_\w{30,}|AKIA[0-9A-Z]{16}|xox[baprs]-[\w-]{10,}|AIza[0-9A-Za-z_-]{35})\b/g;
+const SECRET_ASSIGN = /\b((?:password|passwd|secret|api[_-]?key|access[_-]?key|auth[_-]?token|token)\w*\s*[:=]\s*["']?)(?=[A-Za-z0-9+\/_=.-]*\d)[A-Za-z0-9+\/_=.-]{12,}/gi;
+function scrubSecrets(text) {
+  return String(text).replace(PRIVATE_KEY_BLOCK, '<REDACTED>').replace(TOKEN_LIKE, '<REDACTED>').replace(SECRET_ASSIGN, '$1<REDACTED>');
+}
 
 function isLoopback(base) {
   try { return ['localhost', '127.0.0.1', '[::1]'].includes(new URL(base).hostname); } catch { return false; }
@@ -43,7 +138,7 @@ function safeBase(provider, custom) {
 }
 
 // ---------- Çalışma klasörü ve araçlar ----------
-function resolveInRoot(root, p) {
+function resolveInRoot(root, p, forWrite = false) {
   if (!root) throw new Error('Açık çalışma klasörü yok.');
   if (typeof p !== 'string' || !p || p.includes('\0')) throw new Error('Geçersiz yol.');
   // Küçük modeller yolun başına klasör adını ekleyebilir ("proje/src/a.ts"): kök adı varsa ve gerçek öğe yoksa soy
@@ -62,6 +157,8 @@ function resolveInRoot(root, p) {
   const r2 = path.relative(realRoot, real);
   if (r2.startsWith('..') || path.isAbsolute(r2)) throw new Error('Yol çalışma klasörü dışına işaret ediyor.');
   if (SECRET_FILE.test(abs)) throw new Error('Gizli dosyalara erişim engelli.');
+  // .git altına yazma yok: hook/config ile kod çalıştırma yolunu kapatır
+  if (forWrite && rel.split(/[\\/]/).some((seg) => seg.toLowerCase() === '.git')) throw new Error('.git klasörüne yazılamaz.');
   return abs;
 }
 
@@ -97,7 +194,7 @@ const RISKY_EXT = new Set(['.sh', '.bat', '.cmd', '.ps1', '.csproj', '.sln', '.t
 function isRiskyPath(root, file) {
   const rel = path.relative(root, file).split(path.sep).join('/').toLowerCase();
   const base = path.basename(rel);
-  return RISKY_NAME.has(base) || RISKY_EXT.has(path.extname(base)) || /^(scripts|\.github|\.husky|node_modules)\//.test(rel)
+  return RISKY_NAME.has(base) || /(^|\/)\.git(\/|$)/.test(rel) || RISKY_EXT.has(path.extname(base)) || /^(scripts|\.github|\.husky|node_modules)\//.test(rel)
     || /(^|\/)(vite|webpack|rollup|esbuild|tsup|next|nuxt|svelte|babel|jest|vitest|eslint|postcss|tailwind)\.config\./.test(rel) || base.startsWith('.babelrc');
 }
 
@@ -129,7 +226,7 @@ async function runTool(name, input, ctx) {
       return res.results.map((r) => `${r.rel}:${r.line}: ${r.text}`).join('\n') || 'Eşleşme yok.';
     }
     case 'write_file': {
-      const file = resolveInRoot(root, input.path);
+      const file = resolveInRoot(root, input.path, true);
       if (typeof input.content !== 'string' || input.content.length > 2 * 1024 * 1024) throw new Error('İçerik geçersiz veya çok büyük.');
       const existed = fs.existsSync(file);
       const ok = autoApproveEdits || (await approve({ tool: name, summary: `${existed ? 'Üzerine yaz' : 'Oluştur'}: ${path.relative(root, file)}`, preview: clip(input.content, 4000) }));
@@ -137,11 +234,12 @@ async function runTool(name, input, ctx) {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, input.content, 'utf8');
       ctx.changed.add(file);
+      search.invalidateFileList(root);
       if (isRiskyPath(root, file)) ctx.riskyTouched = true;
       return `Yazıldı: ${path.relative(root, file)}`;
     }
     case 'edit_lines': {
-      const file = resolveInRoot(root, input.path);
+      const file = resolveInRoot(root, input.path, true);
       const rawEdits = Array.isArray(input.edits) ? input.edits.slice(0, 50) : [];
       if (!rawEdits.length) throw new Error('edits boş olamaz.');
       const st = fs.statSync(file);
@@ -163,6 +261,7 @@ async function runTool(name, input, ctx) {
       if (!ok) return 'Kullanıcı reddetti.';
       fs.writeFileSync(file, buf.getText(), 'utf8');
       ctx.changed.add(file);
+      search.invalidateFileList(root);
       if (isRiskyPath(root, file)) ctx.riskyTouched = true;
       // Doğrulama için ilk düzenlemenin yeni satır numaralarıyla çevresini göster (model sonucu kontrol edebilsin)
       const first = sorted[0];
@@ -174,7 +273,7 @@ async function runTool(name, input, ctx) {
       return `Düzenlendi: ${rel} — ${edits.length} düzenleme, ${orig.lineCount} → ${buf.lineCount} satır.\n${clip(ctxLines.join('\n'), 1200)}`;
     }
     case 'replace_in_file': {
-      const file = resolveInRoot(root, input.path);
+      const file = resolveInRoot(root, input.path, true);
       const src = fs.readFileSync(file, 'utf8');
       const old = String(input.old ?? '');
       if (!old) throw new Error('old boş olamaz.');
@@ -184,6 +283,7 @@ async function runTool(name, input, ctx) {
       if (!ok) return 'Kullanıcı reddetti.';
       fs.writeFileSync(file, src.replace(old, () => String(input.new ?? '')), 'utf8');
       ctx.changed.add(file);
+      search.invalidateFileList(root);
       if (isRiskyPath(root, file)) ctx.riskyTouched = true;
       return `Düzenlendi: ${path.relative(root, file)}`;
     }
@@ -192,13 +292,18 @@ async function runTool(name, input, ctx) {
       const cmd = String(input.command || '').trim();
       if (!cmd || cmd.length > 2000) throw new Error('Komut geçersiz.');
       // Otonom mod: güvenli derleme/test komutu ve bu çalıştırmada derlemeyi etkileyen dosya değişmediyse onaysız
-      const safe = !!ctx.autoSafeCommands && !ctx.riskyTouched && isSafeCommand(cmd);
+      let safe = !!ctx.autoSafeCommands && !ctx.riskyTouched && isSafeCommand(cmd);
+      // Güvenilmeyen klasörde onaysız çalıştırma yok: önce klasör güveni istenir (tek sefer; ret = her komut onay ister)
+      if (safe && ctx.trusted === false) safe = ctx.requestTrust ? await ctx.requestTrust() : false;
       const ok = safe || (await approve({ tool: name, summary: ctx.riskyTouched && ctx.autoSafeCommands ? 'Komut çalıştır (derlemeyi etkileyen dosya değişti)' : 'Komut çalıştır', preview: cmd }));
       if (!ok) return 'Kullanıcı reddetti.';
       return await new Promise((resolve) => {
-        exec(cmd, { cwd: root, timeout: safe || isSafeCommand(cmd) ? 180000 : 60000, maxBuffer: 1024 * 1024, windowsHide: true, env: { ...process.env, NOVA_AI_AGENT: '1' } }, (err, stdout, stderr) => {
+        const child = exec(cmd, { cwd: root, timeout: safe || isSafeCommand(cmd) ? 180000 : 60000, maxBuffer: 1024 * 1024, windowsHide: true, detached: process.platform !== 'win32', env: { ...process.env, NOVA_AI_AGENT: '1' } }, (err, stdout, stderr) => {
+          if (ctx.procs) ctx.procs.delete(child);
+          if (err && err.killed) killTree(child); // zaman aşımı: torunlar da gitsin
           resolve(clip(`${err ? `çıkış hatası: ${err.code ?? err.message}\n` : ''}${stdout}${stderr ? `\n[stderr]\n${stderr}` : ''}`.trim() || '(çıktı yok)'));
         });
+        if (ctx.procs) ctx.procs.add(child);
       });
     }
     default:
@@ -410,29 +515,53 @@ const THINKING = {
 };
 const thinkingOf = (x) => THINKING[x] || THINKING.balanced;
 
-// ---------- Yerel dikte (whisper.cpp): sabit adres, sabit model, uygulama başlatır ----------
+// ---------- Yerel dikte (whisper.cpp): yerel rastgele port, sabit model, uygulama başlatır ----------
 // Elle sunucu/model seçimi yoktur. Bileşenler %LOCALAPPDATA%\NovaWhisper altındadır (NOVA_WHISPER_DIR ile değiştirilebilir).
-const WHISPER_PORT = 8080;
-const WHISPER_ROOT = `http://127.0.0.1:${WHISPER_PORT}`;
+let whisperRoot = ''; // süreç başına rastgele yerel port: başka bir yerel uygulama sahte dikte sunucusu kuramaz
 let whisperProc = null;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function whisperUp() {
-  try { await fetch(WHISPER_ROOT + '/', { signal: AbortSignal.timeout(1200) }); return true; } catch { return false; }
+  if (!whisperRoot) return false;
+  try { await fetch(whisperRoot + '/', { signal: AbortSignal.timeout(1200) }); return true; } catch { return false; }
+}
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer();
+    srv.once('error', reject);
+    srv.listen(0, '127.0.0.1', () => { const p = srv.address().port; srv.close(() => resolve(p)); });
+  });
+}
+// İkili bütünlüğü (ilk kullanımda güven): SHA-256 ilk çalıştırmada userData'ya kaydedilir; sonradan değişirse çalıştırılmaz.
+// Meşru güncellemeden sonra dikte reddedilirse userData/whisper-exe.json silinerek yeniden kaydedilir.
+function exeHashOk(exe) {
+  try {
+    const h = crypto.createHash('sha256').update(fs.readFileSync(exe)).digest('hex');
+    const file = path.join(app.getPath('userData'), 'whisper-exe.json');
+    let rec = {};
+    try { rec = JSON.parse(fs.readFileSync(file, 'utf8')) || {}; } catch { /* ilk kullanım */ }
+    if (typeof rec[exe] === 'string') return rec[exe] === h;
+    rec[exe] = h;
+    fs.writeFileSync(file, JSON.stringify(rec), { mode: 0o600 });
+    return true;
+  } catch { return false; }
 }
 async function ensureWhisper() {
-  if (await whisperUp()) return true;
+  if (whisperProc && (await whisperUp())) return true;
   const dir = process.env.NOVA_WHISPER_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), 'NovaWhisper');
   const exe = path.join(dir, 'bin', 'Release', process.platform === 'win32' ? 'whisper-server.exe' : 'whisper-server');
   const model = path.join(dir, 'models', 'ggml-small.bin');
   if (!fs.existsSync(exe) || !fs.existsSync(model)) return false;
   if (!whisperProc) {
+    if (!exeHashOk(exe)) return false;
+    const port = await freePort();
+    whisperRoot = 'http://127.0.0.1:' + port;
     const env = { ...process.env };
     const pk = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') || 'PATH';
     const ff = path.join(dir, 'ffmpeg', 'bin'); // webm -> wav dönüşümü için
     if (fs.existsSync(ff)) env[pk] = ff + path.delimiter + (env[pk] || '');
     const threads = Math.max(2, Math.min(8, Math.floor(os.cpus().length / 2)));
     // Yalnız bu bilgisayardan erişilir (127.0.0.1); ekran kartı belleği Ollama modeline kalır (--no-gpu)
-    const p = spawn(exe, ['--model', model, '--host', '127.0.0.1', '--port', String(WHISPER_PORT), '--inference-path', '/v1/audio/transcriptions', '--language', 'tr', '--threads', String(threads), '-bs', '5', '--convert', '--no-gpu'], { env, windowsHide: true, stdio: 'ignore' });
+    const p = spawn(exe, ['--model', model, '--host', '127.0.0.1', '--port', String(port), '--inference-path', '/v1/audio/transcriptions', '--language', 'tr', '--threads', String(threads), '-bs', '5', '--convert', '--no-gpu'], { env, windowsHide: true, stdio: 'ignore' });
     p.on('exit', () => { if (whisperProc === p) whisperProc = null; });
     p.on('error', () => { if (whisperProc === p) whisperProc = null; });
     whisperProc = p;
@@ -670,8 +799,14 @@ function register({ getWindow, getRoot }) {
     if (!runId || runs.has(runId)) return { success: false, error: 'invalid-run' };
     const provider = req.provider;
     const emit = (ev) => send('ai:event', { runId, ...ev });
-    const run = { abort: new AbortController(), pending: new Map() };
+    const run = { abort: new AbortController(), pending: new Map(), procs: new Set() };
     runs.set(runId, run);
+    const approve = (info) => new Promise((resolve) => {
+      const id = Math.random().toString(36).slice(2, 10);
+      run.pending.set(id, resolve);
+      emit({ type: 'approval', id, ...info });
+    });
+    const uiLang = typeof req.lang === 'string' ? req.lang : 'tr';
     try {
       // Yerleşik yerel model: anahtar/adres yok, her şey bu bilgisayarda (electron-llm.cjs)
       if (provider === 'builtin') {
@@ -686,11 +821,8 @@ function register({ getWindow, getRoot }) {
           autoApproveEdits: !!req.autoApproveEdits,
           allowCommands: req.allowCommands !== false,
           changed: new Set(),
-          approve: (info) => new Promise((resolve) => {
-            const id = Math.random().toString(36).slice(2, 10);
-            run.pending.set(id, resolve);
-            emit({ type: 'approval', id, ...info });
-          })
+          procs: run.procs,
+          approve
         };
         await require('./electron-llm.cjs').runBuiltin({
           modelId: String(req.model || ''), system, history: msgs, prompt: last.text, tools: TOOLS, agent: agentOn,
@@ -707,12 +839,28 @@ function register({ getWindow, getRoot }) {
       if (!cfg.model) throw new Error('Model adı boş.');
       const root = getRoot();
       const agent = req.mode === 'agent' && !!root;
-      const system = buildSystem({ root, lang: req.lang, agent, project: agent || req.useProject ? loadProjectInstructions(root) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking, autonomy: req.autonomy });
+      let system = buildSystem({ root, lang: req.lang, agent, project: agent || req.useProject ? loadProjectInstructions(root) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking, autonomy: req.autonomy });
+
+      // Harici sağlayıcı: ilk kullanımda açık rıza (+ özel adreste anahtar gönderimi onayı); sonra bağlam metni gizli kalıplardan temizlenir
+      const remote = !isLoopback(cfg.base);
+      if (remote) {
+        const st = loadStore();
+        const origin = new URL(cfg.base).origin;
+        const custom = origin !== new URL(def.base).origin && !!def.secret;
+        if (!st.consent.includes(origin) || (custom && !st.bases.includes(origin))) {
+          const ok = await approve({ tool: 'consent', summary: tx('consentTitle', uiLang).replace('{host}', new URL(cfg.base).host), preview: tx('consentBody', uiLang) + (custom ? '\n\n' + tx('baseNote', uiLang) : '') });
+          if (!ok) throw new Error(tx('denied', uiLang));
+          addToStore('consent', origin);
+          if (custom) addToStore('bases', origin);
+        }
+        system = scrubSecrets(system);
+      }
+      const clean = remote ? scrubSecrets : (x) => x;
 
       // Geçmiş + yeni kullanıcı iletisi (görseller yalnız son iletide)
       const messages = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m, i, arr) => {
         const imgs = i === arr.length - 1 && m.role === 'user' && Array.isArray(m.images) ? m.images.slice(0, 4) : [];
-        const text = String(m.text || '').slice(0, 200000);
+        const text = clean(String(m.text || '').slice(0, 200000));
         if (!imgs.length) return { role: m.role === 'assistant' ? 'assistant' : 'user', content: text };
         return {
           role: 'user',
@@ -731,11 +879,18 @@ function register({ getWindow, getRoot }) {
         riskyTouched: false,
         allowCommands: req.allowCommands !== false,
         changed: new Set(),
-        approve: (info) => new Promise((resolve) => {
-          const id = Math.random().toString(36).slice(2, 10);
-          run.pending.set(id, resolve);
-          emit({ type: 'approval', id, ...info });
-        })
+        procs: run.procs,
+        trusted: isTrustedFolder(root),
+        requestTrust() {
+          if (!this._trustP) {
+            this._trustP = approve({ tool: 'trust', summary: tx('trustTitle', uiLang) + ' ' + path.basename(root || ''), preview: tx('trustBody', uiLang) }).then((ok) => {
+              if (ok) { addToStore('folders', folderKey(root)); this.trusted = true; }
+              return ok;
+            });
+          }
+          return this._trustP;
+        },
+        approve
       };
       const call = provider === 'anthropic' ? callAnthropic : callOpenAI;
       const total = { in: 0, out: 0 };
@@ -788,6 +943,7 @@ function register({ getWindow, getRoot }) {
       return { success: false, error: 'failed' };
     } finally {
       for (const resolve of run.pending.values()) resolve(false);
+      for (const c of run.procs) killTree(c);
       runs.delete(runId);
     }
   });
@@ -818,7 +974,7 @@ function register({ getWindow, getRoot }) {
 
   ipcMain.handle('ai:cancel', (_e, runId) => {
     const run = runs.get(String(runId));
-    if (run) { run.abort.abort(); for (const r of run.pending.values()) r(false); run.pending.clear(); }
+    if (run) abortRun(run);
     return { success: true };
   });
 
@@ -849,7 +1005,7 @@ function register({ getWindow, getRoot }) {
         en: 'This is a software development conversation. Terms: React, TypeScript, JavaScript, function, component, variable, commit, branch, API, Ollama, Electron.'
       };
       if (HINT[req.lang]) form.append('prompt', HINT[req.lang]);
-      const res = await fetch(WHISPER_ROOT + '/v1/audio/transcriptions', { method: 'POST', body: form, signal: AbortSignal.timeout(90000) });
+      const res = await fetch(whisperRoot + '/v1/audio/transcriptions', { method: 'POST', body: form, signal: AbortSignal.timeout(90000) });
       if (!res.ok) return { success: false, error: 'http' };
       const json = await res.json();
       return { success: true, text: String(json.text || '').slice(0, 20000) };
@@ -886,4 +1042,4 @@ function register({ getWindow, getRoot }) {
   });
 }
 
-module.exports = { register, stopWhisper, _test: { runTool, isSafeCommand, extractToolCalls, completeCode, ensureCompletionModel, pickModel } };
+module.exports = { register, stopWhisper, killAll, stopAll: killAll, _test: { scrubSecrets, isRiskyPath, resolveInRoot, runTool, isSafeCommand, extractToolCalls, completeCode, ensureCompletionModel, pickModel } };

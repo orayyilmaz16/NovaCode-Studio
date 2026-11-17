@@ -215,12 +215,13 @@
 .ab-item::before {
   content: "";
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   top: 12px;
   bottom: 12px;
   width: 2px;
   background: var(--color-zinc-50);
-  border-radius: 0 2px 2px 0;
+  border-start-end-radius: 2px;
+  border-end-end-radius: 2px;
   transform: scaleY(0);
   transform-origin: center;
   transition: transform var(--dur-slow) var(--ease-out-soft);
@@ -390,26 +391,34 @@ button.status-item:hover {
 .animate-panel-up { animation: panelUp var(--dur-slow) var(--ease-out-soft) both; }
 .animate-tab-in { animation: tabIn var(--dur-base) var(--ease-out-soft) both; }
 .animate-menu { animation: menuIn var(--dur-base) var(--ease-out-soft) both; transform-origin: top left; }
+/* RTL: yatay giriş yönü aynalanır */
+@keyframes slideInRight { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+@keyframes tabInRtl { from { opacity: 0; transform: translateX(6px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes menuItemInRtl { from { opacity: 0; transform: translateX(4px); } to { opacity: 1; transform: none; } }
+:dir(rtl) .animate-sidebar-in { animation-name: slideInRight; }
+:dir(rtl) .animate-tab-in { animation-name: tabInRtl; }
+:dir(rtl) .animate-menu-item { animation-name: menuItemInRtl; }
+:dir(rtl) .animate-menu { transform-origin: top right; }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
-.animate-menu-item { animation: menuItemIn 180ms var(--ease-out-soft) both; }
-.animate-splash-out { animation: splashOut 260ms ease forwards; }
-.animate-twinkle { animation: twinkle 3.2s ease-in-out infinite; transform-origin: center; }
+.animate-menu-item { animation: menuItemIn var(--dur-base) var(--ease-out-soft) both; }
+.animate-splash-out { animation: splashOut var(--dur-base) ease forwards; }
+.animate-twinkle { animation: twinkle calc(var(--dur-enter) * 8) ease-in-out infinite; transform-origin: center; }
 
 .logo-bracket {
   stroke-dasharray: 60;
   stroke-dashoffset: 60;
-  animation: drawStroke 600ms 120ms var(--ease-out-soft) forwards;
+  animation: drawStroke var(--dur-enter) calc(var(--stagger) * 2) var(--ease-out-soft) forwards;
 }
 .logo-star {
   transform-box: fill-box;
   transform-origin: center;
-  animation: starIn 650ms 280ms var(--ease-out-soft) both;
+  animation: starIn var(--dur-enter) calc(var(--stagger) * 4) var(--ease-out-soft) both;
 }
 .logo-star-small {
   transform-box: fill-box;
   transform-origin: center;
-  animation: starIn 650ms 520ms var(--ease-out-soft) both;
+  animation: starIn var(--dur-enter) calc(var(--stagger) * 8) var(--ease-out-soft) both;
 }
 .logo-shadow { filter: var(--logo-shadow); }
 
@@ -419,7 +428,7 @@ button.status-item:hover {
   height: 100%;
   width: 40%;
   background: var(--color-indigo-400);
-  animation: loadBar 1100ms var(--ease-out-soft) infinite;
+  animation: loadBar calc(var(--dur-enter) * 3) var(--ease-out-soft) infinite;
 }
 
 /* Tema (koyu/açık) geçişi: renkler yumuşakça döner. SettingsContext geçişin başında <html data-theme-fading> koyar, kısa süre sonra kaldırır.
@@ -507,7 +516,8 @@ button.status-item:hover {
   from { opacity: 0; transform: translateY(6px) scale(0.985); }
   to { opacity: 1; transform: none; }
 }
-.cm-panel { animation: cmIn 180ms var(--ease-out-soft) both; transform-origin: bottom left; }
+.cm-panel { animation: cmIn var(--dur-base) var(--ease-out-soft) both; transform-origin: bottom left; }
+:dir(rtl) .cm-panel { transform-origin: bottom right; }
 
 /* Anahtar: top left değerinde kayar, ray rengi yumuşakça döner */
 .cm-switch {
@@ -516,28 +526,27 @@ button.status-item:hover {
   height: 18px;
   flex-shrink: 0;
   border-radius: 9999px;
-  background: var(--color-zinc-600);
+  background: var(--color-zinc-500);
   cursor: pointer;
-  transition: background-color 180ms var(--ease-out-soft), box-shadow 180ms var(--ease-out-soft);
+  transition: background-color var(--dur-base) var(--ease-out-soft);
 }
-.cm-switch:hover { box-shadow: 0 0 0 3px rgb(255 255 255 / 0.06); }
+.cm-switch:hover { background: var(--color-zinc-400); }
 .cm-switch[aria-checked="true"] { background: var(--color-indigo-600); }
-.cm-switch[aria-checked="true"]:hover { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-indigo-500) 28%, transparent); }
+.cm-switch[aria-checked="true"]:hover { background: var(--color-indigo-500); }
 .cm-switch::after {
   content: "";
   position: absolute;
   top: 2px;
-  left: 2px;
+  inset-inline-start: 2px;
   width: 14px;
   height: 14px;
   border-radius: 9999px;
   background: #fff;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
-  transition: left 200ms var(--ease-out-soft), width 120ms ease;
+  transition: inset-inline-start var(--dur-base) var(--ease-out-soft), width var(--dur-fast) ease;
 }
-.cm-switch[aria-checked="true"]::after { left: calc(100% - 16px); }
+.cm-switch[aria-checked="true"]::after { inset-inline-start: calc(100% - 16px); }
 .cm-switch:active::after { width: 17px; }
-.cm-switch[aria-checked="true"]:active::after { left: calc(100% - 19px); }
+.cm-switch[aria-checked="true"]:active::after { inset-inline-start: calc(100% - 19px); }
 
 /* Segmentli seçici: seçili arka plan seçenekler arasında kayar */
 .cm-seg { position: relative; isolation: isolate; }
@@ -546,24 +555,24 @@ button.status-item:hover {
   z-index: -1;
   top: 2px;
   bottom: 2px;
-  left: 2px;
+  inset-inline-start: 2px;
   width: calc((100% - 4px - (var(--n) - 1) * 2px) / var(--n));
   border-radius: 4px;
   background: var(--color-indigo-600);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
   transform: translateX(calc(var(--i) * (100% + 2px)));
-  transition: transform 220ms var(--ease-out-soft);
+  transition: transform var(--dur-slow) var(--ease-out-soft);
 }
-.cm-seg button { transition: color 140ms ease, background-color 140ms ease; }
+:dir(rtl) .cm-seg-pill { transform: translateX(calc(var(--i) * (100% + 2px) * -1)); }
+.cm-seg button { transition: color var(--dur-fast) ease, background-color var(--dur-fast) ease; }
 .cm-seg button[aria-checked="true"] { color: #fff; }
 
 /* Satır: üzerine gelince hafif vurgu + sol kenarda gösterge */
-.cm-row { position: relative; transition: background-color 140ms ease; }
+.cm-row { position: relative; transition: background-color var(--dur-fast) ease; }
 .cm-row:hover { background: rgb(255 255 255 / 0.03); }
 .cm-row::before {
   content: "";
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   top: 7px;
   bottom: 7px;
   width: 2px;
@@ -571,7 +580,7 @@ button.status-item:hover {
   background: var(--color-indigo-400);
   opacity: 0;
   transform: scaleY(0.4);
-  transition: opacity 160ms ease, transform 200ms var(--ease-out-soft);
+  transition: opacity var(--dur-base) ease, transform var(--dur-base) var(--ease-out-soft);
 }
 .cm-row:hover::before, .cm-row:focus-within::before { opacity: 1; transform: none; }
 
@@ -595,35 +604,35 @@ button.status-item:hover {
   margin-top: -4px;
   border-radius: 9999px;
   background: #fff;
-  box-shadow: 0 0 0 2px var(--color-indigo-500), 0 1px 3px rgb(0 0 0 / 0.4);
-  transition: transform 140ms var(--ease-out-soft), box-shadow 140ms ease;
+  box-shadow: 0 0 0 2px var(--color-indigo-500);
+  transition: transform var(--dur-fast) var(--ease-out-soft), box-shadow var(--dur-fast) ease;
 }
-.cm-range:hover::-webkit-slider-thumb { transform: scale(1.15); box-shadow: 0 0 0 2px var(--color-indigo-400), 0 0 0 6px rgb(129 140 248 / 0.18); }
+.cm-range:hover::-webkit-slider-thumb { transform: scale(1.15); box-shadow: 0 0 0 2px var(--color-indigo-400); }
 .cm-range:active::-webkit-slider-thumb { transform: scale(0.95); }
 .cm-range:focus-visible { outline: none; }
-.cm-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px var(--color-indigo-400), 0 0 0 6px rgb(129 140 248 / 0.3); }
+.cm-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--color-indigo-300); }
 
 /* Gelişmiş bölümü: yüksekliği yumuşakça açılıp kapanır */
 .cm-collapse {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
-  transition: grid-template-rows 260ms var(--ease-out-soft), opacity 200ms ease;
+  transition: grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease;
 }
 .cm-collapse[data-open="true"] { grid-template-rows: 1fr; opacity: 1; }
 .cm-collapse > div { overflow: hidden; min-height: 0; }
-.cm-collapse[data-open="false"] { visibility: hidden; transition: grid-template-rows 260ms var(--ease-out-soft), opacity 200ms ease, visibility 0s 260ms; }
+.cm-collapse[data-open="false"] { visibility: hidden; transition: grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease, visibility 0s var(--dur-slow); }
 .cm-collapse[data-open="true"] .cm-row, .cm-collapse[data-open="true"] .cm-rowfx {
-  animation: cmItem 240ms var(--ease-out-soft) both;
-  animation-delay: calc(var(--d, 0) * 28ms);
+  animation: cmItem var(--dur-slow) var(--ease-out-soft) both;
+  animation-delay: calc(var(--d, 0) * var(--stagger) / 2);
 }
 @keyframes cmItem { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
 /* Gelişmiş başlığı + alt eylemler */
-.cm-adv { transition: color 140ms ease, background-color 140ms ease; }
-.cm-adv svg { transition: transform 220ms var(--ease-out-soft), color 140ms ease; }
+.cm-adv { transition: color var(--dur-fast) ease, background-color var(--dur-fast) ease; }
+.cm-adv svg { transition: transform var(--dur-slow) var(--ease-out-soft), color var(--dur-fast) ease; }
 .cm-adv:hover svg { color: var(--color-indigo-300); }
-.cm-act { position: relative; overflow: hidden; transition: background-color 140ms ease, color 140ms ease; }
+.cm-act { position: relative; overflow: hidden; transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease; }
 .cm-act::after {
   content: "";
   position: absolute;
@@ -634,10 +643,10 @@ button.status-item:hover {
   border-radius: 2px;
   background: var(--color-indigo-400);
   transform: scaleX(0);
-  transition: transform 220ms var(--ease-out-soft);
+  transition: transform var(--dur-slow) var(--ease-out-soft);
 }
 .cm-act:hover:not(:disabled)::after { transform: scaleX(1); }
-.cm-act svg { transition: transform 200ms var(--ease-out-soft); }
+.cm-act svg { transition: transform var(--dur-base) var(--ease-out-soft); }
 .cm-act:hover:not(:disabled) svg { transform: scale(1.15) rotate(-6deg); }
 
 @media (prefers-reduced-motion: reduce) {

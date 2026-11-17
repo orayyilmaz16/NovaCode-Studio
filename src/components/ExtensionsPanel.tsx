@@ -179,7 +179,7 @@ export const ExtensionsPanel: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full min-h-0 text-[12px]">
-      <div className="h-9 flex items-center pl-4 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">{t('extTitle')}</div>
+      <div className="h-9 flex items-center ps-4 text-[11px] uppercase tracking-wide text-zinc-400 shrink-0">{t('extTitle')}</div>
       <div className="px-3 pb-2 space-y-2 shrink-0">
         <div className="flex gap-1 p-0.5 rounded bg-nv-input/60">
           <button className={seg(tab === 'installed')} onClick={() => setTab('installed')}>{t('extInstalled')}{installed.length ? ` (${installed.length})` : ''}</button>
@@ -215,7 +215,7 @@ export const ExtensionsPanel: React.FC = () => {
           ) : (
             installed.map((e) => (
               <div key={e.id} className="p-2 mb-1.5 rounded border border-zinc-800 hover:border-zinc-700 min-w-0">
-                <button className="flex gap-2 min-w-0 w-full text-left" onClick={() => open(e)}>
+                <button className="flex gap-2 min-w-0 w-full text-start" onClick={() => open(e)}>
                   <Icon src={e.icon} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 min-w-0">
@@ -269,7 +269,7 @@ export const ExtensionsPanel: React.FC = () => {
               <div key={it.id} className="flex gap-2 p-2 mb-1.5 rounded border border-zinc-800 hover:border-zinc-700 min-w-0">
                 <button onClick={() => open(it)} aria-label={it.displayName}><Icon src={it.icon} /></button>
                 <div className="min-w-0 flex-1">
-                  <button className="block w-full text-left min-w-0" onClick={() => open(it)}>
+                  <button className="block w-full text-start min-w-0" onClick={() => open(it)}>
                     <span className="flex items-center gap-1.5 min-w-0">
                       <span className="text-zinc-100 truncate font-medium">{it.displayName}</span>
                       <span className="text-zinc-500 shrink-0">{it.version}</span>

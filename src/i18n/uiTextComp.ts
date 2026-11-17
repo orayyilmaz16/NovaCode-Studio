@@ -106,6 +106,150 @@ export const COMP_TEXT = {
   cmAdvanced: {
     tr: "Gelişmiş", en: "Advanced", de: "Erweitert", ru: "Дополнительно", ar: "متقدم", es: "Avanzado", fr: "Avancé", az: "Əlavə",
   },
+  appBootLog: {
+    tr: "NovaCode IDE v{v} başlatıldı. Gerçek zamanlı dosya ve Git motoru devrede.", en: "NovaCode IDE v{v} started. Live file and Git engine are running.", de: "NovaCode IDE v{v} gestartet. Datei- und Git-Engine laufen in Echtzeit.", ru: "NovaCode IDE v{v} запущена. Файловый и Git-движок работают в реальном времени.", ar: "تم تشغيل NovaCode IDE v{v}. محرك الملفات وGit يعملان لحظياً.", es: "NovaCode IDE v{v} iniciado. El motor de archivos y Git funciona en tiempo real.", fr: "NovaCode IDE v{v} démarré. Le moteur de fichiers et Git fonctionne en temps réel.", az: "NovaCode IDE v{v} işə düşdü. Fayl və Git mühərriki real vaxtda işləyir.",
+  },
+  appTreeRefreshFail: {
+    tr: "Dosya ağacı yenilenemedi: {e}", en: "Could not refresh the file tree: {e}", de: "Dateibaum konnte nicht aktualisiert werden: {e}", ru: "Не удалось обновить дерево файлов: {e}", ar: "تعذّر تحديث شجرة الملفات: {e}", es: "No se pudo actualizar el árbol de archivos: {e}", fr: "Impossible d’actualiser l’arborescence : {e}", az: "Fayl ağacı yenilənmədi: {e}",
+  },
+  appWorkspaceOpened: {
+    tr: "Çalışma alanı açıldı: {p}", en: "Workspace opened: {p}", de: "Arbeitsbereich geöffnet: {p}", ru: "Рабочая область открыта: {p}", ar: "تم فتح مساحة العمل: {p}", es: "Espacio de trabajo abierto: {p}", fr: "Espace de travail ouvert : {p}", az: "İş sahəsi açıldı: {p}",
+  },
+  appFolderOpenFail: {
+    tr: "Klasör açılamadı: {e}", en: "Could not open the folder: {e}", de: "Ordner konnte nicht geöffnet werden: {e}", ru: "Не удалось открыть папку: {e}", ar: "تعذّر فتح المجلد: {e}", es: "No se pudo abrir la carpeta: {e}", fr: "Impossible d’ouvrir le dossier : {e}", az: "Qovluq açılmadı: {e}",
+  },
+  appFilesLoaded: {
+    tr: "{n} dosya çalışma alanına yüklendi.", en: "{n} files loaded into the workspace.", de: "{n} Dateien in den Arbeitsbereich geladen.", ru: "{n} файлов загружено в рабочую область.", ar: "تم تحميل {n} ملف في مساحة العمل.", es: "{n} archivos cargados en el espacio de trabajo.", fr: "{n} fichiers chargés dans l’espace de travail.", az: "{n} fayl iş sahəsinə yükləndi.",
+  },
+  appFilesOpened: {
+    tr: "{n} dosya editörde açıldı.", en: "{n} files opened in the editor.", de: "{n} Dateien im Editor geöffnet.", ru: "{n} файлов открыто в редакторе.", ar: "تم فتح {n} ملف في المحرر.", es: "{n} archivos abiertos en el editor.", fr: "{n} fichiers ouverts dans l’éditeur.", az: "{n} fayl redaktorda açıldı.",
+  },
+  appReadFail: {
+    tr: "Dosya okunamadı: {e}", en: "Could not read the file: {e}", de: "Datei konnte nicht gelesen werden: {e}", ru: "Не удалось прочитать файл: {e}", ar: "تعذّرت قراءة الملف: {e}", es: "No se pudo leer el archivo: {e}", fr: "Impossible de lire le fichier : {e}", az: "Fayl oxunmadı: {e}",
+  },
+  appFileTooLarge: {
+    tr: "Dosya çok büyük olduğu için açılmadı: {n}", en: "File not opened because it is too large: {n}", de: "Datei wegen ihrer Größe nicht geöffnet: {n}", ru: "Файл не открыт: слишком большой: {n}", ar: "لم يُفتح الملف لأنه كبير جداً: {n}", es: "Archivo no abierto por ser demasiado grande: {n}", fr: "Fichier non ouvert car trop volumineux : {n}", az: "Fayl çox böyük olduğu üçün açılmadı: {n}",
+  },
+  appFileBinary: {
+    tr: "İkili (binary) dosya metin olarak açılmadı: {n}", en: "Binary file not opened as text: {n}", de: "Binärdatei nicht als Text geöffnet: {n}", ru: "Двоичный файл не открыт как текст: {n}", ar: "لم يُفتح الملف الثنائي كنص: {n}", es: "Archivo binario no abierto como texto: {n}", fr: "Fichier binaire non ouvert comme texte : {n}", az: "İkili (binary) fayl mətn kimi açılmadı: {n}",
+  },
+  appSaved: {
+    tr: "Kaydedildi: {n}", en: "Saved: {n}", de: "Gespeichert: {n}", ru: "Сохранено: {n}", ar: "تم الحفظ: {n}", es: "Guardado: {n}", fr: "Enregistré : {n}", az: "Yadda saxlanıldı: {n}",
+  },
+  appSaveFail: {
+    tr: "Kaydetme hatası: {e}", en: "Save error: {e}", de: "Speicherfehler: {e}", ru: "Ошибка сохранения: {e}", ar: "خطأ في الحفظ: {e}", es: "Error al guardar: {e}", fr: "Erreur d’enregistrement : {e}", az: "Yadda saxlama xətası: {e}",
+  },
+  appSavedLocal: {
+    tr: "Yerel belleğe kaydedildi: {n}", en: "Saved to local memory: {n}", de: "Im lokalen Speicher gesichert: {n}", ru: "Сохранено в локальной памяти: {n}", ar: "تم الحفظ في الذاكرة المحلية: {n}", es: "Guardado en la memoria local: {n}", fr: "Enregistré en mémoire locale : {n}", az: "Yerli yaddaşa saxlanıldı: {n}",
+  },
+  appDownloaded: {
+    tr: "Adsız dosya bilgisayarına indirildi: {n}", en: "Untitled file downloaded to your computer: {n}", de: "Unbenannte Datei auf deinen Computer heruntergeladen: {n}", ru: "Безымянный файл скачан на компьютер: {n}", ar: "تم تنزيل الملف بلا اسم إلى حاسوبك: {n}", es: "Archivo sin nombre descargado a tu equipo: {n}", fr: "Fichier sans nom téléchargé sur ton ordinateur : {n}", az: "Adsız fayl kompüterinə endirildi: {n}",
+  },
+  appCreateFail: {
+    tr: "Oluşturulamadı: {e}", en: "Could not create: {e}", de: "Erstellen fehlgeschlagen: {e}", ru: "Не удалось создать: {e}", ar: "تعذّر الإنشاء: {e}", es: "No se pudo crear: {e}", fr: "Création impossible : {e}", az: "Yaradılmadı: {e}",
+  },
+  appCreatedFolder: {
+    tr: "Yeni klasör oluşturuldu: {n}", en: "New folder created: {n}", de: "Neuer Ordner erstellt: {n}", ru: "Создана новая папка: {n}", ar: "تم إنشاء مجلد جديد: {n}", es: "Carpeta nueva creada: {n}", fr: "Nouveau dossier créé : {n}", az: "Yeni qovluq yaradıldı: {n}",
+  },
+  appCreatedFile: {
+    tr: "Yeni dosya oluşturuldu: {n}", en: "New file created: {n}", de: "Neue Datei erstellt: {n}", ru: "Создан новый файл: {n}", ar: "تم إنشاء ملف جديد: {n}", es: "Archivo nuevo creado: {n}", fr: "Nouveau fichier créé : {n}", az: "Yeni fayl yaradıldı: {n}",
+  },
+  appRenameFail: {
+    tr: "Yeniden adlandırılamadı: {e}", en: "Could not rename: {e}", de: "Umbenennen fehlgeschlagen: {e}", ru: "Не удалось переименовать: {e}", ar: "تعذّرت إعادة التسمية: {e}", es: "No se pudo renombrar: {e}", fr: "Renommage impossible : {e}", az: "Yenidən adlandırılmadı: {e}",
+  },
+  appRenamed: {
+    tr: "Yeniden adlandırıldı: {a} → {b}", en: "Renamed: {a} → {b}", de: "Umbenannt: {a} → {b}", ru: "Переименовано: {a} → {b}", ar: "تمت إعادة التسمية: {a} ← {b}", es: "Renombrado: {a} → {b}", fr: "Renommé : {a} → {b}", az: "Yenidən adlandırıldı: {a} → {b}",
+  },
+  appMoveFail: {
+    tr: "Taşınamadı: {e}", en: "Could not move: {e}", de: "Verschieben fehlgeschlagen: {e}", ru: "Не удалось переместить: {e}", ar: "تعذّر النقل: {e}", es: "No se pudo mover: {e}", fr: "Déplacement impossible : {e}", az: "Köçürülmədi: {e}",
+  },
+  appMoved: {
+    tr: "Taşındı: {a} → {b}", en: "Moved: {a} → {b}", de: "Verschoben: {a} → {b}", ru: "Перемещено: {a} → {b}", ar: "تم النقل: {a} ← {b}", es: "Movido: {a} → {b}", fr: "Déplacé : {a} → {b}", az: "Köçürüldü: {a} → {b}",
+  },
+  appDeleteFail: {
+    tr: "Silinemedi: {e}", en: "Could not delete: {e}", de: "Löschen fehlgeschlagen: {e}", ru: "Не удалось удалить: {e}", ar: "تعذّر الحذف: {e}", es: "No se pudo eliminar: {e}", fr: "Suppression impossible : {e}", az: "Silinmədi: {e}",
+  },
+  appDeleted: {
+    tr: "Silindi: {n}", en: "Deleted: {n}", de: "Gelöscht: {n}", ru: "Удалено: {n}", ar: "تم الحذف: {n}", es: "Eliminado: {n}", fr: "Supprimé : {n}", az: "Silindi: {n}",
+  },
+  appRunning: {
+    tr: "[Çalıştırılıyor: {n}]", en: "[Running: {n}]", de: "[Wird ausgeführt: {n}]", ru: "[Выполняется: {n}]", ar: "[قيد التشغيل: {n}]", es: "[Ejecutando: {n}]", fr: "[Exécution : {n}]", az: "[İşlədilir: {n}]",
+  },
+  appSidebarWidth: {
+    tr: "Kenar çubuğu genişliği", en: "Sidebar width", de: "Breite der Seitenleiste", ru: "Ширина боковой панели", ar: "عرض الشريط الجانبي", es: "Ancho de la barra lateral", fr: "Largeur de la barre latérale", az: "Yan panelin eni",
+  },
+  appTerminalHeight: {
+    tr: "Terminal yüksekliği", en: "Terminal height", de: "Höhe des Terminals", ru: "Высота терминала", ar: "ارتفاع الطرفية", es: "Altura de la terminal", fr: "Hauteur du terminal", az: "Terminalın hündürlüyü",
+  },
+  appActivityBar: {
+    tr: "Etkinlik çubuğu", en: "Activity bar", de: "Aktivitätsleiste", ru: "Панель действий", ar: "شريط الأنشطة", es: "Barra de actividad", fr: "Barre d’activité", az: "Fəaliyyət paneli",
+  },
+  appBreadcrumbs: {
+    tr: "Dosya yolu", en: "File path", de: "Dateipfad", ru: "Путь к файлу", ar: "مسار الملف", es: "Ruta del archivo", fr: "Chemin du fichier", az: "Fayl yolu",
+  },
+  appUnsavedTitle: {
+    tr: "Kaydedilmemiş değişiklikler", en: "Unsaved changes", de: "Nicht gespeicherte Änderungen", ru: "Несохранённые изменения", ar: "تغييرات غير محفوظة", es: "Cambios sin guardar", fr: "Modifications non enregistrées", az: "Yadda saxlanmamış dəyişikliklər",
+  },
+  appUnsavedOne: {
+    tr: "“{n}” dosyasında kaydedilmemiş değişiklikler var. Kapatmadan önce kaydedilsin mi?", en: "“{n}” has unsaved changes. Save before closing?", de: "„{n}“ enthält nicht gespeicherte Änderungen. Vor dem Schließen speichern?", ru: "В «{n}» есть несохранённые изменения. Сохранить перед закрытием?", ar: "يحتوي «{n}» على تغييرات غير محفوظة. هل تريد الحفظ قبل الإغلاق؟", es: "«{n}» tiene cambios sin guardar. ¿Guardar antes de cerrar?", fr: "« {n} » contient des modifications non enregistrées. Enregistrer avant de fermer ?", az: "“{n}” faylında yadda saxlanmamış dəyişikliklər var. Bağlamazdan əvvəl saxlansın?",
+  },
+  appUnsavedMany: {
+    tr: "{n} dosyada kaydedilmemiş değişiklikler var. Kapatmadan önce kaydedilsin mi?", en: "{n} files have unsaved changes. Save before closing?", de: "{n} Dateien enthalten nicht gespeicherte Änderungen. Vor dem Schließen speichern?", ru: "В {n} файлах есть несохранённые изменения. Сохранить перед закрытием?", ar: "هناك {n} ملفات بها تغييرات غير محفوظة. هل تريد الحفظ قبل الإغلاق؟", es: "{n} archivos tienen cambios sin guardar. ¿Guardar antes de cerrar?", fr: "{n} fichiers contiennent des modifications non enregistrées. Enregistrer avant de fermer ?", az: "{n} faylda yadda saxlanmamış dəyişikliklər var. Bağlamazdan əvvəl saxlansın?",
+  },
+  appUntitledNote: {
+    tr: "Adsız dosyalar “Kaydet” ile bilgisayarına indirilir.", en: "Untitled files are downloaded to your computer on “Save”.", de: "Unbenannte Dateien werden bei „Speichern“ heruntergeladen.", ru: "Безымянные файлы при «Сохранить» скачиваются на компьютер.", ar: "تُنزَّل الملفات بلا اسم إلى حاسوبك عند «حفظ».", es: "Los archivos sin nombre se descargan en tu equipo con «Guardar».", fr: "Les fichiers sans nom sont téléchargés avec « Enregistrer ».", az: "Adsız fayllar “Saxla” ilə kompüterinə endirilir.",
+  },
+  appSaveBtn: {
+    tr: "Kaydet", en: "Save", de: "Speichern", ru: "Сохранить", ar: "حفظ", es: "Guardar", fr: "Enregistrer", az: "Saxla",
+  },
+  appDontSave: {
+    tr: "Kaydetme", en: "Don’t save", de: "Nicht speichern", ru: "Не сохранять", ar: "عدم الحفظ", es: "No guardar", fr: "Ne pas enregistrer", az: "Saxlama",
+  },
+  appCancel: {
+    tr: "İptal", en: "Cancel", de: "Abbrechen", ru: "Отмена", ar: "إلغاء", es: "Cancelar", fr: "Annuler", az: "Ləğv et",
+  },
+  appMissingOnDisk: {
+    tr: "Bu dosya diskte yok (silinmiş veya taşınmış). Kaydedersen yeniden oluşturulur.", en: "This file no longer exists on disk (deleted or moved). Saving will recreate it.", de: "Diese Datei existiert nicht mehr auf dem Datenträger (gelöscht oder verschoben). Speichern erstellt sie neu.", ru: "Файла больше нет на диске (удалён или перемещён). Сохранение создаст его заново.", ar: "لم يعد هذا الملف موجوداً على القرص (حُذف أو نُقل). سيعيد الحفظ إنشاءه.", es: "Este archivo ya no existe en el disco (eliminado o movido). Al guardar se recreará.", fr: "Ce fichier n’existe plus sur le disque (supprimé ou déplacé). L’enregistrement le recréera.", az: "Bu fayl diskdə yoxdur (silinib və ya köçürülüb). Saxlasan yenidən yaranacaq.",
+  },
+  appChangedOnDisk: {
+    tr: "Bu dosya diskte değişti. Senin düzenlemelerin duruyor; kaydedersen diskteki sürümün üzerine yazılır.", en: "This file changed on disk. Your edits are kept; saving overwrites the disk version.", de: "Diese Datei wurde auf dem Datenträger geändert. Deine Änderungen bleiben; Speichern überschreibt die Datenträgerversion.", ru: "Файл изменён на диске. Ваши правки сохранены; сохранение перезапишет версию на диске.", ar: "تغيّر هذا الملف على القرص. تعديلاتك محفوظة؛ سيؤدي الحفظ إلى استبدال نسخة القرص.", es: "Este archivo cambió en el disco. Tus ediciones se conservan; al guardar se sobrescribe la versión del disco.", fr: "Ce fichier a changé sur le disque. Tes modifications sont conservées ; l’enregistrement écrase la version du disque.", az: "Bu fayl diskdə dəyişib. Düzənləmələrin qalır; saxlasan diskdəki versiyanın üzərinə yazılır.",
+  },
+  appReloadDisk: {
+    tr: "Diskten yükle", en: "Reload from disk", de: "Vom Datenträger laden", ru: "Загрузить с диска", ar: "إعادة التحميل من القرص", es: "Recargar desde el disco", fr: "Recharger depuis le disque", az: "Diskdən yüklə",
+  },
+  appKeepMine: {
+    tr: "Benimkini koru", en: "Keep mine", de: "Meine behalten", ru: "Оставить моё", ar: "الإبقاء على نسختي", es: "Conservar la mía", fr: "Garder la mienne", az: "Mənimkini saxla",
+  },
+  appTabMissing: {
+    tr: "Diskte yok", en: "Missing on disk", de: "Nicht auf Datenträger", ru: "Нет на диске", ar: "غير موجود على القرص", es: "No está en el disco", fr: "Absent du disque", az: "Diskdə yoxdur",
+  },
+  appErrTitle: {
+    tr: "Bir şey ters gitti", en: "Something went wrong", de: "Etwas ist schiefgelaufen", ru: "Что-то пошло не так", ar: "حدث خطأ ما", es: "Algo salió mal", fr: "Un problème est survenu", az: "Nəsə səhv getdi",
+  },
+  appErrPanel: {
+    tr: "Bu bölüm yüklenemedi.", en: "This section could not be loaded.", de: "Dieser Bereich konnte nicht geladen werden.", ru: "Не удалось загрузить этот раздел.", ar: "تعذّر تحميل هذا القسم.", es: "No se pudo cargar esta sección.", fr: "Cette section n’a pas pu être chargée.", az: "Bu bölmə yüklənmədi.",
+  },
+  appErrRoot: {
+    tr: "Uygulama beklenmedik bir hatayla durdu. Kaydedilmemiş çalışmaların bu bilgisayarda saklandı; yeniden yükleyince geri yükleme önerilir.", en: "The app stopped on an unexpected error. Your unsaved work is kept on this computer; after reloading you will be offered a restore.", de: "Die App wurde durch einen unerwarteten Fehler gestoppt. Nicht gespeicherte Arbeit bleibt auf diesem Computer; nach dem Neuladen wird eine Wiederherstellung angeboten.", ru: "Приложение остановилось из-за непредвиденной ошибки. Несохранённая работа хранится на этом компьютере; после перезагрузки предложим восстановить.", ar: "توقف التطبيق بسبب خطأ غير متوقع. عملك غير المحفوظ محفوظ على هذا الحاسوب؛ بعد إعادة التحميل سيُعرض عليك استرجاعه.", es: "La app se detuvo por un error inesperado. Tu trabajo sin guardar se conserva en este equipo; al recargar se te ofrecerá restaurarlo.", fr: "L’app s’est arrêtée sur une erreur inattendue. Ton travail non enregistré reste sur cet ordinateur ; après rechargement, une restauration te sera proposée.", az: "Tətbiq gözlənilməz xəta ilə dayandı. Yadda saxlanmamış işin bu kompüterdə qalır; yenidən yükləyəndə bərpa təklif olunacaq.",
+  },
+  appReload: {
+    tr: "Yeniden yükle", en: "Reload", de: "Neu laden", ru: "Перезагрузить", ar: "إعادة التحميل", es: "Recargar", fr: "Recharger", az: "Yenidən yüklə",
+  },
+  appRestoreTitle: {
+    tr: "Önceki oturum", en: "Previous session", de: "Vorherige Sitzung", ru: "Предыдущий сеанс", ar: "الجلسة السابقة", es: "Sesión anterior", fr: "Session précédente", az: "Əvvəlki sessiya",
+  },
+  appRestoreBody: {
+    tr: "Önceki oturumdan {n} sekme var ({m} tanesinde kaydedilmemiş değişiklik). Geri yüklensin mi?", en: "The previous session has {n} tabs ({m} with unsaved changes). Restore them?", de: "Die vorherige Sitzung hat {n} Tabs ({m} mit nicht gespeicherten Änderungen). Wiederherstellen?", ru: "В предыдущем сеансе {n} вкладок ({m} с несохранёнными изменениями). Восстановить?", ar: "تحتوي الجلسة السابقة على {n} علامة تبويب ({m} بتغييرات غير محفوظة). هل تريد استرجاعها؟", es: "La sesión anterior tiene {n} pestañas ({m} con cambios sin guardar). ¿Restaurarlas?", fr: "La session précédente a {n} onglets ({m} avec des modifications non enregistrées). Les restaurer ?", az: "Əvvəlki sessiyada {n} vərəq var ({m} ədədində yadda saxlanmamış dəyişiklik). Bərpa edilsin?",
+  },
+  appRestoreBtn: {
+    tr: "Geri yükle", en: "Restore", de: "Wiederherstellen", ru: "Восстановить", ar: "استرجاع", es: "Restaurar", fr: "Restaurer", az: "Bərpa et",
+  },
+  appRestoreDismiss: {
+    tr: "Yoksay", en: "Dismiss", de: "Verwerfen", ru: "Пропустить", ar: "تجاهل", es: "Descartar", fr: "Ignorer", az: "Keç",
+  },
+  appReopenTab: {
+    tr: "Kapatılan sekmeyi yeniden aç", en: "Reopen closed tab", de: "Geschlossenen Tab erneut öffnen", ru: "Снова открыть закрытую вкладку", ar: "إعادة فتح علامة التبويب المغلقة", es: "Reabrir pestaña cerrada", fr: "Rouvrir l’onglet fermé", az: "Bağlanan vərəqi yenidən aç",
+  },
 } satisfies Record<string, Dict>;
 
 export type CompTextKey = keyof typeof COMP_TEXT;

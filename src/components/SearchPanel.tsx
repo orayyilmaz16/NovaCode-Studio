@@ -30,13 +30,14 @@ export const SearchPanel: React.FC<Props> = ({ hasFolder, onOpenResult }) => {
     }
     const my = ++seq.current;
     setLoading(true);
+    const reqId = `s${my}`;
     const id = setTimeout(() => {
-      void api.text({ query, regex, caseSensitive }).then((r) => {
-        if (seq.current !== my) return;
+      void api.text({ query, regex, caseSensitive, id: reqId }).then((r) => {
+        if (seq.current !== my || r.cancelled) return;
         setResults(r.results); setTruncated(r.truncated); setBad(r.error === 'regex'); setLoading(false);
       }).catch(() => { if (seq.current === my) setLoading(false); });
     }, 300);
-    return () => clearTimeout(id);
+    return () => { clearTimeout(id); void api.cancel?.(reqId); };
   }, [query, regex, caseSensitive, hasFolder]);
 
   const groups = useMemo(() => {

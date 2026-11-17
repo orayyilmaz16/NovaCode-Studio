@@ -2,11 +2,6 @@
  "date": "17.11.2026",
  "items": [
   {
-   "k": "SEC-SANDBOX|electron-main.cjs",
-   "n": 1,
-   "sev": "yüksek"
-  },
-  {
    "k": "PERF-BIGFILE|src/App.tsx",
    "n": 1,
    "sev": "orta"
@@ -67,7 +62,17 @@
    "sev": "düşük"
   },
   {
+   "k": "PERF-LS-WRITE|src/services/collabRoom.ts",
+   "n": 2,
+   "sev": "düşük"
+  },
+  {
    "k": "PERF-LS-WRITE|src/services/debugStore.ts",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/services/session.ts",
    "n": 1,
    "sev": "düşük"
   },
@@ -78,7 +83,7 @@
   },
   {
    "k": "PERF-SYNC-FS|electron-ai.cjs",
-   "n": 17,
+   "n": 22,
    "sev": "düşük"
   },
   {
@@ -113,7 +118,12 @@
   },
   {
    "k": "PERF-SYNC-FS|electron-main.cjs",
-   "n": 18,
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-paths.cjs",
+   "n": 1,
    "sev": "düşük"
   },
   {
@@ -147,37 +157,12 @@
    "sev": "düşük"
   },
   {
-   "k": "Q-EMPTY-CATCH|electron-main.cjs",
-   "n": 1,
-   "sev": "düşük"
-  },
-  {
    "k": "Q-EMPTY-CATCH|src/components/Preview.tsx",
    "n": 1,
    "sev": "düşük"
   },
   {
-   "k": "Q-HARDMS|src/components/FileTree.tsx",
-   "n": 1,
-   "sev": "düşük"
-  },
-  {
-   "k": "Q-HARDMS|src/components/SplashScreen.tsx",
-   "n": 2,
-   "sev": "düşük"
-  },
-  {
    "k": "Q-TODO|src/i18n/uiTextAi.ts",
-   "n": 1,
-   "sev": "düşük"
-  },
-  {
-   "k": "SEC-ACTION-PIN|.github/workflows/ci-cd.yml",
-   "n": 1,
-   "sev": "düşük"
-  },
-  {
-   "k": "SEC-ACTION-PIN|.github/workflows/security.yml",
    "n": 1,
    "sev": "düşük"
   },
@@ -208,7 +193,7 @@
   },
   {
    "k": "SEC-IPC-NOEVT|electron-main.cjs",
-   "n": 4,
+   "n": 3,
    "sev": "düşük"
   },
   {

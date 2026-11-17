@@ -64,6 +64,15 @@ export const THEME_TEXT = {
   setDesc_fontFamily: {
     tr: "Kod yazı tipi cihazda kurulu olmalı; kurulu değilse yedek olarak Cascadia/Consolas kullanılır.", en: "The code font must be installed on the device; if it is not, Cascadia/Consolas is used as a fallback.", de: "Die Code-Schrift muss auf dem Gerät installiert sein; sonst wird Cascadia/Consolas als Ersatz verwendet.", ru: "Шрифт кода должен быть установлен на устройстве; иначе используется запасной Cascadia/Consolas.", ar: "يجب تثبيت خط الشيفرة على الجهاز؛ وإلا يُستخدم Cascadia/Consolas بديلاً.", es: "La fuente de código debe estar instalada en el equipo; si no, se usa Cascadia/Consolas como alternativa.", fr: "La police de code doit être installée sur l’appareil ; sinon Cascadia/Consolas sert de repli.", az: "Kod şrifti cihazda quraşdırılmış olmalıdır; yoxdursa ehtiyat olaraq Cascadia/Consolas istifadə olunur.",
   },
+  pvBridgeError: {
+    tr: "Hata", en: "Error", de: "Fehler", ru: "Ошибка", ar: "خطأ", es: "Error", fr: "Erreur", az: "Xəta",
+  },
+  pvBridgeLine: {
+    tr: "satır", en: "line", de: "Zeile", ru: "строка", ar: "السطر", es: "línea", fr: "ligne", az: "sətir",
+  },
+  pvBridgeRejection: {
+    tr: "Yakalanmamış söz reddi", en: "Unhandled promise rejection", de: "Nicht behandelte Promise-Ablehnung", ru: "Необработанное отклонение промиса", ar: "رفض وعد غير معالج", es: "Rechazo de promesa no controlado", fr: "Rejet de promesse non géré", az: "İdarə olunmamış vəd rədd edilməsi",
+  },
 } satisfies Record<string, Dict>;
 
 export type ThemeTextKey = keyof typeof THEME_TEXT;

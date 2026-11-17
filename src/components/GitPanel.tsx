@@ -93,14 +93,14 @@ const FileRow: React.FC<FileRowProps> = ({ f, side, busy, onOpenDiff, onOpenFile
   const letter = side === 'conflict' ? '!' : side === 'staged' ? f.index : f.untracked ? 'U' : f.worktree;
   return (
     <div
-      className="flex items-center gap-1.5 pl-3 pr-2 h-[22px] rounded hover:bg-zinc-800/50 group cursor-pointer"
+      className="flex items-center gap-1.5 ps-3 pe-2 h-[22px] rounded hover:bg-zinc-800/50 group cursor-pointer"
       title={f.orig ? `${f.orig} → ${f.path}` : f.path}
       onClick={() => (side === 'conflict' ? onOpenFile(f) : onOpenDiff(f, side))}
     >
       <FileTypeIcon name={name} size={15} />
       <span className="truncate flex-1 min-w-0">
         <span className={NAME_COLOR[letter] ?? 'text-zinc-200'}>{name}</span>
-        {dir && <span className="text-zinc-600 ml-1.5 text-[11px]">{dir}</span>}
+        {dir && <span className="text-zinc-500 ms-1.5 text-[11px]">{dir}</span>}
       </span>
       <span className="hidden group-hover:flex items-center" onClick={(e) => e.stopPropagation()}>
         {side !== 'conflict' && letter !== 'D' && (
@@ -140,13 +140,13 @@ const FileRow: React.FC<FileRowProps> = ({ f, side, busy, onOpenDiff, onOpenFile
 
 const Section: React.FC<{ title: string; count: number; open: boolean; onToggle: () => void; actions?: React.ReactNode; children: React.ReactNode }> = ({ title, count, open, onToggle, actions, children }) => (
   <div className="py-1 border-b border-zinc-800/80">
-    <div className="group/sec flex items-center h-6 pr-2 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">
-      <button onClick={onToggle} aria-expanded={open} title={t('scmCollapse')} className="flex items-center gap-1 flex-1 min-w-0 pl-1.5 h-full text-left hover:text-zinc-200">
+    <div className="group/sec flex items-center h-6 pe-2 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">
+      <button onClick={onToggle} aria-expanded={open} title={t('scmCollapse')} className="flex items-center gap-1 flex-1 min-w-0 ps-1.5 h-full text-start hover:text-zinc-200">
         {open ? <ChevronDown size={13} className="shrink-0" /> : <ChevronRight size={13} className="shrink-0" />}
         <span className="truncate">{title}</span>
       </button>
       <span className="hidden group-hover/sec:flex items-center">{actions}</span>
-      <span className="ml-1 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300 normal-case tracking-normal">{count}</span>
+      <span className="ms-1 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300 normal-case tracking-normal">{count}</span>
     </div>
     {open && <div className="px-1">{children}</div>}
   </div>
@@ -223,57 +223,40 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   };
 
   // ---- Canlı güncellemeler ----
-  // 1) Terminal/başka araçta yapılan değişiklikler en geç 8 sn içinde yansır (anlık güncelleme .git izleyicisinden gelir).
+  // Tek zamanlayıcı (P-26): durum (statusMs), uzak getirme (fetchMs) ve GitHub bilgisi (30 sn) tek aralıkta, süresi dolana göre çalışır.
+  // Pencere gizliyken hiçbiri çalışmaz; görünür/odaklı olunca hemen bir tur yapılır. Anlık güncelleme .git izleyicisinden gelir.
+  const canFetch = autoFetch && hasRemote && auth.connected && !!api?.gitFetch;
+  const canInfo = hasRemote && auth.connected && !!window.electronAPI?.github;
   useEffect(() => {
     if (!currentRepoPath || !isRepo) return;
+    let cancelled = false;
+    const gh = window.electronAPI?.github;
+    const jobs: { every: number; last: number; run: () => Promise<void> | void }[] = [
+      // 1) Terminal/başka araçta yapılan değişiklikler
+      { every: statusMs, last: Date.now(), run: () => refreshRef.current() }
+    ];
+    // 2) Uzak depodaki yeni commit'ler (ahead/behind için) sessizce getirilir
+    if (canFetch && api) jobs.push({ every: fetchMs, last: 0, run: async () => { await api.gitFetch(currentRepoPath); if (!cancelled) await refreshRef.current(); } });
+    // 3) GitHub'daki açık PR'lar ve Actions koşuları
+    if (canInfo && gh) jobs.push({ every: 30000, last: 0, run: async () => { const info = await gh.repoInfo(currentRepoPath); if (!cancelled) setRepoInfo(info); } });
     const tick = () => {
-      if (!document.hidden) void refreshRef.current();
+      if (document.hidden) return;
+      const now = Date.now();
+      for (const j of jobs) {
+        if (now - j.last >= j.every) { j.last = now; void j.run(); }
+      }
     };
-    const id = setInterval(tick, statusMs);
+    tick();
+    const id = setInterval(tick, Math.min(...jobs.map((j) => j.every)));
     document.addEventListener('visibilitychange', tick);
     return () => {
+      cancelled = true;
       clearInterval(id);
       document.removeEventListener('visibilitychange', tick);
     };
-  }, [currentRepoPath, isRepo, statusMs]);
+  }, [currentRepoPath, isRepo, canFetch, canInfo, api, statusMs, fetchMs]);
 
-  // 2) Uzak depodaki yeni commit'ler (ahead/behind için) dakikada bir sessizce getirilir.
-  useEffect(() => {
-    if (!autoFetch || !currentRepoPath || !isRepo || !hasRemote || !auth.connected || !api?.gitFetch) return;
-    let cancelled = false;
-    const go = async () => {
-      if (document.hidden) return;
-      await api.gitFetch(currentRepoPath);
-      if (!cancelled) void refreshRef.current();
-    };
-    void go();
-    const id = setInterval(go, fetchMs);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [currentRepoPath, isRepo, hasRemote, auth.connected, api, autoFetch, fetchMs]);
-
-  // 3) GitHub'daki açık PR'lar ve Actions koşuları 30 sn'de bir.
-  useEffect(() => {
-    const gh = window.electronAPI?.github;
-    if (!currentRepoPath || !isRepo || !hasRemote || !auth.connected || !gh) {
-      setRepoInfo(null);
-      return;
-    }
-    let cancelled = false;
-    const go = async () => {
-      if (document.hidden) return;
-      const info = await gh.repoInfo(currentRepoPath);
-      if (!cancelled) setRepoInfo(info);
-    };
-    void go();
-    const id = setInterval(go, 30000);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [currentRepoPath, isRepo, hasRemote, auth.connected]);
+  useEffect(() => { if (!currentRepoPath || !isRepo || !canInfo) setRepoInfo(null); }, [currentRepoPath, isRepo, canInfo]);
 
   // 4) Geçmiş ve stash listesi, durum her yenilendiğinde tazelenir.
   useEffect(() => {
@@ -307,7 +290,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   if (!currentRepoPath || !api) {
     return (
       <div className={center}>
-        <GitBranch size={32} className="mb-2 text-zinc-600 opacity-60" />
+        <GitBranch size={32} className="mb-2 text-zinc-500 opacity-60" />
         <p className="mt-1">{t('gitOpenFolder')}</p>
       </div>
     );
@@ -505,7 +488,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             disabled={isBusy}
             title={t('scmBranchTip')}
             aria-label={t('scmBranchTip')}
-            className="flex-1 min-w-0 flex items-center gap-1.5 bg-nv-editor border border-zinc-700/80 hover:border-indigo-500 rounded px-2 py-1 text-indigo-300 font-mono text-[11px] text-left"
+            className="flex-1 min-w-0 flex items-center gap-1.5 bg-nv-editor border border-zinc-700/80 hover:border-indigo-500 rounded px-2 py-1 text-indigo-300 font-mono text-[11px] text-start"
           >
             <GitBranch size={13} className="shrink-0" />
             <span className="truncate flex-1">{status.branch}</span>
@@ -593,7 +576,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
               <button type="submit" disabled={isBusy || (ask.kind === 'tag' && !ask.name.trim())} className="flex-1 px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white">
                 {t('gitCreate')}
               </button>
-              <button type="button" onClick={() => setAsk(null)} className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300" aria-label="Cancel">
+              <button type="button" onClick={() => setAsk(null)} className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300" aria-label={t('ghCancel')}>
                 <X size={13} />
               </button>
             </div>
@@ -605,7 +588,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       <form onSubmit={(e) => void doCommit(e)} className="p-3 border-b border-zinc-800/80 space-y-2">
         <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t('gitCommitPlaceholder')} className={`${field} resize-none h-16 font-sans`} />
         <div className="flex">
-          <button type="submit" disabled={!message.trim() || staged.length === 0 || isBusy} className={`${primaryBtn} !rounded-r-none`}>
+          <button type="submit" disabled={!message.trim() || staged.length === 0 || isBusy} className={`${primaryBtn} !rounded-e-none`}>
             {busy === 'commit' ? <Loader2 size={14} className="animate-spin" /> : <GitCommit size={14} />}
             <span>
               {t('gitCommit')} ({staged.length})
@@ -620,7 +603,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
               const r = e.currentTarget.getBoundingClientRect();
               setMenu({ x: r.right - 220, y: r.bottom + 4, kind: 'commit' });
             }}
-            className="px-1.5 rounded-r bg-indigo-700 hover:bg-indigo-600 disabled:bg-zinc-800 disabled:text-zinc-600 text-white border-l border-indigo-500/40"
+            className="px-1.5 rounded-e bg-indigo-700 hover:bg-indigo-600 disabled:bg-zinc-800 disabled:text-zinc-600 text-white border-s border-indigo-500/40"
           >
             <ChevronDown size={14} />
           </button>
@@ -709,7 +692,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       {stashes.length > 0 && (
         <Section title={t('scmStashes')} count={stashes.length} open={!!open.stash} onToggle={() => tog('stash')}>
           {stashes.map((s) => (
-            <div key={s.index} className="group flex items-center gap-1.5 pl-3 pr-2 h-[22px] rounded hover:bg-zinc-800/50" title={`${s.message} · ${s.when}`}>
+            <div key={s.index} className="group flex items-center gap-1.5 ps-3 pe-2 h-[22px] rounded hover:bg-zinc-800/50" title={`${s.message} · ${s.when}`}>
               <Archive size={13} className="text-zinc-500 shrink-0" />
               <span className="truncate flex-1 text-zinc-300">{s.message}</span>
               <span className="hidden group-hover:flex items-center">
@@ -729,7 +712,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                   <X size={12} />
                 </button>
               </span>
-              <span className="text-[10px] text-zinc-600 shrink-0">{s.when}</span>
+              <span className="text-[10px] text-zinc-500 shrink-0">{s.when}</span>
             </div>
           ))}
         </Section>
@@ -810,7 +793,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             </span>
           </div>
           {repoInfo.pulls?.map((p) => (
-            <button key={p.number} onClick={() => api.github.openExternal(p.url)} className="w-full flex items-center gap-2 text-left text-zinc-300 hover:text-white">
+            <button key={p.number} onClick={() => api.github.openExternal(p.url)} className="w-full flex items-center gap-2 text-start text-zinc-300 hover:text-white">
               <GitPullRequest size={11} className="text-emerald-400 shrink-0" />
               <span className="truncate flex-1">
                 #{p.number} {p.title}
@@ -829,7 +812,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                       ? 'bg-zinc-500'
                       : 'bg-rose-400';
               return (
-                <button key={r.id} onClick={() => api.github.openExternal(r.url)} className="w-full flex items-center gap-2 text-left text-zinc-300 hover:text-white">
+                <button key={r.id} onClick={() => api.github.openExternal(r.url)} className="w-full flex items-center gap-2 text-start text-zinc-300 hover:text-white">
                   <span className={`w-2 h-2 rounded-full shrink-0 ${color}`} />
                   <span className="truncate flex-1">{r.name}</span>
                   <span className="font-mono text-[10px] text-zinc-500 truncate max-w-[40%]">{r.branch}</span>
@@ -837,7 +820,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
               );
             })
           ) : (
-            <div className="text-zinc-600">{t('ghNoRuns')}</div>
+            <div className="text-zinc-500">{t('ghNoRuns')}</div>
           )}
         </div>
       )}
@@ -847,11 +830,11 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         <button onClick={() => setHistoryOpen((v) => !v)} className="w-full flex items-center gap-1.5 px-2 py-1 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider hover:text-zinc-200">
           <History size={12} />
           <span>{t('gitHistory')}</span>
-          <span className="ml-auto">{commits.length}</span>
+          <span className="ms-auto">{commits.length}</span>
         </button>
         {historyOpen &&
           (commits.length === 0 ? (
-            <div className="p-3 text-center text-zinc-600">{t('gitNoCommits')}</div>
+            <div className="p-3 text-center text-zinc-500">{t('gitNoCommits')}</div>
           ) : (
             commits.map((c) => (
               <div key={c.hash}>
@@ -878,12 +861,12 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                       key={`${c.hash}-${cf.path}`}
                       onClick={() => void showCommitDiff(c.hash, cf)}
                       title={cf.orig ? `${cf.orig} → ${cf.path}` : cf.path}
-                      className="flex items-center gap-1.5 pl-5 pr-2 h-[22px] rounded hover:bg-zinc-800/50 cursor-pointer"
+                      className="flex items-center gap-1.5 ps-5 pe-2 h-[22px] rounded hover:bg-zinc-800/50 cursor-pointer"
                     >
                       <FileTypeIcon name={splitPath(cf.path).name} size={14} />
                       <span className={`truncate flex-1 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>
                         {splitPath(cf.path).name}
-                        <span className="text-zinc-600 ml-1.5 text-[11px]">{splitPath(cf.path).dir}</span>
+                        <span className="text-zinc-500 ms-1.5 text-[11px]">{splitPath(cf.path).dir}</span>
                       </span>
                       <span className={`font-mono text-[10px] font-bold w-4 text-center ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
                     </div>

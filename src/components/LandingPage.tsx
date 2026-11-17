@@ -125,7 +125,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   >
                     <Folder size={14} className="self-center shrink-0 text-zinc-500" />
                     <span className="text-indigo-300 group-hover:text-indigo-200 shrink-0">{f.name}</span>
-                    <span className="text-zinc-600 text-[12px] truncate" dir="ltr">{f.path}</span>
+                    <span className="text-zinc-500 text-[12px] truncate" dir="ltr">{f.path}</span>
                   </button>
                 ))
               )}

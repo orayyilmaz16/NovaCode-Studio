@@ -182,12 +182,12 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
             aria-expanded={open}
             aria-label={t('aiSessions')}
             title={label(active)}
-            className={`group w-full flex items-center gap-1.5 h-7 px-1.5 rounded-md text-left transition-colors hover:bg-nv-hover ${open ? 'bg-nv-hover' : ''}`}
+            className={`group w-full flex items-center gap-1.5 h-7 px-1.5 rounded-md text-start transition-colors hover:bg-nv-hover ${open ? 'bg-nv-hover' : ''}`}
           >
             {active?.pinned && <Pin size={11} className="shrink-0 text-amber-300/90 fill-amber-300/30" />}
             {active?.category && <span className={`shrink-0 w-2 h-2 rounded-full ${CATEGORY_STYLE[active.category].dot}`} title={t(CAT_KEY[active.category])} />}
             <span className={`truncate text-[12.5px] font-medium ${active?.title ? 'text-zinc-100' : 'text-zinc-400'}`}>{label(active)}</span>
-            <ChevronDown size={12} className={`ml-auto shrink-0 text-zinc-500 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+            <ChevronDown size={12} className={`ms-auto shrink-0 text-zinc-500 transition-transform duration-(--dur-base) ${open ? 'rotate-180' : ''}`} />
           </button>
         )}
       </div>
@@ -196,7 +196,7 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
         <div
           role="listbox"
           onKeyDown={onKey}
-          className="animate-menu absolute left-2 right-2 top-[42px] z-30 flex flex-col max-h-[min(72vh,480px)] rounded-xl border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/50 overflow-hidden"
+          className="animate-menu absolute start-2 end-2 top-[42px] z-30 flex flex-col max-h-[min(72vh,480px)] rounded-xl border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/50 overflow-hidden"
         >
           <div className="flex items-center gap-1.5 px-2.5 h-9 border-b border-zinc-800 shrink-0">
             <Search size={13} className="text-zinc-500 shrink-0" />
@@ -216,7 +216,7 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
           {presentCats.length > 1 && (
             <div className="no-scrollbar flex items-center gap-1 px-2.5 py-1.5 overflow-x-auto border-b border-zinc-800 shrink-0">
               <button type="button" onClick={() => setCatFilter(null)} className={`inline-flex items-center rounded-full px-2 h-5 text-[11px] whitespace-nowrap transition-colors ${!catFilter ? 'bg-nv-active text-zinc-50' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'}`}>
-                {t('aiAllCats')} <span className="ml-1 opacity-70">{sessions.length}</span>
+                {t('aiAllCats')} <span className="ms-1 opacity-70">{sessions.length}</span>
               </button>
               {presentCats.map((id) => <CatChip key={id} id={id} count={catCounts[id]} active={catFilter === id} onClick={() => setCatFilter(catFilter === id ? null : id)} />)}
             </div>
@@ -263,9 +263,9 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
                         aria-selected={isActive}
                         onMouseEnter={() => setHi(i)}
                         onClick={() => renameId !== s.id && pick(s.id)}
-                        className={`group relative mx-1 flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-lg cursor-pointer transition-colors ${i === hi ? 'bg-nv-hover' : ''} ${isActive ? 'text-zinc-50' : 'text-zinc-300'}`}
+                        className={`group relative mx-1 flex items-center gap-2 ps-3 pe-1.5 py-1.5 rounded-lg cursor-pointer transition-colors ${i === hi ? 'bg-nv-hover' : ''} ${isActive ? 'text-zinc-50' : 'text-zinc-300'}`}
                       >
-                        {isActive && <span className="absolute left-0.5 top-2 bottom-2 w-[3px] rounded-full bg-indigo-500" />}
+                        {isActive && <span className="absolute start-0.5 top-2 bottom-2 w-[3px] rounded-full bg-indigo-500" />}
                         <span className={`shrink-0 ${s.mode === 'agent' ? 'text-purple-300' : 'text-zinc-500'}`} title={s.mode === 'agent' ? t('aiModeAgent') : t('aiModeAsk')}>
                           {s.mode === 'agent' ? <Zap size={13} /> : <MessageSquare size={13} />}
                         </span>

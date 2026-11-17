@@ -354,7 +354,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     >
       {label}
       {badge}
-      <span className={`absolute left-2 right-2 bottom-0 h-px bg-indigo-500 origin-left transition-transform duration-200 ${tab === id ? 'scale-x-100' : 'scale-x-0'}`} />
+      <span className={`absolute start-2 end-2 bottom-0 h-px bg-indigo-500 origin-left transition-transform duration-(--dur-base) ${tab === id ? 'scale-x-100' : 'scale-x-0'}`} />
     </button>
   );
 
@@ -363,9 +363,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
 
   return (
     <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
-      <div className="flex items-stretch justify-between h-9 pl-1 pr-2 border-b border-nv-border shrink-0 font-sans">
+      <div className="flex items-stretch justify-between h-9 ps-1 pe-2 border-b border-nv-border shrink-0 font-sans">
         <div className="flex items-stretch">
-          {tabBtn('problems', t('prbTab'), problemCount.errors + problemCount.warnings > 0 ? <span className={`ml-1.5 px-1.5 rounded-full text-[10px] normal-case ${problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200'}`}>{problemCount.errors + problemCount.warnings}</span> : null)}
+          {tabBtn('problems', t('prbTab'), problemCount.errors + problemCount.warnings > 0 ? <span className={`ms-1.5 px-1.5 rounded-full text-[10px] normal-case ${problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200'}`}>{problemCount.errors + problemCount.warnings}</span> : null)}
           {tabBtn('terminal', t('termTab'))}
           {tabBtn('log', t('termLog'))}
         </div>
@@ -428,15 +428,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
           {tab === 'problems' ? (
             <ProblemsPanel rootPath={cwd ?? undefined} />
           ) : tab === 'log' ? (
-            <div className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
+            <div dir="ltr" className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
               {logs.length === 0 ? (
-                <div className="text-zinc-600">{t('termLogEmpty')}</div>
+                <div className="text-zinc-500">{t('termLogEmpty')}</div>
               ) : (
                 logs.map((log) => {
                   const color = log.type === 'error' ? 'text-rose-400' : log.type === 'warn' ? 'text-amber-300' : log.type === 'info' ? 'text-sky-300' : 'text-zinc-300';
                   return (
                     <div key={log.id} className="flex gap-2">
-                      <span className="text-zinc-600 text-[10px] shrink-0 pt-px">{log.time}</span>
+                      <span className="text-zinc-500 text-[10px] shrink-0 pt-px">{log.time}</span>
                       <span className={`break-all whitespace-pre-wrap ${color}`}>{log.text}</span>
                     </div>
                   );
@@ -455,7 +455,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               )}
             </div>
           ) : active?.kind === 'pty' ? null : (
-            <div ref={scrollRef} onScroll={onScroll} onClick={focusInput} className="absolute inset-0 overflow-y-auto px-3 py-1.5" style={{ lineHeight }} data-terminal-scroll="">
+            <div ref={scrollRef} dir="ltr" onScroll={onScroll} onClick={focusInput} className="absolute inset-0 overflow-y-auto px-3 py-1.5" style={{ lineHeight }} data-terminal-scroll="">
               {active && (
                 <>
                   <Output text={active.output} />
@@ -494,14 +494,14 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                   )}
                 </>
               )}
-              {!active && cwd && <div className="text-zinc-600 font-sans">{t('termStarting')}</div>}
+              {!active && cwd && <div className="text-zinc-500 font-sans">{t('termStarting')}</div>}
             </div>
           )}
         </div>
 
         {/* Oturum listesi: birden fazla terminal varken (VS Code gibi) sağda */}
         {tab === 'terminal' && sessions.length > 1 && (
-          <div className="w-44 shrink-0 border-l border-nv-border overflow-y-auto font-sans animate-fade-in" role="tablist" aria-label={t('termTab')}>
+          <div className="w-44 shrink-0 border-s border-nv-border overflow-y-auto font-sans animate-fade-in" role="tablist" aria-label={t('termTab')}>
             {sessions.map((s) => {
               const on = s.id === activeId;
               return (
@@ -512,9 +512,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                   tabIndex={0}
                   onClick={() => setActiveId(s.id)}
                   onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setActiveId(s.id)}
-                  className={`group relative flex items-center gap-2 h-7 pl-3 pr-1 cursor-pointer text-[12px] transition-colors ${on ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'}`}
+                  className={`group relative flex items-center gap-2 h-7 ps-3 pe-1 cursor-pointer text-[12px] transition-colors ${on ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'}`}
                 >
-                  <span className={`absolute left-0 top-1 bottom-1 w-0.5 rounded-r bg-indigo-400 transition-transform ${on ? 'scale-y-100' : 'scale-y-0'}`} />
+                  <span className={`absolute start-0 top-1 bottom-1 w-0.5 rounded-e bg-indigo-400 transition-transform ${on ? 'scale-y-100' : 'scale-y-0'}`} />
                   <SquareTerminal size={13} className={s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0'} />
                   <span className="truncate flex-1">
                     {SHELL_LABEL[s.shell]}{ptyOk && s.kind === 'pipe' ? <span className="text-zinc-500"> · {t('termClassic')}</span> : null} <span className="text-zinc-500">{baseName(s.cwd)}</span>

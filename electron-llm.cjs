@@ -6,8 +6,11 @@
 const { app, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 // Yalnız Apache-2.0 lisanslı modeller (ticari kullanıma uygun).
+// sha256 (isteğe bağlı, 64 hex): doldurulursa indirilen dosya bu özetle doğrulanır; boşsa yalnız boyut denetlenir ve uyarı yazılır.
+// Gerçek özetler kaynak sayfasından (Hugging Face "Files" > SHA256) alınarak eklenmelidir; tahmin edilmez.
 const MODELS = {
   'qwen2.5-coder-1.5b': {
     label: 'Qwen2.5-Coder 1.5B', tier: 'fast', size: 1117320768, ctx: 8192, ramGb: 3,
@@ -35,6 +38,13 @@ const hostOk = (u) => {
     return x.protocol === 'https:' && (x.hostname === 'huggingface.co' || x.hostname.endsWith('.huggingface.co') || x.hostname === 'hf.co' || x.hostname.endsWith('.hf.co'));
   } catch { return false; }
 };
+
+function sha256File(file) {
+  return new Promise((resolve, reject) => {
+    const h = crypto.createHash('sha256');
+    fs.createReadStream(file).on('data', (c) => h.update(c)).on('error', reject).on('end', () => resolve(h.digest('hex')));
+  });
+}
 
 const downloads = new Map(); // id -> { abort, received }
 let lib = null; // node-llama-cpp (ESM) — tembel yüklenir
@@ -102,6 +112,12 @@ async function download(id, emit) {
       await new Promise((r) => out.end(r));
     }
     if (fs.statSync(partPath(id)).size !== m.size) throw new Error('boyut-uyusmuyor');
+    if (m.sha256) {
+      const got = await sha256File(partPath(id));
+      if (got !== String(m.sha256).toLowerCase()) { fs.rmSync(partPath(id), { force: true }); throw new Error('ozet-uyusmuyor'); }
+    } else {
+      console.warn('[llm] ' + id + ': katalogda SHA-256 yok, yalnız boyut doğrulandı.');
+    }
     fs.renameSync(partPath(id), finalPath(id));
     emit({ id, received: m.size, total: m.size, done: true });
     return { success: true };
@@ -250,7 +266,13 @@ function register({ getWindow }) {
     try { fs.rmSync(finalPath(id), { force: true }); fs.rmSync(partPath(id), { force: true }); return { success: true }; } catch { return { success: false }; }
   });
 
-  app.on('before-quit', () => { void disposeModel(); });
+  app.on('before-quit', () => { void shutdown(); }); // yedek: asıl kapanış electron-main'den await edilen shutdown() ile yapılır
 }
 
-module.exports = { register, runBuiltin, parseToolCall, MODELS, DEFAULT_ID, isInstalled };
+// Kapanış: indirmeleri iptal et, modeli (GPU belleğini) bekleyerek boşalt.
+async function shutdown() {
+  for (const d of downloads.values()) d.abort.abort();
+  await disposeModel();
+}
+
+module.exports = { register, shutdown, disposeModel, runBuiltin, parseToolCall, MODELS, DEFAULT_ID, isInstalled };

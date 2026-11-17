@@ -110,7 +110,7 @@ const SliderControl: React.FC<{ def: SettingDef; value: number; onChange: (v: Se
         }}
         className="flex-1 accent-indigo-500"
       />
-      <span className="w-16 text-right font-mono text-[12px] text-zinc-400">
+      <span className="w-16 text-end font-mono text-[12px] text-zinc-400">
         {shown}
         {def.unit ? ` ${def.unit}` : ''}
       </span>
@@ -358,7 +358,7 @@ const ExtensionsSettings: React.FC<{ onOpenStore?: () => void }> = ({ onOpenStor
             {installed.map((e) => (
               <li key={e.id} className="flex items-center gap-3 px-3 py-2 min-w-0">
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13px] text-zinc-100 truncate">{e.displayName} <span className="text-zinc-500 text-[11.5px]">{e.version}</span>{updates[e.id] && <span className="ml-2 text-[10.5px] px-1.5 py-0.5 rounded-full bg-indigo-500/25 text-indigo-200">{t('extUpdateTo').replace('{v}', updates[e.id])}</span>}</div>
+                  <div className="text-[13px] text-zinc-100 truncate">{e.displayName} <span className="text-zinc-500 text-[11.5px]">{e.version}</span>{updates[e.id] && <span className="ms-2 text-[10.5px] px-1.5 py-0.5 rounded-full bg-indigo-500/25 text-indigo-200">{t('extUpdateTo').replace('{v}', updates[e.id])}</span>}</div>
                   <div className="text-[11.5px] text-zinc-500 truncate">{e.id} · {t('extThemeCount').replace('{n}', String(e.themes.length))}</div>
                 </div>
                 <button
@@ -523,24 +523,24 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
       <header className="flex items-center gap-2 @md:gap-4 h-12 px-3 @md:px-6 border-b border-nv-border shrink-0">
         <h1 className="text-[15px] @md:text-[16px] font-normal text-zinc-100 whitespace-nowrap">{t('setTitle')}</h1>
         <div className="relative flex-1 max-w-[460px]">
-          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <Search size={14} className="absolute start-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('setSearch')}
             aria-label={t('setSearch')}
             spellCheck={false}
-            className={`${field} w-full !h-8 pl-8`}
+            className={`${field} w-full !h-8 ps-8`}
           />
         </div>
-        <span className="hidden lg:block text-[12px] text-zinc-500 ml-auto">{t('setAutoSaved')}</span>
+        <span className="hidden lg:block text-[12px] text-zinc-500 ms-auto">{t('setAutoSaved')}</span>
         <button onClick={onClose} title={t('setClose')} aria-label={t('setClose')} className="icon-btn">
           <X size={15} />
         </button>
       </header>
 
       <div className="flex flex-col @2xl:flex-row flex-1 min-h-0">
-        <nav aria-label={t('setTitle')} className="no-scrollbar flex @2xl:block gap-1 @2xl:gap-0 w-full @2xl:w-56 shrink-0 border-b @2xl:border-b-0 @2xl:border-r border-nv-border bg-nv-side p-2 overflow-x-auto @2xl:overflow-x-hidden @2xl:overflow-y-auto">
+        <nav aria-label={t('setTitle')} className="no-scrollbar flex @2xl:block gap-1 @2xl:gap-0 w-full @2xl:w-56 shrink-0 border-b @2xl:border-b-0 @2xl:border-e border-nv-border bg-nv-side p-2 overflow-x-auto @2xl:overflow-x-hidden @2xl:overflow-y-auto">
           {CATEGORIES.map((c) => {
             const active = !q && c.id === cat;
             return (
@@ -551,7 +551,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
                   setCat(c.id);
                 }}
                 aria-current={active ? 'page' : undefined}
-                className={`@2xl:w-full shrink-0 flex items-center gap-2.5 h-8 px-2.5 rounded text-[13px] text-left whitespace-nowrap transition-colors ${
+                className={`@2xl:w-full shrink-0 flex items-center gap-2.5 h-8 px-2.5 rounded text-[13px] text-start whitespace-nowrap transition-colors ${
                   active ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
                 }`}
               >

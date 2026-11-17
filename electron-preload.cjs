@@ -62,11 +62,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   secrets: {
     get: (key) => ipcRenderer.invoke('secrets:get', key),
+    has: (key) => ipcRenderer.invoke('secrets:has', key),
     set: (key, value) => ipcRenderer.invoke('secrets:set', key, value)
   },
   search: {
     files: () => ipcRenderer.invoke('search:files'),
-    text: (opts) => ipcRenderer.invoke('search:text', opts)
+    text: (opts) => ipcRenderer.invoke('search:text', opts),
+    cancel: (id) => ipcRenderer.invoke('search:cancel', id)
   },
   update: {
     state: () => ipcRenderer.invoke('update:state'),
@@ -118,6 +120,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
   },
   quitApp: () => ipcRenderer.invoke('app:quit'),
+  // Pencere kapanırken ana süreç kaydedilmemiş değişiklik sorar; renderer respondClose(true=kapat, false=vazgeç) ile yanıtlar (5 sn içinde)
+  onCloseRequest: (cb) => {
+    const h = () => cb();
+    ipcRenderer.on('app:close-request', h);
+    return () => ipcRenderer.removeListener('app:close-request', h);
+  },
+  respondClose: (allow) => ipcRenderer.send('app:close-response', allow === true),
   // Özel pencere düğmeleri (macOS'ta sistemin trafik ışıkları kullanılır)
   platform: process.platform,
   windowControls: {
@@ -136,7 +145,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openRecentFolder: (folderPath) => ipcRenderer.invoke('workspace:open', folderPath),
   openFileDialog: () => ipcRenderer.invoke('dialog:openFiles'),
   readDirectory: (dirPath) => ipcRenderer.invoke('fs:readDir', dirPath),
-  readFile: (filePath) => ipcRenderer.invoke('fs:readFile', filePath),
+  // Başarı: içerik (dize). Başarısız: { success:false, error:'file-too-large'|'binary-file', size }. opts.maxBytes eşiği artırır.
+  readFile: (filePath, opts) => ipcRenderer.invoke('fs:readFile', filePath, opts),
   readDataUrl: (filePath) => ipcRenderer.invoke('fs:readDataUrl', filePath),
   writeFile: (filePath, content) => ipcRenderer.invoke('fs:writeFile', filePath, content),
   createFile: (filePath) => ipcRenderer.invoke('fs:createFile', filePath),
@@ -207,6 +217,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const listener = (_event, data) => callback(data);
     ipcRenderer.on('term:cwd', listener);
     return () => ipcRenderer.removeListener('term:cwd', listener);
+  },
+  // Kabuk oturumu hazır olunca (ilk çalışma klasörü işareti geldiğinde) bir kez gelir; `cd` için zamanlayıcı yerine bunu bekle
+  onTermReady: (callback) => {
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on('term:ready', listener);
+    return () => ipcRenderer.removeListener('term:ready', listener);
   },
   termStart: (shell, cwd, id) => ipcRenderer.invoke('term:start', shell, cwd, id),
   termInput: (id, line) => ipcRenderer.invoke('term:input', id, line),
