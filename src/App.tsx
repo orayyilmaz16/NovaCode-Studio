@@ -1147,13 +1147,13 @@ export function App() {
 
       {/* Ayarlar: uygulamanın üstünde, ayrı pencere (z-katmanı: bkz. ui-design.md → Katman sırası) */}
       {showSettings && (
-        <div className="app-no-drag fixed inset-0 z-[150] flex items-center justify-center bg-black/65 p-3 sm:p-6 animate-fade-in" onMouseDown={() => setShowSettings(false)}>
+        <div className="app-no-drag fixed inset-0 z-[150] flex items-center justify-center bg-black/65 p-3 sm:p-6 animate-editor-in" onMouseDown={() => setShowSettings(false)}>
           <div
             role="dialog"
             aria-modal="true"
             aria-label={t('setTitle')}
             onMouseDown={(e) => e.stopPropagation()}
-            className="animate-menu flex w-[min(1120px,100%)] h-[min(780px,100%)] rounded-xl border border-nv-border bg-nv-editor shadow-[0_24px_80px_rgba(0,0,0,0.6)] overflow-hidden"
+            className="animate-dialog flex w-[min(1120px,100%)] h-[min(780px,100%)] rounded-xl border border-nv-border bg-nv-editor shadow-[0_24px_80px_rgba(0,0,0,0.6)] overflow-hidden"
           >
             <Suspense fallback={null}><SettingsPage onClose={() => setShowSettings(false)} onOpenExtensions={() => { setShowSettings(false); pickSidebarForce('extensions'); }} /></Suspense>
           </div>

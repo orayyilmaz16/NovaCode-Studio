@@ -36,9 +36,17 @@ export function useSettings(): SettingsApi {
   return v;
 }
 
+let fadeTimer = 0;
+
 // Görünümü anında uygular: tema, vurgu rengi, yazı tipi, hareket (yakınlaştırma ve pencere rengi ayrı efektlerde).
 function applyAppearance(values: SettingsValues, mode: ResolvedMode) {
   const root = document.documentElement;
+  // Tema gerçekten değişiyorsa (ilk yükleme değil) renkler yumuşakça döner: kısa süre data-theme-fading
+  if (root.dataset.theme && root.dataset.theme !== mode) {
+    root.dataset.themeFading = '';
+    window.clearTimeout(fadeTimer);
+    fadeTimer = window.setTimeout(() => { delete root.dataset.themeFading; }, 320);
+  }
   root.dataset.theme = mode;
   root.dataset.motion = values.animations === false ? 'off' : 'on';
   root.style.setProperty('--font-sans', UI_FONTS[String(values.uiFont)] ?? UI_FONTS.system);

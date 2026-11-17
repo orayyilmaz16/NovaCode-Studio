@@ -258,6 +258,6 @@ export function toMonacoOptions(v: SettingsValues): Record<string, unknown> {
     rulers,
     automaticLayout: true,
     padding: { top: 8 },
-    roundedSelection: false
+    roundedSelection: true
   };
 }

@@ -132,6 +132,11 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [diffInline, setDiffInline] = useState(false);
   const monacoRef = useRef<any>(null);
+  const tabListRef = useRef<HTMLDivElement>(null);
+  // Etkin sekme çubuğun dışında kalırsa yumuşakça görünür alana kaydır
+  useEffect(() => {
+    tabListRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }, [activeFileId, openFiles.length]);
   const problems = useProblems();
   const [collabStatus, setCollabStatus] = useState<'off' | 'connecting' | 'synced' | 'error'>('off');
   const activeFile = openFiles.find((f) => f.id === activeFileId);
@@ -290,7 +295,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
       {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
       {openFiles.length > 0 && (
       <div className="animate-tabbar-in flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[35px] select-none">
-        <div role="tablist" className="flex items-end gap-px flex-1 min-w-0 overflow-x-auto pt-1 pl-1 [scrollbar-width:none]">
+        <div ref={tabListRef} role="tablist" className="flex items-end gap-px flex-1 min-w-0 overflow-x-auto pt-1 pl-1 [scrollbar-width:none] scroll-smooth">
           {openFiles.map((file) => {
             const isActive = file.id === activeFileId;
             const pc = file.path ? problems.byPath[normPath(file.path)] : undefined;
@@ -312,9 +317,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                   if (e.button === 1) onCloseTab(file.id);
                 }}
                 title={file.path || file.name}
-                className={`animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] cursor-pointer rounded-t-lg border border-b-0 text-[13px] transition-[background-color,color,border-color] duration-150 ${
+                className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] cursor-pointer border border-b-0 text-[13px] ${
                   isActive
-                    ? 'bg-nv-editor text-zinc-100 border-nv-border shadow-[inset_0_1px_0_var(--color-indigo-500)]'
+                    ? 'bg-nv-editor text-zinc-100 border-nv-border'
                     : 'border-transparent text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
                 }`}
               >
@@ -327,7 +332,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                   }}
                   aria-label={`${file.name} — ${t('closeTab')}`}
                   title={t('closeTab')}
-                  className="ml-auto relative flex items-center justify-center w-5 h-5 rounded text-zinc-400 hover:bg-white/10 hover:text-zinc-100"
+                  className="nova-tab-close ml-auto relative flex items-center justify-center w-5 h-5 text-zinc-400 hover:bg-[var(--hover-overlay)] hover:text-zinc-100"
                 >
                   {file.isModified && (
                     <span className="absolute w-2 h-2 rounded-full bg-zinc-200 transition-opacity group-hover:opacity-0" />
@@ -453,6 +458,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             </div>
           </div>
         ) : activeFile ? (
+          <div key={activeFile.id} className="animate-editor-in h-full">
           <Editor
             key={activeFile.id}
             height="100%"
@@ -490,6 +496,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             onChange={(val) => onChangeContent(activeFile.id, val || '')}
             options={editorOptions}
           />
+          </div>
         ) : (
           <div className="animate-fade-in flex flex-col items-center justify-center h-full text-zinc-500 text-sm px-6 select-none">
             <Logo size={72} animated shadow className="mb-5" />
