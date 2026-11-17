@@ -104,6 +104,10 @@ Belirt: veri, amaç, hukuki sebep, saklama süresi, yurt dışı aktarım. Gizli
 - Hook çıktısı tekrar tetiklenmez: `chore(auto)` commit'i sonrası yeni commit üretme.
 - Yanıt: önce sonuç, en fazla 5 satır; tekrar özet ve dosya dökümü yok.
 
+## 8b. Belge otomasyonu
+- Kod değişen her tur, bitmeden beyne işlenir (aksiyon dosyası, karar, CHANGELOG tr+en). Hook'lar: `UserPromptSubmit` → hatırlatır; `Stop` → `scripts/doc-sync.mjs stop` denetler (tek sefer engeller), [[LOG]]'a yazar, sonra `auto-commit.mjs`'i çalıştırır.
+- Engellenirsen eksik belgeyi yaz ve `npm run brain` çalıştır; ikinci bitirişte engellenmezsin (döngü yok). `NOVA_DOCSYNC=off` yalnız geçici kapatma içindir. Ayrıntı: `docs/brain/actions/doc-sync.md`.
+
 ## 9. Md dosyaları arası haberleşme (tek kaynak ilkesi)
 | Dosya | Ne tutar | Kim okur |
 |---|---|---|
@@ -115,6 +119,7 @@ Belirt: veri, amaç, hukuki sebep, saklama süresi, yurt dışı aktarım. Gizli
 | `docs/brain/BRAIN.md` | **Proje beyni** haritası: okuma sırası, aksiyon tablosu, haberleşme kuralları | Her oturum |
 | `docs/brain/actions/*.md` | Aksiyon başına oyun kitabı (`reads`/`writes` ile haberleşir): release, git-github, ui-design, motion, i18n, security-kvkk, terminal, ci-cd, testing, brain-maintenance | İlgili işte |
 | `docs/brain/PROJECT.md`, `DECISIONS.md` | Mimari ve tarihli karar günlüğü | İhtiyaç olunca |
+| `docs/brain/LOG.md` | Tur başına **otomatik** değişiklik günlüğü (`scripts/doc-sync.mjs`; istem metni yok) | Gerekince |
 | `docs/brain/STATE.md` | Koddan **otomatik** üretilen durum (`npm run brain`; hook her turda günceller) | Görev başında |
 | Hafıza (`memory/`) | Kullanıcı tercihleri ve bağlam; repo kuralını kopyalamaz, işaret eder | Claude |
 
@@ -134,6 +139,7 @@ Kurallar:
 - `main` ruleset (PR zorunlu, `quality` check zorunlu, force push/silme yasak): PR #5 birleştikten sonra açılır.
 
 ## Durum
+- 17.11.2026: Belge otomasyonu kuruldu (`scripts/doc-sync.mjs`, UserPromptSubmit + Stop hook, `docs/brain/LOG.md`, aksiyon `doc-sync`); kod değişen tur belgesiz bitmez (tek sefer engel). Ayrıca: kayıtta biçimlendirme (`formatOnSave`), AI tamamlama süresi tek ayar + dil ayarı kalktı, yumuşak geçişler/`nova-tab`. Açık: uygulamada elle görsel doğrulama.
 - 10.11.2026: v1.2.0 hazırlığı: GitHub hesabıyla Git (sahneleme, dal, eşzamanla, PR, yayınlama, canlı takip), VS Code çizgisinde yeni arayüz + arka plansız logo + karşılama ekranı, proje beyni (`docs/brain/`, `scripts/brain.mjs`, hook `auto-commit.mjs` her turda STATE'i yeniler). Testler `npm test`, beyin denetimi `npm run brain:check` (CI'da).
 - 12.11.2026 (8): Kaynak denetimi genişledi (fark sekmesi, dal/etiket seçici, merge+çakışma, stash, etiket, amend/geri al, commit dosyaları, dosya simgeleri), Sorunlar (durum çubuğu sayacı, alt panel sekmesi, hata renkleri/kırmızı satır). git.test 63 kontrol, izole Electron UI testi geçti. Açık: sayaç yalnız açık dosyaları kapsar; JS'de anlamsal denetim kapalı; uzak dal/etiket gönderme akışı gerçek GitHub'la denenmedi.
 - 12.11.2026 (7): Metin tamponu (piece table) + ajan `edit_lines`, Node hata ayıklayıcı (CDP), gerçek PTY terminal (xterm), LSP köprüsü (yalnız PATH'teki sunucular). Testler `npm test` hepsi geçti; arayüz izole Electron örneğinde sınandı. Açık: LSP yalnız pyright ile denendi; PTY yalnız Windows; hata ayıklayıcı yalnız JS (TS kaynak haritası yok); Monaco'nun kendi tamponu duruyor. Ana süreç değişti: uygulama yeniden başlatılmalı.

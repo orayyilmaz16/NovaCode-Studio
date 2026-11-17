@@ -133,6 +133,7 @@
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
 | `scripts/check-version.mjs` | 74 |
+| `scripts/doc-sync.mjs` | 179 |
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/make-icons.cjs` | 29 |
 
@@ -317,6 +318,7 @@
 | [[brain-maintenance]] | `docs/brain/actions/brain-maintenance.md` | Proje beynini (docs/brain) güncel ve tutarlı tutmak |
 | [[ci-cd]] | `docs/brain/actions/ci-cd.md` | GitHub Actions, audit, bundle bütçesi ve yayın hattı |
 | [[debugging]] | `docs/brain/actions/debugging.md` | Hata ayıklayıcı (Node/JavaScript): kesme noktası, adım adım, değişkenler, çağrı yığını |
+| [[doc-sync]] | `docs/brain/actions/doc-sync.md` | Her istem ve değişiklikte proje beyninin otomatik güncel tutulması (hatırlatma, denetim, değişiklik günlüğü) |
 | [[explorer]] | `docs/brain/actions/explorer.md` | Gezgin (dosya ağacı): görünüm seçenekleri, filtre, sürükle-bırak taşıma, bağlam menüsü, simge stilleri, güvenlik kuralları |
 | [[extensions]] | `docs/brain/actions/extensions.md` | Eklenti mağazası (Open VSX): arama, yükleme, güncelleme, kaldırma; tema katkısı |
 | [[git-github]] | `docs/brain/actions/git-github.md` | Git paneli, GitHub hesabı bağlama, PR, eşzamanlama ve canlı takip |
@@ -336,6 +338,7 @@
 | [[updates]] | `docs/brain/actions/updates.md` | Uygulama güncelleme sistemi: denetle, indir (yüzde), yeniden başlat ve kur; sürüm notları; yayın hattı |
 | [[BRAIN]] | `docs/brain/BRAIN.md` | NovaCode Studio — Proje Beyni |
 | [[DECISIONS]] | `docs/brain/DECISIONS.md` | Karar günlüğü |
+| [[LOG]] | `docs/brain/LOG.md` | Değişiklik günlüğü (otomatik) |
 | [[PROJECT]] | `docs/brain/PROJECT.md` | Proje: NovaCode Studio |
 | [[STATE]] | `docs/brain/STATE.md` | Proje durumu (otomatik üretilir) |
 | [[README]] | `README.md` | NovaCode Studio |

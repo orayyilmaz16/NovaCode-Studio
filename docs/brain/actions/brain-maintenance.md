@@ -11,6 +11,8 @@ triggers: ["beyin", "md güncelle", "bağlam", "dokümantasyon"]
 - Her Claude turu sonunda hook (`scripts/auto-commit.mjs`) önce `node scripts/brain.mjs` çalıştırır → [[STATE]] yeniden üretilir ve aynı commit'e girer.
 - CI `npm run brain:check` ile yapıyı denetler (bağlantılar, aksiyon başlıkları, IPC, i18n).
 
+- Her istemde `UserPromptSubmit` hook'u belgeleme kuralını hatırlatır; tur sonunda `scripts/doc-sync.mjs` kod var/belge yok durumunu bir kez engeller ve [[LOG]]'a kayıt yazar. Ayrıntı: [[doc-sync]].
+
 ## Elle
 | Ne değişti | Ne güncellenir |
 |---|---|

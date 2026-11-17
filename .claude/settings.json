@@ -1,12 +1,23 @@
 {
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/doc-sync.mjs prompt",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "node scripts/auto-commit.mjs",
-            "timeout": 120
+            "command": "node scripts/doc-sync.mjs stop",
+            "timeout": 180
           }
         ]
       }

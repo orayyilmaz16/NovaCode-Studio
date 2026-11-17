@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 17.11.2026 (Belge otomasyonu)
+- **`scripts/doc-sync.mjs` + `UserPromptSubmit`/`Stop` hook'ları: her değişiklik beyne işlenir.** Neden: belgeleme kuralı yalnız metin olarak durunca unutuluyordu; elle hatırlamaya güvenilmez. Sonuç: istemde hatırlatma, tur sonunda "kod var, belge yok" denetimi (tek sefer engel, `stop_hook_active` ile döngüsüz), otomatik [[LOG]] (son 40 tur), ardından auto-commit. Seçimler: (1) **istem metni kaydedilmez** (repo'ya gider, gizli bilgi/kişisel veri riski, KVKK); yalnız dosya yolu, alan, belge durumu. (2) Hook'lar paralel çalıştığı için auto-commit ayrı hook değil, doc-sync'in içinden çağrılır; böylece günlük aynı commit'e girer. (3) İçerik (neden, çeviri) üretilmez, yalnız unutma yakalanır. Ayrıntı: [[doc-sync]].
+
 ## 17.11.2026 (Yumuşak geçişler ve VS Code tarzı sekmeler)
 - **Tek hareket dili korunarak: tema renk geçişi, `nova-tab` sekmeleri, editör belirme, pencere girişi ve köşe ölçeği (`--r-sm/md/lg`) eklendi.** Neden: tema değişimi ve sekme geçişleri sertti; yarı sabit `ms` değerleri jetonlardan kopuktu. Sonuç: eski sabit süreler (`ab-item`, `icon-btn`, `status-item`, kabuklar, `animate-*`) jetonlara bağlandı; renk paleti ve düzen değişmedi, gölge/degrade eklenmedi. Tema geçişi `<html data-theme-fading>` ile yalnız renk özelliklerini geçirir (kural 2'ye bilinçli istisna, kısa ömürlü); alternatif olan View Transitions API Monaco temasının ayrı güncellenmesi yüzünden seçilmedi. Ayrıntı: [[motion]].
 
