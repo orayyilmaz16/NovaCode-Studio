@@ -13,7 +13,7 @@ Son tarama: 17.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `Q-I18N-HARD` src/App.tsx
+- Yeni/artan: yok
 - Giderilen: yok
 
 ## Güvenlik
@@ -72,4 +72,4 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 1989, `src/i18n/uiText.ts` 1636, `electron-ai.cjs` 1046, `src/components/FileTree.tsx` 932, `src/components/GitPanel.tsx` 883, `src/components/AIAssistant.tsx` 825
-- Üretim paketi (dist varsa): toplam JS 2798 KB; en büyük: index-DVLkl4a8.js 489 KB, PtyView-B_4h15Os.js 327 KB, fileIconLoaders-BLoLHYCq.js 184 KB, uiText-azHSDOE1.js 171 KB
+- Üretim paketi (dist varsa): toplam JS 2798 KB; en büyük: index--_MOkoi6.js 489 KB, PtyView-le7fvRnY.js 327 KB, fileIconLoaders-DWYbKhF0.js 184 KB, uiText-azHSDOE1.js 171 KB

@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 17.11.2026 16:32 · auto/20261117-130721
+<!-- sig:c2NyaXB0cy90ZXN0cy9haS1zZWN1cml0eS50ZXN0 -->
+- Alan: [[testing]]
+- Kod (1): `scripts/tests/ai-security.test.cjs`
+- Belge (2): `docs/brain/DECISIONS.md`, `docs/brain/actions/testing.md`
+- Durum: ✓ belgelendi · sürüm: CHANGELOG Unreleased boş: sürüm çıkmaz
+
 ## 17.11.2026 16:28 · auto/20261117-130721
 <!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvUHJl -->
 - Alan: [[ui-design]], [[preview]]

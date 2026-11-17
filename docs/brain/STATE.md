@@ -155,7 +155,7 @@
 | Dosya | Satır |
 |---|---|
 | `scripts/tests/ai-complete.test.cjs` | 205 |
-| `scripts/tests/ai-security.test.cjs` | 83 |
+| `scripts/tests/ai-security.test.cjs` | 84 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
