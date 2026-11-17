@@ -13,8 +13,8 @@ Son tarama: 17.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `PERF-LS-WRITE` src/services/collabRoom.ts, `PERF-LS-WRITE` src/services/session.ts, `PERF-SYNC-FS` electron-ai.cjs, `PERF-SYNC-FS` electron-paths.cjs
-- Giderilen: `SEC-SANDBOX electron-main.cjs`, `Q-EMPTY-CATCH electron-main.cjs`, `Q-HARDMS src/components/FileTree.tsx`, `Q-HARDMS src/components/SplashScreen.tsx`, `SEC-ACTION-PIN .github/workflows/ci-cd.yml`, `SEC-ACTION-PIN .github/workflows/security.yml`
+- Yeni/artan: yok
+- Giderilen: yok
 
 ## Güvenlik
 | Önem | Kural | Konum | Sorun |
@@ -30,7 +30,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | SEC-IPC-NOEVT | `electron-github.cjs:155,168,231…(+1)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (4×) |
 | düşük | SEC-IPC-NOEVT | `electron-llm.cjs:241` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-main.cjs:398,413,463` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
-| düşük | SEC-IPC-NOEVT | `electron-pty.cjs:111` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
+| düşük | SEC-IPC-NOEVT | `electron-pty.cjs:116` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-search.cjs:91` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-update.cjs:98,122,128…(+1)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (4×) |
 
@@ -49,15 +49,15 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-LS-WRITE | `src/services/session.ts:75` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/services/settings.ts:117` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-SYNC-FS | `electron-ai.cjs:60,66,148…(+19)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (22×) |
-| düşük | PERF-SYNC-FS | `electron-debug.cjs:120` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
+| düşük | PERF-SYNC-FS | `electron-debug.cjs:121` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-ext.cjs:233,234,249` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
 | düşük | PERF-SYNC-FS | `electron-git.cjs:253,256,401` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
 | düşük | PERF-SYNC-FS | `electron-github.cjs:25,38,52…(+2)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (5×) |
 | düşük | PERF-SYNC-FS | `electron-llm.cjs:33,94,114` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
-| düşük | PERF-SYNC-FS | `electron-lsp.cjs:47` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
+| düşük | PERF-SYNC-FS | `electron-lsp.cjs:48` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-main.cjs:296` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-paths.cjs:127` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
-| düşük | PERF-SYNC-FS | `electron-pty.cjs:32,61` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (2×) |
+| düşük | PERF-SYNC-FS | `electron-pty.cjs:33,66` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (2×) |
 | düşük | PERF-SYNC-FS | `electron-secrets.cjs:26,27,46…(+2)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (5×) |
 | düşük | PERF-SYNC-FS | `electron-term.cjs:94` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 

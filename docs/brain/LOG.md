@@ -4,6 +4,13 @@
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
 ## 17.11.2026 16:20 · auto/20261117-130721
+<!-- sig:ZWxlY3Ryb24tZGVidWcuY2pzLGVsZWN0cm9uLWxz -->
+- Alan: [[debugging]], [[lsp]], [[terminal]], [[ui-design]]
+- Kod (7): `electron-debug.cjs`, `electron-lsp.cjs`, `electron-pty.cjs`, `src/services/problems.ts`, `src/components/AppDialogs.tsx`, `src/components/ErrorBoundary.tsx`, `src/components/StatusCursor.tsx`
+- Belge (0): —
+- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
+
+## 17.11.2026 16:20 · auto/20261117-130721
 <!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvY2ktY2QueW1sLC5n -->
 - Alan: [[ci-cd]], [[ai-assistant]], [[git-github]], [[security-kvkk]], [[search-palette]], [[updates]], [[ui-design]], [[debugging]], [[extensions]], [[explorer]], [[preview]], [[source-control]], [[settings]], [[terminal]], [[i18n]], [[motion]], [[testing]]
 - Kod (50): `.github/workflows/ci-cd.yml`, `.github/workflows/ci-failure-issue.yml`, `.github/workflows/dependabot-automerge.yml`, `.github/workflows/security.yml`, `electron-ai.cjs`, `electron-github.cjs`, `electron-llm.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-search.cjs`, `electron-secrets.cjs`, `electron-update.cjs` … (+38)

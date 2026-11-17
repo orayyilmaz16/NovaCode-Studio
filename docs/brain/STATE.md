@@ -31,16 +31,16 @@
 | Dosya | Satır |
 |---|---|
 | `electron-ai.cjs` | 1045 |
-| `electron-debug.cjs` | 226 |
+| `electron-debug.cjs` | 237 |
 | `electron-ext.cjs` | 323 |
 | `electron-git.cjs` | 406 |
 | `electron-github.cjs` | 335 |
 | `electron-llm.cjs` | 278 |
-| `electron-lsp.cjs` | 271 |
+| `electron-lsp.cjs` | 298 |
 | `electron-main.cjs` | 757 |
 | `electron-paths.cjs` | 134 |
 | `electron-preload.cjs` | 240 |
-| `electron-pty.cjs` | 118 |
+| `electron-pty.cjs` | 128 |
 | `electron-search.cjs` | 118 |
 | `electron-secrets.cjs` | 66 |
 | `electron-term.cjs` | 176 |
@@ -58,6 +58,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/components/AIAssistant.tsx` | 824 |
+| `src/components/AppDialogs.tsx` | 66 |
 | `src/components/BranchPicker.tsx` | 199 |
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
@@ -66,6 +67,7 @@
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
 | `src/components/EditorArea.tsx` | 535 |
+| `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 931 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -83,6 +85,7 @@
 | `src/components/SearchPanel.tsx` | 99 |
 | `src/components/SettingsPage.tsx` | 614 |
 | `src/components/SplashScreen.tsx` | 56 |
+| `src/components/StatusCursor.tsx` | 66 |
 | `src/components/Terminal.tsx` | 560 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/UpdateDialog.tsx` | 156 |
@@ -110,7 +113,7 @@
 | `src/services/monacoShim.ts` | 28 |
 | `src/services/palettes.ts` | 168 |
 | `src/services/previewKind.ts` | 11 |
-| `src/services/problems.ts` | 141 |
+| `src/services/problems.ts` | 161 |
 | `src/services/ptyBus.ts` | 24 |
 | `src/services/recentFolders.ts` | 28 |
 | `src/services/session.ts` | 93 |

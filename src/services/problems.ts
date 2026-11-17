@@ -82,6 +82,19 @@ export const getProblems = () => snapshot;
 export const subscribeProblems = (l: () => void) => { listeners.add(l); return () => { listeners.delete(l); }; };
 export const useProblems = () => useSyncExternalStore(subscribeProblems, getProblems, getProblems);
 
+/** Tek dosya için "hata,uyarı" sayısı (ilkel değer): yalnız o dosyanın sayısı değişince abone bileşen çizilir (sekme başına). */
+export function useFileProblems(path?: string): { e: number; w: number } | undefined {
+  const key = path ? normPath(path) : '';
+  const raw = useSyncExternalStore(
+    subscribeProblems,
+    () => { const c = key ? snapshot.byPath[key] : undefined; return c ? c.e + ',' + c.w : ''; },
+    () => ''
+  );
+  if (!raw) return undefined;
+  const [e, w] = raw.split(',');
+  return { e: Number(e), w: Number(w) };
+}
+
 let setupDone = false;
 /** Monaco hazır olunca bir kez çağrılır: işaretçi dinleyicisini kurar ve TS/JS için gürültülü (yanlış pozitif) tanıları kısar. */
 export function setProblemsMonaco(m: unknown) {
@@ -135,7 +148,14 @@ export function bindProblemDecorations(editor: unknown): () => void {
       options: { isWholeLine: true, className: s === 'error' ? 'nova-err-line' : 'nova-warn-line', linesDecorationsClassName: s === 'error' ? 'nova-err-bar' : 'nova-warn-bar' }
     })));
   };
-  const sub = m.editor.onDidChangeMarkers(() => apply());
+  // Yalnız bu modelin işaretçileri değiştiyse ve en fazla ~100 ms'de bir uygula (P-24)
+  let pending: number | undefined;
+  const sub = m.editor.onDidChangeMarkers((uris) => {
+    const model = ed.getModel();
+    if (!model || !uris.some((u) => u.toString() === model.uri.toString())) return;
+    window.clearTimeout(pending);
+    pending = window.setTimeout(apply, 100);
+  });
   apply();
-  return () => { sub.dispose(); col.clear(); };
+  return () => { window.clearTimeout(pending); sub.dispose(); col.clear(); };
 }
