@@ -20,7 +20,8 @@ triggers: ["animasyon", "geçiş", "hover", "gecikme", "efekt", "hareket", "tran
 | `--hover-delay` | 140 ms | ikincil bilgi hover sonrası gecikmesi |
 | `--ease-out-soft` | cubic-bezier(.16,1,.3,1) | varsayılan eğri |
 | `--ease-spring` | cubic-bezier(.34,1.4,.64,1) | yalnız küçük "geri tepme" |
-| `--ease-inout` | cubic-bezier(.65,0,.35,1) | iki yönlü boyut |
+| `--ease-inout` | cubic-bezier(.65,0,.35,1) | iki yönlü boyut, tema renk geçişi |
+| `--r-sm` / `--r-md` / `--r-lg` | 4 / 6 / 8 px | köşe ölçeği: küçük öğe / düğme-sekme-girdi / menü-pencere |
 
 Yeni geçişte sabit `ms` veya `cubic-bezier` yazma; jeton kullan. Süre 400 ms'yi geçmez.
 
@@ -33,11 +34,20 @@ Yeni geçişte sabit `ms` veya `cubic-bezier` yazma; jeton kullan. Süre 400 ms'
 - `motion-underline`: `::after` çizgisi hover'da soldan (RTL'de sağdan) çizilir.
 - `btn-primary`, `btn-ghost`: sade düğmeler (32 px, düz zemin, basma geri bildirimi).
 - `logo-shadow`: logoya temaya uyan gölge (koyu: siyah, açık: yumuşak gri).
+- `nova-tab` (+ `nova-tab-close`): VS Code tarzı sekme. Üst vurgu çizgisi (`::before`) etkin sekmede ortadan açılır (`scaleX`), zemin/renk `--dur-base` ile döner, üst köşeler `--r-md`. Etkin sekme `aria-selected` ile belirlenir.
+- `animate-editor-in`: yalnız opaklık, `--dur-base`; sekme değişince editör içeriği (ve ayarlar arka perdesi) yumuşakça belirir. Düzen kaymaz.
+- `animate-dialog`: pencere/palet girişi (`translateY(-6px) scale(.985)` → yok). Komut paleti ve Ayarlar penceresi kullanır.
 - Eski sınıflar durur: `animate-fade-in`, `animate-sidebar-in`, `animate-panel-up`, `animate-tab-in`, `animate-menu`, `icon-btn`, `ab-item`, `status-item`.
+
+## Tema geçişi (koyu ↔ açık)
+`SettingsContext.applyAppearance` tema **gerçekten değişince** (ilk yükleme hariç) `<html data-theme-fading>` koyar, 320 ms sonra kaldırır. `style.css` bu özniteliğle yalnız renk özelliklerini (`background-color`, `color`, `border-color`, `fill`, `stroke`) `--dur-slow` + `--ease-inout` ile geçirir; konum/boyut animasyonlarına dokunmaz. `data-motion="off"` ve `prefers-reduced-motion` iken çalışmaz. Monaco temasını kendisi değiştirir, bu geçişe dahil değildir. Bu, kural 2'nin (yalnız transform/opacity) bilinçli istisnasıdır: kısa ömürlü ve yalnız renk.
+
+## Sekmeler ve editör
+Sekme çubuğu `scroll-smooth`; etkin sekme çubuk dışında kalırsa `scrollIntoView({inline:'nearest'})` ile görünür alana gelir (`EditorArea.tsx`). Yeni sekme soldan hafif kayarak (`tabIn`) girer. Monaco: `roundedSelection`, `cursorSmoothCaretAnimation`, `smoothScrolling` ve `cursorBlinking: smooth` açık (ayarlardan kapatılabilir).
 
 ## Kurallar
 1. **Önce yardımcıyı kullan**, yoksa jetonla yeni yardımcı ekle ve bu dosyayı güncelle.
-2. Yalnız `transform` ve `opacity` animasyonla; `width/height/top/left` animasyonu yalnız mevcut panel boyutlandırmasında.
+2. Yalnız `transform` ve `opacity` animasyonla (istisna: tema renk geçişi, yukarıda); `width/height/top/left` animasyonu yalnız mevcut panel boyutlandırmasında.
 3. Hover'a bağlı öğe klavye odağında da aynı görünür (`:focus-visible`).
 4. Sürüklerken geçiş kapanır (`<html data-resizing>`).
 5. `prefers-reduced-motion` ve `data-motion="off"` tüm süreleri sıfırlar (`style.css`); bunu bozma. Anlam yalnız harekette taşınmaz.

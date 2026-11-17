@@ -115,7 +115,7 @@ export const CommandPalette: React.FC<Props> = ({ initial, rootPath, commands, f
   return (
     <div className="fixed inset-0 z-[200]" onMouseDown={onClose}>
       <div
-        className="absolute left-1/2 -translate-x-1/2 top-10 w-[min(600px,92vw)] rounded-lg border border-zinc-700 bg-nv-side shadow-2xl overflow-hidden"
+        className="animate-dialog absolute left-1/2 -translate-x-1/2 top-10 w-[min(600px,92vw)] rounded-[var(--r-lg)] border border-zinc-700 bg-nv-side shadow-2xl overflow-hidden"
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
         aria-label={t('cpTitle')}

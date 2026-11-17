@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 17.11.2026 (Yumuşak geçişler ve VS Code tarzı sekmeler)
+- **Tek hareket dili korunarak: tema renk geçişi, `nova-tab` sekmeleri, editör belirme, pencere girişi ve köşe ölçeği (`--r-sm/md/lg`) eklendi.** Neden: tema değişimi ve sekme geçişleri sertti; yarı sabit `ms` değerleri jetonlardan kopuktu. Sonuç: eski sabit süreler (`ab-item`, `icon-btn`, `status-item`, kabuklar, `animate-*`) jetonlara bağlandı; renk paleti ve düzen değişmedi, gölge/degrade eklenmedi. Tema geçişi `<html data-theme-fading>` ile yalnız renk özelliklerini geçirir (kural 2'ye bilinçli istisna, kısa ömürlü); alternatif olan View Transitions API Monaco temasının ayrı güncellenmesi yüzünden seçilmedi. Ayrıntı: [[motion]].
+
 ## 17.11.2026 (AI tamamlama: dil ayarı kalktı)
 - **`aiCompletionOffLangs` ve menüdeki "Bu dilde etkin" kaldırıldı; dil otomatik algılanır.** Neden: kullanıcı talebi, ayar yüzeyi sadeleşsin. Sonuç: sağlayıcı yalnız `plaintext` modelini atlar. Eski kayıtlardaki değer şema süzgecinde atılır. Geri alma: yeni kayıt + şema satırı.
 

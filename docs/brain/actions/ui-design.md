@@ -7,6 +7,8 @@ triggers: ["tasarım", "tema", "logo", "renk", "animasyon", "arayüz"]
 ---
 # Aksiyon: Arayüz ve tasarım
 
+> **17.11.2026:** Sekmeler `nova-tab`, köşe ölçeği `--r-sm/md/lg`, tema renk geçişi ve pencere girişi için bkz. [[motion]].
+
 ## Tasarım dili
 - VS Code "Dark Modern" çizgisi: **düz yüzeyler, cam/bulanıklık/gölge yığını yok.** Gradient yalnız logoda.
 - Jetonlar `src/style.css` içindeki `@theme`: nötrler `zinc-*` (50→950), vurgu `indigo-*` (logodaki indigo-menekşe), yüzeyler `nv-editor` `#1f1f1f`, `nv-side` `#181818`, `nv-input`, `nv-hover`, `nv-active`, `nv-border`.

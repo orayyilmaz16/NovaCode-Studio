@@ -62,7 +62,7 @@
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 526 |
+| `src/components/EditorArea.tsx` | 533 |
 | `src/components/ExtensionsPanel.tsx` | 302 |
 | `src/components/FileTree.tsx` | 925 |
 | `src/components/FileTypeIcon.tsx` | 226 |
@@ -88,7 +88,7 @@
 ### Servisler
 | Dosya | Satır |
 |---|---|
-| `src/services/SettingsContext.tsx` | 140 |
+| `src/services/SettingsContext.tsx` | 148 |
 | `src/services/aiClient.ts` | 265 |
 | `src/services/aiCompletion.ts` | 198 |
 | `src/services/completionSchedule.ts` | 69 |

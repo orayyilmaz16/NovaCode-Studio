@@ -100,6 +100,10 @@
   --hover-delay: 140ms; /* ipucu/ikincil bilgi hover sonrası gecikmesi */
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
   --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Köşe yuvarlaklığı: tek ölçek (VS Code'a yakın, yumuşak) */
+  --r-sm: 4px;   /* küçük öğe, seçili şerit */
+  --r-md: 6px;   /* düğme, sekme, girdi */
+  --r-lg: 8px;   /* menü, pencere */
   /* Logo gölgesi: koyu temada siyah, açık temada yumuşak gri. Zemin değişmez. */
   --logo-shadow: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
 }
@@ -190,10 +194,10 @@
   width: 48px;
   height: 48px;
   color: var(--color-zinc-500);
-  transition: color 140ms var(--ease-out-soft);
+  transition: color var(--dur-base) var(--ease-out-soft);
 }
 .ab-item svg {
-  transition: transform 160ms var(--ease-out-soft);
+  transition: transform var(--dur-base) var(--ease-out-soft);
 }
 .ab-item:hover {
   color: var(--color-zinc-50);
@@ -219,7 +223,7 @@
   border-radius: 0 2px 2px 0;
   transform: scaleY(0);
   transform-origin: center;
-  transition: transform 220ms var(--ease-out-soft);
+  transition: transform var(--dur-slow) var(--ease-out-soft);
 }
 .ab-item[data-active="true"]::before {
   transform: scaleY(1);
@@ -228,10 +232,10 @@
 /* Kenar çubuğu ve terminal paneli: açılıp kapanırken boyut yumuşakça değişir.
    Kenarı sürüklerken (data-resizing) gecikme olmaması için geçiş kapatılır. */
 .sidebar-shell {
-  transition: width 190ms var(--ease-out-soft);
+  transition: width var(--dur-slow) var(--ease-out-soft);
 }
 .terminal-shell {
-  transition: height 200ms var(--ease-out-soft), border-top-width 200ms;
+  transition: height var(--dur-slow) var(--ease-out-soft), border-top-width var(--dur-slow);
 }
 :root[data-resizing] .sidebar-shell,
 :root[data-resizing] .terminal-shell {
@@ -246,9 +250,9 @@
   justify-content: center;
   width: 28px;
   height: 24px;
-  border-radius: 5px;
+  border-radius: var(--r-md);
   color: var(--color-zinc-400);
-  transition: background-color 120ms ease, color 120ms ease, transform 120ms var(--ease-out-soft);
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-soft);
 }
 .icon-btn:hover {
   background: var(--hover-overlay);
@@ -285,7 +289,7 @@
   padding: 0 7px;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background-color 120ms ease;
+  transition: background-color var(--dur-fast) ease;
 }
 button.status-item:hover {
   background: var(--active-overlay);
@@ -335,12 +339,24 @@ button.status-item:hover {
   from { opacity: 0; max-height: 0; transform: translateY(-6px); }
   to { opacity: 1; max-height: 40px; transform: none; }
 }
-.animate-tabbar-in { animation: tabBarIn 220ms var(--ease-out-soft) both; overflow: hidden; }
+.animate-tabbar-in { animation: tabBarIn var(--dur-slow) var(--ease-out-soft) both; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .animate-tabbar-in, .animate-tab-in { animation: none; } }
 @keyframes tabIn {
-  from { opacity: 0; transform: translateY(-3px); }
+  from { opacity: 0; transform: translateX(-6px) scale(0.96); }
   to { opacity: 1; transform: none; }
 }
+/* Sekme değişince editör içeriği yumuşakça belirir (yalnız opaklık: düzen kaymaz) */
+@keyframes editorIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-editor-in { animation: editorIn var(--dur-base) var(--ease-out-soft) both; }
+/* Pencere/palet girişi: hafif büyüme + belirme */
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.animate-dialog { animation: dialogIn var(--dur-base) var(--ease-out-soft) both; }
 @keyframes drawStroke {
   from { stroke-dashoffset: 60; }
   to { stroke-dashoffset: 0; }
@@ -369,11 +385,11 @@ button.status-item:hover {
   50% { transform: scale(1.12); }
 }
 
-.animate-fade-in { animation: fadeIn 220ms var(--ease-out-soft) both; }
-.animate-sidebar-in { animation: slideInLeft 180ms var(--ease-out-soft) both; }
-.animate-panel-up { animation: panelUp 200ms var(--ease-out-soft) both; }
-.animate-tab-in { animation: tabIn 160ms var(--ease-out-soft) both; }
-.animate-menu { animation: menuIn 160ms var(--ease-out-soft) both; transform-origin: top left; }
+.animate-fade-in { animation: fadeIn var(--dur-slow) var(--ease-out-soft) both; }
+.animate-sidebar-in { animation: slideInLeft var(--dur-base) var(--ease-out-soft) both; }
+.animate-panel-up { animation: panelUp var(--dur-slow) var(--ease-out-soft) both; }
+.animate-tab-in { animation: tabIn var(--dur-base) var(--ease-out-soft) both; }
+.animate-menu { animation: menuIn var(--dur-base) var(--ease-out-soft) both; transform-origin: top left; }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .animate-menu-item { animation: menuItemIn 180ms var(--ease-out-soft) both; }
@@ -405,6 +421,41 @@ button.status-item:hover {
   background: var(--color-indigo-400);
   animation: loadBar 1100ms var(--ease-out-soft) infinite;
 }
+
+/* Tema (koyu/açık) geçişi: renkler yumuşakça döner. SettingsContext geçişin başında <html data-theme-fading> koyar, kısa süre sonra kaldırır.
+   Yalnız renk özellikleri geçer; konum/boyut animasyonlarına dokunmaz. Animasyonlar kapalıyken veya hareket azaltılmışken çalışmaz. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme-fading]:not([data-motion="off"]) *,
+  :root[data-theme-fading]:not([data-motion="off"]) *::before,
+  :root[data-theme-fading]:not([data-motion="off"]) *::after {
+    transition: background-color var(--dur-slow) var(--ease-inout), color var(--dur-slow) var(--ease-inout),
+      border-color var(--dur-slow) var(--ease-inout), fill var(--dur-slow) var(--ease-inout), stroke var(--dur-slow) var(--ease-inout) !important;
+  }
+}
+
+/* ---------- Sekmeler (VS Code tarzı): üstte vurgu çizgisi ortadan açılır, zemin ve renk yumuşakça döner ---------- */
+.nova-tab {
+  border-start-start-radius: var(--r-md);
+  border-start-end-radius: var(--r-md);
+  transition: background-color var(--dur-base) ease, color var(--dur-base) ease, border-color var(--dur-base) ease;
+}
+.nova-tab::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: -1px;
+  height: 2px;
+  border-start-start-radius: var(--r-md);
+  border-start-end-radius: var(--r-md);
+  background: var(--color-indigo-500);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur-slow) var(--ease-out-soft);
+}
+.nova-tab[aria-selected="true"]::before { transform: scaleX(1); }
+/* Kapat düğmesi: yumuşak köşe, basınca küçülür */
+.nova-tab-close { border-radius: var(--r-sm); transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-soft); }
+.nova-tab-close:active { transform: scale(0.88); }
 
 /* Ayarlardan "Animasyonlar" kapatılırsa (data-motion="off") tüm hareket durur */
 :root[data-motion="off"] *,
