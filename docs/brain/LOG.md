@@ -4,6 +4,13 @@
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
 ## 17.11.2026 16:42 · auto/20261117-130721
+<!-- sig:c3JjL0FwcC50c3gsfCx8LOKaoCBla3NpayBiZWxn -->
+- Alan: [[ui-design]]
+- Kod (1): `src/App.tsx`
+- Belge (0): —
+- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
+
+## 17.11.2026 16:42 · auto/20261117-130721
 <!-- sig:c2NyaXB0cy90ZXN0cy9oaXN0b3J5LnRlc3QuY2pz -->
 - Alan: [[testing]], [[ui-design]]
 - Kod (2): `scripts/tests/history.test.cjs`, `src/App.tsx`

@@ -1696,7 +1696,7 @@ export function App() {
     [menusRaw, kbBindings]
   );
 
-  const paletteCommands: PaletteCommand[] = useMemo(() => {
+  const paletteCommandsRaw: PaletteCommand[] = useMemo(() => {
     const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
     return [
     { id: 'themePicker', label: t('mnThemePicker'), run: L.openThemePicker },
@@ -1727,18 +1727,43 @@ export function App() {
     { id: 'addNextMatch', label: t('mnNextMatch'), shortcut: 'Ctrl+D', run: () => runEditorAction('editor.action.addSelectionToNextFindMatch') },
     { id: 'selectMatches', label: t('mnSelectMatches'), run: () => runEditorAction('editor.action.selectHighlights') },
     { id: 'cursorAbove', label: t('mnCursorAbove'), shortcut: 'Ctrl+Alt+↑', run: () => runEditorAction('editor.action.insertCursorAbove') },
-    { id: 'cursorBelow', label: t('mnCursorBelow'), shortcut: 'Ctrl+Alt+↓', run: () => runEditorAction('editor.action.insertCursorBelow') }
+    { id: 'cursorBelow', label: t('mnCursorBelow'), shortcut: 'Ctrl+Alt+↓', run: () => runEditorAction('editor.action.insertCursorBelow') },
+    { id: 'splitRight', label: t('cmdSplitRight'), shortcut: 'Ctrl+\\', run: L.splitRight },
+    { id: 'splitDown', label: t('cmdSplitDown'), shortcut: 'Ctrl+Alt+\\', run: L.splitDown },
+    { id: 'focusOtherGroup', label: t('cmdFocusOtherGroup'), run: L.focusOtherGroup },
+    { id: 'closeSplit', label: t('cmdCloseSplit'), run: L.closeSplitView },
+    { id: 'keybindings', label: t('kbOpen'), run: L.openKeybindings }
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uiLang, extraTexts]);
+  // Paletteki sabit kısayol metinleri kullanıcının atadığı kısayola çevrilir (F-04)
+  const paletteCommands: PaletteCommand[] = useMemo(
+    () => paletteCommandsRaw.map((c) => (c.shortcut ? { ...c, shortcut: remapShortcutLabel(c.shortcut, kbBindings) || undefined } : c)),
+    [paletteCommandsRaw, kbBindings]
+  );
 
   // Projesiz/dosyasız işe yaramayan düğmeler: soluk görünür, üzerine gelince nedenini söyler, tıklayınca bir şey yapmaz
   const dis = (off: boolean, hint: string) => (off ? ({ 'aria-disabled': true, 'data-disabled': true, title: hint } as const) : {});
 
   // Sabit kimlikli işleyiciler: React.memo'lu EditorArea/FileTree gereksiz yeniden çizilmez (P-01)
   const eOpenPath = useEvent((p: string) => void openFileAt(p));
-  const eSelectTab = useEvent((id: string) => setActiveFileId(id));
-  const eCloseTab = useEvent((id: string) => void handleCloseTab(id));
+  const eSelectA = useEvent((id: string) => selectInGroupTab(id, 'a'));
+  const eSelectB = useEvent((id: string) => selectInGroupTab(id, 'b'));
+  const eCloseA = useEvent((id: string) => closeInGroup(id, 'a'));
+  const eCloseB = useEvent((id: string) => closeInGroup(id, 'b'));
+  const eFocusGroup = useEvent((g: GroupId) => focusGroupId(g));
+  const eDropTab = useEvent((id: string, from: GroupId, to: GroupId | 'new-right' | 'new-down') => dropTab(id, from, to));
+  const eSplitRight = useEvent(() => doSplit('row'));
+  const eCloseSplit = useEvent(() => closeSplitView());
+  const groupsRef = useRef<HTMLDivElement>(null);
+  const stackCol = !!split && (split.dir === 'col' || vw < 860);
+  const resizeGroups = (d: number) => {
+    const el = groupsRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const sign = !stackCol && getComputedStyle(el).direction === 'rtl' ? -1 : 1;
+    setSplitRatio((v) => clamp(v + (sign * d) / Math.max(200, stackCol ? r.height : r.width), 0.2, 0.8));
+  };
   const eChangeContent = useEvent((id: string, c: string) => handleContentChange(id, c));
   const eDirty = useEvent((id: string) => markDirty(id));
   const eSave = useEvent((file: FileItem) => void handleSaveFile(file));
@@ -1803,6 +1828,8 @@ export function App() {
       )}
 
       {trustState.root && !trustState.trusted && trustState.prompt && <LazyPanel><TrustDialog /></LazyPanel>}
+      {showKeybindings && <LazyPanel><KeybindingsEditor onClose={() => setShowKeybindings(false)} /></LazyPanel>}
+
       {updateDlg && <UpdateDialog initialTab={updateDlg} autoDownload={settings.updateAutoDownload === true} onClose={() => setUpdateDlg(null)} />}
 
       {palette !== null && (
@@ -2061,29 +2088,74 @@ export function App() {
             onToggleStartup={(v) => setSetting('welcomeOnStartup', v)}
           /></LazyPanel>
             ) : (
-              <EditorArea
-                onOpenPath={eOpenPath}
-                openFiles={openFiles}
-                activeFileId={activeFileId}
-                onSelectTab={eSelectTab}
-                onCloseTab={eCloseTab}
-                onNewFile={eNewFile}
-                onOpenFolder={eOpenFolder}
-                onOpenFiles={eOpenFiles}
-                rootPath={currentRootPath}
-                rootName={projectName}
-                onChangeContent={eChangeContent}
-                onDirty={eDirty}
-                getInitialContent={eInitial}
-                onReloadDisk={eReload}
-                onKeepMine={eKeep}
-                onSaveFile={eSave}
-                onRunCode={eRun}
-                canPreview={previewable}
-                previewOpen={showRightPanel === 'preview'}
-                onTogglePreview={eTogglePreview}
-                collab={collabCfg}
-              />
+              <div ref={groupsRef} className={`flex flex-1 min-h-0 min-w-0 ${stackCol ? 'flex-col' : 'flex-row'}`}>
+                <div className="flex min-w-0 min-h-0" style={split ? { flex: `0 0 ${(splitRatio * 100).toFixed(2)}%` } : { flex: '1 1 0%' }}>
+                  <EditorArea
+                    groupId="a"
+                    split={!!split}
+                    focused={!split || split.focus === 'a'}
+                    poolFiles={openFiles}
+                    onFocusGroup={eFocusGroup}
+                    onDropTab={eDropTab}
+                    onSplitRight={split ? undefined : eSplitRight}
+                    onOpenPath={eOpenPath}
+                    openFiles={groupFiles ? groupFiles.a : openFiles}
+                    activeFileId={split ? split.aActive : activeFileId}
+                    onSelectTab={eSelectA}
+                    onCloseTab={eCloseA}
+                    onNewFile={eNewFile}
+                    onOpenFolder={eOpenFolder}
+                    onOpenFiles={eOpenFiles}
+                    rootPath={currentRootPath}
+                    rootName={projectName}
+                    onChangeContent={eChangeContent}
+                    onDirty={eDirty}
+                    getInitialContent={eInitial}
+                    onReloadDisk={eReload}
+                    onKeepMine={eKeep}
+                    onSaveFile={eSave}
+                    onRunCode={eRun}
+                    canPreview={previewable}
+                    previewOpen={showRightPanel === 'preview'}
+                    onTogglePreview={eTogglePreview}
+                    collab={collabCfg}
+                  />
+                </div>
+                {split && groupFiles && (
+                  <>
+                    <ResizeHandle direction={stackCol ? 'vertical' : 'horizontal'} title={t('cmdSplitRight')} onResize={resizeGroups} />
+                    <div className="flex flex-1 min-w-0 min-h-0">
+                      <EditorArea
+                        groupId="b"
+                        split
+                        focused={split.focus === 'b'}
+                        poolFiles={openFiles}
+                        onFocusGroup={eFocusGroup}
+                        onDropTab={eDropTab}
+                        onCloseSplit={eCloseSplit}
+                        onOpenPath={eOpenPath}
+                        openFiles={groupFiles.b}
+                        activeFileId={split.bActive}
+                        onSelectTab={eSelectB}
+                        onCloseTab={eCloseB}
+                        onNewFile={eNewFile}
+                        rootPath={currentRootPath}
+                        rootName={projectName}
+                        onChangeContent={eChangeContent}
+                        onDirty={eDirty}
+                        getInitialContent={eInitial}
+                        onReloadDisk={eReload}
+                        onKeepMine={eKeep}
+                        onSaveFile={eSave}
+                        onRunCode={eRun}
+                        canPreview={previewable}
+                        previewOpen={showRightPanel === 'preview'}
+                        onTogglePreview={eTogglePreview}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
 
