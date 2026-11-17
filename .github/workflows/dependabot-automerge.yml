@@ -24,7 +24,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Sürüm atlamasını denetle ve auto-merge aç
-        if: steps.meta.outputs.package-ecosystem == 'github_actions' || steps.meta.outputs.dependency-type == 'direct:development'        env:
+        if: steps.meta.outputs.package-ecosystem == 'github_actions' || steps.meta.outputs.dependency-type == 'direct:development'
+        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           # Başlık, betiğe ortam değişkeniyle geçer (komut enjeksiyonu yok)
