@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 17.11.2026 (Renk temaları)
+- **`colorTheme` (10 hazır tema) eklendi; temalar tohum renklerden türetilir, mod temadan gelir, vurgu üstüne biner.** Neden: tek koyu/açık çift sıkıcıydı; her temayı 20+ değişkenle elle yazmak tutarsızlık ve bakım yükü yaratırdı. Sonuç: bir tema = 4 tohum renk + 7 sözdizimi rengi (`palettes.ts`); yüzey ölçeği Nova'dan çıkarılan oranlarla üretilir, böylece tüm temalar aynı kontrast ailesindedir ve testle (WCAG) denetlenir. Seçimler: (1) `themeMode` ile çakışmayı önlemek için tema seçiliyse mod temadan gelir, `themeMode` gizlenir. (2) Stil dosyasına 10 tema bloğu yazılmadı; satır içi değişken (vurgu sistemiyle aynı yol), `auto`da kaldırılır, Nova stil dosyasında kalır, CSS boyutu artmaz. (3) **Yazı tipi paketlenmedi** (yeni bağımlılık ve boyut yok); seçenekler cihazda kuruluysa çalışır, yoksa yedeğe düşer ve ayarda bu açıkça yazılır. Ayrıntı: [[settings]].
+
 ## 17.11.2026 (Belge otomasyonu)
 - **`scripts/doc-sync.mjs` + `UserPromptSubmit`/`Stop` hook'ları: her değişiklik beyne işlenir.** Neden: belgeleme kuralı yalnız metin olarak durunca unutuluyordu; elle hatırlamaya güvenilmez. Sonuç: istemde hatırlatma, tur sonunda "kod var, belge yok" denetimi (tek sefer engel, `stop_hook_active` ile döngüsüz), otomatik [[LOG]] (son 40 tur), ardından auto-commit. Seçimler: (1) **istem metni kaydedilmez** (repo'ya gider, gizli bilgi/kişisel veri riski, KVKK); yalnız dosya yolu, alan, belge durumu. (2) Hook'lar paralel çalıştığı için auto-commit ayrı hook değil, doc-sync'in içinden çağrılır; böylece günlük aynı commit'e girer. (3) İçerik (neden, çeviri) üretilmez, yalnız unutma yakalanır. Ayrıntı: [[doc-sync]].
 

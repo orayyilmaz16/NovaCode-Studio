@@ -1,6 +1,7 @@
 // Ayarlar çekirdeği: şema, varsayılanlar, doğrulama, kalıcılık (yalnız yerel) ve türetilmiş değerler.
 // Şema tek kaynaktır: settingsSchema.json. Yeni ayar = şemaya satır + i18n etiketi (bkz. docs/brain/actions/settings.md).
 import schemaJson from './settingsSchema.json';
+import { getPalette, paletteEditorTheme } from './palettes';
 
 export type SettingValue = string | number | boolean;
 export type SettingsValues = Record<string, SettingValue>;
@@ -13,7 +14,7 @@ export interface SettingOption {
 export interface SettingDef {
   id: string;
   category: string;
-  type: 'toggle' | 'select' | 'slider' | 'text' | 'accent';
+  type: 'toggle' | 'select' | 'slider' | 'text' | 'accent' | 'palette';
   default: SettingValue;
   options?: SettingOption[];
   min?: number;
@@ -68,7 +69,8 @@ export function sanitizeValue(def: SettingDef, raw: unknown): SettingValue {
     case 'text':
       return typeof raw === 'string' ? raw.slice(0, def.maxLength ?? 200) : def.default;
     case 'select':
-    case 'accent': {
+    case 'accent':
+    case 'palette': {
       const hit = def.options?.find((o) => String(o.value) === String(raw));
       return hit ? hit.value : def.default; // tür (sayı/metin) seçeneğin kendisinden gelir
     }
@@ -145,8 +147,12 @@ export function resolveMode(mode: SettingValue, prefersDark: boolean): ResolvedM
   return 'dark';
 }
 
-export function resolveEditorTheme(editorTheme: SettingValue, mode: ResolvedMode): string {
-  if (editorTheme === 'auto') return mode === 'light' ? 'nova-light' : 'nova-dark';
+/** Etkin moda göre çözümlenmiş Monaco teması. "auto": renk teması seçiliyse onun editör teması, yoksa Nova koyu/açık. */
+export function resolveEditorTheme(editorTheme: SettingValue, mode: ResolvedMode, colorTheme?: SettingValue): string {
+  if (editorTheme === 'auto') {
+    if (getPalette(colorTheme)) return paletteEditorTheme(String(colorTheme));
+    return mode === 'light' ? 'nova-light' : 'nova-dark';
+  }
   return String(editorTheme);
 }
 
@@ -181,6 +187,31 @@ export const ACCENTS: Record<string, { dark: string[]; light: string[]; swatch: 
     swatch: '#ec4899',
     dark: ['#ffd3e8', '#ffa8d1', '#ff7ab8', '#ec4899', '#d12c80', '#a8206a'],
     light: ['#7d1650', '#a01f68', '#be2178', '#d12c80', '#be2178', '#9a1c65']
+  },
+  violet: {
+    swatch: '#8b5cf6',
+    dark: ['#e4d9ff', '#c8b3ff', '#a98aff', '#8b5cf6', '#7340dd', '#5b2fb8'],
+    light: ['#3a1880', '#4b2299', '#5e30b8', '#7340dd', '#5e30b8', '#4b2699']
+  },
+  cyan: {
+    swatch: '#1fb6d4',
+    dark: ['#c6f1fa', '#8fe3f3', '#4fd0e8', '#1fb6d4', '#0c93ad', '#0a758a'],
+    light: ['#064a58', '#086274', '#0a7b90', '#0c93ad', '#0a7b90', '#08657a']
+  },
+  red: {
+    swatch: '#ef4444',
+    dark: ['#ffd2d2', '#ffa3a3', '#ff7373', '#ef4444', '#d12a2a', '#a82020'],
+    light: ['#7a1414', '#9c1c1c', '#bd2424', '#d12a2a', '#bd2424', '#9c1c1c']
+  },
+  amber: {
+    swatch: '#f2b01e',
+    dark: ['#fff0c2', '#ffe08a', '#ffcd4d', '#f2b01e', '#b87a06', '#8f5e05'],
+    light: ['#6b4403', '#855603', '#a06a05', '#b87d07', '#a06a05', '#845503']
+  },
+  lime: {
+    swatch: '#84cc16',
+    dark: ['#e6f9c0', '#cdf08a', '#aee050', '#84cc16', '#5d9209', '#4a7507'],
+    light: ['#2f4a05', '#3f6208', '#50790a', '#5d9209', '#50790a', '#3f6208']
   }
 };
 export const ACCENT_VARS = ['200', '300', '400', '500', '600', '700'] as const;
@@ -188,6 +219,14 @@ export const ACCENT_VARS = ['200', '300', '400', '500', '600', '700'] as const;
 export const UI_FONTS: Record<string, string> = {
   system: '"Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif',
   segoe: '"Segoe UI", system-ui, sans-serif',
+  bahnschrift: 'Bahnschrift, "Segoe UI", system-ui, sans-serif',
+  calibri: 'Calibri, "Segoe UI", system-ui, sans-serif',
+  corbel: 'Corbel, "Segoe UI", system-ui, sans-serif',
+  trebuchet: '"Trebuchet MS", "Segoe UI", system-ui, sans-serif',
+  inter: 'Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif',
+  roboto: 'Roboto, "Segoe UI", system-ui, sans-serif',
+  ibmplex: '"IBM Plex Sans", "Segoe UI", system-ui, sans-serif',
+  georgia: 'Georgia, "Times New Roman", serif',
   arial: 'Arial, "Helvetica Neue", sans-serif',
   verdana: 'Verdana, Geneva, sans-serif',
   tahoma: 'Tahoma, Geneva, sans-serif',
@@ -199,6 +238,12 @@ export const CODE_FONTS: Record<string, string> = {
   fira: "'Fira Code', 'Cascadia Code', Consolas, monospace",
   jetbrains: "'JetBrains Mono', 'Cascadia Code', Consolas, monospace",
   consolas: "Consolas, 'Courier New', monospace",
+  sourcecode: "'Source Code Pro', 'Cascadia Code', Consolas, monospace",
+  ibmplex: "'IBM Plex Mono', 'Cascadia Code', Consolas, monospace",
+  hack: "Hack, 'Cascadia Code', Consolas, monospace",
+  iosevka: "Iosevka, 'Cascadia Code', Consolas, monospace",
+  dejavu: "'DejaVu Sans Mono', 'Cascadia Code', Consolas, monospace",
+  lucida: "'Lucida Console', Consolas, monospace",
   courier: "'Courier New', Courier, monospace",
   monospace: 'monospace'
 };

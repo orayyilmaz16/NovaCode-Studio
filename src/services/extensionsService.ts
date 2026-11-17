@@ -205,7 +205,7 @@ export function useActiveEditorTheme(): string {
   const { installed } = useExtensions();
   const extTheme = String(values.extTheme || '');
   const active = !!extTheme && listExtThemes(installed).some((th) => th.id === extTheme);
-  return active ? extTheme : resolveEditorTheme(values.editorTheme, mode);
+  return active ? extTheme : resolveEditorTheme(values.editorTheme, mode, values.colorTheme);
 }
 
 export function useExtensions() {

@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `version:check` | `node scripts/check-version.mjs` |
@@ -78,7 +78,7 @@
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 98 |
-| `src/components/SettingsPage.tsx` | 570 |
+| `src/components/SettingsPage.tsx` | 614 |
 | `src/components/SplashScreen.tsx` | 38 |
 | `src/components/Terminal.tsx` | 560 |
 | `src/components/ThinkingMenu.tsx` | 146 |
@@ -88,7 +88,7 @@
 ### Servisler
 | Dosya | Satır |
 |---|---|
-| `src/services/SettingsContext.tsx` | 148 |
+| `src/services/SettingsContext.tsx` | 157 |
 | `src/services/aiClient.ts` | 265 |
 | `src/services/aiCompletion.ts` | 198 |
 | `src/services/completionSchedule.ts` | 69 |
@@ -97,17 +97,18 @@
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 143 |
 | `src/services/editorBridge.ts` | 98 |
-| `src/services/editorTheme.ts` | 96 |
+| `src/services/editorTheme.ts` | 98 |
 | `src/services/extensionsService.ts` | 220 |
 | `src/services/gitExplain.ts` | 18 |
 | `src/services/lang.ts` | 13 |
 | `src/services/lspClient.ts` | 190 |
 | `src/services/lspStore.ts` | 34 |
 | `src/services/monacoShim.ts` | 28 |
+| `src/services/palettes.ts` | 168 |
 | `src/services/previewKind.ts` | 11 |
 | `src/services/problems.ts` | 141 |
 | `src/services/ptyBus.ts` | 24 |
-| `src/services/settings.ts` | 263 |
+| `src/services/settings.ts` | 308 |
 | `src/services/terminalBridge.ts` | 32 |
 | `src/services/terminalText.ts` | 148 |
 | `src/services/updateService.ts` | 28 |
@@ -118,11 +119,12 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 1634 |
+| `src/i18n/uiText.ts` | 1635 |
 | `src/i18n/uiTextAi.ts` | 528 |
 | `src/i18n/uiTextComp.ts` | 113 |
 | `src/i18n/uiTextDev.ts` | 126 |
 | `src/i18n/uiTextScm.ts` | 228 |
+| `src/i18n/uiTextTheme.ts` | 71 |
 
 ### Betikler
 | Dosya | Satır |
@@ -147,6 +149,7 @@
 | `scripts/tests/debug.test.cjs` | 112 |
 | `scripts/tests/git.test.cjs` | 163 |
 | `scripts/tests/lsp.test.cjs` | 97 |
+| `scripts/tests/palettes.test.cjs` | 75 |
 | `scripts/tests/pty.test.cjs` | 84 |
 | `scripts/tests/settings-migrate.test.cjs` | 62 |
 | `scripts/tests/sync.test.cjs` | 58 |
@@ -183,16 +186,17 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `update:state`, `win:maximized`
 
 ## i18n
-- 838 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 858 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-109 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+110 ayar, 11 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
+| Görünüm | `colorTheme` | Renk teması | palette | `"auto"` | auto, midnight, forest, orchid, ember, atlas, ink, paper, mist, mint, rose |
 | Görünüm | `themeMode` | Tema modu | select | `"dark"` | dark, light, system |
-| Görünüm | `accent` | Vurgu rengi | accent | `"indigo"` | indigo, blue, teal, green, orange, pink |
-| Görünüm | `uiFont` | Arayüz yazı tipi | select | `"system"` | system, segoe, arial, verdana, tahoma, mono |
+| Görünüm | `accent` | Vurgu rengi | accent | `"indigo"` | indigo, blue, teal, green, orange, pink, violet, cyan, red, amber, lime |
+| Görünüm | `uiFont` | Arayüz yazı tipi | select | `"system"` | system, segoe, bahnschrift, calibri, corbel, trebuchet, verdana, tahoma, arial, inter, roboto, ibmplex, georgia, mono |
 | Görünüm | `uiZoom` | Arayüz yakınlaştırma | slider | `100` | 80–150 % |
 | Görünüm | `animations` | Animasyonlar | toggle | `true` |  |
 | Görünüm | `sidebarPosition` | Kenar çubuğu konumu | select | `"left"` | left, right |
@@ -201,7 +205,7 @@
 | Görünüm | `language` | Dil | select | `"auto"` | auto, tr, en, de, ru, ar, es, fr, az |
 | Editör | `editorTheme` | Editör teması | select | `"auto"` | auto, nova-dark, nova-light, vs-dark, vs, hc-black |
 | Editör | `extTheme` | Eklenti teması | text | `""` | ≤200 karakter |
-| Editör | `fontFamily` | Kod yazı tipi | select | `"cascadia"` | cascadia, fira, jetbrains, consolas, courier, monospace, custom |
+| Editör | `fontFamily` | Kod yazı tipi | select | `"cascadia"` | cascadia, fira, jetbrains, sourcecode, ibmplex, hack, iosevka, dejavu, consolas, lucida, courier, monospace, custom |
 | Editör | `fontFamilyCustom` | Özel yazı tipi | text | `""` | ≤120 karakter |
 | Editör | `fontSize` | Yazı boyutu | slider | `14` | 10–32 px |
 | Editör | `lineHeight` | Satır yüksekliği | slider | `0` | 0–2.4 |

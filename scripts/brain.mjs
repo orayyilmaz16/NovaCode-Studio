@@ -110,7 +110,7 @@ function ipcSection() {
 const LANGS = ["tr", "en", "de", "ru", "ar", "es", "fr", "az"];
 let i18nKeys = 0;
 // Metinler iki dosyada: uiText.ts (ana paket) ve uiTextAi.ts (AI paneli + ayarlar, gecikmeli yüklenir)
-const readUiTexts = () => ["src/i18n/uiText.ts", "src/i18n/uiTextAi.ts", "src/i18n/uiTextDev.ts", "src/i18n/uiTextScm.ts", "src/i18n/uiTextComp.ts"].filter(exists).map(read).join("\n").replace(/\r\n/g, "\n");
+const readUiTexts = () => ["src/i18n/uiText.ts", "src/i18n/uiTextAi.ts", "src/i18n/uiTextDev.ts", "src/i18n/uiTextScm.ts", "src/i18n/uiTextComp.ts", "src/i18n/uiTextTheme.ts"].filter(exists).map(read).join("\n").replace(/\r\n/g, "\n");
 if (exists("src/i18n/uiText.ts")) {
   const ui = readUiTexts();
   for (const m of ui.matchAll(/^  (\w+): \{\n([\s\S]*?)\n  \},/gm)) {
@@ -145,7 +145,7 @@ function validateSchema() {
     const t = s.type;
     if (t === "toggle" && typeof s.default !== "boolean") errors.push(`ayar şeması: ${s.id} varsayılanı boolean olmalı`);
     if (t === "slider" && !(typeof s.default === "number" && s.default >= s.min && s.default <= s.max)) errors.push(`ayar şeması: ${s.id} varsayılanı min/max dışında`);
-    if ((t === "select" || t === "accent") && !(s.options ?? []).some((o) => o.value === s.default)) errors.push(`ayar şeması: ${s.id} varsayılanı seçeneklerde yok`);
+    if ((t === "select" || t === "accent" || t === "palette") && !(s.options ?? []).some((o) => o.value === s.default)) errors.push(`ayar şeması: ${s.id} varsayılanı seçeneklerde yok`);
     if (t === "text" && typeof s.default !== "string") errors.push(`ayar şeması: ${s.id} varsayılanı metin olmalı`);
     if (s.showWhen && !schema.settings.some((x) => x.id === s.showWhen.id)) errors.push(`ayar şeması: ${s.id} showWhen bilinmeyen ayara bağlı`);
   }
