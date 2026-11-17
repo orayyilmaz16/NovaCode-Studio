@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 17.11.2026 (Sürekli denetim)
+Güvenlik, performans, hata/arayüz/özellik taramasını sürekli ve belgeli yapmak için üç katman kuruldu ([[audit]]): (1) `scripts/audit-scan.mjs` sezgisel tarama her Claude turunda (`auto-commit.mjs`) ve CI'da çalışır, [[AUDIT]] + `audit-baseline.json` üretir; (2) `npm run audit:check` temel çizgiye göre **yeni** yüksek/kritik bulgu varsa CI'ı durdurur (mevcut borç CI'ı kırmaz); (3) doğrulanmış derin bulgular [[BACKLOG]]'da durumlu tutulur. `security.yml` haftalık/her push'ta raporu iş özetine ve artifact'a yazar. Ağsız, yapay zekâsız, değer/sır yazdırmaz (KVKK). İlk derin tarama (17.11.2026): kritik yok, 30 güvenlik, 28 performans, 16 hata, 5 i18n, 8 arayüz, 9 özellik, 3 test maddesi.
+
 ## 17.11.2026 (Dil adı yazımı)
 Durum çubuğunda dil adı resmi yazımla gösterilir (`languageLabel`, `src/services/lang.ts`); dil adları özel ad olduğu için i18n dışıdır.
 

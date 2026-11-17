@@ -347,6 +347,7 @@
 | [[updates]] | `docs/brain/actions/updates.md` | Uygulama güncelleme sistemi: denetle, indir (yüzde), yeniden başlat ve kur; sürüm notları; yayın hattı |
 | [[versioning]] | `docs/brain/actions/versioning.md` | SemVer sürümleme otomasyonu: patch/minor/major kararı, sürüm notları, sürüm geçmişi, etiket ve GitHub Release |
 | [[AUDIT]] | `docs/brain/AUDIT.md` | Denetim raporu (otomatik) |
+| [[BACKLOG]] | `docs/brain/BACKLOG.md` | Denetim yapılacaklar listesi (doğrulanmış bulgular) |
 | [[BRAIN]] | `docs/brain/BRAIN.md` | NovaCode Studio — Proje Beyni |
 | [[DECISIONS]] | `docs/brain/DECISIONS.md` | Karar günlüğü |
 | [[LOG]] | `docs/brain/LOG.md` | Değişiklik günlüğü (otomatik) |
