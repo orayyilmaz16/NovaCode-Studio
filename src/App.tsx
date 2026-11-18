@@ -2080,8 +2080,8 @@ export function App() {
             </div>
           )}
         </div>
-        {/* Kenar çubuğu ile editör arası boşluk: sürükleme tutamacı da burada; kapanırken boşluk yumuşakça daralır */}
-        <div className="sidebar-gap h-full shrink-0 overflow-hidden flex justify-center" style={{ width: sidebarShown && !compactLeft ? 12 : 0 }}>
+        {/* Kenar çubuğu (açıkken) veya etkinlik çubuğu (kapalıyken) ile editör arası boşluk: sabit 8 px, açıkken sürükleme tutamacı ortada */}
+        <div className="sidebar-gap h-full shrink-0 overflow-hidden flex justify-center" style={{ width: compactLeft ? 4 : 8 }}>
           {sidebarShown && !compactLeft && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
         </div>
 

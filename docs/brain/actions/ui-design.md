@@ -136,3 +136,5 @@ Etkin sekme çubukta görünür alana `scrollTo` ile 12 px paylı kaydırılır 
 **Etkinlik çubuğu ölçeği (18.11.2026, son):** simge 24 px (eski boyut), düğme 42 px, şerit 48 px (eski 50 → yalnız simge–kenarlık boşluğu azaldı: iç genişlik 46, düğme 42). Dar ekranda kenar çubuğu bindirme ofseti 50 px.
 
 **Kenar çubuğu–editör boşluğu (18.11.2026):** 8 → 12 px (`.sidebar-gap`, tutamaç ortada); diğer tutamaçlar 6 px kalır.
+
+**Boşluk düzeltmesi (18.11.2026):** kenar çubuğu kapalıyken etkinlik çubuğu ile editör arası boşluk artık 10 px (2 px + sabit 8 px `.sidebar-gap`; önceden 2 px'ti), açıkken kenar çubuğu–editör boşluğu 12 → 8 px. `.sidebar-gap` genişliği sabit (dar ekranda 4 px), tutamaç yalnız açıkken çizilir.
