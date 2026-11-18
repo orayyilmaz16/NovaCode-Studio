@@ -122,7 +122,7 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
       onAuxClick={(e) => {
         if (e.button === 1) onClose(file.id);
       }}
-      className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] cursor-pointer border border-b-0 text-[13px] ${
+      className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-7 min-w-[96px] max-w-[200px] shrink-0 cursor-pointer border text-[13px] ${
         isActive
           ? 'bg-nv-editor text-zinc-100 border-nv-border'
           : 'border-transparent text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
@@ -495,7 +495,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
       {openFiles.length > 0 && (
       <div className="animate-tabbar-in flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[38px] select-none">
-        <div ref={tabListRef} role="tablist" className="flex items-end gap-0.5 flex-1 min-w-0 overflow-x-auto pt-1.5 px-1.5 [scrollbar-width:none] scroll-smooth">
+        <div ref={tabListRef} role="tablist" className="flex items-center gap-1 flex-1 min-w-0 overflow-x-auto px-1.5 [scrollbar-width:none] scroll-smooth">
           {openFiles.map((file) => (
             <EditorTab key={file.id} file={file} isActive={file.id === activeFileId} onSelect={onSelectTab} onClose={onCloseTab} group={groupId} />
           ))}

@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Yüzen sekmeler:** Editör sekmeleri artık dört köşesi yuvarlak, çubukta ortalı hap biçiminde; etkin sekme dolu zeminle ve vurgulu ince kenarlıkla ayrışır, geçişler yumuşaktır.
 - [improve] **Kenar çubuğu geçişi ve boşluğu:** Kenar çubuğu ile editör arasındaki boşluk biraz arttı; kenar çubuğu açılıp kapanırken genişlik, boşluk ve kart birlikte akıcı biçimde kayıp solar (eski zıplama giderildi). Yeniden boyutlandırma çizgisi hover'da gecikmeyle yumuşakça belirir.
 - [improve] **Sekme ipucu editör temasında:** Sekmenin üzerine gelince çıkan dosya yolu kutusu artık sistem kutusu yerine temaya uyumlu, kısa gecikmeyle yumuşakça beliren bir ipucu (dosya adı + klasör yolu).
 - [improve] **Yüzen, VS Code havalı arayüz:** Başlık, etkinlik şeridi, kenar çubuğu, editör, önizleme, AI paneli ve durum çubuğu daha yuvarlak (10 px) ve aralarında daha geniş boşlukla yüzen kartlar oldu; her kartta tek, yumuşak bir gölge var. Sekmelerin üst köşeleri daha yuvarlak, aralarında küçük boşluk var. Etkinlik çubuğu simgeleri normal boyuta (22 px) döndü; yalnız yan boşluklar azaldı (şerit 50 → 44 px). Hover, geçiş ve gecikmeli ipucu efektleri korundu.
@@ -18,6 +19,7 @@
 
 ### en
 
+- [improve] **Floating tabs:** Editor tabs are now fully rounded pills centered in the bar; the active tab stands out with a filled background and an accent-tinted border, with smooth transitions.
 - [improve] **Sidebar transition and spacing:** The gap between the sidebar and the editor grew slightly; when the sidebar opens or closes, its width, the gap and the card now slide and fade together smoothly (the old jump is gone). The resize line fades in softly after a short hover delay.
 - [improve] **Tab tooltip matches the editor theme:** The file-path box shown when hovering a tab is now a theme-matched tooltip (file name + folder path) that fades in after a short delay instead of the system box.
 - [improve] **Floating, VS Code-style UI:** The title bar, activity bar, sidebar, editor, preview, AI panel and status bar are now rounder (10 px) floating cards with wider gaps and a single soft shadow each. Tab top corners are rounder with a small gap between tabs. Activity bar icons are back to normal size (22 px); only the side spacing shrank (strip 50 → 44 px). Hover, transition and delayed tooltip effects stay.

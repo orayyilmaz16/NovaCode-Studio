@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 18.11.2026 12:09 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (2): `src/components/EditorArea.tsx`, `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/motion.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 18.11.2026 12:01 · auto/20261118-083349
 <!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvRWRp -->
 - Alan: [[ui-design]], [[motion]]
