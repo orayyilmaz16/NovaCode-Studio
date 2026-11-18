@@ -132,3 +132,5 @@ Sorun: dar editörde (AI/önizleme paneli veya kenar çubuğu açıkken) `shrink
 
 **Sekme–editör bağlantısı (18.11.2026):** seçili sekmenin alt sol/sağ köşelerinde içbükey 6 px yuvarlama (`.nova-tab[aria-selected]::before/::after`, `radial-gradient`, `--color-nv-editor`); sekme editör yüzeyine akarak bağlanır, RTL'de aynalanır.
 Etkin sekme çubukta görünür alana `scrollTo` ile 12 px paylı kaydırılır (`scrollIntoView` giriş animasyonunun ölçeğinden etkilenip sağ yuvarlamayı kırpıyordu); listenin sonunda 8 px boşluk (`w-2`) kalır.
+
+**Etkinlik çubuğu ölçeği (18.11.2026, son):** simge 24 px (eski boyut), düğme 42 px, şerit 48 px (eski 50 → yalnız simge–kenarlık boşluğu azaldı: iç genişlik 46, düğme 42). Dar ekranda kenar çubuğu bindirme ofseti 50 px.

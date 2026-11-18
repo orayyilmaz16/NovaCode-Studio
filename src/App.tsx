@@ -1956,19 +1956,19 @@ export function App() {
       <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${settings.statusBarVisible === false ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
-        <nav aria-label={t('appActivityBar')} className={`w-11 float-card bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-0.5' : 'mr-0.5'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
+        <nav aria-label={t('appActivityBar')} className={`w-12 float-card bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-0.5' : 'mr-0.5'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} data-tip={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
-              <Files size={22} strokeWidth={1.5} />
+              <Files size={24} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} {...(!currentRootPath ? { 'aria-disabled': true, 'data-disabled': true } : {})} data-tip={currentRootPath ? `${t('actSearch')} (Ctrl+Shift+F)` : `${t('actSearch')} — ${t('mnHintNoFolder')}`} aria-label={t('actSearch')} onClick={() => { if (currentRootPath) pickSidebar('search'); }}>
-              <Search size={22} strokeWidth={1.5} />
+              <Search size={24} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} data-tip={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
-              <Puzzle size={22} strokeWidth={1.5} />
+              <Puzzle size={24} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} data-tip={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
-              <GitBranch size={22} strokeWidth={1.5} />
+              <GitBranch size={24} strokeWidth={1.5} />
               {changeCount > 0 && (
                 <span className="absolute bottom-1 right-0.5 min-w-4 h-4 px-1 rounded-full bg-indigo-500 text-white text-[10px] leading-4 text-center font-semibold">
                   {changeCount > 99 ? '99+' : changeCount}
@@ -1976,7 +1976,7 @@ export function App() {
               )}
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} data-tip={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
-              <Bug size={22} strokeWidth={1.5} />
+              <Bug size={24} strokeWidth={1.5} />
               {dbgStatus === 'paused' && <span className="absolute bottom-2 right-2 size-2 rounded-full bg-amber-400" />}
             </button>
           </div>
@@ -1986,7 +1986,7 @@ export function App() {
               setShowSettings(false);
               setShowLanding(!showLanding);
             }}>
-              <House size={22} strokeWidth={1.5} />
+              <House size={24} strokeWidth={1.5} />
             </button>
             <button
               {...barBtn(false)}
@@ -1995,9 +1995,9 @@ export function App() {
               onClick={() => pickSidebar('git')}
             >
               {auth.connected && auth.profile?.avatarUrl ? (
-                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-[22px] rounded-full ring-1 ring-zinc-700" />
+                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-6 rounded-full ring-1 ring-zinc-700" />
               ) : (
-                <UserRound size={22} strokeWidth={1.5} />
+                <UserRound size={24} strokeWidth={1.5} />
               )}
             </button>
             <button
@@ -2009,7 +2009,7 @@ export function App() {
                 setShowSettings((v) => !v);
               }}
             >
-              <Settings size={22} strokeWidth={1.5} />
+              <Settings size={24} strokeWidth={1.5} />
             </button>
           </div>
         </nav>
@@ -2021,7 +2021,7 @@ export function App() {
           className={`sidebar-shell h-full shrink-0 overflow-hidden ${compactLeft ? 'absolute z-30 top-[var(--frame)] bottom-0' : ''}`}
           data-open={sidebarShown}
           data-side={sidebarRight ? 'right' : 'left'}
-          style={{ width: sidebarShown ? sbW : 0, ...(compactLeft ? { [sidebarRight ? 'right' : 'left']: `calc(var(--frame) + ${settings.activityBarVisible !== false ? 48 : 0}px)` } : {}) }}
+          style={{ width: sidebarShown ? sbW : 0, ...(compactLeft ? { [sidebarRight ? 'right' : 'left']: `calc(var(--frame) + ${settings.activityBarVisible !== false ? 50 : 0}px)` } : {}) }}
         >
           {sbMounted && (
             <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden">
