@@ -15,7 +15,7 @@ interface Props {
 }
 
 const baseName = (p: string) => p.split(/[\\/]/).pop() ?? p;
-const btn = 'w-7 h-7 rounded-md flex items-center justify-center text-zinc-300 hover:bg-nv-hover hover:text-zinc-50 disabled:opacity-35 disabled:hover:bg-transparent transition-colors';
+const btn = 'size-7 rounded-md flex items-center justify-center text-zinc-300 hover:bg-nv-hover hover:text-zinc-50 disabled:opacity-35 disabled:hover:bg-transparent transition-colors';
 
 const Section: React.FC<{ title: string; count?: number; children: React.ReactNode; defaultOpen?: boolean; action?: React.ReactNode }> = ({ title, count, children, defaultOpen = true, action }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -118,7 +118,7 @@ export const DebugPanel: React.FC<Props> = ({ rootPath, activeFile, onOpenFile }
       {/* Araç çubuğu */}
       <div className="flex items-center gap-0.5 px-2 pb-2 shrink-0">
         {!live ? (
-          <button className={`${btn} !w-auto px-2 gap-1 bg-emerald-600/20 text-emerald-200 hover:!bg-emerald-600/30`} disabled={!canStart} onClick={() => activeFile?.path && void startDebug(activeFile.path)} title={t('dbgStart')} aria-label={t('dbgStart')}>
+          <button className={`${btn} w-auto! px-2 gap-1 bg-emerald-600/20 text-emerald-200 hover:!bg-emerald-600/30`} disabled={!canStart} onClick={() => activeFile?.path && void startDebug(activeFile.path)} title={t('dbgStart')} aria-label={t('dbgStart')}>
             <Play size={13} className="fill-current" /><span className="text-[12px]">{t('dbgStart')}</span>
           </button>
         ) : (
@@ -163,7 +163,7 @@ export const DebugPanel: React.FC<Props> = ({ rootPath, activeFile, onOpenFile }
           {bpCount === 0 && <p className="px-4 py-1 text-[11.5px] text-zinc-500 leading-snug">{t('dbgNoBreakpoints')}</p>}
           {bpFiles.map(([file, lines]) => lines.map((l) => (
             <div key={`${file}:${l}`} className="group flex items-center gap-2 h-6 px-3 text-[12px] hover:bg-nv-hover">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#e51400] shrink-0" />
+              <span className="size-2.5 rounded-full bg-[#e51400] shrink-0" />
               <button className="flex-1 min-w-0 flex items-baseline gap-2 text-start" onClick={() => onOpenFile(file, l)} title={file}>
                 <span className="truncate">{baseName(file)}</span><span className="text-zinc-500 text-[11px]">:{l}</span>
               </button>

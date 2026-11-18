@@ -4,7 +4,7 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 
 ## Sürüm (otomatik)
 <!-- version:start -->
-Güncel sürüm: **v1.5.0** (minor, 17.11.2026) · notlar: `release-notes/v1.5.0.md` · geçmiş: `docs/brain/VERSIONS.md` · kural: `docs/brain/actions/versioning.md`. Bu blok `scripts/release.mjs` ile otomatik güncellenir, elle yazma.
+Güncel sürüm: **v1.5.1** (patch, 18.11.2026) · notlar: `release-notes/v1.5.1.md` · geçmiş: `docs/brain/VERSIONS.md` · kural: `docs/brain/actions/versioning.md`. Bu blok `scripts/release.mjs` ile otomatik güncellenir, elle yazma.
 <!-- version:end -->
 
 ## Komutlar
@@ -16,7 +16,7 @@ Güncel sürüm: **v1.5.0** (minor, 17.11.2026) · notlar: `release-notes/v1.5.0
 ## Harita (önce buraya bak, tüm repoyu tarama)
 - **Proje beyni:** `docs/brain/BRAIN.md` — okuma sırası, aksiyon oyun kitapları (`docs/brain/actions/`), karar günlüğü; `docs/brain/STATE.md` koddan otomatik üretilir (`npm run brain`, doğrulama `npm run brain:check`). İşe başlarken uygun aksiyon dosyasını oku, bitince `writes` listesini güncelle.
 - `electron-main.cjs`, `electron-preload.cjs`, `electron-git.cjs`, `electron-github.cjs` — ana süreç, dosya sistemi, watcher, IPC, git/GitHub, terminal, sandbox
-- `electron-ai.cjs` (AI motoru + ajan araçları), `electron-llm.cjs` (yerleşik yerel model, `node-llama-cpp`), `electron-ext.cjs` (eklenti mağazası, Open VSX), `electron-search.cjs` (dosya/metin arama) — ayrıntı: `docs/brain/actions/ai-assistant.md`, `extensions.md`, `search-palette.md`
+- `electron-ai.cjs` (AI motoru + ajan araçları), `electron-ext.cjs` (eklenti mağazası, Open VSX), `electron-search.cjs` (dosya/metin arama) — ayrıntı: `docs/brain/actions/ai-assistant.md`, `extensions.md`, `search-palette.md`
 - `src/App.tsx` — kabuk, durum yönetimi
 - `src/components/` — EditorArea, FileTree, GitPanel, Terminal, AIAssistant, Preview, LandingPage, SplashScreen
 - `server/sync-server.mjs` — açık kaynak Yjs senkron sunucusu (kendi sunucunda, `NOVA_SYNC_TOKEN` zorunlu, `npm run sync:server`)
@@ -32,7 +32,7 @@ Güncel sürüm: **v1.5.0** (minor, 17.11.2026) · notlar: `release-notes/v1.5.0
 6. Yeni bağımlılık eklemeden önce var olan çözüme bak; ekleniyorsa nedenini yaz.
 7. Kullanıcı arayüzüne eklenen her metin 8 dilde olmalı: tr, en, de, ru, ar, es, fr, az.
 8. Mevcut stile uy (Tailwind 4, fonksiyonel React bileşenleri, TypeScript strict).
-9. Arayüz sade kalır: düz yüzey, tek vurgu, gölge yığını/ızgara/degrade zemin yok. Geçiş, hover ve animasyonda `docs/brain/actions/motion.md` jetonları ve `motion-*` sınıfları kullanılır (sabit ms yazılmaz).
+9. Arayüz sade kalır: düz yüzey, tek vurgu, ızgara/degrade zemin yok; gölge yalnız kartlarda tek katman `--float-shadow` (yığın yok, 18.11.2026 kurucu kararı). Geçiş, hover ve animasyonda `docs/brain/actions/motion.md` jetonları ve `motion-*` sınıfları kullanılır (sabit ms yazılmaz).
 
 ## Git ve sürüm (ayrıntı: `AGENT.md`, `.claude/skills/nova-release/SKILL.md`)
 - Conventional Commits. Sürüm SemVer, tek kaynak `package.json`.

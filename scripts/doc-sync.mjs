@@ -36,7 +36,7 @@ const isBrainDoc = (f) => /^(AGENT\.md|CLAUDE\.md|docs\/brain\/(actions\/.+|DECI
 
 // Yol → aksiyon dosyası (öneri için). İlk eşleşen kazanır.
 const AREAS = [
-  [/aiCompletion|CompletionMenu|CompletionIcon|electron-ai|AIAssistant|electron-llm/, "ai-assistant"],
+  [/aiCompletion|CompletionMenu|CompletionIcon|electron-ai|AIAssistant|ModelMenu/, "ai-assistant"],
   [/electron-git|electron-github|GitPanel|BranchPicker/, "git-github"],
   [/settings|Settings|settingsSchema/, "settings"],
   [/FileTree|explorer/i, "explorer"],

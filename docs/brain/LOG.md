@@ -3,6 +3,83 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 18.11.2026 12:41 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
+- Alan: [[ui-design]]
+- Kod (1): `src/App.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 12:40 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL3N0eWxlLmNzcyx8LENI -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (2): `src/App.tsx`, `src/style.css`
+- Belge (3): `CHANGELOG.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 12:31 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
+- Alan: [[ui-design]], [[i18n]], [[motion]]
+- Kod (3): `src/components/EditorArea.tsx`, `src/i18n/uiText.ts`, `src/style.css`
+- Belge (3): `CHANGELOG.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 12:16 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvRXJy -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (3): `src/App.tsx`, `src/components/ErrorBoundary.tsx`, `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 12:09 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (2): `src/components/EditorArea.tsx`, `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/motion.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 12:01 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvRWRp -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (3): `src/App.tsx`, `src/components/EditorArea.tsx`, `src/style.css`
+- Belge (5): `CHANGELOG.md`, `CLAUDE.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 11:57 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL3N0eWxlLmNzcyx8LENI -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (2): `src/App.tsx`, `src/style.css`
+- Belge (3): `CHANGELOG.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 11:53 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
+- Alan: [[ui-design]]
+- Kod (1): `src/App.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ai-assistant.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 11:50 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvQUlB -->
+- Alan: [[ui-design]], [[ai-assistant]], [[debugging]], [[extensions]], [[explorer]], [[git-github]], [[preview]], [[source-control]], [[settings]], [[terminal]], [[updates]]
+- Kod (25): `src/App.tsx`, `src/components/AIAssistant.tsx`, `src/components/ChatSessions.tsx`, `src/components/ChipSlider.tsx`, `src/components/CompletionMenu.tsx`, `src/components/DebugPanel.tsx`, `src/components/EditorArea.tsx`, `src/components/ExtensionsPanel.tsx`, `src/components/FileTree.tsx`, `src/components/FileTypeIcon.tsx`, `src/components/GitPanel.tsx`, `src/components/GithubAccount.tsx` … (+13)
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 11:44 · auto/20261118-083349
+<!-- sig:ZWxlY3Ryb24tYWkuY2pzLGVsZWN0cm9uLWxsbS5j -->
+- Alan: [[ai-assistant]], [[ui-design]], [[security-kvkk]], [[brain-maintenance]], [[testing]], [[settings]], [[i18n]]
+- Kod (19): `electron-ai.cjs`, `electron-llm.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-secrets.cjs`, `scripts/doc-sync.mjs`, `scripts/tests/electron-misc.test.cjs`, `scripts/tests/settings-migrate.test.cjs`, `src/components/AIAssistant.tsx`, `src/components/ThinkingMenu.tsx`, `src/i18n/uiTextAi.ts`, `src/i18n/uiTextComp.ts` … (+7)
+- Belge (4): `CHANGELOG.md`, `CLAUDE.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ai-assistant.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
+## 18.11.2026 11:33 · auto/20261117-141213
+<!-- sig:c3JjL2NvbXBvbmVudHMvQUlBc3Npc3RhbnQudHN4 -->
+- Alan: [[ai-assistant]]
+- Kod (1): `src/components/AIAssistant.tsx`
+- Belge (3): `CHANGELOG.md`, `docs/brain/actions/ai-assistant.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm hazırlandı: v1.5.0 → v1.5.1 (patch)
+
 ## 17.11.2026 16:57 · auto/20261117-130721
 <!-- sig:ZWxlY3Ryb24tZXh0LmNqcyxlbGVjdHJvbi1tYWlu -->
 - Alan: [[extensions]], [[security-kvkk]], [[search-palette]], [[ui-design]], [[settings]], [[terminal]], [[testing]]

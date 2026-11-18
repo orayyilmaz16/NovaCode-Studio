@@ -650,11 +650,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
               )}
               {isFolder ? folderIcon(open, iconStyle) : fileIcon(item.name, iconStyle)}
               <span className={`truncate flex-1 ms-0.5 ${nameCls}`}>{hl(node.label)}</span>
-              {item.isModified && <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 shrink-0" />}
+              {item.isModified && <span className="size-1.5 rounded-full bg-zinc-300 shrink-0" />}
               {pb && (pb.e || pb.w) ? (
                 <span className={`font-mono text-[11px] shrink-0 ${pb.e ? 'text-rose-400' : 'text-amber-300'}`} title={`${pb.e} ✕ · ${pb.w} ⚠`}>{isFolder ? '●' : pb.e || pb.w}</span>
               ) : null}
-              {decor === 'dir' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0" />}
+              {decor === 'dir' && <span className="size-1.5 rounded-full bg-amber-400/70 shrink-0" />}
               {decor && decor !== 'dir' && (
                 <span className={`font-mono text-[11px] shrink-0 w-3 text-center ${GIT_NAME_COLOR[decor]?.split(' ')[0] ?? 'text-zinc-400'}`}>{decor}</span>
               )}
@@ -692,7 +692,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
     e.preventDefault();
     toggle();
   };
-  const headBtn = 'icon-btn !w-5 !h-5 opacity-0 group-hover/head:opacity-100 focus:opacity-100 transition-opacity';
+  const headBtn = 'icon-btn w-5! h-5! opacity-0 group-hover/head:opacity-100 focus:opacity-100 transition-opacity';
   // Başlık araç çubuğu: klasör yokken soluk (aria-disabled), üzerine gelince nedenini söyler
   const tool = (label: string, needsFolder = true) => (needsFolder && noFolder ? ({ 'aria-disabled': true, title: `${label} — ${t('mnHintNoFolder')}` } as const) : { title: label });
 
@@ -779,7 +779,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
       >
         {isLoading ? (
           <div className="px-4 py-3 flex items-center gap-2 text-zinc-500 text-[12px]">
-            <span className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+            <span className="size-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
             {t('expLoading')}
           </div>
         ) : (
@@ -813,7 +813,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
                         <span className="shrink-0">{f.name}</span>
                         {f.path && relPath(dirOf(f.path)) && <span className="truncate text-[11px] text-zinc-500">{relPath(dirOf(f.path))}</span>}
                         <span className="flex-1" />
-                        {f.isModified && <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 shrink-0 group-hover/oe:hidden" />}
+                        {f.isModified && <span className="size-1.5 rounded-full bg-zinc-300 shrink-0 group-hover/oe:hidden" />}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -874,7 +874,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
             ) : (
               <div className="px-3 py-4 animate-fade-in">
                 <div className="flex flex-col items-center text-center px-2 pt-2 pb-4">
-                  <div className="w-11 h-11 rounded-xl bg-nv-active flex items-center justify-center mb-3"><FolderOpen size={22} className="text-indigo-300" /></div>
+                  <div className="size-11 rounded-xl bg-nv-active flex items-center justify-center mb-3"><FolderOpen size={22} className="text-indigo-300" /></div>
                   <p className="text-[12.5px] text-zinc-300 leading-snug">{t('expNoFolder')}</p>
                 </div>
                 <div className="flex flex-col gap-1.5">

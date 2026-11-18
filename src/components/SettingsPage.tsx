@@ -18,9 +18,6 @@ import {
   X,
   Download,
   Upload,
-  Plus,
-  Pencil,
-  Trash2,
   Check
 } from 'lucide-react';
 import { t, type TextKey } from '../i18n/uiText';
@@ -42,7 +39,6 @@ import {
   CATEGORIES,
   SCHEMA,
   isVisible,
-  resolveEditorTheme,
   toMonacoOptions,
   type SettingDef,
   type SettingOption,
@@ -80,7 +76,7 @@ const Toggle: React.FC<{ checked: boolean; onChange: (v: boolean) => void; label
     className={`flex items-center box-border w-9 h-5 p-0.5 rounded-full shrink-0 transition-colors ${checked ? 'justify-end bg-indigo-500' : 'justify-start bg-zinc-600'}`}
   >
     <span
-      className="block w-4 h-4 rounded-full bg-white shadow shrink-0"
+      className="block size-4 rounded-full bg-white shadow shrink-0"
     />
   </button>
 );
@@ -196,7 +192,7 @@ const Control: React.FC<{ def: SettingDef; value: SettingValue; onChange: (v: Se
                       <div className="w-1/2" style={{ background: '#ffffff' }} />
                     </>
                   )}
-                  {on && <span className="absolute top-1 end-1 w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center"><Check size={11} className="text-white" strokeWidth={3} /></span>}
+                  {on && <span className="absolute top-1 end-1 size-4 rounded-full bg-indigo-500 flex items-center justify-center"><Check size={11} className="text-white" strokeWidth={3} /></span>}
                 </div>
                 <div className={`mt-1.5 px-0.5 text-[12px] truncate ${on ? 'text-zinc-100' : 'text-zinc-400 group-hover:text-zinc-200'}`}>{optLabel(o)}</div>
               </button>
@@ -217,7 +213,7 @@ const Control: React.FC<{ def: SettingDef; value: SettingValue; onChange: (v: Se
                 aria-label={optLabel(o)}
                 title={optLabel(o)}
                 onClick={() => onChange(o.value)}
-                className={`w-6 h-6 rounded-full flex items-center justify-center ring-offset-2 ring-offset-[var(--color-nv-editor)] transition-all hover:scale-110 ${on ? 'ring-2 ring-zinc-300' : ''}`}
+                className={`size-6 rounded-full flex items-center justify-center ring-offset-2 ring-offset-[var(--color-nv-editor)] transition-all hover:scale-110 ${on ? 'ring-2 ring-zinc-300' : ''}`}
                 style={{ background: ACCENTS[String(o.value)]?.swatch }}
               >
                 {on && <Check size={13} className="text-white" strokeWidth={3} />}
@@ -238,11 +234,11 @@ const Row: React.FC<{ def: SettingDef; tag?: string }> = ({ def, tag }) => {
     <div className="flex flex-col @lg:flex-row items-start @lg:justify-between gap-2 @lg:gap-6 py-3 border-b border-nv-border/70 last:border-0">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 text-[13px] text-zinc-100">
-          {modified && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" title={t('setModified')} />}
+          {modified && <span className="size-1.5 rounded-full bg-indigo-400 shrink-0" title={t('setModified')} />}
           <span>{label}</span>
           {tag && <span className="text-[10px] px-1.5 rounded bg-zinc-800 text-zinc-400">{tag}</span>}
           {modified && (
-            <button onClick={() => reset(def.id)} title={t('setResetOne')} aria-label={t('setResetOne')} className="icon-btn !w-5 !h-5">
+            <button onClick={() => reset(def.id)} title={t('setResetOne')} aria-label={t('setResetOne')} className="icon-btn w-5! h-5!">
               <RotateCcw size={11} />
             </button>
           )}
@@ -663,7 +659,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onClose, onOpenExten
             placeholder={t('setSearch')}
             aria-label={t('setSearch')}
             spellCheck={false}
-            className={`${field} w-full !h-8 ps-8`}
+            className={`${field} w-full h-8! ps-8`}
           />
         </div>
         <span className="hidden lg:block text-[12px] text-zinc-500 ms-auto">{t('setAutoSaved')}</span>

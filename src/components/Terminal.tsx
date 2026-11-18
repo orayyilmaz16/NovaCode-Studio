@@ -411,7 +411,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
         <div className="flex items-center gap-0.5">
           {tab === 'terminal' && hasShell && (
             <div className="flex items-center">
-              <button onClick={() => void createSession(defaultShell)} disabled={!cwd} title={t('termNew')} aria-label={t('termNew')} className="icon-btn !w-6 disabled:opacity-40">
+              <button onClick={() => void createSession(defaultShell)} disabled={!cwd} title={t('termNew')} aria-label={t('termNew')} className="icon-btn w-6! disabled:opacity-40">
                 <Plus size={15} />
               </button>
               <button
@@ -422,7 +422,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                 disabled={!cwd}
                 title={t('termPickShell')}
                 aria-label={t('termPickShell')}
-                className="icon-btn !w-5 disabled:opacity-40"
+                className="icon-btn w-5! disabled:opacity-40"
               >
                 <ChevronDown size={13} />
               </button>

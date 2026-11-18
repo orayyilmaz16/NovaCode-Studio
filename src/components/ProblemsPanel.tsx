@@ -72,7 +72,7 @@ export const ProblemsPanel: React.FC<{ rootPath?: string }> = ({ rootPath }) => 
                   className="w-full flex items-start gap-2 ps-8 pe-3 py-[3px] text-start hover:bg-nv-hover text-zinc-300"
                 >
                   <span className="pt-[2px]">{ICON[p.severity]}</span>
-                  <span className="min-w-0 flex-1 break-words">
+                  <span className="min-w-0 flex-1 wrap-break-word">
                     {p.message}
                     {(p.source || p.code) && <span className="ms-1.5 text-zinc-500">{[p.source, p.code].filter(Boolean).join(' ')}</span>}
                   </span>

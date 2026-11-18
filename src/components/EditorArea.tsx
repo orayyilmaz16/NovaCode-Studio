@@ -10,8 +10,10 @@ import type { GroupId } from '../services/splitLayout';
 import { setCursor } from '../services/cursorStore';
 import { setCompletionConfig, setCompletionMonaco } from '../services/aiCompletion';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
-import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal } from 'lucide-react';
+import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal, Ellipsis } from 'lucide-react';
+import { PopupMenu, type MenuItem } from './Menu';
 import { Logo } from './Logo';
+import { useHoverTip } from './HoverTip';
 import { defineNovaThemes } from '../services/editorTheme';
 import { useSettings } from '../services/SettingsContext';
 import { toMonacoOptions, toMonacoOptionsForFile } from '../services/settings';
@@ -89,8 +91,20 @@ function bindLspShared(ed: any, path: string, enabled: boolean): () => void {
 const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onClose, group }: { file: FileItem; isActive: boolean; onSelect: (id: string) => void; onClose: (id: string) => void; group: GroupId }) {
   const pc = useFileProblems(file.path);
   const nameTone = file.missing ? 'text-zinc-500 line-through' : pc?.e ? 'text-rose-400' : pc?.w ? 'text-amber-300' : '';
+  // Yerel title kutusu yerine temaya uyumlu, gecikmeli ipucu: dosya adı + klasör yolu
+  const full = file.path || file.name;
+  const cut = Math.max(full.lastIndexOf('/'), full.lastIndexOf('\\'));
+  const dir = cut > 0 ? full.slice(0, cut) : '';
+  const tip = useHoverTip(() => (
+    <>
+      <div className="font-medium text-zinc-100">{file.name}{file.missing ? ` — ${t('appTabMissing')}` : ''}</div>
+      {dir && <div className="mt-0.5 font-mono text-[10.5px] text-zinc-500 break-all">{dir}</div>}
+    </>
+  ));
   return (
+    <>
     <div
+      {...tip.props}
       role="tab"
       aria-selected={isActive}
       tabIndex={0}
@@ -109,11 +123,10 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
       onAuxClick={(e) => {
         if (e.button === 1) onClose(file.id);
       }}
-      title={file.missing ? `${file.path || file.name} — ${t('appTabMissing')}` : file.path || file.name}
-      className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] cursor-pointer border border-b-0 text-[13px] ${
+      className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] shrink-0 cursor-pointer border border-b-0 text-[13px] ${
         isActive
-          ? 'bg-nv-editor text-zinc-100 border-nv-border'
-          : 'border-transparent text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
+          ? 'bg-nv-editor text-zinc-100 border-transparent'
+          : 'border-transparent bg-zinc-50/4 text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
       }`}
     >
       {file.diff ? <GitCompare size={14} className="shrink-0 text-indigo-400" /> : <FileTypeIcon name={file.name} size={14} />}
@@ -125,10 +138,10 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
         }}
         aria-label={`${file.name} — ${t('closeTab')}`}
         title={t('closeTab')}
-        className="nova-tab-close ml-auto relative flex items-center justify-center w-5 h-5 text-zinc-400 hover:bg-[var(--hover-overlay)] hover:text-zinc-100"
+        className="nova-tab-close ml-auto relative flex items-center justify-center size-5 text-zinc-400 hover:bg-[var(--hover-overlay)] hover:text-zinc-100"
       >
         {file.isModified && (
-          <span className="absolute w-2 h-2 rounded-full bg-zinc-200 transition-opacity group-hover:opacity-0" />
+          <span className="absolute size-2 rounded-full bg-zinc-200 transition-opacity group-hover:opacity-0" />
         )}
         <X
           size={14}
@@ -136,6 +149,8 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
         />
       </button>
     </div>
+    {tip.node}
+    </>
   );
 });
 
@@ -176,18 +191,6 @@ function fileModelPath(f: { id: string; path?: string }): string {
   if (!f.path) return `inmemory://untitled/${encodeURIComponent(f.id)}`;
   const p = f.path.split('\\').join('/').replace(/^\//, '');
   return 'file:///' + encodeURI(p).replace(/[?#]/g, encodeURIComponent);
-}
-
-// Dosya türüne göre simge rengi (VS Code benzeri ayırt edicilik)
-function extColor(name: string): string {
-  const ext = name.split('.').pop()?.toLowerCase() ?? '';
-  if (['ts', 'tsx'].includes(ext)) return 'text-sky-400';
-  if (['js', 'jsx', 'mjs', 'cjs', 'json'].includes(ext)) return 'text-yellow-300';
-  if (['html', 'htm'].includes(ext)) return 'text-orange-400';
-  if (['css', 'scss', 'sass', 'less'].includes(ext)) return 'text-blue-400';
-  if (['md', 'markdown'].includes(ext)) return 'text-zinc-300';
-  if (['py'].includes(ext)) return 'text-emerald-400';
-  return 'text-zinc-400';
 }
 
 const EditorAreaImpl: React.FC<EditorAreaProps> = ({
@@ -233,6 +236,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
     [values]
   );
   const [copied, setCopied] = React.useState(false);
+  const [more, setMore] = React.useState<{ x: number; y: number } | null>(null); // dar editörde ikincil eylemler "⋯" menüsünde
   const [savedEffect, setSavedEffect] = React.useState(false);
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [diffInline, setDiffInline] = useState(false);
@@ -240,7 +244,16 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
   const tabListRef = useRef<HTMLDivElement>(null);
   // Etkin sekme çubuğun dışında kalırsa yumuşakça görünür alana kaydır
   useEffect(() => {
-    tabListRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+    const list = tabListRef.current;
+    const tab = list?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+    if (!list || !tab) return;
+    if (getComputedStyle(list).direction === 'rtl') { tab.scrollIntoView({ inline: 'nearest', block: 'nearest' }); return; }
+    // Sekme giriş animasyonu (ölçek) ölçümü bozmasın diye offset ölçüleri kullanılır; kenarlarda yuvarlak köşeler/bağlantı için pay bırakılır
+    const pad = 12;
+    const left = tab.offsetLeft;
+    const right = left + tab.offsetWidth;
+    if (left - pad < list.scrollLeft) list.scrollTo({ left: Math.max(0, left - pad), behavior: 'smooth' });
+    else if (right + pad > list.scrollLeft + list.clientWidth) list.scrollTo({ left: right + pad - list.clientWidth, behavior: 'smooth' });
   }, [activeFileId, openFiles.length]);
   const [collabStatus, setCollabStatus] = useState<'off' | 'connecting' | 'synced' | 'error'>('off');
   const activeFile = openFiles.find((f) => f.id === activeFileId);
@@ -492,8 +505,8 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       )}
       {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
       {openFiles.length > 0 && (
-      <div className="animate-tabbar-in flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[35px] select-none">
-        <div ref={tabListRef} role="tablist" className="flex items-end gap-px flex-1 min-w-0 overflow-x-auto pt-1 pl-1 [scrollbar-width:none] scroll-smooth">
+      <div className="animate-tabbar-in relative flex items-stretch justify-between bg-nv-side h-[38px] select-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-nv-border">
+        <div ref={tabListRef} role="tablist" className="relative z-10 flex items-end gap-0.5 flex-1 min-w-[96px] overflow-x-auto pt-1.5 pe-1.5 scroll-px-2 [scrollbar-width:none] scroll-smooth">
           {openFiles.map((file) => (
             <EditorTab key={file.id} file={file} isActive={file.id === activeFileId} onSelect={onSelectTab} onClose={onCloseTab} group={groupId} />
           ))}
@@ -507,11 +520,12 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
               <Plus size={15} />
             </button>
           )}
+          <span aria-hidden className="shrink-0 w-2" /> {/* kaydırma kabında son sekmenin sağ yuvarlaması kırpılmasın */}
         </div>
 
         {/* Bölme düğmeleri */}
         {activeFile && (onSplitRight || (split && onCloseSplit)) && (
-          <div className="flex items-center gap-0.5 pl-2 shrink-0">
+          <div className="hidden @md:flex items-center gap-0.5 pl-2 shrink-0">
             {onSplitRight && (
               <button onClick={onSplitRight} title={`${t('cmdSplitRight')}${getBindings().splitRight ? ` (${formatCombo(getBindings().splitRight)})` : ''}`} aria-label={t('cmdSplitRight')} className="icon-btn">
                 <SquareSplitHorizontal size={15} />
@@ -531,7 +545,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
             {collab?.enabled && (
               <span
                 title={t('edCollabTitle')}
-                className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded mr-1 ${
+                className={`hidden @md:flex items-center gap-1 text-[11px] px-2 py-0.5 rounded mr-1 ${
                   collabStatus === 'synced'
                     ? 'text-emerald-300 bg-emerald-500/10'
                     : collabStatus === 'error'
@@ -544,7 +558,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
               </span>
             )}
             {onSaveFile && (
-              <button onClick={handleSave} title={`${t('cmdSave')} (Ctrl+S)`} aria-label={t('cmdSave')} className="icon-btn">
+              <button onClick={handleSave} title={`${t('cmdSave')} (Ctrl+S)`} aria-label={t('cmdSave')} className="icon-btn hidden @md:flex">
                 {savedEffect ? <Check size={15} className="text-emerald-400" /> : <Save size={15} />}
               </button>
             )}
@@ -561,11 +575,20 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
                 aria-label={t('tbPreview')}
                 aria-pressed={previewOpen}
                 data-active={previewOpen}
-                className="icon-btn"
+                className="icon-btn hidden @md:flex"
               >
                 <Columns size={15} />
               </button>
             )}
+            <button
+              onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setMore({ x: r.right - 200, y: r.bottom + 4 }); }}
+              title={t('edMore')}
+              aria-label={t('edMore')}
+              aria-haspopup="menu"
+              className="icon-btn @md:hidden"
+            >
+              <Ellipsis size={15} />
+            </button>
             <button
               onClick={onRunCode}
               title={t('edRunPreview')}
@@ -579,6 +602,17 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
         )}
       </div>
       )}
+
+      {more && (() => {
+        const items: MenuItem[] = [];
+        if (onSaveFile) items.push({ label: t('cmdSave'), icon: <Save size={14} />, shortcut: 'Ctrl+S', onClick: handleSave });
+        items.push({ label: t('mnCopy'), icon: <Copy size={14} />, onClick: handleCopy });
+        items.push({ label: t('edDownload'), icon: <Download size={14} />, onClick: handleDownload });
+        if (canPreview && onTogglePreview) items.push({ label: t('tbPreview'), icon: <Columns size={14} />, checked: !!previewOpen, onClick: onTogglePreview });
+        if (onSplitRight) items.push({ separator: true }, { label: t('cmdSplitRight'), icon: <SquareSplitHorizontal size={14} />, onClick: onSplitRight });
+        if (split && onCloseSplit) items.push({ label: t('cmdCloseSplit'), icon: <X size={14} />, onClick: onCloseSplit });
+        return <PopupMenu x={more.x} y={more.y} items={items} onClose={() => setMore(null)} />;
+      })()}
 
       {/* Yol göstergesi */}
       {activeFile && !activeFile.diff && values.showBreadcrumbs !== false && (
@@ -597,9 +631,9 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
         <div role="alert" className="flex flex-wrap items-center gap-2 px-3 py-1.5 border-b border-nv-border bg-nv-side text-[12px] text-amber-300">
           <TriangleAlert size={13} className="shrink-0" />
           <span className="flex-1 min-w-0">{activeFile.missing ? t('appMissingOnDisk') : t('appChangedOnDisk')}</span>
-          {activeFile.externalChange && !activeFile.missing && onReloadDisk && <button className="btn-ghost !h-6" onClick={() => onReloadDisk(activeFile.id)}>{t('appReloadDisk')}</button>}
-          {activeFile.externalChange && !activeFile.missing && onKeepMine && <button className="btn-ghost !h-6" onClick={() => onKeepMine(activeFile.id)}>{t('appKeepMine')}</button>}
-          {onSaveFile && <button className="btn-ghost !h-6" onClick={() => onSaveFile(activeFile)}>{t('cmdSave')}</button>}
+          {activeFile.externalChange && !activeFile.missing && onReloadDisk && <button className="btn-ghost h-6!" onClick={() => onReloadDisk(activeFile.id)}>{t('appReloadDisk')}</button>}
+          {activeFile.externalChange && !activeFile.missing && onKeepMine && <button className="btn-ghost h-6!" onClick={() => onKeepMine(activeFile.id)}>{t('appKeepMine')}</button>}
+          {onSaveFile && <button className="btn-ghost h-6!" onClick={() => onSaveFile(activeFile)}>{t('cmdSave')}</button>}
         </div>
       )}
 

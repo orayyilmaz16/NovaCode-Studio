@@ -123,6 +123,8 @@
     font-family: var(--font-sans);
     font-size: 13px;
     -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none; /* mobilde sayfa çekip bırak yenilemesi/sıçraması olmasın */
   }
 
   ::selection {
@@ -167,13 +169,17 @@
 /* ---------- Çerçeve: panellerin ince kenarlığı ve köşe yuvarlaklığı (renklere dokunmaz) ----------
    Esnek: dar pencerede boşluk ve yuvarlaklık küçülür. */
 :root {
-  --frame: 6px;
-  --frame-r: 8px;
+  --frame: 8px;
+  --frame-r: 10px;
+  /* Yüzen kart: tek, yumuşak ve geniş gölge (yığın değil); açık temada daha hafif */
+  --float-shadow: 0 2px 12px rgb(0 0 0 / 0.28);
 }
+:root[data-theme="light"] { --float-shadow: 0 2px 12px rgb(0 0 0 / 0.09); }
+.float-card { box-shadow: var(--float-shadow); }
 @media (max-width: 760px) {
   :root {
-    --frame: 2px;
-    --frame-r: 6px;
+    --frame: 3px;
+    --frame-r: 7px;
   }
 }
 
@@ -191,33 +197,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
+  margin-block: 1px;
+  border-radius: var(--r-md);
   color: var(--color-zinc-500);
-  transition: color var(--dur-base) var(--ease-out-soft);
+  background-color: transparent;
+  transition: color var(--dur-fast) var(--ease-out-soft), background-color var(--dur-base) var(--ease-out-soft);
 }
 .ab-item svg {
-  transition: transform var(--dur-base) var(--ease-out-soft);
+  transition: transform var(--dur-base) var(--ease-spring);
 }
+/* Hover/etkin: yumuşak zemin kapsülü; simge hafif yukarı kalkar, basınca küçülür */
 .ab-item:hover {
   color: var(--color-zinc-50);
+  background-color: color-mix(in srgb, var(--color-zinc-50) 8%, transparent);
 }
 .ab-item:hover svg {
-  transform: scale(1.1);
+  transform: translateY(-1px) scale(1.08);
 }
 .ab-item:active svg {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 .ab-item[data-active="true"] {
   color: var(--color-zinc-50);
+  background-color: color-mix(in srgb, var(--color-zinc-50) 12%, transparent);
 }
-/* Etkin öğenin solundaki gösterge çubuğu kayarak belirir */
+/* Etkin öğenin solundaki gösterge çubuğu ortadan açılarak belirir */
 .ab-item::before {
   content: "";
   position: absolute;
   inset-inline-start: 0;
-  top: 12px;
-  bottom: 12px;
+  top: 11px;
+  bottom: 11px;
   width: 2px;
   background: var(--color-zinc-50);
   border-start-end-radius: 2px;
@@ -229,19 +241,75 @@
 .ab-item[data-active="true"]::before {
   transform: scaleY(1);
 }
+/* Gecikmeli ipucu: hover'dan --hover-delay sonra yana kayarak belirir (yerel title yerine data-tip; klavye odağında da görünür) */
+.ab-item[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  inset-inline-start: calc(100% + 8px);
+  top: 50%;
+  z-index: 60;
+  padding: 3px 8px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--color-nv-border);
+  background: var(--color-zinc-900);
+  color: var(--color-zinc-100);
+  font-size: 11.5px;
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-4px, -50%);
+  transition: opacity var(--dur-fast) var(--ease-out-soft), transform var(--dur-base) var(--ease-out-soft);
+}
+:root:dir(rtl) .ab-item[data-tip]::after { transform: translate(4px, -50%); }
+.ab-item[data-tip]:hover::after,
+.ab-item[data-tip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(0, -50%);
+  transition-delay: var(--hover-delay);
+}
+.ab-item[data-tip]:active::after { opacity: 0; transition-delay: 0s; }
 
 /* Kenar çubuğu ve terminal paneli: açılıp kapanırken boyut yumuşakça değişir.
    Kenarı sürüklerken (data-resizing) gecikme olmaması için geçiş kapatılır. */
-.sidebar-shell {
-  transition: width var(--dur-slow) var(--ease-out-soft);
+.sidebar-shell,
+.sidebar-gap {
+  transition: width var(--dur-slow) var(--ease-inout);
 }
+/* Kart, daralırken yana kayıp solar; açılırken geri gelir (genişlik animasyonuyla birlikte tek akıcı hareket) */
+.sidebar-shell > * {
+  transition: opacity var(--dur-slow) var(--ease-out-soft), transform var(--dur-slow) var(--ease-out-soft);
+}
+.sidebar-shell[data-open="false"] > * {
+  opacity: 0;
+  transform: translateX(-14px);
+}
+.sidebar-shell[data-open="false"][data-side="right"] > * { transform: translateX(14px); }
+:root:dir(rtl) .sidebar-shell[data-open="false"] > * { transform: translateX(14px); }
+:root:dir(rtl) .sidebar-shell[data-open="false"][data-side="right"] > * { transform: translateX(-14px); }
 .terminal-shell {
   transition: height var(--dur-slow) var(--ease-out-soft), border-top-width var(--dur-slow);
 }
 :root[data-resizing] .sidebar-shell,
+:root[data-resizing] .sidebar-gap,
+:root[data-resizing] .sidebar-shell > *,
 :root[data-resizing] .terminal-shell {
   transition: none;
 }
+/* Yeniden boyutlandırma çizgisi: hover'da gecikmeyle yumuşakça belirir, sürüklerken belirginleşir */
+.resize-line {
+  background: var(--color-indigo-500);
+  opacity: 0;
+  transform: scaleY(0.6);
+  transition: opacity var(--dur-base) var(--ease-out-soft), transform var(--dur-base) var(--ease-out-soft);
+}
+[role="separator"][aria-orientation="horizontal"] > .resize-line { transform: scaleX(0.6); }
+[role="separator"]:hover > .resize-line { opacity: 0.55; transform: none; transition-delay: var(--hover-delay); }
+[role="separator"]:active > .resize-line { opacity: 0.9; transform: none; transition-delay: 0s; }
+
+/* Sekme ipucu (HoverTip): yumuşak belirme, editör temasının yüzeyi ve kenarlığı */
+.hover-tip { animation: tipIn var(--dur-base) var(--ease-out-soft) both; box-shadow: var(--float-shadow); }
+@keyframes tipIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 
 @layer components {
 /* Başlık çubuğu ve genel simge düğmeleri */
@@ -442,26 +510,34 @@ button.status-item:hover {
   }
 }
 
-/* ---------- Sekmeler (VS Code tarzı): üstte vurgu çizgisi ortadan açılır, zemin ve renk yumuşakça döner ---------- */
+/* ---------- Sekmeler (editöre bitişik): etkin sekme editör zeminiyle yumuşakça birleşir (üst çizgi yok), üst köşeler yuvarlak ---------- */
 .nova-tab {
-  border-start-start-radius: var(--r-md);
-  border-start-end-radius: var(--r-md);
-  transition: background-color var(--dur-base) ease, color var(--dur-base) ease, border-color var(--dur-base) ease;
+  border-start-start-radius: var(--r-lg);
+  border-start-end-radius: var(--r-lg);
+  transition: background-color var(--dur-base) var(--ease-out-soft), color var(--dur-base) var(--ease-out-soft);
 }
-.nova-tab::before {
+.nova-tab[aria-selected="true"] { z-index: 1; }
+/* Seçili sekmenin alt köşelerinde içe dönük (içbükey) yumuşak yuvarlama: sekme editör yüzeyine akarak bağlanır.
+   Küçük yarıçap (6 px) ve kenarlıksız olduğundan belli etmeden hissedilir; RTL'de aynalanır. */
+.nova-tab[aria-selected="true"]::before,
+.nova-tab[aria-selected="true"]::after {
   content: "";
   position: absolute;
-  inset-inline: 0;
-  top: -1px;
-  height: 2px;
-  border-start-start-radius: var(--r-md);
-  border-start-end-radius: var(--r-md);
-  background: var(--color-indigo-500);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform var(--dur-slow) var(--ease-out-soft);
+  bottom: 0;
+  width: var(--r-md);
+  height: var(--r-md);
+  pointer-events: none;
 }
-.nova-tab[aria-selected="true"]::before { transform: scaleX(1); }
+.nova-tab[aria-selected="true"]::before {
+  inset-inline-start: calc(var(--r-md) * -1);
+  background: radial-gradient(circle at 0 0, transparent calc(var(--r-md) - 0.5px), var(--color-nv-editor) var(--r-md));
+}
+.nova-tab[aria-selected="true"]::after {
+  inset-inline-end: calc(var(--r-md) * -1);
+  background: radial-gradient(circle at 100% 0, transparent calc(var(--r-md) - 0.5px), var(--color-nv-editor) var(--r-md));
+}
+:dir(rtl) .nova-tab[aria-selected="true"]::before { background: radial-gradient(circle at 100% 0, transparent calc(var(--r-md) - 0.5px), var(--color-nv-editor) var(--r-md)); }
+:dir(rtl) .nova-tab[aria-selected="true"]::after { background: radial-gradient(circle at 0 0, transparent calc(var(--r-md) - 0.5px), var(--color-nv-editor) var(--r-md)); }
 /* Kapat düğmesi: yumuşak köşe, basınca küçülür */
 .nova-tab-close { border-radius: var(--r-sm); transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-soft); }
 .nova-tab-close:active { transform: scale(0.88); }
@@ -499,6 +575,7 @@ button.status-item:hover {
 }
 .ab-item[aria-disabled="true"]:hover {
   color: var(--color-zinc-500);
+  background-color: transparent;
 }
 .ab-item[aria-disabled="true"]:hover svg,
 .ab-item[aria-disabled="true"]:active svg {

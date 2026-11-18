@@ -506,6 +506,9 @@ export const UI_TEXT = {
   updStatusReady: {
     tr: "Yeniden başlat ve güncelle", en: "Restart to update", de: "Neu starten zum Aktualisieren", ru: "Перезапустить для обновления", ar: "أعد التشغيل للتحديث", es: "Reiniciar para actualizar", fr: "Redémarrer pour mettre à jour", az: "Yeniləmək üçün yenidən başlat",
   },
+  edMore: {
+    tr: "Diğer eylemler", en: "More actions", de: "Weitere Aktionen", ru: "Другие действия", ar: "المزيد من الإجراءات", es: "Más acciones", fr: "Autres actions", az: "Digər əməliyyatlar",
+  },
   edDownload: {
     tr: "Dosyayı indir", en: "Download file", de: "Datei herunterladen", ru: "Скачать файл", ar: "تنزيل الملف", es: "Descargar archivo", fr: "Télécharger le fichier", az: "Faylı yüklə",
   },

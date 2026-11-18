@@ -36,7 +36,7 @@ const Card: React.FC<{ icon: React.ReactNode; title: string; desc: string; onCli
     style={{ ['--i' as string]: index }}
     className="motion-rise motion-card group flex items-start gap-3 p-3.5 rounded-lg text-start w-full"
   >
-    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-nv-active text-indigo-300">{icon}</span>
+    <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-nv-active text-indigo-300">{icon}</span>
     <span className="min-w-0 flex-1">
       <span className="block text-[13px] text-zinc-100">{title}</span>
       <span className="block text-[12px] text-zinc-500 leading-relaxed mt-0.5">{desc}</span>

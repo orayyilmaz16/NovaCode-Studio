@@ -13,7 +13,7 @@ type Monaco = typeof MonacoNS;
 export type CompletionState = 'idle' | 'busy' | 'unavailable' | 'off';
 export type CompletionReason = 'no-api' | 'no-model' | 'no-ollama' | null;
 export type CompletionEffort = 'instant' | 'fast' | 'balanced' | 'deep';
-export const DEFAULT_MODEL = 'qwen2.5-coder:7b';
+export const DEFAULT_MODEL = 'qwen2.5-coder:0.5b'; // hız için küçük model; sohbet/ajan modeli panelden seçilir (aiAskModel/aiAgentModel)
 /** Tamamlama süresi üst sınırı (ms). */
 export const MAX_DELAY = 3000;
 /** İstek öncesi sessizlik (ms): tuş başına istek yağmasın. Öneri süresi bundan bağımsızdır, cfg.delay ile sabitlenir. */

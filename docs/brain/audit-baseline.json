@@ -1,5 +1,5 @@
 {
- "date": "17.11.2026",
+ "date": "18.11.2026",
  "items": [
   {
    "k": "PERF-BIGFILE|src/App.tsx",
@@ -13,6 +13,11 @@
   },
   {
    "k": "Q-I18N-HARD|src/App.tsx",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
+   "k": "Q-I18N-HARD|src/components/AIAssistant.tsx",
    "n": 1,
    "sev": "orta"
   },
@@ -93,7 +98,7 @@
   },
   {
    "k": "PERF-SYNC-FS|electron-ai.cjs",
-   "n": 20,
+   "n": 22,
    "sev": "düşük"
   },
   {
@@ -114,11 +119,6 @@
   {
    "k": "PERF-SYNC-FS|electron-github.cjs",
    "n": 5,
-   "sev": "düşük"
-  },
-  {
-   "k": "PERF-SYNC-FS|electron-llm.cjs",
-   "n": 3,
    "sev": "düşük"
   },
   {
@@ -193,7 +193,7 @@
   },
   {
    "k": "SEC-IPC-NOEVT|electron-ai.cjs",
-   "n": 1,
+   "n": 3,
    "sev": "düşük"
   },
   {
@@ -204,11 +204,6 @@
   {
    "k": "SEC-IPC-NOEVT|electron-github.cjs",
    "n": 4,
-   "sev": "düşük"
-  },
-  {
-   "k": "SEC-IPC-NOEVT|electron-llm.cjs",
-   "n": 1,
    "sev": "düşük"
   },
   {

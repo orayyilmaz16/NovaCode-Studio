@@ -79,7 +79,7 @@ export const GithubAccount: React.FC = () => {
       {auth.connected && auth.profile ? (
         <div className="flex items-center gap-2">
           {auth.profile.avatarUrl && (
-            <img src={auth.profile.avatarUrl} alt="" className="w-7 h-7 rounded-full border border-zinc-700" referrerPolicy="no-referrer" />
+            <img src={auth.profile.avatarUrl} alt="" className="size-7 rounded-full border border-zinc-700" referrerPolicy="no-referrer" />
           )}
           <div className="min-w-0 flex-1">
             <div className="truncate text-zinc-100">{auth.profile.name || auth.profile.login}</div>

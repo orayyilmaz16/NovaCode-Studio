@@ -91,8 +91,8 @@ export const KeybindingsEditor: React.FC<{ onClose?: () => void; embedded?: bool
           {pending && (
             <>
               <span className="min-w-0">{t('kbConflict').replace('{k}', formatCombo(pending.combo)).replace('{c}', pending.clash.map((id) => { const c = getCommand(id); return c ? labelOf(c) : id; }).join(', '))}</span>
-              <button className="btn-ghost !h-6" onClick={() => { setOverrides(assign(getOverrides(), pending.id, pending.combo, true).overrides); setPending(null); }}>{t('kbAssignAnyway')}</button>
-              <button className="btn-ghost !h-6" onClick={() => setPending(null)}>{t('appCancel')}</button>
+              <button className="btn-ghost h-6!" onClick={() => { setOverrides(assign(getOverrides(), pending.id, pending.combo, true).overrides); setPending(null); }}>{t('kbAssignAnyway')}</button>
+              <button className="btn-ghost h-6!" onClick={() => setPending(null)}>{t('appCancel')}</button>
             </>
           )}
         </div>

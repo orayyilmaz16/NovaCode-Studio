@@ -4,7 +4,56 @@
 
 ### tr
 
+- [improve] **Kenar çubuğu boşlukları dengelendi:** Kenar çubuğu kapalıyken etkinlik çubuğu ile editör arasındaki boşluk artırıldı (2 → 10 px); açıkken kenar çubuğu ile editör arası 12 px'ten 8 px'e düşürüldü.
+- [improve] **Kenar çubuğu ile editör arası boşluk biraz daha açıldı** (8 → 12 px); sürükleme çizgisi boşluğun ortasında.
+- [improve] **Etkinlik çubuğu ölçeği geri geldi:** Soldaki çubuğun simgeleri eski boyutuna (24 px) döndü ve düğmeler büyüdü; yalnız simge ile kenarlık arasındaki boşluk azaldı (şerit 50 → 48 px).
+- [improve] **Sekme editöre akarak bağlanır:** Seçili sekmenin alt köşelerinde, sekme ile editör birleştiği yerde hissedilmeyecek kadar ince içe dönük yuvarlama var.
+- [improve] **Daha sade, yumuşak sekmeler:** Seçili sekmenin üstündeki vurgu çizgisi kaldırıldı; seçili sekme kenarlıksız olarak editör zeminiyle yumuşakça birleşiyor. Sekmelerin solundaki gereksiz boşluk kalktı, ilk sekme karta bitişik başlıyor.
+- [fix] **Dar editörde sekmeler görünür:** Yapay zekâ, önizleme veya kenar çubuğu açıkken editör daraldığında sekmeler eylem düğmelerinin altında kayboluyordu. Sekme listesi artık en az bir sekme gösterir; dar editörde bölme, kaydet, kopyala, indir ve önizleme düğmeleri "⋯" menüsünde toplanır. Koyu temalarda pasif sekmeler zeminden daha net ayrışır.
+- [fix] **Telefon ve tablet düzeni:** 760 px altında kenar çubuğu editörü ezmeden üstüne biner (dışına dokunmak veya dosya seçmek kapatır, telefonda kapalı başlar); eskiden ~160 px'e sıkışan editör ve üst üste binen sekme düğmeleri düzeldi. Mobil tarayıcı adres çubuğunda yükseklik doğru hesaplanır, sayfa sıçraması engellendi. Etkinlik çubuğundaki aktif gösterge çizgisi kart dışına taşmıyor.
+- [improve] **Editöre bitişik sekmeler:** Etkin sekme editör zeminiyle birleşir (alt çizgi onun altında kesilir), üstte vurgu çizgisi ortadan açılır; geçişler yumuşaktır.
+- [improve] **Kenar çubuğu geçişi ve boşluğu:** Kenar çubuğu ile editör arasındaki boşluk biraz arttı; kenar çubuğu açılıp kapanırken genişlik, boşluk ve kart birlikte akıcı biçimde kayıp solar (eski zıplama giderildi). Yeniden boyutlandırma çizgisi hover'da gecikmeyle yumuşakça belirir.
+- [improve] **Sekme ipucu editör temasında:** Sekmenin üzerine gelince çıkan dosya yolu kutusu artık sistem kutusu yerine temaya uyumlu, kısa gecikmeyle yumuşakça beliren bir ipucu (dosya adı + klasör yolu).
+- [improve] **Yüzen, VS Code havalı arayüz:** Başlık, etkinlik şeridi, kenar çubuğu, editör, önizleme, AI paneli ve durum çubuğu daha yuvarlak (10 px) ve aralarında daha geniş boşlukla yüzen kartlar oldu; her kartta tek, yumuşak bir gölge var. Sekmelerin üst köşeleri daha yuvarlak, aralarında küçük boşluk var. Etkinlik çubuğu simgeleri normal boyuta (22 px) döndü; yalnız yan boşluklar azaldı (şerit 50 → 44 px). Hover, geçiş ve gecikmeli ipucu efektleri korundu.
+- [improve] **Daha canlı etkinlik çubuğu:** Hover'da yumuşak zemin kapsülü ve hafif yukarı kalkan simge, etkin öğede ortadan açılan gösterge çizgisi; öğe adı ve kısayolu kısa bir gecikmeden sonra yana kayarak beliren ipucuyla gösterilir.
+- [improve] **AI düğmesi arama çubuğunun içinde:** Yapay zekâ paneli düğmesi, VS Code'daki gibi üst çubuktaki arama alanının içine, en sağa ayrı bir bölme olarak yerleşti; panel açıkken vurgulu görünür.
+- [fix] **Yapay zekâ paneli taşmaları ve hatalar:** Model ve düşünme menüleri artık giriş kartına göre açılır (dar panelde yana taşıp kesilmez); durum şeridi ve kaydırıcı düğmeleri dar genişlikte taşmaz, kaydırıcı okları RTL'de doğru kenarda; ajan durum şeridindeki etiket kısalır. Panel açılışında dikte modelleri listesi yüklenmiyordu, düzeltildi.
+- [improve] **Tip denetimi sıkılaştı:** TypeScript `strict` ve kullanılmayan değişken denetimi açıldı; kalan tip hataları, kullanılmayan içe aktarmalar ve ölü kod temizlendi. Tailwind 4 önerilerine uyum: `size-*`, sonek `!` ve `wrap-*` sınıfları.
+- [feat] **Panelden model seçimi:** Yapay zekâ panelinde giriş kutusunun altındaki model menüsünden Sohbet ve Ajan için ayrı model seçilir (yerel Ollama'da kurulu modeller, Hızlı/Güçlü ipucuyla). Aynı menüde dikte (Whisper) modeli de seçilir; dikte modeli değişince sunucu yeni modelle başlar. Ayarlar'da model seçimi yoktur.
+- [feat] **Dikte ayarları:** Ayarlar → Yapay Zekâ → Ses'te dikte dili (arayüz dili / otomatik) ve "Dikteden sonra otomatik gönder" eklendi. Dikte tamamen yerelde çalıştığı için rıza anahtarı kalktı; mikrofona basmak yeterli.
+- [improve] **Tamamlama modeli varsayılanı küçüldü:** Kurulu küçük modele (`qwen2.5-coder:0.5b`) geçildi; satır içi öneriler çok daha hızlı. Eski varsayılanda kalmış kayıtlar otomatik taşınır, özel seçim korunur; sohbet ve ajan modeli 7b kalır.
+- [improve] **Eski AI sağlayıcı kodu temizlendi:** Arayüzden erişilemeyen yerleşik model, Anthropic ve OpenAI desteği ile API anahtarı alanları kaldırıldı (uygulama paketi ~110 MB küçülür). Yapay zekâ yalnız yerel Ollama ile çalışır.
+
 ### en
+
+- [improve] **Sidebar spacing balanced:** With the sidebar closed, the gap between the activity bar and the editor increased (2 → 10 px); with it open, the gap between the sidebar and the editor was reduced from 12 px to 8 px.
+- [improve] **Slightly wider gap between the sidebar and the editor** (8 → 12 px); the resize line sits in the middle of the gap.
+- [improve] **Activity bar scale restored:** Icons on the left bar are back to the original 24 px and buttons are larger; only the spacing between icon and border shrank (strip 50 → 48 px).
+- [improve] **Tab flows into the editor:** The selected tab has a subtle inward curve at its bottom corners where it joins the editor surface.
+- [improve] **Simpler, softer tabs:** The accent line on top of the selected tab is gone; the selected tab blends softly into the editor surface without a border. The needless gap before the first tab is removed so tabs start flush with the card.
+- [fix] **Tabs stay visible in a narrow editor:** When the AI, preview or sidebar panel narrowed the editor, tabs vanished under the action buttons. The tab list now always shows at least one tab; in a narrow editor the split, save, copy, download and preview buttons collapse into a "⋯" menu. Inactive tabs stand out more from the background in dark themes.
+- [fix] **Phone and tablet layout:** Below 760 px the sidebar now overlays the editor instead of squeezing it (tap outside or pick a file to close; it starts closed on phones); the editor that used to be squeezed to ~160 px and the overlapping tab buttons are fixed. Height is computed correctly with mobile browser address bars and page bounce is prevented. The active indicator in the activity bar no longer sticks out of its card.
+- [improve] **Tabs joined to the editor:** The active tab merges with the editor surface (the bottom line is cut beneath it) and an accent line opens from the center on top; transitions are smooth.
+- [improve] **Sidebar transition and spacing:** The gap between the sidebar and the editor grew slightly; when the sidebar opens or closes, its width, the gap and the card now slide and fade together smoothly (the old jump is gone). The resize line fades in softly after a short hover delay.
+- [improve] **Tab tooltip matches the editor theme:** The file-path box shown when hovering a tab is now a theme-matched tooltip (file name + folder path) that fades in after a short delay instead of the system box.
+- [improve] **Floating, VS Code-style UI:** The title bar, activity bar, sidebar, editor, preview, AI panel and status bar are now rounder (10 px) floating cards with wider gaps and a single soft shadow each. Tab top corners are rounder with a small gap between tabs. Activity bar icons are back to normal size (22 px); only the side spacing shrank (strip 50 → 44 px). Hover, transition and delayed tooltip effects stay.
+- [improve] **Livelier activity bar:** Hover shows a soft background capsule and a slightly lifted icon, the active item has an indicator that opens from the center, and item name plus shortcut appear in a tooltip that slides in after a short delay.
+- [improve] **AI button inside the search bar:** The AI panel button now sits inside the top search field as a separate segment at the far right, like in VS Code, and is highlighted while the panel is open.
+- [fix] **AI panel overflows and bugs:** The model and thinking menus now open relative to the input card (no more clipping sideways in a narrow panel); the status bar and slider buttons no longer overflow at narrow widths, slider arrows sit on the correct edge in RTL, and the agent status label truncates. The dictation model list was not loaded when the panel opened; fixed.
+- [improve] **Stricter type checking:** TypeScript `strict` and unused-variable checks are on; remaining type errors, unused imports and dead code were cleaned up. Aligned with Tailwind 4 suggestions: `size-*`, suffix `!` and `wrap-*` classes.
+- [feat] **Model picker in the panel:** The model menu under the AI input box picks a separate model for Chat and Agent (models installed in local Ollama, with a Fast/Strong hint). The same menu picks the dictation (Whisper) model; the server restarts with the new model. Settings no longer has a model selector.
+- [feat] **Dictation settings:** Settings > AI > Voice gains dictation language (interface language / automatic) and "Send automatically after dictation". Because dictation runs fully on this computer, the consent switch is gone; just press the microphone.
+- [improve] **Smaller default completion model:** Inline suggestions now default to the installed small model (`qwen2.5-coder:0.5b`) and are much faster. Records still on the old default migrate automatically, custom choices are kept; chat and agent stay on 7b.
+- [improve] **Legacy AI provider code removed:** The unreachable built-in model, Anthropic and OpenAI support and API key fields were removed (the app package shrinks by ~110 MB). AI works only with local Ollama.
+## 1.5.1 - 18.11.2026
+<!-- level: patch -->
+### Türkçe
+#### İyileştirmeler
+- **Ajan ekranı sadeleşti ve netleşti:** Ajan modunda ikinci vurgu rengi (violet) kalktı, panel tek vurguyla (indigo) çalışıyor; gölgeler kaldırıldı. Durum şeridi adımı üst sınırla gösterir (ör. "Adım 3 / 20"). Düzenleme onaylarında eklenen satırlar yeşil, silinenler kırmızı görünür; klasör güveni ve dış sağlayıcı rıza kartları kalkan simgesi taşır; `edit_lines` aracı dosya simgesiyle gösterilir.
+
+### English
+#### Improvements
+- **Agent screen simplified and clearer:** Agent mode no longer uses a second accent color (violet); the panel uses a single accent (indigo) and shadows are gone. The status bar shows the step against its limit (e.g. "Step 3 / 20"). In edit approvals, added lines are green and removed lines red; folder-trust and external-provider consent cards carry a shield icon; the `edit_lines` tool shows a file icon.
 
 ## 1.5.0 - 17.11.2026
 <!-- level: minor -->

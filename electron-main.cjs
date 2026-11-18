@@ -757,7 +757,6 @@ localHistory.register({ ipcMain, fromMain });
 // Ağır modüller (eklenti mağazası, güncelleme, yerel model, hata ayıklayıcı+ws, dil sunucusu, yapay zekâ) pencere
 // oluşturulduktan SONRA yüklenir: renderer süreci paralel başlar. IPC işleyicileri aynı turda kaydedilir; renderer
 // kodu henüz çalışmadığı için kanal eksik kalmaz (P-20).
-let llmModule = null;
 let debugModule = null;
 let lspModule = null;
 let aiModule = null;
@@ -767,8 +766,6 @@ function registerDeferredModules() {
   deferredLoaded = true;
   require('./electron-ext.cjs').register();
   require('./electron-update.cjs').register({ getWindow: () => mainWindow });
-  llmModule = require('./electron-llm.cjs');
-  llmModule.register({ getWindow: () => mainWindow });
   debugModule = require('./electron-debug.cjs');
   debugModule.register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
   lspModule = require('./electron-lsp.cjs');
@@ -801,7 +798,6 @@ app.on('will-quit', () => {
   callIfFn(ptyModule, 'stopAll');
   callIfFn(termModule, 'killAllSync');
   callIfFn(lspModule, 'stopAll', { fast: true });
-  void callIfFn(llmModule, 'disposeModel'); // GPU belleği: beklenmez (llm kendi before-quit'inde de çağırır)
 });
 
 app.on('second-instance', () => {
