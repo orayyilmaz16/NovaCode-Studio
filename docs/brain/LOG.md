@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 18.11.2026 11:53 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
+- Alan: [[ui-design]]
+- Kod (1): `src/App.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ai-assistant.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 18.11.2026 11:50 · auto/20261118-083349
 <!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvQUlB -->
 - Alan: [[ui-design]], [[ai-assistant]], [[debugging]], [[extensions]], [[explorer]], [[git-github]], [[preview]], [[source-control]], [[settings]], [[terminal]], [[updates]]

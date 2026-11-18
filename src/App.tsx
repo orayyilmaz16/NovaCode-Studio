@@ -1869,12 +1869,12 @@ export function App() {
           <MenuBar menus={menus} compact={compactMenu} />
         </div>
 
-        {/* Orta: komut merkezi görünümlü arama / proje alanı + yanında yapay zekâ paneli simgesi */}
-        <div className="app-no-drag flex items-center gap-1 min-w-0">
+        {/* Orta: VS Code komut merkezi gibi tek hap: solda arama / proje alanı, en sağda ayrı bölmede yapay zekâ paneli düğmesi */}
+        <div className="app-no-drag flex items-stretch min-w-0 h-6 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 motion-press overflow-hidden">
           <button
             onClick={() => setPalette('')}
             title={`${t('cpTitle')} (Ctrl+P)`}
-            className="w-full min-w-0 flex items-center justify-center gap-2 h-6 px-2 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
+            className="flex-1 min-w-0 flex items-center justify-center gap-2 px-2 text-[12px] text-zinc-300 hover:bg-white/5 motion-press"
           >
             <Search size={12} className="text-zinc-500 shrink-0" />
             <span className="truncate min-w-0">
@@ -1891,9 +1891,9 @@ export function App() {
             aria-label={t('actAI')}
             aria-pressed={aiOpen}
             data-active={aiOpen}
-            className="icon-btn shrink-0 w-7! h-6! text-violet-300 hover:!text-violet-100"
+            className={`shrink-0 w-8 flex items-center justify-center border-s border-zinc-700/70 motion-press ${aiOpen ? 'bg-indigo-500/25 text-indigo-100' : 'text-indigo-300 hover:bg-white/5 hover:text-indigo-100'}`}
           >
-            <Sparkles size={14} />
+            <Sparkles size={13} />
           </button>
         </div>
 

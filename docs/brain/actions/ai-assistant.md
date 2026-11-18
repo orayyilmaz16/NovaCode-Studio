@@ -7,7 +7,7 @@ triggers: ["yapay zeka", "ai", "asistan", "agent", "ajan", "dikte", "ses", "clau
 ---
 # Aksiyon: Yapay zekâ asistanı
 
-Sağ panel; **üst çubukta arama kutusunun yanındaki küçük yıldız simgesiyle** (veya `Ctrl+Shift+L`) açılıp kapanır (`App.tsx` → `toggleAI`, `aiOpen`); sol etkinlik çubuğunda AI düğmesi yoktur. Yalnız masaüstü uygulamasında çalışır (yerel Ollama/Whisper gerekir): web sürümünde panel bilgi mesajı gösterir.
+Sağ panel; **üst çubukta, VS Code komut merkezi gibi arama hapının içinde en sağdaki ayrı bölmedeki yıldız simgesiyle** (`App.tsx` başlık, sol kenarlıkla ayrılır, açıkken indigo zeminli) (veya `Ctrl+Shift+L`) açılıp kapanır (`App.tsx` → `toggleAI`, `aiOpen`); sol etkinlik çubuğunda AI düğmesi yoktur. Yalnız masaüstü uygulamasında çalışır (yerel Ollama/Whisper gerekir): web sürümünde panel bilgi mesajı gösterir.
 
 ## AI kod tamamlama (hayalet metin)
 - Ana süreç `electron-ai.cjs` → `completeCode` / `ai:complete`, `ai:completeCancel`: yerel Ollama `/api/generate`, **ham FIM** istemi (`<|fim_prefix|>…<|fim_suffix|>…<|fim_middle|>`), model `qwen2.5-coder:7b`, `num_predict` 80, sıcaklık 0,1, durdurma jetonları. Aynı anda tek istek (yenisi eskisini iptal eder).
