@@ -10,7 +10,8 @@ import type { GroupId } from '../services/splitLayout';
 import { setCursor } from '../services/cursorStore';
 import { setCompletionConfig, setCompletionMonaco } from '../services/aiCompletion';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
-import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal } from 'lucide-react';
+import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal, Ellipsis } from 'lucide-react';
+import { PopupMenu, type MenuItem } from './Menu';
 import { Logo } from './Logo';
 import { useHoverTip } from './HoverTip';
 import { defineNovaThemes } from '../services/editorTheme';
@@ -124,8 +125,8 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
       }}
       className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] shrink-0 cursor-pointer border border-b-0 text-[13px] ${
         isActive
-          ? 'bg-nv-editor text-zinc-100 border-nv-border'
-          : 'border-transparent text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
+          ? 'bg-nv-editor text-zinc-100 border-transparent'
+          : 'border-transparent bg-zinc-50/4 text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
       }`}
     >
       {file.diff ? <GitCompare size={14} className="shrink-0 text-indigo-400" /> : <FileTypeIcon name={file.name} size={14} />}
@@ -235,6 +236,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
     [values]
   );
   const [copied, setCopied] = React.useState(false);
+  const [more, setMore] = React.useState<{ x: number; y: number } | null>(null); // dar editörde ikincil eylemler "⋯" menüsünde
   const [savedEffect, setSavedEffect] = React.useState(false);
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [diffInline, setDiffInline] = useState(false);
@@ -495,7 +497,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
       {openFiles.length > 0 && (
       <div className="animate-tabbar-in relative flex items-stretch justify-between bg-nv-side h-[38px] select-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-nv-border">
-        <div ref={tabListRef} role="tablist" className="relative z-10 flex items-end gap-0.5 flex-1 min-w-0 overflow-x-auto pt-1.5 px-1.5 [scrollbar-width:none] scroll-smooth">
+        <div ref={tabListRef} role="tablist" className="relative z-10 flex items-end gap-0.5 flex-1 min-w-[96px] overflow-x-auto pt-1.5 pe-1.5 [scrollbar-width:none] scroll-smooth">
           {openFiles.map((file) => (
             <EditorTab key={file.id} file={file} isActive={file.id === activeFileId} onSelect={onSelectTab} onClose={onCloseTab} group={groupId} />
           ))}
@@ -513,7 +515,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
 
         {/* Bölme düğmeleri */}
         {activeFile && (onSplitRight || (split && onCloseSplit)) && (
-          <div className="flex items-center gap-0.5 pl-2 shrink-0">
+          <div className="hidden @md:flex items-center gap-0.5 pl-2 shrink-0">
             {onSplitRight && (
               <button onClick={onSplitRight} title={`${t('cmdSplitRight')}${getBindings().splitRight ? ` (${formatCombo(getBindings().splitRight)})` : ''}`} aria-label={t('cmdSplitRight')} className="icon-btn">
                 <SquareSplitHorizontal size={15} />
@@ -533,7 +535,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
             {collab?.enabled && (
               <span
                 title={t('edCollabTitle')}
-                className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded mr-1 ${
+                className={`hidden @md:flex items-center gap-1 text-[11px] px-2 py-0.5 rounded mr-1 ${
                   collabStatus === 'synced'
                     ? 'text-emerald-300 bg-emerald-500/10'
                     : collabStatus === 'error'
@@ -546,7 +548,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
               </span>
             )}
             {onSaveFile && (
-              <button onClick={handleSave} title={`${t('cmdSave')} (Ctrl+S)`} aria-label={t('cmdSave')} className="icon-btn">
+              <button onClick={handleSave} title={`${t('cmdSave')} (Ctrl+S)`} aria-label={t('cmdSave')} className="icon-btn hidden @md:flex">
                 {savedEffect ? <Check size={15} className="text-emerald-400" /> : <Save size={15} />}
               </button>
             )}
@@ -563,11 +565,20 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
                 aria-label={t('tbPreview')}
                 aria-pressed={previewOpen}
                 data-active={previewOpen}
-                className="icon-btn"
+                className="icon-btn hidden @md:flex"
               >
                 <Columns size={15} />
               </button>
             )}
+            <button
+              onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setMore({ x: r.right - 200, y: r.bottom + 4 }); }}
+              title={t('edMore')}
+              aria-label={t('edMore')}
+              aria-haspopup="menu"
+              className="icon-btn @md:hidden"
+            >
+              <Ellipsis size={15} />
+            </button>
             <button
               onClick={onRunCode}
               title={t('edRunPreview')}
@@ -581,6 +592,17 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
         )}
       </div>
       )}
+
+      {more && (() => {
+        const items: MenuItem[] = [];
+        if (onSaveFile) items.push({ label: t('cmdSave'), icon: <Save size={14} />, shortcut: 'Ctrl+S', onClick: handleSave });
+        items.push({ label: t('mnCopy'), icon: <Copy size={14} />, onClick: handleCopy });
+        items.push({ label: t('edDownload'), icon: <Download size={14} />, onClick: handleDownload });
+        if (canPreview && onTogglePreview) items.push({ label: t('tbPreview'), icon: <Columns size={14} />, checked: !!previewOpen, onClick: onTogglePreview });
+        if (onSplitRight) items.push({ separator: true }, { label: t('cmdSplitRight'), icon: <SquareSplitHorizontal size={14} />, onClick: onSplitRight });
+        if (split && onCloseSplit) items.push({ label: t('cmdCloseSplit'), icon: <X size={14} />, onClick: onCloseSplit });
+        return <PopupMenu x={more.x} y={more.y} items={items} onClose={() => setMore(null)} />;
+      })()}
 
       {/* Yol göstergesi */}
       {activeFile && !activeFile.diff && values.showBreadcrumbs !== false && (

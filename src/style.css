@@ -510,27 +510,13 @@ button.status-item:hover {
   }
 }
 
-/* ---------- Sekmeler (editöre bitişik): etkin sekme editör zeminiyle birleşir, alt çizgiyi keser; üstte vurgu çizgisi ortadan açılır ---------- */
+/* ---------- Sekmeler (editöre bitişik): etkin sekme editör zeminiyle yumuşakça birleşir (üst çizgi yok), üst köşeler yuvarlak ---------- */
 .nova-tab {
   border-start-start-radius: var(--r-lg);
   border-start-end-radius: var(--r-lg);
-  transition: background-color var(--dur-base) ease, color var(--dur-base) ease, border-color var(--dur-base) ease;
+  transition: background-color var(--dur-base) var(--ease-out-soft), color var(--dur-base) var(--ease-out-soft);
 }
 .nova-tab[aria-selected="true"] { z-index: 1; }
-.nova-tab::before {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  top: -1px;
-  height: 2px;
-  border-start-start-radius: var(--r-lg);
-  border-start-end-radius: var(--r-lg);
-  background: var(--color-indigo-500);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform var(--dur-slow) var(--ease-out-soft);
-}
-.nova-tab[aria-selected="true"]::before { transform: scaleX(1); }
 /* Kapat düğmesi: yumuşak köşe, basınca küçülür */
 .nova-tab-close { border-radius: var(--r-sm); transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-soft); }
 .nova-tab-close:active { transform: scale(0.88); }

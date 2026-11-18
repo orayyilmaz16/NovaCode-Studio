@@ -67,3 +67,6 @@ Sekme çubuğu `scroll-smooth`; etkin sekme çubuk dışında kalırsa `scrollIn
 - **Kenar çubuğu açılıp kapanma:** `.sidebar-shell` genişliği `--dur-slow` + `--ease-inout`; içindeki kart aynı sürede yana kayıp solar (`data-open="false"` → `opacity:0`, `translateX(∓14px)`; `data-side` ve RTL'ye göre yön). Editörle arasındaki 8 px boşluk (`.sidebar-gap`) da aynı eğriyle daralır: tutamaç koşullu çizilirken oluşan zıplama kalktı. Sürüklerken (`data-resizing`) hepsi anında.
 - **Tutamaç çizgisi (`ResizeHandle`):** tutamaç 6 px; ortada ince `.resize-line` hover'dan `--hover-delay` sonra %55 belirir (`scale`+`opacity`), basınca %90. Eski tam dolgulu renk değişimi kalktı.
 - **Sekme ipucu (`HoverTip.tsx`, `useHoverTip`):** yerel `title` kutusu yerine 420 ms gecikmeli, `tipIn` ile yumuşak beliren, editör yüzeyi/kenarlığı ve `--float-shadow` kullanan ipucu (dosya adı + klasör yolu); `overflow` kırpmasın diye portal ile `body`'ye (`z-[70]`) çizilir, kaydırma/blur/sürükleme/tıklamada kapanır, klavye odağında da görünür.
+
+## Sekme (18.11.2026)
+Etkin sekmenin üst vurgu çizgisi (`::before` + `scaleX`) kaldırıldı; etkin sekme yalnız editör zeminiyle (kenarlıksız) birleşir, renk/zemin geçişi `--dur-base` + `--ease-out-soft`. Sekme listesinin sol boşluğu sıfır (ilk sekme karta bitişik, `pe-1.5` yalnız sağda).

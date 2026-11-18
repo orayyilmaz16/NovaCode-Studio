@@ -68,7 +68,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | düşük | Q-ANY | `src/App.tsx:749` | `any` kullanımı (strict tip güvenliği) |
-| düşük | Q-ANY | `src/components/EditorArea.tsx:76,160,632` | `any` kullanımı (strict tip güvenliği) (3×) |
+| düşük | Q-ANY | `src/components/EditorArea.tsx:77,161,654` | `any` kullanımı (strict tip güvenliği) (3×) |
 | düşük | Q-CONSOLE | `src/components/SnippetsEditor.tsx:11` | Kalan console.log |
 | düşük | Q-CONSOLE | `src/mockFiles.ts:89,91,112` | Kalan console.log (3×) |
 | düşük | Q-EMPTY-CATCH | `src/components/Preview.tsx:62` | Boş catch: hata yutuluyor |
@@ -76,4 +76,4 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 2352, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 830
-- Üretim paketi (dist varsa): toplam JS 2904 KB; en büyük: index-BuRBbLZO.js 600 KB, PtyView-BctL5Vlq.js 327 KB, fileIconLoaders-DMlFLAcE.js 184 KB, uiTextTheme-Bt0ajGac.js 136 KB
+- Üretim paketi (dist varsa): toplam JS 2905 KB; en büyük: index-CXMbiscK.js 601 KB, PtyView-Cmvl2mDu.js 327 KB, fileIconLoaders-JdP2FhD0.js 184 KB, uiTextTheme-C5JHcGlh.js 136 KB
