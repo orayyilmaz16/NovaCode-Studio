@@ -44,12 +44,6 @@ export const AI_TEXT = {
   set_aiMaxTokens: {
     tr: "En çok yanıt uzunluğu (token)", en: "Max response length (tokens)", de: "Max. Antwortlänge (Token)", ru: "Макс. длина ответа (токены)", ar: "أقصى طول للرد (رموز)", es: "Longitud máxima de respuesta (tokens)", fr: "Longueur max. de réponse (tokens)", az: "Maks. cavab uzunluğu (token)",
   },
-  set_aiVoiceEnabled: {
-    tr: "Sesli dikteyi aç", en: "Enable voice dictation", de: "Sprachdiktat aktivieren", ru: "Включить голосовой ввод", ar: "تفعيل الإملاء الصوتي", es: "Activar dictado por voz", fr: "Activer la dictée vocale", az: "Səsli diktəni aç",
-  },
-  setDesc_aiVoiceEnabled: {
-    tr: "Mikrofon kaydın yalnız bu bilgisayardaki dikte bileşenine (Whisper) gider, cihazdan çıkmaz. Kayıt diske yazılmaz. Rıza vermek için aç; istediğin an kapatırsın.", en: "Your microphone recording goes only to the dictation component on this computer (Whisper) and never leaves the device. The recording is not saved to disk. Turn on to consent; turn off any time.", de: "Deine Mikrofonaufnahme geht nur an die Diktatkomponente auf diesem Computer (Whisper) und verlässt das Gerät nicht. Die Aufnahme wird nicht auf der Festplatte gespeichert. Zum Einwilligen einschalten; jederzeit ausschaltbar.", ru: "Запись с микрофона уходит только в компонент диктовки на этом компьютере (Whisper) и не покидает устройство. Запись не сохраняется на диск. Включите, чтобы дать согласие; отключить можно в любой момент.", ar: "يذهب تسجيل الميكروفون فقط إلى مكوّن الإملاء على هذا الكمبيوتر (Whisper) ولا يغادر الجهاز. لا يُحفظ التسجيل على القرص. فعّل للموافقة، ويمكنك الإيقاف في أي وقت.", es: "La grabación del micrófono va solo al componente de dictado de este equipo (Whisper) y no sale del dispositivo. La grabación no se guarda en disco. Actívalo para dar tu consentimiento; puedes desactivarlo cuando quieras.", fr: "L’enregistrement du micro va uniquement au composant de dictée de cet ordinateur (Whisper) et ne quitte pas l’appareil. L’enregistrement n’est pas écrit sur le disque. Active pour consentir ; désactive à tout moment.", az: "Mikrofon yazısı yalnız bu kompüterdəki diktə komponentinə (Whisper) gedir və cihazdan çıxmır. Yazı diskə yazılmır. Razılıq üçün aç; istənilən vaxt söndürə bilərsən.",
-  },
   aiSessions: {
     tr: "Sohbetler", en: "Chats", de: "Chats", ru: "Чаты", ar: "المحادثات", es: "Chats", fr: "Chats", az: "Söhbətlər",
   },
@@ -107,12 +101,6 @@ export const AI_TEXT = {
   aiMicDenied: {
     tr: "Mikrofona erişilemedi. Sistem izinlerini kontrol et.", en: "Could not access the microphone. Check system permissions.", de: "Kein Zugriff auf das Mikrofon. Prüfe die Systemberechtigungen.", ru: "Нет доступа к микрофону. Проверь разрешения системы.", ar: "تعذّر الوصول إلى الميكروفون. تحقق من أذونات النظام.", es: "No se pudo acceder al micrófono. Revisa los permisos del sistema.", fr: "Impossible d’accéder au micro. Vérifie les autorisations système.", az: "Mikrofona çatmaq mümkün olmadı. Sistem icazələrini yoxla.",
   },
-  aiVoiceConsent: {
-    tr: "Mikrofon düğmesine basmak sesli dikteyi açar: kaydın yalnız bu bilgisayarda metne çevrilir, cihazdan çıkmaz. Ayarlardan kapatabilirsin.", en: "Pressing the mic turns on voice dictation: your recording is converted to text on this computer only and never leaves the device. You can turn it off in Settings.", de: "Ein Klick aufs Mikrofon aktiviert das Sprachdiktat: Die Aufnahme wird nur auf diesem Computer in Text umgewandelt und verlässt das Gerät nicht. In den Einstellungen abschaltbar.", ru: "Нажатие на микрофон включает голосовой ввод: запись преобразуется в текст только на этом компьютере и не покидает устройство. Отключить можно в настройках.", ar: "الضغط على الميكروفون يفعّل الإملاء الصوتي: يُحوَّل تسجيلك إلى نص على هذا الكمبيوتر فقط ولا يغادر الجهاز. يمكنك إيقافه من الإعدادات.", es: "Pulsar el micrófono activa el dictado por voz: tu grabación se convierte en texto solo en este equipo y no sale del dispositivo. Puedes desactivarlo en Ajustes.", fr: "Appuyer sur le micro active la dictée vocale : ton enregistrement est converti en texte uniquement sur cet ordinateur et ne quitte pas l’appareil. Tu peux la désactiver dans les Réglages.", az: "Mikrofona basmaq səsli diktəni açır: yazın yalnız bu kompüterdə mətnə çevrilir və cihazdan çıxmır. Ayarlardan söndürə bilərsən.",
-  },
-  aiNoKey: {
-    tr: "Bu sağlayıcı için API anahtarı yok.", en: "No API key for this provider.", de: "Kein API-Schlüssel für diesen Anbieter.", ru: "Нет ключа API для этого провайдера.", ar: "لا يوجد مفتاح API لهذا المزوّد.", es: "No hay clave API para este proveedor.", fr: "Aucune clé API pour ce fournisseur.", az: "Bu provayder üçün API açarı yoxdur.",
-  },
   aiDesktopOnly: {
     tr: "Yapay zekâ asistanı yalnız masaüstü uygulamasında çalışır (API anahtarı güvenli saklanabilsin diye).", en: "The AI assistant works only in the desktop app (so API keys can be stored safely).", de: "Der KI-Assistent läuft nur in der Desktop-App (damit API-Schlüssel sicher gespeichert werden).", ru: "ИИ-ассистент работает только в настольном приложении (для безопасного хранения ключей).", ar: "يعمل المساعد الذكي في تطبيق سطح المكتب فقط (لحفظ مفاتيح API بأمان).", es: "El asistente de IA solo funciona en la app de escritorio (para guardar las claves de forma segura).", fr: "L’assistant IA ne fonctionne que dans l’app de bureau (pour stocker les clés en sécurité).", az: "Süni intellekt köməkçisi yalnız masaüstü tətbiqdə işləyir (API açarı təhlükəsiz saxlanılsın deyə).",
   },
@@ -146,20 +134,11 @@ export const AI_TEXT = {
   aiDenied: {
     tr: "Reddedildi", en: "Denied", de: "Abgelehnt", ru: "Отклонено", ar: "تم الرفض", es: "Denegado", fr: "Refusé", az: "Rədd edildi",
   },
-  aiErrAuth: {
-    tr: "API anahtarı reddedildi. Ayarlardan anahtarı kontrol et.", en: "The API key was rejected. Check the key in settings.", de: "Der API-Schlüssel wurde abgelehnt. Prüfe ihn in den Einstellungen.", ru: "Ключ API отклонён. Проверь ключ в настройках.", ar: "تم رفض مفتاح API. تحقق منه في الإعدادات.", es: "Se rechazó la clave API. Revísala en ajustes.", fr: "La clé API a été refusée. Vérifie-la dans les paramètres.", az: "API açarı rədd edildi. Ayarlarda yoxla.",
-  },
-  aiErrRate: {
-    tr: "İstek sınırına ulaşıldı. Biraz bekleyip tekrar dene.", en: "Rate limit reached. Wait a moment and try again.", de: "Anfragelimit erreicht. Warte kurz und versuche es erneut.", ru: "Достигнут лимит запросов. Подожди и повтори.", ar: "تم بلوغ حد الطلبات. انتظر قليلاً وحاول مجدداً.", es: "Límite de solicitudes alcanzado. Espera un momento e inténtalo de nuevo.", fr: "Limite de requêtes atteinte. Patiente un instant puis réessaie.", az: "Sorğu limitinə çatıldı. Bir az gözləyib yenidən cəhd et.",
-  },
   aiErrGeneric: {
     tr: "İstek tamamlanamadı", en: "The request could not be completed", de: "Anfrage fehlgeschlagen", ru: "Не удалось выполнить запрос", ar: "تعذّر إكمال الطلب", es: "No se pudo completar la solicitud", fr: "La requête a échoué", az: "Sorğu tamamlana bilmədi",
   },
   aiUsage: {
     tr: "{in} giriş / {out} çıkış token", en: "{in} in / {out} out tokens", de: "{in} Eingabe- / {out} Ausgabe-Token", ru: "{in} вх. / {out} исх. токенов", ar: "{in} رمز إدخال / {out} رمز إخراج", es: "{in} tokens de entrada / {out} de salida", fr: "{in} jetons en entrée / {out} en sortie", az: "{in} giriş / {out} çıxış token",
-  },
-  aiPrivacy: {
-    tr: "Mesajların ve (açıksa) seçili kodun {provider} sağlayıcısına gönderilir.", en: "Your messages and (if enabled) the selected code are sent to {provider}.", de: "Deine Nachrichten und (falls aktiv) der markierte Code werden an {provider} gesendet.", ru: "Твои сообщения и (если включено) выделенный код отправляются в {provider}.", ar: "تُرسل رسائلك والكود المحدد (إن كان مفعلاً) إلى {provider}.", es: "Tus mensajes y (si está activado) el código seleccionado se envían a {provider}.", fr: "Tes messages et (si activé) le code sélectionné sont envoyés à {provider}.", az: "Mesajların və (açıqsa) seçilmiş kod {provider} provayderinə göndərilir.",
   },
   aiSlashNew: {
     tr: "Yeni oturum aç", en: "Start a new session", de: "Neue Sitzung starten", ru: "Начать новую сессию", ar: "بدء جلسة جديدة", es: "Iniciar una nueva sesión", fr: "Démarrer une nouvelle session", az: "Yeni sessiya başlat",
@@ -185,50 +164,17 @@ export const AI_TEXT = {
   aiPrivacyLocal: {
     tr: "Yerel model: mesajların ve kodun bu bilgisayardan çıkmaz.", en: "Local model: your messages and code never leave this computer.", de: "Lokales Modell: Nachrichten und Code verlassen diesen Computer nicht.", ru: "Локальная модель: сообщения и код не покидают этот компьютер.", ar: "نموذج محلي: لا تغادر رسائلك وكودك هذا الحاسوب.", es: "Modelo local: tus mensajes y código no salen de este equipo.", fr: "Modèle local : tes messages et ton code ne quittent pas cet ordinateur.", az: "Lokal model: mesajların və kodun bu kompüterdən çıxmır.",
   },
-  aiBuiltinTitle: {
-    tr: "Yerleşik yapay zekâyı kur", en: "Set up the built-in AI", de: "Integrierte KI einrichten", ru: "Настроить встроенный ИИ", ar: "إعداد الذكاء الاصطناعي المدمج", es: "Configurar la IA integrada", fr: "Configurer l’IA intégrée", az: "Daxili süni intellekti qur",
-  },
-  aiBuiltinDesc: {
-    tr: "API anahtarı, sunucu adresi veya ücret yok. Bir model indir; sonra her şey bu bilgisayarda çalışır.", en: "No API key, server address or fees. Download a model once; afterwards everything runs on this computer.", de: "Kein API-Schlüssel, keine Serveradresse, keine Kosten. Lade einmal ein Modell; danach läuft alles auf diesem Computer.", ru: "Без ключа API, адреса сервера и платы. Скачай модель один раз — дальше всё работает на этом компьютере.", ar: "بدون مفتاح API أو عنوان خادم أو رسوم. نزّل نموذجاً مرة واحدة ثم يعمل كل شيء على هذا الحاسوب.", es: "Sin clave API, dirección de servidor ni costes. Descarga un modelo una vez; después todo funciona en este equipo.", fr: "Sans clé API, adresse de serveur ni frais. Télécharge un modèle une fois ; ensuite tout tourne sur cet ordinateur.", az: "API açarı, server ünvanı və ödəniş yoxdur. Modeli bir dəfə yüklə; sonra hər şey bu kompüterdə işləyir.",
-  },
-  aiBuiltinDownload: {
-    tr: "İndir", en: "Download", de: "Laden", ru: "Скачать", ar: "تنزيل", es: "Descargar", fr: "Télécharger", az: "Yüklə",
-  },
-  aiBuiltinCancel: {
-    tr: "İptal", en: "Cancel", de: "Abbrechen", ru: "Отмена", ar: "إلغاء", es: "Cancelar", fr: "Annuler", az: "Ləğv et",
-  },
-  aiBuiltinProgress: {
-    tr: "%{p} indiriliyor… (kapatsan da devam eder, kaldığı yerden sürer)", en: "{p}% downloading… (resumes where it left off if interrupted)", de: "{p} % wird geladen… (setzt nach Unterbrechung fort)", ru: "Загрузка {p}%… (продолжится с места остановки)", ar: "جارٍ التنزيل {p}%… (يُستأنف من حيث توقف)", es: "Descargando {p}%… (se reanuda donde quedó)", fr: "Téléchargement {p} %… (reprend là où il s’est arrêté)", az: "{p}% yüklənir… (yarımçıq qalsa davam edər)",
-  },
-  aiBuiltinFailed: {
-    tr: "İndirme başarısız. İnternetini kontrol edip tekrar dene; kaldığı yerden sürer.", en: "Download failed. Check your connection and try again; it resumes where it stopped.", de: "Download fehlgeschlagen. Prüfe die Verbindung und versuche es erneut; es setzt fort.", ru: "Загрузка не удалась. Проверь соединение и повтори — продолжится с места остановки.", ar: "فشل التنزيل. تحقق من الاتصال وأعد المحاولة؛ سيُستأنف من حيث توقف.", es: "Falló la descarga. Revisa la conexión e inténtalo de nuevo; se reanuda donde quedó.", fr: "Échec du téléchargement. Vérifie la connexion et réessaie ; il reprend là où il s’est arrêté.", az: "Yükləmə alınmadı. Bağlantını yoxla və yenidən cəhd et; qaldığı yerdən davam edər.",
-  },
-  aiBuiltinNote: {
-    tr: "Model dosyası tek seferlik Hugging Face'ten indirilir (yalnız dosya istenir, senin verin gönderilmez). Sohbet ve kodun bu bilgisayardan çıkmaz.", en: "The model file is downloaded once from Hugging Face (only the file is requested, none of your data is sent). Your chat and code never leave this computer.", de: "Die Modelldatei wird einmalig von Hugging Face geladen (nur die Datei wird angefragt, keine deiner Daten gesendet). Chat und Code verlassen diesen Computer nicht.", ru: "Файл модели скачивается один раз с Hugging Face (запрашивается только файл, твои данные не отправляются). Чат и код не покидают этот компьютер.", ar: "يُنزَّل ملف النموذج مرة واحدة من Hugging Face (يُطلب الملف فقط ولا تُرسل بياناتك). لا تغادر محادثتك وشيفرتك هذا الحاسوب.", es: "El archivo del modelo se descarga una vez de Hugging Face (solo se pide el archivo, no se envían tus datos). Tu chat y código no salen de este equipo.", fr: "Le fichier du modèle est téléchargé une fois depuis Hugging Face (seul le fichier est demandé, aucune de tes données n’est envoyée). Ton chat et ton code ne quittent pas cet ordinateur.", az: "Model faylı Hugging Face-dən bir dəfə yüklənir (yalnız fayl istənir, məlumatın göndərilmir). Söhbət və kodun bu kompüterdən çıxmır.",
-  },
   aiTierFast: {
     tr: "Hızlı", en: "Fast", de: "Schnell", ru: "Быстрая", ar: "سريع", es: "Rápido", fr: "Rapide", az: "Sürətli",
   },
   aiTierStrong: {
     tr: "Güçlü", en: "Strong", de: "Stark", ru: "Мощная", ar: "قوي", es: "Potente", fr: "Puissant", az: "Güclü",
   },
-  aiRam: {
-    tr: "~{n} GB RAM", en: "~{n} GB RAM", de: "~{n} GB RAM", ru: "~{n} ГБ ОЗУ", ar: "~{n} غ.ب ذاكرة", es: "~{n} GB de RAM", fr: "~{n} Go de RAM", az: "~{n} GB RAM",
-  },
-  aiReady: {
-    tr: "Hazır", en: "Ready", de: "Bereit", ru: "Готово", ar: "جاهز", es: "Listo", fr: "Prêt", az: "Hazır",
-  },
-  aiNoImages: {
-    tr: "Yerleşik model görselleri okuyamaz. Görsel için Ollama'da görüntü destekli bir model seç.", en: "The built-in model cannot read images. For images pick a vision-capable model in Ollama.", de: "Das integrierte Modell kann keine Bilder lesen. Wähle für Bilder ein Vision-Modell in Ollama.", ru: "Встроенная модель не читает изображения. Для картинок выбери модель с поддержкой зрения в Ollama.", ar: "النموذج المدمج لا يقرأ الصور. للصور اختر نموذجاً داعماً للرؤية في Ollama.", es: "El modelo integrado no puede leer imágenes. Para imágenes elige un modelo con visión en Ollama.", fr: "Le modèle intégré ne lit pas les images. Pour les images, choisis un modèle vision dans Ollama.", az: "Daxili model şəkilləri oxuya bilmir. Şəkil üçün Ollama-da görmə dəstəkli model seç.",
-  },
   aiErrNoModel: {
     tr: "Yerleşik model henüz indirilmedi. Yukarıdaki karttan indirebilirsin.", en: "The built-in model has not been downloaded yet. You can download it from the card above.", de: "Das integrierte Modell wurde noch nicht geladen. Du kannst es über die Karte oben laden.", ru: "Встроенная модель ещё не скачана. Скачай её в карточке выше.", ar: "لم يُنزَّل النموذج المدمج بعد. يمكنك تنزيله من البطاقة أعلاه.", es: "El modelo integrado aún no se ha descargado. Puedes descargarlo desde la tarjeta de arriba.", fr: "Le modèle intégré n’est pas encore téléchargé. Tu peux le télécharger depuis la carte ci-dessus.", az: "Daxili model hələ yüklənməyib. Yuxarıdakı kartdan yükləyə bilərsən.",
   },
   aiVoiceNeedsKey: {
     tr: "Dikte bileşeni (Whisper) bulunamadı. %LOCALAPPDATA%\\NovaWhisper klasöründe kurulu olmalı.", en: "Dictation component (Whisper) not found. It must be installed in %LOCALAPPDATA%\\NovaWhisper.", de: "Diktatkomponente (Whisper) nicht gefunden. Sie muss in %LOCALAPPDATA%\\NovaWhisper installiert sein.", ru: "Компонент диктовки (Whisper) не найден. Он должен быть установлен в %LOCALAPPDATA%\\NovaWhisper.", ar: "لم يُعثر على مكوّن الإملاء (Whisper). يجب تثبيته في %LOCALAPPDATA%\\NovaWhisper.", es: "No se encontró el componente de dictado (Whisper). Debe estar instalado en %LOCALAPPDATA%\\NovaWhisper.", fr: "Composant de dictée (Whisper) introuvable. Il doit être installé dans %LOCALAPPDATA%\\NovaWhisper.", az: "Diktə komponenti (Whisper) tapılmadı. O, %LOCALAPPDATA%\\NovaWhisper qovluğunda quraşdırılmalıdır.",
-  },
-  aiBuiltinAgentWarn: {
-    tr: "Hızlı model ajan modunda yalnızca dosya okur ve arar. Düzenleme ve komut için Güçlü modeli (Ayarlar → Yapay Zekâ) veya Ollama'yı kullan.", en: "In Agent mode the Fast model only reads and searches files. For edits and commands use the Strong model (Settings → AI Assistant) or Ollama.", de: "Im Agent-Modus liest und durchsucht das schnelle Modell nur Dateien. Für Änderungen und Befehle nutze das starke Modell (Einstellungen → KI-Assistent) oder Ollama.", ru: "В режиме агента быстрая модель только читает и ищет файлы. Для правок и команд используй мощную модель (Настройки → ИИ) или Ollama.", ar: "في وضع الوكيل يقرأ النموذج السريع الملفات ويبحث فيها فقط. للتعديل والأوامر استخدم النموذج القوي (الإعدادات ← المساعد الذكي) أو Ollama.", es: "En modo Agente el modelo rápido solo lee y busca archivos. Para editar y ejecutar comandos usa el modelo potente (Ajustes → Asistente IA) u Ollama.", fr: "En mode Agent, le modèle rapide ne fait que lire et chercher des fichiers. Pour modifier et exécuter des commandes, utilise le modèle puissant (Paramètres → Assistant IA) ou Ollama.", az: "Agent rejimində sürətli model yalnız faylları oxuyur və axtarır. Redaktə və komanda üçün güclü modeldən (Ayarlar → Süni intellekt) və ya Ollama-dan istifadə et.",
   },
   aiErrStuck: {
     tr: "Model bu görevi tamamlayamadı. Daha net yaz, Güçlü modeli ya da Ollama'yı dene.", en: "The model could not complete this task. Be more specific, or try the Strong model or Ollama.", de: "Das Modell konnte die Aufgabe nicht abschließen. Formuliere genauer oder nutze das starke Modell bzw. Ollama.", ru: "Модель не смогла выполнить задачу. Уточни запрос или попробуй мощную модель либо Ollama.", ar: "تعذّر على النموذج إكمال المهمة. كن أكثر تحديداً أو جرّب النموذج القوي أو Ollama.", es: "El modelo no pudo completar la tarea. Sé más específico o prueba el modelo potente u Ollama.", fr: "Le modèle n’a pas pu terminer la tâche. Sois plus précis ou essaie le modèle puissant ou Ollama.", az: "Model bu tapşırığı tamamlaya bilmədi. Daha dəqiq yaz, güclü modeli və ya Ollama-nı sına.",
@@ -589,6 +535,51 @@ export const AI_TEXT = {
   },
   taskTrust: {
     tr: "Bu klasördeki görev komutu terminalde çalışacak:\n\n{cmd}\n\nBu klasöre güveniyor musun?", en: "This folder's task command will run in the terminal:\n\n{cmd}\n\nDo you trust this folder?", de: "Der Aufgabenbefehl dieses Ordners wird im Terminal ausgeführt:\n\n{cmd}\n\nVertraust du diesem Ordner?", ru: "Команда задачи из этой папки будет выполнена в терминале:\n\n{cmd}\n\nТы доверяешь этой папке?", ar: "سيتم تشغيل أمر المهمة من هذا المجلد في الطرفية:\n\n{cmd}\n\nهل تثق بهذا المجلد؟", es: "El comando de tarea de esta carpeta se ejecutará en el terminal:\n\n{cmd}\n\n¿Confías en esta carpeta?", fr: "La commande de tâche de ce dossier sera exécutée dans le terminal :\n\n{cmd}\n\nFais-tu confiance à ce dossier ?", az: "Bu qovluqdakı tapşırıq əmri terminalda işləyəcək:\n\n{cmd}\n\nBu qovluğa güvənirsən?",
+  },
+  aiModelSecAsk: {
+    tr: "Sohbet modeli", en: "Chat model", de: "Chat-Modell", ru: "Модель чата", ar: "نموذج المحادثة", es: "Modelo de chat", fr: "Modèle de chat", az: "Söhbət modeli",
+  },
+  aiModelSecAgent: {
+    tr: "Ajan modeli", en: "Agent model", de: "Agent-Modell", ru: "Модель агента", ar: "نموذج الوكيل", es: "Modelo del agente", fr: "Modèle de l’agent", az: "Agent modeli",
+  },
+  aiModelSecVoice: {
+    tr: "Dikte modeli", en: "Dictation model", de: "Diktatmodell", ru: "Модель диктовки", ar: "نموذج الإملاء", es: "Modelo de dictado", fr: "Modèle de dictée", az: "Diktə modeli",
+  },
+  aiModelNone: {
+    tr: "Kurulu model bulunamadı.", en: "No installed model found.", de: "Kein installiertes Modell gefunden.", ru: "Установленных моделей не найдено.", ar: "لم يُعثر على نموذج مثبّت.", es: "No se encontró ningún modelo instalado.", fr: "Aucun modèle installé trouvé.", az: "Quraşdırılmış model tapılmadı.",
+  },
+  aiModelPull: {
+    tr: "Yüklemek için: ollama pull {m}", en: "To install: ollama pull {m}", de: "Zum Installieren: ollama pull {m}", ru: "Для установки: ollama pull {m}", ar: "للتثبيت: ollama pull {m}", es: "Para instalar: ollama pull {m}", fr: "Pour installer : ollama pull {m}", az: "Quraşdırmaq üçün: ollama pull {m}",
+  },
+  aiModelPick: {
+    tr: "Model seç", en: "Choose model", de: "Modell wählen", ru: "Выбрать модель", ar: "اختر النموذج", es: "Elegir modelo", fr: "Choisir le modèle", az: "Model seç",
+  },
+  set_aiDictationLang: {
+    tr: "Dikte dili", en: "Dictation language", de: "Diktatsprache", ru: "Язык диктовки", ar: "لغة الإملاء", es: "Idioma de dictado", fr: "Langue de dictée", az: "Diktə dili",
+  },
+  setDesc_aiDictationLang: {
+    tr: "Arayüz dili: konuşman seçili arayüz dilinde yazıya çevrilir (kısa konuşmada daha doğru). Otomatik: Whisper dili kendisi tahmin eder.", en: "Interface language: your speech is transcribed in the selected interface language (more reliable for short phrases). Automatic: Whisper guesses the language itself.", de: "Oberflächensprache: Dein Gesprochenes wird in der gewählten Oberflächensprache transkribiert (bei kurzen Sätzen zuverlässiger). Automatisch: Whisper erkennt die Sprache selbst.", ru: "Язык интерфейса: речь распознаётся на выбранном языке интерфейса (надёжнее для коротких фраз). Автоматически: Whisper сам определяет язык.", ar: "لغة الواجهة: يُحوَّل كلامك إلى نص بلغة الواجهة المحددة (أدق في العبارات القصيرة). تلقائي: يخمّن Whisper اللغة بنفسه.", es: "Idioma de la interfaz: tu voz se transcribe en el idioma de interfaz elegido (más fiable en frases cortas). Automático: Whisper adivina el idioma.", fr: "Langue de l’interface : ta voix est transcrite dans la langue d’interface choisie (plus fiable pour les phrases courtes). Automatique : Whisper devine la langue.", az: "İnterfeys dili: səsin seçilmiş interfeys dilində yazıya çevrilir (qısa cümlələrdə daha dəqiq). Avtomatik: Whisper dili özü təxmin edir.",
+  },
+  optDictUi: {
+    tr: "Arayüz dili", en: "Interface language", de: "Oberflächensprache", ru: "Язык интерфейса", ar: "لغة الواجهة", es: "Idioma de la interfaz", fr: "Langue de l’interface", az: "İnterfeys dili",
+  },
+  optDictAuto: {
+    tr: "Otomatik algıla", en: "Detect automatically", de: "Automatisch erkennen", ru: "Определять автоматически", ar: "كشف تلقائي", es: "Detectar automáticamente", fr: "Détecter automatiquement", az: "Avtomatik aşkarla",
+  },
+  set_aiDictationAutoSend: {
+    tr: "Dikteden sonra otomatik gönder", en: "Send automatically after dictation", de: "Nach dem Diktat automatisch senden", ru: "Отправлять автоматически после диктовки", ar: "إرسال تلقائي بعد الإملاء", es: "Enviar automáticamente tras el dictado", fr: "Envoyer automatiquement après la dictée", az: "Diktədən sonra avtomatik göndər",
+  },
+  setDesc_aiDictationAutoSend: {
+    tr: "Açıksa mikrofonu kapattığında yazıya çevrilen metin hemen gönderilir. Kapalıyken metin kutuya yazılır; kontrol edip kendin gönderirsin.", en: "If on, the transcribed text is sent as soon as you stop the microphone. If off, the text goes into the input box so you can check it and send it yourself.", de: "Wenn aktiv, wird der transkribierte Text sofort gesendet, sobald du das Mikrofon stoppst. Sonst landet der Text im Eingabefeld und du sendest ihn selbst.", ru: "Если включено, распознанный текст отправляется сразу после остановки микрофона. Если выключено, текст попадает в поле ввода, и вы отправляете его сами.", ar: "عند التفعيل يُرسل النص المحوَّل فور إيقاف الميكروفون. عند الإيقاف يُكتب النص في خانة الإدخال لتراجعه وترسله بنفسك.", es: "Si está activado, el texto transcrito se envía en cuanto detienes el micrófono. Si no, el texto va al cuadro de entrada para que lo revises y lo envíes tú.", fr: "Si activé, le texte transcrit est envoyé dès que tu arrêtes le micro. Sinon, le texte va dans la zone de saisie pour que tu le vérifies et l’envoies toi-même.", az: "Aktivdirsə, mikrofonu dayandıranda yazıya çevrilən mətn dərhal göndərilir. Deaktivdirsə, mətn daxiletmə xanasına yazılır; yoxlayıb özün göndərirsən.",
+  },
+  set_aiAskModel: {
+    tr: "Sohbet modeli (panelden seçilir)", en: "Chat model (chosen in the panel)", de: "Chat-Modell (im Panel gewählt)", ru: "Модель чата (выбирается в панели)", ar: "نموذج المحادثة (يُختار من اللوحة)", es: "Modelo de chat (se elige en el panel)", fr: "Modèle de chat (choisi dans le panneau)", az: "Söhbət modeli (paneldən seçilir)",
+  },
+  set_aiAgentModel: {
+    tr: "Ajan modeli (panelden seçilir)", en: "Agent model (chosen in the panel)", de: "Agent-Modell (im Panel gewählt)", ru: "Модель агента (выбирается в панели)", ar: "نموذج الوكيل (يُختار من اللوحة)", es: "Modelo del agente (se elige en el panel)", fr: "Modèle de l’agent (choisi dans le panneau)", az: "Agent modeli (paneldən seçilir)",
+  },
+  set_aiDictationModel: {
+    tr: "Dikte modeli (panelden seçilir)", en: "Dictation model (chosen in the panel)", de: "Diktatmodell (im Panel gewählt)", ru: "Модель диктовки (выбирается в панели)", ar: "نموذج الإملاء (يُختار من اللوحة)", es: "Modelo de dictado (se elige en el panel)", fr: "Modèle de dictée (choisi dans le panneau)", az: "Diktə modeli (paneldən seçilir)",
   },
 } satisfies Record<string, Dict>;
 

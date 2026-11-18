@@ -6,7 +6,7 @@ const { app, ipcMain, safeStorage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const ALLOWED = new Set(['collabToken', 'aiKey_anthropic', 'aiKey_openai']);
+const ALLOWED = new Set(['collabToken']);
 const MAX_LEN = 2048;
 
 const fileFor = (key) => path.join(app.getPath('userData'), `secret-${key}.bin`);

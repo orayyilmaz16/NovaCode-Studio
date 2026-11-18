@@ -184,7 +184,7 @@ export interface ReleaseInfo {
   url: string;
 }
 
-export type SecretKey = 'collabToken' | 'aiKey_anthropic' | 'aiKey_openai';
+export type SecretKey = 'collabToken';
 
 /** Bul-değiştir isteği: 'preview' diske dokunmaz; 'apply' yalnız `selection` satırlarını değiştirir. */
 export interface ReplaceOpts {
@@ -217,25 +217,8 @@ export interface SearchHit {
   text: string;
 }
 
-export type AiProvider = 'builtin' | 'anthropic' | 'openai' | 'ollama';
+export type AiProvider = 'ollama';
 
-export interface LlmModelInfo {
-  id: string;
-  label: string;
-  tier: 'fast' | 'strong';
-  size: number;
-  ramGb: number;
-  installed: boolean;
-  downloading: boolean;
-  received: number;
-}
-export interface LlmProgress {
-  id: string;
-  received: number;
-  total: number;
-  done?: boolean;
-  error?: 'cancelled' | 'failed';
-}
 
 export interface LspDiagnostic {
   message: string;
@@ -263,7 +246,6 @@ export interface AiRunRequest {
   runId: string;
   provider: AiProvider;
   model: string;
-  baseUrl?: string;
   maxTokens?: number;
   mode: 'ask' | 'agent';
   lang: string;
@@ -316,13 +298,6 @@ export interface ElectronBridge {
   };
   openLink: (url: string) => Promise<{ success: boolean }>;
   revealInFolder: (target: string) => Promise<{ success: boolean }>;
-  llm: {
-    status: () => Promise<{ defaultId: string; models: LlmModelInfo[] }>;
-    download: (id: string) => Promise<{ success: boolean; error?: string }>;
-    cancel: (id: string) => Promise<{ success: boolean }>;
-    remove: (id: string) => Promise<{ success: boolean }>;
-    onProgress: (callback: (p: LlmProgress) => void) => () => void;
-  };
   ext: {
     search: (opts: { query: string; category?: 'Themes' | ''; offset?: number }) => Promise<{ success: boolean; total: number; items: import('./services/extensionsService').StoreItem[]; error?: string }>;
     list: () => Promise<import('./services/extensionsService').InstalledExt[]>;
@@ -335,7 +310,8 @@ export interface ElectronBridge {
     run: (req: AiRunRequest) => Promise<{ success: boolean; error?: string }>;
     cancel: (runId: string) => Promise<{ success: boolean }>;
     approve: (runId: string, id: string, allow: boolean) => Promise<{ success: boolean }>;
-    transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
+    whisperModels: () => Promise<{ default: string; models: { id: string; size: number }[] }>;
+    transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string; model?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
     commands: () => Promise<{ name: string; template: string }[]>;
     complete: (req: { id: string; prefix: string; suffix: string; fileName?: string; languageId?: string; singleLine?: boolean; stopAtBlank?: boolean; lineMode?: boolean; model?: string; maxTokens?: number; temperature?: number; prefixChars?: number; suffixChars?: number; count?: number }) => Promise<{ success: boolean; text?: string; alternatives?: string[]; truncated?: boolean; error?: string; skipped?: string }>;
     completeCancel: (id: string) => Promise<{ success: boolean }>;

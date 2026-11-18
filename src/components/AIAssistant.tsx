@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowDown, Bot, BookOpen, Bug, Check, Layers, ShieldAlert, ChevronDown, ChevronRight, ClipboardCheck, FlaskConical, Hammer, Lock, ScanSearch, Copy, CornerDownLeft, Download, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
+  ArrowDown, Bot, BookOpen, Bug, Check, Layers, ShieldAlert, ChevronDown, ChevronRight, ClipboardCheck, FlaskConical, Hammer, Lock, ScanSearch, Copy, CornerDownLeft, FileCode, ImagePlus, Loader2, MessageSquare, Mic, Pencil, Plus,
   Settings as Cog, ShieldCheck, Sparkles, Square, Terminal as TermIcon, Trash2, Wrench, X, ArrowUp, Zap
 } from 'lucide-react';
 import { t, getUiLang } from '../i18n/uiText';
@@ -9,13 +9,14 @@ import { useSettings } from '../services/SettingsContext';
 import { getSelectedText, replaceSelection } from '../services/editorBridge';
 import { useDictation } from '../services/useDictation';
 import {
-  DEFAULT_MODEL, PROVIDER_LABEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartCategory, smartTitle, splitParts, titleFrom, uid,
+  DEFAULT_CHAT_MODEL, fileToImage, loadSessions, newSession, refineTitle, saveSessions, sessionToMarkdown, smartCategory, smartTitle, splitParts, titleFrom, uid,
   type AiSession, type CategoryId, type ChatMsg, type ToolCard
 } from '../services/aiClient';
 import { ChatSessions } from './ChatSessions';
 import { ChipSlider } from './ChipSlider';
 import { ThinkingMenu, type Autonomy, type ThinkingLevel } from './ThinkingMenu';
-import type { AiEvent, AiProvider, LlmModelInfo, LlmProgress } from '../types';
+import { ModelMenu } from './ModelMenu';
+import type { AiEvent } from '../types';
 
 interface AIAssistantProps {
   activeFile?: { name: string; path?: string; language?: string; content?: string } | null;
@@ -28,7 +29,6 @@ interface AIAssistantProps {
 
 type Image = { id: string; mediaType: string; data: string; url: string };
 const SLASH_BUILTIN = ['new', 'ask', 'agent'] as const;
-const gb = (n: number) => (n / 1024 ** 3).toFixed(1);
 
 // ---------- Küçük parçalar ----------
 const CodeBlock: React.FC<{ lang: string; code: string }> = ({ lang, code }) => {
@@ -170,14 +170,11 @@ const TASKS = [
 export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspace, rootPath, onOpenFile, onOpenSettings }) => {
   const { values, set: setSetting } = useSettings();
   const api = window.electronAPI?.ai;
-  const llmApi = window.electronAPI?.llm;
-  // Sağlayıcı yalnız Ollama (yerel): anahtar yok, kod ve sohbet cihazdan çıkmaz. Diğer sağlayıcı kodu motorda duruyor ama arayüzden seçilemez.
-  const provider = 'ollama' as AiProvider;
+  // Tek sağlayıcı: yerel Ollama (anahtar yok, kod ve sohbet cihazdan çıkmaz).
 
   const [ollama, setOllama] = useState<{ running: boolean; models: string[] } | null>(null);
   const [ollamaTick, setOllamaTick] = useState(0);
-  const [llm, setLlm] = useState<LlmModelInfo[]>([]);
-  const [progress, setProgress] = useState<Record<string, LlmProgress>>({});
+  const [whisper, setWhisper] = useState<{ id: string; size: number }[]>([]);
 
   // Sohbet (ask) ve Ajan (agent) modlarının sohbetleri ayrıdır: her sohbet tek bir moda aittir, liste moda göre süzülür.
   // Klasör açık değilse ajan modu kapalıdır: açılışta da Sohbet ile başlanır
@@ -194,10 +191,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const modeSessions = useMemo(() => sessions.filter((s) => s.mode === mode && s.messages.length > 0), [sessions, mode]);
   const modeCount = (m: 'ask' | 'agent') => sessions.filter((s) => s.mode === m && s.messages.length > 0).length;
 
-  // Tek model: Ollama'daki qwen2.5-coder:7b (model/sunucu seçimi yok). Moda özel ayarlar: düşünme seviyesi, yanıt uzunluğu, bağlam, yönerge.
-  const builtinId = DEFAULT_MODEL.builtin;
-  const model = DEFAULT_MODEL.ollama;
-  const modelLabel = provider === 'builtin' ? llm.find((m) => m.id === builtinId)?.label ?? builtinId : model;
+  // Model: panelden seçilir (Sohbet ve Ajan için ayrı, Ayarlar'da yok); liste yerel Ollama'da kurulu modellerdir. Dikte modeli kurulu Whisper dosyalarından seçilir.
+  const modelRaw = String((isAgent ? values.aiAgentModel : values.aiAskModel) || '').trim();
+  const model = modelRaw || DEFAULT_CHAT_MODEL;
+  const dictModel = String(values.aiDictationModel || '');
   const thinkingRaw = String(isAgent ? values.aiAgentThinking : values.aiAskThinking);
   const thinkingLevel: ThinkingLevel = (['fast', 'balanced', 'deep'] as const).find((x) => x === thinkingRaw) ?? 'balanced';
   const maxTokensNow = Number(isAgent ? values.aiAgentMaxTokens : values.aiMaxTokens) || (isAgent ? 8192 : 4096);
@@ -211,8 +208,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const [input, setInput] = useState('');
   const [images, setImages] = useState<Image[]>([]);
   const [busy, setBusy] = useState(false);
-  const [hasKey, setHasKey] = useState(true);
-  const [custom, setCustom] = useState<{ name: string; template: string }[]>([]);
+    const [custom, setCustom] = useState<{ name: string; template: string }[]>([]);
   const runRef = useRef<{ runId: string; sessionId: string; msgId: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stick = useRef(true);
@@ -271,34 +267,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     ta.style.height = `${Math.min(ta.scrollHeight, 168)}px`;
   }, [input]);
 
-  // API anahtarı var mı (yerleşik ve Ollama anahtarsız)
+  // Ollama: çalışıyor mu, hangi modeller yüklü; kurulu dikte (Whisper) modelleri
   useEffect(() => {
-    let alive = true;
-    if (provider === 'ollama' || provider === 'builtin') { setHasKey(true); return; }
-    void window.electronAPI?.secrets.has(provider === 'anthropic' ? 'aiKey_anthropic' : 'aiKey_openai').then((r) => {
-      if (alive) setHasKey('has' in r && r.has);
-    });
-    return () => { alive = false; };
-  }, [provider, busy]);
-
-  // Yerleşik model durumu + indirme ilerlemesi
-  const refreshLlm = useCallback(() => { void llmApi?.status().then((s) => setLlm(s.models)).catch(() => undefined); }, [llmApi]);
-  useEffect(() => {
-    if (!llmApi) return;
-    refreshLlm();
-    return llmApi.onProgress((p) => {
-      setProgress((prev) => ({ ...prev, [p.id]: p }));
-      if (p.done || p.error) refreshLlm();
-    });
-  }, [llmApi, refreshLlm]);
-
-  // Ollama: çalışıyor mu, hangi modeller yüklü
-  useEffect(() => {
-    if (provider !== 'ollama' || !api) { setOllama(null); return; }
+    if (!api) { setOllama(null); return; }
     let alive = true;
     void api.ollamaModels().then((r) => { if (alive) setOllama(r); }).catch(() => { if (alive) setOllama({ running: false, models: [] }); });
     return () => { alive = false; };
-  }, [api, provider, ollamaTick]);
+    void api.whisperModels().then((r) => setWhisper(r.models)).catch(() => setWhisper([]));
+  }, [api, ollamaTick]);
 
   useEffect(() => { void api?.commands().then(setCustom).catch(() => setCustom([])); }, [api, hasWorkspace]);
 
@@ -318,10 +294,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
       else if (ev.type === 'tool_result') patchMsg(sessionId, msgId, (m) => ({ ...m, tools: (m.tools ?? []).map((c) => (c.id === ev.id ? { ...c, status: ev.ok ? 'ok' : 'error', result: ev.text } : c)) }));
       else if (ev.type === 'approval') patchMsg(sessionId, msgId, (m) => ({ ...m, approvals: [...(m.approvals ?? []), { id: ev.id, tool: ev.tool, summary: ev.summary, preview: ev.preview }] }));
       else if (ev.type === 'error') {
-        const code = ev.error.startsWith('auth') ? 'aiErrAuth' : ev.error.startsWith('rate') ? 'aiErrRate' : ev.error.includes('model-yok') ? 'aiErrNoModel' : ev.error.includes('agent-stuck') ? 'aiErrStuck' : 'aiErrGeneric';
+        const code = ev.error.includes('agent-stuck') ? 'aiErrStuck' : 'aiErrGeneric';
         patchMsg(sessionId, msgId, (m) => ({ ...m, streaming: false, error: code === 'aiErrGeneric' ? `${t('aiErrGeneric')} (${ev.error.slice(0, 160)})` : t(code) }));
-        if (code === 'aiErrAuth') setHasKey(false);
-        if (code === 'aiErrNoModel') refreshLlm();
         runRef.current = null;
         setBusy(false);
       } else if (ev.type === 'done') {
@@ -343,12 +317,18 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         setBusy(false);
       }
     });
-  }, [api, patchMsg, refreshLlm]);
+  }, [api, patchMsg]);
 
+  const sendRef = useRef<((raw: string) => Promise<void>) | null>(null);
   const dictation = useDictation({
     // Dil arayüz dilidir (kısa konuşmalarda otomatik algılama şaşabildiği için sabit); model ve adres sabit, ayar yok
-    lang: getUiLang(),
-    onText: (text) => setInput((v) => (v ? v + ' ' : '') + text),
+    lang: values.aiDictationLang === 'auto' ? 'auto' : getUiLang(),
+    model: values.aiDictationModel ? String(values.aiDictationModel) : undefined,
+    onText: (text) => {
+      // Dikteden sonra otomatik gönder (ayar): metin hemen gönderilir; kapalıyken kutuya yazılır
+      if (values.aiDictationAutoSend === true && !busy) void sendRef.current?.((input ? input + ' ' : '') + text);
+      else setInput((v) => (v ? v + ' ' : '') + text);
+    },
     onError: (code) => {
       setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, messages: [...s.messages, { id: uid(), role: 'assistant', text: '', error: code === 'mic' ? t('aiMicDenied') : code === 'no-whisper' ? t('aiVoiceNeedsKey') : t('aiErrGeneric') }] })));
     }
@@ -443,12 +423,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   const buildContext = (): string => {
     if (!(isAgent ? values.aiAgentIncludeContext : values.aiIncludeContext) || !activeFile) return '';
     const sel = getSelectedText();
-    const body = sel || (activeFile.content ?? '').slice(0, provider === 'builtin' ? 6000 : 20000);
+    const body = sel || (activeFile.content ?? '').slice(0, 20000);
     if (!body) return '';
     return `<context file="${activeFile.name}" language="${activeFile.language ?? ''}"${sel ? ' selection="true"' : ''}>\n${body}\n</context>\n\n`;
   };
-
-  const builtinReady = provider !== 'builtin' || llm.find((m) => m.id === builtinId)?.installed === true;
 
   const send = async (raw: string) => {
     let text = raw.trim();
@@ -465,7 +443,6 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     }
     const fail = (msg: string) => setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, messages: [...s.messages, { id: uid(), role: 'assistant', text: '', error: msg }] })));
     if (mode === 'agent' && !hasWorkspace) return fail(t('aiAgentNeedsFolder'));
-    if (!builtinReady) return fail(t('aiErrNoModel'));
 
     const userMsg: ChatMsg = { id: uid(), role: 'user', text: raw.trim() || '🖼', imageCount: images.length || undefined };
     const botMsg: ChatMsg = { id: uid(), role: 'assistant', text: '', streaming: true };
@@ -474,7 +451,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     runRef.current = { runId, sessionId: session.id, msgId: botMsg.id };
     stick.current = true;
     setSessions((all) => all.map((s) => (s.id !== session.id ? s : { ...s, ...(s.title || s.titleLocked ? {} : { title: smartTitle(userMsg.text, fileHintRef.current) || titleFrom(userMsg.text), autoLevel: 1 as const }), ...(!s.categoryLocked && !s.category ? { category: smartCategory(userMsg.text) } : {}), updatedAt: Date.now(), messages: [...history, botMsg] })));
-    const sent = provider === 'builtin' ? [] : images; // yerleşik model görsel okuyamaz
+    const sent = images;
     setInput('');
     setImages([]);
     setBusy(true);
@@ -490,7 +467,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     });
 
     const res = await api.run({
-      runId, provider, model,
+      runId, provider: 'ollama', model,
       thinking: thinkingLevel,
       maxTokens: maxTokensNow,
       instructions: String((isAgent ? values.aiAgentInstructions : values.aiAskInstructions) || '').slice(0, 600) || undefined,
@@ -508,6 +485,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     }
   };
 
+  sendRef.current = send;
   const stop = () => { if (runRef.current) void api?.cancel(runRef.current.runId); };
 
   const decide = (msgId: string, approvalId: string, allow: boolean) => {
@@ -535,12 +513,6 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     ].filter((c) => c.name.startsWith(q));
   }, [input, custom]);
 
-  const startDownload = (id: string) => {
-    setSetting('aiBuiltinModel', id);
-    setProgress((p) => ({ ...p, [id]: { id, received: 0, total: llm.find((m) => m.id === id)?.size ?? 1 } }));
-    void llmApi?.download(id);
-  };
-
   if (!api) {
     return (
       <div className="flex flex-col h-full bg-nv-side p-4 text-[12px] text-zinc-400">
@@ -550,8 +522,6 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     );
   }
 
-  const voiceOn = values.aiVoiceEnabled === true;
-  const isLocal = true; // yalnız Ollama (yerel)
   const canSend = (!!input.trim() || images.length > 0) && !busy;
   const icoBtn = 'w-7 h-7 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover motion-press disabled:opacity-40';
   const banner = 'mx-3 mt-2 p-2.5 rounded-lg border text-[11.5px] leading-snug';
@@ -611,69 +581,22 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
       </div>
 
       {/* Uyarılar */}
-      {provider === 'ollama' && ollama && (!ollama.running || ollama.models.length === 0) && (
+      {ollama && (!ollama.running || ollama.models.length === 0) && (
         <div className={`${banner} border-amber-500/40 bg-amber-500/10 text-amber-100 flex items-center justify-between gap-2 shrink-0`}>
           <span className="min-w-0">{!ollama.running ? t('aiOllamaDown') : t('aiOllamaNoModels')}</span>
           <button className="h-6 px-2 rounded bg-amber-500/20 hover:bg-amber-500/30 shrink-0" onClick={() => setOllamaTick((n) => n + 1)}>{t('aiRecheck')}</button>
         </div>
       )}
-      {provider === 'ollama' && ollama?.running && ollama.models.length > 0 && !ollama.models.some((m) => m === model || (!model.includes(':') && m.split(':')[0] === model)) && (
+      {ollama?.running && ollama.models.length > 0 && !ollama.models.some((m) => m === model || (!model.includes(':') && m.split(':')[0] === model)) && (
         <div className={`${banner} border-amber-500/40 bg-amber-500/10 text-amber-100 shrink-0`}>{t('aiOllamaModelMissing').split('{m}').join(model)}</div>
-      )}
-      {!hasKey && (
-        <div className={`${banner} border-amber-500/40 bg-amber-500/10 text-amber-100 flex items-center justify-between gap-2 shrink-0`}>
-          <span className="min-w-0">{t('aiNoKey')}</span>
-          <button className="h-6 px-2 rounded bg-amber-500/20 hover:bg-amber-500/30 shrink-0" onClick={onOpenSettings}>{t('aiOpenSettings')}</button>
-        </div>
       )}
       {isAgent && !hasWorkspace && (
         <p className="mx-3 mt-2 text-[11px] text-amber-300/90 leading-snug shrink-0">{t('aiAgentNeedsFolder')}</p>
-      )}
-      {provider === 'builtin' && mode === 'agent' && builtinId === 'qwen2.5-coder-1.5b' && builtinReady && (
-        <p className="mx-3 mt-2 text-[10.5px] text-amber-300/90 leading-snug shrink-0">{t('aiBuiltinAgentWarn')}</p>
       )}
 
       {/* İletiler */}
       <div className="relative flex-1 min-h-0">
       <div ref={scrollRef} onScroll={onScroll} className="absolute inset-0 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-4 text-[12.5px]">
-        {provider === 'builtin' && !builtinReady && (
-          <div className={`${banner} !mx-0 !mt-0 border-indigo-500/40 bg-indigo-500/10 text-indigo-100`}>
-            <div className="font-semibold text-[12px] mb-1">{t('aiBuiltinTitle')}</div>
-            <p className="text-indigo-200/90">{t('aiBuiltinDesc')}</p>
-            <div className="mt-2 space-y-1.5">
-              {llm.map((m) => {
-                const p = progress[m.id];
-                const active = m.downloading || (!!p && !p.done && !p.error && p.received > 0);
-                const pct = p ? Math.min(100, Math.round((p.received / Math.max(1, p.total)) * 100)) : 0;
-                return (
-                  <div key={m.id} className="rounded-md bg-black/20 p-2">
-                    <div className="flex items-center justify-between gap-2 min-w-0">
-                      <div className="min-w-0">
-                        <div className="text-zinc-100 truncate">{m.tier === 'fast' ? t('aiTierFast') : t('aiTierStrong')} · {m.label}</div>
-                        <div className="text-[10.5px] text-indigo-200/70">{gb(m.size)} GB · {t('aiRam').replace('{n}', String(m.ramGb))}</div>
-                      </div>
-                      {m.installed ? (
-                        <span className="text-emerald-400 flex items-center gap-1 shrink-0"><Check size={12} />{t('aiReady')}</span>
-                      ) : active ? (
-                        <button className="h-6 px-2 rounded bg-zinc-700 hover:bg-zinc-600 shrink-0" onClick={() => void llmApi?.cancel(m.id)}>{t('aiBuiltinCancel')}</button>
-                      ) : (
-                        <button className="h-6 px-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1 shrink-0" onClick={() => startDownload(m.id)}><Download size={12} />{t('aiBuiltinDownload')}</button>
-                      )}
-                    </div>
-                    {active && (
-                      <div className="mt-1.5">
-                        <div className="h-1.5 rounded-full bg-zinc-700 overflow-hidden"><div className="h-full bg-indigo-400 transition-[width] duration-(--dur-slow)" style={{ width: `${pct}%` }} /></div>
-                        <div className="mt-0.5 text-[10.5px] text-indigo-200/80">{t('aiBuiltinProgress').replace('{p}', String(pct))}</div>
-                      </div>
-                    )}
-                    {p?.error === 'failed' && !active && <div className="mt-1 text-[10.5px] text-rose-300">{t('aiBuiltinFailed')}</div>}
-                  </div>
-                );
-              })}
-            </div>
-            <p className="mt-2 text-[10.5px] text-indigo-200/70">{t('aiBuiltinNote')}</p>
-          </div>
-        )}
         {!session?.messages.length && (
           <div className="pt-4 text-zinc-400 leading-relaxed">
             <div className="w-10 h-10 rounded-xl bg-indigo-500/25 flex items-center justify-center mb-3"><Bot size={20} className="text-indigo-300" /></div>
@@ -794,18 +717,18 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
             rows={1}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void send(input); } }}
-            onPaste={(e) => { const f = Array.from(e.clipboardData.files); if (f.length && provider !== 'builtin') { e.preventDefault(); void addFiles(f); } }}
+            onPaste={(e) => { const f = Array.from(e.clipboardData.files); if (f.length) { e.preventDefault(); void addFiles(f); } }}
             placeholder={mode === 'agent' ? t('aiPlaceholderAgent') : t('aiPlaceholderAsk')}
             className="w-full resize-none bg-transparent px-3 pt-2.5 pb-1 text-[12.5px] text-zinc-100 outline-none placeholder:text-zinc-500 min-h-[36px] max-h-[168px]"
           />
           <div className="flex items-center gap-0.5 px-1.5 pb-1.5">
             <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden onChange={(e) => { if (e.target.files) void addFiles(e.target.files); e.target.value = ''; }} />
-            <button className={icoBtn} disabled={provider === 'builtin'} onClick={() => fileRef.current?.click()} title={provider === 'builtin' ? t('aiNoImages') : t('aiAttach')} aria-label={t('aiAttach')}><ImagePlus size={15} /></button>
+            <button className={icoBtn} onClick={() => fileRef.current?.click()} title={t('aiAttach')} aria-label={t('aiAttach')}><ImagePlus size={15} /></button>
             <button
               className={`${icoBtn} ${dictation.state === 'recording' ? '!text-rose-400 animate-pulse' : ''}`}
               disabled={dictation.state === 'transcribing'}
-              onClick={() => (dictation.state === 'recording' ? dictation.stop() : voiceOn ? void dictation.start() : setSetting('aiVoiceEnabled', true))}
-              title={dictation.state === 'recording' ? t('aiMicStop') : voiceOn ? t('aiMicStart') : t('aiVoiceConsent')}
+              onClick={() => (dictation.state === 'recording' ? dictation.stop() : void dictation.start())}
+              title={`${dictation.state === 'recording' ? t('aiMicStop') : t('aiMicStart')}${dictModel ? ' · ' + dictModel.replace(/^ggml-/, '').replace(/\.bin$/, '') : ''}`}
               aria-label={t('aiMicStart')}
             >
               {dictation.state === 'transcribing' ? <Loader2 size={15} className="animate-spin" /> : <Mic size={15} />}
@@ -818,9 +741,17 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
               agent={isAgent ? { autonomy, onAutonomy: (a) => setSetting('aiAgentAutonomy', a), maxSteps: maxStepsNow, onMaxSteps: (n) => setSetting('aiAgentMaxSteps', n) } : undefined}
               disabled={busy}
             />
-            <button className="min-w-0 flex-1 text-start px-1.5 text-[10.5px] text-zinc-500 hover:text-zinc-300 truncate" onClick={onOpenSettings} title={t('aiOpenSettings')}>
-              {PROVIDER_LABEL[provider]} · {modelLabel}
-            </button>
+            <ModelMenu
+              mode={mode}
+              model={model}
+              onModel={(m) => setSetting(isAgent ? 'aiAgentModel' : 'aiAskModel', m)}
+              ollama={ollama}
+              whisper={whisper}
+              dictModel={whisper.some((w) => w.id === dictModel) ? dictModel : whisper.find((w) => w.id === 'ggml-small.bin')?.id ?? whisper[0]?.id ?? ''}
+              onDictModel={(m) => setSetting('aiDictationModel', m)}
+              disabled={busy}
+              onRefresh={() => setOllamaTick((n) => n + 1)}
+            />
             {busy ? (
               <button className="w-7 h-7 rounded-lg bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center" onClick={stop} title={t('aiStop')} aria-label={t('aiStop')}><Square size={12} /></button>
             ) : (
@@ -828,9 +759,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
             )}
           </div>
         </div>
-        {!voiceOn && provider !== 'builtin' && <p className="mt-1 text-[10px] leading-snug text-zinc-500">{t('aiVoiceConsent')}</p>}
         <p className="mt-1 text-[10px] leading-snug text-zinc-500">
-          {isLocal ? t('aiPrivacyLocal') : t('aiPrivacy').replace('{provider}', PROVIDER_LABEL[provider])}
+          {t('aiPrivacyLocal')}
         </p>
       </div>
     </div>

@@ -2,6 +2,12 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 18.11.2026 (AI: tek sağlayıcı, panelden model seçimi, dikte modeli)
+- **Yerleşik model, Anthropic ve OpenAI kodu silindi; yalnız yerel Ollama.** Neden: arayüzden erişilemeyen ölü kod bakım ve güvenlik yüzeyiydi (`node-llama-cpp` ~110 MB paket, anahtar saklama, uzak rıza akışı). Sonuç: `electron-llm.cjs`, `llm:*` IPC, `aiKey_*` gizli değerleri ve ilgili metinler kalktı; motor taban adresi sabit. Uzak adres rıza/`scrubSecrets` koruması savunma olarak ve testlerde durur. Geri dönüş: git geçmişi (`electron-llm.cjs`).
+- **Model seçimi ayarda değil panelde.** Neden: kullanıcı kurulu modeller arasından, sohbetin içinde değiştirmek istiyor; ayarlarda ölü seçenek yok. Sohbet ve Ajan için ayrı model (`aiAskModel`/`aiAgentModel`), dikte modeli de aynı menüde (`aiDictationModel`, kurulu `ggml-*.bin`, istemci yalnız ad yollar).
+- **Tamamlama modeli varsayılanı 7b → 0.5b** (kurulu küçük model; ~10 kat hız). Sohbet/ajan 7b kalır. `settings.ts` v4 geçişi yalnız eski varsayılandaki kaydı taşır.
+- **Dikte rıza ayarı (`aiVoiceEnabled`) kaldırıldı.** Neden: ses cihazdan çıkmıyor (yerel Whisper), 3. parti yok; rıza gerektiren veri aktarımı yok. Yerine dikte dili ve otomatik gönder ayarları.
+
 ## 17.11.2026 (Güven modeli ve önizleme izolasyonu)
 - **Çalışma klasörü güveni** tek modülde (`electron-trust.cjs`): güvenilmeyen klasör kısıtlı modda açılır; LSP ve hata ayıklayıcı kapalı, git yalnız okuma. Güvenilen klasör, AI rızası ve izinli adresler yalnız **geri alınabilir**, yönetici adına verilemez (KVKK ilkesi). Entegre terminal kullanıcının kendi kabuğu olduğu için kısıtlanmadı.
 - **Önizleme ayrı köken** (`nova-preview://`): uygulama CSP'sinden `unsafe-eval`/satır içi betik kaldırıldı; gevşek CSP yalnız önizleme yanıtında. `style-src unsafe-inline` ve `img-src https:` bilinçli kabul (React/Monaco, eklenti simgeleri).

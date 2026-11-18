@@ -85,17 +85,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   openLink: (url) => ipcRenderer.invoke('app:openLink', url),
   revealInFolder: (target) => ipcRenderer.invoke('app:reveal', target),
-  llm: {
-    status: () => ipcRenderer.invoke('llm:status'),
-    download: (id) => ipcRenderer.invoke('llm:download', id),
-    cancel: (id) => ipcRenderer.invoke('llm:cancel', id),
-    remove: (id) => ipcRenderer.invoke('llm:delete', id),
-    onProgress: (callback) => {
-      const listener = (_event, data) => callback(data);
-      ipcRenderer.on('llm:progress', listener);
-      return () => ipcRenderer.removeListener('llm:progress', listener);
-    }
-  },
   ext: {
     search: (opts) => ipcRenderer.invoke('ext:search', opts),
     list: () => ipcRenderer.invoke('ext:list'),
@@ -109,6 +98,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     cancel: (runId) => ipcRenderer.invoke('ai:cancel', runId),
     approve: (runId, id, allow) => ipcRenderer.invoke('ai:approve', runId, id, allow),
     transcribe: (req) => ipcRenderer.invoke('ai:transcribe', req),
+    whisperModels: () => ipcRenderer.invoke('ai:whisperModels'),
     commands: () => ipcRenderer.invoke('ai:commands'),
     complete: (req) => ipcRenderer.invoke('ai:complete', req),
     completeCancel: (id) => ipcRenderer.invoke('ai:completeCancel', id),

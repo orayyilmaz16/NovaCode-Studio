@@ -4,8 +4,17 @@
 
 ### tr
 
+- [feat] **Panelden model seçimi:** Yapay zekâ panelinde giriş kutusunun altındaki model menüsünden Sohbet ve Ajan için ayrı model seçilir (yerel Ollama'da kurulu modeller, Hızlı/Güçlü ipucuyla). Aynı menüde dikte (Whisper) modeli de seçilir; dikte modeli değişince sunucu yeni modelle başlar. Ayarlar'da model seçimi yoktur.
+- [feat] **Dikte ayarları:** Ayarlar → Yapay Zekâ → Ses'te dikte dili (arayüz dili / otomatik) ve "Dikteden sonra otomatik gönder" eklendi. Dikte tamamen yerelde çalıştığı için rıza anahtarı kalktı; mikrofona basmak yeterli.
+- [improve] **Tamamlama modeli varsayılanı küçüldü:** Kurulu küçük modele (`qwen2.5-coder:0.5b`) geçildi; satır içi öneriler çok daha hızlı. Eski varsayılanda kalmış kayıtlar otomatik taşınır, özel seçim korunur; sohbet ve ajan modeli 7b kalır.
+- [improve] **Eski AI sağlayıcı kodu temizlendi:** Arayüzden erişilemeyen yerleşik model, Anthropic ve OpenAI desteği ile API anahtarı alanları kaldırıldı (uygulama paketi ~110 MB küçülür). Yapay zekâ yalnız yerel Ollama ile çalışır.
+
 ### en
 
+- [feat] **Model picker in the panel:** The model menu under the AI input box picks a separate model for Chat and Agent (models installed in local Ollama, with a Fast/Strong hint). The same menu picks the dictation (Whisper) model; the server restarts with the new model. Settings no longer has a model selector.
+- [feat] **Dictation settings:** Settings > AI > Voice gains dictation language (interface language / automatic) and "Send automatically after dictation". Because dictation runs fully on this computer, the consent switch is gone; just press the microphone.
+- [improve] **Smaller default completion model:** Inline suggestions now default to the installed small model (`qwen2.5-coder:0.5b`) and are much faster. Records still on the old default migrate automatically, custom choices are kept; chat and agent stay on 7b.
+- [improve] **Legacy AI provider code removed:** The unreachable built-in model, Anthropic and OpenAI support and API key fields were removed (the app package shrinks by ~110 MB). AI works only with local Ollama.
 ## 1.5.1 - 18.11.2026
 <!-- level: patch -->
 ### Türkçe
