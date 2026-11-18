@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Kenar çubuğu ile editör arası boşluk biraz daha açıldı** (8 → 12 px); sürükleme çizgisi boşluğun ortasında.
 - [improve] **Etkinlik çubuğu ölçeği geri geldi:** Soldaki çubuğun simgeleri eski boyutuna (24 px) döndü ve düğmeler büyüdü; yalnız simge ile kenarlık arasındaki boşluk azaldı (şerit 50 → 48 px).
 - [improve] **Sekme editöre akarak bağlanır:** Seçili sekmenin alt köşelerinde, sekme ile editör birleştiği yerde hissedilmeyecek kadar ince içe dönük yuvarlama var.
 - [improve] **Daha sade, yumuşak sekmeler:** Seçili sekmenin üstündeki vurgu çizgisi kaldırıldı; seçili sekme kenarlıksız olarak editör zeminiyle yumuşakça birleşiyor. Sekmelerin solundaki gereksiz boşluk kalktı, ilk sekme karta bitişik başlıyor.
@@ -24,6 +25,7 @@
 
 ### en
 
+- [improve] **Slightly wider gap between the sidebar and the editor** (8 → 12 px); the resize line sits in the middle of the gap.
 - [improve] **Activity bar scale restored:** Icons on the left bar are back to the original 24 px and buttons are larger; only the spacing between icon and border shrank (strip 50 → 48 px).
 - [improve] **Tab flows into the editor:** The selected tab has a subtle inward curve at its bottom corners where it joins the editor surface.
 - [improve] **Simpler, softer tabs:** The accent line on top of the selected tab is gone; the selected tab blends softly into the editor surface without a border. The needless gap before the first tab is removed so tabs start flush with the card.

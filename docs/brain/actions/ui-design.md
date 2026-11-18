@@ -134,3 +134,5 @@ Sorun: dar editörde (AI/önizleme paneli veya kenar çubuğu açıkken) `shrink
 Etkin sekme çubukta görünür alana `scrollTo` ile 12 px paylı kaydırılır (`scrollIntoView` giriş animasyonunun ölçeğinden etkilenip sağ yuvarlamayı kırpıyordu); listenin sonunda 8 px boşluk (`w-2`) kalır.
 
 **Etkinlik çubuğu ölçeği (18.11.2026, son):** simge 24 px (eski boyut), düğme 42 px, şerit 48 px (eski 50 → yalnız simge–kenarlık boşluğu azaldı: iç genişlik 46, düğme 42). Dar ekranda kenar çubuğu bindirme ofseti 50 px.
+
+**Kenar çubuğu–editör boşluğu (18.11.2026):** 8 → 12 px (`.sidebar-gap`, tutamaç ortada); diğer tutamaçlar 6 px kalır.
