@@ -1,7 +1,7 @@
 <!-- Bu dosya scripts/audit-scan.mjs tarafından otomatik üretilir; elle düzenleme. -->
 # Denetim raporu (otomatik)
 
-Son tarama: 17.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da haftalık/her push'ta) · Derin/elle bulgular: [[BACKLOG]] · Kural: [[audit]]
+Son tarama: 18.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da haftalık/her push'ta) · Derin/elle bulgular: [[BACKLOG]] · Kural: [[audit]]
 
 ## Özet
 | Alan | Bulgu |
@@ -76,5 +76,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:348` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2336, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 1029, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `src/components/AIAssistant.tsx` 835
+- En büyük kaynak dosyalar: `src/App.tsx` 2336, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 1029, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `src/components/AIAssistant.tsx` 839
 - Üretim paketi (dist varsa): toplam JS 2905 KB; en büyük: index-CdqR6ld2.js 597 KB, PtyView-CmQkOFRn.js 327 KB, fileIconLoaders-DS3X3xLl.js 184 KB, uiTextTheme-CG3J1ZbA.js 136 KB

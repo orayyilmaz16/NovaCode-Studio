@@ -4,7 +4,7 @@ Electron + React 19 + Vite 8 + Monaco tabanlı masaüstü/web kod editörü. Dil
 
 ## Sürüm (otomatik)
 <!-- version:start -->
-Güncel sürüm: **v1.5.0** (minor, 17.11.2026) · notlar: `release-notes/v1.5.0.md` · geçmiş: `docs/brain/VERSIONS.md` · kural: `docs/brain/actions/versioning.md`. Bu blok `scripts/release.mjs` ile otomatik güncellenir, elle yazma.
+Güncel sürüm: **v1.5.1** (patch, 18.11.2026) · notlar: `release-notes/v1.5.1.md` · geçmiş: `docs/brain/VERSIONS.md` · kural: `docs/brain/actions/versioning.md`. Bu blok `scripts/release.mjs` ile otomatik güncellenir, elle yazma.
 <!-- version:end -->
 
 ## Komutlar
