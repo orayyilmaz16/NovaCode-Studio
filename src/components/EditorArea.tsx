@@ -244,7 +244,16 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
   const tabListRef = useRef<HTMLDivElement>(null);
   // Etkin sekme çubuğun dışında kalırsa yumuşakça görünür alana kaydır
   useEffect(() => {
-    tabListRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+    const list = tabListRef.current;
+    const tab = list?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+    if (!list || !tab) return;
+    if (getComputedStyle(list).direction === 'rtl') { tab.scrollIntoView({ inline: 'nearest', block: 'nearest' }); return; }
+    // Sekme giriş animasyonu (ölçek) ölçümü bozmasın diye offset ölçüleri kullanılır; kenarlarda yuvarlak köşeler/bağlantı için pay bırakılır
+    const pad = 12;
+    const left = tab.offsetLeft;
+    const right = left + tab.offsetWidth;
+    if (left - pad < list.scrollLeft) list.scrollTo({ left: Math.max(0, left - pad), behavior: 'smooth' });
+    else if (right + pad > list.scrollLeft + list.clientWidth) list.scrollTo({ left: right + pad - list.clientWidth, behavior: 'smooth' });
   }, [activeFileId, openFiles.length]);
   const [collabStatus, setCollabStatus] = useState<'off' | 'connecting' | 'synced' | 'error'>('off');
   const activeFile = openFiles.find((f) => f.id === activeFileId);
@@ -497,7 +506,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
       {openFiles.length > 0 && (
       <div className="animate-tabbar-in relative flex items-stretch justify-between bg-nv-side h-[38px] select-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-nv-border">
-        <div ref={tabListRef} role="tablist" className="relative z-10 flex items-end gap-0.5 flex-1 min-w-[96px] overflow-x-auto pt-1.5 pe-1.5 [scrollbar-width:none] scroll-smooth">
+        <div ref={tabListRef} role="tablist" className="relative z-10 flex items-end gap-0.5 flex-1 min-w-[96px] overflow-x-auto pt-1.5 pe-1.5 scroll-px-2 [scrollbar-width:none] scroll-smooth">
           {openFiles.map((file) => (
             <EditorTab key={file.id} file={file} isActive={file.id === activeFileId} onSelect={onSelectTab} onClose={onCloseTab} group={groupId} />
           ))}
@@ -511,6 +520,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
               <Plus size={15} />
             </button>
           )}
+          <span aria-hidden className="shrink-0 w-2" /> {/* kaydırma kabında son sekmenin sağ yuvarlaması kırpılmasın */}
         </div>
 
         {/* Bölme düğmeleri */}

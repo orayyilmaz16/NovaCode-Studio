@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Sekme editöre akarak bağlanır:** Seçili sekmenin alt köşelerinde, sekme ile editör birleştiği yerde hissedilmeyecek kadar ince içe dönük yuvarlama var.
 - [improve] **Daha sade, yumuşak sekmeler:** Seçili sekmenin üstündeki vurgu çizgisi kaldırıldı; seçili sekme kenarlıksız olarak editör zeminiyle yumuşakça birleşiyor. Sekmelerin solundaki gereksiz boşluk kalktı, ilk sekme karta bitişik başlıyor.
 - [fix] **Dar editörde sekmeler görünür:** Yapay zekâ, önizleme veya kenar çubuğu açıkken editör daraldığında sekmeler eylem düğmelerinin altında kayboluyordu. Sekme listesi artık en az bir sekme gösterir; dar editörde bölme, kaydet, kopyala, indir ve önizleme düğmeleri "⋯" menüsünde toplanır. Koyu temalarda pasif sekmeler zeminden daha net ayrışır.
 - [fix] **Telefon ve tablet düzeni:** 760 px altında kenar çubuğu editörü ezmeden üstüne biner (dışına dokunmak veya dosya seçmek kapatır, telefonda kapalı başlar); eskiden ~160 px'e sıkışan editör ve üst üste binen sekme düğmeleri düzeldi. Mobil tarayıcı adres çubuğunda yükseklik doğru hesaplanır, sayfa sıçraması engellendi. Etkinlik çubuğundaki aktif gösterge çizgisi kart dışına taşmıyor.
@@ -22,6 +23,7 @@
 
 ### en
 
+- [improve] **Tab flows into the editor:** The selected tab has a subtle inward curve at its bottom corners where it joins the editor surface.
 - [improve] **Simpler, softer tabs:** The accent line on top of the selected tab is gone; the selected tab blends softly into the editor surface without a border. The needless gap before the first tab is removed so tabs start flush with the card.
 - [fix] **Tabs stay visible in a narrow editor:** When the AI, preview or sidebar panel narrowed the editor, tabs vanished under the action buttons. The tab list now always shows at least one tab; in a narrow editor the split, save, copy, download and preview buttons collapse into a "⋯" menu. Inactive tabs stand out more from the background in dark themes.
 - [fix] **Phone and tablet layout:** Below 760 px the sidebar now overlays the editor instead of squeezing it (tap outside or pick a file to close; it starts closed on phones); the editor that used to be squeezed to ~160 px and the overlapping tab buttons are fixed. Height is computed correctly with mobile browser address bars and page bounce is prevented. The active indicator in the activity bar no longer sticks out of its card.

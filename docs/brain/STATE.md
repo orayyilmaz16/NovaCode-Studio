@@ -70,7 +70,7 @@
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 764 |
+| `src/components/EditorArea.tsx` | 774 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 932 |
