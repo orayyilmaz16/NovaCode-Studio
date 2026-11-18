@@ -75,7 +75,7 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 ## Çerçeve (üst çubuk, etkinlik şeridi, yan panel, editör, sağ paneller, alt çubuk)
 - **Karar:** paneller ince 1 px kenarlıklı, hafif yuvarlak **kartlardır** (VS Code tarzı, sade). **Renkler, tema ve editör görünümü değişmez**: yüzey renkleri `nv-side`/`nv-editor`, kenarlık düz `nv-border` kalır. Degrade, yarı saydam kenarlık, hap zemin, renkli vurgu gibi stil değişikliği ekleme.
 - **Ölçüler (esnek):** `--frame` (kart boşluğu, 6 px) ve `--frame-r` (köşe, 8 px); pencere < 760 px iken 2 px / 6 px. Kartlarda `mx/mt/m-[var(--frame)]`, `rounded-[var(--frame-r)]`, `border border-nv-border` kullan; sabit px yazma.
-- **Düzen:** kök `bg-nv-side` (boşlukların rengi). Üst çubuk (`h-9`) ve alt çubuk (`h-6`) kartları; çalışma alanı `px/pt-[var(--frame)]`; etkinlik şeridi `w-9` kart (18 px simge, 30 px düğme); yan panel, editör sütunu (terminal dahil) ve sağ paneller (AI, önizleme) kart. Panel iç bileşenleri kendi dış kenarlığını taşımaz (ör. `AIAssistant` kökünde `border-l` yok): çerçeveyi `App.tsx` verir.
+- **Düzen:** kök `bg-nv-side` (boşlukların rengi). Üst çubuk (`h-9`) ve alt çubuk (`h-6`) kartları; çalışma alanı `px/pt-[var(--frame)]`; etkinlik şeridi `w-11` kart (22 px simge, 38 px düğme); yan panel, editör sütunu (terminal dahil) ve sağ paneller (AI, önizleme) kart. Panel iç bileşenleri kendi dış kenarlığını taşımaz (ör. `AIAssistant` kökünde `border-l` yok): çerçeveyi `App.tsx` verir.
 - **Sürükleme:** üst çubuk kartının üstündeki dar boşlukta `app-drag` şeridi vardır (pencere taşınabilsin). Sağ paneller dar ekranda (`compactRight`) editörün üstüne biner (`right/top-[var(--frame)]`).
 - **Alt çubuk:** `@container`; ikincil bilgiler (girinti, UTF-8) `hidden @lg:inline-flex` ile dar genişlikte gizlenir.
 
@@ -113,5 +113,8 @@ Kapanış: renderer onay penceresi açılınca `closePending()` (`app:close-pend
 ## Tip ve sınıf denetimi, AI panel menüleri (18.11.2026)
 `tsconfig.json` artık `strict` + `noUnusedLocals/Parameters` (CLAUDE.md kuralı 8 ile uyumlu); CI `tsc` bunu zorlar. Tailwind 4 kanonik sınıflar: eş `w-N h-N` → `size-N`, `!x` → `x!`, `break-words` → `wrap-break-word`, `[overflow-wrap:anywhere]` → `wrap-anywhere`. **Panel içi açılır menüler** (`ModelMenu`, `ThinkingMenu`) düğmeye değil giriş kartına (`relative`) göre konumlanır (`absolute bottom-full inset-x-0` / `start-0 w-[min(268px,100%)]`); panel kökü `overflow-hidden` olduğundan düğmeye göre konumlanan geniş menü dar panelde kesiliyordu. Fiziksel `left-/right-` yerine `start-/end-` kullan.
 
-## Etkinlik çubuğu küçüldü (18.11.2026)
-Şerit 50 → 36 px, düğme 48 → 30 px, simge 24 → 18 px (`strokeWidth` 1,6); rozet ve hata ayıklama noktası küçüldü, avatar 18 px. Etkinlik çubuğunda yerel `title` yerine `data-tip` kullanılır (çift ipucu olmasın); `dis()` yalnız şerit dışındaki düğmelerde. Hareket: [[motion]] "Etkinlik çubuğu".
+## Etkinlik çubuğu: normal simge, dar kenar boşluğu (18.11.2026)
+Şerit 50 → 44 px, düğme 48 → 38 px, simge 22 px (`strokeWidth` 1,5; ilk denemedeki 18 px fazla küçük bulundu); yalnız yan boşluklar azaldı, rozet/nokta/avatar (22 px) orantılı. Etkinlik çubuğunda yerel `title` yerine `data-tip` kullanılır (çift ipucu olmasın); `dis()` yalnız şerit dışındaki düğmelerde. Hareket: [[motion]] "Etkinlik çubuğu".
+
+## Yüzen arayüz (18.11.2026, kurucu talimatı)
+VS Code'un yüzen kart havası: `--frame` 8 px, `--frame-r` 10 px (dar pencerede 3/7), tüm kartlara (başlık, etkinlik şeridi, kenar çubuğu, editör sütunu, önizleme, AI paneli, durum çubuğu) `.float-card`: **tek** yumuşak gölge `--float-shadow` (`0 2px 12px`, koyu .28 / açık .09). Bu, "gölge yığını yok" kuralının bilinçli ve sınırlı istisnasıdır: kart başına tek katman, menü/pencerede ek gölge yok. Sekmeler: üst köşeler `--r-lg` (8 px), aralık `gap-0.5`, sekme çubuğu 38 px ve yan boşluklu. Renkler ve tema değişmedi.

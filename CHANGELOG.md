@@ -4,7 +4,8 @@
 
 ### tr
 
-- [improve] **Daha küçük ve canlı etkinlik çubuğu:** Soldaki simge şeridi 50 px'ten 36 px'e, simgeler 24 px'ten 18 px'e küçüldü (editöre daha çok yer). Hover'da yumuşak zemin kapsülü ve hafif yukarı kalkan simge, etkin öğede ortadan açılan gösterge çizgisi; öğe adı ve kısayolu kısa bir gecikmeden sonra yana kayarak beliren ipucuyla gösterilir.
+- [improve] **Yüzen, VS Code havalı arayüz:** Başlık, etkinlik şeridi, kenar çubuğu, editör, önizleme, AI paneli ve durum çubuğu daha yuvarlak (10 px) ve aralarında daha geniş boşlukla yüzen kartlar oldu; her kartta tek, yumuşak bir gölge var. Sekmelerin üst köşeleri daha yuvarlak, aralarında küçük boşluk var. Etkinlik çubuğu simgeleri normal boyuta (22 px) döndü; yalnız yan boşluklar azaldı (şerit 50 → 44 px). Hover, geçiş ve gecikmeli ipucu efektleri korundu.
+- [improve] **Daha canlı etkinlik çubuğu:** Hover'da yumuşak zemin kapsülü ve hafif yukarı kalkan simge, etkin öğede ortadan açılan gösterge çizgisi; öğe adı ve kısayolu kısa bir gecikmeden sonra yana kayarak beliren ipucuyla gösterilir.
 - [improve] **AI düğmesi arama çubuğunun içinde:** Yapay zekâ paneli düğmesi, VS Code'daki gibi üst çubuktaki arama alanının içine, en sağa ayrı bir bölme olarak yerleşti; panel açıkken vurgulu görünür.
 - [fix] **Yapay zekâ paneli taşmaları ve hatalar:** Model ve düşünme menüleri artık giriş kartına göre açılır (dar panelde yana taşıp kesilmez); durum şeridi ve kaydırıcı düğmeleri dar genişlikte taşmaz, kaydırıcı okları RTL'de doğru kenarda; ajan durum şeridindeki etiket kısalır. Panel açılışında dikte modelleri listesi yüklenmiyordu, düzeltildi.
 - [improve] **Tip denetimi sıkılaştı:** TypeScript `strict` ve kullanılmayan değişken denetimi açıldı; kalan tip hataları, kullanılmayan içe aktarmalar ve ölü kod temizlendi. Tailwind 4 önerilerine uyum: `size-*`, sonek `!` ve `wrap-*` sınıfları.
@@ -15,7 +16,8 @@
 
 ### en
 
-- [improve] **Smaller, livelier activity bar:** The left icon strip shrank from 50 px to 36 px and icons from 24 px to 18 px (more room for the editor). Hover shows a soft background capsule and a slightly lifted icon, the active item has an indicator that opens from the center, and item name plus shortcut appear in a tooltip that slides in after a short delay.
+- [improve] **Floating, VS Code-style UI:** The title bar, activity bar, sidebar, editor, preview, AI panel and status bar are now rounder (10 px) floating cards with wider gaps and a single soft shadow each. Tab top corners are rounder with a small gap between tabs. Activity bar icons are back to normal size (22 px); only the side spacing shrank (strip 50 → 44 px). Hover, transition and delayed tooltip effects stay.
+- [improve] **Livelier activity bar:** Hover shows a soft background capsule and a slightly lifted icon, the active item has an indicator that opens from the center, and item name plus shortcut appear in a tooltip that slides in after a short delay.
 - [improve] **AI button inside the search bar:** The AI panel button now sits inside the top search field as a separate segment at the far right, like in VS Code, and is highlighted while the panel is open.
 - [fix] **AI panel overflows and bugs:** The model and thinking menus now open relative to the input card (no more clipping sideways in a narrow panel); the status bar and slider buttons no longer overflow at narrow widths, slider arrows sit on the correct edge in RTL, and the agent status label truncates. The dictation model list was not loaded when the panel opened; fixed.
 - [improve] **Stricter type checking:** TypeScript `strict` and unused-variable checks are on; remaining type errors, unused imports and dead code were cleaned up. Aligned with Tailwind 4 suggestions: `size-*`, suffix `!` and `wrap-*` classes.

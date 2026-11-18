@@ -480,8 +480,8 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       )}
       {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
       {openFiles.length > 0 && (
-      <div className="animate-tabbar-in flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[35px] select-none">
-        <div ref={tabListRef} role="tablist" className="flex items-end gap-px flex-1 min-w-0 overflow-x-auto pt-1 pl-1 [scrollbar-width:none] scroll-smooth">
+      <div className="animate-tabbar-in flex items-stretch justify-between bg-nv-side border-b border-nv-border h-[38px] select-none">
+        <div ref={tabListRef} role="tablist" className="flex items-end gap-0.5 flex-1 min-w-0 overflow-x-auto pt-1.5 px-1.5 [scrollbar-width:none] scroll-smooth">
           {openFiles.map((file) => (
             <EditorTab key={file.id} file={file} isActive={file.id === activeFileId} onSelect={onSelectTab} onClose={onCloseTab} group={groupId} />
           ))}

@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 18.11.2026 (yüzen arayüz)
+- **Kartlara tek katman yumuşak gölge ve daha büyük yarıçap (kurucu talimatı).** Neden: VS Code'un yüzen kart görünümü isteniyor; CLAUDE.md kural 9 "gölge yığını yok" diyordu. Sonuç: kart başına yalnız `--float-shadow` (tek katman), yığın ve menü gölgesi yok; kural özü (düz yüzey, tek vurgu, degrade yok) korunur. Etkinlik çubuğu simgeleri 22 px kalır (18 px denendi, fazla küçük bulundu), kazanç yan boşlukları azaltmaktan gelir. Bkz. [[ui-design]].
+
 ## 18.11.2026 (AI: tek sağlayıcı, panelden model seçimi, dikte modeli)
 - **Yerleşik model, Anthropic ve OpenAI kodu silindi; yalnız yerel Ollama.** Neden: arayüzden erişilemeyen ölü kod bakım ve güvenlik yüzeyiydi (`node-llama-cpp` ~110 MB paket, anahtar saklama, uzak rıza akışı). Sonuç: `electron-llm.cjs`, `llm:*` IPC, `aiKey_*` gizli değerleri ve ilgili metinler kalktı; motor taban adresi sabit. Uzak adres rıza/`scrubSecrets` koruması savunma olarak ve testlerde durur. Geri dönüş: git geçmişi (`electron-llm.cjs`).
 - **Model seçimi ayarda değil panelde.** Neden: kullanıcı kurulu modeller arasından, sohbetin içinde değiştirmek istiyor; ayarlarda ölü seçenek yok. Sohbet ve Ajan için ayrı model (`aiAskModel`/`aiAgentModel`), dikte modeli de aynı menüde (`aiDictationModel`, kurulu `ggml-*.bin`, istemci yalnız ad yollar).

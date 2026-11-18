@@ -1860,7 +1860,7 @@ export function App() {
       {/* Başlık çubuğu: ince kenarlıklı, yuvarlak çerçeve; üstteki dar boşluk da pencereyi sürüklemeye yarar */}
       <div className="app-drag absolute inset-x-0 top-0 h-[var(--frame)] z-10" aria-hidden />
       <header
-        className="app-drag relative grid items-center h-9 mx-[var(--frame)] mt-[var(--frame)] rounded-[var(--frame-r)] border border-nv-border bg-nv-side select-none shrink-0"
+        className="app-drag relative grid items-center h-9 mx-[var(--frame)] mt-[var(--frame)] rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side select-none shrink-0"
         // Üç bölge: sol (logo + menü) · orta (arama, pencereye göre ortalı) · sağ (düğmeler; pencere denetimlerinden önce biter)
         style={{ gridTemplateColumns: `minmax(0,1fr) minmax(130px,min(${compactMenu ? 460 : 360}px,calc(100% - ${isElectron ? 600 : 328}px))) minmax(0,1fr)` }}
       >
@@ -1948,28 +1948,28 @@ export function App() {
       <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${settings.statusBarVisible === false ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
-        <nav aria-label={t('appActivityBar')} className={`w-9 bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-1' : 'mr-1'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
+        <nav aria-label={t('appActivityBar')} className={`w-11 float-card bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-0.5' : 'mr-0.5'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} data-tip={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
-              <Files size={18} strokeWidth={1.6} />
+              <Files size={22} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} {...(!currentRootPath ? { 'aria-disabled': true, 'data-disabled': true } : {})} data-tip={currentRootPath ? `${t('actSearch')} (Ctrl+Shift+F)` : `${t('actSearch')} — ${t('mnHintNoFolder')}`} aria-label={t('actSearch')} onClick={() => { if (currentRootPath) pickSidebar('search'); }}>
-              <Search size={18} strokeWidth={1.6} />
+              <Search size={22} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} data-tip={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
-              <Puzzle size={18} strokeWidth={1.6} />
+              <Puzzle size={22} strokeWidth={1.5} />
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} data-tip={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
-              <GitBranch size={18} strokeWidth={1.6} />
+              <GitBranch size={22} strokeWidth={1.5} />
               {changeCount > 0 && (
-                <span className="absolute bottom-0.5 right-0 min-w-3.5 h-3.5 px-0.5 rounded-full bg-indigo-500 text-white text-[9px] leading-3.5 text-center font-semibold">
+                <span className="absolute bottom-1 right-0.5 min-w-4 h-4 px-1 rounded-full bg-indigo-500 text-white text-[10px] leading-4 text-center font-semibold">
                   {changeCount > 99 ? '99+' : changeCount}
                 </span>
               )}
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} data-tip={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
-              <Bug size={18} strokeWidth={1.6} />
-              {dbgStatus === 'paused' && <span className="absolute bottom-1.5 right-1.5 size-1.5 rounded-full bg-amber-400" />}
+              <Bug size={22} strokeWidth={1.5} />
+              {dbgStatus === 'paused' && <span className="absolute bottom-2 right-2 size-2 rounded-full bg-amber-400" />}
             </button>
           </div>
 
@@ -1978,7 +1978,7 @@ export function App() {
               setShowSettings(false);
               setShowLanding(!showLanding);
             }}>
-              <House size={18} strokeWidth={1.6} />
+              <House size={22} strokeWidth={1.5} />
             </button>
             <button
               {...barBtn(false)}
@@ -1987,9 +1987,9 @@ export function App() {
               onClick={() => pickSidebar('git')}
             >
               {auth.connected && auth.profile?.avatarUrl ? (
-                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-[18px] rounded-full ring-1 ring-zinc-700" />
+                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-[22px] rounded-full ring-1 ring-zinc-700" />
               ) : (
-                <UserRound size={18} strokeWidth={1.6} />
+                <UserRound size={22} strokeWidth={1.5} />
               )}
             </button>
             <button
@@ -2001,7 +2001,7 @@ export function App() {
                 setShowSettings((v) => !v);
               }}
             >
-              <Settings size={18} strokeWidth={1.6} />
+              <Settings size={22} strokeWidth={1.5} />
             </button>
           </div>
         </nav>
@@ -2010,7 +2010,7 @@ export function App() {
         {/* Kenar çubuğu (kapanırken genişlik animasyonla daralır) */}
         <div className="sidebar-shell h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? sbW : 0 }}>
           {sbMounted && (
-            <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden">
+            <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden">
               {activeSidebarTab === 'files' && (
                 <div key="files" className="animate-sidebar-in h-full">
                   <FileTree
@@ -2069,7 +2069,7 @@ export function App() {
         {sidebarShown && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
 
         {/* Ana sütun: görünüm (ayarlar / karşılama / editör) + terminal paneli (oturumlar panel gizliyken de canlı kalır) */}
-        <div className="flex flex-col flex-1 h-full min-w-0 rounded-[var(--frame-r)] border border-nv-border bg-nv-editor overflow-hidden">
+        <div className="flex flex-col flex-1 h-full min-w-0 rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-editor overflow-hidden">
           <div className="flex-1 min-h-0 flex flex-col min-w-0">
             {showLanding ? (
           <LazyPanel><LandingPage
@@ -2201,7 +2201,7 @@ export function App() {
         {!showLanding && showRightPanel === 'preview' && canPreview && (
           <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex border-s border-nv-border' : 'contents'}>
             <ResizeHandle direction="horizontal" title={t('tbPreview')} onResize={(d) => setPreviewWidth((w) => clamp(w - d, 320, 1200))} />
-            <div style={{ width: Math.min(previewWidth, compactRight ? vw - 56 : Math.round(vw * 0.5)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden shrink-0 min-w-0">
+            <div style={{ width: Math.min(previewWidth, compactRight ? vw - 56 : Math.round(vw * 0.5)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden shrink-0 min-w-0">
               <LazyPanel><Preview
                 file={activeView}
                 rootPath={currentRootPath}
@@ -2217,7 +2217,7 @@ export function App() {
         {!showLanding && showRightPanel === 'ai' && (
           <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex border-s border-nv-border' : 'contents'}>
           <ResizeHandle direction="horizontal" title={t('aiTitle')} onResize={(d) => setAiWidth((w) => clamp(w - d, 300, 720))} />
-          <div style={{ width: Math.min(aiWidth, compactRight ? vw - 56 : Math.round(vw * 0.4)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] border border-nv-border overflow-hidden shrink-0 min-w-0">
+          <div style={{ width: Math.min(aiWidth, compactRight ? vw - 56 : Math.round(vw * 0.4)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] float-card border border-nv-border overflow-hidden shrink-0 min-w-0">
             <LazyPanel>
             <AIAssistant
               activeFile={activeView}
@@ -2278,7 +2278,7 @@ export function App() {
 
       {/* Durum çubuğu: yalnız anlamlı bilgiler */}
       {settings.statusBarVisible !== false && (
-        <footer className="@container h-6 m-[var(--frame)] rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
+        <footer className="@container h-6 m-[var(--frame)] rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
           <div className="flex items-center h-full min-w-0 overflow-hidden">
             {gitStatus.isRepo && (
               <>

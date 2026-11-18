@@ -167,13 +167,17 @@
 /* ---------- Çerçeve: panellerin ince kenarlığı ve köşe yuvarlaklığı (renklere dokunmaz) ----------
    Esnek: dar pencerede boşluk ve yuvarlaklık küçülür. */
 :root {
-  --frame: 6px;
-  --frame-r: 8px;
+  --frame: 8px;
+  --frame-r: 10px;
+  /* Yüzen kart: tek, yumuşak ve geniş gölge (yığın değil); açık temada daha hafif */
+  --float-shadow: 0 2px 12px rgb(0 0 0 / 0.28);
 }
+:root[data-theme="light"] { --float-shadow: 0 2px 12px rgb(0 0 0 / 0.09); }
+.float-card { box-shadow: var(--float-shadow); }
 @media (max-width: 760px) {
   :root {
-    --frame: 2px;
-    --frame-r: 6px;
+    --frame: 3px;
+    --frame-r: 7px;
   }
 }
 
@@ -191,8 +195,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   margin-block: 1px;
   border-radius: var(--r-md);
   color: var(--color-zinc-500);
@@ -221,9 +225,9 @@
 .ab-item::before {
   content: "";
   position: absolute;
-  inset-inline-start: -3px;
-  top: 7px;
-  bottom: 7px;
+  inset-inline-start: -2px;
+  top: 9px;
+  bottom: 9px;
   width: 2px;
   background: var(--color-zinc-50);
   border-start-end-radius: 2px;
@@ -478,8 +482,8 @@ button.status-item:hover {
 
 /* ---------- Sekmeler (VS Code tarzı): üstte vurgu çizgisi ortadan açılır, zemin ve renk yumuşakça döner ---------- */
 .nova-tab {
-  border-start-start-radius: var(--r-md);
-  border-start-end-radius: var(--r-md);
+  border-start-start-radius: var(--r-lg);
+  border-start-end-radius: var(--r-lg);
   transition: background-color var(--dur-base) ease, color var(--dur-base) ease, border-color var(--dur-base) ease;
 }
 .nova-tab::before {
@@ -488,8 +492,8 @@ button.status-item:hover {
   inset-inline: 0;
   top: -1px;
   height: 2px;
-  border-start-start-radius: var(--r-md);
-  border-start-end-radius: var(--r-md);
+  border-start-start-radius: var(--r-lg);
+  border-start-end-radius: var(--r-lg);
   background: var(--color-indigo-500);
   transform: scaleX(0);
   transform-origin: center;
