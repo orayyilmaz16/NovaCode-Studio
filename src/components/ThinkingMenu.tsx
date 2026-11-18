@@ -62,7 +62,7 @@ export const ThinkingMenu: React.FC<Props> = ({ level, onLevel, maxTokens, onMax
   };
 
   return (
-    <div ref={box} className="relative shrink-0">
+    <div ref={box} className="shrink-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -75,11 +75,11 @@ export const ThinkingMenu: React.FC<Props> = ({ level, onLevel, maxTokens, onMax
       >
         <Brain size={14} className={''} />
         <span className="hidden min-[330px]:inline">{t(cur.name)}</span>
-        {autoCur && autoCur.id !== 'ask' && <span className={`w-1.5 h-1.5 rounded-full ${autoCur.dot}`} />}
+        {autoCur && autoCur.id !== 'ask' && <span className={`size-1.5 rounded-full ${autoCur.dot}`} />}
       </button>
 
       {open && (
-        <div role="dialog" aria-label={t('aiThinkingLevel')} className="animate-menu absolute bottom-full left-0 mb-1.5 z-30 w-[268px] max-h-[min(70vh,460px)] overflow-y-auto rounded-xl border border-zinc-700/80 bg-zinc-900 p-1.5">
+        <div role="dialog" aria-label={t('aiThinkingLevel')} className="animate-menu absolute bottom-full start-0 mb-1.5 z-30 w-[min(268px,100%)] max-h-[min(70vh,460px)] overflow-y-auto rounded-xl border border-zinc-700/80 bg-zinc-900 p-1.5">
           <Section>{t('aiThinkingLevel')}</Section>
           {LEVELS.map((l) => (
             <button
@@ -88,7 +88,7 @@ export const ThinkingMenu: React.FC<Props> = ({ level, onLevel, maxTokens, onMax
               role="menuitemradio"
               aria-checked={l.id === level}
               onClick={() => onLevel(l.id)}
-              className={`w-full flex items-start gap-2 px-2 py-1.5 rounded-lg text-left motion-press ${l.id === level ? 'bg-nv-active text-zinc-50' : 'text-zinc-300 hover:bg-nv-hover'}`}
+              className={`w-full flex items-start gap-2 px-2 py-1.5 rounded-lg text-start motion-press ${l.id === level ? 'bg-nv-active text-zinc-50' : 'text-zinc-300 hover:bg-nv-hover'}`}
             >
               <span className="mt-0.5 w-3.5 shrink-0">{l.id === level && <Check size={13} className="text-indigo-300" />}</span>
               <span className="min-w-0">
@@ -109,9 +109,9 @@ export const ThinkingMenu: React.FC<Props> = ({ level, onLevel, maxTokens, onMax
                   role="menuitemradio"
                   aria-checked={a.id === agent.autonomy}
                   onClick={() => pickAutonomy(a.id)}
-                  className={`w-full flex items-start gap-2 px-2 py-1.5 rounded-lg text-left motion-press ${a.id === agent.autonomy ? 'bg-nv-active text-zinc-50' : 'text-zinc-300 hover:bg-nv-hover'}`}
+                  className={`w-full flex items-start gap-2 px-2 py-1.5 rounded-lg text-start motion-press ${a.id === agent.autonomy ? 'bg-nv-active text-zinc-50' : 'text-zinc-300 hover:bg-nv-hover'}`}
                 >
-                  <span className="mt-0.5 w-3.5 shrink-0">{a.id === agent.autonomy ? <Check size={13} className="text-indigo-300" /> : <span className={`block w-1.5 h-1.5 mt-1 ml-1 rounded-full ${a.dot}`} />}</span>
+                  <span className="mt-0.5 w-3.5 shrink-0">{a.id === agent.autonomy ? <Check size={13} className="text-indigo-300" /> : <span className={`block size-1.5 mt-1 ml-1 rounded-full ${a.dot}`} />}</span>
                   <span className="min-w-0">
                     <span className="block text-[12.5px] leading-tight">{t(a.name)}</span>
                     <span className="block text-[10.5px] leading-snug text-zinc-500">{t(a.desc)}</span>

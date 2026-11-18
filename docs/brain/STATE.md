@@ -54,7 +54,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2335 |
+| `src/App.tsx` | 2334 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 465 |
 
@@ -70,7 +70,7 @@
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 740 |
+| `src/components/EditorArea.tsx` | 728 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 932 |
@@ -89,7 +89,7 @@
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/ResizeHandle.tsx` | 66 |
 | `src/components/SearchPanel.tsx` | 214 |
-| `src/components/SettingsPage.tsx` | 750 |
+| `src/components/SettingsPage.tsx` | 746 |
 | `src/components/SnippetsEditor.tsx` | 83 |
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |

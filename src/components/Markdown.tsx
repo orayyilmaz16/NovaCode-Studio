@@ -21,7 +21,7 @@ function inline(text: string, keyBase: string): React.ReactNode[] {
     else if (m[4] !== undefined) {
       const isImage = m[0].startsWith('!');
       if (isImage) out.push(<span key={k} className="text-zinc-500">[{m[3] || 'image'}]</span>);
-      else out.push(<button key={k} type="button" title={m[4]} onClick={() => openLink(m![4])} className="text-indigo-300 hover:underline text-left break-words">{m[3] || m[4]}</button>);
+      else out.push(<button key={k} type="button" title={m[4]} onClick={() => openLink(m![4])} className="text-indigo-300 hover:underline text-left wrap-break-word">{m[3] || m[4]}</button>);
     } else if (m[5] !== undefined) out.push(<em key={k}>{m[5]}</em>);
     last = m.index + m[0].length;
   }
@@ -50,7 +50,7 @@ export const Markdown: React.FC<{ source: string; compact?: boolean }> = ({ sour
       const items: React.ReactNode[] = [];
       const ordered = /^\s*\d+\./.test(line);
       while (i < lines.length && /^\s*([-*+]|\d+\.)\s+/.test(lines[i])) {
-        items.push(<li key={items.length} className="break-words">{inline(lines[i].replace(/^\s*([-*+]|\d+\.)\s+/, ''), `l${key}-${items.length}`)}</li>);
+        items.push(<li key={items.length} className="wrap-break-word">{inline(lines[i].replace(/^\s*([-*+]|\d+\.)\s+/, ''), `l${key}-${items.length}`)}</li>);
         i++;
       }
       blocks.push(ordered ? <ol key={key++} className="my-1 ml-5 list-decimal space-y-0.5">{items}</ol> : <ul key={key++} className="my-1 ml-5 list-disc space-y-0.5">{items}</ul>);
@@ -66,7 +66,7 @@ export const Markdown: React.FC<{ source: string; compact?: boolean }> = ({ sour
     } else {
       const p: string[] = [];
       while (i < lines.length && lines[i].trim() && !/^(```|#{1,6}\s|>\s?|\s*([-*+]|\d+\.)\s+)/.test(lines[i])) p.push(lines[i++]);
-      blocks.push(<p key={key++} className="my-1 break-words [overflow-wrap:anywhere]">{inline(p.join(' '), `p${key}`)}</p>);
+      blocks.push(<p key={key++} className="my-1 wrap-anywhere">{inline(p.join(' '), `p${key}`)}</p>);
     }
   }
   return <div className={`min-w-0 leading-relaxed ${compact ? 'text-[11.5px]' : 'text-[12.5px]'} text-zinc-300`}>{blocks}</div>;

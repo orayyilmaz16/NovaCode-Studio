@@ -4,6 +4,8 @@
 
 ### tr
 
+- [fix] **Yapay zekâ paneli taşmaları ve hatalar:** Model ve düşünme menüleri artık giriş kartına göre açılır (dar panelde yana taşıp kesilmez); durum şeridi ve kaydırıcı düğmeleri dar genişlikte taşmaz, kaydırıcı okları RTL'de doğru kenarda; ajan durum şeridindeki etiket kısalır. Panel açılışında dikte modelleri listesi yüklenmiyordu, düzeltildi.
+- [improve] **Tip denetimi sıkılaştı:** TypeScript `strict` ve kullanılmayan değişken denetimi açıldı; kalan tip hataları, kullanılmayan içe aktarmalar ve ölü kod temizlendi. Tailwind 4 önerilerine uyum: `size-*`, sonek `!` ve `wrap-*` sınıfları.
 - [feat] **Panelden model seçimi:** Yapay zekâ panelinde giriş kutusunun altındaki model menüsünden Sohbet ve Ajan için ayrı model seçilir (yerel Ollama'da kurulu modeller, Hızlı/Güçlü ipucuyla). Aynı menüde dikte (Whisper) modeli de seçilir; dikte modeli değişince sunucu yeni modelle başlar. Ayarlar'da model seçimi yoktur.
 - [feat] **Dikte ayarları:** Ayarlar → Yapay Zekâ → Ses'te dikte dili (arayüz dili / otomatik) ve "Dikteden sonra otomatik gönder" eklendi. Dikte tamamen yerelde çalıştığı için rıza anahtarı kalktı; mikrofona basmak yeterli.
 - [improve] **Tamamlama modeli varsayılanı küçüldü:** Kurulu küçük modele (`qwen2.5-coder:0.5b`) geçildi; satır içi öneriler çok daha hızlı. Eski varsayılanda kalmış kayıtlar otomatik taşınır, özel seçim korunur; sohbet ve ajan modeli 7b kalır.
@@ -11,6 +13,8 @@
 
 ### en
 
+- [fix] **AI panel overflows and bugs:** The model and thinking menus now open relative to the input card (no more clipping sideways in a narrow panel); the status bar and slider buttons no longer overflow at narrow widths, slider arrows sit on the correct edge in RTL, and the agent status label truncates. The dictation model list was not loaded when the panel opened; fixed.
+- [improve] **Stricter type checking:** TypeScript `strict` and unused-variable checks are on; remaining type errors, unused imports and dead code were cleaned up. Aligned with Tailwind 4 suggestions: `size-*`, suffix `!` and `wrap-*` classes.
 - [feat] **Model picker in the panel:** The model menu under the AI input box picks a separate model for Chat and Agent (models installed in local Ollama, with a Fast/Strong hint). The same menu picks the dictation (Whisper) model; the server restarts with the new model. Settings no longer has a model selector.
 - [feat] **Dictation settings:** Settings > AI > Voice gains dictation language (interface language / automatic) and "Send automatically after dictation". Because dictation runs fully on this computer, the consent switch is gone; just press the microphone.
 - [improve] **Smaller default completion model:** Inline suggestions now default to the installed small model (`qwen2.5-coder:0.5b`) and are much faster. Records still on the old default migrate automatically, custom choices are kept; chat and agent stay on 7b.

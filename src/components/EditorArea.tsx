@@ -125,10 +125,10 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
         }}
         aria-label={`${file.name} — ${t('closeTab')}`}
         title={t('closeTab')}
-        className="nova-tab-close ml-auto relative flex items-center justify-center w-5 h-5 text-zinc-400 hover:bg-[var(--hover-overlay)] hover:text-zinc-100"
+        className="nova-tab-close ml-auto relative flex items-center justify-center size-5 text-zinc-400 hover:bg-[var(--hover-overlay)] hover:text-zinc-100"
       >
         {file.isModified && (
-          <span className="absolute w-2 h-2 rounded-full bg-zinc-200 transition-opacity group-hover:opacity-0" />
+          <span className="absolute size-2 rounded-full bg-zinc-200 transition-opacity group-hover:opacity-0" />
         )}
         <X
           size={14}
@@ -176,18 +176,6 @@ function fileModelPath(f: { id: string; path?: string }): string {
   if (!f.path) return `inmemory://untitled/${encodeURIComponent(f.id)}`;
   const p = f.path.split('\\').join('/').replace(/^\//, '');
   return 'file:///' + encodeURI(p).replace(/[?#]/g, encodeURIComponent);
-}
-
-// Dosya türüne göre simge rengi (VS Code benzeri ayırt edicilik)
-function extColor(name: string): string {
-  const ext = name.split('.').pop()?.toLowerCase() ?? '';
-  if (['ts', 'tsx'].includes(ext)) return 'text-sky-400';
-  if (['js', 'jsx', 'mjs', 'cjs', 'json'].includes(ext)) return 'text-yellow-300';
-  if (['html', 'htm'].includes(ext)) return 'text-orange-400';
-  if (['css', 'scss', 'sass', 'less'].includes(ext)) return 'text-blue-400';
-  if (['md', 'markdown'].includes(ext)) return 'text-zinc-300';
-  if (['py'].includes(ext)) return 'text-emerald-400';
-  return 'text-zinc-400';
 }
 
 const EditorAreaImpl: React.FC<EditorAreaProps> = ({
@@ -597,9 +585,9 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
         <div role="alert" className="flex flex-wrap items-center gap-2 px-3 py-1.5 border-b border-nv-border bg-nv-side text-[12px] text-amber-300">
           <TriangleAlert size={13} className="shrink-0" />
           <span className="flex-1 min-w-0">{activeFile.missing ? t('appMissingOnDisk') : t('appChangedOnDisk')}</span>
-          {activeFile.externalChange && !activeFile.missing && onReloadDisk && <button className="btn-ghost !h-6" onClick={() => onReloadDisk(activeFile.id)}>{t('appReloadDisk')}</button>}
-          {activeFile.externalChange && !activeFile.missing && onKeepMine && <button className="btn-ghost !h-6" onClick={() => onKeepMine(activeFile.id)}>{t('appKeepMine')}</button>}
-          {onSaveFile && <button className="btn-ghost !h-6" onClick={() => onSaveFile(activeFile)}>{t('cmdSave')}</button>}
+          {activeFile.externalChange && !activeFile.missing && onReloadDisk && <button className="btn-ghost h-6!" onClick={() => onReloadDisk(activeFile.id)}>{t('appReloadDisk')}</button>}
+          {activeFile.externalChange && !activeFile.missing && onKeepMine && <button className="btn-ghost h-6!" onClick={() => onKeepMine(activeFile.id)}>{t('appKeepMine')}</button>}
+          {onSaveFile && <button className="btn-ghost h-6!" onClick={() => onSaveFile(activeFile)}>{t('cmdSave')}</button>}
         </div>
       )}
 

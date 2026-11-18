@@ -13,8 +13,8 @@ Son tarama: 18.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `Q-I18N-HARD` src/components/AIAssistant.tsx, `PERF-SYNC-FS` electron-ai.cjs, `SEC-IPC-NOEVT` electron-ai.cjs
-- Giderilen: `PERF-SYNC-FS electron-llm.cjs`, `SEC-IPC-NOEVT electron-llm.cjs`
+- Yeni/artan: yok
+- Giderilen: yok
 
 ## Güvenlik
 | Önem | Kural | Konum | Sorun |
@@ -36,10 +36,10 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 ## Performans
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | PERF-BIGFILE | `src/App.tsx:1` | 2336 satır: bölünmeli / memo ile ayrıştırılmalı |
+| orta | PERF-BIGFILE | `src/App.tsx:1` | 2335 satır: bölünmeli / memo ile ayrıştırılmalı |
 | orta | PERF-LISTENER-LEAK | `src/components/Preview.tsx:1` | addEventListener (4) > removeEventListener (1): temizlenmeyen dinleyici olabilir |
 | düşük | PERF-DYN-RE | `src/components/Preview.tsx:58` | Döngüde dinamik RegExp üretimi olabilir |
-| düşük | PERF-LS-WRITE | `src/App.tsx:1501` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/App.tsx:1500` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ResizeHandle.tsx:60` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/services/aiClient.ts:130` | localStorage yazımı: sık tetikleniyorsa debounce et |
@@ -64,16 +64,16 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 ## Kalite ve arayüz
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | Q-I18N-HARD | `src/App.tsx:115` | JSX içinde sabit metin olabilir (8 dil kuralı) |
+| orta | Q-I18N-HARD | `src/App.tsx:114` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
-| düşük | Q-ANY | `src/App.tsx:742` | `any` kullanımı (strict tip güvenliği) |
-| düşük | Q-ANY | `src/components/EditorArea.tsx:75,146,630` | `any` kullanımı (strict tip güvenliği) (3×) |
+| düşük | Q-ANY | `src/App.tsx:741` | `any` kullanımı (strict tip güvenliği) |
+| düşük | Q-ANY | `src/components/EditorArea.tsx:75,146,618` | `any` kullanımı (strict tip güvenliği) (3×) |
 | düşük | Q-CONSOLE | `src/components/SnippetsEditor.tsx:11` | Kalan console.log |
 | düşük | Q-CONSOLE | `src/mockFiles.ts:89,91,112` | Kalan console.log (3×) |
 | düşük | Q-EMPTY-CATCH | `src/components/Preview.tsx:62` | Boş catch: hata yutuluyor |
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2336, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 830
-- Üretim paketi (dist varsa): toplam JS 2902 KB; en büyük: index-BjWFZp11.js 597 KB, PtyView-CF_djgeE.js 327 KB, fileIconLoaders-Dg2Ua-fV.js 184 KB, uiTextTheme-CTzdXtXH.js 136 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2335, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 830
+- Üretim paketi (dist varsa): toplam JS 2901 KB; en büyük: index-BXBW8Nu9.js 597 KB, PtyView-y5ElXVOK.js 327 KB, fileIconLoaders-f1KoyKrC.js 184 KB, uiTextTheme-DjZN7xU4.js 136 KB

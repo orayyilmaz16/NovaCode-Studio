@@ -62,7 +62,7 @@ const keyedParts = (text: string) => {
 };
 
 const MessageText: React.FC<{ text: string }> = ({ text }) => (
-  <div className="min-w-0 break-words [overflow-wrap:anywhere]">
+  <div className="min-w-0 wrap-anywhere">
     {keyedParts(text).map(({ key, p }) =>
       p.kind === 'code' ? <CodeBlock key={key} lang={p.lang} code={p.code} /> : p.text.trim() ? <div key={key} className="whitespace-pre-wrap">{p.text.replace(/^\n+|\n+$/g, '')}</div> : null
     )}
@@ -115,12 +115,12 @@ const AgentStatus: React.FC<{ msg?: ChatMsg; startedAt: number; maxSteps: number
   const waiting = !!msg?.approvals?.some((a) => !a.decided);
   return (
     <div className="mx-3 mb-1 flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 h-8 text-[11.5px] text-indigo-100 shrink-0 animate-fade-in" role="status">
-      <span className={`w-2 h-2 rounded-full shrink-0 ${waiting ? 'bg-amber-400' : 'bg-indigo-400 animate-pulse'}`} />
-      <span className="font-medium shrink-0">{waiting ? t('aiAgentWaitingApproval') : t('aiAgentWorking')}</span>
+      <span className={`size-2 rounded-full shrink-0 ${waiting ? 'bg-amber-400' : 'bg-indigo-400 animate-pulse'}`} />
+      <span className="font-medium truncate min-w-0 max-w-[40%]">{waiting ? t('aiAgentWaitingApproval') : t('aiAgentWorking')}</span>
       <span className="text-indigo-300/80 shrink-0">· {t('aiAgentStepN').replace('{n}', String(msg?.tools?.length ?? 0))} / {maxSteps}</span>
       <span className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-indigo-200/70">{running ? `${running.name}${toolTarget(running.input) ? ' · ' + toolTarget(running.input) : ''}` : ''}</span>
       <ElapsedTime startedAt={startedAt} />
-      <button type="button" onClick={onStop} title={t('aiStop')} aria-label={t('aiStop')} className="w-6 h-6 rounded-md bg-rose-600/80 hover:bg-rose-500 text-white flex items-center justify-center shrink-0"><Square size={10} /></button>
+      <button type="button" onClick={onStop} title={t('aiStop')} aria-label={t('aiStop')} className="size-6 rounded-md bg-rose-600/80 hover:bg-rose-500 text-white flex items-center justify-center shrink-0"><Square size={10} /></button>
     </div>
   );
 };
@@ -272,8 +272,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
     if (!api) { setOllama(null); return; }
     let alive = true;
     void api.ollamaModels().then((r) => { if (alive) setOllama(r); }).catch(() => { if (alive) setOllama({ running: false, models: [] }); });
+    void api.whisperModels().then((r) => { if (alive) setWhisper(r.models); }).catch(() => { if (alive) setWhisper([]); });
     return () => { alive = false; };
-    void api.whisperModels().then((r) => setWhisper(r.models)).catch(() => setWhisper([]));
   }, [api, ollamaTick]);
 
   useEffect(() => { void api?.commands().then(setCustom).catch(() => setCustom([])); }, [api, hasWorkspace]);
@@ -523,14 +523,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
   }
 
   const canSend = (!!input.trim() || images.length > 0) && !busy;
-  const icoBtn = 'w-7 h-7 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover motion-press disabled:opacity-40';
+  const icoBtn = 'size-7 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover motion-press disabled:opacity-40';
   const banner = 'mx-3 mt-2 p-2.5 rounded-lg border text-[11.5px] leading-snug';
 
   return (
     <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden bg-nv-side text-zinc-300">
       {/* Başlık: sohbet seçici + eylemler */}
       <div className={`relative flex items-center gap-1 px-2 h-10 border-b shrink-0 motion-press ${isAgent ? 'border-indigo-500/30' : 'border-nv-border'}`}>
-        <div className={`w-6 h-6 rounded-md bg-indigo-500 flex items-center justify-center shrink-0`}>{isAgent ? <Zap size={13} className="text-white" /> : <Sparkles size={13} className="text-white" />}</div>
+        <div className={`size-6 rounded-md bg-indigo-500 flex items-center justify-center shrink-0`}>{isAgent ? <Zap size={13} className="text-white" /> : <Sparkles size={13} className="text-white" />}</div>
         <ChatSessions
           sessions={modeSessions}
           current={session}
@@ -550,7 +550,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         <button className={icoBtn} onClick={startNew} title={t('aiNewSession')} aria-label={t('aiNewSession')}><Plus size={15} /></button>
         <button className={icoBtn} onClick={() => setRenameId(session.id)} title={t('aiRename')} aria-label={t('aiRename')}><Pencil size={14} /></button>
         <button
-          className={`${icoBtn} ${delArm ? '!text-rose-300 !bg-rose-500/15' : ''}`}
+          className={`${icoBtn} ${delArm ? 'text-rose-300! bg-rose-500/15!' : ''}`}
           onClick={() => {
             if (!delArm) { setDelArm(true); window.setTimeout(() => setDelArm(false), 3000); return; }
             setDelArm(false);
@@ -599,7 +599,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
       <div ref={scrollRef} onScroll={onScroll} className="absolute inset-0 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-4 text-[12.5px]">
         {!session?.messages.length && (
           <div className="pt-4 text-zinc-400 leading-relaxed">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/25 flex items-center justify-center mb-3"><Bot size={20} className="text-indigo-300" /></div>
+            <div className="size-10 rounded-xl bg-indigo-500/25 flex items-center justify-center mb-3"><Bot size={20} className="text-indigo-300" /></div>
             <p>{t('aiWelcome')}</p>
             <div className="grid grid-cols-2 gap-1.5 mt-4">
               {(isAgent ? (['aiQuickAgent1', 'aiQuickAgent2', 'aiQuickAgent3', 'aiQuickAgent4'] as const) : (['aiQuickExplain', 'aiQuickBugs', 'aiQuickRefactor', 'aiQuickTests'] as const)).map((k) => (
@@ -614,12 +614,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
               <CopyMsg text={m.text} className="mt-1" />
               <div className="max-w-[88%] rounded-2xl rounded-ee-md bg-nv-active text-zinc-50 px-3 py-2 leading-relaxed min-w-0">
                 {m.imageCount ? <div className="flex items-center gap-1 text-[10px] opacity-80 mb-1"><ImagePlus size={11} />×{m.imageCount}</div> : null}
-                <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{m.text}</div>
+                <div className="whitespace-pre-wrap wrap-anywhere">{m.text}</div>
               </div>
             </div>
           ) : (
             <div key={m.id} className="group/msg flex gap-2 min-w-0">
-              <div className="w-5 h-5 mt-0.5 rounded-md bg-indigo-500 flex items-center justify-center shrink-0"><Sparkles size={11} className="text-white" /></div>
+              <div className="size-5 mt-0.5 rounded-md bg-indigo-500 flex items-center justify-center shrink-0"><Sparkles size={11} className="text-white" /></div>
               <div className="min-w-0 flex-1 text-zinc-200 leading-relaxed">
                 {m.text ? <MessageText text={m.text} /> : m.streaming && !m.approvals?.some((a) => !a.decided) ? (
                   <span className="flex items-center gap-1.5 text-zinc-500"><Loader2 size={12} className="animate-spin" />{t('aiThinking')}</span>
@@ -644,7 +644,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
                     )}
                   </div>
                 ))}
-                {m.error && <div className="mt-1 text-rose-300 break-words">{m.error}</div>}
+                {m.error && <div className="mt-1 text-rose-300 wrap-break-word">{m.error}</div>}
                 {(m.usage || (m.text && !m.streaming)) && (
                   <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-zinc-500">
                     {m.text && !m.streaming && <CopyMsg text={m.text} />}
@@ -662,7 +662,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
           onClick={toBottom}
           title={t('aiScrollDown')}
           aria-label={t('aiScrollDown')}
-          className="absolute bottom-2 end-4 w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 animate-fade-in"
+          className="absolute bottom-2 end-4 size-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 animate-fade-in"
         ><ArrowDown size={14} /></button>
       )}
       </div>
@@ -690,7 +690,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
         {isAgent && hasWorkspace && !busy && (
           <ChipSlider className="pb-1.5" label={t('aiModeAgent')}>
             <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 h-6 text-[11px] text-zinc-400" title={`${t('aiAutonomyLabel')}: ${autonomy === 'ask' ? t('optAutoAsk') : autonomy === 'edits' ? t('optAutoEdits') : t('optAutoFull')}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${autonomy === 'auto' ? 'bg-rose-400' : autonomy === 'edits' ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+              <span className={`size-1.5 rounded-full ${autonomy === 'auto' ? 'bg-rose-400' : autonomy === 'edits' ? 'bg-amber-400' : 'bg-emerald-400'}`} />
               {autonomy === 'ask' ? t('optAutoAsk') : autonomy === 'edits' ? t('optAutoEdits') : t('optAutoFull')}
             </span>
             {TASKS.map(([label, prompt, Ico]) => (
@@ -700,12 +700,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
             ))}
           </ChipSlider>
         )}
-        <div className={`rounded-xl border border-zinc-700/80 bg-nv-input/50 motion-press ${isAgent ? 'focus-within:border-indigo-500' : 'focus-within:border-indigo-500'}`}>
+        <div className={`relative rounded-xl border border-zinc-700/80 bg-nv-input/50 motion-press ${isAgent ? 'focus-within:border-indigo-500' : 'focus-within:border-indigo-500'}`}>
           {images.length > 0 && (
             <div className="flex gap-1.5 px-2 pt-2 flex-wrap">
               {images.map((im) => (
                 <div key={im.id} className="relative">
-                  <img src={im.url} alt="" className="h-10 w-10 object-cover rounded-md border border-zinc-700" />
+                  <img src={im.url} alt="" className="size-10 object-cover rounded-md border border-zinc-700" />
                   <button className="absolute -top-1 -end-1 bg-zinc-900 rounded-full" onClick={() => setImages((p) => p.filter((x) => x.id !== im.id))} aria-label={t('aiRemove')}><X size={12} /></button>
                 </div>
               ))}
@@ -719,13 +719,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void send(input); } }}
             onPaste={(e) => { const f = Array.from(e.clipboardData.files); if (f.length) { e.preventDefault(); void addFiles(f); } }}
             placeholder={mode === 'agent' ? t('aiPlaceholderAgent') : t('aiPlaceholderAsk')}
-            className="w-full resize-none bg-transparent px-3 pt-2.5 pb-1 text-[12.5px] text-zinc-100 outline-none placeholder:text-zinc-500 min-h-[36px] max-h-[168px]"
+            className="w-full resize-none bg-transparent px-3 pt-2.5 pb-1 text-[12.5px] text-zinc-100 outline-none placeholder:text-zinc-500 min-h-9 max-h-42"
           />
           <div className="flex items-center gap-0.5 px-1.5 pb-1.5">
             <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden onChange={(e) => { if (e.target.files) void addFiles(e.target.files); e.target.value = ''; }} />
             <button className={icoBtn} onClick={() => fileRef.current?.click()} title={t('aiAttach')} aria-label={t('aiAttach')}><ImagePlus size={15} /></button>
             <button
-              className={`${icoBtn} ${dictation.state === 'recording' ? '!text-rose-400 animate-pulse' : ''}`}
+              className={`${icoBtn} ${dictation.state === 'recording' ? 'text-rose-400! animate-pulse' : ''}`}
               disabled={dictation.state === 'transcribing'}
               onClick={() => (dictation.state === 'recording' ? dictation.stop() : void dictation.start())}
               title={`${dictation.state === 'recording' ? t('aiMicStop') : t('aiMicStart')}${dictModel ? ' · ' + dictModel.replace(/^ggml-/, '').replace(/\.bin$/, '') : ''}`}
@@ -753,9 +753,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ activeFile, hasWorkspa
               onRefresh={() => setOllamaTick((n) => n + 1)}
             />
             {busy ? (
-              <button className="w-7 h-7 rounded-lg bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center" onClick={stop} title={t('aiStop')} aria-label={t('aiStop')}><Square size={12} /></button>
+              <button className="size-7 rounded-lg bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center" onClick={stop} title={t('aiStop')} aria-label={t('aiStop')}><Square size={12} /></button>
             ) : (
-              <button className={`w-7 h-7 rounded-lg text-white flex items-center justify-center disabled:opacity-40 motion-press ${isAgent ? 'bg-indigo-600 hover:bg-indigo-500 disabled:hover:bg-indigo-600' : 'bg-indigo-600 hover:bg-indigo-500 disabled:hover:bg-indigo-600'}`} disabled={!canSend} onClick={() => void send(input)} title={t('aiSend')} aria-label={t('aiSend')}><ArrowUp size={15} /></button>
+              <button className={`size-7 rounded-lg text-white flex items-center justify-center disabled:opacity-40 motion-press ${isAgent ? 'bg-indigo-600 hover:bg-indigo-500 disabled:hover:bg-indigo-600' : 'bg-indigo-600 hover:bg-indigo-500 disabled:hover:bg-indigo-600'}`} disabled={!canSend} onClick={() => void send(input)} title={t('aiSend')} aria-label={t('aiSend')}><ArrowUp size={15} /></button>
             )}
           </div>
         </div>

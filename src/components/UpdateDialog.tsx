@@ -39,14 +39,14 @@ export const UpdateDialog: React.FC<{ initialTab: Tab; autoDownload: boolean; on
             <button className={tabBtn(tab === 'update')} onClick={() => setTab('update')}>{t('updTabUpdate')}</button>
             <button className={tabBtn(tab === 'notes')} onClick={() => setTab('notes')}>{t('updTabNotes')}</button>
           </div>
-          <button className="w-8 h-8 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover" onClick={onClose} aria-label={t('aiRemove')}><X size={16} /></button>
+          <button className="size-8 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover" onClick={onClose} aria-label={t('aiRemove')}><X size={16} /></button>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4">
           {tab === 'update' && (
             <div className="space-y-3">
               <div className="flex items-start gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-nv-active flex items-center justify-center shrink-0">
+                <div className="size-10 rounded-xl bg-nv-active flex items-center justify-center shrink-0">
                   {u.status === 'checking' || u.status === 'downloading' ? <Loader2 size={20} className="animate-spin text-indigo-300" />
                     : u.status === 'error' ? <AlertTriangle size={20} className="text-amber-300" />
                     : u.status === 'unsupported' ? <Info size={20} className="text-sky-300" />
@@ -54,7 +54,7 @@ export const UpdateDialog: React.FC<{ initialTab: Tab; autoDownload: boolean; on
                     : <CheckCircle2 size={20} className="text-emerald-400" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[14px] font-medium text-zinc-100 break-words">
+                  <div className="text-[14px] font-medium text-zinc-100 wrap-break-word">
                     {u.status === 'checking' ? t('updChecking')
                       : u.status === 'available' ? t('updAvailable').replace('{v}', u.latest)
                       : u.status === 'downloading' ? t('updDownloading').replace('{p}', String(u.percent))

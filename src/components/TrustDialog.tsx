@@ -25,7 +25,7 @@ export const TrustDialog: React.FC = () => {
     <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/50 px-4">
       <div role="alertdialog" aria-modal="true" aria-label={tx('trTitle')} className="animate-menu w-[min(520px,94vw)] max-h-[82vh] flex flex-col rounded-xl border border-nv-border bg-nv-side overflow-hidden">
         <div className="flex items-start gap-3 p-4 min-h-0 overflow-y-auto">
-          <div className="w-10 h-10 rounded-xl bg-nv-active flex items-center justify-center shrink-0"><ShieldAlert size={20} className="text-amber-300" /></div>
+          <div className="size-10 rounded-xl bg-nv-active flex items-center justify-center shrink-0"><ShieldAlert size={20} className="text-amber-300" /></div>
           <div className="min-w-0 flex-1">
             <h2 className="text-[14px] font-medium text-zinc-100">{tx('trTitle')}</h2>
             <p className="mt-1 text-[12.5px] font-mono text-zinc-300 break-all" title={root}>{name}</p>

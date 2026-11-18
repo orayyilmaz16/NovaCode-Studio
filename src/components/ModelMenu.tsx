@@ -52,7 +52,7 @@ export const ModelMenu: React.FC<Props> = ({ mode, model, onModel, ollama, whisp
   const models = ollama?.models ?? [];
   const list = models.includes(model) ? models : [model, ...models]; // seçili model kurulu değilse de görünür (uyarı panelde)
   return (
-    <div ref={box} className="relative min-w-0 flex-1">
+    <div ref={box} className="min-w-0 flex-1">
       <button type="button" onClick={() => setOpen((v) => !v)} disabled={disabled} aria-haspopup="dialog" aria-expanded={open}
         title={t('aiModelPick')} aria-label={t('aiModelPick')}
         className={`max-w-full h-7 px-1.5 rounded-md flex items-center gap-1 text-[10.5px] motion-press disabled:opacity-40 ${open ? 'bg-nv-hover text-zinc-100' : 'text-zinc-500 hover:text-zinc-200 hover:bg-nv-hover'}`}>
@@ -61,7 +61,7 @@ export const ModelMenu: React.FC<Props> = ({ mode, model, onModel, ollama, whisp
         <ChevronDown size={11} className="shrink-0" />
       </button>
       {open && (
-        <div role="dialog" aria-label={t('aiModelPick')} className="animate-menu absolute bottom-full start-0 mb-1.5 z-30 w-[288px] max-w-[calc(100vw-24px)] max-h-[min(70vh,420px)] overflow-y-auto rounded-xl border border-zinc-700/80 bg-zinc-900 p-1.5">
+        <div role="dialog" aria-label={t('aiModelPick')} className="animate-menu absolute bottom-full inset-x-0 mb-1.5 z-30 max-h-[min(70vh,420px)] overflow-y-auto rounded-xl border border-zinc-700/80 bg-zinc-900 p-1.5">
           <Section>{t(mode === 'agent' ? 'aiModelSecAgent' : 'aiModelSecAsk')}</Section>
           {ollama && (!ollama.running || !models.length) ? (
             <p className="px-2 py-1.5 text-[11px] leading-snug text-amber-300/90">{ollama.running ? t('aiModelNone') : t('aiOllamaDown')}</p>

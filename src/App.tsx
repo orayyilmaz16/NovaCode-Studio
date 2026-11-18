@@ -9,7 +9,6 @@ import {
   House,
   GitBranch,
   FolderOpen,
-  Check,
   Search,
   PanelLeft,
   PanelBottom,
@@ -58,7 +57,7 @@ import { sendTerminal, sendTerminalWhenReady, runCommandFor } from './services/t
 import { baseName, languageFromName, languageLabel } from './services/lang';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { splitInto, moveToGroup, removeFromGroup, selectInGroup, focusGroup, normalizeSplit, neighborIn, otherGroup, savedToSplit, activeOf, type SplitState, type GroupId, type SplitDir } from './services/splitLayout';
-import { getBindings, getOverrides, subscribeBindings, commandForEvent, comboFromEvent, shadowedEditorDefaults, remapShortcutLabel, getCommand, COMMANDS as KB_COMMANDS } from './services/keybindings';
+import { getBindings, getOverrides, subscribeBindings, commandForEvent, comboFromEvent, shadowedEditorDefaults, remapShortcutLabel, getCommand } from './services/keybindings';
 import { t, getUiLang } from './i18n/uiText';
 import { previewKind } from './services/previewKind';
 import type { FileItem, ConsoleLog, GitStatus } from './types';
@@ -1892,7 +1891,7 @@ export function App() {
             aria-label={t('actAI')}
             aria-pressed={aiOpen}
             data-active={aiOpen}
-            className="icon-btn shrink-0 !w-7 !h-6 text-violet-300 hover:!text-violet-100"
+            className="icon-btn shrink-0 w-7! h-6! text-violet-300 hover:!text-violet-100"
           >
             <Sparkles size={14} />
           </button>
@@ -1970,7 +1969,7 @@ export function App() {
             </button>
             <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} title={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
               <Bug size={24} strokeWidth={1.5} />
-              {dbgStatus === 'paused' && <span className="absolute bottom-2.5 right-2.5 w-2 h-2 rounded-full bg-amber-400" />}
+              {dbgStatus === 'paused' && <span className="absolute bottom-2.5 right-2.5 size-2 rounded-full bg-amber-400" />}
             </button>
           </div>
 
@@ -1988,7 +1987,7 @@ export function App() {
               onClick={() => pickSidebar('git')}
             >
               {auth.connected && auth.profile?.avatarUrl ? (
-                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="w-6 h-6 rounded-full ring-1 ring-zinc-700" />
+                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-6 rounded-full ring-1 ring-zinc-700" />
               ) : (
                 <UserRound size={24} strokeWidth={1.5} />
               )}

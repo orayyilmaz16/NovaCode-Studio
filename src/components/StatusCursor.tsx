@@ -59,7 +59,7 @@ export const StatusLsp = React.memo(function StatusLsp({ fileName }: { fileName:
         : t('lspError').replace('{n}', e.name);
   return (
     <span className="status-item" title={tip}>
-      <span className={`w-1.5 h-1.5 rounded-full ${e.state === 'ready' ? 'bg-emerald-400' : e.state === 'starting' ? 'bg-amber-400 animate-pulse' : e.state === 'missing' ? 'bg-zinc-500' : 'bg-rose-400'}`} />
+      <span className={`size-1.5 rounded-full ${e.state === 'ready' ? 'bg-emerald-400' : e.state === 'starting' ? 'bg-amber-400 animate-pulse' : e.state === 'missing' ? 'bg-zinc-500' : 'bg-rose-400'}`} />
       <span className="hidden @md:inline">{e.name}</span>
     </span>
   );

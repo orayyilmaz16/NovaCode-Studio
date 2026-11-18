@@ -290,7 +290,7 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
   const levelCls = (l: string) => (l === 'error' ? 'text-rose-300' : l === 'warn' ? 'text-amber-300' : 'text-zinc-300');
   const title = urlMode ? urlMode : file?.name ?? t('tbPreview');
   const errors = lines.filter((l) => l.level === 'error').length;
-  const btn = 'w-7 h-7 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover transition-colors';
+  const btn = 'size-7 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover transition-colors';
 
   return (
     <div className="flex flex-col h-full min-w-0 bg-nv-side text-zinc-300">
@@ -301,7 +301,7 @@ export const Preview: React.FC<PreviewProps> = ({ file, rootPath, live, localUrl
         {building && <Loader2 size={13} className="animate-spin text-zinc-500 shrink-0" />}
         {urlMode && <button className={btn} onClick={() => setUrlMode(null)} title={t('pvBackToFile')} aria-label={t('pvBackToFile')}><ArrowLeft size={14} /></button>}
         <button className={btn} onClick={() => { setTick((n) => n + 1); if (urlMode && iframeRef.current) iframeRef.current.src = urlMode; }} title={t('pvRefresh')} aria-label={t('pvRefresh')}><RefreshCw size={14} /></button>
-        <button className={`${btn} ${showConsole ? '!text-zinc-100 bg-nv-hover' : ''} relative`} onClick={() => setShowConsole((v) => !v)} title={t('pvConsole')} aria-label={t('pvConsole')}>
+        <button className={`${btn} ${showConsole ? 'text-zinc-100! bg-nv-hover' : ''} relative`} onClick={() => setShowConsole((v) => !v)} title={t('pvConsole')} aria-label={t('pvConsole')}>
           <TermIcon size={14} />
           {errors > 0 && <span className="absolute -top-0.5 -end-0.5 min-w-3.5 h-3.5 px-0.5 rounded-full bg-rose-500 text-white text-[9px] leading-[14px] text-center">{errors}</span>}
         </button>

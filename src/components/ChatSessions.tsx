@@ -38,7 +38,7 @@ const SORT_KEY: Record<SortBy, TextKey> = { recent: 'aiSortRecent', name: 'aiSor
 const label = (s: AiSession) => s.title || t('aiNewSession');
 const catOf = (s: AiSession): CategoryId => s.category ?? 'general';
 const msgCount = (s: AiSession) => s.messages.filter((m) => m.text).length;
-const act = 'w-6 h-6 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent';
+const act = 'size-6 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent';
 
 const readPref = <T extends string>(key: string, allowed: readonly T[], def: T): T => {
   try { const v = window.localStorage.getItem(key); return (allowed as readonly string[]).includes(v ?? '') ? (v as T) : def; } catch { return def; }
@@ -48,7 +48,7 @@ const writePref = (key: string, v: string) => { try { window.localStorage.setIte
 const CatChip: React.FC<{ id: CategoryId; active?: boolean; count?: number; onClick?: () => void; small?: boolean }> = ({ id, active, count, onClick, small }) => {
   const st = CATEGORY_STYLE[id];
   const cls = `inline-flex items-center gap-1 rounded-full whitespace-nowrap ${small ? 'px-1.5 h-4 text-[10px]' : 'px-2 h-5 text-[11px]'} ${st.chip} ${active ? 'ring-1 ring-current' : ''}`;
-  const body = (<><span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />{t(CAT_KEY[id])}{count !== undefined && <span className="opacity-70">{count}</span>}</>);
+  const body = (<><span className={`size-1.5 rounded-full ${st.dot}`} />{t(CAT_KEY[id])}{count !== undefined && <span className="opacity-70">{count}</span>}</>);
   return onClick ? <button type="button" onClick={onClick} className={`${cls} hover:brightness-125 transition`}>{body}</button> : <span className={cls}>{body}</span>;
 };
 
@@ -185,7 +185,7 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
             className={`group w-full flex items-center gap-1.5 h-7 px-1.5 rounded-md text-start transition-colors hover:bg-nv-hover ${open ? 'bg-nv-hover' : ''}`}
           >
             {active?.pinned && <Pin size={11} className="shrink-0 text-amber-300/90 fill-amber-300/30" />}
-            {active?.category && <span className={`shrink-0 w-2 h-2 rounded-full ${CATEGORY_STYLE[active.category].dot}`} title={t(CAT_KEY[active.category])} />}
+            {active?.category && <span className={`shrink-0 size-2 rounded-full ${CATEGORY_STYLE[active.category].dot}`} title={t(CAT_KEY[active.category])} />}
             <span className={`truncate text-[12.5px] font-medium ${active?.title ? 'text-zinc-100' : 'text-zinc-400'}`}>{label(active)}</span>
             <ChevronDown size={12} className={`ms-auto shrink-0 text-zinc-500 transition-transform duration-(--dur-base) ${open ? 'rotate-180' : ''}`} />
           </button>
@@ -196,7 +196,7 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
         <div
           role="listbox"
           onKeyDown={onKey}
-          className="animate-menu absolute start-2 end-2 top-[42px] z-30 flex flex-col max-h-[min(72vh,480px)] rounded-xl border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/50 overflow-hidden"
+          className="animate-menu absolute start-2 end-2 top-[42px] z-30 flex flex-col max-h-[min(72vh,480px)] rounded-xl border border-zinc-700/80 bg-zinc-900 overflow-hidden"
         >
           <div className="flex items-center gap-1.5 px-2.5 h-9 border-b border-zinc-800 shrink-0">
             <Search size={13} className="text-zinc-500 shrink-0" />
@@ -246,7 +246,7 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
             {groups.map((g) => (
               <div key={g.key}>
                 <div className="flex items-center gap-1.5 px-3 pt-2 pb-1 text-[10px] uppercase tracking-wide text-zinc-500">
-                  {g.cat && <span className={`w-1.5 h-1.5 rounded-full ${CATEGORY_STYLE[g.cat].dot}`} />}
+                  {g.cat && <span className={`size-1.5 rounded-full ${CATEGORY_STYLE[g.cat].dot}`} />}
                   {g.title}
                   <span className="opacity-60">{g.items.length}</span>
                 </div>
@@ -277,7 +277,7 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
                               <div className="flex items-center gap-1 min-w-0">
                                 {s.pinned && <Pin size={10} className="shrink-0 text-amber-300/90 fill-amber-300/30" />}
                                 <span className={`truncate text-[12.5px] ${s.title ? '' : 'text-zinc-400'}`}>{label(s)}</span>
-                                {running && <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                                {running && <span className="shrink-0 size-1.5 rounded-full bg-emerald-400 animate-pulse" />}
                               </div>
                               <div className="flex items-center gap-1.5 min-w-0 text-[10.5px] text-zinc-500">
                                 {groupBy !== 'category' && <CatChip id={catOf(s)} small />}
@@ -291,13 +291,13 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
                             {sure ? (
                               <>
                                 <span className="px-1 text-[11px] text-rose-300">{t('aiConfirmDelete')}</span>
-                                <button className={`${act} !text-rose-300`} onClick={() => { setConfirm(null); onDelete(s.id); }} aria-label={t('aiDeleteSession')}><Check size={13} /></button>
+                                <button className={`${act} text-rose-300!`} onClick={() => { setConfirm(null); onDelete(s.id); }} aria-label={t('aiDeleteSession')}><Check size={13} /></button>
                                 <button className={act} onClick={() => setConfirm(null)} aria-label={t('aiRemove')}><X size={13} /></button>
                               </>
                             ) : (
                               <>
                                 <button className={act} onClick={() => onPin(s.id)} title={s.pinned ? t('aiUnpin') : t('aiPin')} aria-label={s.pinned ? t('aiUnpin') : t('aiPin')}>{s.pinned ? <PinOff size={12} /> : <Pin size={12} />}</button>
-                                <button className={`${act} ${tagFor === s.id ? '!text-indigo-300' : ''}`} onClick={() => setTagFor(tagFor === s.id ? null : s.id)} title={t('aiSetCategory')} aria-label={t('aiSetCategory')} aria-expanded={tagFor === s.id}><Tag size={12} /></button>
+                                <button className={`${act} ${tagFor === s.id ? 'text-indigo-300!' : ''}`} onClick={() => setTagFor(tagFor === s.id ? null : s.id)} title={t('aiSetCategory')} aria-label={t('aiSetCategory')} aria-expanded={tagFor === s.id}><Tag size={12} /></button>
                                 <button className={act} onClick={() => setRenameId(s.id)} title={`${t('aiRename')} (F2)`} aria-label={t('aiRename')}><Pencil size={12} /></button>
                                 <button className={act} onClick={() => onExport(s.id)} disabled={!s.messages.some((m) => m.text)} title={t('aiExport')} aria-label={t('aiExport')}><Download size={12} /></button>
                                 <button className={act} onClick={() => setConfirm(s.id)} disabled={running || (busy && isActive)} title={t('aiDeleteSession')} aria-label={t('aiDeleteSession')}><Trash2 size={12} /></button>
@@ -325,8 +325,8 @@ export const ChatSessions: React.FC<Props> = ({ sessions, current, activeId, bus
               confirm === '*' ? (
                 <span className="flex items-center gap-1">
                   <span className="text-rose-300">{t('aiConfirmDelete')}</span>
-                  <button className={`${act} !w-5 !h-5 !text-rose-300`} disabled={busy} onClick={() => { setConfirm(null); onClearUnpinned(); }} aria-label={t('aiClearUnpinned')}><Check size={12} /></button>
-                  <button className={`${act} !w-5 !h-5`} onClick={() => setConfirm(null)} aria-label={t('aiRemove')}><X size={12} /></button>
+                  <button className={`${act} w-5! h-5! text-rose-300!`} disabled={busy} onClick={() => { setConfirm(null); onClearUnpinned(); }} aria-label={t('aiClearUnpinned')}><Check size={12} /></button>
+                  <button className={`${act} w-5! h-5!`} onClick={() => setConfirm(null)} aria-label={t('aiRemove')}><X size={12} /></button>
                 </span>
               ) : (
                 <button className="hover:text-rose-300 transition-colors disabled:opacity-40" disabled={busy} onClick={() => setConfirm('*')}>{t('aiClearUnpinned')}</button>
