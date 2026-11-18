@@ -34,7 +34,7 @@ Yeni geçişte sabit `ms` veya `cubic-bezier` yazma; jeton kullan. Süre 400 ms'
 - `motion-underline`: `::after` çizgisi hover'da soldan (RTL'de sağdan) çizilir.
 - `btn-primary`, `btn-ghost`: sade düğmeler (32 px, düz zemin, basma geri bildirimi).
 - `logo-shadow`: logoya temaya uyan gölge (koyu: siyah, açık: yumuşak gri).
-- `nova-tab` (+ `nova-tab-close`): yüzen hap sekme (18.11.2026). Dört köşe `--r-md`, çubukta ortalı (h-7); etkin sekme (`aria-selected`) dolu zemin + vurgu tonlu kenarlık, zemin/renk/kenarlık `--dur-base`, basınca `scale(.98)`. Eski üst vurgu çizgisi kalktı.
+- `nova-tab` (+ `nova-tab-close`): editöre bitişik sekme (18.11.2026). Üst köşeler `--r-lg`, sekme çubuğun tam yüksekliğinde; çubuğun alt çizgisi `after` ile çizilir ve etkin sekme (`aria-selected`, editör zemini) üstünden geçerek çizgiyi keser: sekme editörle birleşik görünür. Üstte vurgu çizgisi (`::before`) ortadan açılır; zemin/renk/kenarlık `--dur-base`.
 - `animate-editor-in`: yalnız opaklık, `--dur-base`; sekme değişince editör içeriği (ve ayarlar arka perdesi) yumuşakça belirir. Düzen kaymaz.
 - `animate-dialog`: pencere/palet girişi (`translateY(-6px) scale(.985)` → yok). Komut paleti ve Ayarlar penceresi kullanır.
 - Eski sınıflar durur: `animate-fade-in`, `animate-sidebar-in`, `animate-panel-up`, `animate-tab-in`, `animate-menu`, `icon-btn`, `ab-item`, `status-item`.
