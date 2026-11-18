@@ -121,3 +121,6 @@ VS Code'un yüzen kart havası: `--frame` 8 px, `--frame-r` 10 px (dar pencerede
 
 ## Kenar çubuğu boşluğu ve sekme ipucu (18.11.2026)
 Kenar çubuğu ile editör arası boşluk 4 → 8 px (tutamaç 6 px + `.sidebar-gap`); tüm `ResizeHandle`'lar (önizleme, AI, bölünmüş editör, terminal) aynı 6 px ve ince ortalı çizgi. Sekme ipucu tema uyumlu `HoverTip` (yukarıdaki "Kenar çubuğu geçişi" bölümü, [[motion]]).
+
+## Duyarlı düzen: telefon / tablet / masaüstü (18.11.2026)
+Gerçek tarayıcıda (CDP ile 360, 390, 768, 1024, 1440 px) ekran görüntüsüyle doğrulandı; hiçbir genişlikte yatay taşma yok (`scrollWidth == clientWidth`). Eşikler (`App.tsx`): `vw < 760` **`compactLeft`**: kenar çubuğu editörü ezmez, etkinlik şeridinin yanında üstüne biner (`absolute z-30`, genişlik `min(sidebarWidth, 320, vw-96)`), arkasına tıklamak veya dosya seçmek kapatır (`bg-black/30` perde), tutamaç/boşluk yok, telefonda kapalı başlar; `vw < 1100` `compactRight`: AI/önizleme paneli üstüne biner; `vw < 1280` menü tek "Menü" düğmesi. Kök yükseklik `h-dvh` (mobil adres çubuğu), `viewport-fit=cover`, `overscroll-behavior: none`. Sekme çubuğu eylem düğmeleri `@container` ile (`@md`) kademeli gizlenir. Yeni düzende bu eşiklere ve ekran görüntüsü kontrolüne uy.

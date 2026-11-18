@@ -40,7 +40,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     if (!this.state.error) return this.props.children;
     if (this.props.kind === 'root') {
       return (
-        <div role="alert" className="flex h-screen w-screen flex-col items-center justify-center gap-4 bg-nv-side px-6 text-center text-zinc-300">
+        <div role="alert" className="flex h-dvh w-screen flex-col items-center justify-center gap-4 bg-nv-side px-6 text-center text-zinc-300">
           <p className="text-lg font-medium text-zinc-100">{t('appErrTitle')}</p>
           <p className="max-w-md text-sm text-zinc-400">{t('appErrRoot')}</p>
           <button onClick={this.reload} className="btn-primary px-4">

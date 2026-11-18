@@ -175,7 +175,9 @@ export function App() {
   }, []);
   const compactRight = vw < 1100;
   const compactMenu = vw < 1280; // dar pencerede menü başlıkları tek "Menü" düğmesine toplanır
-  const sbW = Math.min(sidebarWidth, Math.max(180, Math.round(vw * 0.34)));
+  // Telefon/dar tablet: kenar çubuğu editörü ezmez, üstüne biner (sağ paneller gibi); dışına dokunmak veya dosya seçmek kapatır
+  const compactLeft = vw < 760;
+  const sbW = compactLeft ? Math.max(200, Math.min(sidebarWidth, 320, vw - 96)) : Math.min(sidebarWidth, Math.max(180, Math.round(vw * 0.34)));
   const [aiWidth, setAiWidth] = useState(() => loadStoredNumber('nova.aiWidth', 380));
 
   useEffect(() => { saveStoredNumber('nova.sidebarWidth', sidebarWidth); }, [sidebarWidth]);
@@ -233,7 +235,8 @@ export function App() {
     });
   };
 
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(() => window.innerWidth >= 760); // telefonda kapalı başlar (üstüne biner)
+  const sbInitial = useRef(true);
   const { auth } = useGithubAuth();
 
   // Iframe console dinleyicisi: yalnız sayfadaki bir iframe'den gelen iletiler kabul edilir (S-28)
@@ -410,6 +413,11 @@ export function App() {
     autoPreviewed.current.add(f.id);
     setShowRightPanel('preview');
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFileId]);
+  // Dar ekranda (kenar çubuğu üstüne biner) dosya seçilince kenar çubuğu kapanır; editör hemen görünür
+  useEffect(() => {
+    if (sbInitial.current) { sbInitial.current = false; return; }
+    if (window.innerWidth < 760) setSidebarVisible(false);
   }, [activeFileId]);
 
   // Ayarlar penceresi: Esc ile kapanır (palet veya güncelleme penceresi açıksa onlar önce kapanır)
@@ -1797,7 +1805,7 @@ export function App() {
   const barBtn = (active: boolean) => ({ 'data-active': active, className: 'ab-item' }) as const;
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-nv-side text-zinc-300 font-sans relative">
+    <div className="flex flex-col h-dvh w-screen overflow-hidden bg-nv-side text-zinc-300 font-sans relative">
       {/* Açılış animasyonu */}
       {showSplash && <SplashScreen ready={recentLoaded} onFinish={() => setShowSplash(false)} />}
 
@@ -2008,7 +2016,13 @@ export function App() {
         )}
 
         {/* Kenar çubuğu (kapanırken genişlik animasyonla daralır) */}
-        <div className="sidebar-shell h-full shrink-0 overflow-hidden" data-open={sidebarShown} data-side={sidebarRight ? 'right' : 'left'} style={{ width: sidebarShown ? sbW : 0 }}>
+        {compactLeft && sidebarShown && <div className="absolute inset-0 z-20 bg-black/30 animate-fade-in" onClick={() => setSidebarVisible(false)} aria-hidden />}
+        <div
+          className={`sidebar-shell h-full shrink-0 overflow-hidden ${compactLeft ? 'absolute z-30 top-[var(--frame)] bottom-0' : ''}`}
+          data-open={sidebarShown}
+          data-side={sidebarRight ? 'right' : 'left'}
+          style={{ width: sidebarShown ? sbW : 0, ...(compactLeft ? { [sidebarRight ? 'right' : 'left']: `calc(var(--frame) + ${settings.activityBarVisible !== false ? 48 : 0}px)` } : {}) }}
+        >
           {sbMounted && (
             <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden">
               {activeSidebarTab === 'files' && (
@@ -2067,8 +2081,8 @@ export function App() {
           )}
         </div>
         {/* Kenar çubuğu ile editör arası boşluk: sürükleme tutamacı da burada; kapanırken boşluk yumuşakça daralır */}
-        <div className="sidebar-gap h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? 8 : 0 }}>
-          {sidebarShown && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
+        <div className="sidebar-gap h-full shrink-0 overflow-hidden" style={{ width: sidebarShown && !compactLeft ? 8 : 0 }}>
+          {sidebarShown && !compactLeft && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
         </div>
 
         {/* Ana sütun: görünüm (ayarlar / karşılama / editör) + terminal paneli (oturumlar panel gizliyken de canlı kalır) */}

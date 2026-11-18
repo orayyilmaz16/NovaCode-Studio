@@ -4,6 +4,7 @@
 
 ### tr
 
+- [fix] **Telefon ve tablet düzeni:** 760 px altında kenar çubuğu editörü ezmeden üstüne biner (dışına dokunmak veya dosya seçmek kapatır, telefonda kapalı başlar); eskiden ~160 px'e sıkışan editör ve üst üste binen sekme düğmeleri düzeldi. Mobil tarayıcı adres çubuğunda yükseklik doğru hesaplanır, sayfa sıçraması engellendi. Etkinlik çubuğundaki aktif gösterge çizgisi kart dışına taşmıyor.
 - [improve] **Editöre bitişik sekmeler:** Etkin sekme editör zeminiyle birleşir (alt çizgi onun altında kesilir), üstte vurgu çizgisi ortadan açılır; geçişler yumuşaktır.
 - [improve] **Kenar çubuğu geçişi ve boşluğu:** Kenar çubuğu ile editör arasındaki boşluk biraz arttı; kenar çubuğu açılıp kapanırken genişlik, boşluk ve kart birlikte akıcı biçimde kayıp solar (eski zıplama giderildi). Yeniden boyutlandırma çizgisi hover'da gecikmeyle yumuşakça belirir.
 - [improve] **Sekme ipucu editör temasında:** Sekmenin üzerine gelince çıkan dosya yolu kutusu artık sistem kutusu yerine temaya uyumlu, kısa gecikmeyle yumuşakça beliren bir ipucu (dosya adı + klasör yolu).
@@ -19,6 +20,7 @@
 
 ### en
 
+- [fix] **Phone and tablet layout:** Below 760 px the sidebar now overlays the editor instead of squeezing it (tap outside or pick a file to close; it starts closed on phones); the editor that used to be squeezed to ~160 px and the overlapping tab buttons are fixed. Height is computed correctly with mobile browser address bars and page bounce is prevented. The active indicator in the activity bar no longer sticks out of its card.
 - [improve] **Tabs joined to the editor:** The active tab merges with the editor surface (the bottom line is cut beneath it) and an accent line opens from the center on top; transitions are smooth.
 - [improve] **Sidebar transition and spacing:** The gap between the sidebar and the editor grew slightly; when the sidebar opens or closes, its width, the gap and the card now slide and fade together smoothly (the old jump is gone). The resize line fades in softly after a short hover delay.
 - [improve] **Tab tooltip matches the editor theme:** The file-path box shown when hovering a tab is now a theme-matched tooltip (file name + folder path) that fades in after a short delay instead of the system box.
