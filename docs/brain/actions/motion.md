@@ -59,3 +59,6 @@ Sekme çubuğu `scroll-smooth`; etkin sekme çubuk dışında kalırsa `scrollIn
 
 ## Denetim düzeltmeleri (17.11.2026)
 `style.css` ve bileşenlerdeki sabit ms değerleri jetonlara çevrildi (`duration-(--dur-*)`); jetonda karşılığı olmayan süreler en yakın jetona veya `--dur-enter × n` ya da `--stagger` katına gitti. Açılış ekranı hazır olunca ~560 ms'de kapanır.
+
+## Etkinlik çubuğu (18.11.2026)
+`.ab-item` (30 px yuvarlak düğme): hover'da zemin `color-mix` ile %8 (`--dur-base`), etkinde %12; simge `--ease-spring` ile 1 px yukarı + 1,08 ölçek, basınca 0,9; etkin göstergesi (`::before`) ortadan `scaleY` (`--dur-slow`). **Gecikmeli ipucu** `::after` + `data-tip`: hover/`:focus-visible`'dan `--hover-delay` (140 ms) sonra 4 px yana kayarak belirir, basınca anında kapanır; RTL'de aynalanır. Yalnız transform/opacity/renk animasyonlanır; `data-motion="off"` ve reduced-motion süreleri sıfırlar.

@@ -1948,60 +1948,60 @@ export function App() {
       <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${settings.statusBarVisible === false ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
-        <nav aria-label={t('appActivityBar')} className={`w-[50px] bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-1' : 'mr-1'} py-1 flex flex-col items-center justify-between select-none shrink-0 overflow-hidden`}>
+        <nav aria-label={t('appActivityBar')} className={`w-9 bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-1' : 'mr-1'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
           <div className="flex flex-col">
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} title={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
-              <Files size={24} strokeWidth={1.5} />
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} data-tip={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
+              <Files size={18} strokeWidth={1.6} />
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} {...dis(!currentRootPath, `${t('actSearch')} — ${t('mnHintNoFolder')}`)} title={currentRootPath ? `${t('actSearch')} (Ctrl+Shift+F)` : `${t('actSearch')} — ${t('mnHintNoFolder')}`} aria-label={t('actSearch')} onClick={() => { if (currentRootPath) pickSidebar('search'); }}>
-              <Search size={24} strokeWidth={1.5} />
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} {...(!currentRootPath ? { 'aria-disabled': true, 'data-disabled': true } : {})} data-tip={currentRootPath ? `${t('actSearch')} (Ctrl+Shift+F)` : `${t('actSearch')} — ${t('mnHintNoFolder')}`} aria-label={t('actSearch')} onClick={() => { if (currentRootPath) pickSidebar('search'); }}>
+              <Search size={18} strokeWidth={1.6} />
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} title={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
-              <Puzzle size={24} strokeWidth={1.5} />
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} data-tip={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
+              <Puzzle size={18} strokeWidth={1.6} />
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} title={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
-              <GitBranch size={24} strokeWidth={1.5} />
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} data-tip={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
+              <GitBranch size={18} strokeWidth={1.6} />
               {changeCount > 0 && (
-                <span className="absolute bottom-2 right-1.5 min-w-4 h-4 px-1 rounded-full bg-indigo-500 text-white text-[10px] leading-4 text-center font-semibold">
+                <span className="absolute bottom-0.5 right-0 min-w-3.5 h-3.5 px-0.5 rounded-full bg-indigo-500 text-white text-[9px] leading-3.5 text-center font-semibold">
                   {changeCount > 99 ? '99+' : changeCount}
                 </span>
               )}
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} title={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
-              <Bug size={24} strokeWidth={1.5} />
-              {dbgStatus === 'paused' && <span className="absolute bottom-2.5 right-2.5 size-2 rounded-full bg-amber-400" />}
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} data-tip={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
+              <Bug size={18} strokeWidth={1.6} />
+              {dbgStatus === 'paused' && <span className="absolute bottom-1.5 right-1.5 size-1.5 rounded-full bg-amber-400" />}
             </button>
           </div>
 
           <div className="flex flex-col">
-            <button {...barBtn(showLanding)} title={t('actHome')} aria-label={t('actHome')} onClick={() => {
+            <button {...barBtn(showLanding)} data-tip={t('actHome')} aria-label={t('actHome')} onClick={() => {
               setShowSettings(false);
               setShowLanding(!showLanding);
             }}>
-              <House size={24} strokeWidth={1.5} />
+              <House size={18} strokeWidth={1.6} />
             </button>
             <button
               {...barBtn(false)}
-              title={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}
+              data-tip={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}
               aria-label={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}
               onClick={() => pickSidebar('git')}
             >
               {auth.connected && auth.profile?.avatarUrl ? (
-                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-6 rounded-full ring-1 ring-zinc-700" />
+                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-[18px] rounded-full ring-1 ring-zinc-700" />
               ) : (
-                <UserRound size={24} strokeWidth={1.5} />
+                <UserRound size={18} strokeWidth={1.6} />
               )}
             </button>
             <button
               {...barBtn(showSettings)}
-              title={`${t('actSettings')} (Ctrl+,)`}
+              data-tip={`${t('actSettings')} (Ctrl+,)`}
               aria-label={t('actSettings')}
               onClick={() => {
                 setShowLanding(false);
                 setShowSettings((v) => !v);
               }}
             >
-              <Settings size={24} strokeWidth={1.5} />
+              <Settings size={18} strokeWidth={1.6} />
             </button>
           </div>
         </nav>
