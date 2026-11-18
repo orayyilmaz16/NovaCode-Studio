@@ -54,7 +54,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2334 |
+| `src/App.tsx` | 2337 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 465 |
 
@@ -70,13 +70,14 @@
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 728 |
+| `src/components/EditorArea.tsx` | 742 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 932 |
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 883 |
 | `src/components/GithubAccount.tsx` | 135 |
+| `src/components/HoverTip.tsx` | 49 |
 | `src/components/KeybindingsEditor.tsx` | 146 |
 | `src/components/LandingPage.tsx` | 176 |
 | `src/components/Logo.tsx` | 36 |
@@ -87,7 +88,7 @@
 | `src/components/Preview.tsx` | 372 |
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
-| `src/components/ResizeHandle.tsx` | 66 |
+| `src/components/ResizeHandle.tsx` | 69 |
 | `src/components/SearchPanel.tsx` | 214 |
 | `src/components/SettingsPage.tsx` | 746 |
 | `src/components/SnippetsEditor.tsx` | 83 |

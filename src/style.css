@@ -270,16 +270,44 @@
 
 /* Kenar çubuğu ve terminal paneli: açılıp kapanırken boyut yumuşakça değişir.
    Kenarı sürüklerken (data-resizing) gecikme olmaması için geçiş kapatılır. */
-.sidebar-shell {
-  transition: width var(--dur-slow) var(--ease-out-soft);
+.sidebar-shell,
+.sidebar-gap {
+  transition: width var(--dur-slow) var(--ease-inout);
 }
+/* Kart, daralırken yana kayıp solar; açılırken geri gelir (genişlik animasyonuyla birlikte tek akıcı hareket) */
+.sidebar-shell > * {
+  transition: opacity var(--dur-slow) var(--ease-out-soft), transform var(--dur-slow) var(--ease-out-soft);
+}
+.sidebar-shell[data-open="false"] > * {
+  opacity: 0;
+  transform: translateX(-14px);
+}
+.sidebar-shell[data-open="false"][data-side="right"] > * { transform: translateX(14px); }
+:root:dir(rtl) .sidebar-shell[data-open="false"] > * { transform: translateX(14px); }
+:root:dir(rtl) .sidebar-shell[data-open="false"][data-side="right"] > * { transform: translateX(-14px); }
 .terminal-shell {
   transition: height var(--dur-slow) var(--ease-out-soft), border-top-width var(--dur-slow);
 }
 :root[data-resizing] .sidebar-shell,
+:root[data-resizing] .sidebar-gap,
+:root[data-resizing] .sidebar-shell > *,
 :root[data-resizing] .terminal-shell {
   transition: none;
 }
+/* Yeniden boyutlandırma çizgisi: hover'da gecikmeyle yumuşakça belirir, sürüklerken belirginleşir */
+.resize-line {
+  background: var(--color-indigo-500);
+  opacity: 0;
+  transform: scaleY(0.6);
+  transition: opacity var(--dur-base) var(--ease-out-soft), transform var(--dur-base) var(--ease-out-soft);
+}
+[role="separator"][aria-orientation="horizontal"] > .resize-line { transform: scaleX(0.6); }
+[role="separator"]:hover > .resize-line { opacity: 0.55; transform: none; transition-delay: var(--hover-delay); }
+[role="separator"]:active > .resize-line { opacity: 0.9; transform: none; transition-delay: 0s; }
+
+/* Sekme ipucu (HoverTip): yumuşak belirme, editör temasının yüzeyi ve kenarlığı */
+.hover-tip { animation: tipIn var(--dur-base) var(--ease-out-soft) both; box-shadow: var(--float-shadow); }
+@keyframes tipIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 
 @layer components {
 /* Başlık çubuğu ve genel simge düğmeleri */

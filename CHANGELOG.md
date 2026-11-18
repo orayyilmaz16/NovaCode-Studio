@@ -4,6 +4,8 @@
 
 ### tr
 
+- [improve] **Kenar çubuğu geçişi ve boşluğu:** Kenar çubuğu ile editör arasındaki boşluk biraz arttı; kenar çubuğu açılıp kapanırken genişlik, boşluk ve kart birlikte akıcı biçimde kayıp solar (eski zıplama giderildi). Yeniden boyutlandırma çizgisi hover'da gecikmeyle yumuşakça belirir.
+- [improve] **Sekme ipucu editör temasında:** Sekmenin üzerine gelince çıkan dosya yolu kutusu artık sistem kutusu yerine temaya uyumlu, kısa gecikmeyle yumuşakça beliren bir ipucu (dosya adı + klasör yolu).
 - [improve] **Yüzen, VS Code havalı arayüz:** Başlık, etkinlik şeridi, kenar çubuğu, editör, önizleme, AI paneli ve durum çubuğu daha yuvarlak (10 px) ve aralarında daha geniş boşlukla yüzen kartlar oldu; her kartta tek, yumuşak bir gölge var. Sekmelerin üst köşeleri daha yuvarlak, aralarında küçük boşluk var. Etkinlik çubuğu simgeleri normal boyuta (22 px) döndü; yalnız yan boşluklar azaldı (şerit 50 → 44 px). Hover, geçiş ve gecikmeli ipucu efektleri korundu.
 - [improve] **Daha canlı etkinlik çubuğu:** Hover'da yumuşak zemin kapsülü ve hafif yukarı kalkan simge, etkin öğede ortadan açılan gösterge çizgisi; öğe adı ve kısayolu kısa bir gecikmeden sonra yana kayarak beliren ipucuyla gösterilir.
 - [improve] **AI düğmesi arama çubuğunun içinde:** Yapay zekâ paneli düğmesi, VS Code'daki gibi üst çubuktaki arama alanının içine, en sağa ayrı bir bölme olarak yerleşti; panel açıkken vurgulu görünür.
@@ -16,6 +18,8 @@
 
 ### en
 
+- [improve] **Sidebar transition and spacing:** The gap between the sidebar and the editor grew slightly; when the sidebar opens or closes, its width, the gap and the card now slide and fade together smoothly (the old jump is gone). The resize line fades in softly after a short hover delay.
+- [improve] **Tab tooltip matches the editor theme:** The file-path box shown when hovering a tab is now a theme-matched tooltip (file name + folder path) that fades in after a short delay instead of the system box.
 - [improve] **Floating, VS Code-style UI:** The title bar, activity bar, sidebar, editor, preview, AI panel and status bar are now rounder (10 px) floating cards with wider gaps and a single soft shadow each. Tab top corners are rounder with a small gap between tabs. Activity bar icons are back to normal size (22 px); only the side spacing shrank (strip 50 → 44 px). Hover, transition and delayed tooltip effects stay.
 - [improve] **Livelier activity bar:** Hover shows a soft background capsule and a slightly lifted icon, the active item has an indicator that opens from the center, and item name plus shortcut appear in a tooltip that slides in after a short delay.
 - [improve] **AI button inside the search bar:** The AI panel button now sits inside the top search field as a separate segment at the far right, like in VS Code, and is highlighted while the panel is open.

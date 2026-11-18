@@ -118,3 +118,6 @@ Kapanış: renderer onay penceresi açılınca `closePending()` (`app:close-pend
 
 ## Yüzen arayüz (18.11.2026, kurucu talimatı)
 VS Code'un yüzen kart havası: `--frame` 8 px, `--frame-r` 10 px (dar pencerede 3/7), tüm kartlara (başlık, etkinlik şeridi, kenar çubuğu, editör sütunu, önizleme, AI paneli, durum çubuğu) `.float-card`: **tek** yumuşak gölge `--float-shadow` (`0 2px 12px`, koyu .28 / açık .09). Bu, "gölge yığını yok" kuralının bilinçli ve sınırlı istisnasıdır: kart başına tek katman, menü/pencerede ek gölge yok. Sekmeler: üst köşeler `--r-lg` (8 px), aralık `gap-0.5`, sekme çubuğu 38 px ve yan boşluklu. Renkler ve tema değişmedi.
+
+## Kenar çubuğu boşluğu ve sekme ipucu (18.11.2026)
+Kenar çubuğu ile editör arası boşluk 4 → 8 px (tutamaç 6 px + `.sidebar-gap`); tüm `ResizeHandle`'lar (önizleme, AI, bölünmüş editör, terminal) aynı 6 px ve ince ortalı çizgi. Sekme ipucu tema uyumlu `HoverTip` (yukarıdaki "Kenar çubuğu geçişi" bölümü, [[motion]]).

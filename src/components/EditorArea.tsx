@@ -12,6 +12,7 @@ import { setCompletionConfig, setCompletionMonaco } from '../services/aiCompleti
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
 import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal } from 'lucide-react';
 import { Logo } from './Logo';
+import { useHoverTip } from './HoverTip';
 import { defineNovaThemes } from '../services/editorTheme';
 import { useSettings } from '../services/SettingsContext';
 import { toMonacoOptions, toMonacoOptionsForFile } from '../services/settings';
@@ -89,8 +90,20 @@ function bindLspShared(ed: any, path: string, enabled: boolean): () => void {
 const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onClose, group }: { file: FileItem; isActive: boolean; onSelect: (id: string) => void; onClose: (id: string) => void; group: GroupId }) {
   const pc = useFileProblems(file.path);
   const nameTone = file.missing ? 'text-zinc-500 line-through' : pc?.e ? 'text-rose-400' : pc?.w ? 'text-amber-300' : '';
+  // Yerel title kutusu yerine temaya uyumlu, gecikmeli ipucu: dosya adı + klasör yolu
+  const full = file.path || file.name;
+  const cut = Math.max(full.lastIndexOf('/'), full.lastIndexOf('\\'));
+  const dir = cut > 0 ? full.slice(0, cut) : '';
+  const tip = useHoverTip(() => (
+    <>
+      <div className="font-medium text-zinc-100">{file.name}{file.missing ? ` — ${t('appTabMissing')}` : ''}</div>
+      {dir && <div className="mt-0.5 font-mono text-[10.5px] text-zinc-500 break-all">{dir}</div>}
+    </>
+  ));
   return (
+    <>
     <div
+      {...tip.props}
       role="tab"
       aria-selected={isActive}
       tabIndex={0}
@@ -109,7 +122,6 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
       onAuxClick={(e) => {
         if (e.button === 1) onClose(file.id);
       }}
-      title={file.missing ? `${file.path || file.name} — ${t('appTabMissing')}` : file.path || file.name}
       className={`nova-tab animate-tab-in group relative flex items-center gap-2 pl-3 pr-2 h-full min-w-[96px] max-w-[200px] cursor-pointer border border-b-0 text-[13px] ${
         isActive
           ? 'bg-nv-editor text-zinc-100 border-nv-border'
@@ -136,6 +148,8 @@ const EditorTab = React.memo(function EditorTab({ file, isActive, onSelect, onCl
         />
       </button>
     </div>
+    {tip.node}
+    </>
   );
 });
 

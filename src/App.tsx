@@ -2008,7 +2008,7 @@ export function App() {
         )}
 
         {/* Kenar çubuğu (kapanırken genişlik animasyonla daralır) */}
-        <div className="sidebar-shell h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? sbW : 0 }}>
+        <div className="sidebar-shell h-full shrink-0 overflow-hidden" data-open={sidebarShown} data-side={sidebarRight ? 'right' : 'left'} style={{ width: sidebarShown ? sbW : 0 }}>
           {sbMounted && (
             <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden">
               {activeSidebarTab === 'files' && (
@@ -2066,7 +2066,10 @@ export function App() {
             </div>
           )}
         </div>
-        {sidebarShown && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
+        {/* Kenar çubuğu ile editör arası boşluk: sürükleme tutamacı da burada; kapanırken boşluk yumuşakça daralır */}
+        <div className="sidebar-gap h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? 8 : 0 }}>
+          {sidebarShown && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
+        </div>
 
         {/* Ana sütun: görünüm (ayarlar / karşılama / editör) + terminal paneli (oturumlar panel gizliyken de canlı kalır) */}
         <div className="flex flex-col flex-1 h-full min-w-0 rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-editor overflow-hidden">
