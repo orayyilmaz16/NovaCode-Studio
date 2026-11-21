@@ -4,6 +4,7 @@
 
 ### tr
 
+- [fix] **Etkinlik çubuğu taşması:** Seçili etkinlik düğmesi ve sol göstergesi çubuk kartının kenarına taşıyordu; düğme 40 px'e indi ve gösterge içeri alındı.
 - [improve] **Kenar çubuğu boşlukları dengelendi:** Kenar çubuğu kapalıyken etkinlik çubuğu ile editör arasındaki boşluk artırıldı (2 → 10 px); açıkken kenar çubuğu ile editör arası 12 px'ten 8 px'e düşürüldü.
 - [improve] **Kenar çubuğu ile editör arası boşluk biraz daha açıldı** (8 → 12 px); sürükleme çizgisi boşluğun ortasında.
 - [improve] **Etkinlik çubuğu ölçeği geri geldi:** Soldaki çubuğun simgeleri eski boyutuna (24 px) döndü ve düğmeler büyüdü; yalnız simge ile kenarlık arasındaki boşluk azaldı (şerit 50 → 48 px).
@@ -26,6 +27,7 @@
 
 ### en
 
+- [fix] **Activity bar overflow:** The selected activity button and its left indicator spilled to the bar card's edge; the button is now 40 px and the indicator is inset.
 - [improve] **Sidebar spacing balanced:** With the sidebar closed, the gap between the activity bar and the editor increased (2 → 10 px); with it open, the gap between the sidebar and the editor was reduced from 12 px to 8 px.
 - [improve] **Slightly wider gap between the sidebar and the editor** (8 → 12 px); the resize line sits in the middle of the gap.
 - [improve] **Activity bar scale restored:** Icons on the left bar are back to the original 24 px and buttons are larger; only the spacing between icon and border shrank (strip 50 → 48 px).

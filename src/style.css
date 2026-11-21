@@ -197,8 +197,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   margin-block: 1px;
   border-radius: var(--r-md);
   color: var(--color-zinc-500);
@@ -227,9 +227,9 @@
 .ab-item::before {
   content: "";
   position: absolute;
-  inset-inline-start: 0;
-  top: 11px;
-  bottom: 11px;
+  inset-inline-start: 1px;
+  top: 10px;
+  bottom: 10px;
   width: 2px;
   background: var(--color-zinc-50);
   border-start-end-radius: 2px;
