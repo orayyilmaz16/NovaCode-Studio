@@ -221,6 +221,36 @@ export const SCM_TEXT = {
   aiCompUnavailable: {
     tr: "AI kod tamamlama kullanılamıyor: Ollama çalışmıyor veya qwen2.5-coder:7b kurulu değil", en: "AI completion unavailable: Ollama is not running or qwen2.5-coder:7b is not installed", de: "KI-Vervollständigung nicht verfügbar: Ollama läuft nicht oder qwen2.5-coder:7b fehlt", ru: "ИИ-автодополнение недоступно: Ollama не запущен или нет qwen2.5-coder:7b", ar: "إكمال الذكاء الاصطناعي غير متاح: Ollama لا يعمل أو qwen2.5-coder:7b غير مثبّت", es: "Autocompletado con IA no disponible: Ollama no está activo o falta qwen2.5-coder:7b", fr: "Complétion IA indisponible : Ollama inactif ou qwen2.5-coder:7b absent", az: "AI tamamlama mövcud deyil: Ollama işləmir və ya qwen2.5-coder:7b yoxdur",
   },
+  histTip: {
+    tr: "Commit geçmişi", en: "Commit history", de: "Commit-Verlauf", ru: "История коммитов", ar: "سجل الإيداعات", es: "Historial de commits", fr: "Historique des commits", az: "Commit tarixçəsi",
+  },
+  histTitle: {
+    tr: "Commit geçmişi", en: "Commit history", de: "Commit-Verlauf", ru: "История коммитов", ar: "سجل الإيداعات", es: "Historial de commits", fr: "Historique des commits", az: "Commit tarixçəsi",
+  },
+  histEmpty: {
+    tr: "Bu depoda henüz commit yok.", en: "No commits in this repository yet.", de: "In diesem Repository gibt es noch keine Commits.", ru: "В этом репозитории пока нет коммитов.", ar: "لا توجد إيداعات في هذا المستودع بعد.", es: "Aún no hay commits en este repositorio.", fr: "Aucun commit dans ce dépôt pour l'instant.", az: "Bu depoda hələ commit yoxdur.",
+  },
+  histError: {
+    tr: "Geçmiş okunamadı.", en: "Could not read the history.", de: "Der Verlauf konnte nicht gelesen werden.", ru: "Не удалось прочитать историю.", ar: "تعذّرت قراءة السجل.", es: "No se pudo leer el historial.", fr: "Impossible de lire l'historique.", az: "Tarixçəni oxumaq mümkün olmadı.",
+  },
+  histLocalOnly: {
+    tr: "Yalnız yerel depo (uzak bağlantı yok)", en: "Local repository only (no remote)", de: "Nur lokales Repository (kein Remote)", ru: "Только локальный репозиторий (нет remote)", ar: "مستودع محلي فقط (لا يوجد مستودع بعيد)", es: "Solo repositorio local (sin remoto)", fr: "Dépôt local uniquement (pas de remote)", az: "Yalnız lokal depo (uzaq bağlantı yoxdur)",
+  },
+  histRemoteSet: {
+    tr: "Uzak depo bağlı", en: "Remote connected", de: "Remote verbunden", ru: "Remote подключён", ar: "المستودع البعيد متصل", es: "Remoto conectado", fr: "Remote connecté", az: "Uzaq depo qoşulub",
+  },
+  histOpenRepo: {
+    tr: "GitHub'da aç", en: "Open on GitHub", de: "Auf GitHub öffnen", ru: "Открыть на GitHub", ar: "فتح على GitHub", es: "Abrir en GitHub", fr: "Ouvrir sur GitHub", az: "GitHub-da aç",
+  },
+  histOpenPanel: {
+    tr: "Git panelinde aç", en: "Open in Git panel", de: "Im Git-Panel öffnen", ru: "Открыть в панели Git", ar: "فتح في لوحة Git", es: "Abrir en el panel de Git", fr: "Ouvrir dans le panneau Git", az: "Git panelində aç",
+  },
+  histRefresh: {
+    tr: "Yenile", en: "Refresh", de: "Aktualisieren", ru: "Обновить", ar: "تحديث", es: "Actualizar", fr: "Actualiser", az: "Yenilə",
+  },
+  histLoading: {
+    tr: "Yükleniyor…", en: "Loading…", de: "Wird geladen…", ru: "Загрузка…", ar: "جارٍ التحميل…", es: "Cargando…", fr: "Chargement…", az: "Yüklənir…",
+  },
 } satisfies Record<string, Dict>;
 
 export type ScmTextKey = keyof typeof SCM_TEXT;

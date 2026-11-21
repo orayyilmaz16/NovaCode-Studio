@@ -4,6 +4,7 @@
 
 ### tr
 
+- [feat] **Durum çubuğunda commit geçmişi:** Depo açıksa satır/sütunun yanında commit simgesi çıkar; tıklayınca son commit'ler (mesaj, yazar, zaman, kısa karma, dal/etiket rozetleri), geçerli dal, ileri/geri sayısı ve uzak depo (GitHub bağlıysa adı ve "GitHub'da aç") listelenir. Uzak yoksa "yalnız yerel depo" yazar. 8 dilde.
 - [fix] **GitHub giriş kodu kopyalama:** Kod yanındaki kopyala düğmesi bazı durumlarda çalışmıyordu; artık kopyalama ana süreçten yapılıyor (yalnız bekleyen giriş kodu kopyalanır).
 - [fix] **Dar pencerede sekme çubuğu kırpılması:** Editör sütununda sekme çubuğu ve yol çubuğu yükseklik baskısıyla ezilip kırpılıyordu; artık sabit yükseklikte kalıyor (telefon/tablet genişliklerinde doğrulandı).
 - [fix] **Etkinlik çubuğu taşması:** Seçili etkinlik düğmesi ve sol göstergesi çubuk kartının kenarına taşıyordu; düğme 40 px'e indi ve sol gösterge çizgisi tamamen düğmenin içine, yuvarlak köşeli olarak alındı. Asıl neden: çubuk kartı 39 px'e daralıyordu, artık sabit 48 px.
@@ -29,6 +30,7 @@
 
 ### en
 
+- [feat] **Commit history in the status bar:** When a repository is open, a commit icon appears next to line/column; clicking it lists the latest commits (message, author, time, short hash, branch/tag badges), the current branch, ahead/behind counts and the remote (name and "Open on GitHub" when GitHub is connected). Shows "local repository only" when there is no remote. In 8 languages.
 - [fix] **GitHub sign-in code copy:** The copy button next to the code sometimes did nothing; copying now goes through the main process (only the pending sign-in code can be copied).
 - [fix] **Tab bar clipping in narrow windows:** The tab bar and breadcrumb row in the editor column were squashed and clipped under height pressure; they now keep their fixed height (verified at phone and tablet widths).
 - [fix] **Activity bar overflow:** The selected activity button and its left indicator spilled to the bar card's edge; the button is now 40 px and the left indicator line now sits fully inside the button with rounded ends. Root cause: the bar card shrank to 39 px; it is now a fixed 48 px.

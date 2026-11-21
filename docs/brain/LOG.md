@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 21.11.2026 20:20 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL2kxOG4vdWlUZXh0U2Nt -->
+- Alan: [[ui-design]], [[i18n]]
+- Kod (3): `src/App.tsx`, `src/i18n/uiTextScm.ts`, `src/components/CommitHistoryMenu.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/git-github.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 21.11.2026 20:10 · auto/20261118-083349
 <!-- sig:ZWxlY3Ryb24tZ2l0aHViLmNqcyxlbGVjdHJvbi1w -->
 - Alan: [[git-github]], [[security-kvkk]], [[ui-design]]

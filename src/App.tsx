@@ -8,6 +8,7 @@ import {
   Columns,
   House,
   GitBranch,
+  GitCommitHorizontal,
   FolderOpen,
   Search,
   PanelLeft,
@@ -36,6 +37,7 @@ import { getCollabRoomId } from './services/collabRoom';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
+const CommitHistoryMenu = lazy(() => import('./components/CommitHistoryMenu').then((m) => ({ default: m.CommitHistoryMenu })));
 const CompletionMenu = lazy(() => import('./components/CompletionMenu').then((m) => ({ default: m.CompletionMenu })));
 const BranchPicker = lazy(() => import('./components/BranchPicker').then((m) => ({ default: m.BranchPicker })));
 const TaskPicker = lazy(() => import('./components/TaskPicker').then((m) => ({ default: m.TaskPicker })));
@@ -145,6 +147,7 @@ export function App() {
   const [noticeShown, setNoticeShown] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [compMenu, setCompMenu] = useState<{ x: number; y: number } | null>(null);
+  const [histMenu, setHistMenu] = useState<{ x: number; y: number } | null>(null);
 
   // Paneller
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions' | 'debug'>('files');
@@ -2249,6 +2252,12 @@ export function App() {
         )}
       </div>
 
+      {histMenu && currentRootPath && gitStatus.isRepo && (
+        <LazyPanel>
+          <CommitHistoryMenu anchor={histMenu} repo={currentRootPath} branch={gitStatus.branch} hasRemote={gitStatus.hasRemote} ahead={gitStatus.ahead} behind={gitStatus.behind} onClose={() => setHistMenu(null)} onOpenGit={() => pickSidebar('git')} />
+        </LazyPanel>
+      )}
+
       {compMenu && (
         <LazyPanel>
           <CompletionMenu anchor={compMenu} onClose={() => setCompMenu(null)} onOpenSettings={() => { setShowLanding(false); setShowSettings(true); }} />
@@ -2331,6 +2340,22 @@ export function App() {
             {noticeShown && gitNotice && <span className={`status-item ${gitNotice.ok ? 'text-emerald-300' : 'text-rose-300'} max-w-[40vw] truncate`} title={gitNotice.text}>{gitNotice.text}</span>}
             <UpdateIndicator onOpen={() => setUpdateDlg('update')} />
             {activeFile?.isModified && <span className="status-item text-amber-300">{t('stUnsaved')}</span>}
+            {gitStatus.isRepo && currentRootPath && (
+              <button
+                className="status-item"
+                data-active={!!histMenu}
+                onClick={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  setHistMenu(histMenu ? null : { x: r.left + r.width / 2, y: r.top });
+                }}
+                title={t('histTip')}
+                aria-label={t('histTip')}
+                aria-haspopup="dialog"
+                aria-expanded={!!histMenu}
+              >
+                <GitCommitHorizontal size={13} />
+              </button>
+            )}
             {activeFile && (
               <>
                 {!activeFile.diff && <StatusCursor onOpen={() => setPalette(':')} />}

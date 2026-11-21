@@ -35,3 +35,6 @@ Git durumu 3 süreçle okunur (`status --porcelain=v2 --branch -z`, `remote get-
 
 ## Giriş kodu kopyalama (21.11.2026)
 Cihaz akışındaki kopyala düğmesi renderer'daki `navigator.clipboard` ile başarısız olabiliyordu (Electron odak/izin). Artık `github:copyCode` IPC'si ana süreçte `clipboard.writeText` yapar; yalnız ana süreçte tutulan bekleyen `user_code` kopyalanır (renderer rastgele metin yazdıramaz). Renderer önce IPC'yi dener, olmazsa `navigator.clipboard`'a düşer. Dosyalar: `electron-github.cjs`, `electron-preload.cjs`, `src/types.ts`, `GithubAccount.tsx`.
+
+## Durum çubuğu commit geçmişi (21.11.2026)
+`CommitHistoryMenu.tsx` (lazy): durum çubuğunda satır/sütunun solundaki commit simgesinden açılır; yalnız `gitStatus.isRepo` iken görünür. Veri: mevcut `gitLog` IPC'si (son 30 commit, `refs` rozetli) + `gitStatus` (dal, ileri/geri, `hasRemote`) + `github.repoInfo` (uzak depo adı/URL; yalnız `hasRemote` ve GitHub bağlıyken). Uzak yoksa "yalnız yerel depo" satırı. Satır/alt düğme `pickSidebar('git')` ile Git panelini açar. Yeni IPC yok; metinler `uiTextScm.ts` (`hist*`, 8 dil). Kişisel veri: yalnız yerel git günlüğü (yazar adı) arayüzde gösterilir, dışarı gönderilmez.

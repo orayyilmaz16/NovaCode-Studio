@@ -54,7 +54,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2351 |
+| `src/App.tsx` | 2376 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 466 |
 
@@ -67,6 +67,7 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 166 |
+| `src/components/CommitHistoryMenu.tsx` | 170 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
@@ -150,7 +151,7 @@
 | `src/i18n/uiTextAi.ts` | 588 |
 | `src/i18n/uiTextComp.ts` | 329 |
 | `src/i18n/uiTextDev.ts` | 235 |
-| `src/i18n/uiTextScm.ts` | 228 |
+| `src/i18n/uiTextScm.ts` | 258 |
 | `src/i18n/uiTextTheme.ts` | 1127 |
 
 ### Betikler
@@ -231,7 +232,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1016 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1026 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
