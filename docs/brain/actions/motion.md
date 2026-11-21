@@ -73,3 +73,5 @@ Etkin sekmenin üst vurgu çizgisi (`::before` + `scaleX`) kaldırıldı; etkin 
 
 ## Etkinlik çubuğu taşma düzeltmesi (21.11.2026)
 `.ab-item` 40 px (kartın 46 px iç genişliğinde her yanda 3 px pay). Sol gösterge çizgisi (`::before`) düğmenin içinde: `inset-inline-start: 3px`, `top/bottom: 12px`, 2 px, dört köşe yuvarlak; böylece seçiliyken düğme zemininin dışına taşmaz.
+
+**Kök neden:** kök yazı boyutu 13 px olduğundan `w-12` etkinlik çubuğu kartını 39 px yapıyordu; 40 px düğme kartın dışına taşıyordu. Kart artık sabit `w-[48px]` (rem'e bağlı değil).

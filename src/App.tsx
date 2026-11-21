@@ -1956,7 +1956,7 @@ export function App() {
       <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${settings.statusBarVisible === false ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
-        <nav aria-label={t('appActivityBar')} className={`w-12 float-card bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-0.5' : 'mr-0.5'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
+        <nav aria-label={t('appActivityBar')} className={`w-[48px] float-card bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-0.5' : 'mr-0.5'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} data-tip={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
               <Files size={24} strokeWidth={1.5} />
