@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 21.11.2026 20:39 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvVGVybWluYWwudHN4LHNy -->
+- Alan: [[terminal]], [[i18n]], [[debugging]], [[ui-design]]
+- Kod (10): `src/components/Terminal.tsx`, `src/i18n/uiTextDev.ts`, `src/services/debugStore.ts`, `src/services/ptyBus.ts`, `src/services/tasks.ts`, `src/services/terminalBridge.ts`, `src/components/DebugConsolePanel.tsx`, `src/components/OutputPanel.tsx`, `src/components/TestPanel.tsx`, `src/services/testParse.ts`
+- Belge (3): `CHANGELOG.md`, `docs/brain/actions/terminal.md`, `docs/brain/actions/testing.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 21.11.2026 20:31 · auto/20261118-083349
 <!-- sig:c3JjL2NvbXBvbmVudHMvQ29tbWl0SGlzdG9yeU1l -->
 - Alan: [[ui-design]], [[i18n]]

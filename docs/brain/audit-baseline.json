@@ -52,6 +52,11 @@
    "sev": "düşük"
   },
   {
+   "k": "PERF-DYN-RE|src/services/testParse.ts",
+   "n": 3,
+   "sev": "düşük"
+  },
+  {
    "k": "PERF-LS-WRITE|src/App.tsx",
    "n": 1,
    "sev": "düşük"

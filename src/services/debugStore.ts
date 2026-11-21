@@ -83,6 +83,8 @@ export function initDebug(rootPath: string | null) {
   for (const [file, lines] of Object.entries(bps)) void d?.setBreakpoints(file, lines);
 }
 
+/** Hata ayıklama konsolu satırlarını temizler (oturum durumuna dokunmaz). */
+export function clearDebugConsole() { set({ lines: [] }); }
 export function setLocationHandler(h: ((file: string, line: number) => void) | null) { locationHandler = h; }
 
 async function syncBps(file: string) {

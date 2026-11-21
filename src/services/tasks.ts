@@ -74,7 +74,7 @@ export async function loadTasks(root: string): Promise<{ tasks: Task[]; invalid:
 }
 
 /** Görevi terminalde çalıştırır; güvenilmeyen klasörde komut gösterilip onay (ve klasör güveni) istenir. false: iptal/başarısız. */
-export async function runTask(task: Task, root: string): Promise<boolean> {
+export async function runTask(task: Task, root: string, opts: { stay?: boolean } = {}): Promise<boolean> {
   if (!isValidLabel(task.label) || !isValidCommand(task.command) || (task.cwd !== undefined && !isSafeCwd(task.cwd))) return false;
   const tr = getTrust();
   const trustedHere = tr.trusted && (tr.root === root || tr.root === ''); // web: güven kavramı yok, her zaman güvenilir
@@ -82,7 +82,7 @@ export async function runTask(task: Task, root: string): Promise<boolean> {
     if (!window.confirm(t('taskTrust').replace('{cmd}', task.command))) return false;
     await grantTrust(); // onay klasör güveni olarak da kaydedilir (ana süreç kararı saklar)
   }
-  await sendTerminalWhenReady({ action: 'cd', dir: task.cwd ? join(root, task.cwd) : root });
-  await sendTerminalWhenReady({ action: 'run', command: task.command });
+  await sendTerminalWhenReady({ action: 'cd', dir: task.cwd ? join(root, task.cwd) : root, stay: opts.stay });
+  await sendTerminalWhenReady({ action: 'run', command: task.command, stay: opts.stay });
   return true;
 }

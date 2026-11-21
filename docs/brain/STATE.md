@@ -70,6 +70,7 @@
 | `src/components/CommitHistoryMenu.tsx` | 259 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
+| `src/components/DebugConsolePanel.tsx` | 87 |
 | `src/components/DebugPanel.tsx` | 198 |
 | `src/components/EditorArea.tsx` | 774 |
 | `src/components/ErrorBoundary.tsx` | 70 |
@@ -86,6 +87,7 @@
 | `src/components/Menu.tsx` | 115 |
 | `src/components/MenuBar.tsx` | 95 |
 | `src/components/ModelMenu.tsx` | 83 |
+| `src/components/OutputPanel.tsx` | 121 |
 | `src/components/Preview.tsx` | 372 |
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
@@ -96,7 +98,8 @@
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 80 |
-| `src/components/Terminal.tsx` | 599 |
+| `src/components/Terminal.tsx` | 641 |
+| `src/components/TestPanel.tsx` | 178 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |
 | `src/components/TrustDialog.tsx` | 54 |
@@ -114,7 +117,7 @@
 | `src/services/completionShape.ts` | 180 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
-| `src/services/debugStore.ts` | 150 |
+| `src/services/debugStore.ts` | 152 |
 | `src/services/editorBridge.ts` | 108 |
 | `src/services/editorTheme.ts` | 98 |
 | `src/services/extensionsService.ts` | 220 |
@@ -127,7 +130,7 @@
 | `src/services/palettes.ts` | 168 |
 | `src/services/previewKind.ts` | 11 |
 | `src/services/problems.ts` | 161 |
-| `src/services/ptyBus.ts` | 24 |
+| `src/services/ptyBus.ts` | 37 |
 | `src/services/recentFolders.ts` | 28 |
 | `src/services/session.ts` | 103 |
 | `src/services/settings.ts` | 346 |
@@ -135,6 +138,7 @@
 | `src/services/tasks.ts` | 88 |
 | `src/services/terminalBridge.ts` | 54 |
 | `src/services/terminalText.ts` | 148 |
+| `src/services/testParse.ts` | 78 |
 | `src/services/timeAgo.ts` | 23 |
 | `src/services/trustService.ts` | 52 |
 | `src/services/updateService.ts` | 28 |
@@ -151,7 +155,7 @@
 | `src/i18n/uiText.ts` | 669 |
 | `src/i18n/uiTextAi.ts` | 588 |
 | `src/i18n/uiTextComp.ts` | 329 |
-| `src/i18n/uiTextDev.ts` | 235 |
+| `src/i18n/uiTextDev.ts` | 340 |
 | `src/i18n/uiTextScm.ts` | 276 |
 | `src/i18n/uiTextTheme.ts` | 1127 |
 
@@ -233,7 +237,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1032 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1067 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

@@ -228,6 +228,111 @@ export const DEV_TEXT = {
   snFailed: {
     tr: "Kaydedilemedi.", en: "Could not save.", de: "Speichern fehlgeschlagen.", ru: "Не удалось сохранить.", ar: "تعذّر الحفظ.", es: "No se pudo guardar.", fr: "Échec de l'enregistrement.", az: "Yadda saxlamaq olmadı.",
   },
+  pnlOutput: {
+    tr: "Çıktı", en: "Output", de: "Ausgabe", ru: "Вывод", ar: "المخرجات", es: "Salida", fr: "Sortie", az: "Çıxış",
+  },
+  pnlDebug: {
+    tr: "Hata ayıklama konsolu", en: "Debug console", de: "Debugkonsole", ru: "Консоль отладки", ar: "وحدة تحكم التصحيح", es: "Consola de depuración", fr: "Console de débogage", az: "Debaq konsolu",
+  },
+  pnlTests: {
+    tr: "Test", en: "Tests", de: "Tests", ru: "Тесты", ar: "الاختبارات", es: "Pruebas", fr: "Tests", az: "Testlər",
+  },
+  pnlFilterAll: {
+    tr: "Tümü", en: "All", de: "Alle", ru: "Все", ar: "الكل", es: "Todo", fr: "Tout", az: "Hamısı",
+  },
+  pnlFilterErrors: {
+    tr: "Hatalar", en: "Errors", de: "Fehler", ru: "Ошибки", ar: "الأخطاء", es: "Errores", fr: "Erreurs", az: "Xətalar",
+  },
+  pnlFilterWarn: {
+    tr: "Uyarılar", en: "Warnings", de: "Warnungen", ru: "Предупреждения", ar: "التحذيرات", es: "Advertencias", fr: "Avertissements", az: "Xəbərdarlıqlar",
+  },
+  pnlFilterInfo: {
+    tr: "Bilgi", en: "Info", de: "Info", ru: "Инфо", ar: "معلومات", es: "Info", fr: "Infos", az: "Məlumat",
+  },
+  pnlSearch: {
+    tr: "Çıktıda ara…", en: "Search output…", de: "Ausgabe durchsuchen…", ru: "Поиск в выводе…", ar: "ابحث في المخرجات…", es: "Buscar en la salida…", fr: "Rechercher dans la sortie…", az: "Çıxışda axtar…",
+  },
+  pnlCopyAll: {
+    tr: "Tümünü kopyala", en: "Copy all", de: "Alles kopieren", ru: "Копировать всё", ar: "نسخ الكل", es: "Copiar todo", fr: "Tout copier", az: "Hamısını kopyala",
+  },
+  pnlCopied: {
+    tr: "Kopyalandı", en: "Copied", de: "Kopiert", ru: "Скопировано", ar: "تم النسخ", es: "Copiado", fr: "Copié", az: "Kopyalandı",
+  },
+  pnlAutoScroll: {
+    tr: "Otomatik kaydır", en: "Auto-scroll", de: "Automatisch scrollen", ru: "Автопрокрутка", ar: "تمرير تلقائي", es: "Desplazamiento automático", fr: "Défilement auto", az: "Avtomatik sürüşdür",
+  },
+  pnlNoMatch: {
+    tr: "Eşleşen satır yok.", en: "No matching lines.", de: "Keine passenden Zeilen.", ru: "Нет подходящих строк.", ar: "لا توجد أسطر مطابقة.", es: "No hay líneas coincidentes.", fr: "Aucune ligne correspondante.", az: "Uyğun sətir yoxdur.",
+  },
+  pnlOutputEmpty: {
+    tr: "Henüz çıktı yok. Git, görev ve uygulama olayları burada görünür.", en: "No output yet. Git, task and app events appear here.", de: "Noch keine Ausgabe. Git-, Aufgaben- und App-Ereignisse erscheinen hier.", ru: "Вывода пока нет. Здесь появляются события Git, задач и приложения.", ar: "لا توجد مخرجات بعد. تظهر هنا أحداث Git والمهام والتطبيق.", es: "Aún no hay salida. Aquí aparecen eventos de Git, tareas y la aplicación.", fr: "Aucune sortie pour le moment. Les événements Git, tâches et application apparaissent ici.", az: "Hələ çıxış yoxdur. Git, tapşırıq və tətbiq hadisələri burada görünür.",
+  },
+  pnlDbgIdle: {
+    tr: "Hata ayıklama oturumu yok", en: "No debug session", de: "Keine Debug-Sitzung", ru: "Нет сеанса отладки", ar: "لا توجد جلسة تصحيح", es: "Sin sesión de depuración", fr: "Aucune session de débogage", az: "Debaq sessiyası yoxdur",
+  },
+  pnlDbgIdleHint: {
+    tr: "Kenar çubuğundaki Hata Ayıkla bölümünden bir JavaScript dosyasını başlat; çıktı ve ifade sonuçları burada görünür.", en: "Start a JavaScript file from the Debug view in the sidebar; output and expression results appear here.", de: "Starte eine JavaScript-Datei in der Debug-Ansicht der Seitenleiste; Ausgabe und Ausdrucksergebnisse erscheinen hier.", ru: "Запустите JavaScript-файл в разделе отладки боковой панели; здесь появятся вывод и результаты выражений.", ar: "ابدأ ملف JavaScript من قسم التصحيح في الشريط الجانبي؛ تظهر المخرجات ونتائج التعبيرات هنا.", es: "Inicia un archivo JavaScript desde la vista Depurar de la barra lateral; aquí aparecen la salida y los resultados.", fr: "Lancez un fichier JavaScript depuis la vue Débogage de la barre latérale ; la sortie et les résultats apparaissent ici.", az: "Yan paneldəki Debaq bölməsindən JavaScript faylını başladın; çıxış və ifadə nəticələri burada görünür.",
+  },
+  pnlDbgEvalHint: {
+    tr: "İfade yaz, Enter ile çalıştır (ör. bir değişken adı)", en: "Type an expression, press Enter to evaluate (e.g. a variable name)", de: "Ausdruck eingeben, mit Enter auswerten (z. B. Variablenname)", ru: "Введите выражение и нажмите Enter (например, имя переменной)", ar: "اكتب تعبيرًا واضغط Enter للتقييم (مثل اسم متغير)", es: "Escribe una expresión y pulsa Enter (p. ej. un nombre de variable)", fr: "Saisissez une expression, Entrée pour évaluer (ex. un nom de variable)", az: "İfadə yazın, Enter ilə icra edin (məs. dəyişən adı)",
+  },
+  pnlStatusIdle: {
+    tr: "Boşta", en: "Idle", de: "Inaktiv", ru: "Ожидание", ar: "خامل", es: "Inactivo", fr: "Inactif", az: "Boşda",
+  },
+  pnlStatusRunning: {
+    tr: "Çalışıyor", en: "Running", de: "Läuft", ru: "Выполняется", ar: "قيد التشغيل", es: "En ejecución", fr: "En cours", az: "İşləyir",
+  },
+  pnlStatusPaused: {
+    tr: "Duraklatıldı", en: "Paused", de: "Pausiert", ru: "Приостановлено", ar: "متوقف مؤقتًا", es: "En pausa", fr: "En pause", az: "Dayandırıldı",
+  },
+  pnlTestRun: {
+    tr: "Çalıştır", en: "Run", de: "Ausführen", ru: "Запустить", ar: "تشغيل", es: "Ejecutar", fr: "Exécuter", az: "İşə sal",
+  },
+  pnlTestScripts: {
+    tr: "Test betikleri", en: "Test scripts", de: "Test-Skripte", ru: "Тестовые скрипты", ar: "نصوص الاختبار", es: "Scripts de prueba", fr: "Scripts de test", az: "Test skriptləri",
+  },
+  pnlTestNoScripts: {
+    tr: "Bu projede test betiği bulunamadı. package.json içine bir \"test\" betiği ekle ya da .nova/tasks.json içinde görev tanımla.", en: "No test script found in this project. Add a \"test\" script to package.json or define a task in .nova/tasks.json.", de: "Kein Test-Skript gefunden. Füge package.json ein \"test\"-Skript hinzu oder definiere eine Aufgabe in .nova/tasks.json.", ru: "Тестовый скрипт не найден. Добавьте скрипт \"test\" в package.json или задачу в .nova/tasks.json.", ar: "لم يتم العثور على نص اختبار. أضف نص \"test\" إلى package.json أو عرّف مهمة في .nova/tasks.json.", es: "No se encontró ningún script de prueba. Añade un script \"test\" a package.json o define una tarea en .nova/tasks.json.", fr: "Aucun script de test trouvé. Ajoutez un script \"test\" à package.json ou définissez une tâche dans .nova/tasks.json.", az: "Bu layihədə test skripti tapılmadı. package.json-a \"test\" skripti əlavə edin və ya .nova/tasks.json-da tapşırıq təyin edin.",
+  },
+  pnlTestNeedFolder: {
+    tr: "Test çalıştırmak için bir klasör aç.", en: "Open a folder to run tests.", de: "Öffne einen Ordner, um Tests auszuführen.", ru: "Откройте папку, чтобы запускать тесты.", ar: "افتح مجلدًا لتشغيل الاختبارات.", es: "Abre una carpeta para ejecutar pruebas.", fr: "Ouvrez un dossier pour exécuter des tests.", az: "Testləri işə salmaq üçün qovluq açın.",
+  },
+  pnlTestWaiting: {
+    tr: "Henüz sonuç yok. Bir test betiği çalıştır; özet burada görünür.", en: "No results yet. Run a test script; the summary appears here.", de: "Noch keine Ergebnisse. Führe ein Test-Skript aus; die Zusammenfassung erscheint hier.", ru: "Результатов пока нет. Запустите тестовый скрипт; сводка появится здесь.", ar: "لا توجد نتائج بعد. شغّل نص اختبار؛ يظهر الملخص هنا.", es: "Aún no hay resultados. Ejecuta un script de prueba; el resumen aparece aquí.", fr: "Pas encore de résultats. Lancez un script de test ; le résumé apparaît ici.", az: "Hələ nəticə yoxdur. Test skripti işə salın; xülasə burada görünür.",
+  },
+  pnlTestRunning: {
+    tr: "Test çalışıyor…", en: "Running tests…", de: "Tests laufen…", ru: "Тесты выполняются…", ar: "الاختبارات قيد التشغيل…", es: "Ejecutando pruebas…", fr: "Tests en cours…", az: "Testlər işləyir…",
+  },
+  pnlTestAllPassed: {
+    tr: "Tüm testler geçti", en: "All tests passed", de: "Alle Tests bestanden", ru: "Все тесты пройдены", ar: "نجحت جميع الاختبارات", es: "Todas las pruebas pasaron", fr: "Tous les tests ont réussi", az: "Bütün testlər keçdi",
+  },
+  pnlTestSomeFailed: {
+    tr: "Bazı testler başarısız", en: "Some tests failed", de: "Einige Tests fehlgeschlagen", ru: "Некоторые тесты не пройдены", ar: "فشلت بعض الاختبارات", es: "Algunas pruebas fallaron", fr: "Certains tests ont échoué", az: "Bəzi testlər uğursuz oldu",
+  },
+  pnlTestPassed: {
+    tr: "başarılı", en: "passed", de: "bestanden", ru: "пройдено", ar: "ناجح", es: "correctas", fr: "réussis", az: "uğurlu",
+  },
+  pnlTestFailed: {
+    tr: "başarısız", en: "failed", de: "fehlgeschlagen", ru: "не пройдено", ar: "فاشل", es: "fallidas", fr: "échoués", az: "uğursuz",
+  },
+  pnlTestSkipped: {
+    tr: "atlanan", en: "skipped", de: "übersprungen", ru: "пропущено", ar: "متخطى", es: "omitidas", fr: "ignorés", az: "keçilən",
+  },
+  pnlTestTotal: {
+    tr: "toplam", en: "total", de: "gesamt", ru: "всего", ar: "الإجمالي", es: "total", fr: "total", az: "cəmi",
+  },
+  pnlTestDuration: {
+    tr: "Süre", en: "Duration", de: "Dauer", ru: "Время", ar: "المدة", es: "Duración", fr: "Durée", az: "Müddət",
+  },
+  pnlTestFailures: {
+    tr: "Başarısız testler", en: "Failed tests", de: "Fehlgeschlagene Tests", ru: "Непройденные тесты", ar: "الاختبارات الفاشلة", es: "Pruebas fallidas", fr: "Tests échoués", az: "Uğursuz testlər",
+  },
+  pnlTestRunner: {
+    tr: "Tespit edilen: {r}", en: "Detected: {r}", de: "Erkannt: {r}", ru: "Обнаружено: {r}", ar: "تم الكشف: {r}", es: "Detectado: {r}", fr: "Détecté : {r}", az: "Aşkarlandı: {r}",
+  },
+  pnlTestClear: {
+    tr: "Sonucu temizle", en: "Clear result", de: "Ergebnis löschen", ru: "Очистить результат", ar: "مسح النتيجة", es: "Borrar resultado", fr: "Effacer le résultat", az: "Nəticəni təmizlə",
+  },
 } satisfies Record<string, Dict>;
 
 export type DevTextKey = keyof typeof DEV_TEXT;

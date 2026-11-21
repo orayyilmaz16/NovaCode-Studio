@@ -1,5 +1,5 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, ChevronDown, Trash2, Maximize2, Minimize2, X, SquareTerminal, FolderOpen } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, Maximize2, Minimize2, X, SquareTerminal, FolderOpen, CircleX, ScrollText, Bug, FlaskConical, GitBranch } from 'lucide-react';
 import type { ConsoleLog } from '../types';
 import { t } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
@@ -9,7 +9,11 @@ import '../i18n/uiTextDev'; // gerçek terminal metinleri (gecikmeli yüklenen e
 import '../i18n/uiTextScm'; // Sorunlar sekmesi metinleri
 import { ProblemsPanel } from './ProblemsPanel';
 import { useProblems } from '../services/problems';
-import { dropPty, pushPtyData } from '../services/ptyBus';
+import { dropPty, getPtyBuffer, pushPtyData } from '../services/ptyBus';
+import { clearDebugConsole, useDebug } from '../services/debugStore';
+import { OutputPanel } from './OutputPanel';
+import { DebugConsolePanel } from './DebugConsolePanel';
+import { TestPanel } from './TestPanel';
 import type { PtyHandle } from './PtyView';
 import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
@@ -29,7 +33,7 @@ interface TerminalProps {
 }
 
 type ShellId = 'powershell' | 'cmd';
-type PanelTab = 'terminal' | 'log' | 'problems';
+type PanelTab = 'terminal' | 'log' | 'problems' | 'debug' | 'tests';
 
 interface Session {
   id: string;
@@ -94,6 +98,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const cursor = String(values.terminalCursor);
 
   const [tab, setTab] = useState<PanelTab>('terminal');
+  const [testClear, setTestClear] = useState(0);
+  const debug = useDebug();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState('');
@@ -213,15 +219,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const runLineRef = useRef<(line: string) => Promise<void>>(async () => {});
   useEffect(() => {
     const onBridge = (e: Event) => {
-      const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear' | 'tab'; command?: string; dir?: string; tab?: PanelTab }>).detail;
+      const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear' | 'tab'; command?: string; dir?: string; tab?: PanelTab; stay?: boolean }>).detail;
       if (!d) return;
-      if (d.action === 'tab') { if (d.tab === 'problems' || d.tab === 'terminal' || d.tab === 'log') setTab(d.tab); return; }
+      if (d.action === 'tab') { if (d.tab === 'problems' || d.tab === 'terminal' || d.tab === 'log' || d.tab === 'debug' || d.tab === 'tests') setTab(d.tab); return; }
       // cd: etkin kabuğa uygun komut (CMD'de sürücü değiştirmek için /d gerekir). Özel karakterler (& $ ^ vb.) kabuğa uygun alıntılanır;
       // yalnız denetim karakteri/yeni satır (ve CMD'de alıntı içinde bile genişleyen %) içeren yollar reddedilir
       const cdCmd = d.action === 'cd' && d.dir ? cdCommand(active?.shell ?? 'powershell', d.dir) : null;
       if (d.action === 'cd' && d.dir && cdCmd) {
         const cmd = cdCmd;
-        setTab('terminal');
+        if (!d.stay) setTab('terminal');
         if (active?.running && !pendingRun.current.length) void runLine(cmd);
         else {
           pendingRun.current.push(cmd);
@@ -232,7 +238,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       if (d.action === 'new') void createSession(defaultShell);
       else if (d.action === 'clear') clearActive();
       else if (d.action === 'run' && d.command) {
-        setTab('terminal');
+        if (!d.stay) setTab('terminal');
         if (active?.running && !pendingRun.current.length) void runLine(d.command);
         else {
           pendingRun.current.push(d.command);
@@ -381,32 +387,51 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     if (!window.getSelection()?.toString()) inputRef.current?.focus();
   };
 
-  const clearActive = () => (tab === 'log' ? onClear() : active?.kind === 'pty' ? ptyHandles.current.get(active.id)?.clear() : active && patch(active.id, (s) => ({ ...s, output: '' })));
+  const clearActive = () => (tab === 'log' ? onClear() : tab === 'debug' ? clearDebugConsole() : tab === 'tests' ? setTestClear((n) => n + 1) : active?.kind === 'pty' ? ptyHandles.current.get(active.id)?.clear() : active && patch(active.id, (s) => ({ ...s, output: '' })));
 
   // ---- Üst çubuk ----
   const problemCount = useProblems();
-  const tabBtn = (id: PanelTab, label: string, badge?: React.ReactNode) => (
+  const errorLogs = useMemo(() => logs.filter((l) => l.type === 'error').length, [logs]);
+  const badge = (n: number, tone: string) => (n > 0 ? <span className={`px-1.5 min-w-4 rounded-full text-[10px] leading-4 text-center ${tone}`}>{n > 99 ? '99+' : n}</span> : null);
+  const tabs: { id: PanelTab; label: string; icon: React.ReactNode; extra?: React.ReactNode }[] = [
+    {
+      id: 'problems', label: t('prbTab'), icon: <CircleX size={13} />,
+      extra: badge(problemCount.errors + problemCount.warnings, problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200')
+    },
+    { id: 'log', label: t('pnlOutput'), icon: <ScrollText size={13} />, extra: badge(errorLogs, 'bg-rose-500/20 text-rose-300') },
+    {
+      id: 'debug', label: t('pnlDebug'), icon: <Bug size={13} />,
+      extra: debug.status !== 'idle' ? <span className={`size-1.5 rounded-full ${debug.status === 'paused' ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} /> : null
+    },
+    { id: 'terminal', label: t('termTab'), icon: <SquareTerminal size={13} />, extra: sessions.length > 1 ? badge(sessions.length, 'bg-white/10 text-zinc-300') : null },
+    { id: 'tests', label: t('pnlTests'), icon: <FlaskConical size={13} /> },
+  ];
+  const tabBtn = (it: (typeof tabs)[number]) => (
     <button
-      key={id}
-      onClick={() => setTab(id)}
-      className={`relative px-3 text-[11px] uppercase tracking-wide transition-colors ${tab === id ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
+      key={it.id}
+      role="tab"
+      aria-selected={tab === it.id}
+      onClick={() => setTab(it.id)}
+      title={it.label}
+      className={`relative inline-flex items-center gap-1.5 h-full px-3 text-[12px] font-medium whitespace-nowrap transition-colors duration-(--dur-fast) hover:bg-white/[0.04] ${tab === it.id ? 'text-zinc-50' : 'text-zinc-500 hover:text-zinc-200'}`}
     >
-      {label}
-      {badge}
-      <span className={`absolute start-2 end-2 bottom-0 h-px bg-indigo-500 origin-left transition-transform duration-(--dur-base) ${tab === id ? 'scale-x-100' : 'scale-x-0'}`} />
+      <span className={`transition-colors duration-(--dur-fast) ${tab === it.id ? 'text-indigo-300' : ''}`}>{it.icon}</span>
+      <span className="hidden @md:inline">{it.label}</span>
+      {it.extra}
+      <span className={`absolute start-2 end-2 bottom-0 h-0.5 rounded-t bg-indigo-500 origin-center transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${tab === it.id ? 'scale-x-100' : 'scale-x-0'}`} />
     </button>
   );
+
+  const readActiveOutput = useCallback(() => (active ? (active.kind === 'pty' ? getPtyBuffer(active.id) : active.output) : ''), [active]);
 
   const cursorShape = cursor === 'bar' ? 'bar' : cursor === 'underline' ? 'underline' : 'block';
   const inputStyle = { caretShape: cursorShape, caretColor: 'var(--color-zinc-100)' } as React.CSSProperties;
 
   return (
-    <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
+    <div className="@container flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
       <div className="flex items-stretch justify-between h-9 ps-1 pe-2 border-b border-nv-border shrink-0 font-sans">
-        <div className="flex items-stretch">
-          {tabBtn('problems', t('prbTab'), problemCount.errors + problemCount.warnings > 0 ? <span className={`ms-1.5 px-1.5 rounded-full text-[10px] normal-case ${problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200'}`}>{problemCount.errors + problemCount.warnings}</span> : null)}
-          {tabBtn('terminal', t('termTab'))}
-          {tabBtn('log', t('termLog'))}
+        <div className="flex items-stretch min-w-0 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t('termTab')}>
+          {tabs.map(tabBtn)}
         </div>
         <div className="flex items-center gap-0.5">
           {tab === 'terminal' && hasShell && (
@@ -428,7 +453,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               </button>
             </div>
           )}
-          {(tab === 'log' || (tab === 'terminal' && active)) && (
+          {(tab === 'log' || tab === 'debug' || tab === 'tests' || (tab === 'terminal' && active)) && (
             <button onClick={clearActive} title={`${t('termClear')} (Ctrl+L)`} aria-label={t('termClear')} className="icon-btn">
               <Trash2 size={14} />
             </button>
@@ -449,7 +474,25 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
 
       <div className="flex flex-1 min-h-0">
         {/* Ana alan */}
-        <div className="flex-1 min-w-0 relative">
+        <div className="flex-1 min-w-0 flex flex-col">
+        {tab === 'terminal' && active && (
+          <div className="flex items-center gap-2 h-7 px-3 shrink-0 border-b border-nv-border/60 font-sans text-[11.5px] text-zinc-400 min-w-0 animate-fade-in" dir="ltr">
+            <span className={`size-1.5 rounded-full shrink-0 ${active.running ? 'bg-emerald-400' : 'bg-zinc-500'}`} />
+            <span className="text-zinc-200 font-medium shrink-0">{SHELL_LABEL[active.shell]}</span>
+            {ptyOk && (
+              <span className="shrink-0 px-1.5 h-4 inline-flex items-center rounded bg-white/[0.06] text-[10px] text-zinc-400">
+                {active.kind === 'pty' ? t('termFull') : t('termClassic')}
+              </span>
+            )}
+            <span className="truncate min-w-0 text-zinc-500" title={active.cwd}>{shortenPath(active.cwd, 64)}</span>
+            {branch && (
+              <span className="shrink-0 inline-flex items-center gap-1 text-violet-300/90">
+                <GitBranch size={11} />{branch}
+              </span>
+            )}
+          </div>
+        )}
+        <div className="flex-1 min-h-0 relative">
           {sessions.filter((x) => x.kind === 'pty').map((x) => (
             <Suspense key={x.id} fallback={null}>
               <PtyView
@@ -467,21 +510,19 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
           {tab === 'problems' ? (
             <ProblemsPanel rootPath={cwd ?? undefined} />
           ) : tab === 'log' ? (
-            <div dir="ltr" className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
-              {logs.length === 0 ? (
-                <div className="text-zinc-500">{t('termLogEmpty')}</div>
-              ) : (
-                logs.map((log) => {
-                  const color = log.type === 'error' ? 'text-rose-400' : log.type === 'warn' ? 'text-amber-300' : log.type === 'info' ? 'text-sky-300' : 'text-zinc-300';
-                  return (
-                    <div key={log.id} className="flex gap-2">
-                      <span className="text-zinc-500 text-[10px] shrink-0 pt-px">{log.time}</span>
-                      <span className={`break-all whitespace-pre-wrap ${color}`}>{log.text}</span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+            <OutputPanel logs={logs} lineHeight={lineHeight} />
+          ) : tab === 'debug' ? (
+            <DebugConsolePanel lineHeight={lineHeight} />
+          ) : tab === 'tests' ? (
+            <TestPanel
+              root={cwd ?? null}
+              sessionId={active?.id ?? null}
+              readOutput={readActiveOutput}
+              pipeTick={active?.output.length ?? 0}
+              clearKey={testClear}
+              onShowTerminal={() => setTab('terminal')}
+              onOpenFolder={onOpenFolder}
+            />
           ) : !cwd && sessions.length === 0 ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-500 font-sans text-[13px]">
               <SquareTerminal size={20} className="opacity-60" />
@@ -536,6 +577,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               {!active && cwd && <div className="text-zinc-500 font-sans">{t('termStarting')}</div>}
             </div>
           )}
+        </div>
         </div>
 
         {/* Oturum listesi: birden fazla terminal varken (VS Code gibi) sağda */}
