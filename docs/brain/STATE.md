@@ -33,7 +33,7 @@
 | `electron-ai.cjs` | 995 |
 | `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 341 |
-| `electron-git.cjs` | 437 |
+| `electron-git.cjs` | 450 |
 | `electron-github.cjs` | 343 |
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
@@ -56,7 +56,7 @@
 |---|---|
 | `src/App.tsx` | 2400 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 471 |
+| `src/types.ts` | 475 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -67,7 +67,7 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 166 |
-| `src/components/CommitHistoryMenu.tsx` | 196 |
+| `src/components/CommitHistoryMenu.tsx` | 256 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |

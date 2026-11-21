@@ -310,7 +310,20 @@ function register({ runGit, github, isValidPath }) {
         i += 1;
       }
     }
-    return { success: true, files: files.filter((f) => f.path) };
+    // Dosya başına eklenen/silinen satır (numstat); ikili dosyada '-' gelir, sayı verilmez
+    const stat = new Map();
+    const ns = await runGit(['diff-tree', '--no-commit-id', '--numstat', '-r', '-M', '--root', '-z', hash], repoPath, { raw: true });
+    if (ns.success) {
+      const q = ns.stdout.split('\0');
+      for (let i = 0; i < q.length; i++) {
+        const m = /^(\d+|-)	(\d+|-)	(.*)$/s.exec(q[i]);
+        if (!m) continue;
+        let file = m[3];
+        if (file === '') { file = q[i + 2]; i += 2; } // yeniden adlandırma: boş yol, ardından eski ve yeni ad
+        if (file) stat.set(file, m[1] === '-' ? { binary: true } : { added: Number(m[1]), deleted: Number(m[2]) });
+      }
+    }
+    return { success: true, files: files.filter((f) => f.path).map((f) => ({ ...f, ...(stat.get(f.path) || {}) })) };
   }));
 
   // ---- Dallar, uzak dallar, etiketler ----

@@ -80,6 +80,10 @@ export interface GitCommitFile {
   status: string;
   path: string;
   orig?: string;
+  /** Eklenen/silinen satır (ikili dosyada yok) */
+  added?: number;
+  deleted?: number;
+  binary?: boolean;
 }
 
 export interface GitRefs {

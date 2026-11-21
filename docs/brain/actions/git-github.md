@@ -41,3 +41,6 @@ Cihaz akışındaki kopyala düğmesi renderer'daki `navigator.clipboard` ile ba
 
 ### Commit geçmişi: istatistik ve son commit özeti (21.11.2026)
 `git:log` artık `limit` (1–100, varsayılan 30) alır ve `--shortstat` ile her commit için `files/added/deleted` ile `ts` (ms) döndürür; kayıt ayracı U+001E, alan ayracı U+001F (e-posta alınmaz). Zamanlar `src/services/timeAgo.ts` ile arayüz dilinde (`Intl.RelativeTimeFormat`), `ts` yoksa git'in `when` metni. Durum çubuğu öğesi `gitLog(repo, 1)` ile son commit'in yazarı/zamanını gösterir (`@2xl` ve üstü; dar çubukta yalnız simge); depo/dal/ileri sayısı/değişiklik sayısı değişince tazelenir, dakikada bir zaman yenilenir. Menünün alt düğmesi `pickSidebar('git')` ile aç/kapat yapar (`gitPanelOpen`).
+
+### Açılır commit satırları (21.11.2026)
+`CommitHistoryMenu`'de her commit satırı bir akordeon: tıklayınca (`aria-expanded`) `gitCommitFiles` ile dosyalar bir kez yüklenip önbelleğe alınır, `.cm-collapse` ile yumuşak açılır (ok `--dur-base` ile döner). `git:commitFiles` artık `diff-tree --numstat -z` ile her dosya için `added/deleted` (ikili dosyada `binary`) ekler; yeniden adlandırmada boş yol + eski/yeni ad ayrıştırılır. Dosya ikonu duruma göre (A yeşil, D kırmızı, R mavi, M sarı). Not: `electron-git.cjs` CRLF'tir; çok satırlı betikle düzenlerken ters eğik çizgi/NUL kaçışlarını kontrol et.
