@@ -152,7 +152,11 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
           ) : commits.length === 0 ? (
             <div className="px-3.5 py-6 text-center text-xs text-zinc-500">{t('histEmpty')}</div>
           ) : (
-            commits.map((c, i) => (
+            <>
+            {commits.every((c) => c.added === undefined) && (
+              <div className="mx-3.5 mb-1 px-2 py-1 rounded bg-amber-500/10 text-[11px] text-amber-300">{t('histNeedRestart')}</div>
+            )}
+            {commits.map((c, i) => (
               <div key={c.hash} role="listitem" className="animate-fade-in" style={{ animationDelay: `${Math.min(i, 8) * 20}ms` }}>
               <button
                 onClick={() => void toggle(c.hash)}
@@ -167,6 +171,15 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1 min-w-0">
                     <span className="text-[12.5px] text-zinc-200 truncate flex-1">{c.subject}</span>
+                    {c.added !== undefined && (
+                      <span
+                        className="shrink-0 inline-flex items-center gap-1.5 h-[18px] px-1.5 rounded bg-black/20 font-mono text-[11px] tabular-nums"
+                        title={`${t('histAddedTip').replace('{n}', String(c.added))} · ${t('histDeletedTip').replace('{n}', String(c.deleted ?? 0))}${c.files ? ` · ${t('histFilesTip').replace('{n}', String(c.files))}` : ''}`}
+                      >
+                        <span className="text-emerald-400">+{c.added}</span>
+                        <span className="text-rose-400">−{c.deleted ?? 0}</span>
+                      </span>
+                    )}
                     <ChevronRight size={13} className={`shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open[c.hash] ? 'rotate-90' : ''}`} />
                   </span>
                   <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-500 min-w-0">
@@ -175,17 +188,6 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
                     <span className="shrink-0" title={c.ts ? new Date(c.ts).toLocaleString() : undefined}>· {c.ts ? timeAgo(c.ts) : c.when}</span>
                     <span className="font-mono shrink-0 ms-auto">{c.hash}</span>
                   </span>
-                  {(c.added || c.deleted) ? (
-                    <span className="mt-0.5 flex items-center gap-2 text-[11px] font-mono tabular-nums">
-                      {c.added ? <span className="text-emerald-400" title={t('histAddedTip').replace('{n}', String(c.added))}>+{c.added}</span> : null}
-                      {c.deleted ? <span className="text-rose-400" title={t('histDeletedTip').replace('{n}', String(c.deleted))}>−{c.deleted}</span> : null}
-                      {c.files ? <span className="text-zinc-500" title={t('histFilesTip').replace('{n}', String(c.files))}>· {c.files}</span> : null}
-                      <span aria-hidden className="flex-1 h-1 max-w-[80px] rounded-full overflow-hidden bg-zinc-700/50 flex">
-                        <span className="h-full bg-emerald-500/80" style={{ width: `${((c.added ?? 0) / Math.max(1, (c.added ?? 0) + (c.deleted ?? 0))) * 100}%` }} />
-                        <span className="h-full bg-rose-500/80 flex-1" />
-                      </span>
-                    </span>
-                  ) : null}
                   {c.refs && c.refs.length > 0 && (
                     <span className="mt-1 flex flex-wrap gap-1">
                       {c.refs.slice(0, 4).map((r) => {
@@ -236,7 +238,8 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
                 </div>
               </div>
               </div>
-            ))
+            ))}
+            </>
           )}
         </div>
 

@@ -266,6 +266,9 @@ export const SCM_TEXT = {
   histFilesTip: {
     tr: "{n} dosya değişti", en: "{n} files changed", de: "{n} Dateien geändert", ru: "Изменено файлов: {n}", ar: "تم تغيير {n} ملف", es: "{n} archivos modificados", fr: "{n} fichiers modifiés", az: "{n} fayl dəyişdi",
   },
+  histNeedRestart: {
+    tr: "Satır sayıları için uygulamayı yeniden başlat.", en: "Restart the app to see line counts.", de: "Starte die App neu, um Zeilenzahlen zu sehen.", ru: "Перезапустите приложение, чтобы увидеть число строк.", ar: "أعد تشغيل التطبيق لرؤية عدد الأسطر.", es: "Reinicia la aplicación para ver el recuento de líneas.", fr: "Redémarrez l'application pour voir le nombre de lignes.", az: "Sətir sayını görmək üçün tətbiqi yenidən başladın.",
+  },
 } satisfies Record<string, Dict>;
 
 export type ScmTextKey = keyof typeof SCM_TEXT;

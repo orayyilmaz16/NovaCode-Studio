@@ -44,3 +44,6 @@ Cihaz akışındaki kopyala düğmesi renderer'daki `navigator.clipboard` ile ba
 
 ### Açılır commit satırları (21.11.2026)
 `CommitHistoryMenu`'de her commit satırı bir akordeon: tıklayınca (`aria-expanded`) `gitCommitFiles` ile dosyalar bir kez yüklenip önbelleğe alınır, `.cm-collapse` ile yumuşak açılır (ok `--dur-base` ile döner). `git:commitFiles` artık `diff-tree --numstat -z` ile her dosya için `added/deleted` (ikili dosyada `binary`) ekler; yeniden adlandırmada boş yol + eski/yeni ad ayrıştırılır. Dosya ikonu duruma göre (A yeşil, D kırmızı, R mavi, M sarı). Not: `electron-git.cjs` CRLF'tir; çok satırlı betikle düzenlerken ters eğik çizgi/NUL kaçışlarını kontrol et.
+
+### Satır sayısı rozeti (21.11.2026)
+Eklenen/silinen satır artık her commit'in başlık satırında sağda `+N −M` rozeti (mono, yeşil/kırmızı). Eski ana süreç (yeniden başlatılmamış) `added` alanı döndürmez; menü bunu algılayıp "uygulamayı yeniden başlat" uyarısını (`histNeedRestart`) gösterir. Ana süreç dosyaları (`electron-*.cjs`) değişince `electron:dev` yeniden başlatılmalı: sıcak yeniden yükleme yok.
