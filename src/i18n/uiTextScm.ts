@@ -251,6 +251,21 @@ export const SCM_TEXT = {
   histLoading: {
     tr: "Yükleniyor…", en: "Loading…", de: "Wird geladen…", ru: "Загрузка…", ar: "جارٍ التحميل…", es: "Cargando…", fr: "Chargement…", az: "Yüklənir…",
   },
+  histClosePanel: {
+    tr: "Git panelini kapat", en: "Close Git panel", de: "Git-Panel schließen", ru: "Закрыть панель Git", ar: "إغلاق لوحة Git", es: "Cerrar el panel de Git", fr: "Fermer le panneau Git", az: "Git panelini bağla",
+  },
+  histLastCommit: {
+    tr: "Son commit", en: "Last commit", de: "Letzter Commit", ru: "Последний коммит", ar: "آخر إيداع", es: "Último commit", fr: "Dernier commit", az: "Son commit",
+  },
+  histAddedTip: {
+    tr: "{n} satır eklendi", en: "{n} lines added", de: "{n} Zeilen hinzugefügt", ru: "Добавлено строк: {n}", ar: "تمت إضافة {n} سطر", es: "{n} líneas añadidas", fr: "{n} lignes ajoutées", az: "{n} sətir əlavə edildi",
+  },
+  histDeletedTip: {
+    tr: "{n} satır silindi", en: "{n} lines deleted", de: "{n} Zeilen gelöscht", ru: "Удалено строк: {n}", ar: "تم حذف {n} سطر", es: "{n} líneas eliminadas", fr: "{n} lignes supprimées", az: "{n} sətir silindi",
+  },
+  histFilesTip: {
+    tr: "{n} dosya değişti", en: "{n} files changed", de: "{n} Dateien geändert", ru: "Изменено файлов: {n}", ar: "تم تغيير {n} ملف", es: "{n} archivos modificados", fr: "{n} fichiers modifiés", az: "{n} fayl dəyişdi",
+  },
 } satisfies Record<string, Dict>;
 
 export type ScmTextKey = keyof typeof SCM_TEXT;

@@ -69,6 +69,11 @@ export interface GitCommitInfo {
   when: string;
   subject: string;
   refs?: string[];
+  /** Commit zamanı (ms, UTC) */
+  ts?: number;
+  files?: number;
+  added?: number;
+  deleted?: number;
 }
 
 export interface GitCommitFile {
@@ -420,7 +425,7 @@ export interface ElectronBridge {
   gitBranches: (repoPath: string) => Promise<{ success: boolean; branches: string[]; current: string }>;
   gitCheckout: (repoPath: string, name: string) => Promise<GitResult>;
   gitCreateBranch: (repoPath: string, name: string) => Promise<GitResult>;
-  gitLog: (repoPath: string) => Promise<{ success: boolean; commits: GitCommitInfo[] }>;
+  gitLog: (repoPath: string, limit?: number) => Promise<{ success: boolean; commits: GitCommitInfo[] }>;
   gitInit: (repoPath: string) => Promise<GitResult>;
   gitDiffFile: (repoPath: string, opts: GitDiffRequest) => Promise<GitDiffResult>;
   gitCommitFiles: (repoPath: string, hash: string) => Promise<{ success: boolean; files: GitCommitFile[] }>;

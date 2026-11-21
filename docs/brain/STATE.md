@@ -33,7 +33,7 @@
 | `electron-ai.cjs` | 995 |
 | `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 341 |
-| `electron-git.cjs` | 426 |
+| `electron-git.cjs` | 437 |
 | `electron-github.cjs` | 343 |
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
@@ -54,9 +54,9 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2376 |
+| `src/App.tsx` | 2400 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 466 |
+| `src/types.ts` | 471 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -67,7 +67,7 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 166 |
-| `src/components/CommitHistoryMenu.tsx` | 170 |
+| `src/components/CommitHistoryMenu.tsx` | 196 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugPanel.tsx` | 198 |
@@ -135,6 +135,7 @@
 | `src/services/tasks.ts` | 88 |
 | `src/services/terminalBridge.ts` | 54 |
 | `src/services/terminalText.ts` | 148 |
+| `src/services/timeAgo.ts` | 23 |
 | `src/services/trustService.ts` | 52 |
 | `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
@@ -151,7 +152,7 @@
 | `src/i18n/uiTextAi.ts` | 588 |
 | `src/i18n/uiTextComp.ts` | 329 |
 | `src/i18n/uiTextDev.ts` | 235 |
-| `src/i18n/uiTextScm.ts` | 258 |
+| `src/i18n/uiTextScm.ts` | 273 |
 | `src/i18n/uiTextTheme.ts` | 1127 |
 
 ### Betikler
@@ -232,7 +233,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1026 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1031 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

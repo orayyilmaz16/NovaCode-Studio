@@ -69,6 +69,7 @@ import './i18n/uiTextScm';
 import './i18n/uiTextComp'; // oturum, onay ve günlük metinleri (açılışta gerekir)
 import { LazyPanel } from './components/ErrorBoundary';
 import { UnsavedDialog, RestoreSessionDialog, type UnsavedChoice } from './components/AppDialogs';
+import { timeAgo } from './services/timeAgo';
 import { StatusProblems, StatusCursor, StatusCompletion, StatusLsp } from './components/StatusCursor';
 import { useEvent } from './services/useEvent';
 import { useFocusTrap } from './services/useFocusTrap';
@@ -148,6 +149,24 @@ export function App() {
   const [syncing, setSyncing] = useState(false);
   const [compMenu, setCompMenu] = useState<{ x: number; y: number } | null>(null);
   const [histMenu, setHistMenu] = useState<{ x: number; y: number } | null>(null);
+  // Durum çubuğundaki "son commit" özeti: depo/dal/ileri sayısı/değişiklik sayısı değişince tazelenir (commit sonrası liste küçülür)
+  const [lastCommit, setLastCommit] = useState<{ author: string; ts?: number; when: string } | null>(null);
+  const [agoTick, setAgoTick] = useState(0);
+  useEffect(() => {
+    if (!currentRootPath || !gitStatus.isRepo || !window.electronAPI?.gitLog) { setLastCommit(null); return; }
+    let alive = true;
+    void window.electronAPI.gitLog(currentRootPath, 1).then((r) => {
+      if (!alive) return;
+      const c = r.success ? r.commits[0] : undefined;
+      setLastCommit(c ? { author: c.author, ts: c.ts, when: c.when } : null);
+    }).catch(() => { if (alive) setLastCommit(null); });
+    return () => { alive = false; };
+  }, [currentRootPath, gitStatus.isRepo, gitStatus.branch, gitStatus.ahead, gitStatus.files?.length]);
+  useEffect(() => {
+    if (!lastCommit?.ts) return;
+    const id = window.setInterval(() => setAgoTick((n) => n + 1), 60000);
+    return () => window.clearInterval(id);
+  }, [lastCommit?.ts]);
 
   // Paneller
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions' | 'debug'>('files');
@@ -2254,7 +2273,7 @@ export function App() {
 
       {histMenu && currentRootPath && gitStatus.isRepo && (
         <LazyPanel>
-          <CommitHistoryMenu anchor={histMenu} repo={currentRootPath} branch={gitStatus.branch} hasRemote={gitStatus.hasRemote} ahead={gitStatus.ahead} behind={gitStatus.behind} onClose={() => setHistMenu(null)} onOpenGit={() => pickSidebar('git')} />
+          <CommitHistoryMenu anchor={histMenu} repo={currentRootPath} branch={gitStatus.branch} hasRemote={gitStatus.hasRemote} ahead={gitStatus.ahead} behind={gitStatus.behind} gitPanelOpen={sidebarShown && activeSidebarTab === 'git'} onClose={() => setHistMenu(null)} onOpenGit={() => pickSidebar('git')} />
         </LazyPanel>
       )}
 
@@ -2348,12 +2367,17 @@ export function App() {
                   const r = e.currentTarget.getBoundingClientRect();
                   setHistMenu(histMenu ? null : { x: r.left + r.width / 2, y: r.top });
                 }}
-                title={t('histTip')}
+                title={lastCommit ? `${t('histLastCommit')}: ${lastCommit.author}${lastCommit.ts ? ` · ${new Date(lastCommit.ts).toLocaleString()}` : ''}` : t('histTip')}
                 aria-label={t('histTip')}
                 aria-haspopup="dialog"
                 aria-expanded={!!histMenu}
               >
                 <GitCommitHorizontal size={13} />
+                {lastCommit && (
+                  <span className="hidden @2xl:inline max-w-[220px] truncate" data-tick={agoTick}>
+                    {lastCommit.author}{lastCommit.ts ? ` · ${timeAgo(lastCommit.ts)}` : lastCommit.when ? ` · ${lastCommit.when}` : ''}
+                  </span>
+                )}
               </button>
             )}
             {activeFile && (

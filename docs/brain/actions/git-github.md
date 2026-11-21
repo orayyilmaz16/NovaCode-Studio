@@ -38,3 +38,6 @@ Cihaz akışındaki kopyala düğmesi renderer'daki `navigator.clipboard` ile ba
 
 ## Durum çubuğu commit geçmişi (21.11.2026)
 `CommitHistoryMenu.tsx` (lazy): durum çubuğunda satır/sütunun solundaki commit simgesinden açılır; yalnız `gitStatus.isRepo` iken görünür. Veri: mevcut `gitLog` IPC'si (son 30 commit, `refs` rozetli) + `gitStatus` (dal, ileri/geri, `hasRemote`) + `github.repoInfo` (uzak depo adı/URL; yalnız `hasRemote` ve GitHub bağlıyken). Uzak yoksa "yalnız yerel depo" satırı. Satır/alt düğme `pickSidebar('git')` ile Git panelini açar. Yeni IPC yok; metinler `uiTextScm.ts` (`hist*`, 8 dil). Kişisel veri: yalnız yerel git günlüğü (yazar adı) arayüzde gösterilir, dışarı gönderilmez.
+
+### Commit geçmişi: istatistik ve son commit özeti (21.11.2026)
+`git:log` artık `limit` (1–100, varsayılan 30) alır ve `--shortstat` ile her commit için `files/added/deleted` ile `ts` (ms) döndürür; kayıt ayracı U+001E, alan ayracı U+001F (e-posta alınmaz). Zamanlar `src/services/timeAgo.ts` ile arayüz dilinde (`Intl.RelativeTimeFormat`), `ts` yoksa git'in `when` metni. Durum çubuğu öğesi `gitLog(repo, 1)` ile son commit'in yazarı/zamanını gösterir (`@2xl` ve üstü; dar çubukta yalnız simge); depo/dal/ileri sayısı/değişiklik sayısı değişince tazelenir, dakikada bir zaman yenilenir. Menünün alt düğmesi `pickSidebar('git')` ile aç/kapat yapar (`gitPanelOpen`).

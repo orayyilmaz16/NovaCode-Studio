@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { GitBranch, GitCommitHorizontal, ExternalLink, RefreshCcw, ArrowDown, ArrowUp, Tag } from 'lucide-react';
+import { GitBranch, GitCommitHorizontal, ExternalLink, RefreshCcw, ArrowDown, ArrowUp, PanelLeftOpen, PanelLeftClose, UserRound, Clock } from 'lucide-react';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
+import { timeAgo } from '../services/timeAgo';
 import type { GitCommitInfo, GithubRepoInfo } from '../types';
 
 // Durum çubuğundaki commit geçmişi menüsü (VS Code "Source Control Graph" benzeri, sade liste):
@@ -13,13 +14,15 @@ interface Props {
   hasRemote?: boolean;
   ahead?: number;
   behind?: number;
+  /** Git yan paneli şu an açık mı (alt düğme aç/kapat arasında geçer) */
+  gitPanelOpen?: boolean;
   onClose: () => void;
   onOpenGit: () => void;
 }
 
 const initials = (name: string) => (name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('') || '?').toUpperCase();
 
-export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRemote, ahead, behind, onClose, onOpenGit }) => {
+export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRemote, ahead, behind, gitPanelOpen, onClose, onOpenGit }) => {
   const api = window.electronAPI;
   const ref = useRef<HTMLDivElement>(null);
   const [commits, setCommits] = useState<GitCommitInfo[] | null>(null);
@@ -91,6 +94,14 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
           </button>
         </div>
 
+        {commits && commits[0] && (
+          <div className="px-3.5 py-1.5 border-b border-nv-border text-[11px] text-zinc-400 flex items-center gap-x-3 gap-y-0.5 flex-wrap shrink-0">
+            <span className="text-zinc-500">{t('histLastCommit')}</span>
+            <span className="inline-flex items-center gap-1 min-w-0 text-zinc-300"><UserRound size={11} className="shrink-0" /><span className="truncate max-w-[140px]">{commits[0].author}</span></span>
+            <span className="inline-flex items-center gap-1" title={commits[0].ts ? new Date(commits[0].ts).toLocaleString() : undefined}><Clock size={11} className="shrink-0" />{commits[0].ts ? timeAgo(commits[0].ts) : commits[0].when}</span>
+          </div>
+        )}
+
         <div className="px-3.5 py-1.5 border-b border-nv-border text-[11px] text-zinc-400 flex items-center gap-1.5 min-w-0 shrink-0">
           {hasRemote ? (
             <>
@@ -136,9 +147,20 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
                   <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-500 min-w-0">
                     <span className="size-4 rounded-full bg-zinc-700/70 text-[8px] leading-4 text-center text-zinc-300 font-semibold shrink-0">{initials(c.author)}</span>
                     <span className="truncate">{c.author}</span>
-                    <span className="shrink-0">· {c.when}</span>
+                    <span className="shrink-0" title={c.ts ? new Date(c.ts).toLocaleString() : undefined}>· {c.ts ? timeAgo(c.ts) : c.when}</span>
                     <span className="font-mono shrink-0 ms-auto">{c.hash}</span>
                   </span>
+                  {(c.added || c.deleted) ? (
+                    <span className="mt-0.5 flex items-center gap-2 text-[11px] font-mono tabular-nums">
+                      {c.added ? <span className="text-emerald-400" title={t('histAddedTip').replace('{n}', String(c.added))}>+{c.added}</span> : null}
+                      {c.deleted ? <span className="text-rose-400" title={t('histDeletedTip').replace('{n}', String(c.deleted))}>−{c.deleted}</span> : null}
+                      {c.files ? <span className="text-zinc-500" title={t('histFilesTip').replace('{n}', String(c.files))}>· {c.files}</span> : null}
+                      <span aria-hidden className="flex-1 h-1 max-w-[80px] rounded-full overflow-hidden bg-zinc-700/50 flex">
+                        <span className="h-full bg-emerald-500/80" style={{ width: `${((c.added ?? 0) / Math.max(1, (c.added ?? 0) + (c.deleted ?? 0))) * 100}%` }} />
+                        <span className="h-full bg-rose-500/80 flex-1" />
+                      </span>
+                    </span>
+                  ) : null}
                   {c.refs && c.refs.length > 0 && (
                     <span className="mt-1 flex flex-wrap gap-1">
                       {c.refs.slice(0, 4).map((r) => {
@@ -160,9 +182,13 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
 
         <button
           onClick={openGit}
-          className="shrink-0 flex items-center justify-center gap-1.5 h-9 border-t border-nv-border text-xs text-zinc-200 hover:bg-nv-hover transition-colors focus-visible:outline-none focus-visible:bg-nv-hover"
+          aria-pressed={!!gitPanelOpen}
+          className="group shrink-0 flex items-center justify-center gap-2 h-9 border-t border-nv-border text-xs font-medium text-zinc-200 hover:bg-nv-hover hover:text-zinc-50 transition-colors focus-visible:outline-none focus-visible:bg-nv-hover"
         >
-          <Tag size={13} className="text-zinc-400" />{t('histOpenPanel')}
+          {gitPanelOpen
+            ? <PanelLeftClose size={14} className="text-zinc-400 group-hover:text-indigo-300 transition-colors" />
+            : <PanelLeftOpen size={14} className="text-indigo-300 transition-transform duration-(--dur-base) group-hover:translate-x-0.5" />}
+          {gitPanelOpen ? t('histClosePanel') : t('histOpenPanel')}
         </button>
       </div>
     </div>
