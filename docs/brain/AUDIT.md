@@ -6,27 +6,27 @@ Son tarama: 21.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 ## Özet
 | Alan | Bulgu |
 |---|---|
-| Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 22 |
+| Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 23 |
 | Performans | kritik 0 · yüksek 0 · orta 2 · düşük 61 |
 | Kalite | kritik 0 · yüksek 0 · orta 3 · düşük 10 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: yok
+- Yeni/artan: `SEC-IPC-NOEVT` electron-github.cjs
 - Giderilen: yok
 
 ## Güvenlik
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
 | orta | SEC-HTML | `src/components/Preview.tsx:184` | Ham HTML basımı; DOMPurify ile temizlendiğini doğrula |
-| orta | SEC-OPENEXT | `electron-github.cjs:189,245` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
+| orta | SEC-OPENEXT | `electron-github.cjs:197,253` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
 | orta | SEC-OPENEXT | `electron-main.cjs:70` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | orta | SEC-OPENEXT | `electron-update.cjs:159` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | düşük | SEC-HTTP | `electron-ai.cjs:118` | Şifresiz http:// adresi |
 | düşük | SEC-IPC-NOEVT | `electron-ai.cjs:965,968,982` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-ext.cjs:318,329` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (2×) |
-| düşük | SEC-IPC-NOEVT | `electron-github.cjs:155,168,231…(+1)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (4×) |
+| düşük | SEC-IPC-NOEVT | `electron-github.cjs:156,169,175…(+2)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (5×) |
 | düşük | SEC-IPC-NOEVT | `electron-main.cjs:436,451,501` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-pty.cjs:116` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-search.cjs:245` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
@@ -52,7 +52,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-SYNC-FS | `electron-debug.cjs:122` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-ext.cjs:251,252,267` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
 | düşük | PERF-SYNC-FS | `electron-git.cjs:273,276,421` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
-| düşük | PERF-SYNC-FS | `electron-github.cjs:25,38,52…(+2)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (5×) |
+| düşük | PERF-SYNC-FS | `electron-github.cjs:26,39,53…(+2)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (5×) |
 | düşük | PERF-SYNC-FS | `electron-lsp.cjs:49` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-main.cjs:328` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-paths.cjs:127` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |

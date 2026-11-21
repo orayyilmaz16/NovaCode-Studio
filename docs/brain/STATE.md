@@ -34,13 +34,13 @@
 | `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 341 |
 | `electron-git.cjs` | 426 |
-| `electron-github.cjs` | 335 |
+| `electron-github.cjs` | 343 |
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
 | `electron-lsp.cjs` | 301 |
 | `electron-main.cjs` | 829 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 261 |
+| `electron-preload.cjs` | 262 |
 | `electron-preview.cjs` | 78 |
 | `electron-pty.cjs` | 128 |
 | `electron-search.cjs` | 289 |
@@ -56,7 +56,7 @@
 |---|---|
 | `src/App.tsx` | 2351 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 465 |
+| `src/types.ts` | 466 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -76,7 +76,7 @@
 | `src/components/FileTree.tsx` | 932 |
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 883 |
-| `src/components/GithubAccount.tsx` | 135 |
+| `src/components/GithubAccount.tsx` | 137 |
 | `src/components/HoverTip.tsx` | 49 |
 | `src/components/KeybindingsEditor.tsx` | 146 |
 | `src/components/LandingPage.tsx` | 176 |
@@ -213,7 +213,7 @@
 | ext | `ext:checkUpdates`, `ext:details`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDataUrl`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:amend`, `git:branches`, `git:checkout`, `git:checkoutRef`, `git:commit`, `git:commitFiles`, `git:createBranch`, `git:createBranchFrom`, `git:createTag`, `git:deleteBranch`, `git:deleteTag`, `git:diffFile`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:merge`, `git:mergeAbort`, `git:mergeContinue`, `git:pull`, `git:push`, `git:pushTag`, `git:refs`, `git:resolve`, `git:stage`, `git:stageAll`, `git:stashApply`, `git:stashDrop`, `git:stashList`, `git:stashPop`, `git:stashPush`, `git:status`, `git:sync`, `git:undoCommit`, `git:unstage` |
-| github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
+| github | `github:cancel`, `github:copyCode`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
 | history | `history:clear`, `history:config`, `history:deleted`, `history:list`, `history:read` |
 | lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
 | preview | `preview:drop`, `preview:put` |

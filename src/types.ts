@@ -446,6 +446,7 @@ export interface ElectronBridge {
   github: {
     status: () => Promise<GithubAuthStatus>;
     login: () => Promise<{ success: boolean; error?: string; userCode?: string; verificationUri?: string; expiresIn?: number }>;
+    copyCode: () => Promise<{ success: boolean }>;
     cancel: () => Promise<{ success: boolean }>;
     logout: () => Promise<{ success: boolean }>;
     repoInfo: (repoPath: string) => Promise<GithubRepoInfo>;

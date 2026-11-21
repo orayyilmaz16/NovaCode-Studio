@@ -58,12 +58,14 @@ export const GithubAccount: React.FC = () => {
 
   const copyCode = async () => {
     if (!pending) return;
-    try {
-      await navigator.clipboard.writeText(pending.userCode);
+    let ok = false;
+    try { ok = !!(await api?.copyCode?.())?.success; } catch { /* ana süreç yolu yoksa tarayıcı API'sine düş */ }
+    if (!ok) {
+      try { await navigator.clipboard.writeText(pending.userCode); ok = true; } catch { /* pano erişimi yoksa kod ekranda görünür kalır */ }
+    }
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
-      /* pano erişimi yoksa kod ekranda görünür kalır */
     }
   };
 

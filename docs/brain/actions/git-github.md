@@ -32,3 +32,6 @@ Terminaldeki `git` komutları kullanıcının kendi kabuğudur; kilit yalnız uy
 
 ## Denetim düzeltmeleri (17.11.2026)
 Git durumu 3 süreçle okunur (`status --porcelain=v2 --branch -z`, `remote get-url`, MERGE_HEAD); aynı depo için eşzamanlı çağrılar birleşir. Yapılandırma sertleştirmesi: [[security-kvkk]]. GitHub OAuth kapsamı `repo` kalır (özel depo/push için gerekli; daraltma ince ayarlı GitHub App kararı). Cihaz akışında `verification_uri` yalnız `https://github.com`.
+
+## Giriş kodu kopyalama (21.11.2026)
+Cihaz akışındaki kopyala düğmesi renderer'daki `navigator.clipboard` ile başarısız olabiliyordu (Electron odak/izin). Artık `github:copyCode` IPC'si ana süreçte `clipboard.writeText` yapar; yalnız ana süreçte tutulan bekleyen `user_code` kopyalanır (renderer rastgele metin yazdıramaz). Renderer önce IPC'yi dener, olmazsa `navigator.clipboard`'a düşer. Dosyalar: `electron-github.cjs`, `electron-preload.cjs`, `src/types.ts`, `GithubAccount.tsx`.

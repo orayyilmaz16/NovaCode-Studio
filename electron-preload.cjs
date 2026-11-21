@@ -222,6 +222,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   github: {
     status: () => ipcRenderer.invoke('github:status'),
     login: () => ipcRenderer.invoke('github:login'),
+    copyCode: () => ipcRenderer.invoke('github:copyCode'),
     cancel: () => ipcRenderer.invoke('github:cancel'),
     logout: () => ipcRenderer.invoke('github:logout'),
     repoInfo: (repoPath) => ipcRenderer.invoke('github:repoInfo', repoPath),

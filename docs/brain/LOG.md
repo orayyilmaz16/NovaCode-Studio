@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 21.11.2026 20:10 · auto/20261118-083349
+<!-- sig:ZWxlY3Ryb24tZ2l0aHViLmNqcyxlbGVjdHJvbi1w -->
+- Alan: [[git-github]], [[security-kvkk]], [[ui-design]]
+- Kod (4): `electron-github.cjs`, `electron-preload.cjs`, `src/components/GithubAccount.tsx`, `src/types.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/git-github.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 21.11.2026 20:03 · auto/20261118-083349
 <!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
 - Alan: [[ui-design]]
