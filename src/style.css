@@ -227,13 +227,12 @@
 .ab-item::before {
   content: "";
   position: absolute;
-  inset-inline-start: 1px;
-  top: 10px;
-  bottom: 10px;
+  inset-inline-start: 3px;
+  top: 12px;
+  bottom: 12px;
   width: 2px;
   background: var(--color-zinc-50);
-  border-start-end-radius: 2px;
-  border-end-end-radius: 2px;
+  border-radius: 2px;
   transform: scaleY(0);
   transform-origin: center;
   transition: transform var(--dur-slow) var(--ease-out-soft);
