@@ -86,7 +86,7 @@ export const TestPanel: React.FC<Props> = ({ root, sessionId, readOutput, pipeTi
 
   return (
     <div className="absolute inset-0 flex flex-col font-sans" dir="ltr">
-      <div className="flex items-center gap-1.5 px-3 h-10 border-b border-nv-border shrink-0 overflow-x-auto [scrollbar-width:none]">
+      <div className="flex items-center gap-1.5 px-3 h-11 shrink-0 overflow-x-auto [scrollbar-width:none]">
         <FlaskConical size={14} className="text-zinc-500 shrink-0" />
         <span className="text-[11.5px] text-zinc-500 shrink-0 me-1">{t('pnlTestScripts')}</span>
         {tasks === null ? null : tasks.length === 0 ? (
@@ -100,7 +100,7 @@ export const TestPanel: React.FC<Props> = ({ root, sessionId, readOutput, pipeTi
                 onClick={() => void run(task)}
                 disabled={running}
                 title={task.command}
-                className={`group shrink-0 inline-flex items-center gap-1.5 h-6 ps-2 pe-2.5 rounded-md border text-[12px] transition-colors duration-(--dur-fast) disabled:opacity-60 ${on ? 'border-indigo-500/60 bg-indigo-500/10 text-zinc-100' : 'border-nv-border text-zinc-300 hover:border-indigo-500/50 hover:bg-nv-hover'}`}
+                className={`group shrink-0 inline-flex items-center gap-1.5 h-7 ps-2.5 pe-3 rounded-full text-[12px] transition-[background-color,color,transform] duration-(--dur-fast) active:scale-[0.97] disabled:opacity-60 ${on ? 'bg-indigo-500/20 text-indigo-100' : 'bg-white/[0.06] text-zinc-200 hover:bg-white/[0.1]'}`}
               >
                 {on && running ? <LoaderCircle size={12} className="animate-spin text-indigo-300" /> : <Play size={11} className="fill-current text-emerald-400 transition-transform duration-(--dur-base) group-hover:scale-110" />}
                 <span className="font-mono">{task.label.replace(/^npm run /, '')}</span>
@@ -114,7 +114,7 @@ export const TestPanel: React.FC<Props> = ({ root, sessionId, readOutput, pipeTi
         )}
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
         {!started ? (
           <div className="h-full flex flex-col items-center justify-center gap-2 text-center text-zinc-500 text-[12.5px] px-6">
             <FlaskConical size={22} className="opacity-60" />
@@ -125,7 +125,7 @@ export const TestPanel: React.FC<Props> = ({ root, sessionId, readOutput, pipeTi
             <LoaderCircle size={16} className="animate-spin text-indigo-300" />{t('pnlTestRunning')}
           </div>
         ) : result ? (
-          <div className="animate-fade-in max-w-[640px]">
+          <div className="animate-fade-in max-w-[680px] rounded-xl bg-white/[0.04] border border-white/[0.06] p-4">
             <div className="flex items-center gap-2.5">
               {ok ? <CheckCircle2 size={22} className="text-emerald-400" /> : <CircleX size={22} className="text-rose-400" />}
               <div className="leading-tight">
@@ -138,7 +138,7 @@ export const TestPanel: React.FC<Props> = ({ root, sessionId, readOutput, pipeTi
               </div>
             </div>
 
-            <div className="mt-3 h-1.5 rounded-full overflow-hidden bg-zinc-700/50 flex" aria-hidden>
+            <div className="mt-4 h-2 rounded-full overflow-hidden bg-white/[0.08] flex" aria-hidden>
               <div className="h-full bg-emerald-500 transition-[width] duration-(--dur-slow)" style={{ width: pct(result.passed) }} />
               <div className="h-full bg-rose-500 transition-[width] duration-(--dur-slow)" style={{ width: pct(result.failed) }} />
               <div className="h-full bg-zinc-500 transition-[width] duration-(--dur-slow)" style={{ width: pct(result.skipped) }} />
@@ -151,7 +151,7 @@ export const TestPanel: React.FC<Props> = ({ root, sessionId, readOutput, pipeTi
                 ['skipped', result.skipped, 'text-zinc-300', t('pnlTestSkipped')],
                 ['total', result.total, 'text-zinc-100', t('pnlTestTotal')],
               ] as const).map(([k, n, tone, label]) => (
-                <div key={k} className="rounded-md border border-nv-border bg-nv-editor/40 py-2">
+                <div key={k} className="rounded-lg bg-white/[0.05] py-2.5">
                   <div className={`text-[18px] font-semibold tabular-nums ${tone}`}>{n}</div>
                   <div className="text-[10.5px] uppercase tracking-wide text-zinc-500">{label}</div>
                 </div>
@@ -161,7 +161,7 @@ export const TestPanel: React.FC<Props> = ({ root, sessionId, readOutput, pipeTi
             {result.failures.length > 0 && (
               <div className="mt-4">
                 <div className="text-[11px] uppercase tracking-wide text-zinc-500 mb-1">{t('pnlTestFailures')}</div>
-                <ul className="rounded-md border border-rose-500/20 bg-rose-500/5 divide-y divide-rose-500/10">
+                <ul className="rounded-lg bg-rose-500/[0.07] divide-y divide-rose-500/10 overflow-hidden">
                   {result.failures.map((f) => (
                     <li key={f} className="flex items-start gap-2 px-2.5 py-1.5 text-[12px] text-rose-200">
                       <X size={12} className="shrink-0 mt-[3px] text-rose-400" /><span className="break-words min-w-0">{f}</span>

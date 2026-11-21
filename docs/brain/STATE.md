@@ -70,7 +70,7 @@
 | `src/components/CommitHistoryMenu.tsx` | 259 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
-| `src/components/DebugConsolePanel.tsx` | 87 |
+| `src/components/DebugConsolePanel.tsx` | 89 |
 | `src/components/DebugPanel.tsx` | 198 |
 | `src/components/EditorArea.tsx` | 774 |
 | `src/components/ErrorBoundary.tsx` | 70 |
@@ -98,7 +98,7 @@
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 80 |
-| `src/components/Terminal.tsx` | 641 |
+| `src/components/Terminal.tsx` | 642 |
 | `src/components/TestPanel.tsx` | 178 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |

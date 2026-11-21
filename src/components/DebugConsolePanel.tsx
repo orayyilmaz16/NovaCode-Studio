@@ -33,13 +33,15 @@ export const DebugConsolePanel: React.FC<{ lineHeight: number }> = ({ lineHeight
 
   return (
     <div className="absolute inset-0 flex flex-col font-sans" dir="ltr">
-      <div className="flex items-center gap-2 px-3 h-9 border-b border-nv-border shrink-0 text-[11.5px] text-zinc-400">
-        <span className={`size-1.5 rounded-full ${STATUS_TONE[s.status]}`} />
-        <span className="text-zinc-300">{statusText}</span>
+      <div className="flex items-center gap-2 px-3 h-10 shrink-0 text-[11.5px] text-zinc-400">
+        <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-white/[0.06]">
+          <span className={`size-1.5 rounded-full ${STATUS_TONE[s.status]}`} />
+          <span className="text-zinc-200">{statusText}</span>
+        </span>
         {s.file && <span className="truncate text-zinc-500 min-w-0">· {s.file.split(/[\\/]/).pop()}</span>}
       </div>
 
-      <div ref={scroller} className="flex-1 min-h-0 overflow-y-auto px-3 py-1.5 font-mono select-text" style={{ lineHeight }}>
+      <div ref={scroller} className="flex-1 min-h-0 overflow-y-auto mx-2 px-2 py-1.5 font-mono select-text rounded-lg bg-black/[0.12]" style={{ lineHeight }}>
         {s.lines.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center gap-2 text-center text-zinc-500 font-sans text-[12.5px] px-6">
             <Bug size={20} className="opacity-60" />
@@ -58,7 +60,7 @@ export const DebugConsolePanel: React.FC<{ lineHeight: number }> = ({ lineHeight
         )}
       </div>
 
-      <div className="flex items-center gap-1.5 px-3 h-9 border-t border-nv-border shrink-0">
+      <div className="mx-2 my-2 flex items-center gap-1.5 px-2.5 h-8 shrink-0 rounded-md bg-white/[0.05] focus-within:bg-white/[0.08] focus-within:shadow-[inset_0_-2px_0_var(--color-indigo-400)] transition-[background-color,box-shadow] duration-(--dur-base)">
         <ChevronRight size={14} className={live ? 'text-indigo-400' : 'text-zinc-600'} />
         <input
           value={expr}

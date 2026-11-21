@@ -48,7 +48,7 @@ export const OutputPanel: React.FC<{ logs: ConsoleLog[]; lineHeight: number }> =
       key={id}
       onClick={() => setLevel(id)}
       aria-pressed={level === id}
-      className={`inline-flex items-center gap-1.5 h-6 px-2 rounded-md text-[11.5px] transition-colors duration-(--dur-fast) ${level === id ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'}`}
+      className={`inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-[11.5px] transition-colors duration-(--dur-fast) ${level === id ? 'bg-indigo-500/20 text-indigo-100' : 'text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-200'}`}
     >
       {label}
       {n > 0 && <span className={`px-1.5 rounded-full text-[10px] bg-white/10 ${id === 'all' ? 'text-zinc-300' : tone}`}>{n}</span>}
@@ -57,21 +57,21 @@ export const OutputPanel: React.FC<{ logs: ConsoleLog[]; lineHeight: number }> =
 
   return (
     <div className="absolute inset-0 flex flex-col font-sans" dir="ltr">
-      <div className="flex items-center gap-1 px-2 h-9 border-b border-nv-border shrink-0">
+      <div className="flex items-center gap-1 px-2.5 h-10 shrink-0">
         {chip('all', t('pnlFilterAll'), counts.all, '')}
         {chip('error', t('pnlFilterErrors'), counts.error, 'text-rose-300')}
         {chip('warn', t('pnlFilterWarn'), counts.warn, 'text-amber-200')}
         {chip('info', t('pnlFilterInfo'), counts.info, 'text-sky-300')}
         <div className="flex-1" />
         <label className="relative flex items-center">
-          <Search size={12} className="absolute start-2 text-zinc-500 pointer-events-none" />
+          <Search size={12} className="absolute start-2.5 text-zinc-500 pointer-events-none" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('pnlSearch')}
             aria-label={t('pnlSearch')}
             spellCheck={false}
-            className="h-6 w-40 focus:w-56 transition-[width] duration-(--dur-base) ps-6 pe-6 rounded-md bg-nv-input border border-transparent focus:border-indigo-500 text-[11.5px] text-zinc-200 placeholder:text-zinc-500 outline-none"
+            className="h-7 w-40 focus:w-56 transition-[width,background-color,box-shadow] duration-(--dur-base) ps-7 pe-6 rounded-md bg-white/[0.05] hover:bg-white/[0.08] focus:bg-white/[0.08] focus:shadow-[inset_0_-2px_0_var(--color-indigo-400)] text-[11.5px] text-zinc-200 placeholder:text-zinc-500 outline-none"
           />
           {query && (
             <button onClick={() => setQuery('')} aria-label="×" className="absolute end-1.5 text-zinc-500 hover:text-zinc-200"><X size={12} /></button>
@@ -92,7 +92,7 @@ export const OutputPanel: React.FC<{ logs: ConsoleLog[]; lineHeight: number }> =
           const atEnd = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
           if (!atEnd && auto) setAuto(false);
         }}
-        className="flex-1 min-h-0 overflow-y-auto py-1 font-mono select-text"
+        className="flex-1 min-h-0 overflow-y-auto px-1.5 pb-1.5 font-mono select-text"
         style={{ lineHeight }}
       >
         {logs.length === 0 ? (
@@ -106,8 +106,8 @@ export const OutputPanel: React.FC<{ logs: ConsoleLog[]; lineHeight: number }> =
           shown.map((log) => {
             const lv = LEVEL_ICON[log.type] ?? LEVEL_ICON.log;
             return (
-              <div key={log.id} className="group relative flex items-start gap-2 ps-3 pe-3 hover:bg-nv-hover/60 transition-colors">
-                <span className={`absolute start-0 top-0 bottom-0 w-0.5 ${lv.bar}`} />
+              <div key={log.id} className="group relative flex items-start gap-2 ps-3 pe-3 py-px rounded-md hover:bg-white/[0.05] transition-colors duration-(--dur-fast)">
+                <span className={`absolute start-0.5 top-1 bottom-1 w-[3px] rounded-full ${lv.bar}`} />
                 <span className="text-zinc-500 text-[10.5px] shrink-0 tabular-nums pt-px">{log.time}</span>
                 <lv.Icon size={12} className={`shrink-0 mt-[0.28em] ${lv.tone}`} />
                 <span className={`break-all whitespace-pre-wrap min-w-0 ${log.type === 'error' ? 'text-rose-300' : log.type === 'warn' ? 'text-amber-200' : log.type === 'info' ? 'text-sky-200' : 'text-zinc-300'}`}>{log.text}</span>

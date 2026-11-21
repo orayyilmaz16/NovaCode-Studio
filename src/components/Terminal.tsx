@@ -406,6 +406,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     { id: 'terminal', label: t('termTab'), icon: <SquareTerminal size={13} />, extra: sessions.length > 1 ? badge(sessions.length, 'bg-white/10 text-zinc-300') : null },
     { id: 'tests', label: t('pnlTests'), icon: <FlaskConical size={13} /> },
   ];
+  // Fluent tarzı sekme: yumuşak dolgulu hap, hover'da hafif katman, etkin sekmede altta kısa vurgu çubuğu
   const tabBtn = (it: (typeof tabs)[number]) => (
     <button
       key={it.id}
@@ -413,12 +414,12 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       aria-selected={tab === it.id}
       onClick={() => setTab(it.id)}
       title={it.label}
-      className={`relative inline-flex items-center gap-1.5 h-full px-3 text-[12px] font-medium whitespace-nowrap transition-colors duration-(--dur-fast) hover:bg-white/[0.04] ${tab === it.id ? 'text-zinc-50' : 'text-zinc-500 hover:text-zinc-200'}`}
+      className={`relative inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium whitespace-nowrap transition-[background-color,color] duration-(--dur-fast) focus-visible:outline-2 focus-visible:outline-indigo-400 ${tab === it.id ? 'bg-white/[0.07] text-zinc-50' : 'text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100'}`}
     >
       <span className={`transition-colors duration-(--dur-fast) ${tab === it.id ? 'text-indigo-300' : ''}`}>{it.icon}</span>
       <span className="hidden @md:inline">{it.label}</span>
       {it.extra}
-      <span className={`absolute start-2 end-2 bottom-0 h-0.5 rounded-t bg-indigo-500 origin-center transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${tab === it.id ? 'scale-x-100' : 'scale-x-0'}`} />
+      <span className={`absolute start-1/2 -translate-x-1/2 bottom-px w-3.5 h-[2px] rounded-full bg-indigo-400 origin-center transition-[transform,opacity] duration-(--dur-base) ease-(--ease-out-soft) ${tab === it.id ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`} />
     </button>
   );
 
@@ -429,8 +430,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
 
   return (
     <div className="@container flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
-      <div className="flex items-stretch justify-between h-9 ps-1 pe-2 border-b border-nv-border shrink-0 font-sans">
-        <div className="flex items-stretch min-w-0 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t('termTab')}>
+      <div className="flex items-center justify-between h-10 px-2 gap-2 border-b border-nv-border shrink-0 font-sans">
+        <div className="flex items-center gap-0.5 min-w-0 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t('termTab')}>
           {tabs.map(tabBtn)}
         </div>
         <div className="flex items-center gap-0.5">
@@ -476,17 +477,17 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
         {/* Ana alan */}
         <div className="flex-1 min-w-0 flex flex-col">
         {tab === 'terminal' && active && (
-          <div className="flex items-center gap-2 h-7 px-3 shrink-0 border-b border-nv-border/60 font-sans text-[11.5px] text-zinc-400 min-w-0 animate-fade-in" dir="ltr">
+          <div className="flex items-center gap-2 h-8 px-3 shrink-0 font-sans text-[11.5px] text-zinc-400 min-w-0 animate-fade-in" dir="ltr">
             <span className={`size-1.5 rounded-full shrink-0 ${active.running ? 'bg-emerald-400' : 'bg-zinc-500'}`} />
             <span className="text-zinc-200 font-medium shrink-0">{SHELL_LABEL[active.shell]}</span>
             {ptyOk && (
-              <span className="shrink-0 px-1.5 h-4 inline-flex items-center rounded bg-white/[0.06] text-[10px] text-zinc-400">
+              <span className="shrink-0 px-2 h-[18px] inline-flex items-center rounded-full bg-white/[0.07] text-[10px] text-zinc-300">
                 {active.kind === 'pty' ? t('termFull') : t('termClassic')}
               </span>
             )}
             <span className="truncate min-w-0 text-zinc-500" title={active.cwd}>{shortenPath(active.cwd, 64)}</span>
             {branch && (
-              <span className="shrink-0 inline-flex items-center gap-1 text-violet-300/90">
+              <span className="shrink-0 inline-flex items-center gap-1 px-2 h-[18px] rounded-full bg-violet-400/10 text-violet-300">
                 <GitBranch size={11} />{branch}
               </span>
             )}
