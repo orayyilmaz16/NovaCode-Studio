@@ -505,7 +505,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       )}
       {/* Sekme çubuğu: açık sekme yokken hiç görünmez */}
       {openFiles.length > 0 && (
-      <div className="animate-tabbar-in relative flex items-stretch justify-between bg-nv-side h-[38px] select-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-nv-border">
+      <div className="animate-tabbar-in relative shrink-0 flex items-stretch justify-between bg-nv-side h-[38px] select-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-nv-border">
         <div ref={tabListRef} role="tablist" className="relative z-10 flex items-end gap-0.5 flex-1 min-w-[96px] overflow-x-auto pt-1.5 pe-1.5 scroll-px-2 [scrollbar-width:none] scroll-smooth">
           {openFiles.map((file) => (
             <EditorTab key={file.id} file={file} isActive={file.id === activeFileId} onSelect={onSelectTab} onClose={onCloseTab} group={groupId} />
@@ -616,7 +616,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
 
       {/* Yol göstergesi */}
       {activeFile && !activeFile.diff && values.showBreadcrumbs !== false && (
-        <div className="flex items-center gap-1 h-[22px] px-3 text-[12px] text-zinc-500 bg-nv-editor select-none overflow-hidden whitespace-nowrap" aria-label={t('appBreadcrumbs')}>
+        <div className="flex items-center gap-1 h-[22px] shrink-0 px-3 text-[12px] text-zinc-500 bg-nv-editor select-none overflow-hidden whitespace-nowrap" aria-label={t('appBreadcrumbs')}>
           {crumbs.map((c, i) => (
             <React.Fragment key={crumbs.slice(0, i + 1).join('/')}>
               {i > 0 && <ChevronRight size={12} className="shrink-0 text-zinc-600" />}
@@ -638,7 +638,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       )}
 
       {/* Editör (kod her zaman soldan sağa: RTL arayüzde de dir=ltr, I-01) */}
-      <div className="flex-1 w-full h-full relative" dir="ltr">
+      <div className="flex-1 min-h-0 w-full h-full relative" dir="ltr">
         {activeFile?.diff ? (
           <div className="flex flex-col h-full">
             <div className="flex items-center gap-2 h-8 px-3 border-b border-nv-border text-[12px] text-zinc-400 bg-nv-editor shrink-0 select-none">

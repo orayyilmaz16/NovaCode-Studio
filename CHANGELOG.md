@@ -4,6 +4,7 @@
 
 ### tr
 
+- [fix] **Dar pencerede sekme çubuğu kırpılması:** Editör sütununda sekme çubuğu ve yol çubuğu yükseklik baskısıyla ezilip kırpılıyordu; artık sabit yükseklikte kalıyor (telefon/tablet genişliklerinde doğrulandı).
 - [fix] **Etkinlik çubuğu taşması:** Seçili etkinlik düğmesi ve sol göstergesi çubuk kartının kenarına taşıyordu; düğme 40 px'e indi ve sol gösterge çizgisi tamamen düğmenin içine, yuvarlak köşeli olarak alındı. Asıl neden: çubuk kartı 39 px'e daralıyordu, artık sabit 48 px.
 - [improve] **Kenar çubuğu boşlukları dengelendi:** Kenar çubuğu kapalıyken etkinlik çubuğu ile editör arasındaki boşluk artırıldı (2 → 10 px); açıkken kenar çubuğu ile editör arası 12 px'ten 8 px'e düşürüldü.
 - [improve] **Kenar çubuğu ile editör arası boşluk biraz daha açıldı** (8 → 12 px); sürükleme çizgisi boşluğun ortasında.
@@ -27,6 +28,7 @@
 
 ### en
 
+- [fix] **Tab bar clipping in narrow windows:** The tab bar and breadcrumb row in the editor column were squashed and clipped under height pressure; they now keep their fixed height (verified at phone and tablet widths).
 - [fix] **Activity bar overflow:** The selected activity button and its left indicator spilled to the bar card's edge; the button is now 40 px and the left indicator line now sits fully inside the button with rounded ends. Root cause: the bar card shrank to 39 px; it is now a fixed 48 px.
 - [improve] **Sidebar spacing balanced:** With the sidebar closed, the gap between the activity bar and the editor increased (2 → 10 px); with it open, the gap between the sidebar and the editor was reduced from 12 px to 8 px.
 - [improve] **Slightly wider gap between the sidebar and the editor** (8 → 12 px); the resize line sits in the middle of the gap.

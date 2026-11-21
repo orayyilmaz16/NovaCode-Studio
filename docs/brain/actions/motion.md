@@ -75,3 +75,6 @@ Etkin sekmenin üst vurgu çizgisi (`::before` + `scaleX`) kaldırıldı; etkin 
 `.ab-item` 40 px (kartın 46 px iç genişliğinde her yanda 3 px pay). Sol gösterge çizgisi (`::before`) düğmenin içinde: `inset-inline-start: 3px`, `top/bottom: 12px`, 2 px, dört köşe yuvarlak; böylece seçiliyken düğme zemininin dışına taşmaz.
 
 **Kök neden:** kök yazı boyutu 13 px olduğundan `w-12` etkinlik çubuğu kartını 39 px yapıyordu; 40 px düğme kartın dışına taşıyordu. Kart artık sabit `w-[48px]` (rem'e bağlı değil).
+
+## Duyarlı düzen: sekme çubuğu (21.11.2026)
+Editör sütunu `flex-col`; sekme çubuğu (`h-[38px]`) ve yol çubuğu (`h-[22px]`) `shrink-0`, Monaco kabı `min-h-0`. Aksi halde yükseklik azalınca (dar/kısa pencere, Monaco'nun dev iç yüksekliği) başlık satırları 14/8 px'e ezilip kırpılıyordu. 420, 768 ve 360 px genişlikte web önizlemede ölçüldü.
