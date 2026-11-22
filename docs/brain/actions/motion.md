@@ -78,3 +78,6 @@ Etkin sekmenin üst vurgu çizgisi (`::before` + `scaleX`) kaldırıldı; etkin 
 
 ## Duyarlı düzen: sekme çubuğu (21.11.2026)
 Editör sütunu `flex-col`; sekme çubuğu (`h-[38px]`) ve yol çubuğu (`h-[22px]`) `shrink-0`, Monaco kabı `min-h-0`. Aksi halde yükseklik azalınca (dar/kısa pencere, Monaco'nun dev iç yüksekliği) başlık satırları 14/8 px'e ezilip kırpılıyordu. 420, 768 ve 360 px genişlikte web önizlemede ölçüldü.
+
+## Alt panel sekme geçişi (22.11.2026)
+`animate-pane-in` (`paneIn`): içerik `--pane-dir` (±1) yönünde 12 px kayarak ve solarak girer, `--dur-base`; RTL'de `--pane-flip: -1` ile aynalanır. Kayan sekme hapı (`Terminal.tsx`) `transform` + `width` geçirir: kural 2'nin bilinçli istisnası (tek küçük öğe, içerik düzenini etkilemez; hap ölçüsü sekme genişliğine uymalı, `scaleX` köşeyi bozardı). Süreler jeton; `data-motion="off"` ve reduced-motion sıfırlar.

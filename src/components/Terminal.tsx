@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Plus, ChevronDown, Trash2, Maximize2, Minimize2, X, SquareTerminal, FolderOpen, CircleX, ScrollText, Bug, FlaskConical, GitBranch } from 'lucide-react';
 import type { ConsoleLog } from '../types';
 import { t } from '../i18n/uiText';
@@ -55,6 +55,8 @@ export function cdCommand(shell: ShellId, dir: string): string | null {
 }
 
 const SHELL_LABEL: Record<ShellId, string> = { powershell: 'PowerShell', cmd: 'CMD' };
+/** Sekme sırası: geçiş yönü (yeni içerik hangi yönden girer) buradan hesaplanır. */
+const TAB_ORDER: PanelTab[] = ['problems', 'log', 'debug', 'terminal', 'tests'];
 const ESC = '\u001b';
 const MAX_HISTORY = 100;
 
@@ -98,6 +100,36 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const cursor = String(values.terminalCursor);
 
   const [tab, setTab] = useState<PanelTab>('terminal');
+  // Fluent geçişi: etkin sekmeyi gösteren tek "hap" sekmeler arasında kayar; içerik yön bilgisiyle belirir
+  const listRef = useRef<HTMLDivElement>(null);
+  const [pill, setPill] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  const [pillReady, setPillReady] = useState(false);
+  const prevTab = useRef<PanelTab>(tab);
+  const paneDir = useRef(1);
+  if (prevTab.current !== tab) {
+    paneDir.current = TAB_ORDER.indexOf(tab) >= TAB_ORDER.indexOf(prevTab.current) ? 1 : -1;
+    prevTab.current = tab;
+  }
+  const measurePill = useCallback(() => {
+    const el = listRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+    if (!el) return;
+    const next = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight };
+    setPill((p) => (p && p.x === next.x && p.y === next.y && p.w === next.w && p.h === next.h ? p : next));
+  }, []);
+  useLayoutEffect(() => { measurePill(); }, [tab, measurePill]);
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measurePill); // dar panelde etiket gizlenince ya da rozet gelince hap ölçüsü güncellenir
+    ro.observe(list);
+    list.querySelectorAll('[role="tab"]').forEach((b) => ro.observe(b));
+    return () => ro.disconnect();
+  }, [measurePill]);
+  useEffect(() => {
+    if (!pill || pillReady) return;
+    const r = requestAnimationFrame(() => setPillReady(true)); // ilk yerleşim kaymasız; sonrakiler animasyonlu
+    return () => cancelAnimationFrame(r);
+  }, [pill, pillReady]);
   const [testClear, setTestClear] = useState(0);
   const debug = useDebug();
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -406,7 +438,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     { id: 'terminal', label: t('termTab'), icon: <SquareTerminal size={13} />, extra: sessions.length > 1 ? badge(sessions.length, 'bg-white/10 text-zinc-300') : null },
     { id: 'tests', label: t('pnlTests'), icon: <FlaskConical size={13} /> },
   ];
-  // Fluent tarzı sekme: yumuşak dolgulu hap, hover'da hafif katman, etkin sekmede altta kısa vurgu çubuğu
+  // Fluent tarzı sekme: etkin zemin ve alt vurgu çubuğu tek "hap"tır (listRef içinde), sekmeler arasında kayar.
+  // Düğmenin kendi zemini yalnız hover'da görünür; kaplama değişkenleri açık/koyu temada uyar.
   const tabBtn = (it: (typeof tabs)[number]) => (
     <button
       key={it.id}
@@ -414,12 +447,11 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       aria-selected={tab === it.id}
       onClick={() => setTab(it.id)}
       title={it.label}
-      className={`relative inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium whitespace-nowrap transition-[background-color,color] duration-(--dur-fast) focus-visible:outline-2 focus-visible:outline-indigo-400 ${tab === it.id ? 'bg-white/[0.07] text-zinc-50' : 'text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100'}`}
+      className={`relative z-10 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium whitespace-nowrap transition-[background-color,color,transform] duration-(--dur-fast) ease-(--ease-out-soft) active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-indigo-400 ${tab === it.id ? 'text-zinc-50' : 'text-zinc-400 hover:bg-[color-mix(in_srgb,var(--hover-overlay)_60%,transparent)] hover:text-zinc-100'}`}
     >
       <span className={`transition-colors duration-(--dur-fast) ${tab === it.id ? 'text-indigo-300' : ''}`}>{it.icon}</span>
       <span className="hidden @md:inline">{it.label}</span>
       {it.extra}
-      <span className={`absolute start-1/2 -translate-x-1/2 bottom-px w-3.5 h-[2px] rounded-full bg-indigo-400 origin-center transition-[transform,opacity] duration-(--dur-base) ease-(--ease-out-soft) ${tab === it.id ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`} />
     </button>
   );
 
@@ -431,15 +463,25 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   return (
     <div className="@container flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
       <div className="flex items-center justify-between h-10 px-2 gap-2 border-b border-nv-border shrink-0 font-sans">
-        <div className="flex items-center gap-0.5 min-w-0 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t('termTab')}>
+        <div ref={listRef} className="relative flex items-center gap-0.5 h-full min-w-0 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t('termTab')}>
+          {pill && (
+            <span
+              aria-hidden
+              className={`absolute rounded-md pointer-events-none bg-(--active-overlay) ${pillReady ? 'transition-[transform,width] duration-(--dur-slow) ease-(--ease-out-soft)' : ''}`}
+              style={{ left: 0, top: pill.y, height: pill.h, width: pill.w, transform: `translateX(${pill.x}px)` }}
+            >
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-px w-3.5 h-[2px] rounded-full bg-indigo-400" />
+            </span>
+          )}
           {tabs.map(tabBtn)}
         </div>
         <div className="flex items-center gap-0.5">
           {tab === 'terminal' && hasShell && (
-            <div className="flex items-center">
+            <div className="flex items-center rounded-md bg-(--hover-overlay) me-1 animate-fade-in">
               <button onClick={() => void createSession(defaultShell)} disabled={!cwd} title={t('termNew')} aria-label={t('termNew')} className="icon-btn w-6! disabled:opacity-40">
                 <Plus size={15} />
               </button>
+              <span aria-hidden className="w-px h-3.5 bg-zinc-500/30" />
               <button
                 onClick={(e) => {
                   const r = e.currentTarget.getBoundingClientRect();
@@ -477,7 +519,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
         {/* Ana alan */}
         <div className="flex-1 min-w-0 flex flex-col">
         {tab === 'terminal' && active && (
-          <div className="flex items-center gap-2 h-8 px-3 shrink-0 font-sans text-[11.5px] text-zinc-400 min-w-0 animate-fade-in" dir="ltr">
+          <div key={active.id} className="flex items-center gap-2 h-8 px-3 shrink-0 font-sans text-[11.5px] text-zinc-400 min-w-0 animate-fade-in" dir="ltr">
             <span className={`size-1.5 rounded-full shrink-0 ${active.running ? 'bg-emerald-400' : 'bg-zinc-500'}`} />
             <span className="text-zinc-200 font-medium shrink-0">{SHELL_LABEL[active.shell]}</span>
             {ptyOk && (
@@ -508,6 +550,13 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               />
             </Suspense>
           ))}
+          {/* Sekme/oturum değişince içerik yön bilgisiyle yumuşakça belirir (gerçek terminal PtyView içinde kendi belirmesini yapar) */}
+          {!(tab === 'terminal' && active?.kind === 'pty') && (
+          <div
+            key={tab === 'terminal' ? `terminal-${activeId}` : tab}
+            className="absolute inset-0 animate-pane-in"
+            style={{ '--pane-dir': paneDir.current } as React.CSSProperties}
+          >
           {tab === 'problems' ? (
             <ProblemsPanel rootPath={cwd ?? undefined} />
           ) : tab === 'log' ? (
@@ -535,7 +584,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                 </button>
               )}
             </div>
-          ) : active?.kind === 'pty' ? null : (
+          ) : (
             <div ref={scrollRef} dir="ltr" onScroll={onScroll} onClick={focusInput} className="absolute inset-0 overflow-y-auto px-3 py-1.5" style={{ lineHeight }} data-terminal-scroll="">
               {active && (
                 <>
@@ -578,12 +627,14 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               {!active && cwd && <div className="text-zinc-500 font-sans">{t('termStarting')}</div>}
             </div>
           )}
+          </div>
+          )}
         </div>
         </div>
 
-        {/* Oturum listesi: birden fazla terminal varken (VS Code gibi) sağda */}
+        {/* Oturum listesi: birden fazla terminal varken (VS Code gibi) sağda; Fluent kart satırları */}
         {tab === 'terminal' && sessions.length > 1 && (
-          <div className="w-44 shrink-0 border-s border-nv-border overflow-y-auto font-sans animate-fade-in" role="tablist" aria-label={t('termTab')}>
+          <div className="w-44 shrink-0 border-s border-nv-border overflow-y-auto font-sans p-1.5 flex flex-col gap-0.5 animate-fade-in" role="tablist" aria-label={t('termTab')}>
             {sessions.map((s) => {
               const on = s.id === activeId;
               return (
@@ -594,9 +645,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                   tabIndex={0}
                   onClick={() => setActiveId(s.id)}
                   onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setActiveId(s.id)}
-                  className={`group relative flex items-center gap-2 h-7 ps-3 pe-1 cursor-pointer text-[12px] transition-colors ${on ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'}`}
+                  className={`group relative flex items-center gap-2 h-8 ps-3 pe-1 rounded-md cursor-pointer text-[12px] animate-tab-in transition-[background-color,color,transform] duration-(--dur-fast) ease-(--ease-out-soft) active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-indigo-400 ${on ? 'bg-(--active-overlay) text-zinc-50' : 'text-zinc-400 hover:bg-(--hover-overlay) hover:text-zinc-100'}`}
                 >
-                  <span className={`absolute start-0 top-1 bottom-1 w-0.5 rounded-e bg-indigo-400 transition-transform ${on ? 'scale-y-100' : 'scale-y-0'}`} />
+                  <span className={`absolute start-[3px] top-2 bottom-2 w-[3px] rounded-full bg-indigo-400 origin-center transition-[transform,opacity] duration-(--dur-base) ease-(--ease-out-soft) ${on ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`} />
                   <SquareTerminal size={13} className={s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0'} />
                   <span className="truncate flex-1">
                     {SHELL_LABEL[s.shell]}{ptyOk && s.kind === 'pipe' ? <span className="text-zinc-500"> · {t('termClassic')}</span> : null} <span className="text-zinc-500">{baseName(s.cwd)}</span>
@@ -608,7 +659,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                     }}
                     aria-label={t('termKill')}
                     title={t('termKill')}
-                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-0.5 rounded hover:bg-white/10 transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 p-1 rounded-sm hover:bg-(--active-overlay) transition-[opacity,background-color] duration-(--dur-fast)"
                   >
                     <X size={12} />
                   </button>

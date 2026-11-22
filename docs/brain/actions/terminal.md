@@ -56,3 +56,9 @@ Klasik terminal `cwd` çalışma klasörüyle sınırlı; PowerShell `RemoteSign
 
 ### Fluent görünümü (21.11.2026)
 Alt panelde yumuşak, katmanlı yüzeyler: sekmeler `h-7` dolgulu hap (`bg-white/[0.07]` etkin, hover `/[0.05]`) ve altta 14 px vurgu çubuğu; süzgeç rozetleri `rounded-full` (etkin `indigo-500/20`); arama ve ifade alanları `bg-white/[0.05]` + odakta alt çizgi (`inset 0 -2px`, indigo); satırlar/kartlar `rounded-md/lg/xl` ve `white/[0.04–0.06]` katmanları. Sert kenarlık çizgileri yerine katman farkı kullanılır; gölge eklenmedi ([[ui-design]] kural 9).
+
+### Fluent geçişleri (22.11.2026)
+- **Kayan hap:** Etkin sekmenin zemini ve alttaki 14 px vurgu çubuğu tek `<span>`'dır (`listRef` içinde, `absolute`); `offsetLeft/Top/Width/Height` ölçülür, `ResizeObserver` etiket gizlenmesi/rozet değişimini izler. Geçiş `transform + width`, `--dur-slow` + `--ease-out-soft`; ilk yerleşim kaymasızdır (`pillReady`). Düğmelerin kendi zemini yalnız hover'dadır. Renkler `--hover-overlay` / `--active-overlay` (açık temada da görünür; eski `white/[…]` açıkta görünmüyordu).
+- **İçerik geçişi:** Terminal dışı paneller ve klasik terminal `animate-pane-in` sarmalayıcısındadır; anahtar sekme (terminalde oturum kimliği de) olduğundan değişimde yeniden belirir. Yön `TAB_ORDER` ile hesaplanır (`--pane-dir` ±1, RTL'de `--pane-flip`). Gerçek terminal (`PtyView`) kendi `animate-editor-in` solmasını yapar (yalnız opaklık; xterm yeniden boyutu etkilenmesin).
+- **Araç çubuğu:** + ve ▾ tek bölünmüş düğme (yuvarlak, `--hover-overlay` zemin, ince ayraç). Kabuk şeridi oturum değişince yeniden belirir.
+- **Oturum listesi:** `p-1.5` kenar boşluğu, `h-8` yuvarlak kart satırları, etkinde `--active-overlay` + yumuşak açılan sol çizgi; kapat düğmesi `focus-visible`'da da görünür.

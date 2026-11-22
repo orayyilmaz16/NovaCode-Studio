@@ -419,6 +419,13 @@ button.status-item:hover {
   to { opacity: 1; }
 }
 .animate-editor-in { animation: editorIn var(--dur-base) var(--ease-out-soft) both; }
+/* Alt panel sekme geçişi: içerik, sekme sırasına göre (--pane-dir ±1) yandan hafifçe kayarak belirir; RTL'de aynalanır */
+@keyframes paneIn {
+  from { opacity: 0; transform: translateX(calc(var(--pane-dir, 1) * var(--pane-flip, 1) * 12px)); }
+  to { opacity: 1; transform: none; }
+}
+.animate-pane-in { animation: paneIn var(--dur-base) var(--ease-out-soft) both; }
+:dir(rtl) .animate-pane-in { --pane-flip: -1; }
 /* Pencere/palet girişi: hafif büyüme + belirme */
 @keyframes dialogIn {
   from { opacity: 0; transform: translateY(-6px) scale(0.985); }

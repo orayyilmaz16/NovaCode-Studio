@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 22.11.2026 15:16 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvUHR5Vmlldy50c3gsc3Jj -->
+- Alan: [[ui-design]], [[terminal]], [[motion]]
+- Kod (3): `src/components/PtyView.tsx`, `src/components/Terminal.tsx`, `src/style.css`
+- Belge (4): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/terminal.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 21.11.2026 20:45 · auto/20261118-083349
 <!-- sig:c3JjL2NvbXBvbmVudHMvRGVidWdDb25zb2xlUGFu -->
 - Alan: [[debugging]], [[ui-design]], [[terminal]]
