@@ -30,6 +30,7 @@
 - [improve] **Eski AI sağlayıcı kodu temizlendi:** Arayüzden erişilemeyen yerleşik model, Anthropic ve OpenAI desteği ile API anahtarı alanları kaldırıldı (uygulama paketi ~110 MB küçülür). Yapay zekâ yalnız yerel Ollama ile çalışır.
 - [improve] **Terminal paneli Fluent geçişleri:** Alt paneldeki sekmeler artık tek bir yumuşak "hap" ile birbirine kayarak geçiyor (alttaki kısa vurgu çubuğu hapla birlikte hareket eder); sekme içeriği sekme sırasına göre yandan hafifçe kayarak belirir, terminal ve oturum değişiminde yumuşak solma var. Yeni terminal düğmesi bölünmüş düğme oldu, sağdaki oturum listesi yuvarlak kart satırlarına döndü. Koyu/açık temada doğru görünür; "Animasyonlar" kapalıyken ve azaltılmış harekette hareket durur.
 - [feat] **Git Bash terminali:** Terminal çubuğundaki + yanında Git simgeli hızlı düğme ve açılır listede "Git Bash · tam" var (düğme Git for Windows kuruluysa görünür; kurulu değilse listede soluk durur ve nedenini ipucuyla söyler); gerçek terminal olarak çalışma klasöründe açılır. Ayarlar → Terminal → Varsayılan kabuk'ta da seçilebilir; Git Bash yoksa PowerShell kullanılır.
+- [fix] **Gerçek terminal başlatma hatası görünür:** Gerçek terminal (PTY) oturumu başlatılamazsa (ör. Git Bash bulunamadı) panel boş kalıyordu; artık nedeni panelin üstünde kırmızı bir uyarıyla gösteriliyor.
 
 ### en
 
@@ -59,6 +60,7 @@
 - [improve] **Legacy AI provider code removed:** The unreachable built-in model, Anthropic and OpenAI support and API key fields were removed (the app package shrinks by ~110 MB). AI works only with local Ollama.
 - [improve] **Fluent transitions for the terminal panel:** Tabs in the bottom panel now slide between each other with a single soft pill (the short accent bar moves with it); tab content eases in from the side according to tab order, and switching terminals or sessions fades smoothly. The new-terminal button became a split button and the session list on the right turned into rounded card rows. Looks right in dark and light themes; motion stops when "Animations" is off or reduced motion is set.
 - [feat] **Git Bash terminal:** The terminal bar gets a Git-icon quick button next to + and a "Git Bash · full" entry in the dropdown (the button shows when Git for Windows is installed; otherwise the entry is dimmed and a tooltip explains why); it opens as a real terminal in the workspace folder. It can also be picked in Settings > Terminal > Default shell; PowerShell is used when Git Bash is missing.
+- [fix] **Real terminal start errors are visible:** When a real terminal (PTY) session failed to start (e.g. Git Bash not found) the panel stayed blank; the reason now appears as a red notice at the top of the panel.
 
 ## 1.5.1 - 18.11.2026
 <!-- level: patch -->

@@ -71,3 +71,5 @@ Alt panelde yumuşak, katmanlı yüzeyler: sekmeler `h-7` dolgulu hap (`bg-white
 - `cdCommand('gitbash', dir)`: `cd 'C:/yol'` (ters eğik çizgi düzleşir, tek tırnak `'\''` ile kaçırılır).
 - Test: `scripts/tests/pty.test.cjs` (Git Bash kuruluysa gerçek oturum, çalışma klasörü; yoksa `no-gitbash` hatası).
 - KVKK: yerel süreç; veri dışarı gönderilmez.
+
+**Başlatma hatası (22.11.2026):** PTY oturumunda `pty:start` başarısızsa `Session.failed` işaretlenir ve panelin üstünde `role="alert"` kırmızı uyarı çıkar (PTY'de kabuk çıktısı olmadığından hata önceden hiç görünmüyordu). Ana süreç dosyaları (`electron-*.cjs`) değişince çalışan uygulama eski kodla kalır: Git Bash gibi ana süreç özellikleri için `electron:dev` yeniden başlatılmalıdır.

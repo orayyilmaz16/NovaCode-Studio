@@ -42,6 +42,8 @@ interface Session {
   kind: 'pipe' | 'pty';
   running: boolean;
   status: string;
+  /** Oturum hiç başlatılamadı (PTY'de çıktı olmadığı için hata ayrıca gösterilir). */
+  failed?: boolean;
   output: string;
   cwd: string;
 }
@@ -222,7 +224,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
         setActiveId(id);
         setTab('terminal');
         const res = await api.pty.start({ id, shell, cwd, cols: 100, rows: 28 });
-        if (!res.success) patch(id, (s) => ({ ...s, running: false, status: res.error === 'too-many' ? t('termTooMany') : res.error === 'no-pty' ? t('termPtyUnavailable') : res.error === 'no-gitbash' ? t('termNoGitBash') : t('termStartFailed') }));
+        if (!res.success) patch(id, (s) => ({ ...s, running: false, failed: true, status: res.error === 'too-many' ? t('termTooMany') : res.error === 'no-pty' ? t('termPtyUnavailable') : res.error === 'no-gitbash' ? t('termNoGitBash') : t('termStartFailed') }));
         return;
       }
       if (!api?.termStart || shell === 'gitbash') return;
@@ -561,6 +563,13 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               />
             </Suspense>
           ))}
+          {/* Gerçek terminal başlatılamadıysa (ör. Git Bash yok) nedeni göster: PTY'de başka çıktı olmaz */}
+          {tab === 'terminal' && active?.kind === 'pty' && active.failed && (
+            <div role="alert" className="absolute inset-x-3 top-3 z-10 flex items-start gap-2 rounded-lg px-3 py-2 bg-rose-500/10 text-rose-300 font-sans text-[12px] animate-fade-in">
+              <CircleX size={14} className="mt-px shrink-0" />
+              <span className="min-w-0">{active.status}</span>
+            </div>
+          )}
           {/* Sekme/oturum değişince içerik yön bilgisiyle yumuşakça belirir (gerçek terminal PtyView içinde kendi belirmesini yapar) */}
           {!(tab === 'terminal' && active?.kind === 'pty') && (
           <div
