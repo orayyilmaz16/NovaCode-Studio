@@ -86,6 +86,9 @@ export const DEV_TEXT = {
   termClassic: {
     tr: "klasik", en: "classic", de: "klassisch", ru: "классический", ar: "كلاسيكي", es: "clásico", fr: "classique", az: "klassik",
   },
+  termNoGitBash: {
+    tr: "Git Bash bulunamadı. Git for Windows'u kur (git-scm.com) ve yeniden dene.", en: "Git Bash was not found. Install Git for Windows (git-scm.com) and try again.", de: "Git Bash wurde nicht gefunden. Installiere Git for Windows (git-scm.com) und versuche es erneut.", ru: "Git Bash не найден. Установи Git for Windows (git-scm.com) и повтори попытку.", ar: "لم يتم العثور على Git Bash. ثبّت Git for Windows (git-scm.com) وأعد المحاولة.", es: "No se encontró Git Bash. Instala Git for Windows (git-scm.com) e inténtalo de nuevo.", fr: "Git Bash est introuvable. Installe Git for Windows (git-scm.com) puis réessaie.", az: "Git Bash tapılmadı. Git for Windows-u (git-scm.com) quraşdır və yenidən cəhd et.",
+  },
   termPtyUnavailable: {
     tr: "Gerçek terminal bileşeni yüklenemedi. Klasik terminali kullan.", en: "The real terminal component could not be loaded. Use the classic terminal.", de: "Die echte Terminal-Komponente konnte nicht geladen werden. Nutze das klassische Terminal.", ru: "Не удалось загрузить компонент полноценного терминала. Используйте классический терминал.", ar: "تعذّر تحميل مكوّن الطرفية الحقيقية. استخدم الطرفية الكلاسيكية.", es: "No se pudo cargar el componente del terminal real. Usa el terminal clásico.", fr: "Le composant du vrai terminal n’a pas pu être chargé. Utilise le terminal classique.", az: "Real terminal komponenti yüklənmədi. Klassik terminaldan istifadə et.",
   },

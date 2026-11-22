@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 22.11.2026 15:23 · auto/20261118-083349
+<!-- sig:ZWxlY3Ryb24tcHR5LmNqcyxzY3JpcHRzL3Rlc3Rz -->
+- Alan: [[terminal]], [[testing]], [[i18n]], [[settings]], [[ui-design]]
+- Kod (7): `electron-pty.cjs`, `scripts/tests/pty.test.cjs`, `src/components/Terminal.tsx`, `src/i18n/uiTextDev.ts`, `src/services/settingsSchema.json`, `src/services/terminalText.ts`, `src/types.ts`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/terminal.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 22.11.2026 15:16 · auto/20261118-083349
 <!-- sig:c3JjL2NvbXBvbmVudHMvUHR5Vmlldy50c3gsc3Jj -->
 - Alan: [[ui-design]], [[terminal]], [[motion]]
@@ -274,11 +281,4 @@
 - Alan: [[brain-maintenance]], [[settings]], [[i18n]], [[ui-design]], [[testing]]
 - Kod (11): `scripts/brain.mjs`, `src/components/SettingsPage.tsx`, `src/i18n/uiText.ts`, `src/services/SettingsContext.tsx`, `src/services/editorTheme.ts`, `src/services/extensionsService.ts`, `src/services/settings.ts`, `src/services/settingsSchema.json`, `scripts/tests/palettes.test.cjs`, `src/i18n/uiTextTheme.ts`, `src/services/palettes.ts`
 - Belge (4): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/settings.md`, `docs/brain/actions/testing.md`
-- Durum: ✓ belgelendi
-
-## 17.11.2026 11:34 · auto/20261117-082805
-<!-- sig:c2NyaXB0cy9kb2Mtc3luYy5tanMsfCxBR0VOVC5t -->
-- Alan: [[brain-maintenance]]
-- Kod (1): `scripts/doc-sync.mjs`
-- Belge (6): `AGENT.md`, `CLAUDE.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/brain-maintenance.md`, `docs/brain/actions/doc-sync.md`
 - Durum: ✓ belgelendi

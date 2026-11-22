@@ -2,7 +2,7 @@
 // Gerçek terminal (PTY): Windows'ta ConPTY, diğerlerinde pty. vim/htop gibi tam ekran programlar, gerçek Ctrl+C, renk, yeniden boyutlandırma.
 // Klasik (boru tabanlı) terminal `electron-term.cjs` içinde kalır; bu modül yanına eklenir.
 //
-// Güvenlik: yalnız izinli kabuklar (PowerShell/pwsh, CMD; diğer sistemlerde kullanıcının kabuğu); çalışma klasörü açık çalışma klasörü içinde olmalı;
+// Güvenlik: yalnız izinli kabuklar (PowerShell/pwsh, CMD, Git Bash; diğer sistemlerde kullanıcının kabuğu); çalışma klasörü açık çalışma klasörü içinde olmalı;
 // kimlik yalnız [a-z0-9-]{1,40}; yazma boyutu ve oturum sayısı sınırlı. Renderer rastgele program çalıştıramaz, yalnız kabuk oturumu açar.
 // Yerel paket `@lydell/node-pty` tembel yüklenir: yoksa/yüklenemezse `pty:start` 'no-pty' döner ve klasik terminal çalışmaya devam eder.
 const { ipcMain } = require('electron');
@@ -35,10 +35,25 @@ function findOnPath(name) {
   return null;
 }
 
+// Git for Windows'un bash.exe'si: yalnız bilinen kurulum yolları ve PATH'teki git.exe'ye göre bulunur (renderer yol veremez).
+// System32'deki WSL bash.exe bilerek aranmaz.
+function findGitBash() {
+  if (process.platform !== 'win32') return null;
+  const e = process.env;
+  const cands = [e.ProgramFiles, e.ProgramW6432, e['ProgramFiles(x86)'], e.LOCALAPPDATA && path.join(e.LOCALAPPDATA, 'Programs')]
+    .filter(Boolean).map((b) => path.join(b, 'Git', 'bin', 'bash.exe'));
+  const git = findOnPath('git.exe'); // ...Gitcmdgit.exe (ya da mingw64ingit.exe)
+  if (git) cands.push(path.join(path.dirname(git), '..', 'bin', 'bash.exe'), path.join(path.dirname(git), '..', '..', 'bin', 'bash.exe'));
+  for (const f of cands) { try { if (fs.existsSync(f)) return path.resolve(f); } catch { /* erişilemez */ } }
+  return null;
+}
+
 function shellCommand(shell) {
-  if (process.platform !== 'win32') return { file: process.env.SHELL || '/bin/sh', args: [] };
-  if (shell === 'cmd') return { file: 'cmd.exe', args: [] };
-  return { file: findOnPath('pwsh.exe') || 'powershell.exe', args: ['-NoLogo'] };
+  if (process.platform !== 'win32') return { file: process.env.SHELL || '/bin/sh', args: [], env: {} };
+  if (shell === 'cmd') return { file: 'cmd.exe', args: [], env: {} };
+  // CHERE_INVOKING: oturum açma kabuğu çalışma klasöründe kalsın (yoksa ev klasörüne atlar)
+  if (shell === 'gitbash') return { file: findGitBash(), args: ['--login', '-i'], env: { CHERE_INVOKING: '1' } };
+  return { file: findOnPath('pwsh.exe') || 'powershell.exe', args: ['-NoLogo'], env: {} };
 }
 
 const clampInt = (n, lo, hi, def) => (Number.isInteger(n) ? Math.min(hi, Math.max(lo, n)) : def);
@@ -60,13 +75,14 @@ function register({ getWindow, isValidPath }) {
   ipcMain.handle('pty:start', async (_e, req) => {
     const r = req || {};
     if (typeof r.id !== 'string' || !ID_RE.test(r.id)) return { success: false, error: 'invalid-id' };
-    if (r.shell !== 'powershell' && r.shell !== 'cmd') return { success: false, error: 'invalid-shell' };
+    if (r.shell !== 'powershell' && r.shell !== 'cmd' && r.shell !== 'gitbash') return { success: false, error: 'invalid-shell' };
     if (sessions.has(r.id)) return { success: false, error: 'exists' };
     if (sessions.size >= MAX_SESSIONS) return { success: false, error: 'too-many' };
     if (typeof r.cwd !== 'string' || !api.isValidPath(r.cwd) || !fs.existsSync(r.cwd) || !fs.statSync(r.cwd).isDirectory()) return { success: false, error: 'no-folder' };
     const pty = loadLib();
     if (!pty) return { success: false, error: 'no-pty' };
-    const { file, args } = shellCommand(r.shell);
+    const { file, args, env } = shellCommand(r.shell);
+    if (!file) return { success: false, error: 'no-gitbash' };
     let p;
     try {
       p = pty.spawn(file, args, {
@@ -74,7 +90,7 @@ function register({ getWindow, isValidPath }) {
         cols: clampInt(r.cols, 10, 500, 100),
         rows: clampInt(r.rows, 2, 200, 24),
         cwd: r.cwd,
-        env: { ...process.env, TERM_PROGRAM: 'NovaCode', COLORTERM: 'truecolor' }
+        env: { ...process.env, ...env, TERM_PROGRAM: 'NovaCode', COLORTERM: 'truecolor' }
       });
     } catch (err) {
       return { success: false, error: 'spawn-failed' };
@@ -113,7 +129,7 @@ function register({ getWindow, isValidPath }) {
     return { success: true };
   });
 
-  ipcMain.handle('pty:available', () => ({ available: !!loadLib() }));
+  ipcMain.handle('pty:available', () => ({ available: !!loadLib(), gitBash: !!findGitBash() }));
 }
 
 // Kapanışta eşzamanlı: ağaçlar tek `taskkill` çağrısıyla kapatılır

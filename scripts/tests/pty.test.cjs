@@ -78,6 +78,20 @@ const wait = (cond, ms = 20000) => new Promise((res) => {
   await call('pty:stop', cid);
   ok((await call('pty:write', cid, 'x')).success === false, 'durdurulan oturum kapandı');
 
+  // --- Git Bash (yalnız Git for Windows kuruluysa) ---
+  const av = await call('pty:available');
+  if (av.gitBash) {
+    const gid = 'pty-gitbash';
+    ok((await call('pty:start', { id: gid, shell: 'gitbash', cwd: os.tmpdir() })).success, 'Git Bash PTY başladı');
+    await call('pty:write', gid, 'echo GIT"BASH"-OK; pwd -W\r');
+    ok(await wait(() => /GITBASH-OK/.test(textOf(gid))), 'Git Bash komutu çalıştı');
+    const tail = path.basename(os.tmpdir()).toLowerCase();
+    ok(await wait(() => textOf(gid).toLowerCase().split('gitbash-ok').pop().includes(tail), 8000), 'Git Bash çalışma klasöründe açıldı (ev klasörüne atlamadı)');
+    await call('pty:stop', gid);
+    ok((await call('pty:write', gid, 'x')).success === false, 'durdurulan Git Bash oturumu kapandı');
+  } else console.log('(Git Bash kurulu değil: gerçek oturum turu atlandı)');
+  if (!av.gitBash) ok((await call('pty:start', { id: 'pty-nogb', shell: 'gitbash', cwd: os.tmpdir() })).error === 'no-gitbash', 'Git Bash yoksa anlamlı hata döner');
+
   mod.stopAll();
   console.log(fails ? `\n${fails} test başarısız` : '\ntüm PTY testleri geçti');
   setTimeout(() => process.exit(fails ? 1 : 0), 300);

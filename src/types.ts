@@ -336,8 +336,8 @@ export interface ElectronBridge {
     onEvent: (cb: (ev: LspEvent) => void) => () => void;
   };
   pty?: {
-    available: () => Promise<{ available: boolean }>;
-    start: (req: { id: string; shell: 'powershell' | 'cmd'; cwd: string; cols: number; rows: number }) => Promise<{ success: boolean; error?: string }>;
+    available: () => Promise<{ available: boolean; gitBash?: boolean }>;
+    start: (req: { id: string; shell: 'powershell' | 'cmd' | 'gitbash'; cwd: string; cols: number; rows: number }) => Promise<{ success: boolean; error?: string }>;
     write: (id: string, data: string) => Promise<{ success: boolean }>;
     resize: (id: string, cols: number, rows: number) => Promise<{ success: boolean }>;
     stop: (id: string) => Promise<{ success: boolean }>;

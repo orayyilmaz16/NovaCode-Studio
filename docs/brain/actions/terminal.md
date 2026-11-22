@@ -62,3 +62,12 @@ Alt panelde yumuşak, katmanlı yüzeyler: sekmeler `h-7` dolgulu hap (`bg-white
 - **İçerik geçişi:** Terminal dışı paneller ve klasik terminal `animate-pane-in` sarmalayıcısındadır; anahtar sekme (terminalde oturum kimliği de) olduğundan değişimde yeniden belirir. Yön `TAB_ORDER` ile hesaplanır (`--pane-dir` ±1, RTL'de `--pane-flip`). Gerçek terminal (`PtyView`) kendi `animate-editor-in` solmasını yapar (yalnız opaklık; xterm yeniden boyutu etkilenmesin).
 - **Araç çubuğu:** + ve ▾ tek bölünmüş düğme (yuvarlak, `--hover-overlay` zemin, ince ayraç). Kabuk şeridi oturum değişince yeniden belirir.
 - **Oturum listesi:** `p-1.5` kenar boşluğu, `h-8` yuvarlak kart satırları, etkinde `--active-overlay` + yumuşak açılan sol çizgi; kapat düğmesi `focus-visible`'da da görünür.
+
+### Git Bash (22.11.2026)
+- Üçüncü kabuk: `gitbash`, **yalnız gerçek terminalde (PTY)**; boru (klasik) terminali bash için uygun değildir (istem/cwd işareti yok), bu yüzden `createSession` `gitbash` için türü PTY'ye zorlar ve menüde yalnız "· tam" girişi vardır.
+- `electron-pty.cjs` `findGitBash()`: `Program Files\Git\bin\bash.exe` (ProgramFiles / ProgramW6432 / x86 / `%LOCALAPPDATA%\Programs`) ve PATH'teki `git.exe`'ye göre bulunur. Yol rendererdan gelmez; System32'deki WSL `bash.exe` aranmaz. Argümanlar `--login -i`, ortam `CHERE_INVOKING=1` (oturum çalışma klasöründe kalır).
+- `pty:available` → `{ available, gitBash }`; menü girişi yalnız `gitBash` doğruysa görünür. Bulunamazsa `pty:start` `no-gitbash` döner (`termNoGitBash`, 8 dil).
+- Ayar `defaultShell`: `gitbash` seçeneği eklendi; Git Bash/PTY yoksa sessizce PowerShell'e düşer.
+- `cdCommand('gitbash', dir)`: `cd 'C:/yol'` (ters eğik çizgi düzleşir, tek tırnak `'\''` ile kaçırılır).
+- Test: `scripts/tests/pty.test.cjs` (Git Bash kuruluysa gerçek oturum, çalışma klasörü; yoksa `no-gitbash` hatası).
+- KVKK: yerel süreç; veri dışarı gönderilmez.

@@ -42,7 +42,7 @@
 | `electron-paths.cjs` | 134 |
 | `electron-preload.cjs` | 262 |
 | `electron-preview.cjs` | 78 |
-| `electron-pty.cjs` | 128 |
+| `electron-pty.cjs` | 144 |
 | `electron-search.cjs` | 289 |
 | `electron-secrets.cjs` | 66 |
 | `electron-snippets.cjs` | 106 |
@@ -98,7 +98,7 @@
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 80 |
-| `src/components/Terminal.tsx` | 693 |
+| `src/components/Terminal.tsx` | 700 |
 | `src/components/TestPanel.tsx` | 178 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |
@@ -155,7 +155,7 @@
 | `src/i18n/uiText.ts` | 669 |
 | `src/i18n/uiTextAi.ts` | 588 |
 | `src/i18n/uiTextComp.ts` | 329 |
-| `src/i18n/uiTextDev.ts` | 340 |
+| `src/i18n/uiTextDev.ts` | 343 |
 | `src/i18n/uiTextScm.ts` | 276 |
 | `src/i18n/uiTextTheme.ts` | 1127 |
 
@@ -191,7 +191,7 @@
 | `scripts/tests/palettes.test.cjs` | 75 |
 | `scripts/tests/paths.test.cjs` | 88 |
 | `scripts/tests/preview-csp.test.cjs` | 66 |
-| `scripts/tests/pty.test.cjs` | 84 |
+| `scripts/tests/pty.test.cjs` | 98 |
 | `scripts/tests/release.test.cjs` | 140 |
 | `scripts/tests/replace.test.cjs` | 71 |
 | `scripts/tests/search-redos.test.cjs` | 47 |
@@ -237,7 +237,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1067 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1068 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
@@ -317,7 +317,7 @@
 | Terminal | `terminalFontSize` | Terminal yazı boyutu | slider | `12` | 10–20 px |
 | Editör | `lspEnabled` | Dil sunucuları (LSP) | toggle | `true` |  |
 | Terminal | `terminalMode` | Terminal türü | select | `"pty"` | pty, classic |
-| Terminal | `defaultShell` | Varsayılan kabuk | select | `"powershell"` | powershell, cmd |
+| Terminal | `defaultShell` | Varsayılan kabuk | select | `"powershell"` | powershell, cmd, gitbash |
 | Terminal | `terminalColorInput` | Komutları renklendir | toggle | `true` |  |
 | Terminal | `terminalShowBranch` | İstemde Git dalını göster | toggle | `true` |  |
 | Terminal | `terminalLineHeight` | Terminal satır yüksekliği | slider | `1.4` | 1–2 |

@@ -115,7 +115,7 @@
     { "id": "terminalMode", "category": "terminal", "type": "select", "default": "pty", "desc": true,
       "options": [{ "value": "pty", "labelKey": "optTermFull" }, { "value": "classic", "labelKey": "optTermClassic" }] },
     { "id": "defaultShell", "category": "terminal", "type": "select", "default": "powershell",
-      "options": [{ "value": "powershell", "label": "PowerShell" }, { "value": "cmd", "label": "CMD" }] },
+      "options": [{ "value": "powershell", "label": "PowerShell" }, { "value": "cmd", "label": "CMD" }, { "value": "gitbash", "label": "Git Bash" }] },
     { "id": "terminalColorInput", "category": "terminal", "type": "toggle", "default": true, "desc": true },
     { "id": "terminalShowBranch", "category": "terminal", "type": "toggle", "default": true },
 
