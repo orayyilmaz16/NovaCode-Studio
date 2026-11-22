@@ -7,13 +7,13 @@ Son tarama: 22.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 | Alan | Bulgu |
 |---|---|
 | Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 23 |
-| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 65 |
+| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 68 |
 | Kalite | kritik 0 · yüksek 0 · orta 3 · düşük 10 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: yok
+- Yeni/artan: `PERF-SYNC-FS` electron-pty.cjs
 - Giderilen: yok
 
 ## Güvenlik
@@ -28,7 +28,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | SEC-IPC-NOEVT | `electron-ext.cjs:318,329` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (2×) |
 | düşük | SEC-IPC-NOEVT | `electron-github.cjs:156,169,175…(+2)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (5×) |
 | düşük | SEC-IPC-NOEVT | `electron-main.cjs:436,451,501` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
-| düşük | SEC-IPC-NOEVT | `electron-pty.cjs:132` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
+| düşük | SEC-IPC-NOEVT | `electron-pty.cjs:196` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-search.cjs:245` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-trust.cjs:152,157,162` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-update.cjs:98,122,128…(+1)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (4×) |
@@ -57,7 +57,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-SYNC-FS | `electron-lsp.cjs:49` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-main.cjs:328` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-paths.cjs:127` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
-| düşük | PERF-SYNC-FS | `electron-pty.cjs:33,47,81` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (3×) |
+| düşük | PERF-SYNC-FS | `electron-pty.cjs:34,52,84…(+3)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (6×) |
 | düşük | PERF-SYNC-FS | `electron-secrets.cjs:26,27,46…(+2)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (5×) |
 | düşük | PERF-SYNC-FS | `electron-term.cjs:94` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-trust.cjs:36,41,119…(+1)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (4×) |

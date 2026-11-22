@@ -337,7 +337,9 @@ export interface ElectronBridge {
   };
   pty?: {
     available: () => Promise<{ available: boolean; gitBash?: boolean }>;
-    start: (req: { id: string; shell: 'powershell' | 'cmd' | 'gitbash'; cwd: string; cols: number; rows: number }) => Promise<{ success: boolean; error?: string }>;
+    /** Kurulu kabuk profilleri (PowerShell, CMD, Git Bash, WSL dağıtımları, Cygwin, MSYS2, Nushell…). */
+    profiles: (force?: boolean) => Promise<{ id: string; label: string }[]>;
+    start: (req: { id: string; shell: string; cwd: string; cols: number; rows: number }) => Promise<{ success: boolean; error?: string }>;
     write: (id: string, data: string) => Promise<{ success: boolean }>;
     resize: (id: string, cols: number, rows: number) => Promise<{ success: boolean }>;
     stop: (id: string) => Promise<{ success: boolean }>;

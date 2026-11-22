@@ -110,7 +110,7 @@ export interface CmdToken {
   kind: TokenKind;
 }
 
-export function tokenizeCommand(line: string, shell: 'powershell' | 'cmd' | 'gitbash'): CmdToken[] {
+export function tokenizeCommand(line: string, shell: string): CmdToken[] {
   const tokens: CmdToken[] = [];
   const re = /(\s+)|("(?:[^"\\]|\\.)*"?|'[^']*'?)|(\$[\w:{}.]+|%[^%\s]+%)|([|;&<>]+)|(--?[A-Za-z][\w-]*|\/[A-Za-z?](?=\s|$|:))|(\d+(?:\.\d+)?)|([^\s|;&<>"']+)/g;
   let expectCommand = true;
@@ -131,7 +131,7 @@ export function tokenizeCommand(line: string, shell: 'powershell' | 'cmd' | 'git
 }
 
 // Geçmişe yazılacak komut yankısı için aynı renkleri ANSI olarak üretir.
-export function commandToAnsi(line: string, shell: 'powershell' | 'cmd' | 'gitbash'): string {
+export function commandToAnsi(line: string, shell: string): string {
   return tokenizeCommand(line, shell)
     .map((t) => {
       const n = TOKEN_ANSI[t.kind];

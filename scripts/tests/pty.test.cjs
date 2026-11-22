@@ -78,6 +78,22 @@ const wait = (cond, ms = 20000) => new Promise((res) => {
   await call('pty:stop', cid);
   ok((await call('pty:write', cid, 'x')).success === false, 'durdurulan oturum kapandı');
 
+  // --- kurulu kabuk profilleri ---
+  const profs = await call('pty:profiles', true);
+  console.log('   profiller:', profs.map((p) => p.id + '=' + p.label).join(' | '));
+  ok(Array.isArray(profs) && profs.length > 0, 'profil listesi döner');
+  ok(profs.every((p) => Object.keys(p).sort().join() === 'id,label'), 'arayüze dosya yolu verilmez (yalnız id + ad)');
+  ok(profs.some((p) => p.id === 'cmd') && profs.some((p) => p.id === 'powershell'), 'PowerShell ve CMD profilleri var');
+  ok(!profs.some((p) => /docker-desktop/i.test(p.id)), 'docker-desktop WSL dağıtımı elenir');
+  ok((await call('pty:start', { id: 'pty-x', shell: 'wsl:../../evil', cwd: os.tmpdir() })).error === 'invalid-shell', 'listede olmayan profil kimliği reddedilir');
+  const other = profs.find((p) => p.id === 'winps');
+  if (other) {
+    ok((await call('pty:start', { id: 'pty-winps', shell: other.id, cwd: os.tmpdir() })).success, 'Windows PowerShell profili açıldı');
+    await call('pty:write', 'pty-winps', 'Write-Output ("WIN" + "PS" + $PSVersionTable.PSVersion.Major)' + String.fromCharCode(13));
+    ok(await wait(() => /WINPS5/.test(textOf('pty-winps')), 10000), 'Windows PowerShell 5.x sürümüyle çalıştı');
+    await call('pty:stop', 'pty-winps');
+  }
+
   // --- Git Bash (yalnız Git for Windows kuruluysa) ---
   const av = await call('pty:available');
   if (av.gitBash) {

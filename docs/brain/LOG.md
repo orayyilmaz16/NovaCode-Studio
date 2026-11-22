@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 22.11.2026 15:36 · auto/20261118-083349
+<!-- sig:ZWxlY3Ryb24tcHJlbG9hZC5janMsZWxlY3Ryb24t -->
+- Alan: [[security-kvkk]], [[terminal]], [[testing]], [[ui-design]]
+- Kod (6): `electron-preload.cjs`, `electron-pty.cjs`, `scripts/tests/pty.test.cjs`, `src/components/Terminal.tsx`, `src/services/terminalText.ts`, `src/types.ts`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/terminal.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 22.11.2026 15:25 · auto/20261118-083349
 <!-- sig:c3JjL2NvbXBvbmVudHMvVGVybWluYWwudHN4LHws -->
 - Alan: [[terminal]]
@@ -275,10 +282,3 @@
 - Kod (2): `src/App.tsx`, `src/services/lang.ts`
 - Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
 - Durum: ✓ belgelendi · sürüm hazırlandı: v1.4.0 → v1.4.1 (patch)
-
-## 17.11.2026 11:59 · auto/20261117-084338
-<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvY2ktY2QueW1sLHNj -->
-- Alan: [[ci-cd]], [[ui-design]], [[versioning]], [[brain-maintenance]]
-- Kod (6): `.github/workflows/ci-cd.yml`, `scripts/bump-version.mjs`, `scripts/check-version.mjs`, `scripts/doc-sync.mjs`, `scripts/release.mjs`, `scripts/tests/release.test.cjs`
-- Belge (11): `AGENT.md`, `CHANGELOG.md`, `CLAUDE.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/doc-sync.md`, `docs/brain/actions/release.md` … (+3)
-- Durum: ✓ belgelendi · sürüm hazırlandı: v1.3.0 → v1.4.0 (minor) · uyarı: 90 etiketsiz madde (iyileştirme/patch sayıldı; [feat] [fix] [improve] [perf] [security] [breaking] [docs] kullan)

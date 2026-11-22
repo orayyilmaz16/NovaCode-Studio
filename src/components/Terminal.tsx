@@ -32,7 +32,9 @@ interface TerminalProps {
   onOpenFolder?: () => void;
 }
 
-type ShellId = 'powershell' | 'cmd' | 'gitbash';
+/** Profil kimliği: 'powershell' | 'cmd' (klasik de olabilir) ya da gerçek terminal profili ('gitbash', 'winps', 'wsl:<dağıtım>', 'cygwin', 'msys2', 'nu', 'sh:<yol>'). */
+type ShellId = string;
+const isPipeShell = (s: string): s is 'powershell' | 'cmd' => s === 'powershell' || s === 'cmd';
 type PanelTab = 'terminal' | 'log' | 'problems' | 'debug' | 'tests';
 
 interface Session {
@@ -53,12 +55,16 @@ export function cdCommand(shell: ShellId, dir: string): string | null {
   // eslint-disable-next-line no-control-regex
   if (!dir || dir.length > 4096 || /[\u0000-\u001f\u007f\u2028\u2029]/.test(dir)) return null;
   if (shell === 'cmd') return /["%]/.test(dir) ? null : `cd /d "${dir}"`;
-  // Git Bash: tek tırnak içinde, ters eğik çizgiler düzleştirilir (C:/Users/..); içteki tek tırnak '\'' ile kaçırılır
-  if (shell === 'gitbash') return `cd '${dir.replace(/\\/g, '/').replace(/'/g, `'\\''`)}'`;
+  const sq = (s: string) => `'${s.replace(/'/g, `'\\''`)}'`; // POSIX tek tırnak; içteki ' → '\''
+  // Git Bash / Cygwin / MSYS2: Windows yolu cygpath ile kabuğun yoluna çevrilir; WSL: wslpath; diğer Unix kabukları: yol olduğu gibi
+  if (shell === 'gitbash' || shell === 'cygwin' || shell === 'msys2') return `cd "$(cygpath -u ${sq(dir.replace(/\\/g, '/'))})"`;
+  if (shell.startsWith('wsl:')) return `cd "$(wslpath -u ${sq(dir)})"`;
+  if (shell.startsWith('sh:')) return `cd ${sq(dir)}`;
+  if (shell === 'nu') return /["`$]/.test(dir) ? null : `cd "${dir.replace(/\\/g, '/')}"`;
   return `Set-Location -LiteralPath '${dir.replace(/['\u2018\u2019\u201a\u201b]/g, (c) => c + c)}'`;
 }
 
-const SHELL_LABEL: Record<ShellId, string> = { powershell: 'PowerShell', cmd: 'CMD', gitbash: 'Git Bash' };
+const BASE_LABEL: Record<string, string> = { powershell: 'PowerShell', cmd: 'CMD', gitbash: 'Git Bash', winps: 'Windows PowerShell' };
 /** Sekme sırası: geçiş yönü (yeni içerik hangi yönden girer) buradan hesaplanır. */
 const TAB_ORDER: PanelTab[] = ['problems', 'log', 'debug', 'terminal', 'tests'];
 const ESC = '\u001b';
@@ -96,7 +102,7 @@ const Output: React.FC<{ text: string }> = React.memo(({ text }) => {
 
 export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, visible, maximized, onToggleMaximize, onClose, onOpenFolder }) => {
   const { values } = useSettings();
-  const wantShell = values.defaultShell === 'cmd' ? 'cmd' : values.defaultShell === 'gitbash' ? 'gitbash' : 'powershell';
+  const wantShell = String(values.defaultShell || 'powershell');
   const colorInput = values.terminalColorInput !== false;
   const fontSize = Number(values.terminalFontSize) || 12;
   const lineHeight = Number(values.terminalLineHeight) || 1.4;
@@ -141,7 +147,10 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const [input, setInput] = useState('');
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [ptyOk, setPtyOk] = useState<boolean | null>(null); // null: henüz denetlenmedi
-  const [gitBashOk, setGitBashOk] = useState(false); // Git for Windows'un bash.exe'si bulundu mu
+  const [profiles, setProfiles] = useState<{ id: string; label: string }[]>([]); // bilgisayarda kurulu kabuk profilleri (gerçek terminal)
+  const gitBashOk = profiles.some((p) => p.id === 'gitbash');
+  const shellLabel = (id: string) => profiles.find((p) => p.id === id)?.label ?? BASE_LABEL[id] ?? id;
+  const shellIcon = (id: string, cls: string, size = 13) => (id === 'gitbash' ? <GitBranch size={size} className={cls} /> : <SquareTerminal size={size} className={cls} />);
   const ptyHandles = useRef(new Map<string, PtyHandle>());
 
   const api = typeof window !== 'undefined' ? window.electronAPI : undefined;
@@ -149,7 +158,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   // Varsayılan tür: gerçek terminal (PTY) kullanılabilirse ve ayar 'klasik' değilse o
   const defaultKind: 'pipe' | 'pty' = values.terminalMode === 'classic' || !ptyOk ? 'pipe' : 'pty';
   // Git Bash yalnız gerçek terminalde (PTY) çalışır; kullanılamıyorsa varsayılan PowerShell'e düşer
-  const defaultShell: ShellId = wantShell === 'gitbash' && !(gitBashOk && defaultKind === 'pty') ? 'powershell' : wantShell;
+  const defaultShell: ShellId = isPipeShell(wantShell) || (defaultKind === 'pty' && profiles.some((p) => p.id === wantShell)) ? wantShell : 'powershell';
   const counter = useRef(0);
   const history = useRef<Map<string, string[]>>(new Map());
   const historyPos = useRef(-1);
@@ -164,7 +173,10 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   sessionsRef.current = sessions;
   useEffect(() => {
     if (!api?.pty) { setPtyOk(false); return; }
-    void api.pty.available().then((r) => { setPtyOk(!!r.available); setGitBashOk(!!r.available && !!r.gitBash); }).catch(() => setPtyOk(false));
+    void api.pty.available().then((r) => {
+      setPtyOk(!!r.available);
+      if (r.available) void api.pty?.profiles?.().then(setProfiles).catch(() => setProfiles([]));
+    }).catch(() => setPtyOk(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -215,7 +227,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const createSession = useCallback(
     async (shell: ShellId, kind: 'pipe' | 'pty' = defaultKind) => {
       if (!cwd || sessions.length >= 12) return;
-      if (shell === 'gitbash') kind = 'pty'; // bash boru ile değil, yalnız PTY ile açılır
+      if (!isPipeShell(shell)) kind = 'pty'; // PowerShell/CMD dışındaki profiller (bash, WSL…) boru ile değil, yalnız PTY ile açılır
       counter.current += 1;
       if (kind === 'pty' && api?.pty) {
         // Gerçek terminal: oturumu burada başlatırız; xterm görünümü (PtyView) yalnız çizer ve çıktıyı tampondan oynatır
@@ -227,7 +239,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
         if (!res.success) patch(id, (s) => ({ ...s, running: false, failed: true, status: res.error === 'too-many' ? t('termTooMany') : res.error === 'no-pty' ? t('termPtyUnavailable') : res.error === 'no-gitbash' ? t('termNoGitBash') : t('termStartFailed') }));
         return;
       }
-      if (!api?.termStart || shell === 'gitbash') return;
+      if (!api?.termStart || !isPipeShell(shell)) return;
       const id = `t-${counter.current}-${Math.random().toString(36).slice(2, 6)}`;
       setSessions((prev) => [...prev, { id, shell, kind: 'pipe', running: false, status: t('termStarting'), output: '', cwd }]);
       setActiveId(id);
@@ -499,6 +511,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                 onClick={(e) => {
                   const r = e.currentTarget.getBoundingClientRect();
                   setMenu({ x: r.left - 140, y: r.bottom + 4 });
+                  // Liste açılırken kurulu kabuklar yeniden taranır (yeni kurulan WSL/Git Bash hemen görünsün)
+                  if (ptyOk) void api?.pty?.profiles?.(true).then(setProfiles).catch(() => {});
                 }}
                 disabled={!cwd}
                 title={t('termPickShell')}
@@ -534,7 +548,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
         {tab === 'terminal' && active && (
           <div key={active.id} className="flex items-center gap-2 h-8 px-3 shrink-0 font-sans text-[11.5px] text-zinc-400 min-w-0 animate-fade-in" dir="ltr">
             <span className={`size-1.5 rounded-full shrink-0 ${active.running ? 'bg-emerald-400' : 'bg-zinc-500'}`} />
-            <span className="text-zinc-200 font-medium shrink-0">{SHELL_LABEL[active.shell]}</span>
+            <span className="text-zinc-200 font-medium shrink-0">{shellLabel(active.shell)}</span>
             {ptyOk && (
               <span className="shrink-0 px-2 h-[18px] inline-flex items-center rounded-full bg-white/[0.07] text-[10px] text-zinc-300">
                 {active.kind === 'pty' ? t('termFull') : t('termClassic')}
@@ -668,9 +682,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                   className={`group relative flex items-center gap-2 h-8 ps-3 pe-1 rounded-md cursor-pointer text-[12px] animate-tab-in transition-[background-color,color,transform] duration-(--dur-fast) ease-(--ease-out-soft) active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-indigo-400 ${on ? 'bg-(--active-overlay) text-zinc-50' : 'text-zinc-400 hover:bg-(--hover-overlay) hover:text-zinc-100'}`}
                 >
                   <span className={`absolute start-[3px] top-2 bottom-2 w-[3px] rounded-full bg-indigo-400 origin-center transition-[transform,opacity] duration-(--dur-base) ease-(--ease-out-soft) ${on ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`} />
-                  {s.shell === 'gitbash' ? <GitBranch size={13} className={s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0'} /> : <SquareTerminal size={13} className={s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0'} />}
+                  {shellIcon(s.shell, s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0')}
                   <span className="truncate flex-1">
-                    {SHELL_LABEL[s.shell]}{ptyOk && s.kind === 'pipe' ? <span className="text-zinc-500"> · {t('termClassic')}</span> : null} <span className="text-zinc-500">{baseName(s.cwd)}</span>
+                    {shellLabel(s.shell)}{ptyOk && s.kind === 'pipe' ? <span className="text-zinc-500"> · {t('termClassic')}</span> : null} <span className="text-zinc-500">{baseName(s.cwd)}</span>
                   </span>
                   <button
                     onClick={(e) => {
@@ -698,10 +712,10 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
           items={[
             ...(ptyOk
               ? [
-                  { label: `PowerShell · ${t('termFull')}`, icon: <SquareTerminal size={13} />, onClick: () => void createSession('powershell', 'pty') },
-                  { label: `CMD · ${t('termFull')}`, icon: <SquareTerminal size={13} />, onClick: () => void createSession('cmd', 'pty') },
-                  // Git Bash her zaman listelenir; Git for Windows yoksa soluk görünür ve ipucu nedenini söyler
-                  { label: `Git Bash · ${t('termFull')}`, icon: <GitBranch size={13} />, disabled: !gitBashOk, hint: t('termNoGitBash'), onClick: () => void createSession('gitbash', 'pty') },
+                  // Bilgisayarda kurulu tüm kabuklar (PowerShell, CMD, Git Bash, WSL dağıtımları, Cygwin, MSYS2, Nushell…): gerçek terminal
+                  ...profiles.map((p) => ({ label: p.label, icon: shellIcon(p.id, ''), onClick: () => void createSession(p.id, 'pty') })),
+                  // Git Bash kurulu değilse de listelenir: soluk görünür, ipucu nedenini söyler
+                  ...(gitBashOk ? [] : [{ label: 'Git Bash', icon: <GitBranch size={13} />, disabled: true, hint: t('termNoGitBash'), onClick: () => {} }]),
                   { separator: true as const }
                 ]
               : []),

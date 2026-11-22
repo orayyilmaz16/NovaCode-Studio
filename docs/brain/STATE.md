@@ -40,9 +40,9 @@
 | `electron-lsp.cjs` | 301 |
 | `electron-main.cjs` | 829 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 262 |
+| `electron-preload.cjs` | 263 |
 | `electron-preview.cjs` | 78 |
-| `electron-pty.cjs` | 144 |
+| `electron-pty.cjs` | 210 |
 | `electron-search.cjs` | 289 |
 | `electron-secrets.cjs` | 66 |
 | `electron-snippets.cjs` | 106 |
@@ -56,7 +56,7 @@
 |---|---|
 | `src/App.tsx` | 2400 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 475 |
+| `src/types.ts` | 477 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -98,7 +98,7 @@
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 80 |
-| `src/components/Terminal.tsx` | 715 |
+| `src/components/Terminal.tsx` | 729 |
 | `src/components/TestPanel.tsx` | 178 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |
@@ -191,7 +191,7 @@
 | `scripts/tests/palettes.test.cjs` | 75 |
 | `scripts/tests/paths.test.cjs` | 88 |
 | `scripts/tests/preview-csp.test.cjs` | 66 |
-| `scripts/tests/pty.test.cjs` | 98 |
+| `scripts/tests/pty.test.cjs` | 114 |
 | `scripts/tests/release.test.cjs` | 140 |
 | `scripts/tests/replace.test.cjs` | 71 |
 | `scripts/tests/search-redos.test.cjs` | 47 |
@@ -223,7 +223,7 @@
 | history | `history:clear`, `history:config`, `history:deleted`, `history:list`, `history:read` |
 | lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
 | preview | `preview:drop`, `preview:put` |
-| pty | `pty:available`, `pty:resize`, `pty:start`, `pty:stop`, `pty:write` |
+| pty | `pty:available`, `pty:profiles`, `pty:resize`, `pty:start`, `pty:stop`, `pty:write` |
 | search | `search:cancel`, `search:files`, `search:replace`, `search:text` |
 | secrets | `secrets:get`, `secrets:has`, `secrets:set` |
 | snippets | `snippets:load`, `snippets:read`, `snippets:save` |

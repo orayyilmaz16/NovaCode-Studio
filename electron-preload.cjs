@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Gerçek terminal (PTY): xterm.js ile çalışır
   pty: {
     available: () => ipcRenderer.invoke('pty:available'),
+    profiles: (force) => ipcRenderer.invoke('pty:profiles', force === true),
     start: (req) => ipcRenderer.invoke('pty:start', req),
     write: (id, data) => ipcRenderer.invoke('pty:write', id, data),
     resize: (id, cols, rows) => ipcRenderer.invoke('pty:resize', id, cols, rows),
