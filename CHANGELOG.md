@@ -29,7 +29,7 @@
 - [improve] **Tamamlama modeli varsayılanı küçüldü:** Kurulu küçük modele (`qwen2.5-coder:0.5b`) geçildi; satır içi öneriler çok daha hızlı. Eski varsayılanda kalmış kayıtlar otomatik taşınır, özel seçim korunur; sohbet ve ajan modeli 7b kalır.
 - [improve] **Eski AI sağlayıcı kodu temizlendi:** Arayüzden erişilemeyen yerleşik model, Anthropic ve OpenAI desteği ile API anahtarı alanları kaldırıldı (uygulama paketi ~110 MB küçülür). Yapay zekâ yalnız yerel Ollama ile çalışır.
 - [improve] **Terminal paneli Fluent geçişleri:** Alt paneldeki sekmeler artık tek bir yumuşak "hap" ile birbirine kayarak geçiyor (alttaki kısa vurgu çubuğu hapla birlikte hareket eder); sekme içeriği sekme sırasına göre yandan hafifçe kayarak belirir, terminal ve oturum değişiminde yumuşak solma var. Yeni terminal düğmesi bölünmüş düğme oldu, sağdaki oturum listesi yuvarlak kart satırlarına döndü. Koyu/açık temada doğru görünür; "Animasyonlar" kapalıyken ve azaltılmış harekette hareket durur.
-- [feat] **Git Bash terminali:** Yeni terminal menüsüne "Git Bash · tam" eklendi (Git for Windows kuruluysa görünür); gerçek terminal olarak çalışma klasöründe açılır. Ayarlar → Terminal → Varsayılan kabuk'ta da seçilebilir; Git Bash yoksa PowerShell kullanılır.
+- [feat] **Git Bash terminali:** Terminal çubuğundaki + yanında Git simgeli hızlı düğme ve açılır listede "Git Bash · tam" var (düğme Git for Windows kuruluysa görünür; kurulu değilse listede soluk durur ve nedenini ipucuyla söyler); gerçek terminal olarak çalışma klasöründe açılır. Ayarlar → Terminal → Varsayılan kabuk'ta da seçilebilir; Git Bash yoksa PowerShell kullanılır.
 
 ### en
 
@@ -58,7 +58,7 @@
 - [improve] **Smaller default completion model:** Inline suggestions now default to the installed small model (`qwen2.5-coder:0.5b`) and are much faster. Records still on the old default migrate automatically, custom choices are kept; chat and agent stay on 7b.
 - [improve] **Legacy AI provider code removed:** The unreachable built-in model, Anthropic and OpenAI support and API key fields were removed (the app package shrinks by ~110 MB). AI works only with local Ollama.
 - [improve] **Fluent transitions for the terminal panel:** Tabs in the bottom panel now slide between each other with a single soft pill (the short accent bar moves with it); tab content eases in from the side according to tab order, and switching terminals or sessions fades smoothly. The new-terminal button became a split button and the session list on the right turned into rounded card rows. Looks right in dark and light themes; motion stops when "Animations" is off or reduced motion is set.
-- [feat] **Git Bash terminal:** The new-terminal menu now offers "Git Bash · full" (shown when Git for Windows is installed); it opens as a real terminal in the workspace folder. It can also be picked in Settings > Terminal > Default shell; PowerShell is used when Git Bash is missing.
+- [feat] **Git Bash terminal:** The terminal bar gets a Git-icon quick button next to + and a "Git Bash · full" entry in the dropdown (the button shows when Git for Windows is installed; otherwise the entry is dimmed and a tooltip explains why); it opens as a real terminal in the workspace folder. It can also be picked in Settings > Terminal > Default shell; PowerShell is used when Git Bash is missing.
 
 ## 1.5.1 - 18.11.2026
 <!-- level: patch -->

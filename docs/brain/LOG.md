@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 22.11.2026 15:25 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvVGVybWluYWwudHN4LHws -->
+- Alan: [[terminal]]
+- Kod (1): `src/components/Terminal.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/terminal.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 22.11.2026 15:23 · auto/20261118-083349
 <!-- sig:ZWxlY3Ryb24tcHR5LmNqcyxzY3JpcHRzL3Rlc3Rz -->
 - Alan: [[terminal]], [[testing]], [[i18n]], [[settings]], [[ui-design]]
@@ -275,10 +282,3 @@
 - Kod (6): `.github/workflows/ci-cd.yml`, `scripts/bump-version.mjs`, `scripts/check-version.mjs`, `scripts/doc-sync.mjs`, `scripts/release.mjs`, `scripts/tests/release.test.cjs`
 - Belge (11): `AGENT.md`, `CHANGELOG.md`, `CLAUDE.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/doc-sync.md`, `docs/brain/actions/release.md` … (+3)
 - Durum: ✓ belgelendi · sürüm hazırlandı: v1.3.0 → v1.4.0 (minor) · uyarı: 90 etiketsiz madde (iyileştirme/patch sayıldı; [feat] [fix] [improve] [perf] [security] [breaking] [docs] kullan)
-
-## 17.11.2026 11:43 · auto/20261117-083449
-<!-- sig:c2NyaXB0cy9icmFpbi5tanMsc3JjL2NvbXBvbmVu -->
-- Alan: [[brain-maintenance]], [[settings]], [[i18n]], [[ui-design]], [[testing]]
-- Kod (11): `scripts/brain.mjs`, `src/components/SettingsPage.tsx`, `src/i18n/uiText.ts`, `src/services/SettingsContext.tsx`, `src/services/editorTheme.ts`, `src/services/extensionsService.ts`, `src/services/settings.ts`, `src/services/settingsSchema.json`, `scripts/tests/palettes.test.cjs`, `src/i18n/uiTextTheme.ts`, `src/services/palettes.ts`
-- Belge (4): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/settings.md`, `docs/brain/actions/testing.md`
-- Durum: ✓ belgelendi

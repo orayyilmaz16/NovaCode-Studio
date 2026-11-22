@@ -487,6 +487,11 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               <button onClick={() => void createSession(defaultShell)} disabled={!cwd} title={t('termNew')} aria-label={t('termNew')} className="icon-btn w-6! disabled:opacity-40">
                 <Plus size={15} />
               </button>
+              {gitBashOk && (
+                <button onClick={() => void createSession('gitbash', 'pty')} disabled={!cwd} title="Git Bash" aria-label="Git Bash" className="icon-btn w-6! disabled:opacity-40">
+                  <GitBranch size={14} />
+                </button>
+              )}
               <span aria-hidden className="w-px h-3.5 bg-zinc-500/30" />
               <button
                 onClick={(e) => {
@@ -686,7 +691,8 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               ? [
                   { label: `PowerShell · ${t('termFull')}`, icon: <SquareTerminal size={13} />, onClick: () => void createSession('powershell', 'pty') },
                   { label: `CMD · ${t('termFull')}`, icon: <SquareTerminal size={13} />, onClick: () => void createSession('cmd', 'pty') },
-                  ...(gitBashOk ? [{ label: `Git Bash · ${t('termFull')}`, icon: <GitBranch size={13} />, onClick: () => void createSession('gitbash', 'pty') }] : []),
+                  // Git Bash her zaman listelenir; Git for Windows yoksa soluk görünür ve ipucu nedenini söyler
+                  { label: `Git Bash · ${t('termFull')}`, icon: <GitBranch size={13} />, disabled: !gitBashOk, hint: t('termNoGitBash'), onClick: () => void createSession('gitbash', 'pty') },
                   { separator: true as const }
                 ]
               : []),

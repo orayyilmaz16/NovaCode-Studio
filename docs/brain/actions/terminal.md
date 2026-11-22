@@ -66,7 +66,7 @@ Alt panelde yumuşak, katmanlı yüzeyler: sekmeler `h-7` dolgulu hap (`bg-white
 ### Git Bash (22.11.2026)
 - Üçüncü kabuk: `gitbash`, **yalnız gerçek terminalde (PTY)**; boru (klasik) terminali bash için uygun değildir (istem/cwd işareti yok), bu yüzden `createSession` `gitbash` için türü PTY'ye zorlar ve menüde yalnız "· tam" girişi vardır.
 - `electron-pty.cjs` `findGitBash()`: `Program Files\Git\bin\bash.exe` (ProgramFiles / ProgramW6432 / x86 / `%LOCALAPPDATA%\Programs`) ve PATH'teki `git.exe`'ye göre bulunur. Yol rendererdan gelmez; System32'deki WSL `bash.exe` aranmaz. Argümanlar `--login -i`, ortam `CHERE_INVOKING=1` (oturum çalışma klasöründe kalır).
-- `pty:available` → `{ available, gitBash }`; menü girişi yalnız `gitBash` doğruysa görünür. Bulunamazsa `pty:start` `no-gitbash` döner (`termNoGitBash`, 8 dil).
+- `pty:available` → `{ available, gitBash }`; açılır listede "Git Bash · tam" her zaman vardır (`gitBash` yoksa `disabled` + `termNoGitBash` ipucu), `+` yanındaki Git simgeli hızlı düğme yalnız `gitBash` doğruysa görünür. Ana süreç değişikliği için uygulamayı yeniden başlatmak gerekir (eski ana süreç `gitBash` alanını döndürmez). Bulunamazsa `pty:start` `no-gitbash` döner (`termNoGitBash`, 8 dil).
 - Ayar `defaultShell`: `gitbash` seçeneği eklendi; Git Bash/PTY yoksa sessizce PowerShell'e düşer.
 - `cdCommand('gitbash', dir)`: `cd 'C:/yol'` (ters eğik çizgi düzleşir, tek tırnak `'\''` ile kaçırılır).
 - Test: `scripts/tests/pty.test.cjs` (Git Bash kuruluysa gerçek oturum, çalışma klasörü; yoksa `no-gitbash` hatası).
