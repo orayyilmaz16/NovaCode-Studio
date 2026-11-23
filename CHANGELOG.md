@@ -4,6 +4,7 @@
 
 ### tr
 
+- [fix] **Üst çubuk taşması:** Pencere tam ekran değilken üst çubuktaki arama kutusu çok yer kaplayıp sağdaki düğmeleri ve pencere denetimlerini taşırıyordu; arama kutusu daraldı ve gerekirse küçülüyor, sağ bölge her zaman tam görünüyor.
 - [fix] **Duyarlı üst çubuk:** Dar pencerede (telefon/tablet) sağdaki düğmeler kırpılıp kayboluyordu. Başlık çubuğu artık genişliğine göre uyum sağlar: önce klasör/önizleme/ayarlar grubu, sonra arama yazısı ve yapay zekâ bölmesi gizlenir (arama yalnız simge olur); kenar çubuğu ve alt panel düğmeleri her genişlikte görünür. 360, 520, 640, 900 ve 1500 px'te doğrulandı.
 - [improve] **Fluent başlık çubuğu:** Üst çubuk bölümlere ayrıldı: logo ve menü başlıkları ince bir ayırıcıyla ayrılır, menü öğeleri yumuşak köşeli ve dolgulu hover alır; arama/komut alanı dolgulu hap oldu; sağdaki düğmeler iki gruba (klasör/önizleme/ayarlar ve kenar çubuğu/alt panel) bölündü ve etkin düğmeler vurgulu görünür; pencere denetimleri ayrı bir ayırıcının ardında, kapat düğmesi çerçevenin köşesine uyar.
 - [improve] **Sekme çubuğunda + düğmesi kalktı:** Sekmelerin yanındaki yeni sekme (+) düğmesi kaldırıldı; yeni dosya Ctrl+N, menü veya karşılama ekranından açılır.
@@ -40,6 +41,7 @@
 
 ### en
 
+- [fix] **Top bar overflow:** When the window was not maximized, the search box in the top bar took too much space and pushed the right-side buttons and window controls out; the search box is narrower and shrinks when needed, and the right zone always stays fully visible.
 - [fix] **Responsive title bar:** In narrow windows (phone/tablet) the buttons on the right were clipped and disappeared. The title bar now adapts to its width: the folder/preview/settings group hides first, then the search label and the AI split (search becomes icon-only); the sidebar and bottom-panel buttons stay visible at every width. Verified at 360, 520, 640, 900 and 1500 px.
 - [improve] **Fluent title bar:** The top bar is split into sections: the logo and menu titles are separated by a thin divider and menu items get soft rounded hover fills; the search/command field is a filled pill; the buttons on the right are split into two groups (folder/preview/settings and sidebar/bottom panel) with highlighted active buttons; window controls sit behind their own divider and the close button follows the frame corner.
 - [improve] **Removed the + button from the tab bar:** The new-tab (+) button next to the tabs is gone; open a new file with Ctrl+N, the menu or the welcome screen.

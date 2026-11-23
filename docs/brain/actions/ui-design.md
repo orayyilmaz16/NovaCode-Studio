@@ -147,3 +147,6 @@ Sekme çubuğunda yeni sekme (+) düğmesi bulunmaz (kurucu isteği). Yeni dosya
 
 ### Başlık çubuğu: duyarlılık (23.11.2026)
 Başlık çubuğu `@container` olup `grid` yerine `flex` kullanır: sol ve sağ bölge `flex-1 basis-0`, orta bölge ortalı. Kap sorguları başlık genişliğine bakar (kök yazı 13 px olduğundan `@xl` ≈ 468 px, `@3xl` ≈ 624 px): `< @xl` arama yalnız simge (`w-9`) ve yapay zekâ bölmesi gizli; `< @3xl` klasör/önizleme/ayarlar grubu gizli (eylemler menü ve kısayollarda durur); `<= 380 px` ayırıcı ve düğme boşlukları daralır. Kenar çubuğu ve alt panel düğmeleri her zaman görünür. **Tuzak:** katmansız `.hdr-group { display }` Tailwind `hidden`'ı ezdiği için `display` sınıftan gelir. Menü başlıkları `vw < 1340` altında tek `Menü` düğmesine toplanır. 360/520/640/900/1500 px'te web önizlemede doğrulandı.
+
+## Üst çubuk bölgeleri (23.11.2026)
+Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `shrink`, genişlik `clamp(180px,24cqw,340px)` (`@xl` altında yalnız simge); sağ bölge `min-w-fit` ve içi `shrink-0`: düğmeler ve pencere denetimleri hiçbir genişlikte taşmaz/kırpılmaz.

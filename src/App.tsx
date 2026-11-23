@@ -1940,7 +1940,7 @@ export function App() {
         </div>
 
         {/* Orta: VS Code komut merkezi gibi tek hap: solda arama / proje alanı, en sağda ayrı bölmede yapay zekâ paneli düğmesi */}
-        <div className="app-no-drag flex items-stretch shrink-0 w-9 @xl:w-[clamp(160px,36cqw,460px)] h-7 rounded-md bg-white/[0.05] border border-white/[0.07] hover:bg-white/[0.08] hover:border-white/[0.12] motion-press overflow-hidden">
+        <div className="app-no-drag flex items-stretch shrink min-w-9 w-9 @xl:w-[clamp(180px,24cqw,340px)] h-7 rounded-md bg-white/[0.05] border border-white/[0.07] hover:bg-white/[0.08] hover:border-white/[0.12] motion-press overflow-hidden">
           <button
             onClick={() => setPalette('')}
             title={`${t('cpTitle')} (Ctrl+P)`}
@@ -1968,8 +1968,8 @@ export function App() {
           </button>
         </div>
 
-        <div className="flex flex-1 basis-0 items-center justify-end h-full min-w-0">
-        <div className="app-no-drag flex items-center justify-end gap-1.5 min-w-0 pe-1">
+        <div className="flex flex-1 basis-0 items-center justify-end h-full min-w-fit">
+        <div className="app-no-drag flex items-center justify-end gap-1.5 shrink-0 pe-1">
           <div className="hdr-group hidden @3xl:inline-flex">
           <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="hdr-btn">
             <FolderOpen size={15} />

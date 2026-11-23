@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 23.11.2026 12:02 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
+- Alan: [[ui-design]]
+- Kod (1): `src/App.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 23.11.2026 11:59 · auto/20261118-083349
 <!-- sig:c3JjL0FwcC50c3gsc3JjL3N0eWxlLmNzcyx8LENI -->
 - Alan: [[ui-design]], [[motion]]
@@ -275,10 +282,3 @@
 - Kod (2): `src/App.tsx`, `src/components/Preview.tsx`
 - Belge (17): `CHANGELOG.md`, `docs/brain/actions/ai-assistant.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/debugging.md`, `docs/brain/actions/explorer.md`, `docs/brain/actions/git-github.md`, `docs/brain/actions/i18n.md`, `docs/brain/actions/lsp.md` … (+9)
 - Durum: ✓ belgelendi · sürüm hazırlandı: v1.4.1 → v1.4.2 (patch)
-
-## 17.11.2026 16:24 · auto/20261117-130721
-<!-- sig:ZWxlY3Ryb24tZ2l0LmNqcyxzcmMvY29tcG9uZW50 -->
-- Alan: [[git-github]], [[ui-design]], [[lsp]], [[testing]]
-- Kod (6): `electron-git.cjs`, `src/components/EditorArea.tsx`, `src/main.tsx`, `src/services/editorBridge.ts`, `src/services/lspClient.ts`, `scripts/tests/paths.test.cjs`
-- Belge (0): —
-- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
