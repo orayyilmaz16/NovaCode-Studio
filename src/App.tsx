@@ -204,6 +204,14 @@ export function App() {
   const [previewWidth, setPreviewWidth] = useState(() => loadStoredNumber('nova.previewWidth', 560));
   // Pencere genişliği: dar ekranda paneller editörü ezmesin (sağ paneller üstüne biner, kenar çubuğu daralır)
   const [vw, setVw] = useState(() => window.innerWidth);
+  // Tam ekran/büyütülmüş değilse (pencereli/sekme görünümü) üst çubuk kompakt olur: <html data-win="windowed"> (style.css)
+  const markWindowed = () => {
+    const windowed = window.outerWidth < window.screen.availWidth - 8;
+    document.documentElement.dataset.win = windowed ? 'windowed' : 'full';
+    setWindowed((cur) => (cur === windowed ? cur : windowed));
+  };
+  const [windowed, setWindowed] = useState(() => window.outerWidth < window.screen.availWidth - 8);
+  useEffect(markWindowed, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     let raf = 0;
     const on = () => {
@@ -211,13 +219,14 @@ export function App() {
       raf = requestAnimationFrame(() => {
         raf = 0;
         setVw((cur) => (cur === window.innerWidth ? cur : window.innerWidth));
+        markWindowed();
       });
     };
     window.addEventListener('resize', on);
     return () => { window.removeEventListener('resize', on); if (raf) cancelAnimationFrame(raf); };
   }, []);
   const compactRight = vw < 1100;
-  const compactMenu = vw < 1340; // dar pencerede menü başlıkları tek "Menü" düğmesine toplanır
+  const compactMenu = vw < 1340 || windowed; // dar pencerede menü başlıkları tek "Menü" düğmesine toplanır
   // Telefon/dar tablet: kenar çubuğu editörü ezmez, üstüne biner (sağ paneller gibi); dışına dokunmak veya dosya seçmek kapatır
   const compactLeft = vw < 760;
   const sbW = compactLeft ? Math.max(200, Math.min(sidebarWidth, 320, vw - 96)) : Math.min(sidebarWidth, Math.max(180, Math.round(vw * 0.34)));

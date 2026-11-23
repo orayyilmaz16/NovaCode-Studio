@@ -847,13 +847,15 @@ button.status-item:hover {
 .hdr-btn[data-active="true"] { background: color-mix(in srgb, var(--color-indigo-500) 24%, transparent); color: var(--color-indigo-100); }
 .hdr-btn[aria-disabled="true"] { opacity: 0.35; cursor: default; }
 .hdr-btn[aria-disabled="true"]:hover { background: transparent; color: var(--color-zinc-400); }
-/* Dar/pencereli görünüm (başlık kabı < 64rem): düğmeler, ayırıcılar ve pencere denetimleri küçülür */
-@container (max-width: 64rem) {
+/* Pencereli (tam ekran olmayan) görünüm: düğmeler, ayırıcılar, menü ve pencere denetimleri küçülür */
+.mb-btn { height: 28px; padding-inline: 10px; font-size: 12px; }
+:root[data-win="windowed"] {
   .hdr-btn { width: 24px; height: 20px; }
   .hdr-btn svg { width: 13px; height: 13px; }
   .hdr-group { padding: 1px; gap: 1px; }
   .hdr-sep { margin-inline: 3px; height: 14px; }
   .wc-btn { width: 34px; }
+  .mb-btn { height: 24px; padding-inline: 8px; font-size: 11.5px; }
 }
 
 /* Başlık çubuğu dar kapta: arama düğmesi yalnız simge (kare), kapsül ayrıcıları sıkışmasın */
