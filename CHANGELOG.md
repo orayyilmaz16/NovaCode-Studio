@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Fluent başlık çubuğu:** Üst çubuk bölümlere ayrıldı: logo ve menü başlıkları ince bir ayırıcıyla ayrılır, menü öğeleri yumuşak köşeli ve dolgulu hover alır; arama/komut alanı dolgulu hap oldu; sağdaki düğmeler iki gruba (klasör/önizleme/ayarlar ve kenar çubuğu/alt panel) bölündü ve etkin düğmeler vurgulu görünür; pencere denetimleri ayrı bir ayırıcının ardında, kapat düğmesi çerçevenin köşesine uyar.
 - [improve] **Sekme çubuğunda + düğmesi kalktı:** Sekmelerin yanındaki yeni sekme (+) düğmesi kaldırıldı; yeni dosya Ctrl+N, menü veya karşılama ekranından açılır.
 - [feat] **Uzak pencere seçici:** Durum çubuğunun sol alt düğmesi (veya komut paleti → "Uzak pencere aç") VS Code'daki gibi bir seçici açar: github.dev'de devam et, Tünel (yakında), SSH (Uzak Sunucu penceresini açar), Dev Container (yakında), WSL (Windows'ta terminalde), GitHub Codespace ve Uzak Depo (GitHub'da açar). Çalışmayan seçenekler pasif görünür. 8 dilde.
 - [feat] **Uzak sunucu (SSH):** VS Code Remote-SSH gibi uzak sunucuya bağlanıp klasörünü Gezgin'de açabilir, dosyaları düzenleyip kaydedebilir ve uzak terminal kullanabilirsin (Dosya menüsü, komut paleti, karşılama ekranı ve durum çubuğunun solundaki düğme). Parola kaydedilmez; sunucunun parmak izi ilk bağlantıda onay ister, değişirse bağlantı kesilir. SSH ajanı, özel anahtar ve parola desteklenir. İlk sürümde uzak klasörde Git paneli, arama ve yapay zekâ araçları yoktur.
@@ -38,6 +39,7 @@
 
 ### en
 
+- [improve] **Fluent title bar:** The top bar is split into sections: the logo and menu titles are separated by a thin divider and menu items get soft rounded hover fills; the search/command field is a filled pill; the buttons on the right are split into two groups (folder/preview/settings and sidebar/bottom panel) with highlighted active buttons; window controls sit behind their own divider and the close button follows the frame corner.
 - [improve] **Removed the + button from the tab bar:** The new-tab (+) button next to the tabs is gone; open a new file with Ctrl+N, the menu or the welcome screen.
 - [feat] **Remote window picker:** The bottom-left status bar button (or Command Palette → "Open a remote window") opens a VS Code-style picker: continue on github.dev, Tunnel (soon), SSH (opens the Remote Server dialog), Dev Container (soon), WSL (in the terminal on Windows), GitHub Codespace and Remote Repository (opens on GitHub). Unavailable options appear disabled. In 8 languages.
 - [feat] **Remote server (SSH):** Like VS Code Remote-SSH, you can connect to a remote server, open its folder in the Explorer, edit and save files, and use a remote terminal (File menu, command palette, welcome screen and the button at the left of the status bar). Passwords are never saved; the server fingerprint asks for confirmation on first connect and the connection is refused if it changes. SSH agent, private key and password are supported. In this first version the Git panel, search and AI tools are not available in a remote folder.

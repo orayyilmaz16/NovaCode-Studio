@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 23.11.2026 11:56 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvTWVu -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (4): `src/App.tsx`, `src/components/MenuBar.tsx`, `src/components/WindowControls.tsx`, `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 23.11.2026 11:53 · auto/20261118-083349
 <!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
 - Alan: [[ui-design]]
@@ -273,12 +280,5 @@
 <!-- sig:ZWxlY3Ryb24tZGVidWcuY2pzLGVsZWN0cm9uLWxz -->
 - Alan: [[debugging]], [[lsp]], [[terminal]], [[ui-design]]
 - Kod (7): `electron-debug.cjs`, `electron-lsp.cjs`, `electron-pty.cjs`, `src/services/problems.ts`, `src/components/AppDialogs.tsx`, `src/components/ErrorBoundary.tsx`, `src/components/StatusCursor.tsx`
-- Belge (0): —
-- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
-
-## 17.11.2026 16:20 · auto/20261117-130721
-<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvY2ktY2QueW1sLC5n -->
-- Alan: [[ci-cd]], [[ai-assistant]], [[git-github]], [[security-kvkk]], [[search-palette]], [[updates]], [[ui-design]], [[debugging]], [[extensions]], [[explorer]], [[preview]], [[source-control]], [[settings]], [[terminal]], [[i18n]], [[motion]], [[testing]]
-- Kod (50): `.github/workflows/ci-cd.yml`, `.github/workflows/ci-failure-issue.yml`, `.github/workflows/dependabot-automerge.yml`, `.github/workflows/security.yml`, `electron-ai.cjs`, `electron-github.cjs`, `electron-llm.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-search.cjs`, `electron-secrets.cjs`, `electron-update.cjs` … (+38)
 - Belge (0): —
 - Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md

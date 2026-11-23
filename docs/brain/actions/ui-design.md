@@ -141,3 +141,6 @@ Etkin sekme çubukta görünür alana `scrollTo` ile 12 px paylı kaydırılır 
 
 ## Sekme çubuğu: yeni sekme (+) düğmesi yok (23.11.2026)
 Sekme çubuğunda yeni sekme (+) düğmesi bulunmaz (kurucu isteği). Yeni dosya Ctrl+N, Dosya menüsü, komut paleti veya karşılama/boş editör ekranındaki "Yeni dosya" ile açılır; sekme çubuğuna yeni düğme eklenmez.
+
+## Başlık çubuğu: Fluent gruplama (23.11.2026)
+Üst çubuk üç bölge: sol (logo · `hdr-sep` · menü başlıkları `h-7 rounded-md`), orta (dolgulu arama hapı `bg-white/[0.05]`, solda yapay zekâ bölmesi), sağ (iki `hdr-group` kapsülü: klasör/önizleme/ayarlar ve kenar çubuğu/alt panel; `hdr-sep`; pencere denetimleri). `hdr-btn` 30×24, etkinde `indigo-500/24` zemin; `hdr-sep` 1×16 px, `zinc-50` %14. Menü başlıkları genişlediği için tek `Menü` düğmesine geçiş eşiği 1280 → 1340 px. Kapat düğmesi çerçeve köşesine uyar (`rounded-e`). Gölge/degrade eklenmedi (kural 9).

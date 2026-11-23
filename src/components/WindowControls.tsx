@@ -40,7 +40,7 @@ export const WindowControls: React.FC = () => {
           <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden><rect x=".5" y=".5" width="9" height="9" {...glyph} /></svg>
         )}
       </button>
-      <button onClick={() => void wc.close()} title={t('wcClose')} aria-label={t('wcClose')} className={`${base} hover:!bg-[#e81123] hover:!text-white`}>
+      <button onClick={() => void wc.close()} title={t('wcClose')} aria-label={t('wcClose')} className={`${base} hover:!bg-[#e81123] hover:!text-white rounded-e-[calc(var(--frame-r)-1px)]`}>
         <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden><path d="M0 0l10 10M10 0L0 10" {...glyph} shapeRendering="auto" /></svg>
       </button>
     </div>

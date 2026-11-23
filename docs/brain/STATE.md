@@ -56,7 +56,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2449 |
+| `src/App.tsx` | 2455 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 510 |
 

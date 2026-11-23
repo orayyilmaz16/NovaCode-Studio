@@ -813,3 +813,37 @@ button.status-item:hover {
   .btn-ghost:hover { background: var(--color-nv-hover); border-color: color-mix(in srgb, var(--color-indigo-400) 45%, var(--color-nv-border)); }
   .btn-primary:active, .btn-ghost:active { transform: scale(0.97); }
 }
+
+/* ---------- Başlık çubuğu (Fluent): gruplar, ayırıcılar, yumuşak düğmeler ---------- */
+.hdr-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--r-md);
+  background: rgb(255 255 255 / 0.045);
+}
+:root[data-theme="light"] .hdr-group { background: rgb(0 0 0 / 0.045); }
+.hdr-sep {
+  flex-shrink: 0;
+  width: 1px;
+  height: 16px;
+  margin-inline: 6px;
+  background: color-mix(in srgb, var(--color-zinc-50) 14%, transparent);
+}
+.hdr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 24px;
+  border-radius: calc(var(--r-md) - 1px);
+  color: var(--color-zinc-400);
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-soft);
+}
+.hdr-btn:hover { background: color-mix(in srgb, var(--color-zinc-50) 10%, transparent); color: var(--color-zinc-50); }
+.hdr-btn:active { transform: scale(0.94); }
+.hdr-btn:focus-visible { outline: 2px solid var(--color-indigo-400); outline-offset: -1px; }
+.hdr-btn[data-active="true"] { background: color-mix(in srgb, var(--color-indigo-500) 24%, transparent); color: var(--color-indigo-100); }
+.hdr-btn[aria-disabled="true"] { opacity: 0.35; cursor: default; }
+.hdr-btn[aria-disabled="true"]:hover { background: transparent; color: var(--color-zinc-400); }

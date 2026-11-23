@@ -217,7 +217,7 @@ export function App() {
     return () => { window.removeEventListener('resize', on); if (raf) cancelAnimationFrame(raf); };
   }, []);
   const compactRight = vw < 1100;
-  const compactMenu = vw < 1280; // dar pencerede menü başlıkları tek "Menü" düğmesine toplanır
+  const compactMenu = vw < 1340; // dar pencerede menü başlıkları tek "Menü" düğmesine toplanır
   // Telefon/dar tablet: kenar çubuğu editörü ezmez, üstüne biner (sağ paneller gibi); dışına dokunmak veya dosya seçmek kapatır
   const compactLeft = vw < 760;
   const sbW = compactLeft ? Math.max(200, Math.min(sidebarWidth, 320, vw - 96)) : Math.min(sidebarWidth, Math.max(180, Math.round(vw * 0.34)));
@@ -1935,11 +1935,12 @@ export function App() {
       >
         <div className="flex items-center h-full min-w-0 overflow-hidden">
           <div className="flex items-center pl-3 pr-1 h-full shrink-0"><Logo size={18} /></div>
+          <span className="hdr-sep app-no-drag" aria-hidden />
           <MenuBar menus={menus} compact={compactMenu} />
         </div>
 
         {/* Orta: VS Code komut merkezi gibi tek hap: solda arama / proje alanı, en sağda ayrı bölmede yapay zekâ paneli düğmesi */}
-        <div className="app-no-drag flex items-stretch min-w-0 h-6 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 motion-press overflow-hidden">
+        <div className="app-no-drag flex items-stretch min-w-0 h-7 rounded-md bg-white/[0.05] border border-white/[0.07] hover:bg-white/[0.08] hover:border-white/[0.12] motion-press overflow-hidden">
           <button
             onClick={() => setPalette('')}
             title={`${t('cpTitle')} (Ctrl+P)`}
@@ -1960,15 +1961,16 @@ export function App() {
             aria-label={t('actAI')}
             aria-pressed={aiOpen}
             data-active={aiOpen}
-            className={`shrink-0 w-8 flex items-center justify-center border-s border-zinc-700/70 motion-press ${aiOpen ? 'bg-indigo-500/25 text-indigo-100' : 'text-indigo-300 hover:bg-white/5 hover:text-indigo-100'}`}
+            className={`shrink-0 w-9 flex items-center justify-center border-s border-white/[0.09] motion-press ${aiOpen ? 'bg-indigo-500/25 text-indigo-100' : 'text-indigo-300 hover:bg-white/5 hover:text-indigo-100'}`}
           >
             <Sparkles size={13} />
           </button>
         </div>
 
         <div className="flex items-center justify-end h-full min-w-0">
-        <div className="app-no-drag flex items-center justify-end gap-0.5 min-w-0 pr-2">
-          <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="icon-btn">
+        <div className="app-no-drag flex items-center justify-end gap-1.5 min-w-0 pe-1">
+          <div className="hdr-group">
+          <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="hdr-btn">
             <FolderOpen size={15} />
           </button>
           <button
@@ -1977,7 +1979,7 @@ export function App() {
             title={canPreview ? t('tbPreview') : `${t('tbPreview')} — ${t('mnHintHtml')}`}
             aria-label={t('tbPreview')}
             data-active={showRightPanel === 'preview'}
-            className="icon-btn"
+            className="hdr-btn"
           >
             <Columns size={15} />
           </button>
@@ -1990,12 +1992,14 @@ export function App() {
               title={`${t('actSettings')} (Ctrl+,)`}
               aria-label={t('actSettings')}
               data-active={showSettings}
-              className="icon-btn"
+              className="hdr-btn"
             >
               <Settings size={15} />
             </button>
           )}
-          <button onClick={() => setSidebarVisible((v) => !v)} title={t('tbSidebar')} aria-label={t('tbSidebar')} data-active={sidebarShown} className="icon-btn">
+          </div>
+          <div className="hdr-group">
+          <button onClick={() => setSidebarVisible((v) => !v)} title={t('tbSidebar')} aria-label={t('tbSidebar')} data-active={sidebarShown} className="hdr-btn">
             <PanelLeft size={15} />
           </button>
           <button
@@ -2004,11 +2008,13 @@ export function App() {
             title={currentRootPath ? t('tbTerminal') : `${t('tbTerminal')} — ${t('mnHintNoFolder')}`}
             aria-label={t('tbTerminal')}
             data-active={showBottomTerminal}
-            className="icon-btn"
+            className="hdr-btn"
           >
             <PanelBottom size={15} />
           </button>
+          </div>
         </div>
+        {isElectron && <span className="hdr-sep app-no-drag" aria-hidden />}
         {isElectron && <WindowControls />}
         </div>
       </header>
