@@ -54,3 +54,6 @@ Dosya içeriği NovaCode'un hiçbir 3. parti servisine gitmez; yalnız seçilen 
 - Bağlantı kopunca otomatik yeniden bağlanma yok; klasörsüz duruma dönülür, kaydedilmemiş sekmeler kalır.
 - Uzak oturum `session` kaydına yazılmaz (bağlantısız açılışta `ssh://` yolları geri yüklenemez).
 - Atomik kayıt `posix-rename` eklentisini kullanır; sunucu desteklemezse doğrudan yazar.
+
+## Uzak pencere seçici (23.11.2026)
+Durum çubuğundaki sol alt düğme artık doğrudan RemoteDialog'u değil, önce `RemoteMenu.tsx` seçicisini açar (VS Code "Open a Remote Window" benzeri). Satırlar: github.dev (GitHub bağlı depo varsa `https://github.dev/<sahip/depo>/tree/<dal>`), Tünel ve Dev Container (pasif, "Yakında"), SSH (`onOpenSsh` → RemoteDialog), WSL (yalnız Windows; entegre terminalde `wsl`), GitHub Codespace (`https://github.com/codespaces`), Uzak Depo (depo URL'si). Dış bağlantılar `github:openExternal` ile açılır; izinli önek listesine yalnız `https://github.dev/` eklendi (electron-github.cjs `ALLOWED_OPEN`). Komut paletinde `remoteWindow`. Metinler `uiTextDev.ts` (`rw*`, 8 dil); mevcut `rm*` anahtarlarıyla (uiTextRemote.ts) çakışmasın diye ayrı önek. Yeni kişisel veri yok: sunucu adı sorulmaz/kaydedilmez, depo adı yalnız GitHub'a açılan bağlantıda geçer.

@@ -39,6 +39,7 @@ import { getCollabRoomId } from './services/collabRoom';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
+const RemoteMenu = lazy(() => import('./components/RemoteMenu').then((m) => ({ default: m.RemoteMenu })));
 const CommitHistoryMenu = lazy(() => import('./components/CommitHistoryMenu').then((m) => ({ default: m.CommitHistoryMenu })));
 const CompletionMenu = lazy(() => import('./components/CompletionMenu').then((m) => ({ default: m.CompletionMenu })));
 const BranchPicker = lazy(() => import('./components/BranchPicker').then((m) => ({ default: m.BranchPicker })));
@@ -145,6 +146,7 @@ export function App() {
   const remoteRef = useRef(remoteHost);
   remoteRef.current = remoteHost;
   const [showRemote, setShowRemote] = useState(false);
+  const [remoteMenu, setRemoteMenu] = useState(false);
   useEffect(() => window.electronAPI?.ssh?.onEvent((ev) => {
     const r = remoteRef.current;
     if (ev.type !== 'disconnected' || !r || r.hostId !== ev.id) return;
@@ -1769,6 +1771,7 @@ export function App() {
     { id: 'newFile', label: t('newFile'), shortcut: 'Ctrl+N', run: L.handleNewUntitled },
     { id: 'openFolder', label: t('openFolder'), shortcut: 'Ctrl+O', run: () => void L.handleOpenFolderDialog() },
     { id: 'remoteConnect', label: t('rmConnect'), run: () => setShowRemote(true) },
+    { id: 'remoteWindow', label: t('rwTitle'), run: () => setRemoteMenu(true) },
     { id: 'save', label: t('cmdSave'), shortcut: 'Ctrl+S', run: L.saveActive },
     { id: 'closeTab', label: t('cmdCloseTab'), shortcut: 'Ctrl+W', run: L.closeActive },
     { id: 'reopenTab', label: t('appReopenTab'), shortcut: 'Ctrl+Shift+T', run: () => void L.reopenClosedTab() },
@@ -1888,6 +1891,18 @@ export function App() {
 
       {trustState.root && !trustState.trusted && trustState.prompt && <LazyPanel><TrustDialog /></LazyPanel>}
       {showKeybindings && <LazyPanel><KeybindingsEditor onClose={() => setShowKeybindings(false)} /></LazyPanel>}
+      {remoteMenu && (
+        <LazyPanel>
+          <RemoteMenu
+            repo={currentRootPath}
+            branch={gitStatus.branch}
+            hasRemote={gitStatus.hasRemote}
+            onClose={() => setRemoteMenu(false)}
+            onOpenSsh={() => setShowRemote(true)}
+            onRunInTerminal={(command) => { setShowBottomTerminal(true); void sendTerminalWhenReady({ action: 'run', command }); }}
+          />
+        </LazyPanel>
+      )}
       {showRemote && <LazyPanel><RemoteDialog onClose={() => setShowRemote(false)} onOpened={applyWorkspace} /></LazyPanel>}
 
       {updateDlg && <UpdateDialog initialTab={updateDlg} autoDownload={settings.updateAutoDownload === true} onClose={() => setUpdateDlg(null)} />}
@@ -2352,7 +2367,7 @@ export function App() {
           <div className="flex items-center h-full min-w-0 overflow-hidden">
             <button
               className={`status-item ${remoteHost ? 'bg-indigo-600 text-white' : ''}`}
-              onClick={() => setShowRemote(true)}
+              onClick={() => setRemoteMenu(true)}
               title={remoteHost ? t('rmStatusOn').replace('{h}', remoteHost.name) : t('rmStatusIdle')}
               aria-label={remoteHost ? t('rmStatusOn').replace('{h}', remoteHost.name) : t('rmStatusIdle')}
             >

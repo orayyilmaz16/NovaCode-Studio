@@ -10,7 +10,7 @@ const fs = require('fs');
 // Kapsam notu (S-18): 'repo', özel depolara git push/clone (HTTPS) ve özel depo listesi için GitHub OAuth'unun sunduğu TEK kapsamdır;
 // 'public_repo' özel depoları bozar. Daha dar yetki yalnız ince ayarlı GitHub App kurulumuyla mümkündür (ayrı bir ürün kararı), bu yüzden düşürülmedi.
 const GITHUB_SCOPES = 'repo read:user';
-const ALLOWED_OPEN = ['https://github.com/', 'https://docs.github.com/'];
+const ALLOWED_OPEN = ['https://github.com/', 'https://docs.github.com/', 'https://github.dev/'];
 
 let session = { token: null, profile: null };
 let pendingUserCode = ''; // cihaz akışındaki bekleyen kod (yalnız bunu panoya kopyalarız)

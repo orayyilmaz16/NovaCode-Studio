@@ -336,6 +336,42 @@ export const DEV_TEXT = {
   pnlTestClear: {
     tr: "Sonucu temizle", en: "Clear result", de: "Ergebnis löschen", ru: "Очистить результат", ar: "مسح النتيجة", es: "Borrar resultado", fr: "Effacer le résultat", az: "Nəticəni təmizlə",
   },
+  rwTitle: {
+    tr: "Uzak pencere aç", en: "Open a remote window", de: "Remote-Fenster öffnen", ru: "Открыть удалённое окно", ar: "فتح نافذة بعيدة", es: "Abrir una ventana remota", fr: "Ouvrir une fenêtre distante", az: "Uzaq pəncərə aç",
+  },
+  rwPlaceholder: {
+    tr: "Bir uzak pencere seçeneği seç", en: "Select an option to open a remote window", de: "Option zum Öffnen eines Remote-Fensters wählen", ru: "Выберите вариант удалённого окна", ar: "اختر خيارًا لفتح نافذة بعيدة", es: "Selecciona una opción para abrir una ventana remota", fr: "Sélectionnez une option de fenêtre distante", az: "Uzaq pəncərə seçimi edin",
+  },
+  rwGithubDev: {
+    tr: "github.dev'de çalışmaya devam et", en: "Continue working on github.dev", de: "Auf github.dev weiterarbeiten", ru: "Продолжить работу на github.dev", ar: "متابعة العمل على github.dev", es: "Continuar en github.dev", fr: "Continuer sur github.dev", az: "github.dev-də işi davam etdir",
+  },
+  rwTunnel: {
+    tr: "Tünel", en: "Tunnel", de: "Tunnel", ru: "Туннель", ar: "نفق", es: "Túnel", fr: "Tunnel", az: "Tunel",
+  },
+  rwDevContainer: {
+    tr: "Geliştirme Kapsayıcısı", en: "Dev Container", de: "Dev-Container", ru: "Dev-контейнер", ar: "حاوية التطوير", es: "Contenedor de desarrollo", fr: "Conteneur de développement", az: "Dev konteyner",
+  },
+  rwCodespace: {
+    tr: "GitHub Codespace", en: "GitHub Codespace", de: "GitHub Codespace", ru: "GitHub Codespace", ar: "GitHub Codespace", es: "GitHub Codespace", fr: "GitHub Codespace", az: "GitHub Codespace",
+  },
+  rwRemoteRepo: {
+    tr: "Uzak Depo", en: "Remote Repository", de: "Remote-Repository", ru: "Удалённый репозиторий", ar: "المستودع البعيد", es: "Repositorio remoto", fr: "Dépôt distant", az: "Uzaq depo",
+  },
+  rwSoon: {
+    tr: "Yakında", en: "Soon", de: "Bald", ru: "Скоро", ar: "قريبًا", es: "Próximamente", fr: "Bientôt", az: "Tezliklə",
+  },
+  rwTerminalBadge: {
+    tr: "Terminal", en: "Terminal", de: "Terminal", ru: "Терминал", ar: "الطرفية", es: "Terminal", fr: "Terminal", az: "Terminal",
+  },
+  rwNeedFolder: {
+    tr: "Önce bir klasör aç", en: "Open a folder first", de: "Öffne zuerst einen Ordner", ru: "Сначала откройте папку", ar: "افتح مجلدًا أولًا", es: "Abre primero una carpeta", fr: "Ouvrez d'abord un dossier", az: "Əvvəlcə qovluq açın",
+  },
+  rwNeedRepo: {
+    tr: "Bu klasörde bağlı bir GitHub deposu yok", en: "No connected GitHub repository in this folder", de: "Kein verbundenes GitHub-Repository in diesem Ordner", ru: "В этой папке нет подключённого репозитория GitHub", ar: "لا يوجد مستودع GitHub متصل في هذا المجلد", es: "No hay un repositorio de GitHub conectado en esta carpeta", fr: "Aucun dépôt GitHub connecté dans ce dossier", az: "Bu qovluqda qoşulmuş GitHub deposu yoxdur",
+  },
+  rwDesktopOnly: {
+    tr: "Yalnız masaüstü uygulamasında", en: "Desktop app only", de: "Nur in der Desktop-App", ru: "Только в настольном приложении", ar: "في تطبيق سطح المكتب فقط", es: "Solo en la aplicación de escritorio", fr: "Application de bureau uniquement", az: "Yalnız masaüstü tətbiqində",
+  },
 } satisfies Record<string, Dict>;
 
 export type DevTextKey = keyof typeof DEV_TEXT;

@@ -56,7 +56,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2434 |
+| `src/App.tsx` | 2449 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 510 |
 
@@ -94,6 +94,7 @@
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/RemoteDialog.tsx` | 313 |
+| `src/components/RemoteMenu.tsx` | 159 |
 | `src/components/ResizeHandle.tsx` | 69 |
 | `src/components/SearchPanel.tsx` | 214 |
 | `src/components/SettingsPage.tsx` | 746 |
@@ -158,7 +159,7 @@
 | `src/i18n/uiText.ts` | 670 |
 | `src/i18n/uiTextAi.ts` | 588 |
 | `src/i18n/uiTextComp.ts` | 329 |
-| `src/i18n/uiTextDev.ts` | 343 |
+| `src/i18n/uiTextDev.ts` | 379 |
 | `src/i18n/uiTextRemote.ts` | 180 |
 | `src/i18n/uiTextScm.ts` | 276 |
 | `src/i18n/uiTextTheme.ts` | 1127 |
@@ -244,7 +245,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1068 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1080 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
