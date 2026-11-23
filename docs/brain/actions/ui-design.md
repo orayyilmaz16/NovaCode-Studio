@@ -156,3 +156,5 @@ Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `s
 **İçeriği kadar kart (23.11.2026):** sol ve sağ kart `flex-1` değil; aralarındaki `flex-1` boşluklar kartsızdır (sürükleme alanı). Orta kart iki boşluğun arasında kalır.
 
 **Tam ortalı arama (23.11.2026):** `header` `grid-cols-[minmax(0,1fr)_auto_minmax(max-content,1fr)]`: sol kart `justify-self-start`, sağ kart `justify-self-end`, orta arama kartı `auto` sütunda geometrik merkezde. Önceki `flex-1` boşluk elemanları kalktı.
+
+**Dar görünümde küçültme (23.11.2026):** başlık kabı < 64rem iken `.hdr-btn` 24×20 (simge 13 px), `.hdr-sep`/`.hdr-group` daha sıkı, `.wc-btn` 34 px; MenuBar düğmeleri `h-6 px-2 text-[11.5px]` (`@5xl` ve üstünde eski boyut).

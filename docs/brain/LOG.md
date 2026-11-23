@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 23.11.2026 12:08 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvTWVudUJhci50c3gsc3Jj -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (3): `src/components/MenuBar.tsx`, `src/components/WindowControls.tsx`, `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 23.11.2026 12:06 · auto/20261118-083349
 <!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
 - Alan: [[ui-design]]
@@ -273,12 +280,5 @@
 <!-- sig:c3JjL0FwcC50c3gsc3JjL2kxOG4vdWlUZXh0VGhl -->
 - Alan: [[ui-design]], [[i18n]]
 - Kod (2): `src/App.tsx`, `src/i18n/uiTextTheme.ts`
-- Belge (0): —
-- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
-
-## 17.11.2026 16:37 · auto/20261117-130721
-<!-- sig:ZWxlY3Ryb24tYWkuY2pzLGVsZWN0cm9uLWRlYnVn -->
-- Alan: [[ai-assistant]], [[debugging]], [[lsp]], [[security-kvkk]], [[search-palette]], [[explorer]], [[preview]], [[ui-design]], [[terminal]], [[i18n]], [[settings]], [[git-github]], [[testing]]
-- Kod (29): `electron-ai.cjs`, `electron-debug.cjs`, `electron-llm.cjs`, `electron-lsp.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-search.cjs`, `src/components/FileTree.tsx`, `src/components/Preview.tsx`, `src/components/SearchPanel.tsx`, `src/components/Terminal.tsx`, `src/i18n/uiTextAi.ts` … (+17)
 - Belge (0): —
 - Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md

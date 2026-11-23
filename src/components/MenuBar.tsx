@@ -66,7 +66,7 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
           aria-label={t('mnMenu')}
           data-active={open !== null}
           onClick={(e) => { if (!justClosed('__root')) openFor('__root', e.currentTarget); }}
-          className={`h-7 px-2.5 rounded-md flex items-center gap-1.5 text-[12px] whitespace-nowrap shrink-0 transition-colors duration-(--dur-fast) ${open ? 'bg-white/[0.09] text-zinc-50' : 'text-zinc-300 hover:bg-white/[0.07]'}`}
+          className={`h-6 @5xl:h-7 px-2 @5xl:px-2.5 rounded-md flex items-center gap-1.5 text-[11.5px] @5xl:text-[12px] whitespace-nowrap shrink-0 transition-colors duration-(--dur-fast) ${open ? 'bg-white/[0.09] text-zinc-50' : 'text-zinc-300 hover:bg-white/[0.07]'}`}
         >
           <MenuIcon size={14} />
           <span>{t('mnMenu')}</span>
@@ -80,7 +80,7 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
             data-active={open?.id === m.id}
             onClick={(e) => { if (!justClosed(m.id)) openFor(m.id, e.currentTarget); }}
             onMouseEnter={(e) => { if (open && open.id !== m.id) openFor(m.id, e.currentTarget); }}
-            className={`h-7 px-2.5 rounded-md text-[12px] whitespace-nowrap shrink-0 transition-colors duration-(--dur-fast) ${
+            className={`h-6 @5xl:h-7 px-2 @5xl:px-2.5 rounded-md text-[11.5px] @5xl:text-[12px] whitespace-nowrap shrink-0 transition-colors duration-(--dur-fast) ${
               open?.id === m.id ? 'bg-white/[0.09] text-zinc-50' : 'text-zinc-400 hover:bg-white/[0.07] hover:text-zinc-100'
             }`}
           >

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { t } from '../i18n/uiText';
 
 // Özel pencere düğmeleri (Windows/Linux): başlık çubuğuyla aynı renk ve yükseklik; macOS'ta sistemin trafik ışıkları kullanılır.
-const base = 'app-no-drag inline-flex items-center justify-center w-[46px] h-full text-zinc-400 hover:text-zinc-50 hover:bg-white/10 active:bg-white/5 transition-colors duration-(--dur-fast) focus-visible:outline-none focus-visible:bg-white/10';
+const base = 'wc-btn app-no-drag inline-flex items-center justify-center w-[46px] h-full text-zinc-400 hover:text-zinc-50 hover:bg-white/10 active:bg-white/5 transition-colors duration-(--dur-fast) focus-visible:outline-none focus-visible:bg-white/10';
 const glyph = { fill: 'none', stroke: 'currentColor', strokeWidth: 1, shapeRendering: 'crispEdges' } as const;
 
 export const WindowControls: React.FC = () => {
