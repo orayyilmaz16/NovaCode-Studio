@@ -1933,12 +1933,13 @@ export function App() {
         // Duyarlı üç bölge (kap sorguları, başlık genişliğine göre): sol (logo + menü) · orta (arama, ortalı) · sağ (düğmeler + pencere denetimleri).
         // Dar kapta önce klasör/önizleme/ayarlar grubu, sonra arama yazısı ve yapay zekâ bölmesi gizlenir; bu eylemler menü ve kısayollarda durur.
       >
-        <div className="flex flex-1 basis-0 items-center h-full min-w-0 overflow-hidden rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side">
+        <div className="flex items-center h-full min-w-0 shrink overflow-hidden rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side">
           <div className="flex items-center pl-3 pr-1 h-full shrink-0"><Logo size={18} /></div>
           <span className="hdr-sep app-no-drag" aria-hidden />
           <MenuBar menus={menus} compact={compactMenu} />
         </div>
 
+        <div className="flex-1 min-w-0 h-full" aria-hidden /> {/* boşluk: sürükleme alanı, kart değil */}
         {/* Orta: VS Code komut merkezi gibi tek hap: solda arama / proje alanı, en sağda ayrı bölmede yapay zekâ paneli düğmesi */}
         <div className="app-no-drag flex items-stretch shrink min-w-9 w-9 @xl:w-[clamp(180px,24cqw,340px)] h-full rounded-[var(--frame-r)] float-card bg-nv-side border border-nv-border hover:border-white/[0.18] motion-press overflow-hidden">
           <button
@@ -1968,7 +1969,8 @@ export function App() {
           </button>
         </div>
 
-        <div className="flex flex-1 basis-0 items-center justify-end h-full min-w-fit rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side">
+        <div className="flex-1 min-w-0 h-full" aria-hidden />
+        <div className="flex items-center justify-end h-full shrink-0 rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side">
         <div className="app-no-drag flex items-center justify-end gap-1.5 shrink-0 pe-1">
           <div className="hdr-group hidden @3xl:inline-flex">
           <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="hdr-btn">

@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Üst çubuk kartları içeriği kadar:** Sol (menü) ve sağ (düğmeler) kartlar artık boşluğa uzamıyor, içindekiler kadar yer kaplıyor; aradaki boşluk pencereyi sürüklemeye yarıyor.
 - [improve] **Üst çubukta ayrı kartlar:** Logo+menü, arama ve sağdaki düğmeler/pencere denetimleri artık her biri kendi kenarlığı olan ayrı kart.
 - [fix] **Editör sağındaki beyaz alan:** Minimap kaydırıcısı ve kaydırma çubuğu gölgesi koyu/açık temaya uygun, yumuşak renklere çekildi.
 - [fix] **Üst çubuk taşması:** Pencere tam ekran değilken üst çubuktaki arama kutusu çok yer kaplayıp sağdaki düğmeleri ve pencere denetimlerini taşırıyordu; arama kutusu daraldı ve gerekirse küçülüyor, sağ bölge her zaman tam görünüyor.
@@ -43,6 +44,7 @@
 
 ### en
 
+- [improve] **Top bar cards fit their content:** The left (menu) and right (buttons) cards no longer stretch into the free space; they take only as much room as their content, and the gap between them drags the window.
 - [improve] **Separate cards in the top bar:** Logo+menu, search and the right-side buttons/window controls are now each their own bordered card.
 - [fix] **White area at the editor's right edge:** The minimap slider and scrollbar shadow now use soft colors matching the dark/light theme.
 - [fix] **Top bar overflow:** When the window was not maximized, the search box in the top bar took too much space and pushed the right-side buttons and window controls out; the search box is narrower and shrinks when needed, and the right zone always stays fully visible.

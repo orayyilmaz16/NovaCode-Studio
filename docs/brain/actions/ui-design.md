@@ -152,3 +152,5 @@ Başlık çubuğu `@container` olup `grid` yerine `flex` kullanır: sol ve sağ 
 Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `shrink`, genişlik `clamp(180px,24cqw,340px)` (`@xl` altında yalnız simge); sağ bölge `min-w-fit` ve içi `shrink-0`: düğmeler ve pencere denetimleri hiçbir genişlikte taşmaz/kırpılmaz.
 
 **Üst çubuk üç ayrı kart (23.11.2026, kurucu isteği):** `header` düz kapsayıcı (`gap-[var(--frame)]`); sol (logo+menü), orta (arama+AI) ve sağ (düğmeler+pencere denetimleri) her biri `float-card border border-nv-border bg-nv-side rounded-[var(--frame-r)]`. Editör temasında `minimapSlider.*`, `scrollbar.shadow` ve `editorOverviewRuler.*` renkleri açıkça tanımlı (varsayılan beyazımsı kaydırıcı kalktı).
+
+**İçeriği kadar kart (23.11.2026):** sol ve sağ kart `flex-1` değil; aralarındaki `flex-1` boşluklar kartsızdır (sürükleme alanı). Orta kart iki boşluğun arasında kalır.

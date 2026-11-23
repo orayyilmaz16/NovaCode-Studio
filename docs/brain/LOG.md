@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 23.11.2026 12:06 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
+- Alan: [[ui-design]]
+- Kod (1): `src/App.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 23.11.2026 12:04 · auto/20261118-083349
 <!-- sig:c3JjL0FwcC50c3gsc3JjL3NlcnZpY2VzL2VkaXRv -->
 - Alan: [[ui-design]]
@@ -275,10 +282,3 @@
 - Kod (29): `electron-ai.cjs`, `electron-debug.cjs`, `electron-llm.cjs`, `electron-lsp.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-search.cjs`, `src/components/FileTree.tsx`, `src/components/Preview.tsx`, `src/components/SearchPanel.tsx`, `src/components/Terminal.tsx`, `src/i18n/uiTextAi.ts` … (+17)
 - Belge (0): —
 - Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
-
-## 17.11.2026 16:32 · auto/20261117-130721
-<!-- sig:c2NyaXB0cy90ZXN0cy9haS1zZWN1cml0eS50ZXN0 -->
-- Alan: [[testing]]
-- Kod (1): `scripts/tests/ai-security.test.cjs`
-- Belge (2): `docs/brain/DECISIONS.md`, `docs/brain/actions/testing.md`
-- Durum: ✓ belgelendi · sürüm: CHANGELOG Unreleased boş: sürüm çıkmaz
