@@ -154,3 +154,5 @@ Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `s
 **Üst çubuk üç ayrı kart (23.11.2026, kurucu isteği):** `header` düz kapsayıcı (`gap-[var(--frame)]`); sol (logo+menü), orta (arama+AI) ve sağ (düğmeler+pencere denetimleri) her biri `float-card border border-nv-border bg-nv-side rounded-[var(--frame-r)]`. Editör temasında `minimapSlider.*`, `scrollbar.shadow` ve `editorOverviewRuler.*` renkleri açıkça tanımlı (varsayılan beyazımsı kaydırıcı kalktı).
 
 **İçeriği kadar kart (23.11.2026):** sol ve sağ kart `flex-1` değil; aralarındaki `flex-1` boşluklar kartsızdır (sürükleme alanı). Orta kart iki boşluğun arasında kalır.
+
+**Tam ortalı arama (23.11.2026):** `header` `grid-cols-[minmax(0,1fr)_auto_minmax(max-content,1fr)]`: sol kart `justify-self-start`, sağ kart `justify-self-end`, orta arama kartı `auto` sütunda geometrik merkezde. Önceki `flex-1` boşluk elemanları kalktı.
