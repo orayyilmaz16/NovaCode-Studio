@@ -123,7 +123,7 @@
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 152 |
 | `src/services/editorBridge.ts` | 108 |
-| `src/services/editorTheme.ts` | 98 |
+| `src/services/editorTheme.ts` | 110 |
 | `src/services/extensionsService.ts` | 220 |
 | `src/services/gitExplain.ts` | 18 |
 | `src/services/keybindings.ts` | 288 |

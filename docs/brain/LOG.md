@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 23.11.2026 12:04 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL3NlcnZpY2VzL2VkaXRv -->
+- Alan: [[ui-design]]
+- Kod (2): `src/App.tsx`, `src/services/editorTheme.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 23.11.2026 12:02 · auto/20261118-083349
 <!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
 - Alan: [[ui-design]]
@@ -275,10 +282,3 @@
 - Kod (1): `scripts/tests/ai-security.test.cjs`
 - Belge (2): `docs/brain/DECISIONS.md`, `docs/brain/actions/testing.md`
 - Durum: ✓ belgelendi · sürüm: CHANGELOG Unreleased boş: sürüm çıkmaz
-
-## 17.11.2026 16:28 · auto/20261117-130721
-<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvUHJl -->
-- Alan: [[ui-design]], [[preview]]
-- Kod (2): `src/App.tsx`, `src/components/Preview.tsx`
-- Belge (17): `CHANGELOG.md`, `docs/brain/actions/ai-assistant.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/debugging.md`, `docs/brain/actions/explorer.md`, `docs/brain/actions/git-github.md`, `docs/brain/actions/i18n.md`, `docs/brain/actions/lsp.md` … (+9)
-- Durum: ✓ belgelendi · sürüm hazırlandı: v1.4.1 → v1.4.2 (patch)
