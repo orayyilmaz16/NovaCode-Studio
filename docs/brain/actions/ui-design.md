@@ -138,3 +138,6 @@ Etkin sekme çubukta görünür alana `scrollTo` ile 12 px paylı kaydırılır 
 **Kenar çubuğu–editör boşluğu (18.11.2026):** 8 → 12 px (`.sidebar-gap`, tutamaç ortada); diğer tutamaçlar 6 px kalır.
 
 **Boşluk düzeltmesi (18.11.2026):** kenar çubuğu kapalıyken etkinlik çubuğu ile editör arası boşluk artık 10 px (2 px + sabit 8 px `.sidebar-gap`; önceden 2 px'ti), açıkken kenar çubuğu–editör boşluğu 12 → 8 px. `.sidebar-gap` genişliği sabit (dar ekranda 4 px), tutamaç yalnız açıkken çizilir.
+
+## Sekme çubuğu: yeni sekme (+) düğmesi yok (23.11.2026)
+Sekme çubuğunda yeni sekme (+) düğmesi bulunmaz (kurucu isteği). Yeni dosya Ctrl+N, Dosya menüsü, komut paleti veya karşılama/boş editör ekranındaki "Yeni dosya" ile açılır; sekme çubuğuna yeni düğme eklenmez.

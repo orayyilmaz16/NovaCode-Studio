@@ -10,7 +10,7 @@ import type { GroupId } from '../services/splitLayout';
 import { setCursor } from '../services/cursorStore';
 import { setCompletionConfig, setCompletionMonaco } from '../services/aiCompletion';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
-import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, Plus, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal, Ellipsis } from 'lucide-react';
+import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal, Ellipsis } from 'lucide-react';
 import { PopupMenu, type MenuItem } from './Menu';
 import { Logo } from './Logo';
 import { useHoverTip } from './HoverTip';
@@ -510,16 +510,6 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
           {openFiles.map((file) => (
             <EditorTab key={file.id} file={file} isActive={file.id === activeFileId} onSelect={onSelectTab} onClose={onCloseTab} group={groupId} />
           ))}
-          {onNewFile && openFiles.length > 0 && (
-            <button
-              onClick={onNewFile}
-              title={`${t('newTab')} (Ctrl+N)`}
-              aria-label={t('newTab')}
-              className="icon-btn self-center ml-1 shrink-0"
-            >
-              <Plus size={15} />
-            </button>
-          )}
           <span aria-hidden className="shrink-0 w-2" /> {/* kaydırma kabında son sekmenin sağ yuvarlaması kırpılmasın */}
         </div>
 

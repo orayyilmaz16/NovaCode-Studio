@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 23.11.2026 11:53 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
+- Alan: [[ui-design]]
+- Kod (1): `src/components/EditorArea.tsx`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 23.11.2026 11:50 · auto/20261118-083349
 <!-- sig:ZWxlY3Ryb24tZ2l0aHViLmNqcyxzcmMvQXBwLnRz -->
 - Alan: [[git-github]], [[ui-design]], [[i18n]]
@@ -275,10 +282,3 @@
 - Kod (50): `.github/workflows/ci-cd.yml`, `.github/workflows/ci-failure-issue.yml`, `.github/workflows/dependabot-automerge.yml`, `.github/workflows/security.yml`, `electron-ai.cjs`, `electron-github.cjs`, `electron-llm.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-search.cjs`, `electron-secrets.cjs`, `electron-update.cjs` … (+38)
 - Belge (0): —
 - Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md
-
-## 17.11.2026 16:10 · auto/20261117-130721
-<!-- sig:fCxkb2NzL2JyYWluL0RFQ0lTSU9OUy5tZCxkb2Nz -->
-- Alan: —
-- Kod (0): —
-- Belge (2): `docs/brain/DECISIONS.md`, `docs/brain/BACKLOG.md`
-- Durum: ✓ yalnız belge değişti · sürüm: CHANGELOG Unreleased boş: sürüm çıkmaz

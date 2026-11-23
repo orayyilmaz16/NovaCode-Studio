@@ -71,7 +71,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | düşük | Q-ANY | `src/App.tsx:793` | `any` kullanımı (strict tip güvenliği) |
-| düşük | Q-ANY | `src/components/EditorArea.tsx:77,161,664` | `any` kullanımı (strict tip güvenliği) (3×) |
+| düşük | Q-ANY | `src/components/EditorArea.tsx:77,161,654` | `any` kullanımı (strict tip güvenliği) (3×) |
 | düşük | Q-CONSOLE | `src/components/SnippetsEditor.tsx:11` | Kalan console.log |
 | düşük | Q-CONSOLE | `src/mockFiles.ts:89,91,112` | Kalan console.log (3×) |
 | düşük | Q-EMPTY-CATCH | `src/components/Preview.tsx:62` | Boş catch: hata yutuluyor |

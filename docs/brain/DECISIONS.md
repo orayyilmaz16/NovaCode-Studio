@@ -168,3 +168,6 @@ Durum çubuğunda dil adı resmi yazımla gösterilir (`languageLabel`, `src/ser
 
 - **Git Bash yalnız PTY ile (22.11.2026).** Neden: kullanıcı terminal eklerken Git terminali istedi; boru terminali bash'te istem ve çalışma klasörü işaretini veremez, PTY ise bunu doğal çözer. Yol yalnız ana süreçte bilinen Git kurulum konumlarından bulunur (renderer yol veremez, WSL `bash.exe` dışarıda).
 - **Terminal profilleri ana süreçte algılanır, arayüz yalnız kimlik seçer (22.11.2026).** Neden: kullanıcı bilgisayarda kurulu diğer terminallerin de listede çıkmasını istedi (VS Code profilleri gibi). Arayüzden gelen yol/komut çalıştırılmaz; yalnız algılanan listedeki `id` kabul edilir, böylece "renderer rastgele program çalıştıramaz" kuralı korunur.
+
+## 23.11.2026 — Sekme çubuğunda + düğmesi yok
+Karar (kurucu): editör sekme çubuğunda yeni sekme (+) düğmesi gösterilmez; yeni dosya yolları Ctrl+N, menü, komut paleti ve boş editör ekranıdır. Neden: sekme çubuğu sade kalsın.
