@@ -1929,25 +1929,26 @@ export function App() {
       {/* Başlık çubuğu: ince kenarlıklı, yuvarlak çerçeve; üstteki dar boşluk da pencereyi sürüklemeye yarar */}
       <div className="app-drag absolute inset-x-0 top-0 h-[var(--frame)] z-10" aria-hidden />
       <header
-        className="app-drag relative grid items-center h-9 mx-[var(--frame)] mt-[var(--frame)] rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side select-none shrink-0"
-        // Üç bölge: sol (logo + menü) · orta (arama, pencereye göre ortalı) · sağ (düğmeler; pencere denetimlerinden önce biter)
-        style={{ gridTemplateColumns: `minmax(0,1fr) minmax(130px,min(${compactMenu ? 460 : 360}px,calc(100% - ${isElectron ? 600 : 328}px))) minmax(0,1fr)` }}
+        className="@container app-drag relative flex items-center h-9 mx-[var(--frame)] mt-[var(--frame)] rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side select-none shrink-0"
+        // Duyarlı üç bölge (kap sorguları, başlık genişliğine göre): sol (logo + menü) · orta (arama, ortalı) · sağ (düğmeler + pencere denetimleri).
+        // Dar kapta önce klasör/önizleme/ayarlar grubu, sonra arama yazısı ve yapay zekâ bölmesi gizlenir; bu eylemler menü ve kısayollarda durur.
       >
-        <div className="flex items-center h-full min-w-0 overflow-hidden">
+        <div className="flex flex-1 basis-0 items-center h-full min-w-0 overflow-hidden">
           <div className="flex items-center pl-3 pr-1 h-full shrink-0"><Logo size={18} /></div>
           <span className="hdr-sep app-no-drag" aria-hidden />
           <MenuBar menus={menus} compact={compactMenu} />
         </div>
 
         {/* Orta: VS Code komut merkezi gibi tek hap: solda arama / proje alanı, en sağda ayrı bölmede yapay zekâ paneli düğmesi */}
-        <div className="app-no-drag flex items-stretch min-w-0 h-7 rounded-md bg-white/[0.05] border border-white/[0.07] hover:bg-white/[0.08] hover:border-white/[0.12] motion-press overflow-hidden">
+        <div className="app-no-drag flex items-stretch shrink-0 w-9 @xl:w-[clamp(160px,36cqw,460px)] h-7 rounded-md bg-white/[0.05] border border-white/[0.07] hover:bg-white/[0.08] hover:border-white/[0.12] motion-press overflow-hidden">
           <button
             onClick={() => setPalette('')}
             title={`${t('cpTitle')} (Ctrl+P)`}
+            aria-label={t('cpTitle')}
             className="flex-1 min-w-0 flex items-center justify-center gap-2 px-2 text-[12px] text-zinc-300 hover:bg-white/5 motion-press"
           >
-            <Search size={12} className="text-zinc-500 shrink-0" />
-            <span className="truncate min-w-0">
+            <Search size={13} className="text-zinc-400 @xl:text-zinc-500 shrink-0" />
+            <span className="hidden @xl:inline truncate min-w-0">
               {showLanding
                 ? t('actHome')
                 : activeFile
@@ -1961,15 +1962,15 @@ export function App() {
             aria-label={t('actAI')}
             aria-pressed={aiOpen}
             data-active={aiOpen}
-            className={`shrink-0 w-9 flex items-center justify-center border-s border-white/[0.09] motion-press ${aiOpen ? 'bg-indigo-500/25 text-indigo-100' : 'text-indigo-300 hover:bg-white/5 hover:text-indigo-100'}`}
+            className={`hidden @xl:flex shrink-0 w-9 items-center justify-center border-s border-white/[0.09] motion-press ${aiOpen ? 'bg-indigo-500/25 text-indigo-100' : 'text-indigo-300 hover:bg-white/5 hover:text-indigo-100'}`}
           >
             <Sparkles size={13} />
           </button>
         </div>
 
-        <div className="flex items-center justify-end h-full min-w-0">
+        <div className="flex flex-1 basis-0 items-center justify-end h-full min-w-0">
         <div className="app-no-drag flex items-center justify-end gap-1.5 min-w-0 pe-1">
-          <div className="hdr-group">
+          <div className="hdr-group hidden @3xl:inline-flex">
           <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="hdr-btn">
             <FolderOpen size={15} />
           </button>
@@ -1998,7 +1999,7 @@ export function App() {
             </button>
           )}
           </div>
-          <div className="hdr-group">
+          <div className="hdr-group inline-flex">
           <button onClick={() => setSidebarVisible((v) => !v)} title={t('tbSidebar')} aria-label={t('tbSidebar')} data-active={sidebarShown} className="hdr-btn">
             <PanelLeft size={15} />
           </button>

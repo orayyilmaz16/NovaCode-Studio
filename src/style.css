@@ -816,7 +816,7 @@ button.status-item:hover {
 
 /* ---------- Başlık çubuğu (Fluent): gruplar, ayırıcılar, yumuşak düğmeler ---------- */
 .hdr-group {
-  display: inline-flex;
+  /* display Tailwind'den gelir (inline-flex / hidden @3xl:inline-flex): katmansız kural `hidden`'ı ezmesin */
   align-items: center;
   gap: 2px;
   padding: 2px;
@@ -847,3 +847,9 @@ button.status-item:hover {
 .hdr-btn[data-active="true"] { background: color-mix(in srgb, var(--color-indigo-500) 24%, transparent); color: var(--color-indigo-100); }
 .hdr-btn[aria-disabled="true"] { opacity: 0.35; cursor: default; }
 .hdr-btn[aria-disabled="true"]:hover { background: transparent; color: var(--color-zinc-400); }
+
+/* Başlık çubuğu dar kapta: arama düğmesi yalnız simge (kare), kapsül ayrıcıları sıkışmasın */
+@container (max-width: 380px) {
+  .hdr-sep { margin-inline: 3px; }
+  .hdr-btn { width: 26px; }
+}
