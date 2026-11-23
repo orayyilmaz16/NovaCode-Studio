@@ -44,7 +44,7 @@ function checkDict(file, name, dict) {
   const vite = await createServer({ root, configFile: false, logLevel: 'silent', server: { middlewareMode: true, hmr: false, watch: null }, appType: 'custom', optimizeDeps: { noDiscovery: true, include: [] } });
   const all = [];
   try {
-    const files = [['uiText', 'UI_TEXT'], ['uiTextAi', 'AI_TEXT'], ['uiTextComp', 'COMP_TEXT'], ['uiTextDev', 'DEV_TEXT'], ['uiTextScm', 'SCM_TEXT'], ['uiTextTheme', 'THEME_TEXT']];
+    const files = [['uiText', 'UI_TEXT'], ['uiTextAi', 'AI_TEXT'], ['uiTextComp', 'COMP_TEXT'], ['uiTextDev', 'DEV_TEXT'], ['uiTextScm', 'SCM_TEXT'], ['uiTextTheme', 'THEME_TEXT'], ['uiTextRemote', 'REMOTE_TEXT']];
     const seen = new Map();
     for (const [f, exp] of files) {
       const mod = await vite.ssrLoadModule(`/src/i18n/${f}.ts`);

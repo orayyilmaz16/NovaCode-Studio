@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -38,14 +38,16 @@
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
 | `electron-lsp.cjs` | 301 |
-| `electron-main.cjs` | 829 |
+| `electron-main.cjs` | 851 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 263 |
+| `electron-preload.cjs` | 282 |
 | `electron-preview.cjs` | 78 |
-| `electron-pty.cjs` | 210 |
+| `electron-pty.cjs` | 237 |
 | `electron-search.cjs` | 289 |
 | `electron-secrets.cjs` | 66 |
 | `electron-snippets.cjs` | 106 |
+| `electron-ssh-core.cjs` | 136 |
+| `electron-ssh.cjs` | 471 |
 | `electron-term.cjs` | 176 |
 | `electron-textbuffer.cjs` | 309 |
 | `electron-trust.cjs` | 170 |
@@ -54,9 +56,9 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2400 |
+| `src/App.tsx` | 2434 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 477 |
+| `src/types.ts` | 510 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -81,7 +83,7 @@
 | `src/components/GithubAccount.tsx` | 137 |
 | `src/components/HoverTip.tsx` | 49 |
 | `src/components/KeybindingsEditor.tsx` | 146 |
-| `src/components/LandingPage.tsx` | 176 |
+| `src/components/LandingPage.tsx` | 180 |
 | `src/components/Logo.tsx` | 36 |
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
@@ -91,6 +93,7 @@
 | `src/components/Preview.tsx` | 372 |
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
+| `src/components/RemoteDialog.tsx` | 313 |
 | `src/components/ResizeHandle.tsx` | 69 |
 | `src/components/SearchPanel.tsx` | 214 |
 | `src/components/SettingsPage.tsx` | 746 |
@@ -98,7 +101,7 @@
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 80 |
-| `src/components/Terminal.tsx` | 729 |
+| `src/components/Terminal.tsx` | 733 |
 | `src/components/TestPanel.tsx` | 178 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |
@@ -152,10 +155,11 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 669 |
+| `src/i18n/uiText.ts` | 670 |
 | `src/i18n/uiTextAi.ts` | 588 |
 | `src/i18n/uiTextComp.ts` | 329 |
 | `src/i18n/uiTextDev.ts` | 343 |
+| `src/i18n/uiTextRemote.ts` | 180 |
 | `src/i18n/uiTextScm.ts` | 276 |
 | `src/i18n/uiTextTheme.ts` | 1127 |
 
@@ -198,6 +202,8 @@
 | `scripts/tests/services.test.cjs` | 140 |
 | `scripts/tests/settings-migrate.test.cjs` | 70 |
 | `scripts/tests/snippets.test.cjs` | 22 |
+| `scripts/tests/ssh-sftp.test.cjs` | 268 |
+| `scripts/tests/ssh.test.cjs` | 83 |
 | `scripts/tests/sync.test.cjs` | 58 |
 | `scripts/tests/syncserver.test.cjs` | 73 |
 | `scripts/tests/term.test.cjs` | 74 |
@@ -227,6 +233,7 @@
 | search | `search:cancel`, `search:files`, `search:replace`, `search:text` |
 | secrets | `secrets:get`, `secrets:has`, `secrets:set` |
 | snippets | `snippets:load`, `snippets:read`, `snippets:save` |
+| ssh | `ssh:browse`, `ssh:close`, `ssh:connect`, `ssh:disconnect`, `ssh:forgetHostKey`, `ssh:hostKeyAnswer`, `ssh:hostRemove`, `ssh:hostSave`, `ssh:open`, `ssh:pickKey`, `ssh:status` |
 | term | `term:input`, `term:start`, `term:stop` |
 | trust | `trust:grant`, `trust:list`, `trust:revoke`, `trust:status` |
 | ui | `ui:setTheme` |
@@ -234,7 +241,7 @@
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
 - 1068 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
@@ -389,6 +396,7 @@
 | [[motion]] | `docs/brain/actions/motion.md` | Geçiş, animasyon, hover, after ve gecikme efektleri; tek hareket dili |
 | [[preview]] | `docs/brain/actions/preview.md` | HTML/SVG/Markdown önizleme, yerel sunucu önizleme, Çalıştır (F5) ve çalıştırma ayarları |
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |
+| [[remote-ssh]] | `docs/brain/actions/remote-ssh.md` | Uzak çalışma alanı (VS Code Remote-SSH benzeri): SSH ile sunucuya bağlan, uzak klasörü Gezgin'de aç/düzenle/kaydet (SFTP), uzak terminal |
 | [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
 | [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör davranışları, kalıcılık ve gizli değerler |

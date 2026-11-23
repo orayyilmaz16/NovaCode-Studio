@@ -23,6 +23,25 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return () => ipcRenderer.removeListener('lsp:event', h);
     }
   },
+  // Uzak çalışma alanı (SSH/SFTP): bağlantı, sunucu parmak izi onayı, klasör seçici. Dosya işlemleri mevcut readDirectory/readFile/... çağrılarıyla `ssh://<ana>/<yol>` yolları üzerinden yürür.
+  ssh: {
+    status: () => ipcRenderer.invoke('ssh:status'),
+    hostSave: (host) => ipcRenderer.invoke('ssh:hostSave', host),
+    hostRemove: (id) => ipcRenderer.invoke('ssh:hostRemove', id),
+    pickKey: () => ipcRenderer.invoke('ssh:pickKey'),
+    connect: (id, secret) => ipcRenderer.invoke('ssh:connect', id, secret),
+    hostKeyAnswer: (reqId, allow) => ipcRenderer.invoke('ssh:hostKeyAnswer', reqId, allow === true),
+    forgetHostKey: (id) => ipcRenderer.invoke('ssh:forgetHostKey', id),
+    disconnect: (id) => ipcRenderer.invoke('ssh:disconnect', id),
+    browse: (id, dir) => ipcRenderer.invoke('ssh:browse', id, dir),
+    open: (id, dir) => ipcRenderer.invoke('ssh:open', id, dir),
+    close: () => ipcRenderer.invoke('ssh:close'),
+    onEvent: (cb) => {
+      const h = (_e, ev) => cb(ev);
+      ipcRenderer.on('ssh:event', h);
+      return () => ipcRenderer.removeListener('ssh:event', h);
+    }
+  },
   // Gerçek terminal (PTY): xterm.js ile çalışır
   pty: {
     available: () => ipcRenderer.invoke('pty:available'),

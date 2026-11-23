@@ -2,6 +2,12 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 23.11.2026 (uzak çalışma alanı)
+- **SSH/SFTP ile uzak çalışma alanı; yeni bağımlılık `ssh2` (MIT, saf JS).** Neden: kurucu VS Code'daki Remote-SSH benzeri uzak geliştirme istedi (kapsam sorusunda "SSH uzak sunucu" seçildi). Mevcut çözüm yoktu (git'in ssh'ı dosya düzenleme sunmaz); Node'da SSH istemcisi yazmak güvenlik riski olurdu, `ssh2` yaygın ve bakımlı. Sonuç: bağlantı yalnız ana süreçte; renderer `ssh://<ana>/<yol>` sanal yolunu görür, bu yüzden Gezgin/editör/kaydet akışı neredeyse değişmedi (fs IPC'leri uzak yolda yönlenir). Uzak terminal mevcut PTY/xterm hattına `ssh:<ana>` profili olarak köprülendi. Bkz. [[remote-ssh]].
+- **Parola hiç saklanmaz; parmak izi değişirse kesin ret.** Neden: KVKK/veri güvenliği ve MITM koruması; "beni hatırla" rahatlığı bilinçli feda edildi (varsayılan yöntem SSH ajanı). Değişen parmak izinde onay sorulmaz, kullanıcı kaydı açıkça unutur. Özel anahtar yolu yalnız ana sürecin diyalogundan gelir.
+- **v1'de uzak klasörde Git paneli, arama, AI ajan araçları, LSP ve izleyici kapalı.** Neden: bunların hepsi yerel dosya sistemine bağlı; uzak yolu yerel korumalara karıştırmak yetki sınırını bozardı. Yerel çalışma klasörü uzak açıkken boş tutulur (hepsi güvenli biçimde kapanır). Geri dönüş/sonraki adım: uzak arama ve git `exec` üzerinden.
+- **Kurulum notu:** `ssh2` `package.json`/lock'a eklendi; çalışan Electron süreci `node_modules/electron`'u kilitlediği için `npm install` EBUSY verdi, kurulum Electron kapatıldıktan sonra `npm install` ile tamamlanır.
+
 ## 18.11.2026 (yüzen arayüz)
 - **Kartlara tek katman yumuşak gölge ve daha büyük yarıçap (kurucu talimatı).** Neden: VS Code'un yüzen kart görünümü isteniyor; CLAUDE.md kural 9 "gölge yığını yok" diyordu. Sonuç: kart başına yalnız `--float-shadow` (tek katman), yığın ve menü gölgesi yok; kural özü (düz yüzey, tek vurgu, degrade yok) korunur. Etkinlik çubuğu simgeleri 22 px kalır (18 px denendi, fazla küçük bulundu), kazanç yan boşlukları azaltmaktan gelir. Bkz. [[ui-design]].
 

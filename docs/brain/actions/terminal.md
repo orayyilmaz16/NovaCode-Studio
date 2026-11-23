@@ -74,6 +74,9 @@ Alt panelde yumuşak, katmanlı yüzeyler: sekmeler `h-7` dolgulu hap (`bg-white
 
 **Başlatma hatası (22.11.2026):** PTY oturumunda `pty:start` başarısızsa `Session.failed` işaretlenir ve panelin üstünde `role="alert"` kırmızı uyarı çıkar (PTY'de kabuk çıktısı olmadığından hata önceden hiç görünmüyordu). Ana süreç dosyaları (`electron-*.cjs`) değişince çalışan uygulama eski kodla kalır: Git Bash gibi ana süreç özellikleri için `electron:dev` yeniden başlatılmalıdır.
 
+### Uzak (SSH) kabuk (23.11.2026)
+Uzak çalışma alanında (`cwd` `ssh://<ana>/…`) varsayılan kabuk `ssh:<ana>` olur (`Terminal.tsx` `remoteId`); `pty:profiles` bağlı sunucuları `SSH: <ad>` olarak ekler, `pty:start` bu kimlikte `electron-ssh.cjs` `openShell`'e gider (yerel `fs.existsSync(cwd)` denetimi atlanır; başlangıç klasörü uzak kök içinde olmalı). `cdCommand('ssh:…')` sanal yolu sunucu yoluna çevirir. Ayrıntı: [[remote-ssh]].
+
 ### Kurulu kabuk profilleri (22.11.2026)
 - `electron-pty.cjs` `detectProfiles()` bilgisayardaki kabukları bulur ve 15 sn önbelleğe alır (zorla yenileme en sık 2 sn'de bir): `powershell` (PowerShell 7 varsa o, yoksa Windows PowerShell), `winps` (7 varken Windows PowerShell 5.1), `cmd`, `gitbash`, `wsl:<dağıtım>` (`wsl -l -q`, UTF-16LE çıktı; docker-desktop ve boşluklu/hata satırları elenir; `wsl.exe -d <ad> --cd <klasör>`), `cygwin`, `msys2` (`MSYSTEM=UCRT64|MINGW64`), `nu`. Windows dışında: `powershell` kimliği = kullanıcının `$SHELL`'i, ek olarak `/etc/shells` girişleri (`sh:<yol>`).
 - **Güvenlik:** `pty:profiles` arayüze yalnız `{id, label}` verir (dosya yolu/argüman yok). `pty:start` `shell` alanı bu listede olmak zorundadır; liste dışı kimlik `invalid-shell` (Git Bash için `no-gitbash`) döner. Çalıştırılacak dosya yalnız bilinen konumlardan/PATH'ten çözülür, argüman olarak yalnız doğrulanmış dağıtım adı ve açık çalışma klasörü geçer (kabuk dizesi birleştirilmez).

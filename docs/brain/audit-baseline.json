@@ -1,5 +1,5 @@
 {
- "date": "22.11.2026",
+ "date": "23.11.2026",
  "items": [
   {
    "k": "PERF-BIGFILE|src/App.tsx",
@@ -149,6 +149,16 @@
   {
    "k": "PERF-SYNC-FS|electron-secrets.cjs",
    "n": 5,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-ssh-core.cjs",
+   "n": 4,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-SYNC-FS|electron-ssh.cjs",
+   "n": 2,
    "sev": "düşük"
   },
   {

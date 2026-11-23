@@ -1,13 +1,15 @@
 import React from 'react';
-import { FilePlus, FileCode2, FolderOpen, Folder, GitBranch, Sparkles, SquareTerminal, ChevronRight } from 'lucide-react';
+import { FilePlus, FileCode2, FolderOpen, Folder, GitBranch, Sparkles, SquareTerminal, ChevronRight, Server } from 'lucide-react';
 import { Logo } from './Logo';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
+import '../i18n/uiTextRemote'; // uzak sunucu metinleri
 
 interface LandingPageProps {
   onNewFile: () => void;
   onOpenFiles: () => void;
   onOpenFolder: () => void;
+  onOpenRemote?: () => void;
   onOpenGit: () => void;
   onOpenAI: () => void;
   onOpenTerminal: () => void;
@@ -56,6 +58,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onNewFile,
   onOpenFiles,
   onOpenFolder,
+  onOpenRemote,
   onOpenGit,
   onOpenAI,
   onOpenTerminal,
@@ -103,6 +106,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <LinkRow icon={<FilePlus size={16} />} label={t('newFile')} hint="Ctrl+N" onClick={onNewFile} />
               <LinkRow icon={<FileCode2 size={16} />} label={t('openFiles')} hint="Ctrl+Shift+O" onClick={onOpenFiles} />
               <LinkRow icon={<FolderOpen size={16} />} label={t('openFolder')} hint="Ctrl+O" onClick={onOpenFolder} />
+              {onOpenRemote && <LinkRow icon={<Server size={16} />} label={t('rmConnect')} onClick={onOpenRemote} />}
               <LinkRow
                 icon={<GitBranch size={16} />}
                 label={githubLogin ? t('welConnected').replace('{login}', githubLogin) : t('ghConnect')}

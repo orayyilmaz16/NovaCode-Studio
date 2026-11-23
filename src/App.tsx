@@ -14,7 +14,8 @@ import {
   PanelLeft,
   PanelBottom,
   UserRound,
-  RefreshCcw
+  RefreshCcw,
+  Server
 } from 'lucide-react';
 import { FileTree, normGitPath } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
@@ -30,6 +31,7 @@ import { Logo } from './components/Logo';
 const SettingsPage = lazy(() => import('./components/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const TrustDialog = lazy(() => import('./components/TrustDialog').then((m) => ({ default: m.TrustDialog })));
 const TrustBadge = lazy(() => import('./components/TrustDialog').then((m) => ({ default: m.TrustBadge })));
+const RemoteDialog = lazy(() => import('./components/RemoteDialog').then((m) => ({ default: m.RemoteDialog })));
 import { trustOnOpen, useTrust } from './services/trustService';
 import { useSettings } from './services/SettingsContext';
 import { useCollabToken } from './services/useCollabToken';
@@ -51,6 +53,7 @@ import { goToLine, runEditorAction, formatActiveDocument, copySelection, pasteCl
 import { MenuBar, type MenuGroup } from './components/MenuBar';
 import { WindowControls } from './components/WindowControls';
 import './i18n/uiTextDev'; // hata ayıklama/dil sunucusu/terminal metinleri (menü ve komutlarda gerekir)
+import './i18n/uiTextRemote'; // uzak sunucu (SSH) metinleri (menü, komut ve durum çubuğunda gerekir)
 import { getDebugState, initDebug, isDebuggable, resumeDebug, setLocationHandler, startDebug, stepInto, stepOut, stepOver, stopDebug, subscribeDebug } from './services/debugStore';
 import { UpdateDialog, UpdateIndicator } from './components/UpdateDialog';
 import { checkForUpdates } from './services/updateService';
@@ -137,6 +140,22 @@ export function App() {
   const [currentRootPath, setCurrentRootPath] = useState<string | null>(null);
   rootPathRef.current = currentRootPath;
   const [currentRootName, setCurrentRootName] = useState<string>('NovaCode-Studio');
+  // Uzak (SSH) çalışma alanı açıksa ana bilgisayar; kök yol `ssh://<ana>/<yol>` biçimindedir (docs/brain/actions/remote-ssh.md)
+  const [remoteHost, setRemoteHost] = useState<{ hostId: string; name: string } | null>(null);
+  const remoteRef = useRef(remoteHost);
+  remoteRef.current = remoteHost;
+  const [showRemote, setShowRemote] = useState(false);
+  useEffect(() => window.electronAPI?.ssh?.onEvent((ev) => {
+    const r = remoteRef.current;
+    if (ev.type !== 'disconnected' || !r || r.hostId !== ev.id) return;
+    if (ev.reason !== 'closed') addLog('warn', t('rmLost').replace('{h}', r.name)); // kullanıcı kapattıysa uyarı yok
+    setRemoteHost(null); // bağlantı gidince uzak ağaç anlamsızdır: klasörsüz duruma dön (kaydedilmemiş sekmeler kalır)
+    rootPathRef.current = null;
+    treeSeq.current++;
+    setCurrentRootPath(null);
+    setFiles([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), []);
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
   const [picker, setPicker] = useState<PickerMode | null>(null);
   const [devDlg, setDevDlg] = useState<null | 'timeline' | 'snippets'>(null); // zaman çizelgesi (F-07) / snippet düzenleyici (F-06)
@@ -699,7 +718,7 @@ export function App() {
   // Gerçek Klasör ve Dosya Seçimi
   // ----------------------------------------------------
   const trustState = useTrust();
-  const applyWorkspace = (result: { rootPath: string; rootName: string; trusted?: boolean; tree: FileItem[] }) => {
+  const applyWorkspace = (result: { rootPath: string; rootName: string; trusted?: boolean; remote?: { hostId: string; name: string }; tree: FileItem[] }) => {
     trustOnOpen(result.rootPath, result.trusted); // güvenilmeyen klasör: güven penceresi + kısıtlı mod rozeti
     // Başka bir klasöre geçilirken eski projenin kaydedilmiş sekmeleri kapanır (kaydedilmemişler korunur).
     if (rootPathRef.current && rootPathRef.current !== result.rootPath) {
@@ -713,6 +732,7 @@ export function App() {
     treeSeq.current++;
     setCurrentRootPath(result.rootPath);
     setCurrentRootName(result.rootName);
+    setRemoteHost(result.remote ?? null);
     setFiles(result.tree);
     setShowLanding(false);
     setShowSettings(false);
@@ -1401,6 +1421,7 @@ export function App() {
   }, []);
   const persistSession = (withDrafts = true, flush = false) => {
     if (flush) flushEditorChanges();
+    if (remoteRef.current) return; // uzak oturum kaydedilmez: bağlantısız açılışta ssh:// yolları geri yüklenemez, yerel oturum da ezilmesin
     saveSession({
       root: rootPathRef.current,
       rootName: rootNameRef.current,
@@ -1623,6 +1644,7 @@ export function App() {
       { label: t('newFile'), shortcut: 'Ctrl+N', onClick: L.handleNewUntitled },
       { label: t('openFolder'), shortcut: 'Ctrl+O', onClick: () => void L.handleOpenFolderDialog() },
       { label: t('openFiles'), shortcut: 'Ctrl+Shift+O', onClick: () => void L.handleOpenFileDialog() },
+      { label: t('rmConnect'), onClick: () => setShowRemote(true) },
       { separator: true },
       { label: t('cmdSave'), shortcut: 'Ctrl+S', ...F, onClick: L.saveActive },
       { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', ...F, onClick: L.closeActive },
@@ -1746,6 +1768,7 @@ export function App() {
     { id: 'format', label: t('cmdFormat'), run: () => runEditorAction('editor.action.formatDocument') },
     { id: 'newFile', label: t('newFile'), shortcut: 'Ctrl+N', run: L.handleNewUntitled },
     { id: 'openFolder', label: t('openFolder'), shortcut: 'Ctrl+O', run: () => void L.handleOpenFolderDialog() },
+    { id: 'remoteConnect', label: t('rmConnect'), run: () => setShowRemote(true) },
     { id: 'save', label: t('cmdSave'), shortcut: 'Ctrl+S', run: L.saveActive },
     { id: 'closeTab', label: t('cmdCloseTab'), shortcut: 'Ctrl+W', run: L.closeActive },
     { id: 'reopenTab', label: t('appReopenTab'), shortcut: 'Ctrl+Shift+T', run: () => void L.reopenClosedTab() },
@@ -1865,6 +1888,7 @@ export function App() {
 
       {trustState.root && !trustState.trusted && trustState.prompt && <LazyPanel><TrustDialog /></LazyPanel>}
       {showKeybindings && <LazyPanel><KeybindingsEditor onClose={() => setShowKeybindings(false)} /></LazyPanel>}
+      {showRemote && <LazyPanel><RemoteDialog onClose={() => setShowRemote(false)} onOpened={applyWorkspace} /></LazyPanel>}
 
       {updateDlg && <UpdateDialog initialTab={updateDlg} autoDownload={settings.updateAutoDownload === true} onClose={() => setUpdateDlg(null)} />}
 
@@ -2115,6 +2139,7 @@ export function App() {
             onNewFile={handleNewUntitled}
             onOpenFiles={handleOpenFileDialog}
             onOpenFolder={handleOpenFolderDialog}
+            onOpenRemote={() => setShowRemote(true)}
             onOpenGit={() => pickSidebar('git')}
             onOpenAI={() => {
               setShowLanding(false);
@@ -2325,6 +2350,15 @@ export function App() {
       {settings.statusBarVisible !== false && (
         <footer className="@container h-6 m-[var(--frame)] rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
           <div className="flex items-center h-full min-w-0 overflow-hidden">
+            <button
+              className={`status-item ${remoteHost ? 'bg-indigo-600 text-white' : ''}`}
+              onClick={() => setShowRemote(true)}
+              title={remoteHost ? t('rmStatusOn').replace('{h}', remoteHost.name) : t('rmStatusIdle')}
+              aria-label={remoteHost ? t('rmStatusOn').replace('{h}', remoteHost.name) : t('rmStatusIdle')}
+            >
+              <Server size={12} />
+              {remoteHost && <span className="font-mono">SSH: {remoteHost.name}</span>}
+            </button>
             {gitStatus.isRepo && (
               <>
                 <button className="status-item" onClick={() => setPicker('checkout')} title={t('scmBranchTip')} aria-label={t('scmBranchTip')}>

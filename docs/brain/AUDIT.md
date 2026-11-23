@@ -1,19 +1,19 @@
 <!-- Bu dosya scripts/audit-scan.mjs tarafından otomatik üretilir; elle düzenleme. -->
 # Denetim raporu (otomatik)
 
-Son tarama: 22.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da haftalık/her push'ta) · Derin/elle bulgular: [[BACKLOG]] · Kural: [[audit]]
+Son tarama: 23.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da haftalık/her push'ta) · Derin/elle bulgular: [[BACKLOG]] · Kural: [[audit]]
 
 ## Özet
 | Alan | Bulgu |
 |---|---|
 | Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 23 |
-| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 68 |
+| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 74 |
 | Kalite | kritik 0 · yüksek 0 · orta 3 · düşük 10 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `PERF-SYNC-FS` electron-pty.cjs
+- Yeni/artan: `PERF-SYNC-FS` electron-ssh-core.cjs, `PERF-SYNC-FS` electron-ssh.cjs
 - Giderilen: yok
 
 ## Güvenlik
@@ -27,8 +27,8 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | SEC-IPC-NOEVT | `electron-ai.cjs:965,968,982` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-ext.cjs:318,329` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (2×) |
 | düşük | SEC-IPC-NOEVT | `electron-github.cjs:156,169,175…(+2)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (5×) |
-| düşük | SEC-IPC-NOEVT | `electron-main.cjs:436,451,501` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
-| düşük | SEC-IPC-NOEVT | `electron-pty.cjs:196` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
+| düşük | SEC-IPC-NOEVT | `electron-main.cjs:449,464,514` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
+| düşük | SEC-IPC-NOEVT | `electron-pty.cjs:219` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-search.cjs:245` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-trust.cjs:152,157,162` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-update.cjs:98,122,128…(+1)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (4×) |
@@ -36,11 +36,11 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 ## Performans
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | PERF-BIGFILE | `src/App.tsx:1` | 2401 satır: bölünmeli / memo ile ayrıştırılmalı |
+| orta | PERF-BIGFILE | `src/App.tsx:1` | 2435 satır: bölünmeli / memo ile ayrıştırılmalı |
 | orta | PERF-LISTENER-LEAK | `src/components/Preview.tsx:1` | addEventListener (4) > removeEventListener (1): temizlenmeyen dinleyici olabilir |
 | düşük | PERF-DYN-RE | `src/components/Preview.tsx:58` | Döngüde dinamik RegExp üretimi olabilir |
 | düşük | PERF-DYN-RE | `src/services/testParse.ts:53,62,70` | Döngüde dinamik RegExp üretimi olabilir (3×) |
-| düşük | PERF-LS-WRITE | `src/App.tsx:1530` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/App.tsx:1551` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ResizeHandle.tsx:63` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/services/aiClient.ts:130` | localStorage yazımı: sık tetikleniyorsa debounce et |
@@ -59,16 +59,18 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-SYNC-FS | `electron-paths.cjs:127` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-pty.cjs:34,52,84…(+3)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (6×) |
 | düşük | PERF-SYNC-FS | `electron-secrets.cjs:26,27,46…(+2)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (5×) |
+| düşük | PERF-SYNC-FS | `electron-ssh-core.cjs:94,99,116…(+1)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (4×) |
+| düşük | PERF-SYNC-FS | `electron-ssh.cjs:100,102` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (2×) |
 | düşük | PERF-SYNC-FS | `electron-term.cjs:94` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) |
 | düşük | PERF-SYNC-FS | `electron-trust.cjs:36,41,119…(+1)` | Ana süreçte senkron fs/süreç çağrısı (IPC işleyicisinde olay döngüsünü bloklar) (4×) |
 
 ## Kalite ve arayüz
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | Q-I18N-HARD | `src/App.tsx:117` | JSX içinde sabit metin olabilir (8 dil kuralı) |
+| orta | Q-I18N-HARD | `src/App.tsx:120` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
-| düşük | Q-ANY | `src/App.tsx:771` | `any` kullanımı (strict tip güvenliği) |
+| düşük | Q-ANY | `src/App.tsx:791` | `any` kullanımı (strict tip güvenliği) |
 | düşük | Q-ANY | `src/components/EditorArea.tsx:77,161,664` | `any` kullanımı (strict tip güvenliği) (3×) |
 | düşük | Q-CONSOLE | `src/components/SnippetsEditor.tsx:11` | Kalan console.log |
 | düşük | Q-CONSOLE | `src/mockFiles.ts:89,91,112` | Kalan console.log (3×) |
@@ -76,5 +78,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2401, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 830
-- Üretim paketi (dist varsa): toplam JS 2905 KB; en büyük: index-BQChJY0S.js 601 KB, PtyView-DB00LN4r.js 327 KB, fileIconLoaders-Cp1TO2Ar.js 184 KB, uiTextTheme-C1585Epb.js 136 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2435, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 933, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 852
+- Üretim paketi (dist varsa): toplam JS 2993 KB; en büyük: index-mlGtbcJ_.js 643 KB, PtyView-Bu4K99UB.js 327 KB, fileIconLoaders-DykbwpTF.js 184 KB, uiTextTheme-D2IREBCH.js 136 KB

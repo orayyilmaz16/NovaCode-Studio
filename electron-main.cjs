@@ -354,6 +354,18 @@ const pathExists = (p) => fs.promises.access(p).then(() => true, () => false);
 // Özel pencere düğmeleri: yalnız ana pencerenin kendi sayfasından gelen çağrılar kabul edilir.
 const fromMain = (e) => mainWindow && !mainWindow.isDestroyed() && e.sender === mainWindow.webContents;
 
+// Uzak çalışma alanı (SSH/SFTP): sanal yol `ssh://<ana>/<yol>`. Uzak klasör açıkken yerel çalışma klasörü boştur:
+// yerel git/LSP/arama/yapay zekâ araçları kapalı kalır (güvenli varsayılan). Ayrıntı: docs/brain/actions/remote-ssh.md
+const ssh = require('./electron-ssh.cjs').create({
+  getWindow: () => mainWindow,
+  userDataDir: app.getPath('userData'),
+  ignoredDirs: IGNORED_DIRS,
+  tmpPrefix: TMP_PREFIX,
+  languageFromExt,
+  fromMain,
+  onWorkspaceOpened: () => { stopFileWatcher(); workspaceRoot = ''; }
+});
+
 // Çıkış menüsü/düğmesi de kaydedilmemiş değişiklik denetiminden geçer (pencere kapatma yolu); pencere yoksa doğrudan çıkılır.
 ipcMain.handle('app:quit', (e) => {
   if (!fromMain(e)) return;
@@ -417,6 +429,7 @@ async function pushRecent(folderPath) {
 }
 
 async function openWorkspace(folderPath) {
+  ssh.leaveWorkspace(); // uzak oturum yerel klasöre geçişte kapanır
   let isDir = false;
   if (isValidPath(folderPath)) {
     try { isDir = (await fs.promises.stat(folderPath)).isDirectory(); } catch { /* yok */ }
@@ -555,6 +568,7 @@ ipcMain.handle('fs:readDataUrl', async (_event, filePath) => {
 });
 
 ipcMain.handle('fs:readDir', async (_event, dirPath) => {
+  if (ssh.isRemote(dirPath)) return ssh.fs.readDir(dirPath);
   if (!withinWorkspace(dirPath)) return [];
   return scanDirectory(dirPath); // yoksa/okunamazsa boş liste döner
 });
@@ -564,6 +578,7 @@ ipcMain.handle('fs:readDir', async (_event, dirPath) => {
 // İkinci bağımsız değişken { maxBytes }: eşiği artırır ("yine de aç"); en çok 64 MB.
 ipcMain.handle('fs:readFile', async (_event, filePath, opts) => {
   try {
+    if (ssh.isRemote(filePath)) return await ssh.fs.readFile(filePath, opts);
     if (!(withinWorkspace(filePath) || (isValidPath(filePath) && approvedFiles.has(approvalKey(filePath))))) throw new Error('Yol çalışma klasörü dışında.');
     const req = opts && Number.isFinite(opts.maxBytes) ? opts.maxBytes : MAX_OPEN_BYTES;
     const r = await readTextFile(filePath, Math.min(MAX_OPEN_BYTES_HARD, Math.max(1024, req)));
@@ -599,6 +614,7 @@ const OUTSIDE = { success: false, error: 'Yol çalışma klasörü dışında.' 
 const writable = (p) => insideWorkspace(p) || (isValidPath(p) && approvedFiles.has(approvalKey(p)));
 ipcMain.handle('fs:writeFile', async (_event, filePath, content) => {
   try {
+    if (ssh.isRemote(filePath)) return await ssh.fs.writeFile(filePath, content);
     if (!writable(filePath) || typeof content !== 'string') return OUTSIDE;
     // Okurken BOM atıldıysa geri eklenir (dosyanın özgün kodlaması korunur)
     const data = bomFiles.has(approvalKey(filePath)) && content.charCodeAt(0) !== 0xFEFF ? '\uFEFF' + content : content;
@@ -613,6 +629,7 @@ ipcMain.handle('fs:writeFile', async (_event, filePath, content) => {
 
 ipcMain.handle('fs:createFile', async (_event, filePath) => {
   try {
+    if (ssh.isRemote(filePath)) return await ssh.fs.createFile(filePath);
     if (!insideWorkspace(filePath)) return OUTSIDE;
     try {
       await fs.promises.writeFile(filePath, '', { encoding: 'utf8', flag: 'wx' }); // varsa dokunma
@@ -627,6 +644,7 @@ ipcMain.handle('fs:createFile', async (_event, filePath) => {
 
 ipcMain.handle('fs:createFolder', async (_event, folderPath) => {
   try {
+    if (ssh.isRemote(folderPath)) return await ssh.fs.createFolder(folderPath);
     if (!insideWorkspace(folderPath)) return OUTSIDE;
     await fs.promises.mkdir(folderPath, { recursive: true });
     return { success: true };
@@ -639,6 +657,7 @@ ipcMain.handle('fs:createFolder', async (_event, folderPath) => {
 // arayüz kullanıcıdan onay alırsa `{ permanent: true }` ile kalıcı silme istenir. Tek dosya silinirse yerel geçmişe de anlık görüntü alınır (F-07).
 ipcMain.handle('fs:deleteItem', async (_event, targetPath, opts) => {
   try {
+    if (ssh.isRemote(targetPath)) return await ssh.fs.deleteItem(targetPath, opts);
     if (!insideWorkspaceLink(targetPath)) return OUTSIDE; // kök klasörün kendisi de silinemez; symlink ise bağın kendisi silinir
     try { if ((await fs.promises.lstat(targetPath)).isFile()) await localHistory.snapshot(targetPath); } catch { /* yok/okunamaz */ }
     if (opts && opts.permanent === true) {
@@ -658,6 +677,7 @@ ipcMain.handle('fs:deleteItem', async (_event, targetPath, opts) => {
 
 ipcMain.handle('fs:renameItem', async (_event, oldPath, newPath) => {
   try {
+    if (ssh.isRemote(oldPath) || ssh.isRemote(newPath)) return await ssh.fs.renameItem(oldPath, newPath); // karışık yerel/uzak reddedilir
     if (!insideWorkspaceLink(oldPath) || !insideWorkspaceLink(newPath)) return { success: false, error: 'Yol çalışma klasörü dışında.' };
     if (path.resolve(newPath).toLowerCase().startsWith(path.resolve(oldPath).toLowerCase() + path.sep)) return { success: false, error: 'Klasör kendi içine taşınamaz.' };
     const samePathDifferentCase = path.resolve(oldPath).toLowerCase() === path.resolve(newPath).toLowerCase();
@@ -744,7 +764,8 @@ const termModule = require('./electron-term.cjs');
 termModule.register({ getWindow: () => mainWindow, isValidPath: withinWorkspace });
 // Gerçek terminal (PTY, xterm.js ile): çalışma klasörü dışında oturum açılamaz (electron-pty.cjs)
 const ptyModule = require('./electron-pty.cjs');
-ptyModule.register({ getWindow: () => mainWindow, isValidPath: withinWorkspace });
+ptyModule.register({ getWindow: () => mainWindow, isValidPath: withinWorkspace, ssh });
+ssh.register();
 
 // Arama (Ctrl+P / Ctrl+Shift+F)
 require('./electron-search.cjs').register({ getRoot: () => workspaceRoot });
@@ -796,6 +817,7 @@ app.on('will-quit', () => {
   callIfFn(aiModule, 'stopAll');
   callIfFn(debugModule, 'killSync');
   callIfFn(ptyModule, 'stopAll');
+  callIfFn(ssh, 'disconnectAll');
   callIfFn(termModule, 'killAllSync');
   callIfFn(lspModule, 'stopAll', { fast: true });
 });

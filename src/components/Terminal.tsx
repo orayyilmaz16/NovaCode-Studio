@@ -60,6 +60,8 @@ export function cdCommand(shell: ShellId, dir: string): string | null {
   if (shell === 'gitbash' || shell === 'cygwin' || shell === 'msys2') return `cd "$(cygpath -u ${sq(dir.replace(/\\/g, '/'))})"`;
   if (shell.startsWith('wsl:')) return `cd "$(wslpath -u ${sq(dir)})"`;
   if (shell.startsWith('sh:')) return `cd ${sq(dir)}`;
+  // Uzak (SSH) kabuk: sanal yol `ssh://<ana>/<yol>` -> sunucudaki yol; baştaki boşluk bash geçmişine girmesin diye
+  if (shell.startsWith('ssh:')) { const m = /^ssh:\/\/[a-z0-9-]{1,40}(\/.*)$/.exec(dir); return m ? ` cd -- ${sq(m[1])}` : null; }
   if (shell === 'nu') return /["`$]/.test(dir) ? null : `cd "${dir.replace(/\\/g, '/')}"`;
   return `Set-Location -LiteralPath '${dir.replace(/['\u2018\u2019\u201a\u201b]/g, (c) => c + c)}'`;
 }
@@ -149,7 +151,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const [ptyOk, setPtyOk] = useState<boolean | null>(null); // null: henüz denetlenmedi
   const [profiles, setProfiles] = useState<{ id: string; label: string }[]>([]); // bilgisayarda kurulu kabuk profilleri (gerçek terminal)
   const gitBashOk = profiles.some((p) => p.id === 'gitbash');
-  const shellLabel = (id: string) => profiles.find((p) => p.id === id)?.label ?? BASE_LABEL[id] ?? id;
+  const shellLabel = (id: string) => profiles.find((p) => p.id === id)?.label ?? BASE_LABEL[id] ?? (id.startsWith('ssh:') ? 'SSH' : id);
   const shellIcon = (id: string, cls: string, size = 13) => (id === 'gitbash' ? <GitBranch size={size} className={cls} /> : <SquareTerminal size={size} className={cls} />);
   const ptyHandles = useRef(new Map<string, PtyHandle>());
 
@@ -158,7 +160,9 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   // Varsayılan tür: gerçek terminal (PTY) kullanılabilirse ve ayar 'klasik' değilse o
   const defaultKind: 'pipe' | 'pty' = values.terminalMode === 'classic' || !ptyOk ? 'pipe' : 'pty';
   // Git Bash yalnız gerçek terminalde (PTY) çalışır; kullanılamıyorsa varsayılan PowerShell'e düşer
-  const defaultShell: ShellId = isPipeShell(wantShell) || (defaultKind === 'pty' && profiles.some((p) => p.id === wantShell)) ? wantShell : 'powershell';
+  // Uzak (SSH) çalışma alanında varsayılan kabuk uzak sunucudaki kabuktur (yerel kabuklar uzak klasörde açılamaz)
+  const remoteId = /^ssh:\/\/([a-z0-9-]{1,40})\//.exec(cwd ?? '')?.[1];
+  const defaultShell: ShellId = remoteId ? `ssh:${remoteId}` : isPipeShell(wantShell) || (defaultKind === 'pty' && profiles.some((p) => p.id === wantShell)) ? wantShell : 'powershell';
   const counter = useRef(0);
   const history = useRef<Map<string, string[]>>(new Map());
   const historyPos = useRef(-1);

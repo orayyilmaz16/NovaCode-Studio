@@ -19,6 +19,24 @@ export interface UserSnippet {
   scope?: 'workspace' | 'user';
 }
 
+/** Kayıtlı uzak sunucu (parola/parola cümlesi hiçbir yerde saklanmaz). */
+export interface SshHost {
+  id: string;
+  name: string;
+  host: string;
+  port: number;
+  user: string;
+  auth: 'agent' | 'key' | 'password';
+  keyName: string;
+  root: string;
+  connected: boolean;
+}
+export type SshHostInput = Partial<Pick<SshHost, 'id' | 'port' | 'root'>> & Pick<SshHost, 'name' | 'host' | 'user' | 'auth'> & { keyPath?: string };
+export type SshEvent =
+  | { type: 'hostkey'; reqId: string; host: string; port: number; fingerprint: string }
+  | { type: 'hostkey-changed'; host: string; port: number; fingerprint: string; expected: string }
+  | { type: 'disconnected'; id: string; reason: string };
+
 export interface ReadFileFailure {
   success: false;
   error: 'file-too-large' | 'binary-file' | string;
@@ -361,6 +379,21 @@ export interface ElectronBridge {
     onEvent: (cb: (ev: DebugEvent) => void) => () => void;
   };
   /** Çalışma klasörü güveni ve kalıcı rızalar. Ekleme yok: yalnız açık klasöre güven verme ve kaldırma. */
+  /** Uzak çalışma alanı (SSH/SFTP). Yollar `ssh://<ana>/<yol>` biçimindedir. */
+  ssh?: {
+    status: () => Promise<{ available: boolean; hosts: SshHost[]; active: { hostId: string; root: string } | null }>;
+    hostSave: (host: SshHostInput) => Promise<{ success: boolean; host?: SshHost; error?: string }>;
+    hostRemove: (id: string) => Promise<{ success: boolean }>;
+    pickKey: () => Promise<{ success: boolean; path?: string; name?: string; error?: string }>;
+    connect: (id: string, secret?: string) => Promise<{ success: boolean; home?: string; error?: string }>;
+    hostKeyAnswer: (reqId: string, allow: boolean) => Promise<{ success: boolean }>;
+    forgetHostKey: (id: string) => Promise<{ success: boolean }>;
+    disconnect: (id: string) => Promise<{ success: boolean }>;
+    browse: (id: string, dir?: string) => Promise<{ success: boolean; path?: string; parent?: string | null; dirs?: string[]; error?: string }>;
+    open: (id: string, dir?: string) => Promise<{ rootPath: string; rootName: string; trusted?: boolean; remote?: { hostId: string; name: string }; tree: FileItem[] } | { error: string }>;
+    close: () => Promise<{ success: boolean }>;
+    onEvent: (cb: (ev: SshEvent) => void) => () => void;
+  };
   trust?: {
     status: () => Promise<{ root: string; trusted: boolean }>;
     grant: () => Promise<{ success: boolean; trusted: boolean }>;

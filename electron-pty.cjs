@@ -128,7 +128,7 @@ function kill(s, sync = false) {
   try { s.p.kill(); } catch { /* bitmiş */ }
 }
 
-function register({ getWindow, isValidPath }) {
+function register({ getWindow, isValidPath, ssh }) {
   api = { getWindow, isValidPath };
 
   ipcMain.handle('pty:start', async (_e, req) => {
@@ -137,6 +137,29 @@ function register({ getWindow, isValidPath }) {
     if (typeof r.shell !== 'string' || r.shell.length > 120) return { success: false, error: 'invalid-shell' };
     if (sessions.has(r.id)) return { success: false, error: 'exists' };
     if (sessions.size >= MAX_SESSIONS) return { success: false, error: 'too-many' };
+    // Uzak kabuk (SSH): `ssh:<anaId>` profili; bağlantı electron-ssh.cjs'te, çıktı aynı pty:data/pty:exit olaylarıyla akar
+    if (r.shell.startsWith('ssh:')) {
+      const hostId = r.shell.slice(4);
+      if (!ssh || !ID_RE.test(hostId) || ssh.activeHostId() !== hostId) return { success: false, error: 'invalid-shell' };
+      const s = { p: null, exited: false, buf: '', timer: null };
+      const flush = () => { s.timer = null; if (s.buf) { const data = s.buf; s.buf = ''; send('pty:data', { id: r.id, data }); } };
+      const res = await ssh.openShell(
+        hostId,
+        { cols: clampInt(r.cols, 10, 500, 100), rows: clampInt(r.rows, 2, 200, 24), cwd: typeof r.cwd === 'string' ? r.cwd : '' },
+        (d) => { s.buf += d; if (!s.timer) s.timer = setTimeout(flush, 8); },
+        (code) => {
+          if (s.exited) return;
+          s.exited = true;
+          if (s.timer) { clearTimeout(s.timer); flush(); }
+          sessions.delete(r.id);
+          send('pty:exit', { id: r.id, code });
+        }
+      );
+      if (!res.success) return { success: false, error: res.error };
+      s.p = res.handle;
+      sessions.set(r.id, s);
+      return { success: true };
+    }
     if (typeof r.cwd !== 'string' || !api.isValidPath(r.cwd) || !fs.existsSync(r.cwd) || !fs.statSync(r.cwd).isDirectory()) return { success: false, error: 'no-folder' };
     const pty = loadLib();
     if (!pty) return { success: false, error: 'no-pty' };
@@ -195,13 +218,17 @@ function register({ getWindow, isValidPath }) {
 
   ipcMain.handle('pty:available', () => ({ available: !!loadLib(), gitBash: !!findGitBash() }));
   // Kurulu kabuk profilleri (yalnız kimlik + ad; dosya yolu renderer'a verilmez). `force`: önbelleği atla (menü açılırken)
-  ipcMain.handle('pty:profiles', async (_e, force) => (await detectProfiles(force === true)).map(({ id, label }) => ({ id, label })));
+  ipcMain.handle('pty:profiles', async (_e, force) => [
+    ...(await detectProfiles(force === true)).map(({ id, label }) => ({ id, label })),
+    ...(ssh ? ssh.sshProfiles() : []) // bağlı uzak ana bilgisayarlar: "SSH: <ad>"
+  ]);
 }
 
 // Kapanışta eşzamanlı: ağaçlar tek `taskkill` çağrısıyla kapatılır
 function stopAll() {
   const live = [...sessions.values()].filter((s) => !s.exited);
-  killTreeSync(live.map((s) => s.p && s.p.pid));
+  killTreeSync(live.map((s) => s.p && s.p.pid).filter(Boolean)); // uzak (SSH) oturumların pid'i yok
+  for (const s of live) if (s.p && !s.p.pid) { try { s.p.kill(); } catch { /* bitmiş */ } }
   if (process.platform !== 'win32') for (const s of live) { try { s.p.kill(); } catch { /* bitmiş */ } }
   for (const s of sessions.values()) s.exited = true;
   sessions.clear();

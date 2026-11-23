@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 23.11.2026 10:51 · auto/20261118-083349
+<!-- sig:ZWxlY3Ryb24tbWFpbi5janMsZWxlY3Ryb24tcHJl -->
+- Alan: [[security-kvkk]], [[terminal]], [[i18n]], [[ui-design]], [[testing]]
+- Kod (15): `electron-main.cjs`, `electron-preload.cjs`, `electron-pty.cjs`, `scripts/tests/i18n.test.cjs`, `src/App.tsx`, `src/components/LandingPage.tsx`, `src/components/Terminal.tsx`, `src/i18n/uiText.ts`, `src/types.ts`, `electron-ssh-core.cjs`, `electron-ssh.cjs`, `scripts/tests/ssh-sftp.test.cjs` … (+3)
+- Belge (8): `AGENT.md`, `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/security-kvkk.md`, `docs/brain/actions/terminal.md`, `docs/brain/actions/testing.md`, `docs/brain/actions/remote-ssh.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 22.11.2026 15:36 · auto/20261118-083349
 <!-- sig:ZWxlY3Ryb24tcHJlbG9hZC5janMsZWxlY3Ryb24t -->
 - Alan: [[security-kvkk]], [[terminal]], [[testing]], [[ui-design]]
@@ -275,10 +282,3 @@
 - Kod (5): `.github/workflows/ci-cd.yml`, `.github/workflows/security.yml`, `scripts/auto-commit.mjs`, `scripts/doc-sync.mjs`, `scripts/audit-scan.mjs`
 - Belge (2): `docs/brain/BRAIN.md`, `docs/brain/actions/audit.md`
 - Durum: ✓ belgelendi · sürüm: CHANGELOG Unreleased boş: sürüm çıkmaz
-
-## 17.11.2026 15:50 · auto/20261117-085910
-<!-- sig:c3JjL0FwcC50c3gsc3JjL3NlcnZpY2VzL2xhbmcu -->
-- Alan: [[ui-design]]
-- Kod (2): `src/App.tsx`, `src/services/lang.ts`
-- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm hazırlandı: v1.4.0 → v1.4.1 (patch)
