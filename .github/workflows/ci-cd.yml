@@ -174,7 +174,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ inputs.release_tag || needs.version.outputs.sha }}
+          # Elle yeniden denemede workflow'un çalıştırıldığı dal/commit derlenir (etiket eski kodda kalmış olabilir); etiket yalnız ad/not için
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || needs.version.outputs.sha }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
