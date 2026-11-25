@@ -4,6 +4,7 @@
 
 ### tr
 
+- [fix] **Windows kurulum derlemesi:** SSH eklendikten sonra CI'daki masaüstü derlemesi isteğe bağlı yerel bir pakette (cpu-features) düşüyordu; yeniden derleme kapatıldı, kurulum yeniden üretilebiliyor. PR'larda paketleme denetimi ve elle yeniden deneme eklendi.
 - [security] **Terminal oturum kimlikleri:** Kimlik sonekleri artık kripto rastgelelikten üretiliyor (CodeQL "insecure randomness" uyarısı giderildi).
 - [improve] **Ana sayfada Gezgin açık kalır:** Ana sayfaya geçince (ev düğmesi ya da klasörü kapatma) kenar çubuğu artık kapanmıyor; yalnız sen kapatınca kapanır.
 - [feat] **Klasörü kapat ve ana sayfaya dön:** Gezgin başlığına ev düğmesi, Dosya menüsüne ve komut paletine "Klasörü kapat ve ana sayfaya dön" eklendi. Kaydedilmemiş dosya varsa önce sorar; sonra sekmeleri ve ağacı temizleyip karşılama sayfasını açar (uzak bağlantı varsa keser).
@@ -53,6 +54,7 @@
 
 ### en
 
+- [fix] **Windows installer build:** After SSH landed, the desktop build in CI failed on an optional native package (cpu-features); native rebuild is now off so the installer builds again. PRs get a packaging check and releases can be re-run by hand.
 - [security] **Terminal session IDs:** ID suffixes now come from cryptographic randomness (fixes the CodeQL "insecure randomness" alert).
 - [improve] **Explorer stays open on the home page:** Going home (home button or closing a folder) no longer hides the sidebar; it closes only when you close it.
 - [feat] **Close folder and go home:** Added a home button in the Explorer header plus "Close folder and go home" in the File menu and command palette. It asks about unsaved files first, then clears tabs and the tree and opens the welcome page (and disconnects a remote session if any).
