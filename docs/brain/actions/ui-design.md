@@ -165,3 +165,6 @@ Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `s
 
 ## Menüler: kapalı öğe tonu (25.11.2026)
 Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori başlıkları `text-zinc-700` (koyu, neredeyse siyah) çizilir; eski `opacity-40`/`zinc-600` kalktı. Yer: `AccordionMenu.tsx` (kompakt Menü), `Menu.tsx` (`PopupMenu`), `MenuBar.tsx` (başlıklar). Kapalı öğe hâlâ tıklanmaz; ipucu (`hint`) üzerine gelince görünür.
+
+### Tamamı kapalı kategori (25.11.2026)
+`allOff(grup)` doğruysa kategori başlığı etkileşimsizdir: `AccordionMenu` satır listesine hiç girmez (ok tuşlarıyla atlanır), `disabled` + `tabIndex=-1` + `pointer-events-none`, `toggle` yok sayar; `MenuBar` başlığı `disabled`, tıklama ve üzerine gelerek menü geçişi (`onMouseEnter`) kapalı. Tekil kapalı öğeler tıklanmaz ama `title` ipucu için işaretçi olayları açık kalır.

@@ -64,7 +64,7 @@
 | Dosya | Satır |
 |---|---|
 | `src/components/AIAssistant.tsx` | 768 |
-| `src/components/AccordionMenu.tsx` | 181 |
+| `src/components/AccordionMenu.tsx` | 186 |
 | `src/components/AppDialogs.tsx` | 66 |
 | `src/components/BranchPicker.tsx` | 199 |
 | `src/components/ChatSessions.tsx` | 340 |
@@ -88,7 +88,7 @@
 | `src/components/Logo.tsx` | 36 |
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
-| `src/components/MenuBar.tsx` | 99 |
+| `src/components/MenuBar.tsx` | 100 |
 | `src/components/ModelMenu.tsx` | 83 |
 | `src/components/OutputPanel.tsx` | 121 |
 | `src/components/Preview.tsx` | 372 |

@@ -76,12 +76,13 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
             aria-haspopup="menu"
             aria-expanded={open?.id === m.id}
             data-active={open?.id === m.id}
-            onClick={(e) => { if (!justClosed(m.id)) openFor(m.id, e.currentTarget); }}
-            onMouseEnter={(e) => { if (open && open.id !== m.id) openFor(m.id, e.currentTarget); }}
+            disabled={allOff(m)}
+            onClick={(e) => { if (!allOff(m) && !justClosed(m.id)) openFor(m.id, e.currentTarget); }}
+            onMouseEnter={(e) => { if (open && open.id !== m.id && !allOff(m)) openFor(m.id, e.currentTarget); }}
             // Kullanılabilir başlık beyaz, açık olan vurgulu; hiç öğesi kullanılamayan (dosya/klasör yok) başlık koyu kalır
             data-off={allOff(m) || undefined}
             className={`mb-btn relative rounded-md whitespace-nowrap shrink-0 transition-[color,background-color] duration-(--dur-base) ease-(--ease-out-soft) ${
-              open?.id === m.id ? 'bg-white/[0.10] text-white' : allOff(m) ? 'text-zinc-700 hover:bg-white/[0.04] hover:text-zinc-500' : 'text-zinc-100 hover:bg-white/[0.08] hover:text-white'
+              open?.id === m.id ? 'bg-white/[0.10] text-white' : allOff(m) ? 'text-zinc-700 pointer-events-none cursor-default' : 'text-zinc-100 hover:bg-white/[0.08] hover:text-white'
             }`}
           >
             {m.label}

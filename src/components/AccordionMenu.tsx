@@ -32,6 +32,7 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
   };
   const rows: Row[] = [];
   for (const g of groups) {
+    if (allOff(g)) continue; // tamamı kapalı kategori: gezilmez, açılmaz
     rows.push({ kind: 'group', gid: g.id });
     if (g.id === openId) g.items.forEach((it, idx) => { if (!it.separator && !it.disabled) rows.push({ kind: 'item', gid: g.id, idx }); });
   }
@@ -52,6 +53,7 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
   }, [x, y, openId]);
 
   const toggle = (gid: string) => {
+    if (allOff(groups.find((g) => g.id === gid) ?? { id: '', label: '', items: [] })) return;
     const next = openId === gid ? null : gid;
     setOpenId(next);
     // Etkin satır, açılan/kapanan grubun başlığında kalsın
@@ -61,6 +63,7 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
   const indexOfGroup = (gid: string, nextOpen: string | null) => {
     let n = 0;
     for (const g of groups) {
+      if (allOff(g)) continue;
       if (g.id === gid) return n;
       n++;
       if (g.id === nextOpen) n += g.items.filter((it) => !it.separator && !it.disabled).length;
@@ -131,9 +134,11 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
               role="menuitem"
               aria-haspopup="menu"
               aria-expanded={open}
-              onMouseEnter={() => setActive(rows.findIndex((r) => r.kind === 'group' && r.gid === g.id))}
+              disabled={allOff(g)}
+              tabIndex={allOff(g) ? -1 : 0}
+              onMouseEnter={() => { if (!allOff(g)) setActive(rows.findIndex((r) => r.kind === 'group' && r.gid === g.id)); }}
               onClick={() => toggle(g.id)}
-              className={`w-full flex items-center gap-2 h-8 ps-2.5 pe-3 text-start font-medium transition-colors ${
+              className={`w-full flex items-center gap-2 h-8 ps-2.5 pe-3 text-start font-medium transition-colors disabled:pointer-events-none disabled:cursor-default ${
                 open ? 'bg-nv-active/60 text-zinc-50 shadow-[inset_2px_0_0_var(--color-indigo-500)]' : isActive(head) ? 'bg-nv-hover text-zinc-100' : allOff(g) ? 'text-zinc-700' : 'text-zinc-100'
               }`}
             >
