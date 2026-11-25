@@ -12,7 +12,7 @@
 //    (decision: block); Claude eksik belgeyi yazıp tekrar bitirir. İkinci kez (stop_hook_active) engellenmez: döngü yok, eksik günlüğe işlenir.
 //  - Engellenirse auto-commit çalışmaz (yarım belgeli commit çıkmaz); belgeler tamamlanınca sonraki Stop'ta gider.
 //  - Günlüğe istem METNİ yazılmaz (gizli bilgi/kişisel veri riski, KVKK); yalnız dosya yolları, alanlar ve belge durumu.
-//  - Belge tamamsa sürüm de hazırlanır (scripts/release.mjs prepare; kapatmak için NOVA_RELEASE=off).
+//  - Belge tamamsa sürüm de hazırlanır (varsayılan KAPALI: bulutta auto-release.yml hazırlar; yerelde istersen NOVA_RELEASE=local).
 // Kapatmak için: NOVA_DOCSYNC=off
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -179,7 +179,8 @@ if (MODE === "stop") {
   let status = a.need.length ? `⚠ eksik belge: ${a.need.map((x) => x.split(" (")[0].split(" →")[0]).join("; ")}` : a.code.length ? "✓ belgelendi" : "✓ yalnız belge değişti";
   // Sürüm hazırlığı: belge tamamsa CHANGELOG Unreleased maddelerinden sürümü hazırlar (package.json, CHANGELOG, release-notes, VERSIONS.md,
   // CLAUDE.md/AGENT.md blokları). Etiketi PR birleşince CI atar. Belgesiz tur sürüm çıkarmaz. Kural: docs/brain/actions/versioning.md
-  if (!a.need.length && process.env.NOVA_RELEASE !== "off") {
+  // 25.11.2026: sürüm hazırlığı artık bulutta (auto-release.yml); yerelde yalnız NOVA_RELEASE=local ile çalışır (çift hazırlık yarışmasın).
+  if (!a.need.length && process.env.NOVA_RELEASE === "local") {
     const firstLine = (t) => String(t).split(/\r?\n/).find(Boolean) || "";
     try { status += " · " + firstLine(run(process.execPath, ["scripts/release.mjs", "prepare"])); } catch (e) { status += " · sürüm hazırlanamadı: " + firstLine(e.stderr || e.message); }
   }

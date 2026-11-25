@@ -183,3 +183,6 @@ Karar (kurucu): Electron (Chromium + Node.js), electron-builder ve @electron/* a
 
 ## 25.11.2026 — Bağımlılık yükselince sürüm bulutta otomatik hazırlanır
 Karar (kurucu): Electron yığını veya çalışma zamanı bağımlılığı yükselince sürüm (patch) otomatik hazırlanır, CI yeşilse birleşir, etiket + Release ci-cd.yml ile çıkar. Neden: güvenlik/performans düzeltmeleri kullanıcıya bekletmeden ulaşsın. Ön koşul: Actions PR oluşturma izni (repo ayarı, kurucu açar).
+
+## 25.11.2026 — Sürüm hazırlığı yalnız bulutta
+Karar (kurucu): elle/yerel sürüm hazırlığı bırakıldı; Actions PR oluşturma izni açıldı. auto-release.yml sürümü hazırlar ve PR açar. Neden: yerel ve bulut hazırlığı yarışıp yinelenen dal/PR üretiyordu.
