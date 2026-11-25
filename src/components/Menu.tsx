@@ -47,17 +47,17 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
     };
     const key = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         onClose();
       } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         const i = actionable.indexOf(active);
         const next = actionable[(i + (e.key === 'ArrowDown' ? 1 : -1) + actionable.length) % actionable.length];
         setActive(next);
       } else if ((e.ctrlKey || e.metaKey) && e.key.length === 1) {
         onClose(); // Ctrl+P gibi kısayol menüyü kapatır, kısayol çalışmaya devam eder
       } else if (e.key === 'Enter' && active >= 0) {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         items[active].onClick?.();
         onClose();
       }

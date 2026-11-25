@@ -82,23 +82,24 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
       if (!ref.current?.contains(e.target as Node)) onClose();
     };
     const key = (e: KeyboardEvent) => {
+      if (rows.length === 0 && e.key !== 'Escape') return;
       const cur = rows[active];
       if (e.key === 'Escape') {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         onClose();
       } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         setActive((a) => (a + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length);
       } else if (e.key === 'ArrowRight' && cur?.kind === 'group' && openId !== cur.gid) {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         toggle(cur.gid);
       } else if (e.key === 'ArrowLeft' && cur) {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         if (openId === cur.gid) toggle(cur.gid);
       } else if ((e.ctrlKey || e.metaKey) && e.key.length === 1) {
         onClose();
       } else if ((e.key === 'Enter' || e.key === ' ') && cur) {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         if (cur.kind === 'group') toggle(cur.gid);
         else {
           const it = groups.find((g) => g.id === cur.gid)?.items[cur.idx];
