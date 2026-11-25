@@ -4,7 +4,7 @@ name: CI hata bildirimi (otomatik issue)
 # aynı dal sonradan yeşil olunca issue kendiliğinden kapanır. İnsan müdahalesi gerekmez.
 on:
   workflow_run:
-    workflows: ["CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release"]
+    workflows: ["CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release", "Otomatik sürüm hazırlığı"]
     types: [completed]
 
 permissions:
@@ -23,7 +23,9 @@ jobs:
           script: |
             const run = context.payload.workflow_run;
             const branch = run.head_branch;
-            const title = `CI başarısız: ${branch}`;
+            // Sürüm otomasyonu (auto-release) ayrı bir issue başlığı kullanır; CI ile karışmaz
+            const isCi = run.name === "CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release";
+            const title = isCi ? `CI başarısız: ${branch}` : `Otomasyon başarısız: ${run.name}`;
             const label = 'ci-failure';
             const { owner, repo } = context.repo;
 

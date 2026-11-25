@@ -55,3 +55,15 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 - Sürüm: bağımlılık PR'ı CHANGELOG maddesi taşımaz; Electron yükseltmesi kullanıcıya bir sonraki sürümle (herhangi bir madde sürümü çıkarınca) ulaşır.
 
 - Sürüm otomasyonu: `auto-release.yml` (bkz. versioning.md). Electron/çalışma zamanı bağımlılık yükseltmesi artık kendi sürümünü hazırlatır; ayar açıksa insan müdahalesi gerekmez.
+
+## Otonom akış özeti (25.11.2026)
+| Olay | Ne olur | Kapı |
+|---|---|---|
+| Dependabot günlük PR | Electron yığını (major dahil), GitHub Actions (major dahil), diğer npm patch/minor → auto-merge | Zorunlu kontrol `Kalite, Güvenlik ve Performans` + PR'da Windows paketleme |
+| Diğer npm major | PR açık kalır | İnsan inceler |
+| main'e bağımlılık/CHANGELOG girer | `auto-release.yml` madde yazar (gerekirse), sürümü hazırlar, PR açar, CI'ı tetikler, auto-merge | CI yeşil |
+| Sürüm PR'ı birleşir | `ci-cd.yml` etiket atar → Windows kurulum + GitHub Release | Kalite işi yeşil |
+| Herhangi bir PR birleşir | Dal otomatik silinir (`delete_branch_on_merge`) | — |
+| Otomasyon/CI düşer | `ci-failure-issue.yml` issue açar, yeşilde kapatır (`CI başarısız: dal` / `Otomasyon başarısız: iş akışı`) | — |
+İnsan müdahalesi yalnız: diğer npm major'ları, kırılan CI, KVKK/ürün kararları.
+
