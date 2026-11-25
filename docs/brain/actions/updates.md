@@ -40,3 +40,5 @@ Denetim ve notlar `github.com` / `api.github.com`'a gider: IP, uygulama sürüm�
 
 ## Denetim düzeltmeleri (17.11.2026)
 `NOVA_UPDATE_FEED` yalnız paketlenmemiş uygulamada geçerli.
+
+**Geliştirme kanalında denetim yok (25.11.2026):** `electron-update.cjs` `update:check`: kanal `dev` (paketli değil ve NOVA_UPDATE_FEED yok) ise ağ isteği yapmaz, durum `unsupported` olur; eski "son yayınla karşılaştır" ve "yayın sayfasını aç" kaldırıldı. Kurulu (`stable`) uygulama: denetle → bulursa indir (varsayılan otomatik, kurulum kullanıcı onayıyla) → yoksa "güncelsin". `updDevNote` 8 dilde yenilendi. `update:releases` (Sürüm notları sekmesi) kullanıcı tıklamasıyla çalışmaya devam eder.

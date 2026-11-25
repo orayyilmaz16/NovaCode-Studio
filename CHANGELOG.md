@@ -4,8 +4,10 @@
 
 ### tr
 
+- [improve] **Güncelleme denetimi yalnız kurulu uygulamada:** Kaynak koddan çalışırken (geliştirme) güncelleme denetimi ve internet isteği artık yok; güncellemeyi git ile alırsın. Setup (.exe) ile kurulan uygulama yeni sürüm varsa denetler ve indirir, yoksa "güncelsin" der.
 ### en
 
+- [improve] **Update checks only in the installed app:** Running from source (development) no longer checks for updates or makes any network request; pull updates with git. The app installed with the setup (.exe) checks and downloads a newer version, or says you are up to date.
 ## 1.6.1 - 25.11.2026
 <!-- level: patch -->
 ### Türkçe
