@@ -44,6 +44,6 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 ## Masaüstü derleme güvenilirliği (25.11.2026)
 - Kök neden: `ssh2` isteğe bağlı `cpu-features` (node-gyp) paketini getirdi; `electron-builder` `@electron/rebuild` ile onu derlemeye çalışıp Windows runner'da düştü (`npm ci --ignore-scripts` ile gyp ön dosyası üretilmediği için). Çözüm: `build.npmRebuild:false` + `cpu-features`/`nan` pakete alınmaz (ssh2 saf JS yoluna düşer; `@lydell/node-pty` önceden derlenmiş).
 - `desktop-smoke` işi: PR'da paketlemeyi etkileyen dosya (package*.json, electron-*.cjs, public/, ci-cd.yml) değiştiyse Windows'ta `electron-builder --dir` dener; aksi halde atlanır.
-- Elle yeniden deneme: Actions → CI/CD → Run workflow → `release_tag` (ör. v1.5.1); kalite işi yeşilse o etiketten kurulum ve Release üretilir.
+- Elle yeniden deneme: Actions → CI/CD → Run workflow → `release_tag` (ör. v1.5.1). Derlenen kod, workflow'un çalıştırıldığı dal/commit’tir (etiket eski kodda kalmış olabilir); etiket yalnız Release adı ve notu içindir. Kalite işi yeşilse kurulum ve Release üretilir.
 - Hız: `NPM_CONFIG_{FUND,AUDIT}=false`, `PREFER_OFFLINE`, electron/electron-builder önbelleği (SHA sabitli `actions/cache`); eski PR koşuları iptal edilir, main koşuları iptal edilmez.
 
