@@ -77,6 +77,8 @@ const promptAnsi = (shell: ShellId, cwd: string, branch?: string | null) =>
   `${shell === 'powershell' ? `${ESC}[1;38;5;4mPS${ESC}[0m ` : ''}${ESC}[38;5;6m${shortenPath(cwd)}${ESC}[0m` +
   `${branch ? ` ${ESC}[38;5;5m(${branch})${ESC}[0m` : ''}${ESC}[0m> `;
 
+/** Oturum kimliği son eki: tahmin edilemez olsun diye kripto rastgelelikten (Math.random değil). */
+const randSuffix = () => Array.from(crypto.getRandomValues(new Uint8Array(3)), (b) => b.toString(16).padStart(2, '0')).join('');
 const baseName = (p: string) => p.split(/[\\/]/).filter(Boolean).pop() ?? p;
 
 const Output: React.FC<{ text: string }> = React.memo(({ text }) => {
@@ -235,7 +237,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       counter.current += 1;
       if (kind === 'pty' && api?.pty) {
         // Gerçek terminal: oturumu burada başlatırız; xterm görünümü (PtyView) yalnız çizer ve çıktıyı tampondan oynatır
-        const id = `p-${counter.current}-${Math.random().toString(36).slice(2, 6)}`;
+        const id = `p-${counter.current}-${randSuffix()}`;
         setSessions((prev) => [...prev, { id, shell, kind: 'pty', running: true, status: '', output: '', cwd }]);
         setActiveId(id);
         setTab('terminal');
@@ -244,7 +246,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
         return;
       }
       if (!api?.termStart || !isPipeShell(shell)) return;
-      const id = `t-${counter.current}-${Math.random().toString(36).slice(2, 6)}`;
+      const id = `t-${counter.current}-${randSuffix()}`;
       setSessions((prev) => [...prev, { id, shell, kind: 'pipe', running: false, status: t('termStarting'), output: '', cwd }]);
       setActiveId(id);
       setTab('terminal');
