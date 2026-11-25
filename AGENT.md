@@ -4,8 +4,13 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.5.1** (patch, 18.11.2026) · notlar `release-notes/v1.5.1.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- İyileştirmeler: Ajan ekranı sadeleşti ve netleşti
+**Son sürüm v1.6.0** (minor, 25.11.2026) · notlar `release-notes/v1.6.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- Yeni özellikler: Klasörü kapat ve ana sayfaya dön
+- Yeni özellikler: Uzak pencere seçici
+- Yeni özellikler: Uzak sunucu (SSH)
+- Yeni özellikler: Yenilenen alt panel
+- Yeni özellikler: Durum çubuğunda commit geçmişi
+- … ve 41 madde daha (`release-notes/v1.6.0.md`)
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)

@@ -3,8 +3,8 @@
 > Bu dosya `scripts/brain.mjs` tarafından koddan üretilir; **elle düzenleme**. Yenilemek için `npm run brain`. Bkz. [[BRAIN]].
 
 ## Sürümler
-- Uygulama: **1.5.1**
-- Electron ^45.2.3 · React ^19.3.1 · Vite ^8.3.5 · TypeScript ~7.0.2 · Tailwind ^4.3.5
+- Uygulama: **1.6.0**
+- Electron ^45.3.3 · React ^19.3.1 · Vite ^8.3.8 · TypeScript ~7.0.2 · Tailwind ^4.3.5
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.57.0
 - GitHub OAuth Client ID tanımlı: evet
 
@@ -103,7 +103,7 @@
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 80 |
-| `src/components/Terminal.tsx` | 733 |
+| `src/components/Terminal.tsx` | 735 |
 | `src/components/TestPanel.tsx` | 178 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |
