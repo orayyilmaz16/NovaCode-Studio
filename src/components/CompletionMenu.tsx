@@ -110,13 +110,13 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, onClose, onOpenSetting
         className="absolute w-[400px] max-w-[calc(100vw-16px)] overflow-y-auto overflow-x-hidden rounded-[var(--frame-r)] border border-nv-border bg-nv-side shadow-2xl cm-panel outline-none text-zinc-300"
       >
         <div className="flex items-center gap-3 px-3.5 py-3 border-b border-nv-border">
-          <span className="w-8 h-8 rounded-md bg-nv-active flex items-center justify-center shrink-0">
+          <span className="size-8 rounded-md bg-nv-active flex items-center justify-center shrink-0">
             <CompletionIcon size={15} off={!enabled || status.state === 'off'} className="text-indigo-300" />
           </span>
           <div className="flex-1 min-w-0 leading-tight">
             <div className="text-[13px] font-semibold text-zinc-100 truncate">{t('grpAiCompletion')}</div>
             <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-zinc-400" title={t('cmModel').replace('{m}', model)}>
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusColor}`} />
+              <span className={`size-1.5 rounded-full shrink-0 ${statusColor}`} />
               <span className="truncate">{statusText}</span>
             </div>
           </div>
@@ -189,7 +189,7 @@ export const CompletionMenu: React.FC<Props> = ({ anchor, onClose, onOpenSetting
             <span className="truncate">{t('cmAllSettings')}</span>
           </button>
         </div>
-        <div className="px-3.5 py-2 border-t border-nv-border text-[10.5px] leading-snug text-zinc-500 break-words [overflow-wrap:anywhere]" title={t('cmShortcuts')}>{t('cmShortcuts')}</div>
+        <div className="px-3.5 py-2 border-t border-nv-border text-[10.5px] leading-snug text-zinc-500 wrap-anywhere" title={t('cmShortcuts')}>{t('cmShortcuts')}</div>
       </div>
     </div>
   );

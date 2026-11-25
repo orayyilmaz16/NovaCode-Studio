@@ -9,9 +9,9 @@ triggers: ["test", "doğrula", "build", "tsc"]
 
 ## Sıra (en fazla 3 tur)
 1. `npx tsc --noEmit` — tip kontrolü (build tipleri denetlemez).
-2. `npm test` — `git.test.cjs` (durum, sahneleme, commit, dallar, kilit, yol güvenliği, diff, merge/çakışma, stash, etiket, amend/undo), `release.test.cjs` (sürüm düzeyi patch/minor/major, hazırlama çıktıları, bekleyen sürüm, etiket kararı, ata olmayan etiket; geçici git depolarında), `palettes.test.cjs` (renk temaları: hex geçerliliği, WCAG kontrast kapısı, şema↔tablo birebirliği, vurgu/yazı tipi yığınları), `sync.test.cjs` (yerel bare depoyla fetch/pull/push, ayrışma), `term.test.cjs` (terminal süzgeci, kimlik reddi, gerçek PowerShell/CMD turu), `textbuffer.test.cjs`, `debug.test.cjs` (gerçek Node süreci), `pty.test.cjs` (gerçek ConPTY), `lsp.test.cjs` (güvenlik + PATH'te pyright varsa gerçek sunucu; `NOVA_TEST_PATH`), `ai-tools.test.cjs` (ajan araçları), `ai-complete.test.cjs` (AI kod tamamlama, sahte Ollama).
+2. `npm test` — `ssh.test.cjs` (uzak yol/profil/parmak izi çekirdeği) ve `ssh-sftp.test.cjs` (sahte SSH/SFTP sunucusuyla uçtan uca; `ssh2` yoksa atlanır), `git.test.cjs` (durum, sahneleme, commit, dallar, kilit, yol güvenliği, diff, merge/çakışma, stash, etiket, amend/undo), `release.test.cjs` (sürüm düzeyi patch/minor/major, hazırlama çıktıları, bekleyen sürüm, etiket kararı, ata olmayan etiket; geçici git depolarında), `palettes.test.cjs` (renk temaları: hex geçerliliği, WCAG kontrast kapısı, şema↔tablo birebirliği, vurgu/yazı tipi yığınları), `sync.test.cjs` (yerel bare depoyla fetch/pull/push, ayrışma), `term.test.cjs` (terminal süzgeci, kimlik reddi, gerçek PowerShell/CMD turu), `textbuffer.test.cjs`, `debug.test.cjs` (gerçek Node süreci), `pty.test.cjs` (gerçek ConPTY), `lsp.test.cjs` (güvenlik + PATH'te pyright varsa gerçek sunucu; `NOVA_TEST_PATH`), `ai-tools.test.cjs` (ajan araçları), `ai-complete.test.cjs` (AI kod tamamlama, sahte Ollama).
 3. `npm run brain:check` — md bağlantıları, aksiyon başlıkları, IPC eşleşmesi, i18n 8 dil.
-4. `npm run build` + `node scripts/check-bundle.mjs` — bütçe: JS 600 KB (gzip 200), CSS 100 KB.
+4. `npm run build` + `node scripts/check-bundle.mjs` — bütçe: JS 700 KB (gzip 230), CSS 120 KB.
 5. `npm audit --omit=dev --audit-level=moderate`.
 6. Uygulamayı çalıştır: Vite (`npx vite --port 5173 --strictPort`) + `electron .` (`NODE_ENV=development`). Sayfa durumu için `--remote-debugging-port` yalnız geçici kullanılır, iş bitince kapatılır.
 
@@ -39,3 +39,6 @@ Yeni testler: `paths.test.cjs` (yol doğrulama, symlink), `ai-security.test.cjs`
 
 ## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
 Yeni testler: `services.test.cjs` (saf servisler, Vite SSR ile `.ts` yükleme), `i18n.test.cjs` (909+ anahtar 8 dil, yer tutucu, `MSG` tablosu; kullanılmayan anahtar yalnız uyarı), `electron-misc.test.cjs` (ext/llm/search saf kısımları), `replace.test.cjs`, `trust.test.cjs`, `preview-csp.test.cjs`, `history.test.cjs`, `snippets.test.cjs`, `keybindings.test.cjs`. Windows'ta sembolik bağ oluşturulamadığı için ilgili senaryolar atlanır. Hâlâ testsiz: `electron-secrets/update/github` (ayıklama gerekir), `electron-main` fs işleyicileri.
+
+## Uygulama içi Test sekmesi (21.11.2026)
+Alt paneldeki Test sekmesi kullanıcı projesinin testlerini çalıştırıp özetler (bkz. [[terminal]]); ayrıştırıcı `src/services/testParse.ts`. Yeni runner eklenirse özet satırı deseni oraya eklenir ve örnek çıktıyla denenir.

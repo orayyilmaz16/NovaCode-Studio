@@ -4,13 +4,8 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.5.0** (minor, 17.11.2026) · notlar `release-notes/v1.5.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Yeni özellikler: Bölünmüş editör
-- Yeni özellikler: Kısayol özelleştirme
-- Yeni özellikler: Çalışma alanında bul-değiştir
-- Yeni özellikler: Görev çalıştırıcı
-- Yeni özellikler: Yerel geçmiş ve zaman çizelgesi
-- … ve 10 madde daha (`release-notes/v1.5.0.md`)
+**Son sürüm v1.5.1** (patch, 18.11.2026) · notlar `release-notes/v1.5.1.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- İyileştirmeler: Ajan ekranı sadeleşti ve netleşti
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)
@@ -155,6 +150,7 @@ Kurallar:
 - `main` ruleset (PR zorunlu, `quality` check zorunlu, force push/silme yasak): PR #5 birleştikten sonra açılır.
 
 ## Durum
+- 23.11.2026: Uzak çalışma alanı (SSH/SFTP + uzak terminal) eklendi (`electron-ssh*.cjs`, `RemoteDialog`, aksiyon `remote-ssh`). Testler (çekirdek + sahte sunucuyla uçtan uca) geçti, `tsc` ve `npm run build` temiz. **Açık:** (1) `ssh2` `package.json`/lock'ta ama Electron çalışırken `npm install` EBUSY verdi: Electron'u kapatıp `npm install` çalıştır; (2) gerçek sunucuyla elle deneme ve Windows ssh-agent borusu SINANMADI; (3) v1'de uzak klasörde git/arama/AI/LSP/izleyici yok.
 - 17.11.2026: Sürümleme otomasyonu (`scripts/release.mjs` plan/prepare/tag/history, aksiyon `versioning`, `VERSIONS.md`, skill `nova-release` yeniden yazıldı). Kök neden: main korumalı olduğu için CI'nın `chore(release)` push'u reddediliyordu; 1.3.0'dan beri sürüm takılıydı, etiketler main dışındaydı. Artık sürüm PR içinde hazırlanır (düzey CHANGELOG madde etiketlerinden), CI yalnız etiket atar. İlk otomatik sürüm 1.4.0 (minor). Açık: ilk PR birleşince CI `version` + `release-desktop` işlerinin v1.4.0'ı çıkardığını Actions'ta doğrula.
 - 17.11.2026: Belge otomasyonu kuruldu (`scripts/doc-sync.mjs`, UserPromptSubmit + Stop hook, `docs/brain/LOG.md`, aksiyon `doc-sync`); kod değişen tur belgesiz bitmez (tek sefer engel). Ayrıca: kayıtta biçimlendirme (`formatOnSave`), AI tamamlama süresi tek ayar + dil ayarı kalktı, yumuşak geçişler/`nova-tab`. Açık: uygulamada elle görsel doğrulama.
 - 10.11.2026: v1.2.0 hazırlığı: GitHub hesabıyla Git (sahneleme, dal, eşzamanla, PR, yayınlama, canlı takip), VS Code çizgisinde yeni arayüz + arka plansız logo + karşılama ekranı, proje beyni (`docs/brain/`, `scripts/brain.mjs`, hook `auto-commit.mjs` her turda STATE'i yeniler). Testler `npm test`, beyin denetimi `npm run brain:check` (CI'da).

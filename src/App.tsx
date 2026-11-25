@@ -8,13 +8,14 @@ import {
   Columns,
   House,
   GitBranch,
+  GitCommitHorizontal,
   FolderOpen,
-  Check,
   Search,
   PanelLeft,
   PanelBottom,
   UserRound,
-  RefreshCcw
+  RefreshCcw,
+  Server
 } from 'lucide-react';
 import { FileTree, normGitPath } from './components/FileTree';
 import { EditorArea } from './components/EditorArea';
@@ -30,6 +31,7 @@ import { Logo } from './components/Logo';
 const SettingsPage = lazy(() => import('./components/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const TrustDialog = lazy(() => import('./components/TrustDialog').then((m) => ({ default: m.TrustDialog })));
 const TrustBadge = lazy(() => import('./components/TrustDialog').then((m) => ({ default: m.TrustBadge })));
+const RemoteDialog = lazy(() => import('./components/RemoteDialog').then((m) => ({ default: m.RemoteDialog })));
 import { trustOnOpen, useTrust } from './services/trustService';
 import { useSettings } from './services/SettingsContext';
 import { useCollabToken } from './services/useCollabToken';
@@ -37,6 +39,8 @@ import { getCollabRoomId } from './services/collabRoom';
 import { loadSettings } from './services/settings';
 import { useGithubAuth } from './services/useGithubAuth';
 const SearchPanel = lazy(() => import('./components/SearchPanel').then((m) => ({ default: m.SearchPanel })));
+const RemoteMenu = lazy(() => import('./components/RemoteMenu').then((m) => ({ default: m.RemoteMenu })));
+const CommitHistoryMenu = lazy(() => import('./components/CommitHistoryMenu').then((m) => ({ default: m.CommitHistoryMenu })));
 const CompletionMenu = lazy(() => import('./components/CompletionMenu').then((m) => ({ default: m.CompletionMenu })));
 const BranchPicker = lazy(() => import('./components/BranchPicker').then((m) => ({ default: m.BranchPicker })));
 const TaskPicker = lazy(() => import('./components/TaskPicker').then((m) => ({ default: m.TaskPicker })));
@@ -50,6 +54,7 @@ import { goToLine, runEditorAction, formatActiveDocument, copySelection, pasteCl
 import { MenuBar, type MenuGroup } from './components/MenuBar';
 import { WindowControls } from './components/WindowControls';
 import './i18n/uiTextDev'; // hata ayıklama/dil sunucusu/terminal metinleri (menü ve komutlarda gerekir)
+import './i18n/uiTextRemote'; // uzak sunucu (SSH) metinleri (menü, komut ve durum çubuğunda gerekir)
 import { getDebugState, initDebug, isDebuggable, resumeDebug, setLocationHandler, startDebug, stepInto, stepOut, stepOver, stopDebug, subscribeDebug } from './services/debugStore';
 import { UpdateDialog, UpdateIndicator } from './components/UpdateDialog';
 import { checkForUpdates } from './services/updateService';
@@ -58,7 +63,7 @@ import { sendTerminal, sendTerminalWhenReady, runCommandFor } from './services/t
 import { baseName, languageFromName, languageLabel } from './services/lang';
 import { ResizeHandle, clamp, loadStoredNumber, saveStoredNumber } from './components/ResizeHandle';
 import { splitInto, moveToGroup, removeFromGroup, selectInGroup, focusGroup, normalizeSplit, neighborIn, otherGroup, savedToSplit, activeOf, type SplitState, type GroupId, type SplitDir } from './services/splitLayout';
-import { getBindings, getOverrides, subscribeBindings, commandForEvent, comboFromEvent, shadowedEditorDefaults, remapShortcutLabel, getCommand, COMMANDS as KB_COMMANDS } from './services/keybindings';
+import { getBindings, getOverrides, subscribeBindings, commandForEvent, comboFromEvent, shadowedEditorDefaults, remapShortcutLabel, getCommand } from './services/keybindings';
 import { t, getUiLang } from './i18n/uiText';
 import { previewKind } from './services/previewKind';
 import type { FileItem, ConsoleLog, GitStatus } from './types';
@@ -68,6 +73,7 @@ import './i18n/uiTextScm';
 import './i18n/uiTextComp'; // oturum, onay ve günlük metinleri (açılışta gerekir)
 import { LazyPanel } from './components/ErrorBoundary';
 import { UnsavedDialog, RestoreSessionDialog, type UnsavedChoice } from './components/AppDialogs';
+import { timeAgo } from './services/timeAgo';
 import { StatusProblems, StatusCursor, StatusCompletion, StatusLsp } from './components/StatusCursor';
 import { useEvent } from './services/useEvent';
 import { useFocusTrap } from './services/useFocusTrap';
@@ -135,6 +141,23 @@ export function App() {
   const [currentRootPath, setCurrentRootPath] = useState<string | null>(null);
   rootPathRef.current = currentRootPath;
   const [currentRootName, setCurrentRootName] = useState<string>('NovaCode-Studio');
+  // Uzak (SSH) çalışma alanı açıksa ana bilgisayar; kök yol `ssh://<ana>/<yol>` biçimindedir (docs/brain/actions/remote-ssh.md)
+  const [remoteHost, setRemoteHost] = useState<{ hostId: string; name: string } | null>(null);
+  const remoteRef = useRef(remoteHost);
+  remoteRef.current = remoteHost;
+  const [showRemote, setShowRemote] = useState(false);
+  const [remoteMenu, setRemoteMenu] = useState(false);
+  useEffect(() => window.electronAPI?.ssh?.onEvent((ev) => {
+    const r = remoteRef.current;
+    if (ev.type !== 'disconnected' || !r || r.hostId !== ev.id) return;
+    if (ev.reason !== 'closed') addLog('warn', t('rmLost').replace('{h}', r.name)); // kullanıcı kapattıysa uyarı yok
+    setRemoteHost(null); // bağlantı gidince uzak ağaç anlamsızdır: klasörsüz duruma dön (kaydedilmemiş sekmeler kalır)
+    rootPathRef.current = null;
+    treeSeq.current++;
+    setCurrentRootPath(null);
+    setFiles([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), []);
   const [gitStatus, setGitStatus] = useState<GitStatus>({ isRepo: false, changes: [] });
   const [picker, setPicker] = useState<PickerMode | null>(null);
   const [devDlg, setDevDlg] = useState<null | 'timeline' | 'snippets'>(null); // zaman çizelgesi (F-07) / snippet düzenleyici (F-06)
@@ -146,6 +169,25 @@ export function App() {
   const [noticeShown, setNoticeShown] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [compMenu, setCompMenu] = useState<{ x: number; y: number } | null>(null);
+  const [histMenu, setHistMenu] = useState<{ x: number; y: number } | null>(null);
+  // Durum çubuğundaki "son commit" özeti: depo/dal/ileri sayısı/değişiklik sayısı değişince tazelenir (commit sonrası liste küçülür)
+  const [lastCommit, setLastCommit] = useState<{ author: string; ts?: number; when: string } | null>(null);
+  const [agoTick, setAgoTick] = useState(0);
+  useEffect(() => {
+    if (!currentRootPath || !gitStatus.isRepo || !window.electronAPI?.gitLog) { setLastCommit(null); return; }
+    let alive = true;
+    void window.electronAPI.gitLog(currentRootPath, 1).then((r) => {
+      if (!alive) return;
+      const c = r.success ? r.commits[0] : undefined;
+      setLastCommit(c ? { author: c.author, ts: c.ts, when: c.when } : null);
+    }).catch(() => { if (alive) setLastCommit(null); });
+    return () => { alive = false; };
+  }, [currentRootPath, gitStatus.isRepo, gitStatus.branch, gitStatus.ahead, gitStatus.files?.length]);
+  useEffect(() => {
+    if (!lastCommit?.ts) return;
+    const id = window.setInterval(() => setAgoTick((n) => n + 1), 60000);
+    return () => window.clearInterval(id);
+  }, [lastCommit?.ts]);
 
   // Paneller
   const [activeSidebarTab, setActiveSidebarTab] = useState<'files' | 'search' | 'git' | 'extensions' | 'debug'>('files');
@@ -162,6 +204,14 @@ export function App() {
   const [previewWidth, setPreviewWidth] = useState(() => loadStoredNumber('nova.previewWidth', 560));
   // Pencere genişliği: dar ekranda paneller editörü ezmesin (sağ paneller üstüne biner, kenar çubuğu daralır)
   const [vw, setVw] = useState(() => window.innerWidth);
+  // Tam ekran/büyütülmüş değilse (pencereli/sekme görünümü) üst çubuk kompakt olur: <html data-win="windowed"> (style.css)
+  const markWindowed = () => {
+    const windowed = window.outerWidth < window.screen.availWidth - 8;
+    document.documentElement.dataset.win = windowed ? 'windowed' : 'full';
+    setWindowed((cur) => (cur === windowed ? cur : windowed));
+  };
+  const [windowed, setWindowed] = useState(() => window.outerWidth < window.screen.availWidth - 8);
+  useEffect(markWindowed, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     let raf = 0;
     const on = () => {
@@ -169,14 +219,17 @@ export function App() {
       raf = requestAnimationFrame(() => {
         raf = 0;
         setVw((cur) => (cur === window.innerWidth ? cur : window.innerWidth));
+        markWindowed();
       });
     };
     window.addEventListener('resize', on);
     return () => { window.removeEventListener('resize', on); if (raf) cancelAnimationFrame(raf); };
   }, []);
   const compactRight = vw < 1100;
-  const compactMenu = vw < 1280; // dar pencerede menü başlıkları tek "Menü" düğmesine toplanır
-  const sbW = Math.min(sidebarWidth, Math.max(180, Math.round(vw * 0.34)));
+  const compactMenu = vw < 1340 || windowed; // dar pencerede menü başlıkları tek "Menü" düğmesine toplanır
+  // Telefon/dar tablet: kenar çubuğu editörü ezmez, üstüne biner (sağ paneller gibi); dışına dokunmak veya dosya seçmek kapatır
+  const compactLeft = vw < 760;
+  const sbW = compactLeft ? Math.max(200, Math.min(sidebarWidth, 320, vw - 96)) : Math.min(sidebarWidth, Math.max(180, Math.round(vw * 0.34)));
   const [aiWidth, setAiWidth] = useState(() => loadStoredNumber('nova.aiWidth', 380));
 
   useEffect(() => { saveStoredNumber('nova.sidebarWidth', sidebarWidth); }, [sidebarWidth]);
@@ -234,7 +287,8 @@ export function App() {
     });
   };
 
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(() => window.innerWidth >= 760); // telefonda kapalı başlar (üstüne biner)
+  const sbInitial = useRef(true);
   const { auth } = useGithubAuth();
 
   // Iframe console dinleyicisi: yalnız sayfadaki bir iframe'den gelen iletiler kabul edilir (S-28)
@@ -411,6 +465,11 @@ export function App() {
     autoPreviewed.current.add(f.id);
     setShowRightPanel('preview');
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFileId]);
+  // Dar ekranda (kenar çubuğu üstüne biner) dosya seçilince kenar çubuğu kapanır; editör hemen görünür
+  useEffect(() => {
+    if (sbInitial.current) { sbInitial.current = false; return; }
+    if (window.innerWidth < 760) setSidebarVisible(false);
   }, [activeFileId]);
 
   // Ayarlar penceresi: Esc ile kapanır (palet veya güncelleme penceresi açıksa onlar önce kapanır)
@@ -670,7 +729,7 @@ export function App() {
   // Gerçek Klasör ve Dosya Seçimi
   // ----------------------------------------------------
   const trustState = useTrust();
-  const applyWorkspace = (result: { rootPath: string; rootName: string; trusted?: boolean; tree: FileItem[] }) => {
+  const applyWorkspace = (result: { rootPath: string; rootName: string; trusted?: boolean; remote?: { hostId: string; name: string }; tree: FileItem[] }) => {
     trustOnOpen(result.rootPath, result.trusted); // güvenilmeyen klasör: güven penceresi + kısıtlı mod rozeti
     // Başka bir klasöre geçilirken eski projenin kaydedilmiş sekmeleri kapanır (kaydedilmemişler korunur).
     if (rootPathRef.current && rootPathRef.current !== result.rootPath) {
@@ -684,6 +743,7 @@ export function App() {
     treeSeq.current++;
     setCurrentRootPath(result.rootPath);
     setCurrentRootName(result.rootName);
+    setRemoteHost(result.remote ?? null);
     setFiles(result.tree);
     setShowLanding(false);
     setShowSettings(false);
@@ -1069,6 +1129,26 @@ export function App() {
     closeTabsNow(openFilesRef.current.map((f) => f.id));
   };
 
+  /** Projeyi kapatır: kaydedilmemiş sekmeler sorulur, sekmeler ve ağaç temizlenir, karşılama sayfasına dönülür. */
+  const handleCloseFolder = async () => {
+    if (!rootPathRef.current) return;
+    flushEditorChanges();
+    const dirty = openFilesRef.current.filter((f) => f.isModified && !f.diff);
+    if (!(await confirmDirty(dirty))) return;
+    closeTabsNow(openFilesRef.current.map((f) => f.id), false);
+    if (remoteRef.current) void window.electronAPI?.ssh?.disconnect?.(remoteRef.current.hostId);
+    setRemoteHost(null);
+    rootPathRef.current = null;
+    treeSeq.current++;
+    setCurrentRootPath(null);
+    setCurrentRootName('');
+    setFiles([]);
+    setGitStatus({ isRepo: false, changes: [] });
+    setShowSettings(false);
+    setShowLanding(true);
+    loadRecent(true);
+  };
+
   const handleOpenInTerminal = (dir: string) => {
     setShowBottomTerminal(true);
     void sendTerminalWhenReady({ action: 'cd', dir });
@@ -1224,7 +1304,8 @@ export function App() {
     setShowSettings(false);
     setShowRightPanel('ai');
   };
-  const sidebarShown = sidebarVisible && !showLanding;
+  // Kenar çubuğu (Gezgin) ana sayfada da açık kalır; yalnız kullanıcı kapatırsa kapanır
+  const sidebarShown = sidebarVisible;
   const sidebarRight = settings.sidebarPosition === 'right';
   const tabSize = Number(settings.tabSize) || 2;
 
@@ -1243,7 +1324,7 @@ export function App() {
 
   // Etkinlik çubuğu: etkin sekmeye tekrar basmak kenar çubuğunu kapatır (VS Code davranışı)
   const pickSidebar = (tab: 'files' | 'search' | 'git' | 'extensions' | 'debug') => {
-    if (!showLanding && activeSidebarTab === tab && sidebarVisible) {
+    if (activeSidebarTab === tab && sidebarVisible) {
       setSidebarVisible(false);
       return;
     }
@@ -1372,6 +1453,7 @@ export function App() {
   }, []);
   const persistSession = (withDrafts = true, flush = false) => {
     if (flush) flushEditorChanges();
+    if (remoteRef.current) return; // uzak oturum kaydedilmez: bağlantısız açılışta ssh:// yolları geri yüklenemez, yerel oturum da ezilmesin
     saveSession({
       root: rootPathRef.current,
       rootName: rootNameRef.current,
@@ -1552,7 +1634,7 @@ export function App() {
   const toggleThemeMode = () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
   const checkUpdatesNow = () => { setUpdateDlg('update'); void checkForUpdates(settings.updateAutoDownload === true); };
   const actions = {
-    handleNewUntitled, handleOpenFolderDialog, handleOpenFileDialog, saveActive, closeActive, cycleTab, handleRunCode, runActiveFile,
+    handleNewUntitled, handleOpenFolderDialog, handleOpenFileDialog, handleCloseFolder, saveActive, closeActive, cycleTab, handleRunCode, runActiveFile,
     splitRight: () => doSplit('row'), splitDown: () => doSplit('col'), focusOtherGroup, closeSplitView, openKeybindings: () => setShowKeybindings(true),
     startDebugActive, openSettingsAt, openDocs, openProblems, pickSidebarForce, toggleAI, openThemePicker, reopenClosedTab,
     zoomBy, toggleThemeMode, checkUpdatesNow, newTerminal: () => { setShowBottomTerminal(true); void sendTerminalWhenReady({ action: 'new' }); },
@@ -1594,6 +1676,8 @@ export function App() {
       { label: t('newFile'), shortcut: 'Ctrl+N', onClick: L.handleNewUntitled },
       { label: t('openFolder'), shortcut: 'Ctrl+O', onClick: () => void L.handleOpenFolderDialog() },
       { label: t('openFiles'), shortcut: 'Ctrl+Shift+O', onClick: () => void L.handleOpenFileDialog() },
+      { label: t('rmConnect'), onClick: () => setShowRemote(true) },
+      { label: t('expCloseFolder'), ...D, onClick: () => void L.handleCloseFolder() },
       { separator: true },
       { label: t('cmdSave'), shortcut: 'Ctrl+S', ...F, onClick: L.saveActive },
       { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', ...F, onClick: L.closeActive },
@@ -1717,6 +1801,9 @@ export function App() {
     { id: 'format', label: t('cmdFormat'), run: () => runEditorAction('editor.action.formatDocument') },
     { id: 'newFile', label: t('newFile'), shortcut: 'Ctrl+N', run: L.handleNewUntitled },
     { id: 'openFolder', label: t('openFolder'), shortcut: 'Ctrl+O', run: () => void L.handleOpenFolderDialog() },
+    { id: 'closeFolder', label: t('expCloseFolder'), run: () => void L.handleCloseFolder() },
+    { id: 'remoteConnect', label: t('rmConnect'), run: () => setShowRemote(true) },
+    { id: 'remoteWindow', label: t('rwTitle'), run: () => setRemoteMenu(true) },
     { id: 'save', label: t('cmdSave'), shortcut: 'Ctrl+S', run: L.saveActive },
     { id: 'closeTab', label: t('cmdCloseTab'), shortcut: 'Ctrl+W', run: L.closeActive },
     { id: 'reopenTab', label: t('appReopenTab'), shortcut: 'Ctrl+Shift+T', run: () => void L.reopenClosedTab() },
@@ -1786,6 +1873,7 @@ export function App() {
   const eCreate = useEvent((name: string, isFolder: boolean, parentDir?: string) => void handleCreateFile(name, isFolder, parentDir));
   const eMove = useEvent((src: string, dir: string) => void handleMove(src, dir));
   const eCloseAll = useEvent(() => void handleCloseAll());
+  const eCloseFolder = useEvent(() => void handleCloseFolder());
   const eTerm = useEvent((dir: string) => handleOpenInTerminal(dir));
   const eRecent = useEvent((p: string) => void handleOpenRecent(p));
   const eRename = useEvent((item: FileItem, name: string) => void handleRename(item, name));
@@ -1798,7 +1886,7 @@ export function App() {
   const barBtn = (active: boolean) => ({ 'data-active': active, className: 'ab-item' }) as const;
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-nv-side text-zinc-300 font-sans relative">
+    <div className="flex flex-col h-dvh w-screen overflow-hidden bg-nv-side text-zinc-300 font-sans relative">
       {/* Açılış animasyonu */}
       {showSplash && <SplashScreen ready={recentLoaded} onFinish={() => setShowSplash(false)} />}
 
@@ -1836,6 +1924,19 @@ export function App() {
 
       {trustState.root && !trustState.trusted && trustState.prompt && <LazyPanel><TrustDialog /></LazyPanel>}
       {showKeybindings && <LazyPanel><KeybindingsEditor onClose={() => setShowKeybindings(false)} /></LazyPanel>}
+      {remoteMenu && (
+        <LazyPanel>
+          <RemoteMenu
+            repo={currentRootPath}
+            branch={gitStatus.branch}
+            hasRemote={gitStatus.hasRemote}
+            onClose={() => setRemoteMenu(false)}
+            onOpenSsh={() => setShowRemote(true)}
+            onRunInTerminal={(command) => { setShowBottomTerminal(true); void sendTerminalWhenReady({ action: 'run', command }); }}
+          />
+        </LazyPanel>
+      )}
+      {showRemote && <LazyPanel><RemoteDialog onClose={() => setShowRemote(false)} onOpened={applyWorkspace} /></LazyPanel>}
 
       {updateDlg && <UpdateDialog initialTab={updateDlg} autoDownload={settings.updateAutoDownload === true} onClose={() => setUpdateDlg(null)} />}
 
@@ -1861,24 +1962,26 @@ export function App() {
       {/* Başlık çubuğu: ince kenarlıklı, yuvarlak çerçeve; üstteki dar boşluk da pencereyi sürüklemeye yarar */}
       <div className="app-drag absolute inset-x-0 top-0 h-[var(--frame)] z-10" aria-hidden />
       <header
-        className="app-drag relative grid items-center h-9 mx-[var(--frame)] mt-[var(--frame)] rounded-[var(--frame-r)] border border-nv-border bg-nv-side select-none shrink-0"
-        // Üç bölge: sol (logo + menü) · orta (arama, pencereye göre ortalı) · sağ (düğmeler; pencere denetimlerinden önce biter)
-        style={{ gridTemplateColumns: `minmax(0,1fr) minmax(130px,min(${compactMenu ? 460 : 360}px,calc(100% - ${isElectron ? 600 : 328}px))) minmax(0,1fr)` }}
+        className="@container app-drag relative grid grid-cols-[minmax(0,1fr)_auto_minmax(max-content,1fr)] items-center gap-[var(--frame)] h-9 mx-[var(--frame)] mt-[var(--frame)] select-none shrink-0"
+        // Duyarlı üç bölge (kap sorguları, başlık genişliğine göre): sol (logo + menü) · orta (arama, ortalı) · sağ (düğmeler + pencere denetimleri).
+        // Dar kapta önce klasör/önizleme/ayarlar grubu, sonra arama yazısı ve yapay zekâ bölmesi gizlenir; bu eylemler menü ve kısayollarda durur.
       >
-        <div className="flex items-center h-full min-w-0 overflow-hidden">
+        <div className="flex items-center h-full min-w-0 max-w-full justify-self-start overflow-hidden rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side">
           <div className="flex items-center pl-3 pr-1 h-full shrink-0"><Logo size={18} /></div>
+          <span className="hdr-sep app-no-drag" aria-hidden />
           <MenuBar menus={menus} compact={compactMenu} />
         </div>
 
-        {/* Orta: komut merkezi görünümlü arama / proje alanı + yanında yapay zekâ paneli simgesi */}
-        <div className="app-no-drag flex items-center gap-1 min-w-0">
+        {/* Orta: VS Code komut merkezi gibi tek hap: solda arama / proje alanı, en sağda ayrı bölmede yapay zekâ paneli düğmesi */}
+        <div className="app-no-drag flex items-stretch min-w-9 w-9 @xl:w-[clamp(180px,24cqw,340px)] h-full rounded-[var(--frame-r)] float-card bg-nv-side border border-nv-border hover:border-white/[0.18] motion-press overflow-hidden">
           <button
             onClick={() => setPalette('')}
             title={`${t('cpTitle')} (Ctrl+P)`}
-            className="w-full min-w-0 flex items-center justify-center gap-2 h-6 px-2 rounded-md bg-nv-input/70 border border-transparent hover:border-zinc-600 text-[12px] text-zinc-300 transition-colors"
+            aria-label={t('cpTitle')}
+            className="flex-1 min-w-0 flex items-center justify-center gap-2 px-2 text-[12px] text-zinc-300 hover:bg-white/5 motion-press"
           >
-            <Search size={12} className="text-zinc-500 shrink-0" />
-            <span className="truncate min-w-0">
+            <Search size={13} className="text-zinc-400 @xl:text-zinc-500 shrink-0" />
+            <span className="hidden @xl:inline truncate min-w-0">
               {showLanding
                 ? t('actHome')
                 : activeFile
@@ -1892,15 +1995,16 @@ export function App() {
             aria-label={t('actAI')}
             aria-pressed={aiOpen}
             data-active={aiOpen}
-            className="icon-btn shrink-0 !w-7 !h-6 text-violet-300 hover:!text-violet-100"
+            className={`hidden @xl:flex shrink-0 w-9 items-center justify-center border-s border-white/[0.09] motion-press ${aiOpen ? 'bg-indigo-500/25 text-indigo-100' : 'text-indigo-300 hover:bg-white/5 hover:text-indigo-100'}`}
           >
-            <Sparkles size={14} />
+            <Sparkles size={13} />
           </button>
         </div>
 
-        <div className="flex items-center justify-end h-full min-w-0">
-        <div className="app-no-drag flex items-center justify-end gap-0.5 min-w-0 pr-2">
-          <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="icon-btn">
+        <div className="flex items-center justify-end h-full shrink-0 justify-self-end rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side">
+        <div className="app-no-drag flex items-center justify-end gap-1.5 shrink-0 pe-1">
+          <div className="hdr-group hidden @3xl:inline-flex">
+          <button onClick={handleOpenFolderDialog} title={`${t('openFolder')} (Ctrl+O)`} aria-label={t('openFolder')} className="hdr-btn">
             <FolderOpen size={15} />
           </button>
           <button
@@ -1909,7 +2013,7 @@ export function App() {
             title={canPreview ? t('tbPreview') : `${t('tbPreview')} — ${t('mnHintHtml')}`}
             aria-label={t('tbPreview')}
             data-active={showRightPanel === 'preview'}
-            className="icon-btn"
+            className="hdr-btn"
           >
             <Columns size={15} />
           </button>
@@ -1922,12 +2026,14 @@ export function App() {
               title={`${t('actSettings')} (Ctrl+,)`}
               aria-label={t('actSettings')}
               data-active={showSettings}
-              className="icon-btn"
+              className="hdr-btn"
             >
               <Settings size={15} />
             </button>
           )}
-          <button onClick={() => setSidebarVisible((v) => !v)} title={t('tbSidebar')} aria-label={t('tbSidebar')} data-active={sidebarShown} className="icon-btn">
+          </div>
+          <div className="hdr-group inline-flex">
+          <button onClick={() => setSidebarVisible((v) => !v)} title={t('tbSidebar')} aria-label={t('tbSidebar')} data-active={sidebarShown} className="hdr-btn">
             <PanelLeft size={15} />
           </button>
           <button
@@ -1936,11 +2042,13 @@ export function App() {
             title={currentRootPath ? t('tbTerminal') : `${t('tbTerminal')} — ${t('mnHintNoFolder')}`}
             aria-label={t('tbTerminal')}
             data-active={showBottomTerminal}
-            className="icon-btn"
+            className="hdr-btn"
           >
             <PanelBottom size={15} />
           </button>
+          </div>
         </div>
+        {isElectron && <span className="hdr-sep app-no-drag" aria-hidden />}
         {isElectron && <WindowControls />}
         </div>
       </header>
@@ -1949,33 +2057,33 @@ export function App() {
       <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${settings.statusBarVisible === false ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
         {settings.activityBarVisible !== false && (
-        <nav aria-label={t('appActivityBar')} className={`w-[50px] bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-1' : 'mr-1'} py-1 flex flex-col items-center justify-between select-none shrink-0 overflow-hidden`}>
+        <nav aria-label={t('appActivityBar')} className={`w-[48px] float-card bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-0.5' : 'mr-0.5'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
           <div className="flex flex-col">
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} title={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} data-tip={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
               <Files size={24} strokeWidth={1.5} />
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} {...dis(!currentRootPath, `${t('actSearch')} — ${t('mnHintNoFolder')}`)} title={currentRootPath ? `${t('actSearch')} (Ctrl+Shift+F)` : `${t('actSearch')} — ${t('mnHintNoFolder')}`} aria-label={t('actSearch')} onClick={() => { if (currentRootPath) pickSidebar('search'); }}>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'search')} {...(!currentRootPath ? { 'aria-disabled': true, 'data-disabled': true } : {})} data-tip={currentRootPath ? `${t('actSearch')} (Ctrl+Shift+F)` : `${t('actSearch')} — ${t('mnHintNoFolder')}`} aria-label={t('actSearch')} onClick={() => { if (currentRootPath) pickSidebar('search'); }}>
               <Search size={24} strokeWidth={1.5} />
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} title={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'extensions')} data-tip={t('extTitle')} aria-label={t('extTitle')} onClick={() => pickSidebar('extensions')}>
               <Puzzle size={24} strokeWidth={1.5} />
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} title={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'git')} data-tip={t('actGit')} aria-label={t('actGit')} onClick={() => pickSidebar('git')}>
               <GitBranch size={24} strokeWidth={1.5} />
               {changeCount > 0 && (
-                <span className="absolute bottom-2 right-1.5 min-w-4 h-4 px-1 rounded-full bg-indigo-500 text-white text-[10px] leading-4 text-center font-semibold">
+                <span className="absolute bottom-1 right-0.5 min-w-4 h-4 px-1 rounded-full bg-indigo-500 text-white text-[10px] leading-4 text-center font-semibold">
                   {changeCount > 99 ? '99+' : changeCount}
                 </span>
               )}
             </button>
-            <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} title={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
+            <button {...barBtn(sidebarShown && activeSidebarTab === 'debug')} data-tip={t('dbgTitle')} aria-label={t('dbgTitle')} onClick={() => pickSidebar('debug')}>
               <Bug size={24} strokeWidth={1.5} />
-              {dbgStatus === 'paused' && <span className="absolute bottom-2.5 right-2.5 w-2 h-2 rounded-full bg-amber-400" />}
+              {dbgStatus === 'paused' && <span className="absolute bottom-2 right-2 size-2 rounded-full bg-amber-400" />}
             </button>
           </div>
 
           <div className="flex flex-col">
-            <button {...barBtn(showLanding)} title={t('actHome')} aria-label={t('actHome')} onClick={() => {
+            <button {...barBtn(showLanding)} data-tip={t('actHome')} aria-label={t('actHome')} onClick={() => {
               setShowSettings(false);
               setShowLanding(!showLanding);
             }}>
@@ -1983,19 +2091,19 @@ export function App() {
             </button>
             <button
               {...barBtn(false)}
-              title={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}
+              data-tip={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}
               aria-label={auth.connected && auth.profile ? `@${auth.profile.login}` : t('actAccountOff')}
               onClick={() => pickSidebar('git')}
             >
               {auth.connected && auth.profile?.avatarUrl ? (
-                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="w-6 h-6 rounded-full ring-1 ring-zinc-700" />
+                <img src={auth.profile.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-6 rounded-full ring-1 ring-zinc-700" />
               ) : (
                 <UserRound size={24} strokeWidth={1.5} />
               )}
             </button>
             <button
               {...barBtn(showSettings)}
-              title={`${t('actSettings')} (Ctrl+,)`}
+              data-tip={`${t('actSettings')} (Ctrl+,)`}
               aria-label={t('actSettings')}
               onClick={() => {
                 setShowLanding(false);
@@ -2009,9 +2117,15 @@ export function App() {
         )}
 
         {/* Kenar çubuğu (kapanırken genişlik animasyonla daralır) */}
-        <div className="sidebar-shell h-full shrink-0 overflow-hidden" style={{ width: sidebarShown ? sbW : 0 }}>
+        {compactLeft && sidebarShown && <div className="absolute inset-0 z-20 bg-black/30 animate-fade-in" onClick={() => setSidebarVisible(false)} aria-hidden />}
+        <div
+          className={`sidebar-shell h-full shrink-0 overflow-hidden ${compactLeft ? 'absolute z-30 top-[var(--frame)] bottom-0' : ''}`}
+          data-open={sidebarShown}
+          data-side={sidebarRight ? 'right' : 'left'}
+          style={{ width: sidebarShown ? sbW : 0, ...(compactLeft ? { [sidebarRight ? 'right' : 'left']: `calc(var(--frame) + ${settings.activityBarVisible !== false ? 50 : 0}px)` } : {}) }}
+        >
           {sbMounted && (
-            <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden">
+            <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden">
               {activeSidebarTab === 'files' && (
                 <div key="files" className="animate-sidebar-in h-full">
                   <FileTree
@@ -2030,6 +2144,7 @@ export function App() {
                     onCreate={eCreate}
                     onMove={eMove}
                     onCloseAll={eCloseAll}
+                    onCloseFolder={eCloseFolder}
                     onOpenInTerminal={eTerm}
                     onOpenRecent={eRecent}
                     onRename={eRename}
@@ -2067,16 +2182,20 @@ export function App() {
             </div>
           )}
         </div>
-        {sidebarShown && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
+        {/* Kenar çubuğu (açıkken) veya etkinlik çubuğu (kapalıyken) ile editör arası boşluk: sabit 8 px, açıkken sürükleme tutamacı ortada */}
+        <div className="sidebar-gap h-full shrink-0 overflow-hidden flex justify-center" style={{ width: compactLeft ? 4 : 8 }}>
+          {sidebarShown && !compactLeft && <ResizeHandle direction="horizontal" title={t('appSidebarWidth')} onResize={(d) => setSidebarWidth((w) => clamp(sidebarRight ? w - d : w + d, 180, 560))} />}
+        </div>
 
         {/* Ana sütun: görünüm (ayarlar / karşılama / editör) + terminal paneli (oturumlar panel gizliyken de canlı kalır) */}
-        <div className="flex flex-col flex-1 h-full min-w-0 rounded-[var(--frame-r)] border border-nv-border bg-nv-editor overflow-hidden">
+        <div className="flex flex-col flex-1 h-full min-w-0 rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-editor overflow-hidden">
           <div className="flex-1 min-h-0 flex flex-col min-w-0">
             {showLanding ? (
           <LazyPanel><LandingPage
             onNewFile={handleNewUntitled}
             onOpenFiles={handleOpenFileDialog}
             onOpenFolder={handleOpenFolderDialog}
+            onOpenRemote={() => setShowRemote(true)}
             onOpenGit={() => pickSidebar('git')}
             onOpenAI={() => {
               setShowLanding(false);
@@ -2202,7 +2321,7 @@ export function App() {
         {!showLanding && showRightPanel === 'preview' && canPreview && (
           <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex border-s border-nv-border' : 'contents'}>
             <ResizeHandle direction="horizontal" title={t('tbPreview')} onResize={(d) => setPreviewWidth((w) => clamp(w - d, 320, 1200))} />
-            <div style={{ width: Math.min(previewWidth, compactRight ? vw - 56 : Math.round(vw * 0.5)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden shrink-0 min-w-0">
+            <div style={{ width: Math.min(previewWidth, compactRight ? vw - 56 : Math.round(vw * 0.5)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden shrink-0 min-w-0">
               <LazyPanel><Preview
                 file={activeView}
                 rootPath={currentRootPath}
@@ -2218,7 +2337,7 @@ export function App() {
         {!showLanding && showRightPanel === 'ai' && (
           <div className={compactRight ? 'absolute right-[var(--frame)] top-[var(--frame)] bottom-0 z-30 flex border-s border-nv-border' : 'contents'}>
           <ResizeHandle direction="horizontal" title={t('aiTitle')} onResize={(d) => setAiWidth((w) => clamp(w - d, 300, 720))} />
-          <div style={{ width: Math.min(aiWidth, compactRight ? vw - 56 : Math.round(vw * 0.4)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] border border-nv-border overflow-hidden shrink-0 min-w-0">
+          <div style={{ width: Math.min(aiWidth, compactRight ? vw - 56 : Math.round(vw * 0.4)) }} className="animate-fade-in h-full rounded-[var(--frame-r)] float-card border border-nv-border overflow-hidden shrink-0 min-w-0">
             <LazyPanel>
             <AIAssistant
               activeFile={activeView}
@@ -2232,6 +2351,12 @@ export function App() {
           </div>
         )}
       </div>
+
+      {histMenu && currentRootPath && gitStatus.isRepo && (
+        <LazyPanel>
+          <CommitHistoryMenu anchor={histMenu} repo={currentRootPath} branch={gitStatus.branch} hasRemote={gitStatus.hasRemote} ahead={gitStatus.ahead} behind={gitStatus.behind} gitPanelOpen={sidebarShown && activeSidebarTab === 'git'} onClose={() => setHistMenu(null)} onOpenGit={() => pickSidebar('git')} />
+        </LazyPanel>
+      )}
 
       {compMenu && (
         <LazyPanel>
@@ -2279,8 +2404,17 @@ export function App() {
 
       {/* Durum çubuğu: yalnız anlamlı bilgiler */}
       {settings.statusBarVisible !== false && (
-        <footer className="@container h-6 m-[var(--frame)] rounded-[var(--frame-r)] border border-nv-border bg-nv-side overflow-hidden flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
+        <footer className="@container h-6 m-[var(--frame)] rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
           <div className="flex items-center h-full min-w-0 overflow-hidden">
+            <button
+              className={`status-item ${remoteHost ? 'bg-indigo-600 text-white' : ''}`}
+              onClick={() => setRemoteMenu(true)}
+              title={remoteHost ? t('rmStatusOn').replace('{h}', remoteHost.name) : t('rmStatusIdle')}
+              aria-label={remoteHost ? t('rmStatusOn').replace('{h}', remoteHost.name) : t('rmStatusIdle')}
+            >
+              <Server size={12} />
+              {remoteHost && <span className="font-mono">SSH: {remoteHost.name}</span>}
+            </button>
             {gitStatus.isRepo && (
               <>
                 <button className="status-item" onClick={() => setPicker('checkout')} title={t('scmBranchTip')} aria-label={t('scmBranchTip')}>
@@ -2315,6 +2449,27 @@ export function App() {
             {noticeShown && gitNotice && <span className={`status-item ${gitNotice.ok ? 'text-emerald-300' : 'text-rose-300'} max-w-[40vw] truncate`} title={gitNotice.text}>{gitNotice.text}</span>}
             <UpdateIndicator onOpen={() => setUpdateDlg('update')} />
             {activeFile?.isModified && <span className="status-item text-amber-300">{t('stUnsaved')}</span>}
+            {gitStatus.isRepo && currentRootPath && (
+              <button
+                className="status-item"
+                data-active={!!histMenu}
+                onClick={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  setHistMenu(histMenu ? null : { x: r.left + r.width / 2, y: r.top });
+                }}
+                title={lastCommit ? `${t('histLastCommit')}: ${lastCommit.author}${lastCommit.ts ? ` · ${new Date(lastCommit.ts).toLocaleString()}` : ''}` : t('histTip')}
+                aria-label={t('histTip')}
+                aria-haspopup="dialog"
+                aria-expanded={!!histMenu}
+              >
+                <GitCommitHorizontal size={13} />
+                {lastCommit && (
+                  <span className="hidden @2xl:inline max-w-[220px] truncate" data-tick={agoTick}>
+                    {lastCommit.author}{lastCommit.ts ? ` · ${timeAgo(lastCommit.ts)}` : lastCommit.when ? ` · ${lastCommit.when}` : ''}
+                  </span>
+                )}
+              </button>
+            )}
             {activeFile && (
               <>
                 {!activeFile.diff && <StatusCursor onOpen={() => setPalette(':')} />}

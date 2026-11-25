@@ -100,12 +100,12 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ x, y, items, onClose }) =>
               onClose();
             }}
             className={`animate-menu-item w-full flex items-center gap-2.5 h-7 px-3 text-left transition-colors ${
-              it.disabled ? 'opacity-40 cursor-default hover:bg-nv-hover/40' : active === i ? 'bg-nv-active text-zinc-50' : it.danger ? 'text-rose-400' : 'text-zinc-300'
+              it.disabled ? 'text-zinc-700 cursor-default' : active === i ? 'bg-nv-active text-zinc-50' : it.danger ? 'text-rose-400' : 'text-zinc-300'
             }`}
           >
             <span className="w-4 shrink-0 flex items-center justify-center">{it.checked ? <Check size={13} /> : it.icon}</span>
             <span className="flex-1 truncate whitespace-nowrap">{it.label}</span>
-            {it.shortcut && <span className="text-[11px] text-zinc-500 font-mono whitespace-nowrap shrink-0 pl-4">{it.shortcut}</span>}
+            {it.shortcut && <span className={`text-[11px] font-mono whitespace-nowrap shrink-0 pl-4 ${it.disabled ? 'text-zinc-700' : 'text-zinc-500'}`}>{it.shortcut}</span>}
           </button>
         )
       )}

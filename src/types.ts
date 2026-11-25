@@ -19,6 +19,24 @@ export interface UserSnippet {
   scope?: 'workspace' | 'user';
 }
 
+/** Kayıtlı uzak sunucu (parola/parola cümlesi hiçbir yerde saklanmaz). */
+export interface SshHost {
+  id: string;
+  name: string;
+  host: string;
+  port: number;
+  user: string;
+  auth: 'agent' | 'key' | 'password';
+  keyName: string;
+  root: string;
+  connected: boolean;
+}
+export type SshHostInput = Partial<Pick<SshHost, 'id' | 'port' | 'root'>> & Pick<SshHost, 'name' | 'host' | 'user' | 'auth'> & { keyPath?: string };
+export type SshEvent =
+  | { type: 'hostkey'; reqId: string; host: string; port: number; fingerprint: string }
+  | { type: 'hostkey-changed'; host: string; port: number; fingerprint: string; expected: string }
+  | { type: 'disconnected'; id: string; reason: string };
+
 export interface ReadFileFailure {
   success: false;
   error: 'file-too-large' | 'binary-file' | string;
@@ -69,12 +87,21 @@ export interface GitCommitInfo {
   when: string;
   subject: string;
   refs?: string[];
+  /** Commit zamanı (ms, UTC) */
+  ts?: number;
+  files?: number;
+  added?: number;
+  deleted?: number;
 }
 
 export interface GitCommitFile {
   status: string;
   path: string;
   orig?: string;
+  /** Eklenen/silinen satır (ikili dosyada yok) */
+  added?: number;
+  deleted?: number;
+  binary?: boolean;
 }
 
 export interface GitRefs {
@@ -184,7 +211,7 @@ export interface ReleaseInfo {
   url: string;
 }
 
-export type SecretKey = 'collabToken' | 'aiKey_anthropic' | 'aiKey_openai';
+export type SecretKey = 'collabToken';
 
 /** Bul-değiştir isteği: 'preview' diske dokunmaz; 'apply' yalnız `selection` satırlarını değiştirir. */
 export interface ReplaceOpts {
@@ -217,25 +244,8 @@ export interface SearchHit {
   text: string;
 }
 
-export type AiProvider = 'builtin' | 'anthropic' | 'openai' | 'ollama';
+export type AiProvider = 'ollama';
 
-export interface LlmModelInfo {
-  id: string;
-  label: string;
-  tier: 'fast' | 'strong';
-  size: number;
-  ramGb: number;
-  installed: boolean;
-  downloading: boolean;
-  received: number;
-}
-export interface LlmProgress {
-  id: string;
-  received: number;
-  total: number;
-  done?: boolean;
-  error?: 'cancelled' | 'failed';
-}
 
 export interface LspDiagnostic {
   message: string;
@@ -263,7 +273,6 @@ export interface AiRunRequest {
   runId: string;
   provider: AiProvider;
   model: string;
-  baseUrl?: string;
   maxTokens?: number;
   mode: 'ask' | 'agent';
   lang: string;
@@ -316,13 +325,6 @@ export interface ElectronBridge {
   };
   openLink: (url: string) => Promise<{ success: boolean }>;
   revealInFolder: (target: string) => Promise<{ success: boolean }>;
-  llm: {
-    status: () => Promise<{ defaultId: string; models: LlmModelInfo[] }>;
-    download: (id: string) => Promise<{ success: boolean; error?: string }>;
-    cancel: (id: string) => Promise<{ success: boolean }>;
-    remove: (id: string) => Promise<{ success: boolean }>;
-    onProgress: (callback: (p: LlmProgress) => void) => () => void;
-  };
   ext: {
     search: (opts: { query: string; category?: 'Themes' | ''; offset?: number }) => Promise<{ success: boolean; total: number; items: import('./services/extensionsService').StoreItem[]; error?: string }>;
     list: () => Promise<import('./services/extensionsService').InstalledExt[]>;
@@ -335,7 +337,8 @@ export interface ElectronBridge {
     run: (req: AiRunRequest) => Promise<{ success: boolean; error?: string }>;
     cancel: (runId: string) => Promise<{ success: boolean }>;
     approve: (runId: string, id: string, allow: boolean) => Promise<{ success: boolean }>;
-    transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
+    whisperModels: () => Promise<{ default: string; models: { id: string; size: number }[] }>;
+    transcribe: (req: { audio: ArrayBuffer; mime: string; lang?: string; model?: string }) => Promise<{ success: boolean; text?: string; error?: string }>;
     commands: () => Promise<{ name: string; template: string }[]>;
     complete: (req: { id: string; prefix: string; suffix: string; fileName?: string; languageId?: string; singleLine?: boolean; stopAtBlank?: boolean; lineMode?: boolean; model?: string; maxTokens?: number; temperature?: number; prefixChars?: number; suffixChars?: number; count?: number }) => Promise<{ success: boolean; text?: string; alternatives?: string[]; truncated?: boolean; error?: string; skipped?: string }>;
     completeCancel: (id: string) => Promise<{ success: boolean }>;
@@ -351,8 +354,10 @@ export interface ElectronBridge {
     onEvent: (cb: (ev: LspEvent) => void) => () => void;
   };
   pty?: {
-    available: () => Promise<{ available: boolean }>;
-    start: (req: { id: string; shell: 'powershell' | 'cmd'; cwd: string; cols: number; rows: number }) => Promise<{ success: boolean; error?: string }>;
+    available: () => Promise<{ available: boolean; gitBash?: boolean }>;
+    /** Kurulu kabuk profilleri (PowerShell, CMD, Git Bash, WSL dağıtımları, Cygwin, MSYS2, Nushell…). */
+    profiles: (force?: boolean) => Promise<{ id: string; label: string }[]>;
+    start: (req: { id: string; shell: string; cwd: string; cols: number; rows: number }) => Promise<{ success: boolean; error?: string }>;
     write: (id: string, data: string) => Promise<{ success: boolean }>;
     resize: (id: string, cols: number, rows: number) => Promise<{ success: boolean }>;
     stop: (id: string) => Promise<{ success: boolean }>;
@@ -374,6 +379,21 @@ export interface ElectronBridge {
     onEvent: (cb: (ev: DebugEvent) => void) => () => void;
   };
   /** Çalışma klasörü güveni ve kalıcı rızalar. Ekleme yok: yalnız açık klasöre güven verme ve kaldırma. */
+  /** Uzak çalışma alanı (SSH/SFTP). Yollar `ssh://<ana>/<yol>` biçimindedir. */
+  ssh?: {
+    status: () => Promise<{ available: boolean; hosts: SshHost[]; active: { hostId: string; root: string } | null }>;
+    hostSave: (host: SshHostInput) => Promise<{ success: boolean; host?: SshHost; error?: string }>;
+    hostRemove: (id: string) => Promise<{ success: boolean }>;
+    pickKey: () => Promise<{ success: boolean; path?: string; name?: string; error?: string }>;
+    connect: (id: string, secret?: string) => Promise<{ success: boolean; home?: string; error?: string }>;
+    hostKeyAnswer: (reqId: string, allow: boolean) => Promise<{ success: boolean }>;
+    forgetHostKey: (id: string) => Promise<{ success: boolean }>;
+    disconnect: (id: string) => Promise<{ success: boolean }>;
+    browse: (id: string, dir?: string) => Promise<{ success: boolean; path?: string; parent?: string | null; dirs?: string[]; error?: string }>;
+    open: (id: string, dir?: string) => Promise<{ rootPath: string; rootName: string; trusted?: boolean; remote?: { hostId: string; name: string }; tree: FileItem[] } | { error: string }>;
+    close: () => Promise<{ success: boolean }>;
+    onEvent: (cb: (ev: SshEvent) => void) => () => void;
+  };
   trust?: {
     status: () => Promise<{ root: string; trusted: boolean }>;
     grant: () => Promise<{ success: boolean; trusted: boolean }>;
@@ -444,7 +464,7 @@ export interface ElectronBridge {
   gitBranches: (repoPath: string) => Promise<{ success: boolean; branches: string[]; current: string }>;
   gitCheckout: (repoPath: string, name: string) => Promise<GitResult>;
   gitCreateBranch: (repoPath: string, name: string) => Promise<GitResult>;
-  gitLog: (repoPath: string) => Promise<{ success: boolean; commits: GitCommitInfo[] }>;
+  gitLog: (repoPath: string, limit?: number) => Promise<{ success: boolean; commits: GitCommitInfo[] }>;
   gitInit: (repoPath: string) => Promise<GitResult>;
   gitDiffFile: (repoPath: string, opts: GitDiffRequest) => Promise<GitDiffResult>;
   gitCommitFiles: (repoPath: string, hash: string) => Promise<{ success: boolean; files: GitCommitFile[] }>;
@@ -470,6 +490,7 @@ export interface ElectronBridge {
   github: {
     status: () => Promise<GithubAuthStatus>;
     login: () => Promise<{ success: boolean; error?: string; userCode?: string; verificationUri?: string; expiresIn?: number }>;
+    copyCode: () => Promise<{ success: boolean }>;
     cancel: () => Promise<{ success: boolean }>;
     logout: () => Promise<{ success: boolean }>;
     repoInfo: (repoPath: string) => Promise<GithubRepoInfo>;

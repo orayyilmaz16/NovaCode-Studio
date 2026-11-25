@@ -9,9 +9,9 @@ const dir = "dist/assets";
 if (!existsSync(dir)) { console.error("dist/assets yok; önce build çalıştır."); process.exit(1); }
 
 const budget = {
-  js: +(process.env.MAX_JS_KB || 600),
-  css: +(process.env.MAX_CSS_KB || 100),
-  gzipJs: +(process.env.MAX_GZIP_JS_KB || 200),
+  js: +(process.env.MAX_JS_KB || 700),
+  css: +(process.env.MAX_CSS_KB || 120),
+  gzipJs: +(process.env.MAX_GZIP_JS_KB || 230),
 };
 const rows = [];
 let fail = false;

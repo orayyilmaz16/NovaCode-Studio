@@ -1,21 +1,7 @@
-// Yapay zekâ asistanı istemci yardımcıları: oturum deposu (yalnız bu cihazda, localStorage) ve sağlayıcı varsayılanları.
-// KVKK: sohbet içerikleri cihazdan çıkmaz (yalnız seçilen sağlayıcıya istek anında gider); görseller diske yazılmaz.
-import type { AiProvider } from '../types';
-
-export const DEFAULT_MODEL: Record<AiProvider, string> = {
-  builtin: 'qwen2.5-coder-1.5b',
-  anthropic: 'claude-sonnet-5-5',
-  openai: 'gpt-4o',
-  ollama: 'qwen2.5-coder:7b'
-};
-
-
-export const PROVIDER_LABEL: Record<AiProvider, string> = {
-  builtin: 'Nova (yerleşik)',
-  anthropic: 'Anthropic',
-  openai: 'OpenAI',
-  ollama: 'Ollama'
-};
+// Yapay zekâ asistanı istemci yardımcıları: oturum deposu (yalnız bu cihazda, localStorage) ve model varsayılanı.
+// KVKK: sohbet içerikleri cihazdan çıkmaz (yalnız yerel Ollama'ya istek anında gider); görseller diske yazılmaz.
+/** Sohbet/ajan için varsayılan model (yerel Ollama); asıl seçim panelden yapılır (aiAskModel / aiAgentModel). */
+export const DEFAULT_CHAT_MODEL = 'qwen2.5-coder:7b';
 
 export interface ToolCard {
   id: string;

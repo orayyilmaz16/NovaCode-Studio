@@ -46,12 +46,20 @@ const ok = (c, m, extra) => { if (!c) { fails++; process.exitCode = 1; } console
     s = m.loadSettings().values;
     ok(s.aiCompletionDelay === 250 && s.aiCompletionEffort === 'balanced', 'v3 kayıtta geçiş yok (bilinçli seçim korunur)');
 
-    // 6) Kayıt sürümü v3 yazılır; kayıt yoksa yeni varsayılanlar (Hızlı)
+    // 5b) v3 kayıt, tamamlama modeli eski varsayılan (7b): v4'te 0.5b'ye geçer; başka seçim korunur
+    store.set(KEY, JSON.stringify({ v: 3, values: { aiCompletionModel: 'qwen2.5-coder:7b' } }));
+    ok(m.loadSettings().values.aiCompletionModel === 'qwen2.5-coder:0.5b', 'v3 kayıtta eski varsayılan model 0.5b olur');
+    store.set(KEY, JSON.stringify({ v: 3, values: { aiCompletionModel: 'qwen2.5-coder:1.5b' } }));
+    ok(m.loadSettings().values.aiCompletionModel === 'qwen2.5-coder:1.5b', 'v3 kayıtta özel model korunur');
+    store.set(KEY, JSON.stringify({ v: 4, values: { aiCompletionModel: 'qwen2.5-coder:7b' } }));
+    ok(m.loadSettings().values.aiCompletionModel === 'qwen2.5-coder:7b', 'v4 kayıtta bilinçli 7b seçimi korunur');
+
+    // 6) Kayıt sürümü v4 yazılır; kayıt yoksa yeni varsayılanlar (Hızlı)
     m.saveSettings({ values: s });
-    ok(JSON.parse(store.get(KEY)).v === 3, 'kayıt v3 olarak yazılır');
+    ok(JSON.parse(store.get(KEY)).v === 4, 'kayıt v4 olarak yazılır');
     store.clear();
     s = m.loadSettings().values;
-    ok(s.aiCompletionDelay === 100 && s.aiCompletionCooldown === 100 && s.aiCompletionEffort === 'fast' && s.aiCompletionModel === 'qwen2.5-coder:7b', 'kayıt yokken varsayılanlar: Hızlı profil, 7b model');
+    ok(s.aiCompletionDelay === 100 && s.aiCompletionCooldown === 100 && s.aiCompletionEffort === 'fast' && s.aiCompletionModel === 'qwen2.5-coder:0.5b' && s.aiAskModel === 'qwen2.5-coder:7b', 'kayıt yokken varsayılanlar: Hızlı profil, tamamlama 0.5b, sohbet 7b');
     ok(m.sanitizeAll({ aiCompletionDelay: -5 }).aiCompletionDelay === 0 && m.sanitizeAll({ aiCompletionDelay: 99999 }).aiCompletionDelay === 3000, 'tamamlama süresi sınırı 0–3000 ms');
     ok(m.sanitizeAll({ aiCompletionEffort: 'instant' }).aiCompletionEffort === 'instant' && m.sanitizeAll({ aiCompletionEffort: 'bogus' }).aiCompletionEffort === 'fast', 'Anında profili geçerli, bilinmeyen değer varsayılana döner');
   } finally {

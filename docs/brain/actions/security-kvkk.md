@@ -26,6 +26,7 @@ Veri nedir? Amaç? Hukuki sebep? Saklama süresi? Yurt dışına aktarım var m�
 | Ortak düzenleme | Dosya içeriği | Kullanıcının ayarladığı sunucuya senkron | Kullanıcının sunucusunda | Kullanıcının seçimi |
 | Son klasörler | Klasör yolları | Kolay erişim | Yerelde (`userData`) | Yok |
 | Ayarlar | Tercihler | Kişiselleştirme | Yerelde (`localStorage`); dışa aktarım kullanıcının dosyası | Yok |
+| Uzak çalışma alanı (SSH) | Sunucu adı/adresi/portu, kullanıcı adı, anahtar dosya yolu, sunucu parmak izi; (saklanmaz) parola/parola cümlesi; uzak dosya içeriği | Kullanıcının istediği uzak bağlantı ve düzenleme | Profil ve parmak izi yerelde (`userData`), silinebilir; parola yalnız bellekte; dosya içeriği diske yazılmaz | Yalnız kullanıcının seçtiği sunucu (şifreli SSH); NovaCode'un 3. partisi yok |
 | Ortak düzenleme token'ı | Sunucu token'ı | Kullanıcının sunucusuna kimlik | Yerelde, şifreli (`safeStorage`); düz metin yok | Yok (yalnız kullanıcının sunucusuna gider) |
 
 Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmadan yükleme.
@@ -48,6 +49,10 @@ Yeni Git kanalları ref/etiket/SHA/stash indeksini ana süreçte doğrular (`REF
 | AI kod tamamlama | Yazarken (ayar açıkken) | İmleç çevresindeki kod → yerel Ollama | 127.0.0.1; `.env`/anahtar dosyaları gönderilmez; saklanmaz |
 | Dil sunucusu (LSP) | Python/Rust/Go... dosyası açılınca | Dosya içeriği yerel sunucu sürecine | Yerelde kalır; ağ yok; sunucu yalnız kullanıcının PATH'inden |
 | Hata ayıklayıcı / PTY | Kullanıcı başlatınca | Yerel süreç | Yalnız çalışma klasöründe; 127.0.0.1; veri çıkmaz |
+| Uzak sunucu (SSH/SFTP) | Kullanıcı "Uzak sunucuya bağlan" deyince | Kimlik bilgisi (parola/anahtar), dosya içeriği, terminal akışı | Yalnız kullanıcının girdiği adres:port; parmak izi onaylı; ayrıntı [[remote-ssh]] |
+
+## Uzak çalışma alanı (23.11.2026)
+SSH/SFTP bağlantısı yalnız ana süreçte (`electron-ssh.cjs`); renderer `ssh://<ana>/<yol>` sanal yolu görür, kimlik bilgisi görmez. Parola kaydedilmez; parmak izi ilk bağlantıda onaylanır, değişirse bağlantı reddedilir; özel anahtar yalnız ana sürecin diyalogundan; her işlem uzak kökün içinde (sözcüksel + realpath). Uzak klasörde yerel git/LSP/arama/AI araçları kapalıdır (yerel çalışma klasörü boş). Ayrıntı ve sınırlar: [[remote-ssh]].
 
 ## Çıktı
 Raporda ayrıca belirt; karar alındıysa [[DECISIONS]]. Güvenlik açığı bildirimi süreci: [[SECURITY]].

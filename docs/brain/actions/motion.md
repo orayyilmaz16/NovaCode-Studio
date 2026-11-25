@@ -34,7 +34,7 @@ Yeni geçişte sabit `ms` veya `cubic-bezier` yazma; jeton kullan. Süre 400 ms'
 - `motion-underline`: `::after` çizgisi hover'da soldan (RTL'de sağdan) çizilir.
 - `btn-primary`, `btn-ghost`: sade düğmeler (32 px, düz zemin, basma geri bildirimi).
 - `logo-shadow`: logoya temaya uyan gölge (koyu: siyah, açık: yumuşak gri).
-- `nova-tab` (+ `nova-tab-close`): VS Code tarzı sekme. Üst vurgu çizgisi (`::before`) etkin sekmede ortadan açılır (`scaleX`), zemin/renk `--dur-base` ile döner, üst köşeler `--r-md`. Etkin sekme `aria-selected` ile belirlenir.
+- `nova-tab` (+ `nova-tab-close`): editöre bitişik sekme (18.11.2026). Üst köşeler `--r-lg`, sekme çubuğun tam yüksekliğinde; çubuğun alt çizgisi `after` ile çizilir ve etkin sekme (`aria-selected`, editör zemini) üstünden geçerek çizgiyi keser: sekme editörle birleşik görünür. Üstte vurgu çizgisi (`::before`) ortadan açılır; zemin/renk/kenarlık `--dur-base`.
 - `animate-editor-in`: yalnız opaklık, `--dur-base`; sekme değişince editör içeriği (ve ayarlar arka perdesi) yumuşakça belirir. Düzen kaymaz.
 - `animate-dialog`: pencere/palet girişi (`translateY(-6px) scale(.985)` → yok). Komut paleti ve Ayarlar penceresi kullanır.
 - Eski sınıflar durur: `animate-fade-in`, `animate-sidebar-in`, `animate-panel-up`, `animate-tab-in`, `animate-menu`, `icon-btn`, `ab-item`, `status-item`.
@@ -59,3 +59,25 @@ Sekme çubuğu `scroll-smooth`; etkin sekme çubuk dışında kalırsa `scrollIn
 
 ## Denetim düzeltmeleri (17.11.2026)
 `style.css` ve bileşenlerdeki sabit ms değerleri jetonlara çevrildi (`duration-(--dur-*)`); jetonda karşılığı olmayan süreler en yakın jetona veya `--dur-enter × n` ya da `--stagger` katına gitti. Açılış ekranı hazır olunca ~560 ms'de kapanır.
+
+## Etkinlik çubuğu (18.11.2026)
+`.ab-item` (40 px yuvarlak düğme): hover'da zemin `color-mix` ile %8 (`--dur-base`), etkinde %12; simge `--ease-spring` ile 1 px yukarı + 1,08 ölçek, basınca 0,9; etkin göstergesi (`::before`) ortadan `scaleY` (`--dur-slow`). **Gecikmeli ipucu** `::after` + `data-tip`: hover/`:focus-visible`'dan `--hover-delay` (140 ms) sonra 4 px yana kayarak belirir, basınca anında kapanır; RTL'de aynalanır. Yalnız transform/opacity/renk animasyonlanır; `data-motion="off"` ve reduced-motion süreleri sıfırlar.
+
+## Kenar çubuğu geçişi, tutamaç çizgisi ve sekme ipucu (18.11.2026)
+- **Kenar çubuğu açılıp kapanma:** `.sidebar-shell` genişliği `--dur-slow` + `--ease-inout`; içindeki kart aynı sürede yana kayıp solar (`data-open="false"` → `opacity:0`, `translateX(∓14px)`; `data-side` ve RTL'ye göre yön). Editörle arasındaki 8 px boşluk (`.sidebar-gap`) da aynı eğriyle daralır: tutamaç koşullu çizilirken oluşan zıplama kalktı. Sürüklerken (`data-resizing`) hepsi anında.
+- **Tutamaç çizgisi (`ResizeHandle`):** tutamaç 6 px; ortada ince `.resize-line` hover'dan `--hover-delay` sonra %55 belirir (`scale`+`opacity`), basınca %90. Eski tam dolgulu renk değişimi kalktı.
+- **Sekme ipucu (`HoverTip.tsx`, `useHoverTip`):** yerel `title` kutusu yerine 420 ms gecikmeli, `tipIn` ile yumuşak beliren, editör yüzeyi/kenarlığı ve `--float-shadow` kullanan ipucu (dosya adı + klasör yolu); `overflow` kırpmasın diye portal ile `body`'ye (`z-[70]`) çizilir, kaydırma/blur/sürükleme/tıklamada kapanır, klavye odağında da görünür.
+
+## Sekme (18.11.2026)
+Etkin sekmenin üst vurgu çizgisi (`::before` + `scaleX`) kaldırıldı; etkin sekme yalnız editör zeminiyle (kenarlıksız) birleşir, renk/zemin geçişi `--dur-base` + `--ease-out-soft`. Sekme listesinin sol boşluğu sıfır (ilk sekme karta bitişik, `pe-1.5` yalnız sağda).
+
+## Etkinlik çubuğu taşma düzeltmesi (21.11.2026)
+`.ab-item` 40 px (kartın 46 px iç genişliğinde her yanda 3 px pay). Sol gösterge çizgisi (`::before`) düğmenin içinde: `inset-inline-start: 3px`, `top/bottom: 12px`, 2 px, dört köşe yuvarlak; böylece seçiliyken düğme zemininin dışına taşmaz.
+
+**Kök neden:** kök yazı boyutu 13 px olduğundan `w-12` etkinlik çubuğu kartını 39 px yapıyordu; 40 px düğme kartın dışına taşıyordu. Kart artık sabit `w-[48px]` (rem'e bağlı değil).
+
+## Duyarlı düzen: sekme çubuğu (21.11.2026)
+Editör sütunu `flex-col`; sekme çubuğu (`h-[38px]`) ve yol çubuğu (`h-[22px]`) `shrink-0`, Monaco kabı `min-h-0`. Aksi halde yükseklik azalınca (dar/kısa pencere, Monaco'nun dev iç yüksekliği) başlık satırları 14/8 px'e ezilip kırpılıyordu. 420, 768 ve 360 px genişlikte web önizlemede ölçüldü.
+
+## Alt panel sekme geçişi (22.11.2026)
+`animate-pane-in` (`paneIn`): içerik `--pane-dir` (±1) yönünde 12 px kayarak ve solarak girer, `--dur-base`; RTL'de `--pane-flip: -1` ile aynalanır. Kayan sekme hapı (`Terminal.tsx`) `transform` + `width` geçirir: kural 2'nin bilinçli istisnası (tek küçük öğe, içerik düzenini etkilemez; hap ölçüsü sekme genişliğine uymalı, `scaleX` köşeyi bozardı). Süreler jeton; `data-motion="off"` ve reduced-motion sıfırlar.

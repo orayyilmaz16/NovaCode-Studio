@@ -49,8 +49,8 @@ export const ChipSlider: React.FC<{ children: React.ReactNode; label?: string; c
       </div>
       {st.over && (
         <>
-          <button type="button" onClick={() => go(-1)} disabled={!st.left} aria-label={t('aiScrollLeft')} title={t('aiScrollLeft')} className={`${arrow} left-0 justify-start bg-nv-side`}><ChevronLeft size={15} /></button>
-          <button type="button" onClick={() => go(1)} disabled={!st.right} aria-label={t('aiScrollRight')} title={t('aiScrollRight')} className={`${arrow} right-0 justify-end bg-nv-side`}><ChevronRight size={15} /></button>
+          <button type="button" onClick={() => go(-1)} disabled={!st.left} aria-label={t('aiScrollLeft')} title={t('aiScrollLeft')} className={`${arrow} start-0 justify-start bg-nv-side`}><ChevronLeft size={15} /></button>
+          <button type="button" onClick={() => go(1)} disabled={!st.right} aria-label={t('aiScrollRight')} title={t('aiScrollRight')} className={`${arrow} end-0 justify-end bg-nv-side`}><ChevronRight size={15} /></button>
         </>
       )}
     </div>

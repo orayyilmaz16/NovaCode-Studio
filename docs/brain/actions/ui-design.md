@@ -75,7 +75,7 @@ Başlık çubuğunda Dosya / Düzenle / Seçim / Görünüm / Git / Çalıştır
 ## Çerçeve (üst çubuk, etkinlik şeridi, yan panel, editör, sağ paneller, alt çubuk)
 - **Karar:** paneller ince 1 px kenarlıklı, hafif yuvarlak **kartlardır** (VS Code tarzı, sade). **Renkler, tema ve editör görünümü değişmez**: yüzey renkleri `nv-side`/`nv-editor`, kenarlık düz `nv-border` kalır. Degrade, yarı saydam kenarlık, hap zemin, renkli vurgu gibi stil değişikliği ekleme.
 - **Ölçüler (esnek):** `--frame` (kart boşluğu, 6 px) ve `--frame-r` (köşe, 8 px); pencere < 760 px iken 2 px / 6 px. Kartlarda `mx/mt/m-[var(--frame)]`, `rounded-[var(--frame-r)]`, `border border-nv-border` kullan; sabit px yazma.
-- **Düzen:** kök `bg-nv-side` (boşlukların rengi). Üst çubuk (`h-9`) ve alt çubuk (`h-6`) kartları; çalışma alanı `px/pt-[var(--frame)]`; etkinlik şeridi `w-[50px]` kart; yan panel, editör sütunu (terminal dahil) ve sağ paneller (AI, önizleme) kart. Panel iç bileşenleri kendi dış kenarlığını taşımaz (ör. `AIAssistant` kökünde `border-l` yok): çerçeveyi `App.tsx` verir.
+- **Düzen:** kök `bg-nv-side` (boşlukların rengi). Üst çubuk (`h-9`) ve alt çubuk (`h-6`) kartları; çalışma alanı `px/pt-[var(--frame)]`; etkinlik şeridi `w-11` kart (22 px simge, 38 px düğme); yan panel, editör sütunu (terminal dahil) ve sağ paneller (AI, önizleme) kart. Panel iç bileşenleri kendi dış kenarlığını taşımaz (ör. `AIAssistant` kökünde `border-l` yok): çerçeveyi `App.tsx` verir.
 - **Sürükleme:** üst çubuk kartının üstündeki dar boşlukta `app-drag` şeridi vardır (pencere taşınabilsin). Sağ paneller dar ekranda (`compactRight`) editörün üstüne biner (`right/top-[var(--frame)]`).
 - **Alt çubuk:** `@container`; ikincil bilgiler (girinti, UTF-8) `hidden @lg:inline-flex` ile dar genişlikte gizlenir.
 
@@ -103,9 +103,68 @@ Simge düğmelerine `aria-label`/`title`; odak halkası `:focus-visible`; kontra
 [[testing]] + uygulamayı çalıştırıp görsel kontrol (yalnız uygulamanın kendi penceresi; ekran yakalama başka pencereleri içermemeli).
 
 ## Denetim düzeltmeleri (17.11.2026)
-Gölge yığınları sadeleştirildi (tek odak halkası); AI avatarları düz `indigo`; `text-zinc-600` metinler `zinc-500`; FileTree bölüm başlıkları `role=button` + `aria-expanded` + Enter/Space. Kalan: ajan modu violet kullanımları ve `origin-left` fiziksel.
+Gölge yığınları sadeleştirildi (tek odak halkası); AI avatarları düz `indigo`; `text-zinc-600` metinler `zinc-500`; FileTree bölüm başlıkları `role=button` + `aria-expanded` + Enter/Space. Ajan modu violet kullanımları 18.11.2026'da indigo'ya çekildi. Kalan: `origin-left` fiziksel.
 
 ## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
 **Bölünmüş editör:** en çok 2 grup (sağa `Ctrl+\`, alta `Ctrl+Alt+\`), her grubun kendi sekmeleri; aynı dosya iki grupta aynı Monaco modelini paylaşır; sekme sürükleyerek gruba taşıma; ayırıcı oranı `nova.split.ratio`; 860 px altında gruplar yığılır; oturumda `Session.split`; ortak düzenleme yalnız ilk grupta. Mantık `src/services/splitLayout.ts` (saf). **Veri kaybı önlemleri:** kaydedilmemiş sekme ve pencere kapanışında Kaydet/Kaydetme/İptal (`app:close-request`/`app:close-response`), "Diskte yok" ve "Diskte değişti" çubukları, oturum geri yükleme (`session.ts`, yalnız yerel, onaylı), `Ctrl+Shift+T`, kök ve panel `ErrorBoundary`. **Performans:** içerik editör modelinde, 250 ms toplu bildirim; `key`'siz tek editör; imleç/tanı/tamamlama/LSP durumları `StatusCursor` altında; `EditorArea` memo; günlük en çok 500 satır.
 
 Kapanış: renderer onay penceresi açılınca `closePending()` (`app:close-pending`) ile ana sürecin 5 sn zamanlayıcısını durdurur; yanıtsız/çökmüş renderer için eski zaman aşımı korunur. Ayarlar > Kısayollar `KeybindingsEditor`. Bundle bütçesi (JS 600 KB, gzip 200 KB) dar: yeni eager metin/statik import eklerken [[ci-cd]] bütçesine bak.
+
+## Tip ve sınıf denetimi, AI panel menüleri (18.11.2026)
+`tsconfig.json` artık `strict` + `noUnusedLocals/Parameters` (CLAUDE.md kuralı 8 ile uyumlu); CI `tsc` bunu zorlar. Tailwind 4 kanonik sınıflar: eş `w-N h-N` → `size-N`, `!x` → `x!`, `break-words` → `wrap-break-word`, `[overflow-wrap:anywhere]` → `wrap-anywhere`. **Panel içi açılır menüler** (`ModelMenu`, `ThinkingMenu`) düğmeye değil giriş kartına (`relative`) göre konumlanır (`absolute bottom-full inset-x-0` / `start-0 w-[min(268px,100%)]`); panel kökü `overflow-hidden` olduğundan düğmeye göre konumlanan geniş menü dar panelde kesiliyordu. Fiziksel `left-/right-` yerine `start-/end-` kullan.
+
+## Etkinlik çubuğu: normal simge, dar kenar boşluğu (18.11.2026)
+Şerit 50 → 44 px, düğme 48 → 38 px, simge 22 px (`strokeWidth` 1,5; ilk denemedeki 18 px fazla küçük bulundu); yalnız yan boşluklar azaldı, rozet/nokta/avatar (22 px) orantılı. Etkinlik çubuğunda yerel `title` yerine `data-tip` kullanılır (çift ipucu olmasın); `dis()` yalnız şerit dışındaki düğmelerde. Hareket: [[motion]] "Etkinlik çubuğu".
+
+## Yüzen arayüz (18.11.2026, kurucu talimatı)
+VS Code'un yüzen kart havası: `--frame` 8 px, `--frame-r` 10 px (dar pencerede 3/7), tüm kartlara (başlık, etkinlik şeridi, kenar çubuğu, editör sütunu, önizleme, AI paneli, durum çubuğu) `.float-card`: **tek** yumuşak gölge `--float-shadow` (`0 2px 12px`, koyu .28 / açık .09). Bu, "gölge yığını yok" kuralının bilinçli ve sınırlı istisnasıdır: kart başına tek katman, menü/pencerede ek gölge yok. Sekmeler: üst köşeler `--r-lg` (8 px), aralık `gap-0.5`, sekme çubuğu 38 px ve yan boşluklu. Renkler ve tema değişmedi.
+
+## Kenar çubuğu boşluğu ve sekme ipucu (18.11.2026)
+Kenar çubuğu ile editör arası boşluk 4 → 8 px (tutamaç 6 px + `.sidebar-gap`); tüm `ResizeHandle`'lar (önizleme, AI, bölünmüş editör, terminal) aynı 6 px ve ince ortalı çizgi. Sekme ipucu tema uyumlu `HoverTip` (yukarıdaki "Kenar çubuğu geçişi" bölümü, [[motion]]).
+
+## Duyarlı düzen: telefon / tablet / masaüstü (18.11.2026)
+Gerçek tarayıcıda (CDP ile 360, 390, 768, 1024, 1440 px) ekran görüntüsüyle doğrulandı; hiçbir genişlikte yatay taşma yok (`scrollWidth == clientWidth`). Eşikler (`App.tsx`): `vw < 760` **`compactLeft`**: kenar çubuğu editörü ezmez, etkinlik şeridinin yanında üstüne biner (`absolute z-30`, genişlik `min(sidebarWidth, 320, vw-96)`), arkasına tıklamak veya dosya seçmek kapatır (`bg-black/30` perde), tutamaç/boşluk yok, telefonda kapalı başlar; `vw < 1100` `compactRight`: AI/önizleme paneli üstüne biner; `vw < 1280` menü tek "Menü" düğmesi. Kök yükseklik `h-dvh` (mobil adres çubuğu), `viewport-fit=cover`, `overscroll-behavior: none`. Sekme çubuğu eylem düğmeleri `@container` ile (`@md`) kademeli gizlenir. Yeni düzende bu eşiklere ve ekran görüntüsü kontrolüne uy.
+
+## Editör içi duyarlılık: sekme çubuğu (18.11.2026)
+Sorun: dar editörde (AI/önizleme paneli veya kenar çubuğu açıkken) `shrink-0` eylem düğmeleri (bölme, kaydet, kopyala, indir, önizleme, Çalıştır) tüm genişliği yiyip sekme listesini 0 px'e düşürüyordu; koyu temada pasif sekmeler zeminle aynı renk olduğundan da ayırt edilmiyordu. Çözüm (`EditorArea.tsx`): sekme listesi `min-w-[96px]` (en az bir sekme hep görünür); editör kabı `@container` olduğundan `@md` (448 px) altında bölme/kaydet/kopyala/indir/önizleme/ortak çalışma etiketi gizlenir ve tek bir **"⋯" menüsüne** (`PopupMenu`, `edMore`) toplanır, Çalıştır yalnız simge kalır. Pasif sekmeler `bg-zinc-50/5` ile zeminden ayrışır (tüm koyu paletlerde doğrulandı: midnight, forest, orchid, ember, atlas, ink).
+
+**Sekme görünümü (18.11.2026):** üst çizgi yok, sol boşluk yok; etkin sekme `bg-nv-editor` kenarlıksız, pasif sekme `bg-zinc-50/4`, üst köşeler `--r-lg`.
+
+**Sekme–editör bağlantısı (18.11.2026):** seçili sekmenin alt sol/sağ köşelerinde içbükey 6 px yuvarlama (`.nova-tab[aria-selected]::before/::after`, `radial-gradient`, `--color-nv-editor`); sekme editör yüzeyine akarak bağlanır, RTL'de aynalanır.
+Etkin sekme çubukta görünür alana `scrollTo` ile 12 px paylı kaydırılır (`scrollIntoView` giriş animasyonunun ölçeğinden etkilenip sağ yuvarlamayı kırpıyordu); listenin sonunda 8 px boşluk (`w-2`) kalır.
+
+**Etkinlik çubuğu ölçeği (18.11.2026, son):** simge 24 px (eski boyut), düğme 42 px, şerit 48 px (eski 50 → yalnız simge–kenarlık boşluğu azaldı: iç genişlik 46, düğme 42). Dar ekranda kenar çubuğu bindirme ofseti 50 px.
+
+**Kenar çubuğu–editör boşluğu (18.11.2026):** 8 → 12 px (`.sidebar-gap`, tutamaç ortada); diğer tutamaçlar 6 px kalır.
+
+**Boşluk düzeltmesi (18.11.2026):** kenar çubuğu kapalıyken etkinlik çubuğu ile editör arası boşluk artık 10 px (2 px + sabit 8 px `.sidebar-gap`; önceden 2 px'ti), açıkken kenar çubuğu–editör boşluğu 12 → 8 px. `.sidebar-gap` genişliği sabit (dar ekranda 4 px), tutamaç yalnız açıkken çizilir.
+
+## Sekme çubuğu: yeni sekme (+) düğmesi yok (23.11.2026)
+Sekme çubuğunda yeni sekme (+) düğmesi bulunmaz (kurucu isteği). Yeni dosya Ctrl+N, Dosya menüsü, komut paleti veya karşılama/boş editör ekranındaki "Yeni dosya" ile açılır; sekme çubuğuna yeni düğme eklenmez.
+
+## Başlık çubuğu: Fluent gruplama (23.11.2026)
+Üst çubuk üç bölge: sol (logo · `hdr-sep` · menü başlıkları `h-7 rounded-md`), orta (dolgulu arama hapı `bg-white/[0.05]`, solda yapay zekâ bölmesi), sağ (iki `hdr-group` kapsülü: klasör/önizleme/ayarlar ve kenar çubuğu/alt panel; `hdr-sep`; pencere denetimleri). `hdr-btn` 30×24, etkinde `indigo-500/24` zemin; `hdr-sep` 1×16 px, `zinc-50` %14. Menü başlıkları genişlediği için tek `Menü` düğmesine geçiş eşiği 1280 → 1340 px. Kapat düğmesi çerçeve köşesine uyar (`rounded-e`). Gölge/degrade eklenmedi (kural 9).
+
+### Başlık çubuğu: duyarlılık (23.11.2026)
+Başlık çubuğu `@container` olup `grid` yerine `flex` kullanır: sol ve sağ bölge `flex-1 basis-0`, orta bölge ortalı. Kap sorguları başlık genişliğine bakar (kök yazı 13 px olduğundan `@xl` ≈ 468 px, `@3xl` ≈ 624 px): `< @xl` arama yalnız simge (`w-9`) ve yapay zekâ bölmesi gizli; `< @3xl` klasör/önizleme/ayarlar grubu gizli (eylemler menü ve kısayollarda durur); `<= 380 px` ayırıcı ve düğme boşlukları daralır. Kenar çubuğu ve alt panel düğmeleri her zaman görünür. **Tuzak:** katmansız `.hdr-group { display }` Tailwind `hidden`'ı ezdiği için `display` sınıftan gelir. Menü başlıkları `vw < 1340` altında tek `Menü` düğmesine toplanır. 360/520/640/900/1500 px'te web önizlemede doğrulandı.
+
+## Üst çubuk bölgeleri (23.11.2026)
+Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `shrink`, genişlik `clamp(180px,24cqw,340px)` (`@xl` altında yalnız simge); sağ bölge `min-w-fit` ve içi `shrink-0`: düğmeler ve pencere denetimleri hiçbir genişlikte taşmaz/kırpılmaz.
+
+**Üst çubuk üç ayrı kart (23.11.2026, kurucu isteği):** `header` düz kapsayıcı (`gap-[var(--frame)]`); sol (logo+menü), orta (arama+AI) ve sağ (düğmeler+pencere denetimleri) her biri `float-card border border-nv-border bg-nv-side rounded-[var(--frame-r)]`. Editör temasında `minimapSlider.*`, `scrollbar.shadow` ve `editorOverviewRuler.*` renkleri açıkça tanımlı (varsayılan beyazımsı kaydırıcı kalktı).
+
+**İçeriği kadar kart (23.11.2026):** sol ve sağ kart `flex-1` değil; aralarındaki `flex-1` boşluklar kartsızdır (sürükleme alanı). Orta kart iki boşluğun arasında kalır.
+
+**Tam ortalı arama (23.11.2026):** `header` `grid-cols-[minmax(0,1fr)_auto_minmax(max-content,1fr)]`: sol kart `justify-self-start`, sağ kart `justify-self-end`, orta arama kartı `auto` sütunda geometrik merkezde. Önceki `flex-1` boşluk elemanları kalktı.
+
+**Pencereli görünümde küçültme (23.11.2026):** `App.tsx` `markWindowed` pencere tam ekran değilse (`outerWidth < screen.availWidth - 8`) `<html data-win="windowed">` koyar ve menüyü kompakt (tek "Menü" düğmesi) yapar; `style.css` bu durumda `.hdr-btn` 24×20 (simge 13 px), `.hdr-sep`/`.hdr-group` sıkı, `.wc-btn` 34 px, `.mb-btn` (MenuBar düğmeleri) 24 px yükseklik/11,5 px yazı yapar. Tam ekranda eski boyutlar.
+
+**Kompakt Menü akordeonu (25.11.2026):** Pencereli görünümde `MenuBar` kompakt modu artık `AccordionMenu.tsx` açar (eski: grup listesi → ayrı menü). Gruplar satır içi açılır, aynı anda tek grup açık; geçiş `--dur-base` jetonuyla grid-satır animasyonu; düğmede dönen ok. Normal (geniş) başlık çubuğu `PopupMenu` ile aynı kaldı.
+
+**Üst menü başlık durumları (25.11.2026):** Geniş `MenuBar` başlıkları kullanılabilirse `zinc-100`, tüm öğeleri kapalıysa (dosya/klasör yok) `zinc-600`, açıkken beyaz + `bg-white/10` + altta animasyonlu indigo çizgi. Geçiş `--dur-base` / `--ease-out-soft`.
+
+## Menüler: kapalı öğe tonu (25.11.2026)
+Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori başlıkları `text-zinc-700` (koyu, neredeyse siyah) çizilir; eski `opacity-40`/`zinc-600` kalktı. Yer: `AccordionMenu.tsx` (kompakt Menü), `Menu.tsx` (`PopupMenu`), `MenuBar.tsx` (başlıklar). Kapalı öğe hâlâ tıklanmaz; ipucu (`hint`) üzerine gelince görünür.
+
+### Tamamı kapalı kategori (25.11.2026)
+`allOff(grup)` doğruysa kategori başlığı etkileşimsizdir: `AccordionMenu` satır listesine hiç girmez (ok tuşlarıyla atlanır), `disabled` + `tabIndex=-1` + `pointer-events-none`, `toggle` yok sayar; `MenuBar` başlığı `disabled`, tıklama ve üzerine gelerek menü geçişi (`onMouseEnter`) kapalı. Tekil kapalı öğeler tıklanmaz ama `title` ipucu için işaretçi olayları açık kalır.

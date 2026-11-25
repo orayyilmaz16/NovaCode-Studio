@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { ChevronRight, Menu as MenuIcon } from 'lucide-react';
+import { ChevronDown, Menu as MenuIcon } from 'lucide-react';
 import { PopupMenu, type MenuItem } from './Menu';
+import { AccordionMenu } from './AccordionMenu';
 import { t } from '../i18n/uiText';
 
 export interface MenuGroup {
@@ -38,22 +39,18 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
     return !!last && last.id === id && Date.now() - last.t < 250;
   };
 
-  const current = open && open.id !== '__root' ? menus.find((m) => m.id === open.id) : undefined;
+  // Gruptaki tüm öğeler kapalıysa (ör. klasör açık değil) başlık koyu görünür
+  const allOff = (m: MenuGroup) => {
+    const real = m.items.filter((i) => !i.separator);
+    return real.length > 0 && real.every((i) => i.disabled);
+  };
 
-  // Kompakt: tek düğme → grup listesi → seçilen grubun menüsü (aynı konumda)
-  const rootItems: MenuItem[] = menus.map((m) => ({
-    label: m.label,
-    icon: <ChevronRight size={12} />,
-    onClick: () => {
-      const pos = open;
-      window.setTimeout(() => { if (pos) setOpen({ id: m.id, x: pos.x, y: pos.y }); }, 0);
-    }
-  }));
+  const current = open && open.id !== '__root' ? menus.find((m) => m.id === open.id) : undefined;
 
   return (
     <nav
       aria-label={t('mnMenu')}
-      className="no-scrollbar app-no-drag flex items-center h-full ps-1 min-w-0 shrink overflow-x-auto overflow-y-hidden"
+      className="no-scrollbar app-no-drag flex items-center gap-0.5 h-full ps-1 min-w-0 shrink overflow-x-auto overflow-y-hidden"
       // Dar kapta başlıklar yatay kayar (fare tekerleği de yatay çevrilir)
       onWheel={(e) => { if (e.deltaY) e.currentTarget.scrollLeft += e.deltaY; }}
       onScroll={() => setOpen(null)}
@@ -66,10 +63,11 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
           aria-label={t('mnMenu')}
           data-active={open !== null}
           onClick={(e) => { if (!justClosed('__root')) openFor('__root', e.currentTarget); }}
-          className={`h-6 px-2 rounded flex items-center gap-1.5 text-[12px] whitespace-nowrap shrink-0 transition-colors ${open ? 'bg-nv-active text-zinc-50' : 'text-zinc-300 hover:bg-nv-hover'}`}
+          className={`mb-btn rounded-md flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-colors duration-(--dur-fast) ${open ? 'bg-white/[0.09] text-zinc-50' : 'text-zinc-300 hover:bg-white/[0.07]'}`}
         >
           <MenuIcon size={14} />
           <span>{t('mnMenu')}</span>
+          <ChevronDown size={12} className={`shrink-0 opacity-70 transition-transform duration-(--dur-base) ${open ? 'rotate-180' : ''}`} />
         </button>
       ) : (
         menus.map((m) => (
@@ -78,17 +76,24 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
             aria-haspopup="menu"
             aria-expanded={open?.id === m.id}
             data-active={open?.id === m.id}
-            onClick={(e) => { if (!justClosed(m.id)) openFor(m.id, e.currentTarget); }}
-            onMouseEnter={(e) => { if (open && open.id !== m.id) openFor(m.id, e.currentTarget); }}
-            className={`h-6 px-2 rounded text-[12px] whitespace-nowrap shrink-0 transition-colors ${
-              open?.id === m.id ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'
+            disabled={allOff(m)}
+            onClick={(e) => { if (!allOff(m) && !justClosed(m.id)) openFor(m.id, e.currentTarget); }}
+            onMouseEnter={(e) => { if (open && open.id !== m.id && !allOff(m)) openFor(m.id, e.currentTarget); }}
+            // Kullanılabilir başlık beyaz, açık olan vurgulu; hiç öğesi kullanılamayan (dosya/klasör yok) başlık koyu kalır
+            data-off={allOff(m) || undefined}
+            className={`mb-btn relative rounded-md whitespace-nowrap shrink-0 transition-[color,background-color] duration-(--dur-base) ease-(--ease-out-soft) ${
+              open?.id === m.id ? 'bg-white/[0.10] text-white' : allOff(m) ? 'text-zinc-700 pointer-events-none cursor-default' : 'text-zinc-100 hover:bg-white/[0.08] hover:text-white'
             }`}
           >
             {m.label}
+            <span
+              aria-hidden
+              className={`pointer-events-none absolute inset-x-2 bottom-0.5 h-0.5 rounded-full bg-indigo-400 origin-center transition-[transform,opacity] duration-(--dur-base) ease-(--ease-out-soft) ${open?.id === m.id ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+            />
           </button>
         ))
       )}
-      {open && open.id === '__root' && <PopupMenu key="__root" x={open.x} y={open.y} items={rootItems} onClose={close} />}
+      {open && open.id === '__root' && <AccordionMenu key="__root" x={open.x} y={open.y} groups={menus} onClose={close} />}
       {open && current && <PopupMenu key={open.id} x={open.x} y={open.y} items={current.items} onClose={close} />}
     </nav>
   );

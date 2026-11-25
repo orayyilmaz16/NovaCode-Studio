@@ -1,5 +1,5 @@
 // Ana süreç saf mantık testleri (T-01): electron-search (arama/değiştirme sınırları), electron-ext (JSONC, semver, VSIX/ZIP),
-// electron-llm (araç çağrısı ayrıştırma). Electron modülü sahte; ağ ve gerçek model kullanılmaz.
+// Electron modülü sahte; ağ ve gerçek model kullanılmaz.
 // Çalıştırma: node scripts/tests/electron-misc.test.cjs
 const Module = require('module');
 const fs = require('fs');
@@ -11,13 +11,11 @@ const origLoad = Module._load;
 const lenient = new Proxy(function () {}, { get: () => lenient, apply: () => lenient });
 Module._load = function (req, ...rest) {
   if (req === 'electron') return new Proxy({ ipcMain: { handle: () => {}, on: () => {} } }, { get: (t, k) => (k in t ? t[k] : lenient) });
-  if (req === 'node-llama-cpp') throw new Error('yüklenmemeli');
   return origLoad.call(this, req, ...rest);
 };
 const root0 = path.join(__dirname, '..', '..');
 const search = require(path.join(root0, 'electron-search.cjs'));
 const ext = require(path.join(root0, 'electron-ext.cjs'));
-const llm = require(path.join(root0, 'electron-llm.cjs'));
 const { createGuards } = require(path.join(root0, 'electron-paths.cjs'));
 
 let fails = 0;
@@ -58,19 +56,6 @@ function makeZip(files, method = 0) {
   ok(throws(() => parseVsix(makeZip({ 'extension/readme.md': 'x' }))), 'parseVsix: manifest yoksa hata');
   ok(throws(() => parseVsix(Buffer.from('zip değil'))), 'parseVsix: ZIP olmayan girdi hata verir');
   ok(throws(() => parseVsix(Buffer.alloc(10))), 'parseVsix: çok kısa girdi hata verir');
-
-  // ---- electron-llm ----
-  const names = ['read_file', 'write_file'];
-  const p = llm.parseToolCall;
-  ok(p('{"name":"read_file","arguments":{"path":"a"}}', names)?.name === 'read_file', 'parseToolCall: çıplak JSON');
-  ok(p('```json\n{"tool":"write_file","parameters":{"path":"a","content":"x"}}\n```', names)?.args.path === 'a', 'parseToolCall: kod bloğu ve takma alan adları');
-  ok(p('<tool_call>{"function":"read_file","input":{}}</tool_call>', names)?.name === 'read_file', 'parseToolCall: <tool_call> etiketi');
-  ok(p('{"name":"rm_rf","arguments":{}}', names) === null, 'parseToolCall: bilinmeyen araç reddedilir');
-  ok(p('{"name":"read_file","arguments":"str"}', names) === null, 'parseToolCall: argüman nesne değilse reddedilir');
-  ok(p('merhaba, nasıl yardımcı olurum?', names) === null && p('', names) === null && p(undefined, names) === null, 'parseToolCall: normal metin araç değildir');
-  ok(p('{bozuk json', names) === null, 'parseToolCall: bozuk JSON null');
-  ok(Object.keys(llm.MODELS).length > 0 && Object.values(llm.MODELS).every((m) => m.size > 0 && (!m.sha256 || /^[0-9a-f]{64}$/i.test(m.sha256))), 'MODELS: boyut dolu, sha256 verilmişse geçerli hex');
-  ok(llm.DEFAULT_ID in llm.MODELS, 'DEFAULT_ID katalogda');
 
   // ---- electron-search ----
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nova-srch-'));

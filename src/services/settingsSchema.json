@@ -115,7 +115,7 @@
     { "id": "terminalMode", "category": "terminal", "type": "select", "default": "pty", "desc": true,
       "options": [{ "value": "pty", "labelKey": "optTermFull" }, { "value": "classic", "labelKey": "optTermClassic" }] },
     { "id": "defaultShell", "category": "terminal", "type": "select", "default": "powershell",
-      "options": [{ "value": "powershell", "label": "PowerShell" }, { "value": "cmd", "label": "CMD" }] },
+      "options": [{ "value": "powershell", "label": "PowerShell" }, { "value": "cmd", "label": "CMD" }, { "value": "gitbash", "label": "Git Bash" }] },
     { "id": "terminalColorInput", "category": "terminal", "type": "toggle", "default": true, "desc": true },
     { "id": "terminalShowBranch", "category": "terminal", "type": "toggle", "default": true },
 
@@ -141,7 +141,7 @@
       "options": [{ "value": "auto", "labelKey": "optCompAuto" }, { "value": "manual", "labelKey": "optCompManual" }] },
     { "id": "aiCompletionEffort", "category": "ai", "group": "grpAiCompletion", "type": "select", "default": "fast", "hidden": true,
       "options": [{ "value": "instant", "labelKey": "optCompInstant" }, { "value": "fast", "labelKey": "optThinkFast" }, { "value": "balanced", "labelKey": "optThinkBalanced" }, { "value": "deep", "labelKey": "optThinkDeep" }] },
-    { "id": "aiCompletionModel", "category": "ai", "group": "grpAiCompletion", "type": "text", "default": "qwen2.5-coder:7b", "maxLength": 60, "placeholder": "qwen2.5-coder:1.5b", "desc": true },
+    { "id": "aiCompletionModel", "category": "ai", "group": "grpAiCompletion", "type": "text", "default": "qwen2.5-coder:0.5b", "maxLength": 60, "placeholder": "qwen2.5-coder:0.5b", "desc": true },
     { "id": "aiCompletionLength", "category": "ai", "group": "grpAiCompletion", "type": "select", "default": "block",
       "options": [{ "value": "line", "labelKey": "optLenLine" }, { "value": "block", "labelKey": "optLenBlock" }, { "value": "long", "labelKey": "optLenLong" }] },
     { "id": "aiCompletionDelay", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 100, "min": 0, "max": 3000, "step": 25, "unit": "ms", "desc": true },
@@ -152,6 +152,10 @@
     { "id": "aiCompletionTemperature", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 0.05, "min": 0, "max": 1, "step": 0.05 },
     { "id": "aiCompletionCount", "category": "ai", "group": "grpAiCompletion", "type": "slider", "default": 1, "min": 1, "max": 3, "step": 1, "desc": true },
     { "id": "aiCompletionToolbar", "category": "ai", "group": "grpAiCompletion", "type": "toggle", "default": true, "desc": true },
+
+    { "id": "aiAskModel", "category": "ai", "group": "aiModeAsk", "type": "text", "default": "qwen2.5-coder:7b", "maxLength": 60, "hidden": true },
+    { "id": "aiAgentModel", "category": "ai", "group": "aiModeAgent", "type": "text", "default": "qwen2.5-coder:7b", "maxLength": 60, "hidden": true },
+    { "id": "aiDictationModel", "category": "ai", "group": "grpAiVoice", "type": "text", "default": "ggml-small.bin", "maxLength": 60, "hidden": true },
 
     { "id": "aiDefaultMode", "category": "ai", "group": "grpAiGeneral", "type": "select", "default": "ask",
       "options": [{ "value": "ask", "labelKey": "optAiAsk" }, { "value": "agent", "labelKey": "optAiAgent" }] },
@@ -172,6 +176,8 @@
     { "id": "aiAllowCommands", "category": "ai", "group": "aiModeAgent", "type": "toggle", "default": true, "desc": true },
     { "id": "aiAgentInstructions", "category": "ai", "group": "aiModeAgent", "type": "text", "default": "", "maxLength": 600, "desc": true },
 
-    { "id": "aiVoiceEnabled", "category": "ai", "group": "grpAiVoice", "type": "toggle", "default": false, "desc": true }
+    { "id": "aiDictationLang", "category": "ai", "group": "grpAiVoice", "type": "select", "default": "ui", "desc": true,
+      "options": [{ "value": "ui", "labelKey": "optDictUi" }, { "value": "auto", "labelKey": "optDictAuto" }] },
+    { "id": "aiDictationAutoSend", "category": "ai", "group": "grpAiVoice", "type": "toggle", "default": false, "desc": true }
   ]
 }

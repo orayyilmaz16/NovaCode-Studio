@@ -3,7 +3,7 @@
 > Bu dosya `scripts/brain.mjs` tarafından koddan üretilir; **elle düzenleme**. Yenilemek için `npm run brain`. Bkz. [[BRAIN]].
 
 ## Sürümler
-- Uygulama: **1.5.0**
+- Uygulama: **1.5.1**
 - Electron ^45.2.3 · React ^19.3.1 · Vite ^8.3.5 · TypeScript ~7.0.2 · Tailwind ^4.3.5
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.57.0
 - GitHub OAuth Client ID tanımlı: evet
@@ -17,7 +17,7 @@
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -30,23 +30,24 @@
 ### Ana süreç ve preload
 | Dosya | Satır |
 |---|---|
-| `electron-ai.cjs` | 1028 |
+| `electron-ai.cjs` | 995 |
 | `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 341 |
-| `electron-git.cjs` | 426 |
-| `electron-github.cjs` | 335 |
+| `electron-git.cjs` | 450 |
+| `electron-github.cjs` | 343 |
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
-| `electron-llm.cjs` | 280 |
 | `electron-lsp.cjs` | 301 |
-| `electron-main.cjs` | 833 |
+| `electron-main.cjs` | 851 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 271 |
+| `electron-preload.cjs` | 282 |
 | `electron-preview.cjs` | 78 |
-| `electron-pty.cjs` | 128 |
+| `electron-pty.cjs` | 237 |
 | `electron-search.cjs` | 289 |
 | `electron-secrets.cjs` | 66 |
 | `electron-snippets.cjs` | 106 |
+| `electron-ssh-core.cjs` | 136 |
+| `electron-ssh.cjs` | 471 |
 | `electron-term.cjs` | 176 |
 | `electron-textbuffer.cjs` | 309 |
 | `electron-trust.cjs` | 170 |
@@ -55,46 +56,55 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2335 |
+| `src/App.tsx` | 2490 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 489 |
+| `src/types.ts` | 510 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
-| `src/components/AIAssistant.tsx` | 834 |
+| `src/components/AIAssistant.tsx` | 768 |
+| `src/components/AccordionMenu.tsx` | 186 |
 | `src/components/AppDialogs.tsx` | 66 |
 | `src/components/BranchPicker.tsx` | 199 |
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 166 |
+| `src/components/CommitHistoryMenu.tsx` | 259 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
+| `src/components/DebugConsolePanel.tsx` | 89 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 740 |
+| `src/components/EditorArea.tsx` | 764 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 303 |
-| `src/components/FileTree.tsx` | 932 |
+| `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 883 |
-| `src/components/GithubAccount.tsx` | 135 |
+| `src/components/GithubAccount.tsx` | 137 |
+| `src/components/HoverTip.tsx` | 49 |
 | `src/components/KeybindingsEditor.tsx` | 146 |
-| `src/components/LandingPage.tsx` | 176 |
+| `src/components/LandingPage.tsx` | 180 |
 | `src/components/Logo.tsx` | 36 |
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
-| `src/components/MenuBar.tsx` | 95 |
+| `src/components/MenuBar.tsx` | 100 |
+| `src/components/ModelMenu.tsx` | 83 |
+| `src/components/OutputPanel.tsx` | 121 |
 | `src/components/Preview.tsx` | 372 |
 | `src/components/ProblemsPanel.tsx` | 87 |
 | `src/components/PtyView.tsx` | 122 |
-| `src/components/ResizeHandle.tsx` | 66 |
+| `src/components/RemoteDialog.tsx` | 313 |
+| `src/components/RemoteMenu.tsx` | 159 |
+| `src/components/ResizeHandle.tsx` | 69 |
 | `src/components/SearchPanel.tsx` | 214 |
-| `src/components/SettingsPage.tsx` | 750 |
+| `src/components/SettingsPage.tsx` | 746 |
 | `src/components/SnippetsEditor.tsx` | 83 |
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
 | `src/components/TaskPicker.tsx` | 80 |
-| `src/components/Terminal.tsx` | 599 |
+| `src/components/Terminal.tsx` | 733 |
+| `src/components/TestPanel.tsx` | 178 |
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |
 | `src/components/TrustDialog.tsx` | 54 |
@@ -105,16 +115,16 @@
 | Dosya | Satır |
 |---|---|
 | `src/services/SettingsContext.tsx` | 198 |
-| `src/services/aiClient.ts` | 265 |
+| `src/services/aiClient.ts` | 251 |
 | `src/services/aiCompletion.ts` | 204 |
 | `src/services/collabRoom.ts` | 93 |
 | `src/services/completionSchedule.ts` | 69 |
 | `src/services/completionShape.ts` | 180 |
 | `src/services/cursorStore.ts` | 15 |
 | `src/services/debugEditor.ts` | 57 |
-| `src/services/debugStore.ts` | 150 |
+| `src/services/debugStore.ts` | 152 |
 | `src/services/editorBridge.ts` | 108 |
-| `src/services/editorTheme.ts` | 98 |
+| `src/services/editorTheme.ts` | 110 |
 | `src/services/extensionsService.ts` | 220 |
 | `src/services/gitExplain.ts` | 18 |
 | `src/services/keybindings.ts` | 288 |
@@ -125,18 +135,20 @@
 | `src/services/palettes.ts` | 168 |
 | `src/services/previewKind.ts` | 11 |
 | `src/services/problems.ts` | 161 |
-| `src/services/ptyBus.ts` | 24 |
+| `src/services/ptyBus.ts` | 37 |
 | `src/services/recentFolders.ts` | 28 |
 | `src/services/session.ts` | 103 |
-| `src/services/settings.ts` | 344 |
+| `src/services/settings.ts` | 346 |
 | `src/services/splitLayout.ts` | 135 |
 | `src/services/tasks.ts` | 88 |
 | `src/services/terminalBridge.ts` | 54 |
 | `src/services/terminalText.ts` | 148 |
+| `src/services/testParse.ts` | 78 |
+| `src/services/timeAgo.ts` | 23 |
 | `src/services/trustService.ts` | 52 |
 | `src/services/updateService.ts` | 28 |
 | `src/services/useCollabToken.ts` | 67 |
-| `src/services/useDictation.ts` | 67 |
+| `src/services/useDictation.ts` | 68 |
 | `src/services/useEvent.ts` | 13 |
 | `src/services/useFocusTrap.ts` | 59 |
 | `src/services/useGithubAuth.ts` | 32 |
@@ -145,11 +157,12 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 666 |
-| `src/i18n/uiTextAi.ts` | 597 |
+| `src/i18n/uiText.ts` | 673 |
+| `src/i18n/uiTextAi.ts` | 588 |
 | `src/i18n/uiTextComp.ts` | 329 |
-| `src/i18n/uiTextDev.ts` | 235 |
-| `src/i18n/uiTextScm.ts` | 228 |
+| `src/i18n/uiTextDev.ts` | 379 |
+| `src/i18n/uiTextRemote.ts` | 180 |
+| `src/i18n/uiTextScm.ts` | 276 |
 | `src/i18n/uiTextTheme.ts` | 1127 |
 
 ### Betikler
@@ -175,7 +188,7 @@
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
 | `scripts/tests/debug.test.cjs` | 118 |
-| `scripts/tests/electron-misc.test.cjs` | 153 |
+| `scripts/tests/electron-misc.test.cjs` | 138 |
 | `scripts/tests/git.test.cjs` | 163 |
 | `scripts/tests/history.test.cjs` | 66 |
 | `scripts/tests/i18n.test.cjs` | 100 |
@@ -184,13 +197,15 @@
 | `scripts/tests/palettes.test.cjs` | 75 |
 | `scripts/tests/paths.test.cjs` | 88 |
 | `scripts/tests/preview-csp.test.cjs` | 66 |
-| `scripts/tests/pty.test.cjs` | 84 |
+| `scripts/tests/pty.test.cjs` | 114 |
 | `scripts/tests/release.test.cjs` | 140 |
 | `scripts/tests/replace.test.cjs` | 71 |
 | `scripts/tests/search-redos.test.cjs` | 47 |
 | `scripts/tests/services.test.cjs` | 140 |
-| `scripts/tests/settings-migrate.test.cjs` | 62 |
+| `scripts/tests/settings-migrate.test.cjs` | 70 |
 | `scripts/tests/snippets.test.cjs` | 22 |
+| `scripts/tests/ssh-sftp.test.cjs` | 268 |
+| `scripts/tests/ssh.test.cjs` | 83 |
 | `scripts/tests/sync.test.cjs` | 58 |
 | `scripts/tests/syncserver.test.cjs` | 73 |
 | `scripts/tests/term.test.cjs` | 74 |
@@ -205,22 +220,22 @@
 ## IPC kanalları
 | Grup | Kanallar |
 |---|---|
-| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:complete`, `ai:completeCancel`, `ai:completeWarm`, `ai:ollamaModels`, `ai:run`, `ai:transcribe` |
+| ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:complete`, `ai:completeCancel`, `ai:completeWarm`, `ai:ollamaModels`, `ai:run`, `ai:transcribe`, `ai:whisperModels` |
 | app | `app:openLink`, `app:quit`, `app:reveal` |
 | dbg | `dbg:evaluate`, `dbg:pause`, `dbg:properties`, `dbg:resume`, `dbg:scopes`, `dbg:setBreakpoints`, `dbg:start`, `dbg:stepInto`, `dbg:stepOut`, `dbg:stepOver`, `dbg:stop` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
 | ext | `ext:checkUpdates`, `ext:details`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDataUrl`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
 | git | `git:amend`, `git:branches`, `git:checkout`, `git:checkoutRef`, `git:commit`, `git:commitFiles`, `git:createBranch`, `git:createBranchFrom`, `git:createTag`, `git:deleteBranch`, `git:deleteTag`, `git:diffFile`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:merge`, `git:mergeAbort`, `git:mergeContinue`, `git:pull`, `git:push`, `git:pushTag`, `git:refs`, `git:resolve`, `git:stage`, `git:stageAll`, `git:stashApply`, `git:stashDrop`, `git:stashList`, `git:stashPop`, `git:stashPush`, `git:status`, `git:sync`, `git:undoCommit`, `git:unstage` |
-| github | `github:cancel`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
+| github | `github:cancel`, `github:copyCode`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
 | history | `history:clear`, `history:config`, `history:deleted`, `history:list`, `history:read` |
-| llm | `llm:cancel`, `llm:delete`, `llm:download`, `llm:status` |
 | lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
 | preview | `preview:drop`, `preview:put` |
-| pty | `pty:available`, `pty:resize`, `pty:start`, `pty:stop`, `pty:write` |
+| pty | `pty:available`, `pty:profiles`, `pty:resize`, `pty:start`, `pty:stop`, `pty:write` |
 | search | `search:cancel`, `search:files`, `search:replace`, `search:text` |
 | secrets | `secrets:get`, `secrets:has`, `secrets:set` |
 | snippets | `snippets:load`, `snippets:read`, `snippets:save` |
+| ssh | `ssh:browse`, `ssh:close`, `ssh:connect`, `ssh:disconnect`, `ssh:forgetHostKey`, `ssh:hostKeyAnswer`, `ssh:hostRemove`, `ssh:hostSave`, `ssh:open`, `ssh:pickKey`, `ssh:status` |
 | term | `term:input`, `term:start`, `term:stop` |
 | trust | `trust:grant`, `trust:list`, `trust:revoke`, `trust:status` |
 | ui | `ui:setTheme` |
@@ -228,13 +243,13 @@
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `llm:progress`, `lsp:event`, `pty:data`, `pty:exit`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1018 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1081 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-112 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -311,7 +326,7 @@
 | Terminal | `terminalFontSize` | Terminal yazı boyutu | slider | `12` | 10–20 px |
 | Editör | `lspEnabled` | Dil sunucuları (LSP) | toggle | `true` |  |
 | Terminal | `terminalMode` | Terminal türü | select | `"pty"` | pty, classic |
-| Terminal | `defaultShell` | Varsayılan kabuk | select | `"powershell"` | powershell, cmd |
+| Terminal | `defaultShell` | Varsayılan kabuk | select | `"powershell"` | powershell, cmd, gitbash |
 | Terminal | `terminalColorInput` | Komutları renklendir | toggle | `true` |  |
 | Terminal | `terminalShowBranch` | İstemde Git dalını göster | toggle | `true` |  |
 | Terminal | `terminalLineHeight` | Terminal satır yüksekliği | slider | `1.4` | 1–2 |
@@ -327,7 +342,7 @@
 | Yapay Zekâ | `aiCompletion` | AI kod tamamlama (hayalet metin) | toggle | `true` |  |
 | Yapay Zekâ | `aiCompletionTrigger` | Öneri tetikleme | select | `"auto"` | auto, manual |
 | Yapay Zekâ | `aiCompletionEffort` | Düşünme seviyesi / çaba | select | `"fast"` | instant, fast, balanced, deep |
-| Yapay Zekâ | `aiCompletionModel` | Tamamlama modeli | text | `"qwen2.5-coder:7b"` | ≤60 karakter |
+| Yapay Zekâ | `aiCompletionModel` | Tamamlama modeli | text | `"qwen2.5-coder:0.5b"` | ≤60 karakter |
 | Yapay Zekâ | `aiCompletionLength` | Öneri biçimi | select | `"block"` | line, block, long |
 | Yapay Zekâ | `aiCompletionDelay` | Tamamlama süresi | slider | `100` | 0–3000 ms |
 | Yapay Zekâ | `aiCompletionCooldown` | Tamamlama soğuma süresi (ms) | slider | `100` | 0–5000 |
@@ -337,6 +352,9 @@
 | Yapay Zekâ | `aiCompletionTemperature` | Yaratıcılık (sıcaklık) | slider | `0.05` | 0–1 |
 | Yapay Zekâ | `aiCompletionCount` | Alternatif öneri sayısı | slider | `1` | 1–3 |
 | Yapay Zekâ | `aiCompletionToolbar` | Öneri araç çubuğunu göster | toggle | `true` |  |
+| Yapay Zekâ | `aiAskModel` | Sohbet modeli (panelden seçilir) | text | `"qwen2.5-coder:7b"` | ≤60 karakter |
+| Yapay Zekâ | `aiAgentModel` | Ajan modeli (panelden seçilir) | text | `"qwen2.5-coder:7b"` | ≤60 karakter |
+| Yapay Zekâ | `aiDictationModel` | Dikte modeli (panelden seçilir) | text | `"ggml-small.bin"` | ≤60 karakter |
 | Yapay Zekâ | `aiDefaultMode` | Varsayılan mod | select | `"ask"` | ask, agent |
 | Yapay Zekâ | `aiAskThinking` | Sohbet: düşünme seviyesi | select | `"balanced"` | fast, balanced, deep |
 | Yapay Zekâ | `aiMaxTokens` | En çok yanıt uzunluğu (token) | slider | `4096` | 1024–16000 |
@@ -349,7 +367,8 @@
 | Yapay Zekâ | `aiAgentAutonomy` | Ajan: otonomi | select | `"ask"` | ask, edits, auto |
 | Yapay Zekâ | `aiAllowCommands` | Ajan komut çalıştırabilsin | toggle | `true` |  |
 | Yapay Zekâ | `aiAgentInstructions` | Ajan: özel yönerge | text | `""` | ≤600 karakter |
-| Yapay Zekâ | `aiVoiceEnabled` | Sesli dikteyi aç | toggle | `false` |  |
+| Yapay Zekâ | `aiDictationLang` | Dikte dili | select | `"ui"` | ui, auto |
+| Yapay Zekâ | `aiDictationAutoSend` | Dikteden sonra otomatik gönder | toggle | `false` |  |
 
 ## GitHub Actions
 | Dosya | Ad | İşler |
@@ -379,6 +398,7 @@
 | [[motion]] | `docs/brain/actions/motion.md` | Geçiş, animasyon, hover, after ve gecikme efektleri; tek hareket dili |
 | [[preview]] | `docs/brain/actions/preview.md` | HTML/SVG/Markdown önizleme, yerel sunucu önizleme, Çalıştır (F5) ve çalıştırma ayarları |
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |
+| [[remote-ssh]] | `docs/brain/actions/remote-ssh.md` | Uzak çalışma alanı (VS Code Remote-SSH benzeri): SSH ile sunucuya bağlan, uzak klasörü Gezgin'de aç/düzenle/kaydet (SFTP), uzak terminal |
 | [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
 | [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör davranışları, kalıcılık ve gizli değerler |

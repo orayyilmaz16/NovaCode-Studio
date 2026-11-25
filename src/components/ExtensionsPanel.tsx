@@ -98,19 +98,19 @@ export const ExtensionsPanel: React.FC = () => {
     return (
       <div className="flex flex-col h-full min-h-0 text-[12px]">
         <div className="h-9 flex items-center gap-1 px-2 shrink-0">
-          <button className="w-7 h-7 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover" onClick={() => setDetail(null)} aria-label={t('extBack')} title={t('extBack')}><ArrowLeft size={15} /></button>
+          <button className="size-7 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-nv-hover" onClick={() => setDetail(null)} aria-label={t('extBack')} title={t('extBack')}><ArrowLeft size={15} /></button>
           <span className="text-[11px] uppercase tracking-wide text-zinc-400 truncate">{t('extDetails')}</span>
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 pb-3">
           <div className="flex gap-3 min-w-0">
             <Icon src={d?.icon || detail.icon} size={52} />
             <div className="min-w-0 flex-1">
-              <div className="text-[14px] font-semibold text-zinc-100 break-words leading-tight">{d?.displayName || detail.displayName}</div>
+              <div className="text-[14px] font-semibold text-zinc-100 wrap-break-word leading-tight">{d?.displayName || detail.displayName}</div>
               <div className="text-zinc-500 truncate">{detail.id}</div>
               {d && <div className="text-zinc-400 truncate">{t('extPublisher')}: {d.publisher}</div>}
             </div>
           </div>
-          {d?.description && <p className="mt-2 text-zinc-300 leading-snug break-words">{d.description}</p>}
+          {d?.description && <p className="mt-2 text-zinc-300 leading-snug wrap-break-word">{d.description}</p>}
 
           <div className="mt-2 flex flex-wrap gap-1.5">
             {inst ? (
@@ -149,12 +149,12 @@ export const ExtensionsPanel: React.FC = () => {
 
           {d && (
             <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-zinc-400">
-              <dt>{t('extVersion')}</dt><dd className="text-zinc-200 break-words">{d.version}{inst && inst.version !== d.version ? ` (${t('extInstalled').toLowerCase()}: ${inst.version})` : ''}</dd>
+              <dt>{t('extVersion')}</dt><dd className="text-zinc-200 wrap-break-word">{d.version}{inst && inst.version !== d.version ? ` (${t('extInstalled').toLowerCase()}: ${inst.version})` : ''}</dd>
               <dt>{t('extDownloadsLabel')}</dt><dd className="text-zinc-200">{fmt(d.downloads)}</dd>
               {d.rating !== null && <><dt>{t('extRatingLabel')}</dt><dd className="text-zinc-200 flex items-center gap-1"><Star size={11} className="text-amber-300" />{d.rating.toFixed(1)} ({d.reviews})</dd></>}
-              {d.license && <><dt>{t('extLicense')}</dt><dd className="text-zinc-200 break-words">{d.license}</dd></>}
+              {d.license && <><dt>{t('extLicense')}</dt><dd className="text-zinc-200 wrap-break-word">{d.license}</dd></>}
               {d.updated && <><dt>{t('extUpdated')}</dt><dd className="text-zinc-200">{new Date(d.updated).toLocaleDateString()}</dd></>}
-              {d.categories.length > 0 && <><dt>{t('extCategories')}</dt><dd className="text-zinc-200 break-words">{d.categories.join(', ')}</dd></>}
+              {d.categories.length > 0 && <><dt>{t('extCategories')}</dt><dd className="text-zinc-200 wrap-break-word">{d.categories.join(', ')}</dd></>}
             </dl>
           )}
 

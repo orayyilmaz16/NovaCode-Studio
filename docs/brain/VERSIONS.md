@@ -4,6 +4,7 @@
 
 | Sürüm | Tarih | Tür | Özet | Notlar |
 |---|---|---|---|---|
+| v1.5.1 | 18.11.2026 | patch | 1 improved: Agent screen simplified and clearer | [v1.5.1](../../release-notes/v1.5.1.md) |
 | v1.5.0 | 17.11.2026 | minor | 7 new, 3 fix, 2 improved, 3 security: Split editor | [v1.5.0](../../release-notes/v1.5.0.md) |
 | v1.4.2 | 17.11.2026 | patch | 1 fix, 2 improved, 5 security: File writes and shutdown | [v1.4.2](../../release-notes/v1.4.2.md) |
 | v1.4.1 | 17.11.2026 | patch | 1 improved: Proper language names | [v1.4.1](../../release-notes/v1.4.1.md) |

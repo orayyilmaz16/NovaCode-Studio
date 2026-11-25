@@ -6,6 +6,7 @@ export type UiLang = (typeof UI_LANGS)[number];
 
 import type { AiTextKey } from './uiTextAi';
 import type { DevTextKey } from './uiTextDev';
+import type { RemoteTextKey } from './uiTextRemote';
 import type { ScmTextKey } from './uiTextScm';
 import type { CompTextKey } from './uiTextComp';
 import type { ThemeTextKey } from './uiTextTheme';
@@ -506,6 +507,9 @@ export const UI_TEXT = {
   updStatusReady: {
     tr: "Yeniden başlat ve güncelle", en: "Restart to update", de: "Neu starten zum Aktualisieren", ru: "Перезапустить для обновления", ar: "أعد التشغيل للتحديث", es: "Reiniciar para actualizar", fr: "Redémarrer pour mettre à jour", az: "Yeniləmək üçün yenidən başlat",
   },
+  edMore: {
+    tr: "Diğer eylemler", en: "More actions", de: "Weitere Aktionen", ru: "Другие действия", ar: "المزيد من الإجراءات", es: "Más acciones", fr: "Autres actions", az: "Digər əməliyyatlar",
+  },
   edDownload: {
     tr: "Dosyayı indir", en: "Download file", de: "Datei herunterladen", ru: "Скачать файл", ar: "تنزيل الملف", es: "Descargar archivo", fr: "Télécharger le fichier", az: "Faylı yüklə",
   },
@@ -559,6 +563,9 @@ export const UI_TEXT = {
   },
   expEmptyFolder: {
     tr: "Bu klasör boş.", en: "This folder is empty.", de: "Dieser Ordner ist leer.", ru: "Эта папка пуста.", ar: "هذا المجلد فارغ.", es: "Esta carpeta está vacía.", fr: "Ce dossier est vide.", az: "Bu qovluq boşdur.",
+  },
+  expCloseFolder: {
+    tr: "Klasörü kapat ve ana sayfaya dön", en: "Close folder and go home", de: "Ordner schließen und zur Startseite", ru: "Закрыть папку и вернуться на главную", ar: "إغلاق المجلد والعودة إلى الرئيسية", es: "Cerrar carpeta e ir al inicio", fr: "Fermer le dossier et revenir à l’accueil", az: "Qovluğu bağla və ana səhifəyə qayıt",
   },
   expCloseAll: {
     tr: "Tümünü kapat", en: "Close all", de: "Alle schließen", ru: "Закрыть все", ar: "إغلاق الكل", es: "Cerrar todo", fr: "Tout fermer", az: "Hamısını bağla",
@@ -658,7 +665,7 @@ const EXTRA: Record<string, Dict> = {};
 export function registerTexts(extra: Record<string, Dict>): void {
   Object.assign(EXTRA, extra);
 }
-export type TextKey = UiTextKey | AiTextKey | DevTextKey | ScmTextKey | CompTextKey | ThemeTextKey;
+export type TextKey = UiTextKey | AiTextKey | DevTextKey | ScmTextKey | CompTextKey | ThemeTextKey | RemoteTextKey;
 
 export function t(key: TextKey): string {
   const e = (UI_TEXT as Record<string, Dict>)[key] ?? EXTRA[key];

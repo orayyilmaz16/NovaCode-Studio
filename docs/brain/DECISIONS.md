@@ -2,6 +2,21 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 23.11.2026 (uzak çalışma alanı)
+- **SSH/SFTP ile uzak çalışma alanı; yeni bağımlılık `ssh2` (MIT, saf JS).** Neden: kurucu VS Code'daki Remote-SSH benzeri uzak geliştirme istedi (kapsam sorusunda "SSH uzak sunucu" seçildi). Mevcut çözüm yoktu (git'in ssh'ı dosya düzenleme sunmaz); Node'da SSH istemcisi yazmak güvenlik riski olurdu, `ssh2` yaygın ve bakımlı. Sonuç: bağlantı yalnız ana süreçte; renderer `ssh://<ana>/<yol>` sanal yolunu görür, bu yüzden Gezgin/editör/kaydet akışı neredeyse değişmedi (fs IPC'leri uzak yolda yönlenir). Uzak terminal mevcut PTY/xterm hattına `ssh:<ana>` profili olarak köprülendi. Bkz. [[remote-ssh]].
+- **Parola hiç saklanmaz; parmak izi değişirse kesin ret.** Neden: KVKK/veri güvenliği ve MITM koruması; "beni hatırla" rahatlığı bilinçli feda edildi (varsayılan yöntem SSH ajanı). Değişen parmak izinde onay sorulmaz, kullanıcı kaydı açıkça unutur. Özel anahtar yolu yalnız ana sürecin diyalogundan gelir.
+- **v1'de uzak klasörde Git paneli, arama, AI ajan araçları, LSP ve izleyici kapalı.** Neden: bunların hepsi yerel dosya sistemine bağlı; uzak yolu yerel korumalara karıştırmak yetki sınırını bozardı. Yerel çalışma klasörü uzak açıkken boş tutulur (hepsi güvenli biçimde kapanır). Geri dönüş/sonraki adım: uzak arama ve git `exec` üzerinden.
+- **Kurulum notu:** `ssh2` `package.json`/lock'a eklendi; çalışan Electron süreci `node_modules/electron`'u kilitlediği için `npm install` EBUSY verdi, kurulum Electron kapatıldıktan sonra `npm install` ile tamamlanır.
+
+## 18.11.2026 (yüzen arayüz)
+- **Kartlara tek katman yumuşak gölge ve daha büyük yarıçap (kurucu talimatı).** Neden: VS Code'un yüzen kart görünümü isteniyor; CLAUDE.md kural 9 "gölge yığını yok" diyordu. Sonuç: kart başına yalnız `--float-shadow` (tek katman), yığın ve menü gölgesi yok; kural özü (düz yüzey, tek vurgu, degrade yok) korunur. Etkinlik çubuğu simgeleri 22 px kalır (18 px denendi, fazla küçük bulundu), kazanç yan boşlukları azaltmaktan gelir. Bkz. [[ui-design]].
+
+## 18.11.2026 (AI: tek sağlayıcı, panelden model seçimi, dikte modeli)
+- **Yerleşik model, Anthropic ve OpenAI kodu silindi; yalnız yerel Ollama.** Neden: arayüzden erişilemeyen ölü kod bakım ve güvenlik yüzeyiydi (`node-llama-cpp` ~110 MB paket, anahtar saklama, uzak rıza akışı). Sonuç: `electron-llm.cjs`, `llm:*` IPC, `aiKey_*` gizli değerleri ve ilgili metinler kalktı; motor taban adresi sabit. Uzak adres rıza/`scrubSecrets` koruması savunma olarak ve testlerde durur. Geri dönüş: git geçmişi (`electron-llm.cjs`).
+- **Model seçimi ayarda değil panelde.** Neden: kullanıcı kurulu modeller arasından, sohbetin içinde değiştirmek istiyor; ayarlarda ölü seçenek yok. Sohbet ve Ajan için ayrı model (`aiAskModel`/`aiAgentModel`), dikte modeli de aynı menüde (`aiDictationModel`, kurulu `ggml-*.bin`, istemci yalnız ad yollar).
+- **Tamamlama modeli varsayılanı 7b → 0.5b** (kurulu küçük model; ~10 kat hız). Sohbet/ajan 7b kalır. `settings.ts` v4 geçişi yalnız eski varsayılandaki kaydı taşır.
+- **Dikte rıza ayarı (`aiVoiceEnabled`) kaldırıldı.** Neden: ses cihazdan çıkmıyor (yerel Whisper), 3. parti yok; rıza gerektiren veri aktarımı yok. Yerine dikte dili ve otomatik gönder ayarları.
+
 ## 17.11.2026 (Güven modeli ve önizleme izolasyonu)
 - **Çalışma klasörü güveni** tek modülde (`electron-trust.cjs`): güvenilmeyen klasör kısıtlı modda açılır; LSP ve hata ayıklayıcı kapalı, git yalnız okuma. Güvenilen klasör, AI rızası ve izinli adresler yalnız **geri alınabilir**, yönetici adına verilemez (KVKK ilkesi). Entegre terminal kullanıcının kendi kabuğu olduğu için kısıtlanmadı.
 - **Önizleme ayrı köken** (`nova-preview://`): uygulama CSP'sinden `unsafe-eval`/satır içi betik kaldırıldı; gevşek CSP yalnız önizleme yanıtında. `style-src unsafe-inline` ve `img-src https:` bilinçli kabul (React/Monaco, eklenti simgeleri).
@@ -148,3 +163,14 @@ Durum çubuğunda dil adı resmi yazımla gösterilir (`languageLabel`, `src/ser
 - **Model yükleme iptalden bağımsız ve paylaşımlı (16.11.2026).** Neden: Ollama günlüğünde 184 kez "aborting load" ve neredeyse tüm `/api/generate` istekleri 499 idi; model bellekte değilken her tuşta iptal edilen istek yüklemeyi baştan başlattığı için (RTX 3050 6 GB) model hiç yüklenmiyor, öneri çıkmıyordu. Ayrıca ısıtma `num_ctx` içermediğinden Ollama modeli yeniden yüklüyordu. Çözüm: `ensureCompletionModel` (tek ortak, iptale kapalı yükleme, aynı `num_ctx`), iptal yalnız beklemeyi keser. Gerçek Ollama ile doğrulandı: 12 sn sürekli yazma sırasında model yüklendi, yazma durunca öneri 0,8 sn'de geldi. Bkz. [[ai-assistant]].
 - **AI tamamlama: dile duyarlı ve daha hızlı (16.11.2026).** Neden: öneri geç geliyordu (gecikme 450 ms + 2-4 sn üretim) ve dil kurallarına (girinti, kapsam sonu, tekrar eden kapanış) uymuyordu. Çözüm: model istemine dosya adı başlığı, öneri şekillendirme modülü (`completionShape.ts`), satır ortasında/blokta erken durdurma, varsayılanlar 250/300 ms ve 64 token, tek seferlik ayar geçişi. Ölçüm: öneri 0,7-1,3 sn. Bkz. [[ai-assistant]].
 - **AI tamamlama hız profilleri, model seçimi ve akışla erken durdurma (16.11.2026).** Neden: ölçümde (7B, RTX 3050) öneri süresi profile değil model boyutuna bağlıydı (taban 0,6-1,2 sn); bekleme/gecikme ayarı toplamı yalnız 100-250 ms düşürüyordu. Çözüm: 4 profil (Anında/Hızlı/Dengeli/Derin) + `aiCompletionModel` (yalnız qwen2.5-coder ailesi, kat kat hızlı küçük model seçilebilsin) + tek satır modunda akışla ilk satırda durma + ölçülen sürenin menüde gösterilmesi (kontrol). Varsayılan Hızlı profil; v3 ayar geçişi yalnız hiç değiştirilmemiş varsayılanları taşır. Bkz. [[ai-assistant]].
+
+- **Alt panel sekmeleri tek kayan hap (22.11.2026).** Neden: kullanıcı terminal ve sekme geçişlerinin VS Code gibi Fluent akışkanlığında olmasını istedi; her sekmede ayrı zemin/çubuk açıp kapamak yerine tek öğe kayar. Hap `transform + width` geçirir (hareket kuralı 2'ye bilinçli istisna, bkz. [[motion]]); renkler tema kaplama değişkenleriyle (`white/[..]` açık temada görünmüyordu).
+
+- **Git Bash yalnız PTY ile (22.11.2026).** Neden: kullanıcı terminal eklerken Git terminali istedi; boru terminali bash'te istem ve çalışma klasörü işaretini veremez, PTY ise bunu doğal çözer. Yol yalnız ana süreçte bilinen Git kurulum konumlarından bulunur (renderer yol veremez, WSL `bash.exe` dışarıda).
+- **Terminal profilleri ana süreçte algılanır, arayüz yalnız kimlik seçer (22.11.2026).** Neden: kullanıcı bilgisayarda kurulu diğer terminallerin de listede çıkmasını istedi (VS Code profilleri gibi). Arayüzden gelen yol/komut çalıştırılmaz; yalnız algılanan listedeki `id` kabul edilir, böylece "renderer rastgele program çalıştıramaz" kuralı korunur.
+
+## 23.11.2026 — Sekme çubuğunda + düğmesi yok
+Karar (kurucu): editör sekme çubuğunda yeni sekme (+) düğmesi gösterilmez; yeni dosya yolları Ctrl+N, menü, komut paleti ve boş editör ekranıdır. Neden: sekme çubuğu sade kalsın.
+
+## 25.11.2026 — Paket bütçesi yükseltildi
+Karar (kurucu): ana paket bütçesi JS 600→700 KB (gzip 200→230), CSS 100→120 KB. Neden: 49 commitlik birikim (menü akordeonu, klasör kapatma, SSH vb.) bütçeyi aştı; PR #73 birleşsin. Önceki kural (bütçe yükseltilmez, lazy import) bu tarihten sonra geçersiz; yeni aşımda önce lazy import denenir, sonra bütçe konuşulur.

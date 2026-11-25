@@ -43,7 +43,7 @@ const BY_ID = new Map(SCHEMA.map((s) => [s.id, s]));
 export const DEFAULTS: SettingsValues = Object.fromEntries(SCHEMA.map((s) => [s.id, s.default]));
 
 export const STORAGE_KEY = 'nova.settings.v1';
-const STORAGE_VERSION = 3;
+const STORAGE_VERSION = 4;
 
 // v2: AI tamamlama varsayılanları hızlandı. Kullanıcı değiştirmemişse (değer eski varsayılanla aynı) yenisine taşınır;
 // ayarlar tüm değerlerle kaydedildiği için bu olmadan eski varsayılanlar sonsuza dek kalırdı.
@@ -98,6 +98,8 @@ export function loadSettings(): StoredSettings {
       if ((j.v ?? 1) < 2) for (const [k, [oldDef, newDef]] of Object.entries(MIGRATE_V2)) if (values[k] === oldDef) values[k] = newDef;
       // v3: hiçbirini değiştirmemiş (v2 Dengeli varsayılanları) kullanıcı yeni varsayılan Hızlı profile geçer; birini bile değiştirmişse dokunulmaz
       if ((j.v ?? 1) < 3 && Object.entries(V2_BALANCED).every(([k, v]) => values[k] === v)) Object.assign(values, V3_FAST);
+      // v4: tamamlama modeli varsayılanı 7b → 0.5b (hız); eski varsayılanda kalmış kayıt yeni varsayılana geçer, başka bilinçli seçime dokunulmaz
+      if ((j.v ?? 1) < 4 && values.aiCompletionModel === 'qwen2.5-coder:7b') values.aiCompletionModel = 'qwen2.5-coder:0.5b';
       return { values };
     }
     // İlk açılış: eski anahtarlardan taşı (token hariç; o ayrıca şifreli depoya taşınır)

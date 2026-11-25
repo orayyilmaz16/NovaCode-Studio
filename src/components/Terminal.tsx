@@ -1,5 +1,5 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, ChevronDown, Trash2, Maximize2, Minimize2, X, SquareTerminal, FolderOpen } from 'lucide-react';
+import React, { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Plus, ChevronDown, Trash2, Maximize2, Minimize2, X, SquareTerminal, FolderOpen, CircleX, ScrollText, Bug, FlaskConical, GitBranch } from 'lucide-react';
 import type { ConsoleLog } from '../types';
 import { t } from '../i18n/uiText';
 import { useSettings } from '../services/SettingsContext';
@@ -9,7 +9,11 @@ import '../i18n/uiTextDev'; // gerçek terminal metinleri (gecikmeli yüklenen e
 import '../i18n/uiTextScm'; // Sorunlar sekmesi metinleri
 import { ProblemsPanel } from './ProblemsPanel';
 import { useProblems } from '../services/problems';
-import { dropPty, pushPtyData } from '../services/ptyBus';
+import { dropPty, getPtyBuffer, pushPtyData } from '../services/ptyBus';
+import { clearDebugConsole, useDebug } from '../services/debugStore';
+import { OutputPanel } from './OutputPanel';
+import { DebugConsolePanel } from './DebugConsolePanel';
+import { TestPanel } from './TestPanel';
 import type { PtyHandle } from './PtyView';
 import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
 
@@ -28,8 +32,10 @@ interface TerminalProps {
   onOpenFolder?: () => void;
 }
 
-type ShellId = 'powershell' | 'cmd';
-type PanelTab = 'terminal' | 'log' | 'problems';
+/** Profil kimliği: 'powershell' | 'cmd' (klasik de olabilir) ya da gerçek terminal profili ('gitbash', 'winps', 'wsl:<dağıtım>', 'cygwin', 'msys2', 'nu', 'sh:<yol>'). */
+type ShellId = string;
+const isPipeShell = (s: string): s is 'powershell' | 'cmd' => s === 'powershell' || s === 'cmd';
+type PanelTab = 'terminal' | 'log' | 'problems' | 'debug' | 'tests';
 
 interface Session {
   id: string;
@@ -38,6 +44,8 @@ interface Session {
   kind: 'pipe' | 'pty';
   running: boolean;
   status: string;
+  /** Oturum hiç başlatılamadı (PTY'de çıktı olmadığı için hata ayrıca gösterilir). */
+  failed?: boolean;
   output: string;
   cwd: string;
 }
@@ -47,10 +55,20 @@ export function cdCommand(shell: ShellId, dir: string): string | null {
   // eslint-disable-next-line no-control-regex
   if (!dir || dir.length > 4096 || /[\u0000-\u001f\u007f\u2028\u2029]/.test(dir)) return null;
   if (shell === 'cmd') return /["%]/.test(dir) ? null : `cd /d "${dir}"`;
+  const sq = (s: string) => `'${s.replace(/'/g, `'\\''`)}'`; // POSIX tek tırnak; içteki ' → '\''
+  // Git Bash / Cygwin / MSYS2: Windows yolu cygpath ile kabuğun yoluna çevrilir; WSL: wslpath; diğer Unix kabukları: yol olduğu gibi
+  if (shell === 'gitbash' || shell === 'cygwin' || shell === 'msys2') return `cd "$(cygpath -u ${sq(dir.replace(/\\/g, '/'))})"`;
+  if (shell.startsWith('wsl:')) return `cd "$(wslpath -u ${sq(dir)})"`;
+  if (shell.startsWith('sh:')) return `cd ${sq(dir)}`;
+  // Uzak (SSH) kabuk: sanal yol `ssh://<ana>/<yol>` -> sunucudaki yol; baştaki boşluk bash geçmişine girmesin diye
+  if (shell.startsWith('ssh:')) { const m = /^ssh:\/\/[a-z0-9-]{1,40}(\/.*)$/.exec(dir); return m ? ` cd -- ${sq(m[1])}` : null; }
+  if (shell === 'nu') return /["`$]/.test(dir) ? null : `cd "${dir.replace(/\\/g, '/')}"`;
   return `Set-Location -LiteralPath '${dir.replace(/['\u2018\u2019\u201a\u201b]/g, (c) => c + c)}'`;
 }
 
-const SHELL_LABEL: Record<ShellId, string> = { powershell: 'PowerShell', cmd: 'CMD' };
+const BASE_LABEL: Record<string, string> = { powershell: 'PowerShell', cmd: 'CMD', gitbash: 'Git Bash', winps: 'Windows PowerShell' };
+/** Sekme sırası: geçiş yönü (yeni içerik hangi yönden girer) buradan hesaplanır. */
+const TAB_ORDER: PanelTab[] = ['problems', 'log', 'debug', 'terminal', 'tests'];
 const ESC = '\u001b';
 const MAX_HISTORY = 100;
 
@@ -59,6 +77,8 @@ const promptAnsi = (shell: ShellId, cwd: string, branch?: string | null) =>
   `${shell === 'powershell' ? `${ESC}[1;38;5;4mPS${ESC}[0m ` : ''}${ESC}[38;5;6m${shortenPath(cwd)}${ESC}[0m` +
   `${branch ? ` ${ESC}[38;5;5m(${branch})${ESC}[0m` : ''}${ESC}[0m> `;
 
+/** Oturum kimliği son eki: tahmin edilemez olsun diye kripto rastgelelikten (Math.random değil). */
+const randSuffix = () => Array.from(crypto.getRandomValues(new Uint8Array(3)), (b) => b.toString(16).padStart(2, '0')).join('');
 const baseName = (p: string) => p.split(/[\\/]/).filter(Boolean).pop() ?? p;
 
 const Output: React.FC<{ text: string }> = React.memo(({ text }) => {
@@ -86,7 +106,7 @@ const Output: React.FC<{ text: string }> = React.memo(({ text }) => {
 
 export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, visible, maximized, onToggleMaximize, onClose, onOpenFolder }) => {
   const { values } = useSettings();
-  const defaultShell: ShellId = values.defaultShell === 'cmd' ? 'cmd' : 'powershell';
+  const wantShell = String(values.defaultShell || 'powershell');
   const colorInput = values.terminalColorInput !== false;
   const fontSize = Number(values.terminalFontSize) || 12;
   const lineHeight = Number(values.terminalLineHeight) || 1.4;
@@ -94,17 +114,57 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const cursor = String(values.terminalCursor);
 
   const [tab, setTab] = useState<PanelTab>('terminal');
+  // Fluent geçişi: etkin sekmeyi gösteren tek "hap" sekmeler arasında kayar; içerik yön bilgisiyle belirir
+  const listRef = useRef<HTMLDivElement>(null);
+  const [pill, setPill] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  const [pillReady, setPillReady] = useState(false);
+  const prevTab = useRef<PanelTab>(tab);
+  const paneDir = useRef(1);
+  if (prevTab.current !== tab) {
+    paneDir.current = TAB_ORDER.indexOf(tab) >= TAB_ORDER.indexOf(prevTab.current) ? 1 : -1;
+    prevTab.current = tab;
+  }
+  const measurePill = useCallback(() => {
+    const el = listRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+    if (!el) return;
+    const next = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight };
+    setPill((p) => (p && p.x === next.x && p.y === next.y && p.w === next.w && p.h === next.h ? p : next));
+  }, []);
+  useLayoutEffect(() => { measurePill(); }, [tab, measurePill]);
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measurePill); // dar panelde etiket gizlenince ya da rozet gelince hap ölçüsü güncellenir
+    ro.observe(list);
+    list.querySelectorAll('[role="tab"]').forEach((b) => ro.observe(b));
+    return () => ro.disconnect();
+  }, [measurePill]);
+  useEffect(() => {
+    if (!pill || pillReady) return;
+    const r = requestAnimationFrame(() => setPillReady(true)); // ilk yerleşim kaymasız; sonrakiler animasyonlu
+    return () => cancelAnimationFrame(r);
+  }, [pill, pillReady]);
+  const [testClear, setTestClear] = useState(0);
+  const debug = useDebug();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [ptyOk, setPtyOk] = useState<boolean | null>(null); // null: henüz denetlenmedi
+  const [profiles, setProfiles] = useState<{ id: string; label: string }[]>([]); // bilgisayarda kurulu kabuk profilleri (gerçek terminal)
+  const gitBashOk = profiles.some((p) => p.id === 'gitbash');
+  const shellLabel = (id: string) => profiles.find((p) => p.id === id)?.label ?? BASE_LABEL[id] ?? (id.startsWith('ssh:') ? 'SSH' : id);
+  const shellIcon = (id: string, cls: string, size = 13) => (id === 'gitbash' ? <GitBranch size={size} className={cls} /> : <SquareTerminal size={size} className={cls} />);
   const ptyHandles = useRef(new Map<string, PtyHandle>());
 
   const api = typeof window !== 'undefined' ? window.electronAPI : undefined;
   const hasShell = !!api?.termStart;
   // Varsayılan tür: gerçek terminal (PTY) kullanılabilirse ve ayar 'klasik' değilse o
   const defaultKind: 'pipe' | 'pty' = values.terminalMode === 'classic' || !ptyOk ? 'pipe' : 'pty';
+  // Git Bash yalnız gerçek terminalde (PTY) çalışır; kullanılamıyorsa varsayılan PowerShell'e düşer
+  // Uzak (SSH) çalışma alanında varsayılan kabuk uzak sunucudaki kabuktur (yerel kabuklar uzak klasörde açılamaz)
+  const remoteId = /^ssh:\/\/([a-z0-9-]{1,40})\//.exec(cwd ?? '')?.[1];
+  const defaultShell: ShellId = remoteId ? `ssh:${remoteId}` : isPipeShell(wantShell) || (defaultKind === 'pty' && profiles.some((p) => p.id === wantShell)) ? wantShell : 'powershell';
   const counter = useRef(0);
   const history = useRef<Map<string, string[]>>(new Map());
   const historyPos = useRef(-1);
@@ -119,7 +179,10 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   sessionsRef.current = sessions;
   useEffect(() => {
     if (!api?.pty) { setPtyOk(false); return; }
-    void api.pty.available().then((r) => setPtyOk(!!r.available)).catch(() => setPtyOk(false));
+    void api.pty.available().then((r) => {
+      setPtyOk(!!r.available);
+      if (r.available) void api.pty?.profiles?.().then(setProfiles).catch(() => setProfiles([]));
+    }).catch(() => setPtyOk(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -170,19 +233,20 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const createSession = useCallback(
     async (shell: ShellId, kind: 'pipe' | 'pty' = defaultKind) => {
       if (!cwd || sessions.length >= 12) return;
+      if (!isPipeShell(shell)) kind = 'pty'; // PowerShell/CMD dışındaki profiller (bash, WSL…) boru ile değil, yalnız PTY ile açılır
       counter.current += 1;
       if (kind === 'pty' && api?.pty) {
         // Gerçek terminal: oturumu burada başlatırız; xterm görünümü (PtyView) yalnız çizer ve çıktıyı tampondan oynatır
-        const id = `p-${counter.current}-${Math.random().toString(36).slice(2, 6)}`;
+        const id = `p-${counter.current}-${randSuffix()}`;
         setSessions((prev) => [...prev, { id, shell, kind: 'pty', running: true, status: '', output: '', cwd }]);
         setActiveId(id);
         setTab('terminal');
         const res = await api.pty.start({ id, shell, cwd, cols: 100, rows: 28 });
-        if (!res.success) patch(id, (s) => ({ ...s, running: false, status: res.error === 'too-many' ? t('termTooMany') : res.error === 'no-pty' ? t('termPtyUnavailable') : t('termStartFailed') }));
+        if (!res.success) patch(id, (s) => ({ ...s, running: false, failed: true, status: res.error === 'too-many' ? t('termTooMany') : res.error === 'no-pty' ? t('termPtyUnavailable') : res.error === 'no-gitbash' ? t('termNoGitBash') : t('termStartFailed') }));
         return;
       }
-      if (!api?.termStart) return;
-      const id = `t-${counter.current}-${Math.random().toString(36).slice(2, 6)}`;
+      if (!api?.termStart || !isPipeShell(shell)) return;
+      const id = `t-${counter.current}-${randSuffix()}`;
       setSessions((prev) => [...prev, { id, shell, kind: 'pipe', running: false, status: t('termStarting'), output: '', cwd }]);
       setActiveId(id);
       setTab('terminal');
@@ -213,15 +277,15 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
   const runLineRef = useRef<(line: string) => Promise<void>>(async () => {});
   useEffect(() => {
     const onBridge = (e: Event) => {
-      const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear' | 'tab'; command?: string; dir?: string; tab?: PanelTab }>).detail;
+      const d = (e as CustomEvent<{ action: 'run' | 'cd' | 'new' | 'clear' | 'tab'; command?: string; dir?: string; tab?: PanelTab; stay?: boolean }>).detail;
       if (!d) return;
-      if (d.action === 'tab') { if (d.tab === 'problems' || d.tab === 'terminal' || d.tab === 'log') setTab(d.tab); return; }
+      if (d.action === 'tab') { if (d.tab === 'problems' || d.tab === 'terminal' || d.tab === 'log' || d.tab === 'debug' || d.tab === 'tests') setTab(d.tab); return; }
       // cd: etkin kabuğa uygun komut (CMD'de sürücü değiştirmek için /d gerekir). Özel karakterler (& $ ^ vb.) kabuğa uygun alıntılanır;
       // yalnız denetim karakteri/yeni satır (ve CMD'de alıntı içinde bile genişleyen %) içeren yollar reddedilir
       const cdCmd = d.action === 'cd' && d.dir ? cdCommand(active?.shell ?? 'powershell', d.dir) : null;
       if (d.action === 'cd' && d.dir && cdCmd) {
         const cmd = cdCmd;
-        setTab('terminal');
+        if (!d.stay) setTab('terminal');
         if (active?.running && !pendingRun.current.length) void runLine(cmd);
         else {
           pendingRun.current.push(cmd);
@@ -232,7 +296,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
       if (d.action === 'new') void createSession(defaultShell);
       else if (d.action === 'clear') clearActive();
       else if (d.action === 'run' && d.command) {
-        setTab('terminal');
+        if (!d.stay) setTab('terminal');
         if (active?.running && !pendingRun.current.length) void runLine(d.command);
         else {
           pendingRun.current.push(d.command);
@@ -381,54 +445,91 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
     if (!window.getSelection()?.toString()) inputRef.current?.focus();
   };
 
-  const clearActive = () => (tab === 'log' ? onClear() : active?.kind === 'pty' ? ptyHandles.current.get(active.id)?.clear() : active && patch(active.id, (s) => ({ ...s, output: '' })));
+  const clearActive = () => (tab === 'log' ? onClear() : tab === 'debug' ? clearDebugConsole() : tab === 'tests' ? setTestClear((n) => n + 1) : active?.kind === 'pty' ? ptyHandles.current.get(active.id)?.clear() : active && patch(active.id, (s) => ({ ...s, output: '' })));
 
   // ---- Üst çubuk ----
   const problemCount = useProblems();
-  const tabBtn = (id: PanelTab, label: string, badge?: React.ReactNode) => (
+  const errorLogs = useMemo(() => logs.filter((l) => l.type === 'error').length, [logs]);
+  const badge = (n: number, tone: string) => (n > 0 ? <span className={`px-1.5 min-w-4 rounded-full text-[10px] leading-4 text-center ${tone}`}>{n > 99 ? '99+' : n}</span> : null);
+  const tabs: { id: PanelTab; label: string; icon: React.ReactNode; extra?: React.ReactNode }[] = [
+    {
+      id: 'problems', label: t('prbTab'), icon: <CircleX size={13} />,
+      extra: badge(problemCount.errors + problemCount.warnings, problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200')
+    },
+    { id: 'log', label: t('pnlOutput'), icon: <ScrollText size={13} />, extra: badge(errorLogs, 'bg-rose-500/20 text-rose-300') },
+    {
+      id: 'debug', label: t('pnlDebug'), icon: <Bug size={13} />,
+      extra: debug.status !== 'idle' ? <span className={`size-1.5 rounded-full ${debug.status === 'paused' ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} /> : null
+    },
+    { id: 'terminal', label: t('termTab'), icon: <SquareTerminal size={13} />, extra: sessions.length > 1 ? badge(sessions.length, 'bg-white/10 text-zinc-300') : null },
+    { id: 'tests', label: t('pnlTests'), icon: <FlaskConical size={13} /> },
+  ];
+  // Fluent tarzı sekme: etkin zemin ve alt vurgu çubuğu tek "hap"tır (listRef içinde), sekmeler arasında kayar.
+  // Düğmenin kendi zemini yalnız hover'da görünür; kaplama değişkenleri açık/koyu temada uyar.
+  const tabBtn = (it: (typeof tabs)[number]) => (
     <button
-      key={id}
-      onClick={() => setTab(id)}
-      className={`relative px-3 text-[11px] uppercase tracking-wide transition-colors ${tab === id ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
+      key={it.id}
+      role="tab"
+      aria-selected={tab === it.id}
+      onClick={() => setTab(it.id)}
+      title={it.label}
+      className={`relative z-10 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium whitespace-nowrap transition-[background-color,color,transform] duration-(--dur-fast) ease-(--ease-out-soft) active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-indigo-400 ${tab === it.id ? 'text-zinc-50' : 'text-zinc-400 hover:bg-[color-mix(in_srgb,var(--hover-overlay)_60%,transparent)] hover:text-zinc-100'}`}
     >
-      {label}
-      {badge}
-      <span className={`absolute start-2 end-2 bottom-0 h-px bg-indigo-500 origin-left transition-transform duration-(--dur-base) ${tab === id ? 'scale-x-100' : 'scale-x-0'}`} />
+      <span className={`transition-colors duration-(--dur-fast) ${tab === it.id ? 'text-indigo-300' : ''}`}>{it.icon}</span>
+      <span className="hidden @md:inline">{it.label}</span>
+      {it.extra}
     </button>
   );
+
+  const readActiveOutput = useCallback(() => (active ? (active.kind === 'pty' ? getPtyBuffer(active.id) : active.output) : ''), [active]);
 
   const cursorShape = cursor === 'bar' ? 'bar' : cursor === 'underline' ? 'underline' : 'block';
   const inputStyle = { caretShape: cursorShape, caretColor: 'var(--color-zinc-100)' } as React.CSSProperties;
 
   return (
-    <div className="flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
-      <div className="flex items-stretch justify-between h-9 ps-1 pe-2 border-b border-nv-border shrink-0 font-sans">
-        <div className="flex items-stretch">
-          {tabBtn('problems', t('prbTab'), problemCount.errors + problemCount.warnings > 0 ? <span className={`ms-1.5 px-1.5 rounded-full text-[10px] normal-case ${problemCount.errors ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-400/20 text-amber-200'}`}>{problemCount.errors + problemCount.warnings}</span> : null)}
-          {tabBtn('terminal', t('termTab'))}
-          {tabBtn('log', t('termLog'))}
+    <div className="@container flex flex-col h-full bg-nv-side text-zinc-300 font-mono" style={{ fontSize }}>
+      <div className="flex items-center justify-between h-10 px-2 gap-2 border-b border-nv-border shrink-0 font-sans">
+        <div ref={listRef} className="relative flex items-center gap-0.5 h-full min-w-0 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t('termTab')}>
+          {pill && (
+            <span
+              aria-hidden
+              className={`absolute rounded-md pointer-events-none bg-(--active-overlay) ${pillReady ? 'transition-[transform,width] duration-(--dur-slow) ease-(--ease-out-soft)' : ''}`}
+              style={{ left: 0, top: pill.y, height: pill.h, width: pill.w, transform: `translateX(${pill.x}px)` }}
+            >
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-px w-3.5 h-[2px] rounded-full bg-indigo-400" />
+            </span>
+          )}
+          {tabs.map(tabBtn)}
         </div>
         <div className="flex items-center gap-0.5">
           {tab === 'terminal' && hasShell && (
-            <div className="flex items-center">
-              <button onClick={() => void createSession(defaultShell)} disabled={!cwd} title={t('termNew')} aria-label={t('termNew')} className="icon-btn !w-6 disabled:opacity-40">
+            <div className="flex items-center rounded-md bg-(--hover-overlay) me-1 animate-fade-in">
+              <button onClick={() => void createSession(defaultShell)} disabled={!cwd} title={t('termNew')} aria-label={t('termNew')} className="icon-btn w-6! disabled:opacity-40">
                 <Plus size={15} />
               </button>
+              {gitBashOk && (
+                <button onClick={() => void createSession('gitbash', 'pty')} disabled={!cwd} title="Git Bash" aria-label="Git Bash" className="icon-btn w-6! disabled:opacity-40">
+                  <GitBranch size={14} />
+                </button>
+              )}
+              <span aria-hidden className="w-px h-3.5 bg-zinc-500/30" />
               <button
                 onClick={(e) => {
                   const r = e.currentTarget.getBoundingClientRect();
                   setMenu({ x: r.left - 140, y: r.bottom + 4 });
+                  // Liste açılırken kurulu kabuklar yeniden taranır (yeni kurulan WSL/Git Bash hemen görünsün)
+                  if (ptyOk) void api?.pty?.profiles?.(true).then(setProfiles).catch(() => {});
                 }}
                 disabled={!cwd}
                 title={t('termPickShell')}
                 aria-label={t('termPickShell')}
-                className="icon-btn !w-5 disabled:opacity-40"
+                className="icon-btn w-5! disabled:opacity-40"
               >
                 <ChevronDown size={13} />
               </button>
             </div>
           )}
-          {(tab === 'log' || (tab === 'terminal' && active)) && (
+          {(tab === 'log' || tab === 'debug' || tab === 'tests' || (tab === 'terminal' && active)) && (
             <button onClick={clearActive} title={`${t('termClear')} (Ctrl+L)`} aria-label={t('termClear')} className="icon-btn">
               <Trash2 size={14} />
             </button>
@@ -449,7 +550,25 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
 
       <div className="flex flex-1 min-h-0">
         {/* Ana alan */}
-        <div className="flex-1 min-w-0 relative">
+        <div className="flex-1 min-w-0 flex flex-col">
+        {tab === 'terminal' && active && (
+          <div key={active.id} className="flex items-center gap-2 h-8 px-3 shrink-0 font-sans text-[11.5px] text-zinc-400 min-w-0 animate-fade-in" dir="ltr">
+            <span className={`size-1.5 rounded-full shrink-0 ${active.running ? 'bg-emerald-400' : 'bg-zinc-500'}`} />
+            <span className="text-zinc-200 font-medium shrink-0">{shellLabel(active.shell)}</span>
+            {ptyOk && (
+              <span className="shrink-0 px-2 h-[18px] inline-flex items-center rounded-full bg-white/[0.07] text-[10px] text-zinc-300">
+                {active.kind === 'pty' ? t('termFull') : t('termClassic')}
+              </span>
+            )}
+            <span className="truncate min-w-0 text-zinc-500" title={active.cwd}>{shortenPath(active.cwd, 64)}</span>
+            {branch && (
+              <span className="shrink-0 inline-flex items-center gap-1 px-2 h-[18px] rounded-full bg-violet-400/10 text-violet-300">
+                <GitBranch size={11} />{branch}
+              </span>
+            )}
+          </div>
+        )}
+        <div className="flex-1 min-h-0 relative">
           {sessions.filter((x) => x.kind === 'pty').map((x) => (
             <Suspense key={x.id} fallback={null}>
               <PtyView
@@ -464,24 +583,36 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               />
             </Suspense>
           ))}
+          {/* Gerçek terminal başlatılamadıysa (ör. Git Bash yok) nedeni göster: PTY'de başka çıktı olmaz */}
+          {tab === 'terminal' && active?.kind === 'pty' && active.failed && (
+            <div role="alert" className="absolute inset-x-3 top-3 z-10 flex items-start gap-2 rounded-lg px-3 py-2 bg-rose-500/10 text-rose-300 font-sans text-[12px] animate-fade-in">
+              <CircleX size={14} className="mt-px shrink-0" />
+              <span className="min-w-0">{active.status}</span>
+            </div>
+          )}
+          {/* Sekme/oturum değişince içerik yön bilgisiyle yumuşakça belirir (gerçek terminal PtyView içinde kendi belirmesini yapar) */}
+          {!(tab === 'terminal' && active?.kind === 'pty') && (
+          <div
+            key={tab === 'terminal' ? `terminal-${activeId}` : tab}
+            className="absolute inset-0 animate-pane-in"
+            style={{ '--pane-dir': paneDir.current } as React.CSSProperties}
+          >
           {tab === 'problems' ? (
             <ProblemsPanel rootPath={cwd ?? undefined} />
           ) : tab === 'log' ? (
-            <div dir="ltr" className="absolute inset-0 overflow-y-auto px-3 py-1.5 select-text" style={{ lineHeight }}>
-              {logs.length === 0 ? (
-                <div className="text-zinc-500">{t('termLogEmpty')}</div>
-              ) : (
-                logs.map((log) => {
-                  const color = log.type === 'error' ? 'text-rose-400' : log.type === 'warn' ? 'text-amber-300' : log.type === 'info' ? 'text-sky-300' : 'text-zinc-300';
-                  return (
-                    <div key={log.id} className="flex gap-2">
-                      <span className="text-zinc-500 text-[10px] shrink-0 pt-px">{log.time}</span>
-                      <span className={`break-all whitespace-pre-wrap ${color}`}>{log.text}</span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+            <OutputPanel logs={logs} lineHeight={lineHeight} />
+          ) : tab === 'debug' ? (
+            <DebugConsolePanel lineHeight={lineHeight} />
+          ) : tab === 'tests' ? (
+            <TestPanel
+              root={cwd ?? null}
+              sessionId={active?.id ?? null}
+              readOutput={readActiveOutput}
+              pipeTick={active?.output.length ?? 0}
+              clearKey={testClear}
+              onShowTerminal={() => setTab('terminal')}
+              onOpenFolder={onOpenFolder}
+            />
           ) : !cwd && sessions.length === 0 ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-500 font-sans text-[13px]">
               <SquareTerminal size={20} className="opacity-60" />
@@ -493,7 +624,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                 </button>
               )}
             </div>
-          ) : active?.kind === 'pty' ? null : (
+          ) : (
             <div ref={scrollRef} dir="ltr" onScroll={onScroll} onClick={focusInput} className="absolute inset-0 overflow-y-auto px-3 py-1.5" style={{ lineHeight }} data-terminal-scroll="">
               {active && (
                 <>
@@ -536,11 +667,14 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
               {!active && cwd && <div className="text-zinc-500 font-sans">{t('termStarting')}</div>}
             </div>
           )}
+          </div>
+          )}
+        </div>
         </div>
 
-        {/* Oturum listesi: birden fazla terminal varken (VS Code gibi) sağda */}
+        {/* Oturum listesi: birden fazla terminal varken (VS Code gibi) sağda; Fluent kart satırları */}
         {tab === 'terminal' && sessions.length > 1 && (
-          <div className="w-44 shrink-0 border-s border-nv-border overflow-y-auto font-sans animate-fade-in" role="tablist" aria-label={t('termTab')}>
+          <div className="w-44 shrink-0 border-s border-nv-border overflow-y-auto font-sans p-1.5 flex flex-col gap-0.5 animate-fade-in" role="tablist" aria-label={t('termTab')}>
             {sessions.map((s) => {
               const on = s.id === activeId;
               return (
@@ -551,12 +685,12 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                   tabIndex={0}
                   onClick={() => setActiveId(s.id)}
                   onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setActiveId(s.id)}
-                  className={`group relative flex items-center gap-2 h-7 ps-3 pe-1 cursor-pointer text-[12px] transition-colors ${on ? 'bg-nv-active text-zinc-50' : 'text-zinc-400 hover:bg-nv-hover hover:text-zinc-200'}`}
+                  className={`group relative flex items-center gap-2 h-8 ps-3 pe-1 rounded-md cursor-pointer text-[12px] animate-tab-in transition-[background-color,color,transform] duration-(--dur-fast) ease-(--ease-out-soft) active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-indigo-400 ${on ? 'bg-(--active-overlay) text-zinc-50' : 'text-zinc-400 hover:bg-(--hover-overlay) hover:text-zinc-100'}`}
                 >
-                  <span className={`absolute start-0 top-1 bottom-1 w-0.5 rounded-e bg-indigo-400 transition-transform ${on ? 'scale-y-100' : 'scale-y-0'}`} />
-                  <SquareTerminal size={13} className={s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0'} />
+                  <span className={`absolute start-[3px] top-2 bottom-2 w-[3px] rounded-full bg-indigo-400 origin-center transition-[transform,opacity] duration-(--dur-base) ease-(--ease-out-soft) ${on ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`} />
+                  {shellIcon(s.shell, s.running ? 'text-emerald-400 shrink-0' : 'text-zinc-500 shrink-0')}
                   <span className="truncate flex-1">
-                    {SHELL_LABEL[s.shell]}{ptyOk && s.kind === 'pipe' ? <span className="text-zinc-500"> · {t('termClassic')}</span> : null} <span className="text-zinc-500">{baseName(s.cwd)}</span>
+                    {shellLabel(s.shell)}{ptyOk && s.kind === 'pipe' ? <span className="text-zinc-500"> · {t('termClassic')}</span> : null} <span className="text-zinc-500">{baseName(s.cwd)}</span>
                   </span>
                   <button
                     onClick={(e) => {
@@ -565,7 +699,7 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
                     }}
                     aria-label={t('termKill')}
                     title={t('termKill')}
-                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-0.5 rounded hover:bg-white/10 transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 p-1 rounded-sm hover:bg-(--active-overlay) transition-[opacity,background-color] duration-(--dur-fast)"
                   >
                     <X size={12} />
                   </button>
@@ -584,8 +718,10 @@ export const Terminal: React.FC<TerminalProps> = ({ logs, onClear, cwd, branch, 
           items={[
             ...(ptyOk
               ? [
-                  { label: `PowerShell · ${t('termFull')}`, icon: <SquareTerminal size={13} />, onClick: () => void createSession('powershell', 'pty') },
-                  { label: `CMD · ${t('termFull')}`, icon: <SquareTerminal size={13} />, onClick: () => void createSession('cmd', 'pty') },
+                  // Bilgisayarda kurulu tüm kabuklar (PowerShell, CMD, Git Bash, WSL dağıtımları, Cygwin, MSYS2, Nushell…): gerçek terminal
+                  ...profiles.map((p) => ({ label: p.label, icon: shellIcon(p.id, ''), onClick: () => void createSession(p.id, 'pty') })),
+                  // Git Bash kurulu değilse de listelenir: soluk görünür, ipucu nedenini söyler
+                  ...(gitBashOk ? [] : [{ label: 'Git Bash', icon: <GitBranch size={13} />, disabled: true, hint: t('termNoGitBash'), onClick: () => {} }]),
                   { separator: true as const }
                 ]
               : []),

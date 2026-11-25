@@ -38,9 +38,12 @@ export const ResizeHandle: React.FC<ResizeHandleProps> = ({ direction, onResize,
         delete document.documentElement.dataset.resizing;
       }}
       className={`shrink-0 group relative z-10 ${
-        isH ? 'w-1 cursor-col-resize' : 'h-1 cursor-row-resize'
-      } bg-transparent hover:bg-indigo-500/40 active:bg-indigo-500/60 transition-colors`}
-    />
+        isH ? 'w-1.5 cursor-col-resize' : 'h-1.5 cursor-row-resize'
+      }`}
+    >
+      {/* İnce ortalanmış çizgi: hover'da yumuşakça belirir, sürüklerken belirginleşir */}
+      <span aria-hidden className={`resize-line absolute rounded-full ${isH ? 'inset-y-2 inset-x-0 mx-auto w-0.5' : 'inset-x-2 inset-y-0 my-auto h-0.5'}`} />
+    </div>
   );
 };
 

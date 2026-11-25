@@ -37,6 +37,7 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[i18n]] | Arayüze metin eklemek (8 dil) |
 | [[security-kvkk]] | IPC, dosya sistemi, token, kişisel veri |
 | [[terminal]] | Entegre terminal (gerçek PTY + klasik, PowerShell/CMD) |
+| [[remote-ssh]] | Uzak çalışma alanı: SSH/SFTP ile sunucuda klasör aç/düzenle, uzak terminal, parmak izi onayı |
 | [[debugging]] | Hata ayıklayıcı (Node/JS): kesme noktası, adım, değişkenler |
 | [[lsp]] | Dil sunucuları (Python, Rust, Go, C/C++ ...): tamamlama, hover, tanım, tanılama |
 | [[text-buffer]] | Piece table metin tamponu ve ajan `edit_lines` aracı |

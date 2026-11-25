@@ -58,12 +58,14 @@ export const GithubAccount: React.FC = () => {
 
   const copyCode = async () => {
     if (!pending) return;
-    try {
-      await navigator.clipboard.writeText(pending.userCode);
+    let ok = false;
+    try { ok = !!(await api?.copyCode?.())?.success; } catch { /* ana süreç yolu yoksa tarayıcı API'sine düş */ }
+    if (!ok) {
+      try { await navigator.clipboard.writeText(pending.userCode); ok = true; } catch { /* pano erişimi yoksa kod ekranda görünür kalır */ }
+    }
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
-      /* pano erişimi yoksa kod ekranda görünür kalır */
     }
   };
 
@@ -79,7 +81,7 @@ export const GithubAccount: React.FC = () => {
       {auth.connected && auth.profile ? (
         <div className="flex items-center gap-2">
           {auth.profile.avatarUrl && (
-            <img src={auth.profile.avatarUrl} alt="" className="w-7 h-7 rounded-full border border-zinc-700" referrerPolicy="no-referrer" />
+            <img src={auth.profile.avatarUrl} alt="" className="size-7 rounded-full border border-zinc-700" referrerPolicy="no-referrer" />
           )}
           <div className="min-w-0 flex-1">
             <div className="truncate text-zinc-100">{auth.profile.name || auth.profile.login}</div>

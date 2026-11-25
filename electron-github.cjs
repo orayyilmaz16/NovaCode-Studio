@@ -10,9 +10,10 @@ const fs = require('fs');
 // Kapsam notu (S-18): 'repo', özel depolara git push/clone (HTTPS) ve özel depo listesi için GitHub OAuth'unun sunduğu TEK kapsamdır;
 // 'public_repo' özel depoları bozar. Daha dar yetki yalnız ince ayarlı GitHub App kurulumuyla mümkündür (ayrı bir ürün kararı), bu yüzden düşürülmedi.
 const GITHUB_SCOPES = 'repo read:user';
-const ALLOWED_OPEN = ['https://github.com/', 'https://docs.github.com/'];
+const ALLOWED_OPEN = ['https://github.com/', 'https://docs.github.com/', 'https://github.dev/'];
 
 let session = { token: null, profile: null };
+let pendingUserCode = ''; // cihaz akışındaki bekleyen kod (yalnız bunu panoya kopyalarız)
 let pollAbort = null;
 
 const tokenFile = () => path.join(app.getPath('userData'), 'github-token.bin');
@@ -164,6 +165,12 @@ function register({ getWindow, runGit, isValidPath }) {
     };
   });
 
+  // Kopyala düğmesi: renderer'daki navigator.clipboard Electron'da izin/odak yüzünden başarısız olabilir; bekleyen kod ana süreçten kopyalanır (rastgele metin yazılamaz).
+  ipcMain.handle('github:copyCode', () => {
+    if (!pendingUserCode) return { success: false };
+    try { clipboard.writeText(pendingUserCode); return { success: true }; } catch { return { success: false }; }
+  });
+
   // Cihaz akışı: kod al, tarayıcıyı aç, kullanıcı onaylayana kadar arka planda sorgula.
   ipcMain.handle('github:login', async () => {
     const clientId = getClientId();
@@ -185,6 +192,7 @@ function register({ getWindow, runGit, isValidPath }) {
       if (target.protocol !== 'https:' || target.hostname !== 'github.com') return { success: false, error: 'Doğrulama adresi geçersiz.' };
       target.searchParams.set('user_code', d.user_code);
       // Kodu otomatik panoya kopyala (tarayıcı odağı alınca renderer panoya yazamaz, bu yüzden ana süreçte).
+      pendingUserCode = String(d.user_code || '');
       try { clipboard.writeText(d.user_code); } catch { /* pano yoksa kod ekranda görünür */ }
       shell.openExternal(target.toString()).catch(() => {});
 

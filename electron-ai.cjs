@@ -21,9 +21,8 @@ const MAX_OUT = 20 * 1024;
 const MAX_AUDIO = 25 * 1024 * 1024;
 const SECRET_FILE = /(^|[\\/])(\.env(\..*)?|.*\.(pem|key|p12|pfx)|id_(rsa|ed25519|ecdsa)(\.pub)?|\.npmrc|\.netrc|\.pypirc|\.git-credentials|credentials(\.json)?|\.git[\\/]config|\.docker[\\/]config\.json|\.aws[\\/].*|\.ssh[\\/].*|\.kube[\\/]config)$/i;
 
+// Tek sağlayıcı: yerel Ollama (anahtar yok). Yerleşik model, Anthropic ve OpenAI 18.11.2026'da kaldırıldı.
 const PROVIDERS = {
-  anthropic: { base: 'https://api.anthropic.com', secret: 'aiKey_anthropic' },
-  openai: { base: 'https://api.openai.com/v1', secret: 'aiKey_openai' },
   ollama: { base: 'http://localhost:11434/v1', secret: null }
 };
 
@@ -318,37 +317,7 @@ async function httpError(res) {
   throw e;
 }
 
-// ---------- Sağlayıcı bağdaştırıcıları (kanonik ileti biçimi: Anthropic blokları) ----------
-async function callAnthropic(cfg, system, messages, tools, onText, signal) {
-  const res = await fetch(cfg.base + '/v1/messages', {
-    method: 'POST', signal,
-    headers: { 'content-type': 'application/json', 'x-api-key': cfg.key, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: cfg.model, max_tokens: cfg.maxTokens, system, messages, ...(tools ? { tools } : {}), stream: true })
-  });
-  if (!res.ok) await httpError(res);
-  const blocks = [];
-  let stop = null;
-  const usage = { in: 0, out: 0 };
-  for await (const data of sseLines(res, signal)) {
-    let ev; try { ev = JSON.parse(data); } catch { continue; }
-    if (ev.type === 'message_start') usage.in = ev.message?.usage?.input_tokens || 0;
-    else if (ev.type === 'content_block_start') blocks[ev.index] = ev.content_block.type === 'tool_use' ? { type: 'tool_use', id: ev.content_block.id, name: ev.content_block.name, _json: '' } : { type: 'text', text: '' };
-    else if (ev.type === 'content_block_delta') {
-      const b = blocks[ev.index];
-      if (!b) continue;
-      if (ev.delta.type === 'text_delta') { b.text += ev.delta.text; onText(ev.delta.text); }
-      else if (ev.delta.type === 'input_json_delta') b._json += ev.delta.partial_json;
-    } else if (ev.type === 'message_delta') { stop = ev.delta?.stop_reason || stop; usage.out = ev.usage?.output_tokens || usage.out; }
-    else if (ev.type === 'error') throw new Error('http:' + (ev.error?.message || 'stream'));
-  }
-  const content = blocks.filter(Boolean).map((b) => {
-    if (b.type !== 'tool_use') return b;
-    let input = {}; try { input = b._json ? JSON.parse(b._json) : {}; } catch { /* boş */ }
-    return { type: 'tool_use', id: b.id, name: b.name, input };
-  });
-  return { content, stop, usage };
-}
-
+// ---------- Sağlayıcı bağdaştırıcısı (kanonik ileti biçimi: Anthropic blokları; Ollama OpenAI uyumlu uç noktası) ----------
 function toOpenAIMessages(system, messages) {
   const out = [{ role: 'system', content: system }];
   for (const m of messages) {
@@ -528,13 +497,30 @@ function exeHashOk(exe) {
     return true;
   } catch { return false; }
 }
-async function ensureWhisper() {
+const whisperDir = () => process.env.NOVA_WHISPER_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), 'NovaWhisper');
+const DEFAULT_WHISPER = 'ggml-small.bin';
+// Kurulu dikte modelleri: yalnız models/ içindeki ggml-*.bin dosyaları (ses/VAD yardımcıları hariç). Renderer yol veremez, yalnız bu listeden ad seçer.
+function listWhisperModels() {
+  try {
+    return fs.readdirSync(path.join(whisperDir(), 'models'))
+      .filter((f) => /^ggml-[a-z0-9._-]{1,60}\.bin$/i.test(f) && !/silero|vad|test/i.test(f))
+      .map((f) => ({ id: f, size: fs.statSync(path.join(whisperDir(), 'models', f)).size }))
+      .sort((a, b) => a.size - b.size);
+  } catch { return []; }
+}
+let whisperModelCur = '';
+async function ensureWhisper(modelId) {
+  const installed = listWhisperModels().map((m) => m.id);
+  const wanted = installed.includes(modelId) ? modelId : installed.includes(DEFAULT_WHISPER) ? DEFAULT_WHISPER : installed[0];
+  if (!wanted) return false;
+  if (whisperProc && whisperModelCur !== wanted) stopWhisper(); // model değişti: sunucuyu yeni modelle yeniden başlat
   if (whisperProc && (await whisperUp())) return true;
-  const dir = process.env.NOVA_WHISPER_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), 'NovaWhisper');
+  const dir = whisperDir();
   const exe = path.join(dir, 'bin', 'Release', process.platform === 'win32' ? 'whisper-server.exe' : 'whisper-server');
-  const model = path.join(dir, 'models', 'ggml-small.bin');
+  const model = path.join(dir, 'models', wanted);
   if (!fs.existsSync(exe) || !fs.existsSync(model)) return false;
   if (!whisperProc) {
+    whisperModelCur = wanted;
     if (!exeHashOk(exe)) return false;
     const port = await freePort();
     whisperRoot = 'http://127.0.0.1:' + port;
@@ -549,7 +535,7 @@ async function ensureWhisper() {
     p.on('error', () => { if (whisperProc === p) whisperProc = null; });
     whisperProc = p;
   }
-  for (let i = 0; i < 48; i++) { // en çok ~36 sn: model yükleme
+  for (let i = 0; i < (/medium|large/i.test(wanted) ? 96 : 48); i++) { // en çok ~36 sn (büyük modelde ~72 sn): model yükleme
     if (await whisperUp()) return true;
     if (!whisperProc) return false;
     await sleep(750);
@@ -780,7 +766,7 @@ function register({ getWindow, getRoot }) {
   ipcMain.handle('ai:run', async (_e, req) => {
     const runId = String(req && req.runId || '');
     if (!runId || runs.has(runId)) return { success: false, error: 'invalid-run' };
-    const provider = req.provider;
+    const provider = 'ollama'; // tek sağlayıcı; renderer'dan gelen değer yok sayılır
     const emit = (ev) => send('ai:event', { runId, ...ev });
     const run = { abort: new AbortController(), pending: new Map(), procs: new Set() };
     runs.set(runId, run);
@@ -791,34 +777,12 @@ function register({ getWindow, getRoot }) {
     });
     const uiLang = typeof req.lang === 'string' ? req.lang : 'tr';
     try {
-      // Yerleşik yerel model: anahtar/adres yok, her şey bu bilgisayarda (electron-llm.cjs)
-      if (provider === 'builtin') {
-        const rootDir = getRoot();
-        const agentOn = req.mode === 'agent' && !!rootDir;
-        const system = buildSystem({ root: rootDir, lang: req.lang, agent: agentOn, project: agentOn || req.useProject ? loadProjectInstructions(rootDir) : '', extra: cleanInstructions(req.instructions), thinking: req.thinking, autonomy: req.autonomy });
-        const msgs = (Array.isArray(req.messages) ? req.messages : []).slice(-40).map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', text: String(m.text || '').slice(0, 60000) }));
-        const last = msgs.pop();
-        if (!last || last.role !== 'user') throw new Error('Geçersiz istek.');
-        const bctx = {
-          root: rootDir,
-          autoApproveEdits: !!req.autoApproveEdits,
-          allowCommands: req.allowCommands !== false,
-          changed: new Set(),
-          procs: run.procs,
-          approve
-        };
-        await require('./electron-llm.cjs').runBuiltin({
-          modelId: String(req.model || ''), system, history: msgs, prompt: last.text, tools: TOOLS, agent: agentOn,
-          runTool: (name, input) => runTool(name, input, bctx), emit, signal: run.abort.signal, maxTokens: req.maxTokens
-        });
-        emit({ type: 'done', changed: [...bctx.changed], ...(run.abort.signal.aborted ? { cancelled: true } : {}) });
-        return { success: true };
-      }
       const def = PROVIDERS[provider];
       if (!def) throw new Error('Bilinmeyen sağlayıcı.');
       const key = def.secret ? (await readSecret(def.secret)) : '';
       if (def.secret && !key) throw new Error('auth:nokey');
-      const cfg = { base: safeBase(provider, req.baseUrl), key, model: String(req.model || '').slice(0, 120), maxTokens: Math.min(Math.max(Number(req.maxTokens) || 4096, 256), 32000), temperature: thinkingOf(req.thinking).temp[req.mode === 'agent' ? 'agent' : 'ask'] }; // düşük sıcaklık: kod ve Türkçe dilbilgisinde daha tutarlı
+      const cfg = { base: safeBase(provider), // adres sabit (yerel Ollama); renderer adres belirleyemez
+ key, model: String(req.model || '').slice(0, 120), maxTokens: Math.min(Math.max(Number(req.maxTokens) || 4096, 256), 32000), temperature: thinkingOf(req.thinking).temp[req.mode === 'agent' ? 'agent' : 'ask'] }; // düşük sıcaklık: kod ve Türkçe dilbilgisinde daha tutarlı
       if (!cfg.model) throw new Error('Model adı boş.');
       const root = getRoot();
       const agent = req.mode === 'agent' && !!root;
@@ -875,7 +839,7 @@ function register({ getWindow, getRoot }) {
         },
         approve
       };
-      const call = provider === 'anthropic' ? callAnthropic : callOpenAI;
+      const call = callOpenAI;
       const total = { in: 0, out: 0 };
       const maxSteps = Math.min(40, Math.max(5, Math.round(Number(req.maxSteps)) || MAX_STEPS));
 
@@ -968,13 +932,13 @@ function register({ getWindow, getRoot }) {
     return { success: !!resolve };
   });
 
-  // Dikte: ses yalnız bu bilgisayardaki whisper.cpp sunucusuna (sabit adres 127.0.0.1:8080, sabit model "small") gider;
+  // Dikte: ses yalnız bu bilgisayardaki whisper.cpp sunucusuna (yerel rastgele port; model kurulu ggml-*.bin dosyalarından seçilir, varsayılan small) gider;
   // ses cihazdan çıkmaz. Renderer adres/model belirleyemez. Sunucu kapalıysa uygulama kendisi başlatır (ensureWhisper).
   ipcMain.handle('ai:transcribe', async (_e, req) => {
     try {
       const buf = req && req.audio;
       if (!(buf instanceof ArrayBuffer || ArrayBuffer.isView(buf)) || buf.byteLength > MAX_AUDIO || buf.byteLength < 200) return { success: false, error: 'invalid-audio' };
-      if (!(await ensureWhisper())) return { success: false, error: 'no-whisper' };
+      if (!(await ensureWhisper(typeof req.model === 'string' ? req.model : ''))) return { success: false, error: 'no-whisper' };
       const mime = /^audio\/(webm|ogg|mp4|mpeg|wav)/.test(String(req.mime)) ? String(req.mime).split(';')[0] : 'audio/webm';
       const form = new FormData();
       form.append('file', new Blob([buf], { type: mime }), 'dictation.' + mime.split('/')[1]);
@@ -997,10 +961,13 @@ function register({ getWindow, getRoot }) {
     }
   });
 
+  // Kurulu dikte (Whisper) modelleri: ad + boyut. Seçim istemciden yalnız ad olarak gelir (ai:transcribe).
+  ipcMain.handle('ai:whisperModels', () => ({ default: DEFAULT_WHISPER, models: listWhisperModels() }));
+
   // Ollama durumu ve yüklü modeller (yerel; anahtar yok). /v1 ekini atıp yerel API'ye sorar.
-  ipcMain.handle('ai:ollamaModels', async (_e, baseUrl) => {
+  ipcMain.handle('ai:ollamaModels', async () => {
     try {
-      const root = safeBase('ollama', baseUrl).replace(/\/v1$/, '');
+      const root = safeBase('ollama').replace(/\/v1$/, '');
       const res = await fetch(root + '/api/tags', { signal: AbortSignal.timeout(2500) });
       if (!res.ok) return { running: false, models: [] };
       const json = await res.json();

@@ -23,9 +23,29 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return () => ipcRenderer.removeListener('lsp:event', h);
     }
   },
+  // Uzak çalışma alanı (SSH/SFTP): bağlantı, sunucu parmak izi onayı, klasör seçici. Dosya işlemleri mevcut readDirectory/readFile/... çağrılarıyla `ssh://<ana>/<yol>` yolları üzerinden yürür.
+  ssh: {
+    status: () => ipcRenderer.invoke('ssh:status'),
+    hostSave: (host) => ipcRenderer.invoke('ssh:hostSave', host),
+    hostRemove: (id) => ipcRenderer.invoke('ssh:hostRemove', id),
+    pickKey: () => ipcRenderer.invoke('ssh:pickKey'),
+    connect: (id, secret) => ipcRenderer.invoke('ssh:connect', id, secret),
+    hostKeyAnswer: (reqId, allow) => ipcRenderer.invoke('ssh:hostKeyAnswer', reqId, allow === true),
+    forgetHostKey: (id) => ipcRenderer.invoke('ssh:forgetHostKey', id),
+    disconnect: (id) => ipcRenderer.invoke('ssh:disconnect', id),
+    browse: (id, dir) => ipcRenderer.invoke('ssh:browse', id, dir),
+    open: (id, dir) => ipcRenderer.invoke('ssh:open', id, dir),
+    close: () => ipcRenderer.invoke('ssh:close'),
+    onEvent: (cb) => {
+      const h = (_e, ev) => cb(ev);
+      ipcRenderer.on('ssh:event', h);
+      return () => ipcRenderer.removeListener('ssh:event', h);
+    }
+  },
   // Gerçek terminal (PTY): xterm.js ile çalışır
   pty: {
     available: () => ipcRenderer.invoke('pty:available'),
+    profiles: (force) => ipcRenderer.invoke('pty:profiles', force === true),
     start: (req) => ipcRenderer.invoke('pty:start', req),
     write: (id, data) => ipcRenderer.invoke('pty:write', id, data),
     resize: (id, cols, rows) => ipcRenderer.invoke('pty:resize', id, cols, rows),
@@ -85,17 +105,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   openLink: (url) => ipcRenderer.invoke('app:openLink', url),
   revealInFolder: (target) => ipcRenderer.invoke('app:reveal', target),
-  llm: {
-    status: () => ipcRenderer.invoke('llm:status'),
-    download: (id) => ipcRenderer.invoke('llm:download', id),
-    cancel: (id) => ipcRenderer.invoke('llm:cancel', id),
-    remove: (id) => ipcRenderer.invoke('llm:delete', id),
-    onProgress: (callback) => {
-      const listener = (_event, data) => callback(data);
-      ipcRenderer.on('llm:progress', listener);
-      return () => ipcRenderer.removeListener('llm:progress', listener);
-    }
-  },
   ext: {
     search: (opts) => ipcRenderer.invoke('ext:search', opts),
     list: () => ipcRenderer.invoke('ext:list'),
@@ -109,6 +118,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     cancel: (runId) => ipcRenderer.invoke('ai:cancel', runId),
     approve: (runId, id, allow) => ipcRenderer.invoke('ai:approve', runId, id, allow),
     transcribe: (req) => ipcRenderer.invoke('ai:transcribe', req),
+    whisperModels: () => ipcRenderer.invoke('ai:whisperModels'),
     commands: () => ipcRenderer.invoke('ai:commands'),
     complete: (req) => ipcRenderer.invoke('ai:complete', req),
     completeCancel: (id) => ipcRenderer.invoke('ai:completeCancel', id),
@@ -202,7 +212,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gitBranches: (repoPath) => ipcRenderer.invoke('git:branches', repoPath),
   gitCheckout: (repoPath, name) => ipcRenderer.invoke('git:checkout', repoPath, name),
   gitCreateBranch: (repoPath, name) => ipcRenderer.invoke('git:createBranch', repoPath, name),
-  gitLog: (repoPath) => ipcRenderer.invoke('git:log', repoPath),
+  gitLog: (repoPath, limit) => ipcRenderer.invoke('git:log', repoPath, limit),
   gitInit: (repoPath) => ipcRenderer.invoke('git:init', repoPath),
   gitDiffFile: (repoPath, opts) => ipcRenderer.invoke('git:diffFile', repoPath, opts),
   gitCommitFiles: (repoPath, hash) => ipcRenderer.invoke('git:commitFiles', repoPath, hash),
@@ -232,6 +242,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   github: {
     status: () => ipcRenderer.invoke('github:status'),
     login: () => ipcRenderer.invoke('github:login'),
+    copyCode: () => ipcRenderer.invoke('github:copyCode'),
     cancel: () => ipcRenderer.invoke('github:cancel'),
     logout: () => ipcRenderer.invoke('github:logout'),
     repoInfo: (repoPath) => ipcRenderer.invoke('github:repoInfo', repoPath),

@@ -214,15 +214,26 @@ function register({ runGit, github, isValidPath }) {
   }));
 
   // ---- Geçmiş ----
-  ipcMain.handle('git:log', guard(async (repoPath) => {
-    const res = await runGit(['log', '-n', '30', '--pretty=format:%h%x1f%an%x1f%ar%x1f%s%x1f%D'], repoPath);
+  ipcMain.handle('git:log', guard(async (repoPath, limit) => {
+    const n = Math.max(1, Math.min(100, Number.isInteger(limit) ? limit : 30));
+    // Kayıt başlangıcı: U+001E; --shortstat satırı kaydın sonuna eklenir (eklenen/silinen satır sayısı).
+    const res = await runGit(['log', '-n', String(n), '--shortstat', '--pretty=format:%x1e%h%x1f%an%x1f%ar%x1f%s%x1f%D%x1f%at'], repoPath);
     if (!res.success) return { success: true, commits: [] }; // henüz commit yok
     return {
       success: true,
-      commits: res.stdout.split('\n').filter(Boolean).map((l) => {
-        const [hash, author, when, subject, decor] = l.split('\x1f');
-        const refs = (decor || '').split(',').map((s) => s.trim().replace(/^HEAD -> /, '').replace(/^tag: /, '')).filter((s) => s && s !== 'HEAD');
-        return { hash, author, when, subject, refs };
+      commits: res.stdout.split('\x1e').filter((r) => r.trim()).map((rec) => {
+        const [head, ...rest] = rec.split('\n');
+        const [hash, author, when, subject, decor, at] = head.split('\x1f');
+        const refs = (decor || '').split(',').map((x) => x.trim().replace(/^HEAD -> /, '').replace(/^tag: /, '')).filter((x) => x && x !== 'HEAD');
+        const stat = rest.join(' ');
+        const num = (re) => { const m = re.exec(stat); return m ? Number(m[1]) : 0; };
+        return {
+          hash, author, when, subject, refs,
+          ts: Number(at) * 1000 || undefined,
+          files: num(/(\d+) files? changed/),
+          added: num(/(\d+) insertions?\(\+\)/),
+          deleted: num(/(\d+) deletions?\(-\)/)
+        };
       })
     };
   }));
@@ -299,7 +310,20 @@ function register({ runGit, github, isValidPath }) {
         i += 1;
       }
     }
-    return { success: true, files: files.filter((f) => f.path) };
+    // Dosya başına eklenen/silinen satır (numstat); ikili dosyada '-' gelir, sayı verilmez
+    const stat = new Map();
+    const ns = await runGit(['diff-tree', '--no-commit-id', '--numstat', '-r', '-M', '--root', '-z', hash], repoPath, { raw: true });
+    if (ns.success) {
+      const q = ns.stdout.split('\0');
+      for (let i = 0; i < q.length; i++) {
+        const m = /^(\d+|-)	(\d+|-)	(.*)$/s.exec(q[i]);
+        if (!m) continue;
+        let file = m[3];
+        if (file === '') { file = q[i + 2]; i += 2; } // yeniden adlandırma: boş yol, ardından eski ve yeni ad
+        if (file) stat.set(file, m[1] === '-' ? { binary: true } : { added: Number(m[1]), deleted: Number(m[2]) });
+      }
+    }
+    return { success: true, files: files.filter((f) => f.path).map((f) => ({ ...f, ...(stat.get(f.path) || {}) })) };
   }));
 
   // ---- Dallar, uzak dallar, etiketler ----

@@ -157,7 +157,7 @@ const GLYPHS: Record<string, { title: string; node: React.ReactNode }> = {
 const FallbackIcon: React.FC<{ name: string; size?: number; className?: string }> = ({ name, size = 15, className = '' }) => {
   const lower = name.toLowerCase();
   const ext = lower.includes('.') ? lower.split('.').pop()! : '';
-  const g = !NAMES[lower] && GLYPHS[ext];
+  const g = NAMES[lower] ? undefined : GLYPHS[ext];
   if (g) {
     return (
       <svg width={size} height={size} viewBox="0 0 16 16" role="img" aria-label={g.title} className={`shrink-0 ${className}`}>

@@ -495,7 +495,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             <span className="truncate flex-1">{status.branch}</span>
             <ChevronDown size={12} className="shrink-0 text-zinc-500" />
           </button>
-          <span title={t('gitLive')} className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span title={t('gitLive')} className="size-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
         </div>
 
         <div className="flex items-center justify-between">
@@ -589,7 +589,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       <form onSubmit={(e) => void doCommit(e)} className="p-3 border-b border-zinc-800/80 space-y-2">
         <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t('gitCommitPlaceholder')} className={`${field} resize-none h-16 font-sans`} />
         <div className="flex">
-          <button type="submit" disabled={!message.trim() || staged.length === 0 || isBusy} className={`${primaryBtn} !rounded-e-none`}>
+          <button type="submit" disabled={!message.trim() || staged.length === 0 || isBusy} className={`${primaryBtn} rounded-e-none!`}>
             {busy === 'commit' ? <Loader2 size={14} className="animate-spin" /> : <GitCommit size={14} />}
             <span>
               {t('gitCommit')} ({staged.length})
@@ -814,7 +814,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                       : 'bg-rose-400';
               return (
                 <button key={r.id} onClick={() => api.github.openExternal(r.url)} className="w-full flex items-center gap-2 text-start text-zinc-300 hover:text-white">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${color}`} />
+                  <span className={`size-2 rounded-full shrink-0 ${color}`} />
                   <span className="truncate flex-1">{r.name}</span>
                   <span className="font-mono text-[10px] text-zinc-500 truncate max-w-[40%]">{r.branch}</span>
                 </button>

@@ -78,6 +78,36 @@ const wait = (cond, ms = 20000) => new Promise((res) => {
   await call('pty:stop', cid);
   ok((await call('pty:write', cid, 'x')).success === false, 'durdurulan oturum kapandı');
 
+  // --- kurulu kabuk profilleri ---
+  const profs = await call('pty:profiles', true);
+  console.log('   profiller:', profs.map((p) => p.id + '=' + p.label).join(' | '));
+  ok(Array.isArray(profs) && profs.length > 0, 'profil listesi döner');
+  ok(profs.every((p) => Object.keys(p).sort().join() === 'id,label'), 'arayüze dosya yolu verilmez (yalnız id + ad)');
+  ok(profs.some((p) => p.id === 'cmd') && profs.some((p) => p.id === 'powershell'), 'PowerShell ve CMD profilleri var');
+  ok(!profs.some((p) => /docker-desktop/i.test(p.id)), 'docker-desktop WSL dağıtımı elenir');
+  ok((await call('pty:start', { id: 'pty-x', shell: 'wsl:../../evil', cwd: os.tmpdir() })).error === 'invalid-shell', 'listede olmayan profil kimliği reddedilir');
+  const other = profs.find((p) => p.id === 'winps');
+  if (other) {
+    ok((await call('pty:start', { id: 'pty-winps', shell: other.id, cwd: os.tmpdir() })).success, 'Windows PowerShell profili açıldı');
+    await call('pty:write', 'pty-winps', 'Write-Output ("WIN" + "PS" + $PSVersionTable.PSVersion.Major)' + String.fromCharCode(13));
+    ok(await wait(() => /WINPS5/.test(textOf('pty-winps')), 10000), 'Windows PowerShell 5.x sürümüyle çalıştı');
+    await call('pty:stop', 'pty-winps');
+  }
+
+  // --- Git Bash (yalnız Git for Windows kuruluysa) ---
+  const av = await call('pty:available');
+  if (av.gitBash) {
+    const gid = 'pty-gitbash';
+    ok((await call('pty:start', { id: gid, shell: 'gitbash', cwd: os.tmpdir() })).success, 'Git Bash PTY başladı');
+    await call('pty:write', gid, 'echo GIT"BASH"-OK; pwd -W\r');
+    ok(await wait(() => /GITBASH-OK/.test(textOf(gid))), 'Git Bash komutu çalıştı');
+    const tail = path.basename(os.tmpdir()).toLowerCase();
+    ok(await wait(() => textOf(gid).toLowerCase().split('gitbash-ok').pop().includes(tail), 8000), 'Git Bash çalışma klasöründe açıldı (ev klasörüne atlamadı)');
+    await call('pty:stop', gid);
+    ok((await call('pty:write', gid, 'x')).success === false, 'durdurulan Git Bash oturumu kapandı');
+  } else console.log('(Git Bash kurulu değil: gerçek oturum turu atlandı)');
+  if (!av.gitBash) ok((await call('pty:start', { id: 'pty-nogb', shell: 'gitbash', cwd: os.tmpdir() })).error === 'no-gitbash', 'Git Bash yoksa anlamlı hata döner');
+
   mod.stopAll();
   console.log(fails ? `\n${fails} test başarısız` : '\ntüm PTY testleri geçti');
   setTimeout(() => process.exit(fails ? 1 : 0), 300);
