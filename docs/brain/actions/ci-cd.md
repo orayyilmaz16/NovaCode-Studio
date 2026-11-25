@@ -47,3 +47,10 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 - Elle yeniden deneme: Actions → CI/CD → Run workflow → `release_tag` (ör. v1.5.1). Derlenen kod, workflow'un çalıştırıldığı dal/commit’tir (etiket eski kodda kalmış olabilir); etiket yalnız Release adı ve notu içindir. Kalite işi yeşilse kurulum ve Release üretilir.
 - Hız: `NPM_CONFIG_{FUND,AUDIT}=false`, `PREFER_OFFLINE`, electron/electron-builder önbelleği (SHA sabitli `actions/cache`); eski PR koşuları iptal edilir, main koşuları iptal edilmez.
 
+## Electron, Chromium ve Node.js hep güncel (25.11.2026)
+- Electron kendi Chromium ve Node.js sürümünü getirir; Electron yükselince ikisi de yükselir (uygulamanın Node/Chromium sürümü başka yerden ayarlanmaz).
+- `dependabot.yml`: npm **günlük**; `electron`, `electron-builder`, `@electron/*` tek `electron-stack` grubunda birlikte yükselir.
+- `dependabot-automerge.yml`: yalnız bu yığının PR'ları **ana sürüm dahil** auto-merge alır; diğer bağımlılıklarda eski kural (aynı ana sürüm, yalnız devDependencies/Actions) sürer. Birleşme CI yeşil olunca olur (tip, test, build, bütçe, PR'da Windows paketleme denetimi).
+- CI araç Node sürümü 22 → 24 (LTS). Uygulamanın çalışma zamanı Node'u Electron'dan gelir.
+- Sürüm: bağımlılık PR'ı CHANGELOG maddesi taşımaz; Electron yükseltmesi kullanıcıya bir sonraki sürümle (herhangi bir madde sürümü çıkarınca) ulaşır.
+

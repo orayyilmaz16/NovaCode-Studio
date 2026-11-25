@@ -177,3 +177,6 @@ Karar (kurucu): ana paket bütçesi JS 600→700 KB (gzip 200→230), CSS 100→
 
 ## 25.11.2026 — Masaüstü derlemede yeniden derleme kapalı
 Karar: \`build.npmRebuild:false\`. Neden: isteğe bağlı yerel bağımlılıklar (cpu-features) CI'da gyp ile düşüyordu; kullanılan yerel modüller (@lydell/node-pty) önceden derlenmiş geliyor, ssh2 saf JS yoluna düşer.
+
+## 25.11.2026 — Electron yığını otomatik ve hep son sürümde
+Karar (kurucu): Electron (Chromium + Node.js), electron-builder ve @electron/* ana sürüm dahil otomatik yükseltilir ve CI yeşilse birleşir. Neden: Chromium/Node güvenlik ve performans düzeltmeleri gecikmesin. Risk CI kapılarıyla (tip, test, build, bütçe, Windows paketleme) sınırlı; kırılırsa PR açık kalır. Önceki kural (ana sürüm elle) yalnız diğer bağımlılıklar için geçerli.

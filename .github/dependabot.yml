@@ -2,11 +2,19 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /
+    # Günlük: Electron (Chromium + Node.js birlikte gelir) çıkar çıkmaz PR açılır; güvenlik düzeltmeleri gecikmez.
     schedule:
-      interval: weekly
+      interval: daily
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      # Electron, paketleyici ve @electron/* araçları tek PR'da birlikte yükselir (uyumsuz sürüm karışmasın)
+      electron-stack:
+        patterns:
+          - "electron"
+          - "electron-builder"
+          - "@electron/*"
   - package-ecosystem: github-actions
     directory: /
     schedule:
