@@ -21,3 +21,8 @@ updates:
       interval: weekly
     commit-message:
       prefix: "ci"
+    groups:
+      # codeql-action init/analyze aynı sürümde olmak zorunda; ayrı PR'lar CodeQL'i kırar
+      codeql:
+        patterns:
+          - "github/codeql-action/*"
