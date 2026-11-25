@@ -42,3 +42,6 @@ Denetim ve notlar `github.com` / `api.github.com`'a gider: IP, uygulama sürüm�
 `NOVA_UPDATE_FEED` yalnız paketlenmemiş uygulamada geçerli.
 
 **Geliştirme kanalında denetim yok (25.11.2026):** `electron-update.cjs` `update:check`: kanal `dev` (paketli değil ve NOVA_UPDATE_FEED yok) ise ağ isteği yapmaz, durum `unsupported` olur; eski "son yayınla karşılaştır" ve "yayın sayfasını aç" kaldırıldı. Kurulu (`stable`) uygulama: denetle → bulursa indir (varsayılan otomatik, kurulum kullanıcı onayıyla) → yoksa "güncelsin". `updDevNote` 8 dilde yenilendi. `update:releases` (Sürüm notları sekmesi) kullanıcı tıklamasıyla çalışmaya devam eder.
+
+**Hakkında: son Electron/Chromium/Node.js (25.11.2026):** `update:runtime-latest` (`electron-update.cjs`) kurulu uygulamada `https://electronjs.org/headers/index.json` dizininden en yüksek kararlı Electron sürümünü ve onun `chrome`/`node` değerlerini döndürür (6 saat önbellek; geliştirmede ağ yok). `SettingsPage.tsx` Hakkında satırında çalışan sürümün yanına `son: X` ekler (`aboutLatest`, 8 dil). KVKK: yalnız IP gider, kişisel veri yok; Hakkında açılınca tek istek.
+

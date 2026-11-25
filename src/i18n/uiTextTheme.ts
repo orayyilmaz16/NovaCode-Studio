@@ -772,6 +772,9 @@ export const THEME_TEXT = {
   aboutVersion: {
     tr: "Sürüm", en: "Version", de: "Version", ru: "Версия", ar: "الإصدار", es: "Versión", fr: "Version", az: "Versiya",
   },
+  aboutLatest: {
+    tr: "son: {v}", en: "latest: {v}", de: "neueste: {v}", ru: "последняя: {v}", ar: "الأحدث: {v}", es: "última: {v}", fr: "dernière : {v}", az: "son: {v}",
+  },
   aboutRuntime: {
     tr: "Çalışma ortamı", en: "Runtime", de: "Laufzeit", ru: "Среда выполнения", ar: "بيئة التشغيل", es: "Entorno de ejecución", fr: "Environnement d’exécution", az: "İcra mühiti",
   },

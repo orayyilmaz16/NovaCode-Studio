@@ -321,6 +321,7 @@ export interface ElectronBridge {
     download: () => Promise<UpdateState>;
     install: () => Promise<{ success: boolean }>;
     releases: () => Promise<{ success: boolean; error?: string; releases: ReleaseInfo[] }>;
+    runtimeLatest: () => Promise<{ success: boolean; supported: boolean; error?: string; electron?: string; chrome?: string; node?: string }>;
     onState: (callback: (s: UpdateState) => void) => () => void;
   };
   openLink: (url: string) => Promise<{ success: boolean }>;

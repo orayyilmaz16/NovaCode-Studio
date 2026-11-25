@@ -423,6 +423,13 @@ const About: React.FC = () => {
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const versions = window.electronAPI?.versions;
   const update = useUpdate();
+  // Kurulu uygulamada: Electron'un son kararlı sürümü ve onunla gelen Chromium/Node.js (dinamik, 6 saat önbellekli)
+  const [latest, setLatest] = useState<{ electron?: string; chrome?: string; node?: string } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void window.electronAPI?.update?.runtimeLatest?.().then((r) => { if (alive && r.success) setLatest(r); }).catch(() => undefined);
+    return () => { alive = false; };
+  }, []);
 
   const doExport = () => {
     const blob = new Blob([exportJson()], { type: 'application/json' });
@@ -441,14 +448,15 @@ const About: React.FC = () => {
     setMsg({ ok, text: ok ? t('setImportDone') : t('setImportFailed') });
   };
 
+  const withLatest = (cur: string, last?: string) => (last && last !== cur ? `${cur}  (${t('aboutLatest').replace('{v}', last)})` : cur);
   const info: [string, string][] = [
     [t('aboutVersion'), `NovaCode Studio ${__APP_VERSION__}`],
     [t('updChannelLabel'), update.channel === 'stable' ? t('updChannelStable') : t('updChannelDev')],
     ...(versions
       ? ([
-          ['Electron', versions.electron],
-          ['Chromium', versions.chrome],
-          ['Node.js', versions.node]
+          ['Electron', withLatest(versions.electron, latest?.electron)],
+          ['Chromium', withLatest(versions.chrome, latest?.chrome)],
+          ['Node.js', withLatest(versions.node, latest?.node)]
         ] as [string, string][])
       : [[t('aboutRuntime'), 'Web']] as [string, string][])
   ];

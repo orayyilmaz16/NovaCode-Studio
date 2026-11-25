@@ -117,6 +117,31 @@ function register({ getWindow }) {
     return { success: true };
   });
 
+  // Hakkında: Electron'un son kararlı sürümü ve onunla gelen Chromium/Node.js (electronjs.org/headers/index.json, resmî sürüm dizini).
+  // Yalnız kurulu uygulamada ve Hakkında açılınca çağrılır (IP gider, kişisel veri gitmez); 6 saat önbellek. Geliştirmede ağ isteği yok.
+  let rtCache = { at: 0, data: null };
+  ipcMain.handle('update:runtime-latest', async () => {
+    if (!supported()) return { success: false, supported: false };
+    if (rtCache.data && Date.now() - rtCache.at < 6 * 3600 * 1000) return { success: true, supported: true, ...rtCache.data };
+    try {
+      const res = await net.fetch('https://electronjs.org/headers/index.json', { headers: { 'user-agent': 'NovaCode-Studio' } });
+      if (!res.ok) throw new Error('http-' + res.status);
+      const list = await res.json();
+      const num = (v) => String(v).split('.').map((x) => parseInt(x, 10) || 0);
+      const gt = (a, b) => { const x = num(a), y = num(b); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
+      let best = null;
+      for (const r of Array.isArray(list) ? list : []) {
+        if (!r || typeof r.version !== 'string' || /-/.test(r.version)) continue; // beta/nightly hariç
+        if (!best || gt(r.version, best.version)) best = r;
+      }
+      if (!best) throw new Error('empty');
+      rtCache = { at: Date.now(), data: { electron: String(best.version), chrome: String(best.chrome || ''), node: String(best.node || '') } };
+      return { success: true, supported: true, ...rtCache.data };
+    } catch (e) {
+      return { success: false, supported: true, error: errCode(e) };
+    }
+  });
+
   // Son sürümler ve notları (Yardım → Sürüm notları)
   ipcMain.handle('update:releases', async () => {
     try {
