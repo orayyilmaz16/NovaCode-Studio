@@ -4,6 +4,7 @@
 
 | Sürüm | Tarih | Tür | Özet | Notlar |
 |---|---|---|---|---|
+| v1.7.1 | 25.11.2026 | patch | 1 security: Electron 45.5.0 | [v1.7.1](../../release-notes/v1.7.1.md) |
 | v1.7.0 | 25.11.2026 | minor | 1 improved: Update checks only in the installed app | [v1.7.0](../../release-notes/v1.7.0.md) |
 | v1.6.1 | 25.11.2026 | patch | 1 fix: Menu keyboard and resize fixes | [v1.6.1](../../release-notes/v1.6.1.md) |
 | v1.6.0 | 25.11.2026 | minor | 9 new, 10 fix, 26 improved, 1 security: Close folder and go home | [v1.6.0](../../release-notes/v1.6.0.md) |

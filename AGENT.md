@@ -4,8 +4,8 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.7.0** (minor, 25.11.2026) · notlar `release-notes/v1.7.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- İyileştirmeler: Güncelleme denetimi yalnız kurulu uygulamada
+**Son sürüm v1.7.1** (patch, 25.11.2026) · notlar `release-notes/v1.7.1.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- Güvenlik: Electron 45.5.0
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)
