@@ -4,8 +4,10 @@
 
 ### tr
 
+- [security] **Electron 45.5.0:** Uygulamanın Chromium ve Node.js sürümü güncellendi; bundan sonra Electron çıktıkça otomatik yükseltilecek (güvenlik ve performans).
 ### en
 
+- [security] **Electron 45.5.0:** The app's Chromium and Node.js versions are updated; from now on Electron is upgraded automatically as it is released (security and performance).
 ## 1.7.0 - 25.11.2026
 <!-- level: minor -->
 ### Türkçe
