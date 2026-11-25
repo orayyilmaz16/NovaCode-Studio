@@ -180,3 +180,6 @@ Karar: \`build.npmRebuild:false\`. Neden: isteğe bağlı yerel bağımlılıkla
 
 ## 25.11.2026 — Electron yığını otomatik ve hep son sürümde
 Karar (kurucu): Electron (Chromium + Node.js), electron-builder ve @electron/* ana sürüm dahil otomatik yükseltilir ve CI yeşilse birleşir. Neden: Chromium/Node güvenlik ve performans düzeltmeleri gecikmesin. Risk CI kapılarıyla (tip, test, build, bütçe, Windows paketleme) sınırlı; kırılırsa PR açık kalır. Önceki kural (ana sürüm elle) yalnız diğer bağımlılıklar için geçerli.
+
+## 25.11.2026 — Bağımlılık yükselince sürüm bulutta otomatik hazırlanır
+Karar (kurucu): Electron yığını veya çalışma zamanı bağımlılığı yükselince sürüm (patch) otomatik hazırlanır, CI yeşilse birleşir, etiket + Release ci-cd.yml ile çıkar. Neden: güvenlik/performans düzeltmeleri kullanıcıya bekletmeden ulaşsın. Ön koşul: Actions PR oluşturma izni (repo ayarı, kurucu açar).
