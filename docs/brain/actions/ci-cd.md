@@ -40,3 +40,10 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 - **CodeQL:** `Preview.tsx` köprüsünde script içine gömülen JSON artık `<`, `>`, `&`, U+2028/2029 için `\u` kaçışı yapar; `audit-scan.mjs` `replace` yerine `split/join`; bilinçli katastrofik regex girdileri içeren `search-redos.test.cjs` yalnız o dosya için `codeql-config.yml` `paths-ignore`.
 - gitleaks için `.gitleaksignore` (3 bilinen test parmak izi) ve eski/yeni sürümlerle uyumlu `[allowlist]` regex izni eklendi; gömülü gitleaks çoğul `allowlists` tablo biçimini uygulamadı.
 - `dependabot-automerge.yml` içinde `if:` ve `env:` satırları yapışmıştı (geçersiz YAML, workflow hiç çalışmıyordu); düzeltildi. Workflow dosyalarını değiştirirken `node -e "require(\"js-yaml\").load(require(\"fs\").readFileSync(f,\"utf8\"))"` ile ayrıştırmayı doğrula.
+
+## Masaüstü derleme güvenilirliği (25.11.2026)
+- Kök neden: `ssh2` isteğe bağlı `cpu-features` (node-gyp) paketini getirdi; `electron-builder` `@electron/rebuild` ile onu derlemeye çalışıp Windows runner'da düştü (`npm ci --ignore-scripts` ile gyp ön dosyası üretilmediği için). Çözüm: `build.npmRebuild:false` + `cpu-features`/`nan` pakete alınmaz (ssh2 saf JS yoluna düşer; `@lydell/node-pty` önceden derlenmiş).
+- `desktop-smoke` işi: PR'da paketlemeyi etkileyen dosya (package*.json, electron-*.cjs, public/, ci-cd.yml) değiştiyse Windows'ta `electron-builder --dir` dener; aksi halde atlanır.
+- Elle yeniden deneme: Actions → CI/CD → Run workflow → `release_tag` (ör. v1.5.1). Derlenen kod, workflow'un çalıştırıldığı dal/commit’tir (etiket eski kodda kalmış olabilir); etiket yalnız Release adı ve notu içindir. Kalite işi yeşilse kurulum ve Release üretilir.
+- Hız: `NPM_CONFIG_{FUND,AUDIT}=false`, `PREFER_OFFLINE`, electron/electron-builder önbelleği (SHA sabitli `actions/cache`); eski PR koşuları iptal edilir, main koşuları iptal edilmez.
+

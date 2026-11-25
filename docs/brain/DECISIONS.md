@@ -174,3 +174,6 @@ Karar (kurucu): editör sekme çubuğunda yeni sekme (+) düğmesi gösterilmez;
 
 ## 25.11.2026 — Paket bütçesi yükseltildi
 Karar (kurucu): ana paket bütçesi JS 600→700 KB (gzip 200→230), CSS 100→120 KB. Neden: 49 commitlik birikim (menü akordeonu, klasör kapatma, SSH vb.) bütçeyi aştı; PR #73 birleşsin. Önceki kural (bütçe yükseltilmez, lazy import) bu tarihten sonra geçersiz; yeni aşımda önce lazy import denenir, sonra bütçe konuşulur.
+
+## 25.11.2026 — Masaüstü derlemede yeniden derleme kapalı
+Karar: \`build.npmRebuild:false\`. Neden: isteğe bağlı yerel bağımlılıklar (cpu-features) CI'da gyp ile düşüyordu; kullanılan yerel modüller (@lydell/node-pty) önceden derlenmiş geliyor, ssh2 saf JS yoluna düşer.
