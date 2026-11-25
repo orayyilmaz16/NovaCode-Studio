@@ -6,14 +6,14 @@ Son tarama: 25.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 ## Özet
 | Alan | Bulgu |
 |---|---|
-| Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 23 |
+| Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 24 |
 | Performans | kritik 0 · yüksek 0 · orta 2 · düşük 74 |
 | Kalite | kritik 0 · yüksek 0 · orta 3 · düşük 10 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: yok
+- Yeni/artan: `SEC-IPC-NOEVT` electron-update.cjs
 - Giderilen: yok
 
 ## Güvenlik
@@ -22,7 +22,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | orta | SEC-HTML | `src/components/Preview.tsx:184` | Ham HTML basımı; DOMPurify ile temizlendiğini doğrula |
 | orta | SEC-OPENEXT | `electron-github.cjs:197,253` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
 | orta | SEC-OPENEXT | `electron-main.cjs:70` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
-| orta | SEC-OPENEXT | `electron-update.cjs:144` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
+| orta | SEC-OPENEXT | `electron-update.cjs:169` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | düşük | SEC-HTTP | `electron-ai.cjs:118` | Şifresiz http:// adresi |
 | düşük | SEC-IPC-NOEVT | `electron-ai.cjs:965,968,982` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-ext.cjs:318,329` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (2×) |
@@ -31,7 +31,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | SEC-IPC-NOEVT | `electron-pty.cjs:219` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-search.cjs:245` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-trust.cjs:152,157,162` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
-| düşük | SEC-IPC-NOEVT | `electron-update.cjs:92,107,113…(+1)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (4×) |
+| düşük | SEC-IPC-NOEVT | `electron-update.cjs:92,107,113…(+2)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (5×) |
 
 ## Performans
 | Önem | Kural | Konum | Sorun |
@@ -78,5 +78,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2491, `src/i18n/uiTextTheme.ts` 1128, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 852
+- En büyük kaynak dosyalar: `src/App.tsx` 2491, `src/i18n/uiTextTheme.ts` 1131, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 852
 - Üretim paketi (dist varsa): toplam JS 3009 KB; en büyük: index-VYcql4J1.js 654 KB, PtyView-BRRiY-s_.js 327 KB, fileIconLoaders-WAyWvVp4.js 184 KB, uiTextTheme-uNHaoqDV.js 136 KB
