@@ -186,3 +186,6 @@ Karar (kurucu): Electron yığını veya çalışma zamanı bağımlılığı y�
 
 ## 25.11.2026 — Sürüm hazırlığı yalnız bulutta
 Karar (kurucu): elle/yerel sürüm hazırlığı bırakıldı; Actions PR oluşturma izni açıldı. auto-release.yml sürümü hazırlar ve PR açar. Neden: yerel ve bulut hazırlığı yarışıp yinelenen dal/PR üretiyordu.
+
+## 25.11.2026 — Dependabot auto-merge kapsamı genişledi
+Karar (kurucu): çalışma zamanı bağımlılıklarının patch/minor, GitHub Actions ve Electron yığınının her sürümü CI yeşilse otomatik birleşir; diğer npm major'ları elle. Önceki S-21 kuralı (çalışma zamanı bağımlılıkları otomatik birleşmez) bu tarihten sonra geçersiz; koruma CI kapıları ve zorunlu kontroldür. Otomasyon hataları issue açar.

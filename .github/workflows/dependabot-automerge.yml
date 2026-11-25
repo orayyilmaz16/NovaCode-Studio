@@ -1,7 +1,11 @@
 name: Dependabot güvenli güncellemeleri otomatik birleştir
 
-# Dependabot PR'ında aynı ana sürüm içinde (patch/minor) güncelleme ise auto-merge açılır: CI (Kalite, Güvenlik, Performans)
-# yeşil olunca birleşir. ANA SÜRÜM (major) atlamaları otomatik birleşmez; PR açık kalır ve insan inceler.
+# CI (Kalite, Güvenlik ve Performans) yeşil olmadan hiçbir şey birleşmez: bu iş yalnız auto-merge'i açar, birleşmeyi zorunlu kontrol belirler.
+# Kural (25.11.2026, kurucu kararı):
+#   - Electron yığını (electron, electron-builder, @electron/*): ana sürüm dahil
+#   - GitHub Actions (SHA sabitli): ana sürüm dahil
+#   - Diğer npm bağımlılıkları (çalışma zamanı dahil): yalnız patch ve minor
+#   - Diğer npm ana sürümleri: PR açık kalır, insan inceler
 on:
   pull_request:
     types: [opened, reopened, synchronize]
@@ -17,29 +21,30 @@ jobs:
     timeout-minutes: 5
     if: github.actor == 'dependabot[bot]'
     steps:
-      # Çalışma zamanı bağımlılıkları (dependencies) otomatik birleşmez: yalnız devDependencies ve github-actions (S-21)
       - name: Dependabot üst verisi
         id: meta
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Sürüm atlamasını denetle ve auto-merge aç
-        if: steps.meta.outputs.package-ecosystem == 'github_actions' || steps.meta.outputs.dependency-type == 'direct:development'
+      - name: Auto-merge kararı
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
-          # Başlık, betiğe ortam değişkeniyle geçer (komut enjeksiyonu yok)
+          # Başlık ve üst veri betiğe ortam değişkeniyle geçer (komut enjeksiyonu yok)
           PR_TITLE: ${{ github.event.pull_request.title }}
           DEP_NAMES: ${{ steps.meta.outputs.dependency-names }}
+          ECOSYSTEM: ${{ steps.meta.outputs.package-ecosystem }}
+          UPDATE_TYPE: ${{ steps.meta.outputs.update-type }}
         run: |
-          # Electron yığını (electron, electron-builder, @electron/*): ana sürüm dahil hep son sürüme çıkar. Electron yeni
-          # Chromium ve Node.js getirir (güvenlik/performans); riski CI korur: tip, test, build, bütçe ve Windows paketleme denetimi yeşil olmadan birleşmez.
+          merge() { gh pr merge --auto --squash "$PR_URL" && echo "auto-merge açıldı: $1"; }
           if [ -n "$DEP_NAMES" ] && ! printf '%s' "$DEP_NAMES" | tr ',' '\n' | sed 's/^ *//;s/ *$//' | grep -vqE '^(electron|electron-builder|@electron/.+)$'; then
-            gh pr merge --auto --squash "$PR_URL"
-            echo "auto-merge açıldı: Electron yığını (ana sürüm dahil)"
+            merge 'Electron yığını (ana sürüm dahil)'
+          elif [ "$ECOSYSTEM" = 'github_actions' ]; then
+            merge 'GitHub Actions'
+          elif [ "$UPDATE_TYPE" = 'version-update:semver-patch' ] || [ "$UPDATE_TYPE" = 'version-update:semver-minor' ]; then
+            merge 'patch/minor'
           elif [[ "$PR_TITLE" =~ from\ v?([0-9]+)[^\ ]*\ to\ v?([0-9]+) ]] && [ "${BASH_REMATCH[1]}" = "${BASH_REMATCH[2]}" ]; then
-            gh pr merge --auto --squash "$PR_URL"
-            echo "auto-merge açıldı: aynı ana sürüm"
+            merge 'aynı ana sürüm'
           else
-            echo "Ana sürüm atlaması (veya başlık okunamadı): otomatik birleştirilmez, elle incele."
+            echo 'Ana sürüm atlaması (Electron/Actions dışı): otomatik birleştirilmez, elle incele.'
           fi
