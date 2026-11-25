@@ -4,8 +4,10 @@
 
 ### tr
 
+- [fix] **Menü klavye ve boyut düzeltmeleri:** Açık menüde ok/Enter/Boşluk tuşları artık arkadaki editöre geçmiyor; pencere boyutu değişip menü modu geçince açık menü kapanıyor; tamamı kapalı menüde ok tuşları takılmıyor.
 ### en
 
+- [fix] **Menu keyboard and resize fixes:** Arrow/Enter/Space keys in an open menu no longer leak to the editor behind it; the open menu closes when a window resize switches menu mode; arrow keys no longer break in a fully disabled menu.
 ## 1.6.0 - 25.11.2026
 <!-- level: minor -->
 ### Türkçe
@@ -21,7 +23,9 @@
 - **Kurulu terminaller listede:** Terminal ekleme listesi (+ yanındaki ok) artık bilgisayarda kurulu kabukları kendisi bulup gösterir: PowerShell 7, Windows PowerShell, CMD, Git Bash, WSL dağıtımları (Ubuntu vb.), Cygwin, MSYS2 ve Nushell. Hepsi gerçek terminal olarak çalışma klasöründe açılır; liste her açılışta yeniden taranır, yeni kurulan hemen görünür.
 
 #### Düzeltmeler
-- **Menü klavye ve boyut düzeltmeleri:** Açık menüde ok/Enter/Boşluk tuşları artık arkadaki editöre geçmiyor; pencere boyutu değişip menü modu geçince açık menü kapanıyor; tamamı kapalı menüde ok tuşları takılmıyor.
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 - **Windows kurulum derlemesi:** SSH eklendikten sonra CI'daki masaüstü derlemesi isteğe bağlı yerel bir pakette (cpu-features) düşüyordu; yeniden derleme kapatıldı, kurulum yeniden üretilebiliyor. PR'larda paketleme denetimi ve elle yeniden deneme eklendi.
 - **Editör sağındaki beyaz alan:** Minimap kaydırıcısı ve kaydırma çubuğu gölgesi koyu/açık temaya uygun, yumuşak renklere çekildi.
 - **Üst çubuk taşması:** Pencere tam ekran değilken üst çubuktaki arama kutusu çok yer kaplayıp sağdaki düğmeleri ve pencere denetimlerini taşırıyordu; arama kutusu daraldı ve gerekirse küçülüyor, sağ bölge her zaman tam görünüyor.
@@ -78,7 +82,9 @@
 - **Installed terminals in the list:** The add-terminal list (the arrow next to +) now detects the shells installed on the computer: PowerShell 7, Windows PowerShell, CMD, Git Bash, WSL distributions (Ubuntu etc.), Cygwin, MSYS2 and Nushell. All open as real terminals in the workspace folder; the list is rescanned each time it opens, so newly installed shells appear right away.
 
 #### Fixes
-- **Menu keyboard and resize fixes:** Arrow/Enter/Space keys in an open menu no longer leak to the editor behind it; the open menu closes when a window resize switches menu mode; arrow keys no longer break in a fully disabled menu.
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 - **Windows installer build:** After SSH landed, the desktop build in CI failed on an optional native package (cpu-features); native rebuild is now off so the installer builds again. PRs get a packaging check and releases can be re-run by hand.
 - **White area at the editor's right edge:** The minimap slider and scrollbar shadow now use soft colors matching the dark/light theme.
 - **Top bar overflow:** When the window was not maximized, the search box in the top bar took too much space and pushed the right-side buttons and window controls out; the search box is narrower and shrinks when needed, and the right zone always stays fully visible.
