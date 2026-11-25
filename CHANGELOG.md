@@ -6,6 +6,16 @@
 
 ### en
 
+## 1.6.1 - 25.11.2026
+<!-- level: patch -->
+### Türkçe
+#### Düzeltmeler
+- **Menü klavye ve boyut düzeltmeleri:** Açık menüde ok/Enter/Boşluk tuşları artık arkadaki editöre geçmiyor; pencere boyutu değişip menü modu geçince açık menü kapanıyor; tamamı kapalı menüde ok tuşları takılmıyor.
+
+### English
+#### Fixes
+- **Menu keyboard and resize fixes:** Arrow/Enter/Space keys in an open menu no longer leak to the editor behind it; the open menu closes when a window resize switches menu mode; arrow keys no longer break in a fully disabled menu.
+
 ## 1.6.0 - 25.11.2026
 <!-- level: minor -->
 ### Türkçe

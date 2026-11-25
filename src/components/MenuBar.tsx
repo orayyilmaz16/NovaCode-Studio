@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Menu as MenuIcon } from 'lucide-react';
 import { PopupMenu, type MenuItem } from './Menu';
 import { AccordionMenu } from './AccordionMenu';
@@ -45,6 +45,9 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
     return real.length > 0 && real.every((i) => i.disabled);
   };
 
+  // Pencere boyutu değişip kompakt mod geçince açık menü eski konumunda kalmasın
+  useEffect(() => { setOpen(null); }, [compact]);
+
   const current = open && open.id !== '__root' ? menus.find((m) => m.id === open.id) : undefined;
 
   return (
@@ -53,7 +56,7 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
       className="no-scrollbar app-no-drag flex items-center gap-0.5 h-full ps-1 min-w-0 shrink overflow-x-auto overflow-y-hidden"
       // Dar kapta başlıklar yatay kayar (fare tekerleği de yatay çevrilir)
       onWheel={(e) => { if (e.deltaY) e.currentTarget.scrollLeft += e.deltaY; }}
-      onScroll={() => setOpen(null)}
+      onScroll={close}
     >
       {compact ? (
         <button
