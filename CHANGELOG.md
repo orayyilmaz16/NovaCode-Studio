@@ -4,10 +4,18 @@
 
 ### tr
 
-- [improve] **Hakkında'da son Electron, Chromium ve Node.js:** Kurulu uygulamada Hakkında sayfası çalışan Electron, Chromium ve Node.js sürümlerinin yanına daha yeni sürüm varsa "son: …" bilgisini resmî Electron sürüm dizininden dinamik gösterir (6 saat önbellek). Kaynak koddan çalışırken ağ isteği yapılmaz.
 ### en
 
-- [improve] **Latest Electron, Chromium and Node.js in About:** In the installed app, About shows "latest: …" next to the running Electron, Chromium and Node.js versions when a newer one exists, fetched dynamically from the official Electron release index (cached 6 h). No network request when running from source.
+## 1.8.0 - 25.11.2026
+<!-- level: minor -->
+### Türkçe
+#### İyileştirmeler
+- **Hakkında'da son Electron, Chromium ve Node.js:** Kurulu uygulamada Hakkında sayfası çalışan Electron, Chromium ve Node.js sürümlerinin yanına daha yeni sürüm varsa "son: …" bilgisini resmî Electron sürüm dizininden dinamik gösterir (6 saat önbellek). Kaynak koddan çalışırken ağ isteği yapılmaz.
+
+### English
+#### Improvements
+- **Latest Electron, Chromium and Node.js in About:** In the installed app, About shows "latest: …" next to the running Electron, Chromium and Node.js versions when a newer one exists, fetched dynamically from the official Electron release index (cached 6 h). No network request when running from source.
+
 ## 1.7.2 - 25.11.2026
 <!-- level: patch -->
 ### Türkçe
