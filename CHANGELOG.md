@@ -6,6 +6,16 @@
 
 ### en
 
+## 1.7.2 - 25.11.2026
+<!-- level: patch -->
+### Türkçe
+#### İyileştirmeler
+- **Bağımlılıklar güncellendi:** lucide-react 1.74.0 → 1.77.0.
+
+### English
+#### Improvements
+- **Dependencies updated:** lucide-react 1.74.0 → 1.77.0.
+
 ## 1.7.1 - 25.11.2026
 <!-- level: patch -->
 ### Türkçe
