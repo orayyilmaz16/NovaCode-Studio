@@ -161,4 +161,4 @@ Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `s
 
 **Kompakt Menü akordeonu (25.11.2026):** Pencereli görünümde `MenuBar` kompakt modu artık `AccordionMenu.tsx` açar (eski: grup listesi → ayrı menü). Gruplar satır içi açılır, aynı anda tek grup açık; geçiş `--dur-base` jetonuyla grid-satır animasyonu; düğmede dönen ok. Normal (geniş) başlık çubuğu `PopupMenu` ile aynı kaldı.
 
-**Üst menü başlık durumları (25.11.2026):** Geniş `MenuBar` başlıkları pasif `zinc-500`, başka menü açıkken `zinc-600`, açıkken beyaz + `bg-white/10` + altta animasyonlu indigo çizgi. Geçiş `--dur-base` / `--ease-out-soft`.
+**Üst menü başlık durumları (25.11.2026):** Geniş `MenuBar` başlıkları kullanılabilirse `zinc-100`, tüm öğeleri kapalıysa (dosya/klasör yok) `zinc-600`, açıkken beyaz + `bg-white/10` + altta animasyonlu indigo çizgi. Geçiş `--dur-base` / `--ease-out-soft`.

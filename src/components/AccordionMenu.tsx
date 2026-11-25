@@ -26,6 +26,10 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
   const [pos, setPos] = useState({ left: x, top: y });
   const [active, setActive] = useState(0);
 
+  const allOff = (g: AccordionGroup) => {
+    const real = g.items.filter((i) => !i.separator);
+    return real.length > 0 && real.every((i) => i.disabled);
+  };
   const rows: Row[] = [];
   for (const g of groups) {
     rows.push({ kind: 'group', gid: g.id });
@@ -130,7 +134,7 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
               onMouseEnter={() => setActive(rows.findIndex((r) => r.kind === 'group' && r.gid === g.id))}
               onClick={() => toggle(g.id)}
               className={`w-full flex items-center gap-2 h-8 ps-2.5 pe-3 text-start font-medium transition-colors ${
-                open ? 'bg-nv-active/60 text-zinc-50 shadow-[inset_2px_0_0_var(--color-indigo-500)]' : isActive(head) ? 'bg-nv-hover text-zinc-100' : 'text-zinc-300'
+                open ? 'bg-nv-active/60 text-zinc-50 shadow-[inset_2px_0_0_var(--color-indigo-500)]' : isActive(head) ? 'bg-nv-hover text-zinc-100' : allOff(g) ? 'text-zinc-600' : 'text-zinc-100'
               }`}
             >
               <ChevronRight size={14} className={`shrink-0 transition-transform duration-(--dur-base) ${open ? 'rotate-90 text-indigo-300' : 'text-zinc-500'}`} />

@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 25.11.2026 10:59 · auto/20261118-083349
+<!-- sig:c3JjL2NvbXBvbmVudHMvQWNjb3JkaW9uTWVudS50 -->
+- Alan: [[ui-design]]
+- Kod (2): `src/components/AccordionMenu.tsx`, `src/components/MenuBar.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 25.11.2026 10:57 · auto/20261118-083349
 <!-- sig:c3JjL2NvbXBvbmVudHMvTWVudUJhci50c3gsfCxD -->
 - Alan: [[ui-design]]
@@ -275,10 +282,3 @@
 - Kod (15): `scripts/tests/keybindings.test.cjs`, `src/App.tsx`, `src/components/CommandPalette.tsx`, `src/components/EditorArea.tsx`, `src/components/ExtensionsPanel.tsx`, `src/components/GitPanel.tsx`, `src/components/GithubAccount.tsx`, `src/components/KeybindingsEditor.tsx`, `src/components/LandingPage.tsx`, `src/components/SearchPanel.tsx`, `src/components/TaskPicker.tsx`, `src/components/Terminal.tsx` … (+3)
 - Belge (13): `CHANGELOG.md`, `docs/brain/BACKLOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/debugging.md`, `docs/brain/actions/explorer.md`, `docs/brain/actions/i18n.md`, `docs/brain/actions/lsp.md`, `docs/brain/actions/preview.md` … (+5)
 - Durum: ✓ belgelendi · sürüm: v1.4.2 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 17.11.2026 16:42 · auto/20261117-130721
-<!-- sig:c3JjL0FwcC50c3gsfCx8LOKaoCBla3NpayBiZWxn -->
-- Alan: [[ui-design]]
-- Kod (1): `src/App.tsx`
-- Belge (0): —
-- Durum: ⚠ eksik belge: ilgili aksiyon dosyasını güncelle; CHANGELOG.md

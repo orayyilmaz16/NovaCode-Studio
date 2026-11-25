@@ -39,6 +39,12 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
     return !!last && last.id === id && Date.now() - last.t < 250;
   };
 
+  // Gruptaki tüm öğeler kapalıysa (ör. klasör açık değil) başlık koyu görünür
+  const allOff = (m: MenuGroup) => {
+    const real = m.items.filter((i) => !i.separator);
+    return real.length > 0 && real.every((i) => i.disabled);
+  };
+
   const current = open && open.id !== '__root' ? menus.find((m) => m.id === open.id) : undefined;
 
   return (
@@ -72,9 +78,10 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
             data-active={open?.id === m.id}
             onClick={(e) => { if (!justClosed(m.id)) openFor(m.id, e.currentTarget); }}
             onMouseEnter={(e) => { if (open && open.id !== m.id) openFor(m.id, e.currentTarget); }}
-            // Açık menü beyaz ve vurgulu; diğerleri sönük (menü açıkken daha da koyu), üzerine gelince aydınlanır
+            // Kullanılabilir başlık beyaz, açık olan vurgulu; hiç öğesi kullanılamayan (dosya/klasör yok) başlık koyu kalır
+            data-off={allOff(m) || undefined}
             className={`mb-btn relative rounded-md whitespace-nowrap shrink-0 transition-[color,background-color] duration-(--dur-base) ease-(--ease-out-soft) ${
-              open?.id === m.id ? 'bg-white/[0.10] text-white' : `${open ? 'text-zinc-600' : 'text-zinc-500'} hover:bg-white/[0.06] hover:text-zinc-200`
+              open?.id === m.id ? 'bg-white/[0.10] text-white' : allOff(m) ? 'text-zinc-600 hover:bg-white/[0.04] hover:text-zinc-400' : 'text-zinc-100 hover:bg-white/[0.08] hover:text-white'
             }`}
           >
             {m.label}
