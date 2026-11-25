@@ -134,7 +134,7 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
               onMouseEnter={() => setActive(rows.findIndex((r) => r.kind === 'group' && r.gid === g.id))}
               onClick={() => toggle(g.id)}
               className={`w-full flex items-center gap-2 h-8 ps-2.5 pe-3 text-start font-medium transition-colors ${
-                open ? 'bg-nv-active/60 text-zinc-50 shadow-[inset_2px_0_0_var(--color-indigo-500)]' : isActive(head) ? 'bg-nv-hover text-zinc-100' : allOff(g) ? 'text-zinc-600' : 'text-zinc-100'
+                open ? 'bg-nv-active/60 text-zinc-50 shadow-[inset_2px_0_0_var(--color-indigo-500)]' : isActive(head) ? 'bg-nv-hover text-zinc-100' : allOff(g) ? 'text-zinc-700' : 'text-zinc-100'
               }`}
             >
               <ChevronRight size={14} className={`shrink-0 transition-transform duration-(--dur-base) ${open ? 'rotate-90 text-indigo-300' : 'text-zinc-500'}`} />
@@ -160,12 +160,12 @@ export const AccordionMenu: React.FC<Props> = ({ x, y, groups, onClose }) => {
                         onMouseEnter={() => { if (!it.disabled) setActive(rows.findIndex((r) => r.kind === 'item' && r.gid === g.id && r.idx === i)); }}
                         onClick={() => run(it)}
                         className={`w-full flex items-center gap-2.5 h-7 ps-2.5 pe-3 text-start transition-colors ${
-                          it.disabled ? 'opacity-40 cursor-default' : isActive({ kind: 'item', gid: g.id, idx: i }) ? 'bg-nv-active text-zinc-50' : it.danger ? 'text-rose-400' : 'text-zinc-300'
+                          it.disabled ? 'text-zinc-700 cursor-default' : isActive({ kind: 'item', gid: g.id, idx: i }) ? 'bg-nv-active text-zinc-50' : it.danger ? 'text-rose-400' : 'text-zinc-300'
                         }`}
                       >
                         <span className="w-4 shrink-0 flex items-center justify-center">{it.checked ? <Check size={13} /> : it.icon}</span>
                         <span className="flex-1 truncate whitespace-nowrap">{it.label}</span>
-                        {it.shortcut && <span className="text-[11px] text-zinc-500 font-mono whitespace-nowrap shrink-0 ps-3">{it.shortcut}</span>}
+                        {it.shortcut && <span className={`text-[11px] font-mono whitespace-nowrap shrink-0 ps-3 ${it.disabled ? 'text-zinc-700' : 'text-zinc-500'}`}>{it.shortcut}</span>}
                       </button>
                     )
                   )}

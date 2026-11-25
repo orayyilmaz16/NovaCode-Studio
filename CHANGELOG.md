@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Kullanılmayan menü öğeleri koyu:** Menülerde kapalı (kullanılamayan) öğeler, kısayolları ve tamamı kapalı kategori başlıkları soluk griye değil koyu (neredeyse siyah) tona çekildi; kompakt "Menü" açılırında ve üst menü çubuğunda aynıdır.
 - [improve] **Üst menü başlıkları net ve yumuşak:** Tam ekranda Dosya, Düzenle, Terminal… başlıkları kullanılabilirse beyaz, dosya/klasör açık değilken hiçbir öğesi kullanılamayanlar koyu görünür (Menü açılırında da aynı). Açık başlık vurgulu ve altında animasyonlu çizgiyle belli oluyor; geçişler ortak hareket jetonlarıyla yumuşak.
 - [improve] **Menü açılırı akordeon oldu:** Pencereli görünümdeki "Menü" düğmesi artık grupları (Dosya, Düzenle…) aynı listede açılır-kapanır başlıklar olarak gösteriyor; ok simgesi döner, açık grup vurgulanır, alt öğeler girintili çizgiyle ayrılır. Klavye: ↑ ↓ gezinir, → açar, ← kapatır, Enter çalıştırır.
 - [improve] **Pencereli görünümde küçük üst çubuk:** Pencere tam ekran/büyütülmüş değilken menü ("Menü" tek düğmede toplanır), hızlı düğmeler ve pencere denetimleri daha küçük ve sıkı; üst çubuk daha az yer kaplıyor.
@@ -48,6 +49,7 @@
 
 ### en
 
+- [improve] **Unavailable menu items are darker:** Disabled menu items, their shortcuts and category titles whose items are all disabled now use a dark (near-black) tone instead of faded gray, in both the compact "Menu" dropdown and the top menu bar.
 - [improve] **Clearer, smoother top menu titles:** In full screen, File, Edit, Terminal… titles are white when usable and dark when none of their items are available (no file/folder open); the Menu dropdown does the same. The open title gets a highlight and an animated underline, with transitions on the shared motion tokens.
 - [improve] **Menu dropdown is now an accordion:** In windowed mode the "Menu" button shows groups (File, Edit…) as expandable headings in the same list; the chevron rotates, the open group is highlighted and its items are indented with a guide line. Keyboard: ↑ ↓ move, → opens, ← closes, Enter runs.
 - [improve] **Smaller top bar when windowed:** Whenever the window is not maximized/full screen, the menu (collapsed into one button), quick buttons and window controls are smaller and tighter, so the top bar takes less room.
