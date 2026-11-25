@@ -90,9 +90,8 @@ export const UpdateDialog: React.FC<{ initialTab: Tab; autoDownload: boolean; on
 
               <div className="flex flex-wrap gap-2 pt-1">
                 {u.status === 'available' && u.channel === 'stable' && <button className={primary} onClick={() => void downloadUpdate()}><Download size={14} />{t('updDownload')}</button>}
-                {u.status === 'available' && u.channel === 'dev' && u.releaseUrl && <button className={primary} onClick={() => void window.electronAPI?.openLink(u.releaseUrl)}><ExternalLink size={14} />{t('updOpenRelease')}</button>}
                 {u.status === 'ready' && <button className={primary} onClick={() => void installUpdate()}><RefreshCw size={14} />{t('updRestart')}</button>}
-                {(u.status === 'idle' || u.status === 'none' || u.status === 'error') && (u.supported || u.channel === 'dev') && (
+                {(u.status === 'idle' || u.status === 'none' || u.status === 'error') && u.supported && (
                   <button className={primary} onClick={() => void checkForUpdates(autoDownload)}><RefreshCw size={14} />{u.status === 'error' ? t('updRetry') : t('updCheckNow')}</button>
                 )}
                 <button className={ghost} onClick={onClose}>{u.status === 'available' || u.status === 'ready' ? t('updLater') : t('updClose')}</button>

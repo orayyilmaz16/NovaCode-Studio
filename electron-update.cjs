@@ -13,18 +13,11 @@ const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
 const FEED = !app.isPackaged ? process.env.NOVA_UPDATE_FEED || '' : '';
 
 let updater = null;
-// Kanal: 'stable' = kurulu (paketli) uygulama → gerçek otomatik güncelleme; 'dev' = kaynaktan çalışan geliştirme sürümü → yalnız son yayınla KARŞILAŞTIRIR.
+// Kanal: 'stable' = setup (.exe) ile kurulu uygulama → denetle/indir/kur; 'dev' = kaynaktan çalışan geliştirme sürümü → hiç denetleme yapmaz.
 const channel = () => (app.isPackaged || FEED ? 'stable' : 'dev');
 let state = { status: 'idle', current: app.getVersion(), latest: '', notes: '', percent: 0, transferred: 0, total: 0, speed: 0, error: '', checkedAt: 0, supported: false, channel: 'dev', releaseUrl: '' };
 
 const supported = () => app.isPackaged || !!FEED;
-
-const semverGt = (a, b) => {
-  const pa = String(a).split(/[.+-]/).slice(0, 3).map((x) => parseInt(x, 10) || 0);
-  const pb = String(b).split(/[.+-]/).slice(0, 3).map((x) => parseInt(x, 10) || 0);
-  for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return pa[i] > pb[i];
-  return false;
-};
 
 function setState(patch, send) {
   state = { ...state, ...patch };
@@ -75,6 +68,7 @@ function register({ getWindow }) {
   };
   state.supported = supported();
   state.channel = channel();
+  if (!state.supported) state.status = 'unsupported';
 
   const bind = () => {
     const u = getUpdater();
@@ -98,18 +92,9 @@ function register({ getWindow }) {
   ipcMain.handle('update:state', () => state);
 
   ipcMain.handle('update:check', async (_e, opts) => {
-    // Geliştirme kanalı: kurulum yok; GitHub'daki son yayınla karşılaştır ("Son sürümdesiniz" / "yeni yayın var")
+    // Geliştirme kanalı (kaynak koddan çalışma): güncelleme denetimi YOK, ağ isteği gitmez; güncellemeyi git ile alırsın.
     if (!supported()) {
-      if (['checking'].includes(state.status)) return state;
-      setState({ status: 'checking', error: '' }, send);
-      try {
-        const r = await fetchJson(`${API}/releases/latest`);
-        const latest = String(r.tag_name || '').replace(/^v/, '');
-        const newer = latest && semverGt(latest, app.getVersion());
-        setState({ status: newer ? 'available' : 'none', latest: latest || app.getVersion(), notes: newer ? String(r.body || '').slice(0, 20000) : '', releaseUrl: String(r.html_url || ''), checkedAt: Date.now() }, send);
-      } catch (e) {
-        setState({ status: 'error', error: errCode(e) }, send);
-      }
+      if (state.status !== 'unsupported') setState({ status: 'unsupported', error: '' }, send);
       return state;
     }
     global.__novaAutoDownload = !!(opts && opts.autoDownload);
