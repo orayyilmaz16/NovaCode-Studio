@@ -20,7 +20,8 @@ import {
   ExternalLink,
   SquareTerminal,
   Search as SearchIcon,
-  History
+  History,
+  House
 } from 'lucide-react';
 import type { FileItem } from '../types';
 import { t, type UiTextKey } from '../i18n/uiText';
@@ -48,6 +49,8 @@ export interface FileTreeProps {
   onSelectFile: (file: FileItem) => void;
   onCloseOpenFile: (id: string) => void;
   onCloseAll?: () => void;
+  /** Projeyi kapatıp karşılama sayfasına döner. */
+  onCloseFolder?: () => void;
   onCreate: (name: string, isFolder: boolean, parentDir?: string) => void;
   onRename: (item: FileItem, newName: string) => void;
   /** Sürükle-bırak: mutlak kaynak yolu çalışma klasörü içindeki hedef klasöre taşınır. */
@@ -160,6 +163,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   onSelectFile,
   onCloseOpenFile,
   onCloseAll,
+  onCloseFolder,
   onCreate,
   onRename,
   onMove,
@@ -844,6 +848,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
                       <button onClick={collapseAll} title={t('expCollapseAll')} aria-label={t('expCollapseAll')} className={headBtn}>
                         <ListCollapse size={13} />
                       </button>
+                      {onCloseFolder && (
+                        <button onClick={onCloseFolder} title={t('expCloseFolder')} aria-label={t('expCloseFolder')} className={`${headBtn} hover:text-rose-300`}>
+                          <House size={13} />
+                        </button>
+                      )}
                     </span>
                   )}
                 </div>

@@ -564,6 +564,9 @@ export const UI_TEXT = {
   expEmptyFolder: {
     tr: "Bu klasör boş.", en: "This folder is empty.", de: "Dieser Ordner ist leer.", ru: "Эта папка пуста.", ar: "هذا المجلد فارغ.", es: "Esta carpeta está vacía.", fr: "Ce dossier est vide.", az: "Bu qovluq boşdur.",
   },
+  expCloseFolder: {
+    tr: "Klasörü kapat ve ana sayfaya dön", en: "Close folder and go home", de: "Ordner schließen und zur Startseite", ru: "Закрыть папку и вернуться на главную", ar: "إغلاق المجلد والعودة إلى الرئيسية", es: "Cerrar carpeta e ir al inicio", fr: "Fermer le dossier et revenir à l’accueil", az: "Qovluğu bağla və ana səhifəyə qayıt",
+  },
   expCloseAll: {
     tr: "Tümünü kapat", en: "Close all", de: "Alle schließen", ru: "Закрыть все", ar: "إغلاق الكل", es: "Cerrar todo", fr: "Tout fermer", az: "Hamısını bağla",
   },

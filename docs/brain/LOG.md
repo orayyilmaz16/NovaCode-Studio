@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 25.11.2026 11:05 · auto/20261118-083349
+<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvRmls -->
+- Alan: [[ui-design]], [[explorer]], [[i18n]]
+- Kod (3): `src/App.tsx`, `src/components/FileTree.tsx`, `src/i18n/uiText.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/explorer.md`
+- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
+
 ## 25.11.2026 10:59 · auto/20261118-083349
 <!-- sig:c3JjL2NvbXBvbmVudHMvQWNjb3JkaW9uTWVudS50 -->
 - Alan: [[ui-design]]
@@ -274,11 +281,4 @@
 - Alan: [[extensions]], [[security-kvkk]], [[search-palette]], [[ui-design]], [[settings]], [[terminal]], [[testing]]
 - Kod (12): `electron-ext.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-search.cjs`, `src/App.tsx`, `src/components/ExtensionsPanel.tsx`, `src/components/SettingsPage.tsx`, `src/components/Terminal.tsx`, `src/services/tasks.ts`, `src/services/trustService.ts`, `src/types.ts`, `scripts/tests/search-redos.test.cjs`
 - Belge (6): `CHANGELOG.md`, `docs/brain/BACKLOG.md`, `docs/brain/actions/i18n.md`, `docs/brain/actions/search-palette.md`, `docs/brain/actions/terminal.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.4.2 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 17.11.2026 16:47 · auto/20261117-130721
-<!-- sig:c2NyaXB0cy90ZXN0cy9rZXliaW5kaW5ncy50ZXN0 -->
-- Alan: [[testing]], [[ui-design]], [[search-palette]], [[extensions]], [[git-github]], [[terminal]], [[i18n]]
-- Kod (15): `scripts/tests/keybindings.test.cjs`, `src/App.tsx`, `src/components/CommandPalette.tsx`, `src/components/EditorArea.tsx`, `src/components/ExtensionsPanel.tsx`, `src/components/GitPanel.tsx`, `src/components/GithubAccount.tsx`, `src/components/KeybindingsEditor.tsx`, `src/components/LandingPage.tsx`, `src/components/SearchPanel.tsx`, `src/components/TaskPicker.tsx`, `src/components/Terminal.tsx` … (+3)
-- Belge (13): `CHANGELOG.md`, `docs/brain/BACKLOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/debugging.md`, `docs/brain/actions/explorer.md`, `docs/brain/actions/i18n.md`, `docs/brain/actions/lsp.md`, `docs/brain/actions/preview.md` … (+5)
 - Durum: ✓ belgelendi · sürüm: v1.4.2 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

@@ -34,3 +34,5 @@ Dosya izleyici: kendi içerik yazımımız 800 ms bastırılır, azami bekleme 1
 
 ## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
 Silme önce çöp kutusuna (`shell.trashItem`); başarısızsa onayla kalıcı silme. Klasör silinince alt sekmeler kapanır. Kök `.gitignore` desenleri (`electron-gitignore.cjs`): eşleşen klasörler görünür kalır ama yalnız ilk düzeyi taranır. Watcher olayında yalnız değişen klasörler (en çok 6) yeniden okunur. Yerel geçmiş ve zaman çizelgesi: bkz. [[security-kvkk]]; `electron-history.cjs`, `history:*` IPC, ayarlar `localHistory` ve `localHistoryMax`; Diff sekmesiyle karşılaştır, geri yükle, silinenleri kurtar. Sınır: yeniden adlandırılan dosyanın geçmişi eski yolda kalır.
+
+**Klasörü kapat (25.11.2026):** `App.tsx` `handleCloseFolder` kaydedilmemişleri sorar (`confirmDirty`), sekmeleri onaysız kapatır, uzak oturumu keser, kök/ağaç/git durumunu sıfırlar ve `showLanding` açar. Girişler: Gezgin başlığında ev düğmesi (`onCloseFolder`), Dosya menüsü, komut paleti `closeFolder`. i18n: `expCloseFolder`.

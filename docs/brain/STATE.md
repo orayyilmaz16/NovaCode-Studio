@@ -56,7 +56,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2465 |
+| `src/App.tsx` | 2489 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 510 |
 
@@ -78,7 +78,7 @@
 | `src/components/EditorArea.tsx` | 764 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 303 |
-| `src/components/FileTree.tsx` | 932 |
+| `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitPanel.tsx` | 883 |
 | `src/components/GithubAccount.tsx` | 137 |
@@ -157,7 +157,7 @@
 ### i18n
 | Dosya | Satır |
 |---|---|
-| `src/i18n/uiText.ts` | 670 |
+| `src/i18n/uiText.ts` | 673 |
 | `src/i18n/uiTextAi.ts` | 588 |
 | `src/i18n/uiTextComp.ts` | 329 |
 | `src/i18n/uiTextDev.ts` | 379 |
@@ -246,7 +246,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1080 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1081 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

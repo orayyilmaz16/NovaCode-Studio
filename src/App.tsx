@@ -1129,6 +1129,26 @@ export function App() {
     closeTabsNow(openFilesRef.current.map((f) => f.id));
   };
 
+  /** Projeyi kapatır: kaydedilmemiş sekmeler sorulur, sekmeler ve ağaç temizlenir, karşılama sayfasına dönülür. */
+  const handleCloseFolder = async () => {
+    if (!rootPathRef.current) return;
+    flushEditorChanges();
+    const dirty = openFilesRef.current.filter((f) => f.isModified && !f.diff);
+    if (!(await confirmDirty(dirty))) return;
+    closeTabsNow(openFilesRef.current.map((f) => f.id), false);
+    if (remoteRef.current) void window.electronAPI?.ssh?.disconnect?.(remoteRef.current.hostId);
+    setRemoteHost(null);
+    rootPathRef.current = null;
+    treeSeq.current++;
+    setCurrentRootPath(null);
+    setCurrentRootName('');
+    setFiles([]);
+    setGitStatus({ isRepo: false, changes: [] });
+    setShowSettings(false);
+    setShowLanding(true);
+    loadRecent(true);
+  };
+
   const handleOpenInTerminal = (dir: string) => {
     setShowBottomTerminal(true);
     void sendTerminalWhenReady({ action: 'cd', dir });
@@ -1613,7 +1633,7 @@ export function App() {
   const toggleThemeMode = () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
   const checkUpdatesNow = () => { setUpdateDlg('update'); void checkForUpdates(settings.updateAutoDownload === true); };
   const actions = {
-    handleNewUntitled, handleOpenFolderDialog, handleOpenFileDialog, saveActive, closeActive, cycleTab, handleRunCode, runActiveFile,
+    handleNewUntitled, handleOpenFolderDialog, handleOpenFileDialog, handleCloseFolder, saveActive, closeActive, cycleTab, handleRunCode, runActiveFile,
     splitRight: () => doSplit('row'), splitDown: () => doSplit('col'), focusOtherGroup, closeSplitView, openKeybindings: () => setShowKeybindings(true),
     startDebugActive, openSettingsAt, openDocs, openProblems, pickSidebarForce, toggleAI, openThemePicker, reopenClosedTab,
     zoomBy, toggleThemeMode, checkUpdatesNow, newTerminal: () => { setShowBottomTerminal(true); void sendTerminalWhenReady({ action: 'new' }); },
@@ -1656,6 +1676,7 @@ export function App() {
       { label: t('openFolder'), shortcut: 'Ctrl+O', onClick: () => void L.handleOpenFolderDialog() },
       { label: t('openFiles'), shortcut: 'Ctrl+Shift+O', onClick: () => void L.handleOpenFileDialog() },
       { label: t('rmConnect'), onClick: () => setShowRemote(true) },
+      { label: t('expCloseFolder'), ...D, onClick: () => void L.handleCloseFolder() },
       { separator: true },
       { label: t('cmdSave'), shortcut: 'Ctrl+S', ...F, onClick: L.saveActive },
       { label: t('cmdCloseTab'), shortcut: 'Ctrl+W', ...F, onClick: L.closeActive },
@@ -1779,6 +1800,7 @@ export function App() {
     { id: 'format', label: t('cmdFormat'), run: () => runEditorAction('editor.action.formatDocument') },
     { id: 'newFile', label: t('newFile'), shortcut: 'Ctrl+N', run: L.handleNewUntitled },
     { id: 'openFolder', label: t('openFolder'), shortcut: 'Ctrl+O', run: () => void L.handleOpenFolderDialog() },
+    { id: 'closeFolder', label: t('expCloseFolder'), run: () => void L.handleCloseFolder() },
     { id: 'remoteConnect', label: t('rmConnect'), run: () => setShowRemote(true) },
     { id: 'remoteWindow', label: t('rwTitle'), run: () => setRemoteMenu(true) },
     { id: 'save', label: t('cmdSave'), shortcut: 'Ctrl+S', run: L.saveActive },
@@ -1850,6 +1872,7 @@ export function App() {
   const eCreate = useEvent((name: string, isFolder: boolean, parentDir?: string) => void handleCreateFile(name, isFolder, parentDir));
   const eMove = useEvent((src: string, dir: string) => void handleMove(src, dir));
   const eCloseAll = useEvent(() => void handleCloseAll());
+  const eCloseFolder = useEvent(() => void handleCloseFolder());
   const eTerm = useEvent((dir: string) => handleOpenInTerminal(dir));
   const eRecent = useEvent((p: string) => void handleOpenRecent(p));
   const eRename = useEvent((item: FileItem, name: string) => void handleRename(item, name));
@@ -2120,6 +2143,7 @@ export function App() {
                     onCreate={eCreate}
                     onMove={eMove}
                     onCloseAll={eCloseAll}
+                    onCloseFolder={eCloseFolder}
                     onOpenInTerminal={eTerm}
                     onOpenRecent={eRecent}
                     onRename={eRename}
