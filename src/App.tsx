@@ -1304,7 +1304,8 @@ export function App() {
     setShowSettings(false);
     setShowRightPanel('ai');
   };
-  const sidebarShown = sidebarVisible && !showLanding;
+  // Kenar çubuğu (Gezgin) ana sayfada da açık kalır; yalnız kullanıcı kapatırsa kapanır
+  const sidebarShown = sidebarVisible;
   const sidebarRight = settings.sidebarPosition === 'right';
   const tabSize = Number(settings.tabSize) || 2;
 
@@ -1323,7 +1324,7 @@ export function App() {
 
   // Etkinlik çubuğu: etkin sekmeye tekrar basmak kenar çubuğunu kapatır (VS Code davranışı)
   const pickSidebar = (tab: 'files' | 'search' | 'git' | 'extensions' | 'debug') => {
-    if (!showLanding && activeSidebarTab === tab && sidebarVisible) {
+    if (activeSidebarTab === tab && sidebarVisible) {
       setSidebarVisible(false);
       return;
     }

@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Ana sayfada Gezgin açık kalır:** Ana sayfaya geçince (ev düğmesi ya da klasörü kapatma) kenar çubuğu artık kapanmıyor; yalnız sen kapatınca kapanır.
 - [feat] **Klasörü kapat ve ana sayfaya dön:** Gezgin başlığına ev düğmesi, Dosya menüsüne ve komut paletine "Klasörü kapat ve ana sayfaya dön" eklendi. Kaydedilmemiş dosya varsa önce sorar; sonra sekmeleri ve ağacı temizleyip karşılama sayfasını açar (uzak bağlantı varsa keser).
 - [improve] **Tamamı kapalı menü kategorileri etkileşimsiz:** İçindeki tüm öğeler kullanılamayan kategoriler (ör. klasör açık değilken Düzenle, Seçim, Terminal) artık tıklanmaz, açılmaz, klavyeyle gezilmez ve üzerine gelince menü geçişi yapmaz; hem kompakt "Menü" açılırında hem üst menü çubuğunda. Kapalı tekil öğeler de basılmaz kalır, nedenini söyleyen ipucu durur.
 - [improve] **Kullanılmayan menü öğeleri koyu:** Menülerde kapalı (kullanılamayan) öğeler, kısayolları ve tamamı kapalı kategori başlıkları soluk griye değil koyu (neredeyse siyah) tona çekildi; kompakt "Menü" açılırında ve üst menü çubuğunda aynıdır.
@@ -51,6 +52,7 @@
 
 ### en
 
+- [improve] **Explorer stays open on the home page:** Going home (home button or closing a folder) no longer hides the sidebar; it closes only when you close it.
 - [feat] **Close folder and go home:** Added a home button in the Explorer header plus "Close folder and go home" in the File menu and command palette. It asks about unsaved files first, then clears tabs and the tree and opens the welcome page (and disconnects a remote session if any).
 - [improve] **Fully disabled menu categories are inert:** Categories whose items are all unavailable (e.g. Edit, Selection, Terminal when no folder is open) can no longer be clicked, opened, reached with the keyboard, or switched to by hovering, in both the compact "Menu" dropdown and the top menu bar. Individual disabled items stay unclickable and keep their explanatory hint.
 - [improve] **Unavailable menu items are darker:** Disabled menu items, their shortcuts and category titles whose items are all disabled now use a dark (near-black) tone instead of faded gray, in both the compact "Menu" dropdown and the top menu bar.
