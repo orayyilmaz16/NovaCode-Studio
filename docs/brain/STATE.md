@@ -40,7 +40,7 @@
 | `electron-lsp.cjs` | 301 |
 | `electron-main.cjs` | 851 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 282 |
+| `electron-preload.cjs` | 283 |
 | `electron-preview.cjs` | 78 |
 | `electron-pty.cjs` | 237 |
 | `electron-search.cjs` | 289 |
@@ -51,14 +51,14 @@
 | `electron-term.cjs` | 176 |
 | `electron-textbuffer.cjs` | 309 |
 | `electron-trust.cjs` | 170 |
-| `electron-update.cjs` | 150 |
+| `electron-update.cjs` | 175 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
 | `src/App.tsx` | 2490 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 510 |
+| `src/types.ts` | 511 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -98,7 +98,7 @@
 | `src/components/RemoteMenu.tsx` | 159 |
 | `src/components/ResizeHandle.tsx` | 69 |
 | `src/components/SearchPanel.tsx` | 214 |
-| `src/components/SettingsPage.tsx` | 746 |
+| `src/components/SettingsPage.tsx` | 754 |
 | `src/components/SnippetsEditor.tsx` | 83 |
 | `src/components/SplashScreen.tsx` | 56 |
 | `src/components/StatusCursor.tsx` | 66 |
@@ -163,7 +163,7 @@
 | `src/i18n/uiTextDev.ts` | 379 |
 | `src/i18n/uiTextRemote.ts` | 180 |
 | `src/i18n/uiTextScm.ts` | 276 |
-| `src/i18n/uiTextTheme.ts` | 1127 |
+| `src/i18n/uiTextTheme.ts` | 1130 |
 
 ### Betikler
 | Dosya | Satır |
@@ -240,14 +240,14 @@
 | term | `term:input`, `term:start`, `term:stop` |
 | trust | `trust:grant`, `trust:list`, `trust:revoke`, `trust:status` |
 | ui | `ui:setTheme` |
-| update | `update:check`, `update:download`, `update:install`, `update:releases`, `update:state` |
+| update | `update:check`, `update:download`, `update:install`, `update:releases`, `update:runtime-latest`, `update:state` |
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
 **Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1081 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1082 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
