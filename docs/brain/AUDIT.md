@@ -22,7 +22,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | orta | SEC-HTML | `src/components/Preview.tsx:184` | Ham HTML basımı; DOMPurify ile temizlendiğini doğrula |
 | orta | SEC-OPENEXT | `electron-github.cjs:197,253` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
 | orta | SEC-OPENEXT | `electron-main.cjs:70` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
-| orta | SEC-OPENEXT | `electron-update.cjs:159` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
+| orta | SEC-OPENEXT | `electron-update.cjs:144` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | düşük | SEC-HTTP | `electron-ai.cjs:118` | Şifresiz http:// adresi |
 | düşük | SEC-IPC-NOEVT | `electron-ai.cjs:965,968,982` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-ext.cjs:318,329` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (2×) |
@@ -31,7 +31,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | SEC-IPC-NOEVT | `electron-pty.cjs:219` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-search.cjs:245` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-trust.cjs:152,157,162` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
-| düşük | SEC-IPC-NOEVT | `electron-update.cjs:98,122,128…(+1)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (4×) |
+| düşük | SEC-IPC-NOEVT | `electron-update.cjs:92,107,113…(+1)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (4×) |
 
 ## Performans
 | Önem | Kural | Konum | Sorun |

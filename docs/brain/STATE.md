@@ -3,7 +3,7 @@
 > Bu dosya `scripts/brain.mjs` tarafından koddan üretilir; **elle düzenleme**. Yenilemek için `npm run brain`. Bkz. [[BRAIN]].
 
 ## Sürümler
-- Uygulama: **1.6.1**
+- Uygulama: **1.7.0**
 - Electron ^45.3.3 · React ^19.3.1 · Vite ^8.3.8 · TypeScript ~7.0.2 · Tailwind ^4.3.5
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.57.0
 - GitHub OAuth Client ID tanımlı: evet
@@ -51,7 +51,7 @@
 | `electron-term.cjs` | 176 |
 | `electron-textbuffer.cjs` | 309 |
 | `electron-trust.cjs` | 170 |
-| `electron-update.cjs` | 165 |
+| `electron-update.cjs` | 150 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
@@ -108,7 +108,7 @@
 | `src/components/ThinkingMenu.tsx` | 146 |
 | `src/components/TimelinePanel.tsx` | 151 |
 | `src/components/TrustDialog.tsx` | 54 |
-| `src/components/UpdateDialog.tsx` | 156 |
+| `src/components/UpdateDialog.tsx` | 155 |
 | `src/components/WindowControls.tsx` | 48 |
 
 ### Servisler
