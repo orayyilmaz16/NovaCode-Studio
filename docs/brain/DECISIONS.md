@@ -171,3 +171,6 @@ Durum çubuğunda dil adı resmi yazımla gösterilir (`languageLabel`, `src/ser
 
 ## 23.11.2026 — Sekme çubuğunda + düğmesi yok
 Karar (kurucu): editör sekme çubuğunda yeni sekme (+) düğmesi gösterilmez; yeni dosya yolları Ctrl+N, menü, komut paleti ve boş editör ekranıdır. Neden: sekme çubuğu sade kalsın.
+
+## 25.11.2026 — Paket bütçesi yükseltildi
+Karar (kurucu): ana paket bütçesi JS 600→700 KB (gzip 200→230), CSS 100→120 KB. Neden: 49 commitlik birikim (menü akordeonu, klasör kapatma, SSH vb.) bütçeyi aştı; PR #73 birleşsin. Önceki kural (bütçe yükseltilmez, lazy import) bu tarihten sonra geçersiz; yeni aşımda önce lazy import denenir, sonra bütçe konuşulur.
