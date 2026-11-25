@@ -174,6 +174,7 @@
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
 | `scripts/check-version.mjs` | 82 |
+| `scripts/dep-changelog.mjs` | 52 |
 | `scripts/doc-sync.mjs` | 188 |
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/make-icons.cjs` | 29 |
@@ -373,6 +374,7 @@
 ## GitHub Actions
 | Dosya | Ad | İşler |
 |---|---|---|
+| `.github/workflows/auto-release.yml` | Otomatik sürüm hazırlığı | `prepare` (Sürümü hazırla ve PR aç) |
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi), `release-desktop` (Windows Kurulum (.exe) ve Release) |
 | `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
