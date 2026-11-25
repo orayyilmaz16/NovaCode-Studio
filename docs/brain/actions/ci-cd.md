@@ -54,3 +54,4 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 - CI araç Node sürümü 22 → 24 (LTS). Uygulamanın çalışma zamanı Node'u Electron'dan gelir.
 - Sürüm: bağımlılık PR'ı CHANGELOG maddesi taşımaz; Electron yükseltmesi kullanıcıya bir sonraki sürümle (herhangi bir madde sürümü çıkarınca) ulaşır.
 
+- Sürüm otomasyonu: `auto-release.yml` (bkz. versioning.md). Electron/çalışma zamanı bağımlılık yükseltmesi artık kendi sürümünü hazırlatır; ayar açıksa insan müdahalesi gerekmez.

@@ -1,0 +1,79 @@
+name: Otomatik sürüm hazırlığı
+
+# main'e her bağımlılık/CHANGELOG değişikliği girdiğinde ve günde bir kez: etiketsiz kalan değişiklik varsa sürümü hazırlar
+# (package.json + lock, CHANGELOG, release-notes, VERSIONS, CLAUDE/AGENT blokları) ve PR açar; CI yeşil olunca birleşir,
+# ci-cd.yml etiketi atıp Windows kurulumunu ve GitHub Release'i üretir. Düzey kuralı: docs/brain/actions/versioning.md
+#
+# GEREKLİ AYAR (bir kez): Settings → Actions → General → Workflow permissions →
+# "Allow GitHub Actions to create and approve pull requests". Kapalıysa bu iş "PR oluşturulamadı" ile uyarır.
+on:
+  push:
+    branches: ["main"]
+    paths: ["package.json", "package-lock.json", "CHANGELOG.md"]
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: auto-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  prepare:
+    name: Sürümü hazırla ve PR aç
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: >-
+      github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'chore(auto): release')
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+
+      - name: Bağımlılık değişikliğinden CHANGELOG maddesi (Electron yığını, çalışma zamanı bağımlılıkları)
+        run: node scripts/dep-changelog.mjs
+
+      - name: Sürüm kararı
+        id: plan
+        run: |
+          node scripts/release.mjs plan | tee plan.json
+          echo "action=$(node -p "require('./plan.json').action")" >> "$GITHUB_OUTPUT"
+          echo "next=$(node -p "require('./plan.json').next")" >> "$GITHUB_OUTPUT"
+          rm plan.json
+
+      - name: Sürümü hazırla
+        if: steps.plan.outputs.action == 'release'
+        run: |
+          node scripts/release.mjs prepare
+          node scripts/brain.mjs >/dev/null 2>&1 || true
+          node scripts/check-version.mjs
+
+      - name: Dal, PR, CI ve auto-merge
+        if: steps.plan.outputs.action == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT: ${{ steps.plan.outputs.next }}
+        run: |
+          branch="auto/release-v${NEXT}"
+          git config user.name "novacode-bot"
+          git config user.email "novacode-bot@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "chore(auto): release v${NEXT}"
+          git push origin "$branch"
+          if ! gh pr create --base main --head "$branch" --title "chore(auto): release v${NEXT}" \
+              --body "Otomatik sürüm hazırlığı (scripts/release.mjs prepare). CI yeşil olunca birleşir; etiket ve GitHub Release ci-cd.yml ile üretilir."; then
+            echo "::warning::PR oluşturulamadı. Settings → Actions → General → 'Allow GitHub Actions to create and approve pull requests' açık olmalı."
+            exit 1
+          fi
+          # GITHUB_TOKEN ile açılan PR'da iş akışları kendiliğinden başlamaz; zorunlu kontrol için CI elle tetiklenir
+          gh workflow run ci-cd.yml --ref "$branch"
+          gh pr merge --auto --squash "$branch"

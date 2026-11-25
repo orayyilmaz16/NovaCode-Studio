@@ -65,3 +65,8 @@ Kapatmak: `NOVA_RELEASE=off` (yalnız sürüm hazırlığı), `NOVA_DOCSYNC=off`
 
 ## Doğrulama
 `node scripts/tests/release.test.cjs` (düzey kuralları, çıktılar, bekleyen sürüm, etiket kararı, ata olmayan etiket), `node scripts/check-version.mjs`, `npm run brain:check`.
+
+## Bulutta otomatik sürüm hazırlığı (25.11.2026)
+- `.github/workflows/auto-release.yml`: main'e `package.json`/lock/CHANGELOG değişikliği girince ve günde bir (05:17 UTC) çalışır. Önce `scripts/dep-changelog.mjs`: son etiketten beri Electron yığını (`electron`, `electron-builder`, `@electron/*`) veya çalışma zamanı `dependencies` yükseldiyse ve Unreleased boşsa tr+en maddesi ekler (`[security]` Electron, `[improve]` diğerleri; yalnız geliştirme araçları sürüm çıkarmaz). Sonra `release.mjs plan` → `prepare` → `auto/release-vX.Y.Z` dalı + PR (`chore(auto): release vX.Y.Z`) + ci-cd.yml elle tetiklenir (GITHUB_TOKEN PR'ında CI kendiliğinden başlamaz) + auto-merge.
+- PR başlığı `chore(release)` ile BAŞLAMAMALI: ci-cd.yml `version` işi o önekli commit'te etiket atmaz.
+- **Bir kez gerekli ayar:** Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests". Kapalıyken iş "PR oluşturulamadı" uyarısıyla düşer; yerelde Stop hook (`release.mjs prepare`) çalışmaya devam eder.
