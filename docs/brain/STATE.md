@@ -175,7 +175,7 @@
 | `scripts/check-hygiene.mjs` | 75 |
 | `scripts/check-version.mjs` | 82 |
 | `scripts/dep-changelog.mjs` | 52 |
-| `scripts/doc-sync.mjs` | 188 |
+| `scripts/doc-sync.mjs` | 189 |
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/make-icons.cjs` | 29 |
 | `scripts/release.mjs` | 286 |

@@ -13,7 +13,7 @@ Son tarama: 25.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `SEC-IPC-NOEVT` electron-update.cjs
+- Yeni/artan: yok
 - Giderilen: yok
 
 ## Güvenlik
