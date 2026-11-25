@@ -72,11 +72,16 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
             data-active={open?.id === m.id}
             onClick={(e) => { if (!justClosed(m.id)) openFor(m.id, e.currentTarget); }}
             onMouseEnter={(e) => { if (open && open.id !== m.id) openFor(m.id, e.currentTarget); }}
-            className={`mb-btn rounded-md whitespace-nowrap shrink-0 transition-colors duration-(--dur-fast) ${
-              open?.id === m.id ? 'bg-white/[0.09] text-zinc-50' : 'text-zinc-400 hover:bg-white/[0.07] hover:text-zinc-100'
+            // Açık menü beyaz ve vurgulu; diğerleri sönük (menü açıkken daha da koyu), üzerine gelince aydınlanır
+            className={`mb-btn relative rounded-md whitespace-nowrap shrink-0 transition-[color,background-color] duration-(--dur-base) ease-(--ease-out-soft) ${
+              open?.id === m.id ? 'bg-white/[0.10] text-white' : `${open ? 'text-zinc-600' : 'text-zinc-500'} hover:bg-white/[0.06] hover:text-zinc-200`
             }`}
           >
             {m.label}
+            <span
+              aria-hidden
+              className={`pointer-events-none absolute inset-x-2 bottom-0.5 h-0.5 rounded-full bg-indigo-400 origin-center transition-[transform,opacity] duration-(--dur-base) ease-(--ease-out-soft) ${open?.id === m.id ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+            />
           </button>
         ))
       )}

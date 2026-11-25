@@ -88,7 +88,7 @@
 | `src/components/Logo.tsx` | 36 |
 | `src/components/Markdown.tsx` | 73 |
 | `src/components/Menu.tsx` | 115 |
-| `src/components/MenuBar.tsx` | 87 |
+| `src/components/MenuBar.tsx` | 92 |
 | `src/components/ModelMenu.tsx` | 83 |
 | `src/components/OutputPanel.tsx` | 121 |
 | `src/components/Preview.tsx` | 372 |
