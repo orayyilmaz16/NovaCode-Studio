@@ -4,6 +4,7 @@
 
 | Sürüm | Tarih | Tür | Özet | Notlar |
 |---|---|---|---|---|
+| v1.7.0 | 25.11.2026 | minor | 1 improved: Update checks only in the installed app | [v1.7.0](../../release-notes/v1.7.0.md) |
 | v1.6.1 | 25.11.2026 | patch | 1 fix: Menu keyboard and resize fixes | [v1.6.1](../../release-notes/v1.6.1.md) |
 | v1.6.0 | 25.11.2026 | minor | 9 new, 10 fix, 26 improved, 1 security: Close folder and go home | [v1.6.0](../../release-notes/v1.6.0.md) |
 | v1.5.1 | 18.11.2026 | patch | 1 improved: Agent screen simplified and clearer | [v1.5.1](../../release-notes/v1.5.1.md) |
