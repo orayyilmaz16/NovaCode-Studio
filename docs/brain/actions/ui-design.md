@@ -158,3 +158,5 @@ Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `s
 **Tam ortalı arama (23.11.2026):** `header` `grid-cols-[minmax(0,1fr)_auto_minmax(max-content,1fr)]`: sol kart `justify-self-start`, sağ kart `justify-self-end`, orta arama kartı `auto` sütunda geometrik merkezde. Önceki `flex-1` boşluk elemanları kalktı.
 
 **Pencereli görünümde küçültme (23.11.2026):** `App.tsx` `markWindowed` pencere tam ekran değilse (`outerWidth < screen.availWidth - 8`) `<html data-win="windowed">` koyar ve menüyü kompakt (tek "Menü" düğmesi) yapar; `style.css` bu durumda `.hdr-btn` 24×20 (simge 13 px), `.hdr-sep`/`.hdr-group` sıkı, `.wc-btn` 34 px, `.mb-btn` (MenuBar düğmeleri) 24 px yükseklik/11,5 px yazı yapar. Tam ekranda eski boyutlar.
+
+**Kompakt Menü akordeonu (25.11.2026):** Pencereli görünümde `MenuBar` kompakt modu artık `AccordionMenu.tsx` açar (eski: grup listesi → ayrı menü). Gruplar satır içi açılır, aynı anda tek grup açık; geçiş `--dur-base` jetonuyla grid-satır animasyonu; düğmede dönen ok. Normal (geniş) başlık çubuğu `PopupMenu` ile aynı kaldı.

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { ChevronRight, Menu as MenuIcon } from 'lucide-react';
+import { ChevronDown, Menu as MenuIcon } from 'lucide-react';
 import { PopupMenu, type MenuItem } from './Menu';
+import { AccordionMenu } from './AccordionMenu';
 import { t } from '../i18n/uiText';
 
 export interface MenuGroup {
@@ -40,16 +41,6 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
 
   const current = open && open.id !== '__root' ? menus.find((m) => m.id === open.id) : undefined;
 
-  // Kompakt: tek düğme → grup listesi → seçilen grubun menüsü (aynı konumda)
-  const rootItems: MenuItem[] = menus.map((m) => ({
-    label: m.label,
-    icon: <ChevronRight size={12} />,
-    onClick: () => {
-      const pos = open;
-      window.setTimeout(() => { if (pos) setOpen({ id: m.id, x: pos.x, y: pos.y }); }, 0);
-    }
-  }));
-
   return (
     <nav
       aria-label={t('mnMenu')}
@@ -70,6 +61,7 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
         >
           <MenuIcon size={14} />
           <span>{t('mnMenu')}</span>
+          <ChevronDown size={12} className={`shrink-0 opacity-70 transition-transform duration-(--dur-base) ${open ? 'rotate-180' : ''}`} />
         </button>
       ) : (
         menus.map((m) => (
@@ -88,7 +80,7 @@ export const MenuBar: React.FC<Props> = ({ menus, compact }) => {
           </button>
         ))
       )}
-      {open && open.id === '__root' && <PopupMenu key="__root" x={open.x} y={open.y} items={rootItems} onClose={close} />}
+      {open && open.id === '__root' && <AccordionMenu key="__root" x={open.x} y={open.y} groups={menus} onClose={close} />}
       {open && current && <PopupMenu key={open.id} x={open.x} y={open.y} items={current.items} onClose={close} />}
     </nav>
   );

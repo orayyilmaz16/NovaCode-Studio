@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Menü açılırı akordeon oldu:** Pencereli görünümdeki "Menü" düğmesi artık grupları (Dosya, Düzenle…) aynı listede açılır-kapanır başlıklar olarak gösteriyor; ok simgesi döner, açık grup vurgulanır, alt öğeler girintili çizgiyle ayrılır. Klavye: ↑ ↓ gezinir, → açar, ← kapatır, Enter çalıştırır.
 - [improve] **Pencereli görünümde küçük üst çubuk:** Pencere tam ekran/büyütülmüş değilken menü ("Menü" tek düğmede toplanır), hızlı düğmeler ve pencere denetimleri daha küçük ve sıkı; üst çubuk daha az yer kaplıyor.
 - [improve] **Arama çubuğu tam ortada:** Üst çubuk üç sütunlu ızgaraya geçti; arama kartı pencere genişliği ne olursa olsun tam ortada kalıyor, sol ve sağ kartlar kendi kenarlarına hizalı ve içeriği kadar.
 - [improve] **Üst çubuk kartları içeriği kadar:** Sol (menü) ve sağ (düğmeler) kartlar artık boşluğa uzamıyor, içindekiler kadar yer kaplıyor; aradaki boşluk pencereyi sürüklemeye yarıyor.
@@ -46,6 +47,7 @@
 
 ### en
 
+- [improve] **Menu dropdown is now an accordion:** In windowed mode the "Menu" button shows groups (File, Edit…) as expandable headings in the same list; the chevron rotates, the open group is highlighted and its items are indented with a guide line. Keyboard: ↑ ↓ move, → opens, ← closes, Enter runs.
 - [improve] **Smaller top bar when windowed:** Whenever the window is not maximized/full screen, the menu (collapsed into one button), quick buttons and window controls are smaller and tighter, so the top bar takes less room.
 - [improve] **Search bar exactly centered:** The top bar now uses a three-column grid; the search card stays exactly centered at any window width, while the left and right cards align to their edges and fit their content.
 - [improve] **Top bar cards fit their content:** The left (menu) and right (buttons) cards no longer stretch into the free space; they take only as much room as their content, and the gap between them drags the window.
