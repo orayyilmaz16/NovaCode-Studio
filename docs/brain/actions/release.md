@@ -25,3 +25,6 @@ triggers: ["sürüm yükselt", "commitle", "push et", "release hazırla"]
 
 ## Çıktı
 `CHANGELOG.md` Unreleased, [[AGENT]] **Durum** (tarihli, ≤10 satır), gerekirse [[DECISIONS]].
+
+## Eski sürümlere mac/linux
+Actions → *Eski sürümlere macOS ve Linux paketi ekle* elle çalıştırılır (etiket listesi boş = hepsi). Etiketin kendi kodunu derler, yalnız dmg/zip/AppImage/deb yükler, Windows'a dokunmaz.

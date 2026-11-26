@@ -192,3 +192,6 @@ Karar (kurucu): çalışma zamanı bağımlılıklarının patch/minor, GitHub A
 
 ## 26.11.2026 — macOS ve Linux kurulum paketleri
 Karar (kurucu): sürüm artık Windows yanında macOS (.dmg+.zip, x64+arm64) ve Linux (.AppImage+.deb, x64) paketleri de üretir; `ci-cd.yml` `build-desktop` matrisi + tek `release-desktop` yayın işi. İmza/noterlik secret'ları tanımsızsa paketler imzasız çıkar (macOS'ta otomatik güncelleme imzasız çalışmaz). Neden: üç masaüstü platformuna destek. Geri dönüş: `build.mac`/`build.linux` ve matris satırlarını kaldır.
+
+## 26.11.2026 — Eski sürümlere macOS/Linux ve source code arşivi
+Karar (kurucu): önceki tüm release'lere (v1.0.0+) macOS ve Linux paketleri etiketin kendi kodundan derlenip eklenir (`.github/workflows/backfill-desktop.yml`, `scripts/backfill-overlay.mjs`: güncel mac/linux yapılandırmasını eski package.json'a ekler). GitHub'ın otomatik "Source code (zip/tar.gz)" varlıkları API ile kaldırılamaz; bu yüzden kaldırılamadı. Geri dönüş: workflow dosyasını sil, eklenen varlıkları `gh release delete-asset` ile kaldır.

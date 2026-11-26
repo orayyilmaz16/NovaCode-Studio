@@ -3,8 +3,10 @@
 ## Unreleased
 
 ### tr
+- [improve] **Eski sürümlere macOS ve Linux:** Önceki tüm sürümlere (v1.0.0 ve sonrası) macOS ve Linux paketleri geriye dönük eklenir (backfill-desktop.yml); README'ye üç işletim sistemi için indirme tablosu eklendi.
 
 ### en
+- [improve] **macOS and Linux for older releases:** macOS and Linux packages are added retroactively to all earlier releases (v1.0.0 onward) (backfill-desktop.yml); the README now has a download table for all three operating systems.
 
 ## 1.9.0 - 26.11.2026
 <!-- level: minor -->

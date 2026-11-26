@@ -1,0 +1,79 @@
+name: Eski sürümlere macOS ve Linux paketi ekle
+
+# Elle çalışır. Her etiketi kendi kodundan derler, yalnız macOS (dmg, zip) ve Linux (AppImage, deb) dosyalarını
+# var olan GitHub Release'e ekler. Windows kurulumuna ve sürüm notuna dokunmaz.
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: "Boşlukla ayrılmış etiketler (ör. v1.8.0 v1.7.2). Boşsa tüm release'ler."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    permissions:
+      contents: read
+    steps:
+      - id: m
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAGS: ${{ inputs.tags }}
+        run: |
+          if [ -z "$TAGS" ]; then TAGS=$(gh release list -R "${{ github.repository }}" --limit 100 --json tagName --jq '.[].tagName' | tr '\n' ' '); fi
+          tags=$(printf '%s\n' $TAGS | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9]+)?$' | jq -R . | jq -sc .)
+          echo "matrix={\"tag\":$tags,\"os\":[\"macos-latest\",\"ubuntu-latest\"]}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: ${{ matrix.tag }} (${{ matrix.os }})
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: _current
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ matrix.tag }}
+          path: app
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      - name: Mac/Linux yapılandırmasını ekle
+        shell: bash
+        run: |
+          node _current/scripts/backfill-overlay.mjs _current/package.json app/package.json
+          mkdir -p app/public && [ -f app/public/icon.png ] || cp _current/public/icon.png app/public/icon.png
+      - name: Derle
+        working-directory: app
+        shell: bash
+        run: |
+          npm ci --ignore-scripts
+          npx vite build
+          flag=$([ "${{ runner.os }}" = "macOS" ] && echo --mac || echo --linux)
+          npx electron-builder $flag --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - name: Release'e yükle
+        working-directory: app
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          shopt -s nullglob
+          files=(release/*.dmg release/*.AppImage release/*.deb release/*mac*.zip)
+          [ ${#files[@]} -gt 0 ] || { echo "paket üretilmedi"; exit 1; }
+          gh release upload "${{ matrix.tag }}" "${files[@]}" --clobber -R "${{ github.repository }}"
