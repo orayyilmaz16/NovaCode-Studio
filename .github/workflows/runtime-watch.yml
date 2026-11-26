@@ -1,0 +1,61 @@
+name: Electron, Chromium ve Node.js izleyici
+
+# Günde iki kez Electron'un son kararlı sürümüne bakar (Chromium ve Node.js onunla birlikte gelir). package.json geride kalmışsa
+# Electron'u yükseltir, PR açar, CI (tip, build, audit) ve güvenlik taramasını (CodeQL, gitleaks, dependency review) tetikler,
+# yeşil olunca auto-merge eder. Dependabot'a ek güvence: onun PR'ı gecikirse bu iş devreye girer. Kural: docs/brain/actions/updates.md
+#
+# GEREKLİ AYAR: Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests" açık olmalı.
+on:
+  schedule:
+    - cron: "37 3,15 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: runtime-watch
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  watch:
+    name: Yeni Electron varsa yükselt ve tara
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+
+      - name: Son kararlı Electron sürümü
+        id: latest
+        run: node scripts/runtime-watch.mjs
+
+      - name: Yükselt, PR aç, CI ve güvenlik taraması
+        if: steps.latest.outputs.outdated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VER: ${{ steps.latest.outputs.electron }}
+          CHROME: ${{ steps.latest.outputs.chrome }}
+          NODEV: ${{ steps.latest.outputs.node }}
+        run: |
+          branch="auto/electron-${VER}"
+          if gh pr list --state open --search "electron ${VER} in:title" --json number --jq '.[0].number' | grep -q .; then
+            echo "Bu sürüm için açık PR var (örn. Dependabot); atlanıyor."; exit 0
+          fi
+          git config user.name "novacode-bot"
+          git config user.email "novacode-bot@users.noreply.github.com"
+          git checkout -b "$branch"
+          npm install --save-dev "electron@${VER}" --no-audit --no-fund
+          git add package.json package-lock.json
+          git commit -m "chore(deps): bump electron to ${VER}"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "chore(deps): bump electron to ${VER}" \
+            --body "Otomatik: Electron ${VER} (Chromium ${CHROME}, Node.js ${NODEV}). CI ve güvenlik taraması yeşil olunca birleşir."
+          # GITHUB_TOKEN ile açılan PR'da iş akışları kendiliğinden başlamaz; zorunlu kontroller elle tetiklenir
+          gh workflow run ci-cd.yml --ref "$branch"
+          gh workflow run security.yml --ref "$branch"
+          gh pr merge --auto --squash "$branch"

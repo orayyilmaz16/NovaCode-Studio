@@ -3,9 +3,11 @@
 ## Unreleased
 
 ### tr
+- [improve] **Otomatik Electron izleyici:** Günde iki kez çalışan iş akışı son kararlı Electron sürümünü (Chromium ve Node.js ile birlikte) kontrol eder, yükseltir, PR açar, CI ve güvenlik taramasını çalıştırır; yeşil olunca otomatik birleştirir.
 - [fix] **Hakkında son sürümler her yerde:** Hakkında sayfasındaki son Electron, Chromium ve Node.js bilgisi artık kaynak koddan çalışırken de gösteriliyor (önceden yalnız kurulu uygulamada çalışıyordu).
 
 ### en
+- [improve] **Automatic Electron watcher:** A twice-daily workflow checks the latest stable Electron (with its Chromium and Node.js), upgrades it, opens a PR, runs CI and the security scan, and auto-merges when green.
 - [fix] **Latest versions in About everywhere:** The latest Electron, Chromium and Node.js info in About now also shows when running from source (it previously worked only in the installed app).
 
 ## 1.8.0 - 25.11.2026
