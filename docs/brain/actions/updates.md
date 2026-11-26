@@ -48,3 +48,5 @@ Denetim ve notlar `github.com` / `api.github.com`'a gider: IP, uygulama sürüm�
 
 
 **Otomatik Electron izleyici (26.11.2026):** `.github/workflows/runtime-watch.yml` günde 2 kez (03:37 ve 15:37 UTC) `scripts/runtime-watch.mjs` ile resmî dizinden son kararlı Electron sürümünü okur. package.json geride ise `auto/electron-X` dalında yükseltir, PR açar, `ci-cd.yml` ve `security.yml` (workflow_dispatch) tetiklenir, yeşilse auto-merge. Açık PR (Dependabot) varsa atlar. Chromium ve Node.js ayrı yükseltilemez; Electron ile gelir. Ayar: Actions → "Allow GitHub Actions to create and approve pull requests" açık olmalı.
+
+**macOS/Linux (26.11.2026):** electron-updater `latest-mac.yml` (zip) ve `latest-linux.yml` (AppImage) kullanır. macOS'ta güncelleme için uygulama imzalı olmalı; imzasızsa denetim çalışır ama kurulum başarısız olabilir. .deb kurulumu otomatik güncellenmez.

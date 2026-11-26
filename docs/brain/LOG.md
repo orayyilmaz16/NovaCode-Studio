@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 26.11.2026 09:18 · auto/20261126-052515
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvY2ktY2QueW1sLHws -->
+- Alan: [[ci-cd]]
+- Kod (1): `.github/workflows/ci-cd.yml`
+- Belge (4): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/updates.md`
+- Durum: ✓ belgelendi
+
 ## 26.11.2026 08:25 · main
 <!-- sig:LmdpdGh1Yi93b3JrZmxvd3Mvc2VjdXJpdHkueW1s -->
 - Alan: [[ci-cd]], [[ui-design]]
@@ -274,11 +281,4 @@
 - Alan: [[ui-design]]
 - Kod (1): `src/App.tsx`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/ai-assistant.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 18.11.2026 11:50 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvQUlB -->
-- Alan: [[ui-design]], [[ai-assistant]], [[debugging]], [[extensions]], [[explorer]], [[git-github]], [[preview]], [[source-control]], [[settings]], [[terminal]], [[updates]]
-- Kod (25): `src/App.tsx`, `src/components/AIAssistant.tsx`, `src/components/ChatSessions.tsx`, `src/components/ChipSlider.tsx`, `src/components/CompletionMenu.tsx`, `src/components/DebugPanel.tsx`, `src/components/EditorArea.tsx`, `src/components/ExtensionsPanel.tsx`, `src/components/FileTree.tsx`, `src/components/FileTypeIcon.tsx`, `src/components/GitPanel.tsx`, `src/components/GithubAccount.tsx` … (+13)
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

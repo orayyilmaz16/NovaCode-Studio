@@ -8,7 +8,7 @@ triggers: ["ci", "actions", "workflow", "audit", "pipeline", "deploy"]
 # Aksiyon: CI/CD
 
 ## Hat
-`.github/workflows/ci-cd.yml`: `quality` (hijyen, tsc, git testleri, beyin kontrolü, audit, build, bundle bütçesi) → `version` (yalnız **etiket**: `scripts/release.mjs tag` → açıklamalı `vX.Y.Z` etiketi; **commit atmaz**, çünkü main korumalı; `concurrency: release-version`) → `release-desktop` (Windows `.exe` + GitHub Release).
+`.github/workflows/ci-cd.yml`: `quality` (hijyen, tsc, git testleri, beyin kontrolü, audit, build, bundle bütçesi) → `version` (yalnız **etiket**: `scripts/release.mjs tag` → açıklamalı `vX.Y.Z` etiketi; **commit atmaz**, çünkü main korumalı; `concurrency: release-version`) → `build-desktop` (matris: Windows `.exe`, macOS `.dmg`+`.zip` x64/arm64, Linux `.AppImage`+`.deb`; her biri artifact yükler) → `release-desktop` (artifact'ları indirir, tek GitHub Release'e yükler; yarış yok).
 `.github/workflows/security.yml`: CodeQL, gitleaks, dependency review, haftalık `npm audit`. Güncel iş listesi: [[STATE]].
 
 ## Kurallar
@@ -43,7 +43,7 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 
 ## Masaüstü derleme güvenilirliği (25.11.2026)
 - Kök neden: `ssh2` isteğe bağlı `cpu-features` (node-gyp) paketini getirdi; `electron-builder` `@electron/rebuild` ile onu derlemeye çalışıp Windows runner'da düştü (`npm ci --ignore-scripts` ile gyp ön dosyası üretilmediği için). Çözüm: `build.npmRebuild:false` + `cpu-features`/`nan` pakete alınmaz (ssh2 saf JS yoluna düşer; `@lydell/node-pty` önceden derlenmiş).
-- `desktop-smoke` işi: PR'da paketlemeyi etkileyen dosya (package*.json, electron-*.cjs, public/, ci-cd.yml) değiştiyse Windows'ta `electron-builder --dir` dener; aksi halde atlanır.
+- `desktop-smoke` işi: PR'da paketlemeyi etkileyen dosya (package*.json, electron-*.cjs, public/, ci-cd.yml) değiştiyse 3 işletim sisteminde (matris) `electron-builder --dir` dener; aksi halde atlanır.
 - Elle yeniden deneme: Actions → CI/CD → Run workflow → `release_tag` (ör. v1.5.1). Derlenen kod, workflow'un çalıştırıldığı dal/commit’tir (etiket eski kodda kalmış olabilir); etiket yalnız Release adı ve notu içindir. Kalite işi yeşilse kurulum ve Release üretilir.
 - Hız: `NPM_CONFIG_{FUND,AUDIT}=false`, `PREFER_OFFLINE`, electron/electron-builder önbelleği (SHA sabitli `actions/cache`); eski PR koşuları iptal edilir, main koşuları iptal edilmez.
 
@@ -67,3 +67,5 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 | Otomasyon/CI düşer | `ci-failure-issue.yml` issue açar, yeşilde kapatır (`CI başarısız: dal` / `Otomasyon başarısız: iş akışı`) | — |
 İnsan müdahalesi yalnız: diğer npm major'ları, kırılan CI, KVKK/ürün kararları.
 
+
+**Çok platformlu paketleme (26.11.2026, kurucu isteği):** `package.json` `build.mac` (dmg+zip, x64+arm64, `NovaCode-Studio-{sürüm}-mac-{arch}`), `build.linux` (AppImage+deb, x64). İmza: `CSC_LINK`/`CSC_KEY_PASSWORD` (+ macOS noterliği için `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`) tanımsızsa imzasız üretilir; imzasız macOS'ta otomatik güncelleme ve Gatekeeper sorun çıkarır. `desktop-smoke` iş adı matrisle `Masaüstü paketleme denetimi (OS)` oldu; dal korumasında bu adı zorunlu kontrol olarak tanımlıysan güncelle. Güncelleyici: `latest.yml` (Win), `latest-mac.yml`, `latest-linux.yml`; Linux'ta yalnız AppImage kendini günceller, .deb elle.

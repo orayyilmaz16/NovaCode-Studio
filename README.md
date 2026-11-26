@@ -39,6 +39,8 @@ npm run dev              # web (Vite): http://localhost:5173
 npm run electron:dev     # masaüstü geliştirme
 npm run build            # web derlemesi
 npm run electron:build   # Windows NSIS kurulumu (release/)
+npm run electron:build:mac    # macOS .dmg + .zip (macOS makinesinde)
+npm run electron:build:linux  # Linux AppImage + .deb (Linux makinesinde)
 ```
 
 ### GitHub hesabı bağlama (uygulama sahibi için tek seferlik)

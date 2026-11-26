@@ -16,6 +16,8 @@
 | `preview` | `vite preview` |
 | `electron:dev` | `concurrently -k "cross-env BROWSER=none vite" "wait-on tcp:5173 && cross-env NODE_ENV=development electron ."` |
 | `electron:build` | `vite build && electron-builder --publish never` |
+| `electron:build:mac` | `vite build && electron-builder --mac --publish never` |
+| `electron:build:linux` | `vite build && electron-builder --linux --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
 | `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
@@ -376,7 +378,7 @@
 | Dosya | Ad | İşler |
 |---|---|---|
 | `.github/workflows/auto-release.yml` | Otomatik sürüm hazırlığı | `prepare` (Sürümü hazırla ve PR aç) |
-| `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi), `release-desktop` (Windows Kurulum (.exe) ve Release) |
+| `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi (${{ matrix.label }})), `build-desktop` (Paket (${{ matrix.label }})), `release-desktop` (GitHub Release (Windows, macOS, Linux)) |
 | `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
 | `.github/workflows/runtime-watch.yml` | Electron, Chromium ve Node.js izleyici | `watch` (Yeni Electron varsa yükselt ve tara) |
