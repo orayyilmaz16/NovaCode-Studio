@@ -189,3 +189,6 @@ Karar (kurucu): elle/yerel sürüm hazırlığı bırakıldı; Actions PR oluşt
 
 ## 25.11.2026 — Dependabot auto-merge kapsamı genişledi
 Karar (kurucu): çalışma zamanı bağımlılıklarının patch/minor, GitHub Actions ve Electron yığınının her sürümü CI yeşilse otomatik birleşir; diğer npm major'ları elle. Önceki S-21 kuralı (çalışma zamanı bağımlılıkları otomatik birleşmez) bu tarihten sonra geçersiz; koruma CI kapıları ve zorunlu kontroldür. Otomasyon hataları issue açar.
+
+## 26.11.2026 — macOS ve Linux kurulum paketleri
+Karar (kurucu): sürüm artık Windows yanında macOS (.dmg+.zip, x64+arm64) ve Linux (.AppImage+.deb, x64) paketleri de üretir; `ci-cd.yml` `build-desktop` matrisi + tek `release-desktop` yayın işi. İmza/noterlik secret'ları tanımsızsa paketler imzasız çıkar (macOS'ta otomatik güncelleme imzasız çalışmaz). Neden: üç masaüstü platformuna destek. Geri dönüş: `build.mac`/`build.linux` ve matris satırlarını kaldır.

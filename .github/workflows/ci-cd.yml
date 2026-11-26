@@ -121,9 +121,16 @@ jobs:
   # 2b) PR'da masaüstü paketleme dumanı: electron/derleme yapılandırması değiştiyse Windows'ta paketlemeyi dener,
   # böylece release anında değil PR'da yakalanır. İlgisiz PR'larda adımlar atlanır (hızlı ve ucuz).
   desktop-smoke:
-    name: Masaüstü paketleme denetimi
+    name: Masaüstü paketleme denetimi (${{ matrix.label }})
     if: github.event_name == 'pull_request'
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { label: Windows, os: windows-latest, flag: --win, cache1: '~\AppData\Local\electron\Cache', cache2: '~\AppData\Local\electron-builder\Cache' }
+          - { label: macOS, os: macos-latest, flag: --mac, cache1: '~/Library/Caches/electron', cache2: '~/Library/Caches/electron-builder' }
+          - { label: Linux, os: ubuntu-latest, flag: --linux, cache1: '~/.cache/electron', cache2: '~/.cache/electron-builder' }
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -148,29 +155,35 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            ~\AppData\Local\electron\Cache
-            ~\AppData\Local\electron-builder\Cache
+            ${{ matrix.cache1 }}
+            ${{ matrix.cache2 }}
           key: eb-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: eb-${{ runner.os }}-
       - if: steps.chg.outputs.run == 'true'
         run: npm ci --ignore-scripts
       - if: steps.chg.outputs.run == 'true'
         name: Paketle (kurulum üretmeden)
-        run: npx vite build && npx electron-builder --win --dir --publish never
+        shell: bash
+        run: npx vite build && npx electron-builder ${{ matrix.flag }} --dir --publish never
 
-  # 3) Windows .exe derleme ve GitHub Release (sürüm etiketiyle ya da elle verilen etiketle yeniden deneme)
-  release-desktop:
-    name: Windows Kurulum (.exe) ve Release
+  # 3) Windows, macOS ve Linux paketleri paralel derlenir; tek bir iş hepsini aynı GitHub Release'e yükler (yarış yok)
+  build-desktop:
+    name: Paket (${{ matrix.label }})
     needs: [quality, version]
     if: >-
       always() && needs.quality.result == 'success' &&
       (needs.version.outputs.release == 'true' || (github.event_name == 'workflow_dispatch' && inputs.release_tag != ''))
-    runs-on: windows-latest
-    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { label: Windows, os: windows-latest, flag: --win, artifact: windows }
+          - { label: macOS, os: macos-latest, flag: --mac, artifact: macos }
+          - { label: Linux, os: ubuntu-latest, flag: --linux, artifact: linux }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
     permissions:
-      contents: write
-    env:
-      RELEASE_TAG: ${{ inputs.release_tag || format('v{0}', needs.version.outputs.version) }}
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -180,28 +193,51 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            ~\AppData\Local\electron\Cache
-            ~\AppData\Local\electron-builder\Cache
-          key: eb-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: eb-${{ runner.os }}-
-      # Yaşam döngüsü betikleri kapalı: contents:write işinde bağımlılık postinstall kodu çalışmaz (S-20)
+      # Yaşam döngüsü betikleri kapalı: bağımlılık postinstall kodu çalışmaz (S-20)
       - run: npm ci --ignore-scripts
       - name: Masaüstü uygulaması derle
-        run: npm run electron:build
+        shell: bash
+        run: npx vite build && npx electron-builder ${{ matrix.flag }} --publish never
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Kod imzalama (S-04): CSC_LINK (base64 .pfx veya https bağlantısı) ve CSC_KEY_PASSWORD depo secret'ı olarak tanımlanırsa
-          # electron-builder imzalar; tanımsızsa boş kalır ve kurulum imzasız üretilir.
+          # Kod imzalama (S-04): CSC_LINK (base64 .pfx/.p12 veya https bağlantısı) ve CSC_KEY_PASSWORD tanımlıysa imzalanır;
+          # macOS noterliği için ayrıca APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID gerekir. Tanımsızsa paketler imzasız
+          # üretilir (macOS'ta imzasız uygulamada otomatik güncelleme çalışmaz; Linux AppImage'ta çalışır).
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' && 'true' || 'false' }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: NovaCode-Studio-Windows-Installer
-          path: release/*.exe
+          name: NovaCode-Studio-${{ matrix.artifact }}
+          path: |
+            release/*.exe
+            release/*.dmg
+            release/*.zip
+            release/*.AppImage
+            release/*.deb
+            release/*.blockmap
+            release/latest*.yml
+          if-no-files-found: error
           retention-days: 14
+
+  release-desktop:
+    name: GitHub Release (Windows, macOS, Linux)
+    needs: [build-desktop, version]
+    if: always() && needs.build-desktop.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag || format('v{0}', needs.version.outputs.version) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || needs.version.outputs.sha }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: NovaCode-Studio-*
+          path: release
+          merge-multiple: true
       - name: GitHub Release
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3
         with:
@@ -211,7 +247,11 @@ jobs:
           generate_release_notes: false
           files: |
             release/*.exe
+            release/*.dmg
+            release/*.zip
+            release/*.AppImage
+            release/*.deb
             release/*.blockmap
-            release/latest.yml
+            release/latest*.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
