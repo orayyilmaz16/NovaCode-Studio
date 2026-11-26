@@ -4,8 +4,8 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.8.0** (minor, 25.11.2026) · notlar `release-notes/v1.8.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- İyileştirmeler: Hakkında'da son Electron, Chromium ve Node.js
+**Son sürüm v1.8.1** (patch, 26.11.2026) · notlar `release-notes/v1.8.1.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- Düzeltmeler: Hakkında son sürümler her yerde
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)
