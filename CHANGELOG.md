@@ -3,14 +3,30 @@
 ## Unreleased
 
 ### tr
-- [feat] **macOS ve Linux kurulum paketleri:** Sürüm artık Windows (.exe) yanında macOS (.dmg, .zip; Intel ve Apple Silicon) ve Linux (.AppImage, .deb) paketlerini de üretir ve GitHub Release'e ekler.
-- [improve] **Otomatik Electron izleyici:** Günde iki kez çalışan iş akışı son kararlı Electron sürümünü (Chromium ve Node.js ile birlikte) kontrol eder, yükseltir, PR açar, CI ve güvenlik taramasını çalıştırır; yeşil olunca otomatik birleştirir.
-- [fix] **Hakkında son sürümler her yerde:** Hakkında sayfasındaki son Electron, Chromium ve Node.js bilgisi artık kaynak koddan çalışırken de gösteriliyor (önceden yalnız kurulu uygulamada çalışıyordu).
 
 ### en
-- [feat] **macOS and Linux installers:** Each release now also builds macOS (.dmg, .zip; Intel and Apple Silicon) and Linux (.AppImage, .deb) packages alongside Windows (.exe) and attaches them to the GitHub Release.
-- [improve] **Automatic Electron watcher:** A twice-daily workflow checks the latest stable Electron (with its Chromium and Node.js), upgrades it, opens a PR, runs CI and the security scan, and auto-merges when green.
-- [fix] **Latest versions in About everywhere:** The latest Electron, Chromium and Node.js info in About now also shows when running from source (it previously worked only in the installed app).
+
+## 1.9.0 - 26.11.2026
+<!-- level: minor -->
+### Türkçe
+#### Yeni özellikler
+- **macOS ve Linux kurulum paketleri:** Sürüm artık Windows (.exe) yanında macOS (.dmg, .zip; Intel ve Apple Silicon) ve Linux (.AppImage, .deb) paketlerini de üretir ve GitHub Release'e ekler.
+
+#### Düzeltmeler
+- **Hakkında son sürümler her yerde:** Hakkında sayfasındaki son Electron, Chromium ve Node.js bilgisi artık kaynak koddan çalışırken de gösteriliyor (önceden yalnız kurulu uygulamada çalışıyordu).
+
+#### İyileştirmeler
+- **Otomatik Electron izleyici:** Günde iki kez çalışan iş akışı son kararlı Electron sürümünü (Chromium ve Node.js ile birlikte) kontrol eder, yükseltir, PR açar, CI ve güvenlik taramasını çalıştırır; yeşil olunca otomatik birleştirir.
+
+### English
+#### New features
+- **macOS and Linux installers:** Each release now also builds macOS (.dmg, .zip; Intel and Apple Silicon) and Linux (.AppImage, .deb) packages alongside Windows (.exe) and attaches them to the GitHub Release.
+
+#### Fixes
+- **Latest versions in About everywhere:** The latest Electron, Chromium and Node.js info in About now also shows when running from source (it previously worked only in the installed app).
+
+#### Improvements
+- **Automatic Electron watcher:** A twice-daily workflow checks the latest stable Electron (with its Chromium and Node.js), upgrades it, opens a PR, runs CI and the security scan, and auto-merges when green.
 
 ## 1.8.0 - 25.11.2026
 <!-- level: minor -->
