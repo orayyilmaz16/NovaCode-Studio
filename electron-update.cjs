@@ -118,10 +118,9 @@ function register({ getWindow }) {
   });
 
   // Hakkında: Electron'un son kararlı sürümü ve onunla gelen Chromium/Node.js (electronjs.org/headers/index.json, resmî sürüm dizini).
-  // Yalnız kurulu uygulamada ve Hakkında açılınca çağrılır (IP gider, kişisel veri gitmez); 6 saat önbellek. Geliştirmede ağ isteği yok.
+  // Hakkında açılınca çağrılır (IP gider, kişisel veri gitmez); 6 saat önbellek. Geliştirme modunda da çalışır (yalnız sürüm bilgisi okunur).
   let rtCache = { at: 0, data: null };
   ipcMain.handle('update:runtime-latest', async () => {
-    if (!supported()) return { success: false, supported: false };
     if (rtCache.data && Date.now() - rtCache.at < 6 * 3600 * 1000) return { success: true, supported: true, ...rtCache.data };
     try {
       const res = await net.fetch('https://electronjs.org/headers/index.json', { headers: { 'user-agent': 'NovaCode-Studio' } });

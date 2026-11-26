@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 26.11.2026 08:17 · main
+<!-- sig:ZWxlY3Ryb24tdXBkYXRlLmNqcyx8LENIQU5HRUxP -->
+- Alan: [[updates]]
+- Kod (1): `electron-update.cjs`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/updates.md`
+- Durum: ✓ belgelendi
+
 ## 25.11.2026 11:07 · auto/20261118-083349
 <!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
 - Alan: [[ui-design]]
@@ -275,10 +282,3 @@
 - Kod (19): `electron-ai.cjs`, `electron-llm.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-secrets.cjs`, `scripts/doc-sync.mjs`, `scripts/tests/electron-misc.test.cjs`, `scripts/tests/settings-migrate.test.cjs`, `src/components/AIAssistant.tsx`, `src/components/ThinkingMenu.tsx`, `src/i18n/uiTextAi.ts`, `src/i18n/uiTextComp.ts` … (+7)
 - Belge (4): `CHANGELOG.md`, `CLAUDE.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ai-assistant.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 18.11.2026 11:33 · auto/20261117-141213
-<!-- sig:c3JjL2NvbXBvbmVudHMvQUlBc3Npc3RhbnQudHN4 -->
-- Alan: [[ai-assistant]]
-- Kod (1): `src/components/AIAssistant.tsx`
-- Belge (3): `CHANGELOG.md`, `docs/brain/actions/ai-assistant.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm hazırlandı: v1.5.0 → v1.5.1 (patch)

@@ -3,8 +3,10 @@
 ## Unreleased
 
 ### tr
+- [fix] **Hakkında son sürümler her yerde:** Hakkında sayfasındaki son Electron, Chromium ve Node.js bilgisi artık kaynak koddan çalışırken de gösteriliyor (önceden yalnız kurulu uygulamada çalışıyordu).
 
 ### en
+- [fix] **Latest versions in About everywhere:** The latest Electron, Chromium and Node.js info in About now also shows when running from source (it previously worked only in the installed app).
 
 ## 1.8.0 - 25.11.2026
 <!-- level: minor -->

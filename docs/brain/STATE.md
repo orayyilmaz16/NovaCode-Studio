@@ -51,7 +51,7 @@
 | `electron-term.cjs` | 176 |
 | `electron-textbuffer.cjs` | 309 |
 | `electron-trust.cjs` | 170 |
-| `electron-update.cjs` | 175 |
+| `electron-update.cjs` | 174 |
 
 ### Arayüz kabuğu
 | Dosya | Satır |
