@@ -1,7 +1,7 @@
 {
   "name": "novacode-studio",
   "productName": "NovaCode Studio",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "novaGithubClientId": "Ov23libmIBCtfaaE8qON",
   "description": "Profesyonel Masaüstü ve Web Destekli Kod Editörü",
   "license": "MIT",
@@ -81,8 +81,20 @@
       "icon": "public/icon.png",
       "category": "public.app-category.developer-tools",
       "target": [
-        { "target": "dmg", "arch": ["x64", "arm64"] },
-        { "target": "zip", "arch": ["x64", "arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "artifactName": "NovaCode-Studio-${version}-mac-${arch}.${ext}"
     },
@@ -92,8 +104,18 @@
       "synopsis": "NovaCode Studio",
       "maintainer": "Oray Yılmaz <orayyilmaz16@gmail.com>",
       "target": [
-        { "target": "AppImage", "arch": ["x64"] },
-        { "target": "deb", "arch": ["x64"] }
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "artifactName": "NovaCode-Studio-${version}-linux-${arch}.${ext}"
     },
