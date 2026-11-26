@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 26.11.2026 08:25 · main
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3Mvc2VjdXJpdHkueW1s -->
+- Alan: [[ci-cd]], [[ui-design]]
+- Kod (3): `.github/workflows/security.yml`, `.github/workflows/runtime-watch.yml`, `scripts/runtime-watch.mjs`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/updates.md`
+- Durum: ✓ belgelendi
+
 ## 26.11.2026 08:17 · main
 <!-- sig:ZWxlY3Ryb24tdXBkYXRlLmNqcyx8LENIQU5HRUxP -->
 - Alan: [[updates]]
@@ -274,11 +281,4 @@
 - Alan: [[ui-design]], [[ai-assistant]], [[debugging]], [[extensions]], [[explorer]], [[git-github]], [[preview]], [[source-control]], [[settings]], [[terminal]], [[updates]]
 - Kod (25): `src/App.tsx`, `src/components/AIAssistant.tsx`, `src/components/ChatSessions.tsx`, `src/components/ChipSlider.tsx`, `src/components/CompletionMenu.tsx`, `src/components/DebugPanel.tsx`, `src/components/EditorArea.tsx`, `src/components/ExtensionsPanel.tsx`, `src/components/FileTree.tsx`, `src/components/FileTypeIcon.tsx`, `src/components/GitPanel.tsx`, `src/components/GithubAccount.tsx` … (+13)
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 18.11.2026 11:44 · auto/20261118-083349
-<!-- sig:ZWxlY3Ryb24tYWkuY2pzLGVsZWN0cm9uLWxsbS5j -->
-- Alan: [[ai-assistant]], [[ui-design]], [[security-kvkk]], [[brain-maintenance]], [[testing]], [[settings]], [[i18n]]
-- Kod (19): `electron-ai.cjs`, `electron-llm.cjs`, `electron-main.cjs`, `electron-preload.cjs`, `electron-secrets.cjs`, `scripts/doc-sync.mjs`, `scripts/tests/electron-misc.test.cjs`, `scripts/tests/settings-migrate.test.cjs`, `src/components/AIAssistant.tsx`, `src/components/ThinkingMenu.tsx`, `src/i18n/uiTextAi.ts`, `src/i18n/uiTextComp.ts` … (+7)
-- Belge (4): `CHANGELOG.md`, `CLAUDE.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ai-assistant.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

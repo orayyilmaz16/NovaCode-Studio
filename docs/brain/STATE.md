@@ -179,6 +179,7 @@
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/make-icons.cjs` | 29 |
 | `scripts/release.mjs` | 286 |
+| `scripts/runtime-watch.mjs` | 25 |
 
 ### Testler
 | Dosya | Satır |
@@ -378,6 +379,7 @@
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi), `release-desktop` (Windows Kurulum (.exe) ve Release) |
 | `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
+| `.github/workflows/runtime-watch.yml` | Electron, Chromium ve Node.js izleyici | `watch` (Yeni Electron varsa yükselt ve tara) |
 | `.github/workflows/security.yml` | Güvenlik Taraması | `codeql` (CodeQL), `secrets` (Gizli anahtar taraması (gitleaks)), `dependency-review` (Bağımlılık incelemesi), `audit-scan` (Sürekli denetim raporu), `audit-weekly` (Haftalık npm audit) |
 
 ## Md haritası
