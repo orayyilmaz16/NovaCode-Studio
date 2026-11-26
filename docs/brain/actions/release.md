@@ -28,3 +28,6 @@ triggers: ["sürüm yükselt", "commitle", "push et", "release hazırla"]
 
 ## Eski sürümlere mac/linux
 Actions → *Eski sürümlere macOS ve Linux paketi ekle* elle çalıştırılır (etiket listesi boş = hepsi). Etiketin kendi kodunu derler, yalnız dmg/zip/AppImage/deb yükler, Windows'a dokunmaz.
+
+## Bilinen tuzak: boş CSC_LINK
+Secret tanımsızken `CSC_LINK` boş string olarak gelir ve electron-builder (macOS) "not a file" ile düşer. `ci-cd.yml` build adımı boşsa `CSC_LINK`/`CSC_KEY_PASSWORD`'ü `unset` eder (26.11.2026, v1.9.0 macOS hatası).

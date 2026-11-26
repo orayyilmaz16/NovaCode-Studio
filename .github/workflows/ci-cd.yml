@@ -197,7 +197,10 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Masaüstü uygulaması derle
         shell: bash
-        run: npx vite build && npx electron-builder ${{ matrix.flag }} --publish never
+        run: |
+          # Secret tanımsızsa env boş string gelir; electron-builder boş CSC_LINK'i dosya yolu sanıp hata verir (macOS), bu yüzden kaldır
+          [ -n "$CSC_LINK" ] || unset CSC_LINK CSC_KEY_PASSWORD
+          npx vite build && npx electron-builder ${{ matrix.flag }} --publish never
         env:
           # Kod imzalama (S-04): CSC_LINK (base64 .pfx/.p12 veya https bağlantısı) ve CSC_KEY_PASSWORD tanımlıysa imzalanır;
           # macOS noterliği için ayrıca APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID gerekir. Tanımsızsa paketler imzasız
