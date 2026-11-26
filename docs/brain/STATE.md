@@ -172,6 +172,7 @@
 |---|---|
 | `scripts/audit-scan.mjs` | 205 |
 | `scripts/auto-commit.mjs` | 219 |
+| `scripts/backfill-overlay.mjs` | 19 |
 | `scripts/brain.mjs` | 297 |
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
@@ -378,6 +379,7 @@
 | Dosya | Ad | İşler |
 |---|---|---|
 | `.github/workflows/auto-release.yml` | Otomatik sürüm hazırlığı | `prepare` (Sürümü hazırla ve PR aç) |
+| `.github/workflows/backfill-desktop.yml` | Eski sürümlere macOS ve Linux paketi ekle | `plan`, `build` (${{ matrix.tag }} (${{ matrix.os }})) |
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi (${{ matrix.label }})), `build-desktop` (Paket (${{ matrix.label }})), `release-desktop` (GitHub Release (Windows, macOS, Linux)) |
 | `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |

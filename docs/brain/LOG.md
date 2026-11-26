@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 26.11.2026 20:01 · main
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvYmFja2ZpbGwtZGVz -->
+- Alan: [[ci-cd]], [[ui-design]]
+- Kod (2): `.github/workflows/backfill-desktop.yml`, `scripts/backfill-overlay.mjs`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/release.md`
+- Durum: ✓ belgelendi
+
 ## 26.11.2026 09:18 · auto/20261126-052515
 <!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvY2ktY2QueW1sLHws -->
 - Alan: [[ci-cd]]
@@ -274,11 +281,4 @@
 - Alan: [[ui-design]], [[motion]]
 - Kod (2): `src/App.tsx`, `src/style.css`
 - Belge (3): `CHANGELOG.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 18.11.2026 11:53 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
-- Alan: [[ui-design]]
-- Kod (1): `src/App.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ai-assistant.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

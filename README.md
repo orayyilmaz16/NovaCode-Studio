@@ -31,6 +31,20 @@ Yapay zekâ destekli, VS Code çizgisinde modern kod editörü. **Masaüstü (El
 
 ---
 
+## İndir
+
+Güncel kurulum dosyaları: **[Releases / En son sürüm](https://github.com/orayyilmaz16/NovaCode-Studio/releases/latest)**. Her sürümde üç işletim sistemi için paket bulunur:
+
+| İşletim sistemi | Dosya |
+|---|---|
+| Windows 10/11 (x64) | `NovaCode-Studio-Setup-<sürüm>.exe` |
+| macOS (Intel ve Apple Silicon) | `NovaCode-Studio-<sürüm>-mac-x64.dmg` / `-mac-arm64.dmg` |
+| Linux (x64) | `NovaCode-Studio-<sürüm>-linux-x64.AppImage` veya `.deb` (Debian/Ubuntu) |
+
+macOS ve Linux paketleri imzasızdır; ilk açılışta macOS "yine de aç" onayı ister.
+
+---
+
 ## Kurulum ve çalıştırma
 
 ```bash
