@@ -69,3 +69,9 @@ Tüm 3. parti action'lar tam commit SHA'ya sabit (yanında sürüm yorumu). Rele
 
 
 **Çok platformlu paketleme (26.11.2026, kurucu isteği):** `package.json` `build.mac` (dmg+zip, x64+arm64, `NovaCode-Studio-{sürüm}-mac-{arch}`), `build.linux` (AppImage+deb, x64). İmza: `CSC_LINK`/`CSC_KEY_PASSWORD` (+ macOS noterliği için `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`) tanımsızsa imzasız üretilir; imzasız macOS'ta otomatik güncelleme ve Gatekeeper sorun çıkarır. `desktop-smoke` iş adı matrisle `Masaüstü paketleme denetimi (OS)` oldu; dal korumasında bu adı zorunlu kontrol olarak tanımlıysan güncelle. Güncelleyici: `latest.yml` (Win), `latest-mac.yml`, `latest-linux.yml`; Linux'ta yalnız AppImage kendini günceller, .deb elle.
+
+## Bağımlılık otopilotu (27.11.2026)
+`dep-autopilot.yml` (haftalık rapor + güvenli güncelleme PR'ı + temizlik, major elle) ve `dep-review.yml` (PR fark yorumu + etiket). Ayrıntı ve kurallar: [[updates]] → "Bağımlılık otopilotu".
+
+## Bağımlılık otopilotu (27.11.2026)
+`dep-autopilot.yml` (haftalık rapor + güvenli güncelleme PR'ı + temizlik, major elle) ve `dep-review.yml` (PR fark yorumu + etiket). Ayrıntı ve kurallar: [[updates]] → "Bağımlılık otopilotu".

@@ -1,0 +1,61 @@
+name: Bağımlılık PR incelemesi
+
+# Dependabot, runtime-watch ve otopilot PR'larının package.json farkını okur; sürüm atlamasını (patch/minor/major, çalışma zamanı mı geliştirme mi)
+# tek bir yapışkan yorumla raporlar ve etiketler: major (Electron/Actions dışı) = `major-review`, diğerleri = `safe-update`.
+# GÜVENLİK: pull_request_target ile çalışır (Dependabot PR'ında jeton salt okunurdur; yorum için yazma gerekir). PR kodu ÇIKIŞ YAPILMAZ ve
+# ÇALIŞTIRILMAZ; yalnız GitHub API ile package.json içeriği okunur. Betik main'den gelir.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    name: Sürüm farkı raporu
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: startsWith(github.head_ref, 'dependabot/') || startsWith(github.head_ref, 'auto/deps-') || startsWith(github.head_ref, 'auto/electron-')
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+
+      - name: Fark raporu
+        id: diff
+        run: |
+          mkdir -p "$RUNNER_TEMP/rv"
+          gh api -H "Accept: application/vnd.github.raw" "repos/$REPO/contents/package.json?ref=$HEAD_SHA" > "$RUNNER_TEMP/rv/head.json" || echo '{}' > "$RUNNER_TEMP/rv/head.json"
+          node scripts/dep-review.mjs package.json "$RUNNER_TEMP/rv/head.json" > "$RUNNER_TEMP/rv/comment.md"
+          cat "$RUNNER_TEMP/rv/comment.md" >> "$GITHUB_STEP_SUMMARY"
+          { echo "major=$(grep -c '<!-- has-major -->' "$RUNNER_TEMP/rv/comment.md" || true)"; } >> "$GITHUB_OUTPUT"
+
+      - name: Yapışkan yorum ve etiket
+        env:
+          MAJOR: ${{ steps.diff.outputs.major }}
+        run: |
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq '[.[] | select(.body | contains("<!-- dep-review -->"))][0].id // empty')
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@"$RUNNER_TEMP/rv/comment.md" >/dev/null
+          else
+            gh pr comment "$PR" --body-file "$RUNNER_TEMP/rv/comment.md"
+          fi
+          gh label create major-review --color d93f0b --force >/dev/null
+          gh label create safe-update --color 0e8a16 --force >/dev/null
+          if [ "$MAJOR" != "0" ]; then
+            gh pr edit "$PR" --add-label major-review --remove-label safe-update || true
+          else
+            gh pr edit "$PR" --add-label safe-update --remove-label major-review || true
+          fi
