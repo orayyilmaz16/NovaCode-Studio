@@ -123,7 +123,11 @@ jobs:
           [ "$kind" = "major" ] && label="major-review"
           [ "$VERIFIED" != "true" ] && draft="--draft"
           gh pr create --base main --head "$branch" --title "$title" --body-file "$BODY" --label dependencies --label "$label" $draft
-          # GITHUB_TOKEN ile açılan PR'da iş akışları kendiliğinden başlamaz; zorunlu kontroller elle tetiklenir
+          # GITHUB_TOKEN ile açılan PR'da iş akışları (dep-review.yml dahil) kendiliğinden başlamaz: inceleme yorumunu burada yazarız
+          git show origin/main:package.json > "$RUNNER_TEMP/base-package.json"
+          node scripts/dep-review.mjs "$RUNNER_TEMP/base-package.json" package.json > "$RUNNER_TEMP/review.md"
+          gh pr comment "$branch" --body-file "$RUNNER_TEMP/review.md"
+          # Zorunlu kontroller elle tetiklenir
           gh workflow run ci-cd.yml --ref "$branch"
           gh workflow run security.yml --ref "$branch"
           if [ "$kind" = "safe" ] && [ "$VERIFIED" = "true" ]; then

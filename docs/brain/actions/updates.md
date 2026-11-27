@@ -75,3 +75,4 @@ Dependabot (günlük) ve `runtime-watch.yml` (Electron) üzerine biner; çakış
 - Çalışma zamanı `dependencies` yükselince birleşme sonrası `auto-release.yml` → `dep-changelog.mjs` sürüm notu ve patch sürüm üretir; yalnız geliştirme araçları sürüm çıkarmaz.
 - Test: `scripts/tests/deps.test.cjs`. Elle deneme: `node scripts/dep-update.mjs report` (salt okunur).
 - KVKK: yalnız paket adı/sürümü npm kayıt defterine gider; kişisel veri yok. Gerekli ayar: Actions → "Allow GitHub Actions to create and approve pull requests".
+- GITHUB_TOKEN ile açılan PR `pull_request_target`/`pull_request` iş akışlarını tetiklemez; bu yüzden otopilot PR gövdesine ek olarak `dep-review.mjs` yorumunu kendisi yazar. `dep-review.yml` Dependabot PR'ları için çalışır. gitleaks tam geçmiş taramasında Monaco derlenmiş dosyası yanlış alarmı `.gitleaksignore` ile dar izinlidir (27.11.2026).
