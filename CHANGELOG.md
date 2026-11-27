@@ -4,17 +4,27 @@
 
 ### tr
 
-- [improve] **Sunucu imajları otomatik yayınlanıyor:** Senkron ve analitik sunucu imajları artık her değişiklikte kendiliğinden derlenir, ayağa kaldırılıp sağlık testinden geçirilir ve GHCR'a yayınlanır; Docker belgesi koddan otomatik güncellenir.
-- [feat] **Anonim kullanım istatistiği (isteğe bağlı):** İstersen hangi bölümlerin kaç kez kullanıldığına dair toplu sayılar paylaşabilirsin. Varsayılan kapalıdır; kimlik, IP, dosya adı, yol veya kod asla gönderilmez, istediğin an Ayarlar → Hakkında bölümünden kapatabilirsin.
-- [improve] **Daha güçlü anonimlik:** Anonim istatistik sunucusu için günlüksüz, sertleştirilmiş kurulum paketi eklendi; hız sınırı artık IP adresini bellekte bile ham tutmuyor. İstatistikleri okumak için rapor aracı geldi.
-- [improve] **Daha kapsamlı anonim istatistik ve indirme takibi:** İstersen artık hangi programlama dillerinin açıldığı, GitHub giriş/çıkış, güncelleme ve hata sayıları da (yalnız sayı olarak) paylaşılabilir; kod, dosya adı veya hesap adı asla gönderilmez. Uygulama indirme sayıları sürüm başına izlenir.
-
 ### en
 
-- [improve] **Server images publish automatically:** The sync and analytics server images are now built, started and health-checked on every change, then published to GHCR; the Docker documentation is regenerated from the code automatically.
-- [feat] **Anonymous usage statistics (optional):** You can choose to share aggregate counts of which areas are used. Off by default; identity, IP, file names, paths or code are never sent, and you can turn it off any time in Settings → About.
-- [improve] **Stronger anonymity:** Added a log-free, hardened setup package for the anonymous statistics server; rate limiting no longer keeps the IP address raw even in memory. A report tool was added to read the statistics.
-- [improve] **Broader anonymous statistics and download tracking:** If you opt in, counts of opened programming languages, GitHub sign-in/sign-out, updates and errors can now be shared (as numbers only); code, file names or account names are never sent. App download counts are tracked per release.
+## 1.9.4 - 27.11.2026
+<!-- level: patch -->
+### Türkçe
+#### Yeni özellikler
+- **Anonim kullanım istatistiği (isteğe bağlı):** İstersen hangi bölümlerin kaç kez kullanıldığına dair toplu sayılar paylaşabilirsin. Varsayılan kapalıdır; kimlik, IP, dosya adı, yol veya kod asla gönderilmez, istediğin an Ayarlar → Hakkında bölümünden kapatabilirsin.
+
+#### İyileştirmeler
+- **Sunucu imajları otomatik yayınlanıyor:** Senkron ve analitik sunucu imajları artık her değişiklikte kendiliğinden derlenir, ayağa kaldırılıp sağlık testinden geçirilir ve GHCR'a yayınlanır; Docker belgesi koddan otomatik güncellenir.
+- **Daha güçlü anonimlik:** Anonim istatistik sunucusu için günlüksüz, sertleştirilmiş kurulum paketi eklendi; hız sınırı artık IP adresini bellekte bile ham tutmuyor. İstatistikleri okumak için rapor aracı geldi.
+- **Daha kapsamlı anonim istatistik ve indirme takibi:** İstersen artık hangi programlama dillerinin açıldığı, GitHub giriş/çıkış, güncelleme ve hata sayıları da (yalnız sayı olarak) paylaşılabilir; kod, dosya adı veya hesap adı asla gönderilmez. Uygulama indirme sayıları sürüm başına izlenir.
+
+### English
+#### New features
+- **Anonymous usage statistics (optional):** You can choose to share aggregate counts of which areas are used. Off by default; identity, IP, file names, paths or code are never sent, and you can turn it off any time in Settings → About.
+
+#### Improvements
+- **Server images publish automatically:** The sync and analytics server images are now built, started and health-checked on every change, then published to GHCR; the Docker documentation is regenerated from the code automatically.
+- **Stronger anonymity:** Added a log-free, hardened setup package for the anonymous statistics server; rate limiting no longer keeps the IP address raw even in memory. A report tool was added to read the statistics.
+- **Broader anonymous statistics and download tracking:** If you opt in, counts of opened programming languages, GitHub sign-in/sign-out, updates and errors can now be shared (as numbers only); code, file names or account names are never sent. App download counts are tracked per release.
 
 ## 1.9.3 - 27.11.2026
 <!-- level: patch -->
