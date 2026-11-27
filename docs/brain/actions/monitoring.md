@@ -15,6 +15,7 @@ triggers: ["izleme", "monitor", "sağlık", "health", "servis çalışıyor mu",
 | Güvenlik | `npm audit` (tümü + yalnız çalışma zamanı), statik denetim (`audit-scan --check`) | yüksek/kritik açık veya yeni yüksek statik bulgu = **alarm**; orta = uyarı |
 | Performans | Paket boyutu (JS, gzip, CSS), toplam JS büyümesi, `npm run build` süresi | bütçe aşımı veya build hatası = alarm; bütçenin %85'i, önceki ölçüme göre +%10 JS, build > 180 sn = uyarı |
 | Servis | GitHub API, Open VSX (eklenti mağazası), electronjs.org dizini, isteğe bağlı senkron sunucusu (`NOVA_SYNC_HEALTH_URL`), son release'te `latest.yml` + Win/mac/Linux paketi | ilk başarısızlık uyarı, **art arda ikincisi alarm** (geçici kesinti gürültü yapmasın); eksik release varlığı = alarm; yanıt > 4 sn = uyarı |
+| Senkron (metrik) | `/metrics` (token'lı): yeniden başlama, hata artışı, başarısız kimlik + engelli ≥ 50, bağlantı/oda kapasitesi %80, bellek > 400 MB | uyarı |
 | Bakım | Bir major geride çalışma zamanı paketi (> 5), 60 günü aşan son sürüm | yalnız bilgi |
 
 ## Çıktı ve kayıt
@@ -32,7 +33,7 @@ triggers: ["izleme", "monitor", "sağlık", "health", "servis çalışıyor mu",
 Kişisel veri işlenmez. Giden istekler yalnız public uç noktalara gider (GitHub, Open VSX, electronjs.org; sunucu GitHub Actions'ta, ABD). İsteğe bağlı senkron sunucusu kendi sunucundadır. Saklama: artifact 30 gün, cache geçmişi en çok 60 ölçüm.
 
 ## Ayarlar ve eşikler
-Bütçe: `MAX_JS_KB`, `MAX_CSS_KB`, `MAX_GZIP_JS_KB` ([[ci-cd]] ile aynı). Diğer eşikler `scripts/health-monitor.mjs` başındaki sabitler. Kapatmak: workflow'u devre dışı bırak. Elle çalıştır: Actions → "Sağlık ve güvenlik izleme" → Run workflow, ya da `npm run health -- --build`.
+**Bütçe değişikliği (27.11.2026):** CSS bütçesi 120 → 150 KB (Tailwind + Monaco CSS'i ~105 KB, sürekli %85 uyarısı veriyordu; bilinçli kabul). JS giriş parçası `vite.config.ts` `manualChunks` ile bölündü (react-vendor, monaco, icons): en büyük parça 654 → 434 KB, bütçe uyarısı kalktı. Bütçe: `MAX_JS_KB`, `MAX_CSS_KB`, `MAX_GZIP_JS_KB` ([[ci-cd]] ile aynı). Diğer eşikler `scripts/health-monitor.mjs` başındaki sabitler. Kapatmak: workflow'u devre dışı bırak. Elle çalıştır: Actions → "Sağlık ve güvenlik izleme" → Run workflow, ya da `npm run health -- --build`.
 
 ## Sürekli iyileştirme döngüsü
 1. Alarm/uyarı issue'su gelir → ilgili alan: güvenlik ise önce düzelt; performans ise [[audit]] derin tarama + paket bölme/tembel yükleme.
@@ -41,5 +42,5 @@ Bütçe: `MAX_JS_KB`, `MAX_CSS_KB`, `MAX_GZIP_JS_KB` ([[ci-cd]] ile aynı). Diğ
 
 ## Kurulum durumu (27.11.2026)
 - İş akışı main'de, elle ilk koşu **başarılı** (20 sn): ölçüm, artifact, issue açma uçtan uca doğrulandı. Gerçek sinyal: JS/CSS paketleri bütçenin %85'ini geçti (uyarı issue'su "Sağlık izleme: açık bulgular").
-- Gerekli ayar yok; yalnız **isteğe bağlı** `NOVA_SYNC_HEALTH_URL` secret'ı (senkron sunucusunun adresi). Tanımsızsa senkron izlemesi atlanır. Secret'ı sohbete yapıştırma; terminalde `gh secret set NOVA_SYNC_HEALTH_URL` (değeri komut istemine gir) kullan.
+- Gerekli ayar yok; yalnız **isteğe bağlı** `NOVA_SYNC_METRICS_TOKEN` secret'ı (sunucu token'ının aynısı; `/metrics` ölçümü için, bkz. [[sync-deploy]]) ve `NOVA_SYNC_HEALTH_URL` secret'ı (senkron sunucusunun adresi). Tanımsızsa senkron izlemesi atlanır. Secret'ı sohbete yapıştırma; terminalde `gh secret set NOVA_SYNC_HEALTH_URL` (değeri komut istemine gir) kullan.
 - Uyarı kapatma: paket bölme/tembel yükleme ile boyut düşünce sonraki ölçümde issue kendiliğinden kapanır.

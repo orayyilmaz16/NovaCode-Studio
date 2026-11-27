@@ -181,7 +181,7 @@
 | `scripts/dep-changelog.mjs` | 52 |
 | `scripts/doc-sync.mjs` | 189 |
 | `scripts/gen-file-icons.mjs` | 24 |
-| `scripts/health-monitor.mjs` | 201 |
+| `scripts/health-monitor.mjs` | 234 |
 | `scripts/make-icons.cjs` | 29 |
 | `scripts/release.mjs` | 293 |
 | `scripts/runtime-watch.mjs` | 25 |
