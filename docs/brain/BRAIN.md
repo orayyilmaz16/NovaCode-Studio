@@ -52,6 +52,7 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[brain-maintenance]] | Bu beyni güncel tutmak |
 | [[audit]] | Sürekli denetim: güvenlik, performans, hata/arayüz/özellik taraması; [[AUDIT]] (otomatik) ve [[BACKLOG]] (doğrulanmış bulgular) |
 | [[monitoring]] | Sürekli sağlık, güvenlik ve performans izleme: 6 saatlik ölçüm, tek issue, açık vermeme kuralları |
+| [[sync-deploy]] | Senkron sunucusu dağıtımı: Docker + Caddy, TLS/wss, alan adsız sslip.io, token, sağlık izleme |
 | [[doc-sync]] | Belge otomasyonu: her istemde hatırlatma, tur sonunda denetim ve günlük |
 
 ## Haberleşme kuralları

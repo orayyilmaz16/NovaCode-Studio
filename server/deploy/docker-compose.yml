@@ -1,0 +1,42 @@
+# Senkron sunucusu + Caddy (otomatik TLS / wss). Kurulum: ./install.sh  ·  Ayrıntı: README.md
+services:
+  sync:
+    build:
+      context: ../..
+      dockerfile: server/deploy/Dockerfile
+    restart: unless-stopped
+    environment:
+      NOVA_SYNC_TOKEN: ${NOVA_SYNC_TOKEN:?NOVA_SYNC_TOKEN .env içinde tanımlı olmalı}
+      PORT: "1234"
+      NOVA_SYNC_TRUST_PROXY: "1"        # Caddy arkasında gerçek istemci IP'si (hız sınırı için)
+    expose: ["1234"]                    # dışarıya yayınlanmaz; yalnız Caddy erişir
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 512m
+    pids_limit: 256
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [sync]
+    ports: ["80:80", "443:443"]
+    environment:
+      SYNC_HOST: ${SYNC_HOST:?SYNC_HOST .env içinde tanımlı olmalı}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data                # sertifikalar (kalıcı)
+      - caddy_config:/config
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 27.11.2026 11:52 · auto/20261127-084932
+<!-- sig:c2VydmVyL2RlcGxveS9DYWRkeWZpbGUsc2VydmVy -->
+- Alan: [[ui-design]]
+- Kod (5): `server/deploy/Caddyfile`, `server/deploy/Dockerfile`, `server/deploy/README.md`, `server/deploy/docker-compose.yml`, `server/deploy/install.sh`
+- Belge (4): `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/sync-deploy.md`
+- Durum: ✓ belgelendi
+
 ## 27.11.2026 11:49 · main
 <!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvcmVsZWFzZS1maW5h -->
 - Alan: [[ci-cd]]
@@ -273,12 +280,5 @@
 <!-- sig:c3JjL0FwcC50c3gsc3JjL3N0eWxlLmNzcyx8LENI -->
 - Alan: [[ui-design]], [[motion]]
 - Kod (2): `src/App.tsx`, `src/style.css`
-- Belge (3): `CHANGELOG.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 18.11.2026 12:31 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
-- Alan: [[ui-design]], [[i18n]], [[motion]]
-- Kod (3): `src/components/EditorArea.tsx`, `src/i18n/uiText.ts`, `src/style.css`
 - Belge (3): `CHANGELOG.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/ui-design.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
