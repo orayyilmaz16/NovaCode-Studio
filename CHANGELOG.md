@@ -6,6 +6,16 @@
 
 ### en
 
+## 1.9.3 - 27.11.2026
+<!-- level: patch -->
+### Türkçe
+#### İyileştirmeler
+- **Bağımlılıklar güncellendi:** lucide-react 1.78.0 → 1.79.0, monaco-editor 0.57.0 → 0.58.0.
+
+### English
+#### Improvements
+- **Dependencies updated:** lucide-react 1.78.0 → 1.79.0, monaco-editor 0.57.0 → 0.58.0.
+
 ## 1.9.2 - 27.11.2026
 <!-- level: patch -->
 ### Türkçe
