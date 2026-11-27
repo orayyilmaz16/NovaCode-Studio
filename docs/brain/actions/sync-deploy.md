@@ -23,7 +23,7 @@ GitHub Actions health-monitor  --https://<host>/-->  "NovaCode sync server"  (NO
 - **Veri:** yalnız bellek, diske yazılmaz. KVKK: veri sorumlusu sunucu sahibi; saklama = oturum; yurt dışı aktarım sunucu konumuna bağlı ([[security-kvkk]]).
 
 ## Doğrulama (27.11.2026)
-Sunucu dosyası Node ile yerelde sınandı: ana sayfa 200 + `NovaCode sync server`; doğru token WebSocket bağlandı, yanlış token 401. Docker/Caddy bileşenleri bu makinede **sınanmadı** (Docker Desktop kapalıydı); ilk gerçek kurulumda `README.md` "Kontrol" adımıyla doğrulanır.
+Docker (Compose, 29.9) ile uçtan uca denendi (`SYNC_HOST=localhost`, Caddy yerel CA): `sync` konteyneri `healthy`; `https://localhost/` → `NovaCode sync server`; **wss** doğru token bağlandı, yanlış token 401; sunucu portu 1234 host'a açık değil; konteyner günlüklerinde token yok. Test ortamı (konteyner, volume, imaj, `.env`) silindi. **Sınanmayan:** gerçek genel IP + sslip.io ile Let's Encrypt sertifikası (80/443'ün internete açık olmasını ister); ilk gerçek kurulumda `README.md` "Kontrol" adımıyla doğrulanır.
 
 ## Bağlantılar
 Sağlık izleme: [[monitoring]]. Güvenlik denetimi: [[audit]].
