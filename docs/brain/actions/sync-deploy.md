@@ -22,8 +22,13 @@ GitHub Actions health-monitor  --https://<host>/-->  "NovaCode sync server"  (NO
 - **Sertleştirme:** sunucu portu yayınlanmaz, konteynerler root dışı + salt-okunur + `cap_drop: ALL`, `NOVA_SYNC_TRUST_PROXY=1` (gerçek IP ile hız sınırı).
 - **Veri:** yalnız bellek, diske yazılmaz. KVKK: veri sorumlusu sunucu sahibi; saklama = oturum; yurt dışı aktarım sunucu konumuna bağlı ([[security-kvkk]]).
 
+## Portlar, metrik ve hata izleme (27.11.2026)
+- **Portlar:** 443 (wss/https) ve 80 (Let's Encrypt) dışarıdan açık, 1234 kapalı. Bulut güvenlik grubu betikle açılamaz (kullanıcı yapar); `install.sh` ufw'yi yalnız zaten aktifse ayarlar (SSH kilitlenmesin). Tablo: `server/deploy/README.md`.
+- **Metrik:** `sync-server.mjs` `GET /metrics` (Prometheus metni, `Authorization: Bearer <token>`, token'sız 401, `no-store`). Yalnız sayaç/ölçü: bağlantı, oda, mesaj, bayt, hata, ret nedenleri (auth/origin/blocked/limit/badRequest), engelli IP sayısı, çalışma süresi, bellek. IP/oda adı/token/içerik yok (testle doğrulanır: `scripts/tests/syncserver.test.cjs`).
+- **Hata izleme:** `server/deploy/status.sh` (konteyner, port, TLS süresi, metrik özeti, 24 sa günlük hataları, eşik uyarıları; sorunda çıkış 1). Dışarıdan: `health-monitor.yml` + `NOVA_SYNC_HEALTH_URL` ([[monitoring]]). `/metrics`'in GitHub izleyicisine bağlanması için ayrı bir token secret'ı gerekir; **bilerek eklenmedi** (secret sayısı ve sızıntı yüzeyi artmasın), istenirse eklenir.
+
 ## Doğrulama (27.11.2026)
-Docker (Compose, 29.9) ile uçtan uca denendi (`SYNC_HOST=localhost`, Caddy yerel CA): `sync` konteyneri `healthy`; `https://localhost/` → `NovaCode sync server`; **wss** doğru token bağlandı, yanlış token 401; sunucu portu 1234 host'a açık değil; konteyner günlüklerinde token yok. Test ortamı (konteyner, volume, imaj, `.env`) silindi. **Sınanmayan:** gerçek genel IP + sslip.io ile Let's Encrypt sertifikası (80/443'ün internete açık olmasını ister); ilk gerçek kurulumda `README.md` "Kontrol" adımıyla doğrulanır.
+Docker (Compose, 29.9) ile uçtan uca denendi (`SYNC_HOST=localhost`, Caddy yerel CA): `sync` konteyneri `healthy`; `https://localhost/` → `NovaCode sync server`; **wss** doğru token bağlandı, yanlış token 401; sunucu portu 1234 host'a açık değil; konteyner günlüklerinde token yok. Test ortamı (konteyner, volume, imaj, `.env`) silindi. `/metrics` ve `status.sh` aynı düzende Docker'da denendi (metrikler okundu, ret sayaçları arttı). **Sınanmayan:** gerçek genel IP + sslip.io ile Let's Encrypt sertifikası (80/443'ün internete açık olmasını ister); ilk gerçek kurulumda `README.md` "Kontrol" adımıyla doğrulanır.
 
 ## Bağlantılar
 Sağlık izleme: [[monitoring]]. Güvenlik denetimi: [[audit]].

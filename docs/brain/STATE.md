@@ -214,7 +214,7 @@
 | `scripts/tests/ssh-sftp.test.cjs` | 268 |
 | `scripts/tests/ssh.test.cjs` | 83 |
 | `scripts/tests/sync.test.cjs` | 58 |
-| `scripts/tests/syncserver.test.cjs` | 73 |
+| `scripts/tests/syncserver.test.cjs` | 90 |
 | `scripts/tests/term.test.cjs` | 74 |
 | `scripts/tests/textbuffer.test.cjs` | 135 |
 | `scripts/tests/trust.test.cjs` | 74 |
@@ -222,7 +222,7 @@
 ### Sunucu
 | Dosya | Satır |
 |---|---|
-| `server/sync-server.mjs` | 275 |
+| `server/sync-server.mjs` | 319 |
 
 ## IPC kanalları
 | Grup | Kanallar |

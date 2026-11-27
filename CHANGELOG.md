@@ -3,10 +3,12 @@
 ## Unreleased
 
 ### tr
+- [improve] **Senkron sunucusu izleme:** Sunucu artık token korumalı metrikler sunuyor (bağlantı, oda, hata, reddedilen istek) ve tek komutla durum raporu (`status.sh`) veriyor; açılacak portlar kılavuzda.
 - [feat] **Kendi senkron sunucun:** Ortak düzenleme sunucusunu tek komutla (Docker + otomatik TLS/wss, alan adı gerekmez) kurabileceğin bir paket eklendi; sunucu sağlığı otomatik izlenir.
 - [fix] **Otomatik sürüm yayını:** Otomatik hazırlanan sürüm PR'ı birleşince etiket ve GitHub Release üretilmiyordu; eksik etiket artık otomatik tamamlanıyor.
 
 ### en
+- [improve] **Sync server monitoring:** The server now serves token-protected metrics (connections, rooms, errors, rejected requests) and a one-command status report (`status.sh`); ports to open are listed in the guide.
 - [feat] **Your own sync server:** Added a package to set up the collaborative editing server with one command (Docker + automatic TLS/wss, no domain needed); server health is monitored automatically.
 - [fix] **Automatic release publishing:** After the auto-prepared release PR merged, the tag and GitHub Release were not produced; a missing tag is now completed automatically.
 
