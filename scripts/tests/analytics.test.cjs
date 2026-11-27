@@ -103,6 +103,26 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'nova-an-'));
   ok(files.length === 1 && !/127\.0\.0\.1|remote|ip/i.test(disk), 'diskte yalnız günlük toplam, IP yok', disk);
   await new Promise((r) => server.close(r));
 
+  // ---- dağıtım paketi anonimlik korumaları (gerileme koruması)
+  const dep = path.join(__dirname, '..', '..', 'server', 'analytics-deploy');
+  const caddy = fs.readFileSync(path.join(dep, 'Caddyfile'), 'utf8');
+  ok(caddy.includes("output discard") && !/output[ \t]+(stdout|stderr|file)/.test(caddy), "Caddy erişim günlüğü kapalı (output discard)");
+  ok(caddy.includes("@allowed path /v1/ingest /v1/stats /healthz"), "Caddy yalnız 3 yolu açar");
+  const comp = fs.readFileSync(path.join(dep, "docker-compose.yml"), "utf8");
+  const an = comp.split("  caddy:")[0];
+  ok(an.includes("read_only: true") && an.includes("cap_drop: [ALL]") && an.includes("no-new-privileges"), "analytics konteyneri salt-okunur, cap_drop ALL, no-new-privileges");
+  ok(!an.includes("ports:"), "analytics portu dışarı yayınlanmaz (yalnız Caddy)");
+  ok(comp.includes("ANALYTICS_TOKEN: ${ANALYTICS_TOKEN:?"), "token zorunlu, koda gömülü değil");
+  ok(fs.readFileSync(path.join(dep, "Dockerfile"), "utf8").includes("USER node"), "Dockerfile root olmayan kullanıcı");
+  const srvSrc = fs.readFileSync(path.join(__dirname, "..", "..", "server", "analytics-server.mjs"), "utf8");
+  ok(!/console[.](log|info|warn|error)[(][^)]*(req|remoteAddress|headers)/.test(srvSrc), "sunucu istek/IP/başlık yazdırmaz");
+  ok(srvSrc.includes("createHmac(\"sha256\", salt)") && !srvSrc.includes("hits.set(req"), "hız sınırı ham IP yerine özet kullanır");
+  ok(!/writeFileSync[(][^)]*(remote|[ (,]ip[ ),])/i.test(srvSrc), "sunucu IP diske yazmaz");
+  const rep = await import(pathToFileURL(path.join(__dirname, '..', 'analytics-report.mjs')).href);
+  ok(rep.normalizeBase('https://x.example/a?b') === 'https://x.example' && rep.normalizeBase('http://x.example') === '' && rep.normalizeBase('http://127.0.0.1:1') === 'http://127.0.0.1:1', 'rapor betiği adres denetimi');
+  const out = rep.render({ days: 7, total: { batches: 2, counts: { panel_git: 5 }, os: { win: 2 }, lang: { tr: 2 }, version: { '1.9.3': 2 } }, perDay: { '2026-11-27': { batches: 2, counts: {} } } });
+  ok(/panel_git/.test(out) && /tekil kişi sayılamaz/.test(out), 'rapor çıktısı');
+
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log(fails ? `\n${fails} başarısız` : '\ntüm testler geçti');
 })().catch((e) => { console.error(e); process.exitCode = 1; });

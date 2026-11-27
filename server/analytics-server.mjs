@@ -5,11 +5,12 @@
 // KVKK: kayıt tutulmaz. Saklanan yalnız GÜNLÜK TOPLAM sayaçlardır (sürüm, işletim sistemi, dil ve olay için ayrı ayrı marjinal sayılar;
 // bunların birleşimi/kombinasyonu saklanmaz, tek bir yükün izi kalmaz). IP, başlık, user-agent diske veya konsola yazılmaz;
 // hız sınırı yalnız bellekte tutulur ve saatlik silinir. Ters vekil (Caddy/nginx) erişim günlüğünü KAPALI tutmalıdır.
-// Ortam: ANALYTICS_TOKEN (zorunlu, ≥24 karakter), PORT (8788), HOST (127.0.0.1), ANALYTICS_DATA (./analytics-data), RETENTION_DAYS (400).
+// Ortam: ANALYTICS_TOKEN (zorunlu, ≥24 karakter), PORT (8788), HOST (127.0.0.1), ANALYTICS_DATA (./analytics-data), RETENTION_DAYS (400),
+// ANALYTICS_TRUST_PROXY=1 (Caddy arkasında: gerçek istemci için X-Forwarded-For'un SON girdisi; yalnız hız sınırı için, bellekte ve ham halde tutulmaz).
 import http from "node:http";
 import { mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync, renameSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { pathToFileURL } from "node:url";
 
 export const EVENTS = ["app_start", "panel_files", "panel_search", "panel_git", "panel_extensions", "panel_debug", "panel_terminal", "panel_ai", "panel_settings", "file_save", "code_run"];
@@ -80,9 +81,16 @@ function safeEq(a, b) {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-export function createServer({ token, store, rateLimit = 20 }) {
-  let hits = new Map(); // yalnız bellek; kalıcı değil
-  const timer = setInterval(() => { hits = new Map(); }, 3600 * 1000); if (timer.unref) timer.unref();
+export function createServer({ token, store, rateLimit = 20, trustProxy = false }) {
+  // Hız sınırı yalnız bellekte ve ham IP olmadan: saatlik dönen rastgele anahtarla özet (anahtar atılınca özetler çözülemez, kalıcı değil).
+  let hits = new Map();
+  let salt = randomBytes(16);
+  const timer = setInterval(() => { hits = new Map(); salt = randomBytes(16); }, 3600 * 1000); if (timer.unref) timer.unref();
+  const who = (req) => {
+    let ip = req.socket.remoteAddress || "?";
+    if (trustProxy) { const xf = String(req.headers["x-forwarded-for"] || "").split(",").pop().trim(); if (xf) ip = xf; }
+    return createHmac("sha256", salt).update(ip).digest("base64url");
+  };
   const server = http.createServer((req, res) => {
     const end = (code, body, type = "application/json") => { res.writeHead(code, { "content-type": type, "cache-control": "no-store", "x-content-type-options": "nosniff" }); res.end(body); };
     const url = new URL(req.url || "/", "http://x");
@@ -94,7 +102,7 @@ export function createServer({ token, store, rateLimit = 20 }) {
       return end(200, JSON.stringify(store.stats(days)));
     }
     if (req.method === "POST" && url.pathname === "/v1/ingest") {
-      const ip = req.socket.remoteAddress || "?";
+      const ip = who(req);
       const n = (hits.get(ip) || 0) + 1; hits.set(ip, n);
       if (n > rateLimit) return end(429, '{"error":"rate"}');
       let size = 0; const chunks = [];
@@ -120,5 +128,5 @@ if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {
   const store = createStore(process.env.ANALYTICS_DATA || "./analytics-data", parseInt(process.env.RETENTION_DAYS || "400", 10) || 400);
   store.prune(); setInterval(() => store.prune(), 24 * 3600 * 1000).unref();
   const port = parseInt(process.env.PORT || "8788", 10);
-  createServer({ token, store }).listen(port, process.env.HOST || "127.0.0.1", () => console.log(`analytics sunucusu :${port} (kayıt tutulmaz)`));
+  createServer({ token, store, trustProxy: process.env.ANALYTICS_TRUST_PROXY === "1" }).listen(port, process.env.HOST || "127.0.0.1", () => console.log(`analytics sunucusu :${port} (kayıt tutulmaz)`));
 }

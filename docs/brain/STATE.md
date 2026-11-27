@@ -20,7 +20,8 @@
 | `electron:build:linux` | `vite build && electron-builder --linux --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
 | `analytics:server` | `node server/analytics-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs` |
+| `analytics:report` | `node scripts/analytics-report.mjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs && node scripts/tests/autocommit.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -174,8 +175,9 @@
 ### Betikler
 | Dosya | Satır |
 |---|---|
+| `scripts/analytics-report.mjs` | 43 |
 | `scripts/audit-scan.mjs` | 205 |
-| `scripts/auto-commit.mjs` | 219 |
+| `scripts/auto-commit.mjs` | 233 |
 | `scripts/backfill-overlay.mjs` | 19 |
 | `scripts/brain.mjs` | 297 |
 | `scripts/check-bundle.mjs` | 31 |
@@ -197,7 +199,8 @@
 | `scripts/tests/ai-complete.test.cjs` | 205 |
 | `scripts/tests/ai-security.test.cjs` | 84 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
-| `scripts/tests/analytics.test.cjs` | 108 |
+| `scripts/tests/analytics.test.cjs` | 128 |
+| `scripts/tests/autocommit.test.cjs` | 42 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
 | `scripts/tests/debug.test.cjs` | 118 |
@@ -229,7 +232,7 @@
 ### Sunucu
 | Dosya | Satır |
 |---|---|
-| `server/analytics-server.mjs` | 124 |
+| `server/analytics-server.mjs` | 132 |
 | `server/sync-server.mjs` | 319 |
 
 ## IPC kanalları

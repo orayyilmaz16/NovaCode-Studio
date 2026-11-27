@@ -13,7 +13,7 @@ Son tarama: 27.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `PERF-SYNC-FS` electron-analytics.cjs, `SEC-HTTP` server/analytics-server.mjs, `SEC-IPC-NOEVT` electron-analytics.cjs
+- Yeni/artan: yok
 - Giderilen: yok
 
 ## Güvenlik
@@ -24,7 +24,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | orta | SEC-OPENEXT | `electron-main.cjs:70` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | orta | SEC-OPENEXT | `electron-update.cjs:168` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | düşük | SEC-HTTP | `electron-ai.cjs:118` | Şifresiz http:// adresi |
-| düşük | SEC-HTTP | `server/analytics-server.mjs:88` | Şifresiz http:// adresi |
+| düşük | SEC-HTTP | `server/analytics-server.mjs:96` | Şifresiz http:// adresi |
 | düşük | SEC-IPC-NOEVT | `electron-ai.cjs:965,968,982` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-analytics.cjs:134,136,137` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-ext.cjs:318,329` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (2×) |

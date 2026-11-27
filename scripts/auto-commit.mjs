@@ -24,7 +24,7 @@ const tryGit = (...a) => { try { return git(...a); } catch { return null; } };
 const tryGh = (...a) => { try { return gh(...a); } catch { return null; } };
 
 const EXCLUDE = /^(dist-electron\/|release\/|build\/|node_modules\/)/;
-const RISKY = /(^|\/)(\.env(\..*)?|.*\.(pem|key|pfx|p12)|id_rsa.*|credentials.*)$/i;
+const RISKY = /(^|\/)(\.env(?!\.(example|sample|template)$)(\..*)?|.*\.(pem|key|pfx|p12)|id_rsa.*|credentials.*)$/i; // .env.example/.sample/.template yer tutucu şablonudur (sır içermez)
 
 const DRY = process.env.NOVA_AUTO_DRY === "1"; // kuru çalıştırma: karar verir ama hiçbir şeyi değiştirmez (test için)
 const notes = [];
@@ -94,10 +94,20 @@ function mergeMainInto(branch) {
 // Birleşmiş (harcanmış) auto/ dalından main'e dön; yerel değişiklikler taşınır.
 function leaveSpentBranch(branch) {
   const dirty = !!tryGit("status", "--porcelain");
-  if (dirty) git("stash", "push", "-u", "-q", "-m", "nova-auto-carry");
-  git("switch", "-q", "main");
-  git("merge", "--ff-only", "-q", "origin/main");
-  if (dirty) git("stash", "pop", "-q");
+  // 1) Stash'siz yol (önerilen): yerel main'i (checkout'ta değil) ileri sar, değişiklikleri taşıyarak geç. `git switch` çakışma yoksa taşır.
+  tryGit("fetch", "-q", "origin", "main:main");
+  if (tryGit("switch", "-q", "main") !== null) {
+    tryGit("merge", "--ff-only", "-q", "origin/main");
+  } else {
+    // 2) Yedek: stash. `git add -N` (intent-to-add) kayıtları stash'i bozar ("not uptodate"); önce indeksi sıfırla (çalışma ağacı korunur).
+    if (dirty) { tryGit("reset", "-q"); git("stash", "push", "-u", "-q", "-m", "nova-auto-carry"); }
+    git("switch", "-q", "main");
+    git("merge", "--ff-only", "-q", "origin/main");
+    if (dirty) {
+      try { git("stash", "pop", "-q"); }
+      catch (e) { throw new Error(`stash geri alınamadı (çakışma); değişiklikler 'nova-auto-carry' stash'inde saklı: ${err1(e)}`); }
+    }
+  }
   tryGit("branch", "-D", branch);
   notes.push(`${branch} birleşmişti; main'e dönüldü`);
 }
@@ -145,7 +155,11 @@ try {
     // Zaten sahnelenmiş silmeler (diskte yok, indekste yok) pathspec hatası verir; onları atla
     const indexed = new Set(git("ls-files").split("\n").filter(Boolean));
     const addable = files.filter((p) => existsSync(p) || indexed.has(p));
+    // Önceki bir `git add -N` (intent-to-add) kalıntısı varsa tam sahnele: sıradan `add -A` bunu da düzeltir
     if (addable.length) git("add", "-A", "--", ...addable);
+    // Windows'ta (core.fileMode=false) yeni .sh dosyaları 100644 girer; kurulum betikleri Linux'ta çalıştırılabilir olmalı
+    const shells = addable.filter((p) => /\.sh$/.test(p) && existsSync(p));
+    if (shells.length) tryGit("update-index", "--chmod=+x", "--", ...shells);
     list = git("diff", "--cached", "--name-only").split("\n").filter(Boolean);
     if (list.length) {
       stat = git("diff", "--cached", "--shortstat").trim();

@@ -1,0 +1,3 @@
+# Sunucu kurulum betikleri Linux bash ile çalışır: Windows çıkışında bile LF kalmalı
+*.sh text eol=lf
+server/**/Caddyfile text eol=lf

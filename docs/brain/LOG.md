@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 27.11.2026 18:19 · auto/20261127-151318
+<!-- sig:c2NyaXB0cy90ZXN0cy9hbmFseXRpY3MudGVzdC5j -->
+- Alan: [[testing]], [[ui-design]]
+- Kod (9): `scripts/tests/analytics.test.cjs`, `server/analytics-deploy/Caddyfile`, `server/analytics-deploy/Dockerfile`, `server/analytics-deploy/README.md`, `server/analytics-deploy/docker-compose.yml`, `server/analytics-deploy/install.sh`, `server/analytics-deploy/verify-anonymity.sh`, `server/analytics-server.mjs`, `scripts/analytics-report.mjs`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/analytics.md`
+- Durum: ✓ belgelendi
+
 ## 27.11.2026 18:13 · main
 <!-- sig:ZWxlY3Ryb24tbWFpbi5janMsZWxlY3Ryb24tcHJl -->
 - Alan: [[security-kvkk]], [[ui-design]], [[i18n]], [[settings]], [[testing]]
@@ -274,11 +281,4 @@
 - Alan: [[git-github]], [[security-kvkk]], [[ui-design]]
 - Kod (4): `electron-github.cjs`, `electron-preload.cjs`, `src/components/GithubAccount.tsx`, `src/types.ts`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/git-github.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 21.11.2026 20:03 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
-- Alan: [[ui-design]]
-- Kod (1): `src/components/EditorArea.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/motion.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
