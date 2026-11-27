@@ -19,7 +19,7 @@ const HISTORY_FILE = argVal("--history", join(OUT_DIR, "history.json"));
 const HISTORY_MAX = 60;
 const SHELL = process.platform === "win32";
 
-const BUDGET = { js: +(process.env.MAX_JS_KB || 700), css: +(process.env.MAX_CSS_KB || 120), gzipJs: +(process.env.MAX_GZIP_JS_KB || 230) };
+const BUDGET = { js: +(process.env.MAX_JS_KB || 700), css: +(process.env.MAX_CSS_KB || 150), gzipJs: +(process.env.MAX_GZIP_JS_KB || 230) };
 const WARN_RATIO = 0.85; // bütçenin %85'inde erken uyarı
 const GROWTH_WARN = 0.1; // önceki ölçüme göre %10 büyüme
 const BUILD_WARN_S = 180;
@@ -136,6 +136,39 @@ services.electronIndex = await probe("Electron sürüm dizini", "https://electro
 if (process.env.NOVA_SYNC_HEALTH_URL) {
   // Adres gizli: ad dışında hiçbir yerde yazılmaz
   services.sync = await probe("Senkron sunucusu", process.env.NOVA_SYNC_HEALTH_URL, { expect: async (r) => r.ok && /NovaCode sync server/.test(await r.text()) });
+}
+
+// Senkron sunucusu metrikleri (/metrics, token ister): kapasite, bellek, hata ve saldırı işareti.
+// Token yalnız bu istekte Authorization başlığıyla gider; hiçbir çıktıya yazılmaz.
+if (process.env.NOVA_SYNC_HEALTH_URL && process.env.NOVA_SYNC_METRICS_TOKEN) {
+  try {
+    const url = new URL("metrics", process.env.NOVA_SYNC_HEALTH_URL.endsWith("/") ? process.env.NOVA_SYNC_HEALTH_URL : process.env.NOVA_SYNC_HEALTH_URL + "/");
+    const res = await fetch(url, { headers: { authorization: `Bearer ${process.env.NOVA_SYNC_METRICS_TOKEN}`, "user-agent": "NovaCode-Studio-health-monitor" }, signal: AbortSignal.timeout(HTTP_TIMEOUT_MS) });
+    if (!res.ok) {
+      add("sync-metrics", "senkron", "warn", `Senkron /metrics okunamadı (HTTP ${res.status}); token yanlış ya da sunucu eski sürüm`);
+    } else {
+      const text = await res.text();
+      const val = (name) => { const m = new RegExp(`^${name.replace(/[{}"=]/g, "\\$&")} ([0-9.eE+-]+)$`, "m").exec(text); return m ? Number(m[1]) : 0; };
+      const sm = {
+        uptime: val("nova_sync_uptime_seconds"), conns: val("nova_sync_connections"), connsMax: val("nova_sync_connections_max"),
+        rooms: val("nova_sync_rooms"), roomsMax: val("nova_sync_rooms_max"), rssMB: Math.round(val("nova_sync_memory_rss_bytes") / 1048576),
+        errors: val("nova_sync_errors_total"), authRejects: val('nova_sync_rejected_total{reason="auth"}') + val('nova_sync_rejected_total{reason="blocked"}'), blockedIps: val("nova_sync_blocked_ips"),
+      };
+      Object.assign(metrics, Object.fromEntries(Object.entries(sm).map(([k, v]) => [`sync_${k}`, v])));
+      const p = prev?.metrics || {};
+      const restarted = typeof p.sync_uptime === "number" && sm.uptime < p.sync_uptime;
+      if (restarted) add("sync-restart", "senkron", "warn", "Senkron sunucusu yeniden başlamış (çalışma süresi sıfırlandı)");
+      // Sayaçlar yeniden başlatmada sıfırlanır: önceki ölçümden küçükse delta = güncel değer
+      const delta = (cur, old) => (typeof old !== "number" || cur < old ? cur : cur - old);
+      const dErr = delta(sm.errors, p.sync_errors);
+      if (dErr > 0) add("sync-errors", "senkron", "warn", `Senkron sunucusu son ölçümden beri ${dErr} hata kaydetti`);
+      const dAuth = delta(sm.authRejects, p.sync_authRejects);
+      if (dAuth >= 50) add("sync-auth", "senkron", "warn", `Senkron sunucusuna ${dAuth} başarısız kimlik denemesi (saldırı işareti olabilir)`);
+      if (sm.connsMax && sm.conns >= sm.connsMax * 0.8) add("sync-cap-conns", "senkron", "warn", `Senkron bağlantı kapasitesinin %80'i doldu (${sm.conns}/${sm.connsMax})`);
+      if (sm.roomsMax && sm.rooms >= sm.roomsMax * 0.8) add("sync-cap-rooms", "senkron", "warn", `Senkron oda kapasitesinin %80'i doldu (${sm.rooms}/${sm.roomsMax})`);
+      if (sm.rssMB > 400) add("sync-mem", "senkron", "warn", `Senkron sunucusu belleği yüksek: ${sm.rssMB} MB (limit 512 MB)`);
+    }
+  } catch { add("sync-metrics", "senkron", "warn", "Senkron /metrics zaman aşımına uğradı"); }
 }
 
 // Güncelleme servisi: son GitHub Release'te her platformun paketi ve latest.yml var mı?

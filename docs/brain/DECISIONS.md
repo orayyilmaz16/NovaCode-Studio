@@ -210,3 +210,6 @@ Karar (kurucu talimatı): alan adı yokken `wss://` için `<ip-tireli>.sslip.io`
 
 ## 27.11.2026 — Senkron sunucusu metrik ve hata izleme (`/metrics`, `status.sh`)
 Karar (kurucu talimatı): sunucuya token korumalı Prometheus `/metrics` ve sunucuda çalışan `status.sh` eklendi; metrikler yalnız sayaçtır (IP, oda adı, token, içerik yok; KVKK veri minimizasyonu). GitHub izleyicisine `/metrics` bağlanmadı (ek secret gerektirirdi). Geri dönüş: `/metrics` yolu ve `status.sh` silinir.
+
+## 27.11.2026 — Bütçe, paket bölme, auto-release idempotansı, senkron metriği izleyiciye bağlandı
+Karar (kurucu tam yetkiyle): (1) CSS bütçesi 150 KB, JS giriş parçası `manualChunks` ile bölündü (654 → 434 KB). (2) `auto-release.yml` aynı sürüm dalı için açık PR varsa yeni PR açmaz, çakışıyorsa yeniden üretir (yarış hatası #126). (3) `/metrics` izleyiciye bağlandı; ek secret `NOVA_SYNC_METRICS_TOKEN` (= sunucu token'ı, yalnız Actions'ta). Risk: sunucu token'ı bir secret olarak GitHub'da da durur; sunucu tek token tanıdığı için ayrı salt-okunur token yok. Geri dönüş: secret'ı sil (izleme yalnız sağlık adresine döner).

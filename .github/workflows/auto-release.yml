@@ -65,6 +65,16 @@ jobs:
           branch="auto/release-v${NEXT}"
           git config user.name "novacode-bot"
           git config user.email "novacode-bot@users.noreply.github.com"
+          # Eşzamanlı/önceki koşu aynı dalı açmış olabilir (27.11.2026'da non-fast-forward ile kırıldı):
+          # çakışmayan açık PR varsa dokunma; çakışıyorsa kapatıp güncel main'den yeniden üret; PR'sız artık dalı sil.
+          existing="$(gh pr list --head "$branch" --state open --json number,mergeable -q '.[0] | select(. != null) | "\(.number) \(.mergeable)"')"
+          if [ -n "$existing" ]; then
+            num="${existing%% *}"; mg="${existing##* }"
+            if [ "$mg" != "CONFLICTING" ]; then echo "Açık sürüm PR'ı #${num} var (${mg}); yenisi açılmadı."; exit 0; fi
+            gh pr close "$num" --delete-branch --comment "Main ilerledi, çakıştı; sürüm PR'ı güncel main'den yeniden üretiliyor."
+          elif git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            git push origin --delete "$branch"
+          fi
           git checkout -b "$branch"
           git add -A
           git commit -m "chore(auto): release v${NEXT}"

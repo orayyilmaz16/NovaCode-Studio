@@ -34,6 +34,20 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version)
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Tek büyük giriş parçasını böl: önbellek ömrü uzar, bütçe (docs/brain/actions/monitoring.md) rahatlar
+        manualChunks(id: string) {
+          if (!id.includes('node_modules')) return undefined;
+          if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'react-vendor';
+          if (id.includes('node_modules/monaco-editor')) return 'monaco';
+          if (id.includes('node_modules/lucide-react')) return 'icons';
+          return undefined;
+        }
+      }
+    }
+  },
   base: './',
   server: {
     port: 5173
