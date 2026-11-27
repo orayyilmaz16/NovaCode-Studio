@@ -4,10 +4,10 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.9.0** (minor, 26.11.2026) · notlar `release-notes/v1.9.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Yeni özellikler: macOS ve Linux kurulum paketleri
-- Düzeltmeler: Hakkında son sürümler her yerde
-- İyileştirmeler: Otomatik Electron izleyici
+**Son sürüm v1.9.1** (patch, 27.11.2026) · notlar `release-notes/v1.9.1.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- İyileştirmeler: Sürekli izleme
+- İyileştirmeler: Sürüm düzeyi
+- İyileştirmeler: Eski sürümlere macOS ve Linux
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)

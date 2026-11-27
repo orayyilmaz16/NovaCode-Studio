@@ -3,14 +3,22 @@
 ## Unreleased
 
 ### tr
-- [improve] **Sürekli izleme:** Güvenlik açıkları, paket boyutu, derleme süresi ve dış servisler (güncelleme, eklenti mağazası, senkron) her 6 saatte otomatik ölçülür; sorun olursa tek bir issue açılır, düzelince kapanır.
-- [improve] **Sürüm düzeyi:** Otomatik sürümde küçük değişiklikler patch, büyük toplu güncellemeler minor olarak yükselir.
-- [improve] **Eski sürümlere macOS ve Linux:** Önceki tüm sürümlere (v1.0.0 ve sonrası) macOS ve Linux paketleri geriye dönük eklenir (backfill-desktop.yml); README'ye üç işletim sistemi için indirme tablosu eklendi.
 
 ### en
-- [improve] **Continuous monitoring:** Security vulnerabilities, bundle size, build time and external services (updates, extension store, sync) are measured automatically every 6 hours; one issue is opened when something is wrong and closed once fixed.
-- [improve] **Version level:** Automatic releases now bump patch for small changes and minor for large batch updates.
-- [improve] **macOS and Linux for older releases:** macOS and Linux packages are added retroactively to all earlier releases (v1.0.0 onward) (backfill-desktop.yml); the README now has a download table for all three operating systems.
+
+## 1.9.1 - 27.11.2026
+<!-- level: patch -->
+### Türkçe
+#### İyileştirmeler
+- **Sürekli izleme:** Güvenlik açıkları, paket boyutu, derleme süresi ve dış servisler (güncelleme, eklenti mağazası, senkron) her 6 saatte otomatik ölçülür; sorun olursa tek bir issue açılır, düzelince kapanır.
+- **Sürüm düzeyi:** Otomatik sürümde küçük değişiklikler patch, büyük toplu güncellemeler minor olarak yükselir.
+- **Eski sürümlere macOS ve Linux:** Önceki tüm sürümlere (v1.0.0 ve sonrası) macOS ve Linux paketleri geriye dönük eklenir (backfill-desktop.yml); README'ye üç işletim sistemi için indirme tablosu eklendi.
+
+### English
+#### Improvements
+- **Continuous monitoring:** Security vulnerabilities, bundle size, build time and external services (updates, extension store, sync) are measured automatically every 6 hours; one issue is opened when something is wrong and closed once fixed.
+- **Version level:** Automatic releases now bump patch for small changes and minor for large batch updates.
+- **macOS and Linux for older releases:** macOS and Linux packages are added retroactively to all earlier releases (v1.0.0 onward) (backfill-desktop.yml); the README now has a download table for all three operating systems.
 
 ## 1.9.0 - 26.11.2026
 <!-- level: minor -->
