@@ -79,4 +79,4 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 2491, `src/i18n/uiTextTheme.ts` 1131, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 852
-- Üretim paketi (dist varsa): toplam JS 3009 KB; en büyük: index-VYcql4J1.js 654 KB, PtyView-BRRiY-s_.js 327 KB, fileIconLoaders-WAyWvVp4.js 184 KB, uiTextTheme-uNHaoqDV.js 136 KB
+- Üretim paketi (dist varsa): toplam JS 3010 KB; en büyük: index-BF5K4FDk.js 654 KB, PtyView-D1FsDiaY.js 327 KB, fileIconLoaders-CnwoxJ5l.js 184 KB, uiTextTheme-OQtlmk0s.js 137 KB

@@ -198,3 +198,6 @@ Karar (kurucu): önceki tüm release'lere (v1.0.0+) macOS ve Linux paketleri eti
 
 ## 27.11.2026 — Sürüm düzeyi: küçük = patch, büyük toplu = minor
 Karar (kurucu): otomatik sürümde küçük değişiklikler patch, çok büyük/toplu güncellemeler minor olur; major otomatik çıkmaz (yalnız `--level major`). Eşik: `[breaking]` var, `[feat]` ≥ 2 ya da docs hariç ≥ 6 madde → minor. Önceki kural (`[feat]` her zaman minor, `[breaking]` major) geçersiz. Geri dönüş: `levelFromBullets`/`levelFromCommits` eski haline.
+
+## 27.11.2026 — Sürekli sağlık, güvenlik ve performans izleme
+Karar (kurucu talimatı): `health-monitor.yml` her 6 saatte bir bağımlılık açıklarını, statik denetimi, paket boyutu/derleme süresi eğilimini ve dış servis sağlığını ölçer, raporu artifact'a loglar, bulguyu tek issue ile bildirir. Repo public olduğu için zaafiyet ayrıntısı (dosya:satır) issue/günlüğe yazılmaz; tek seferlik servis kesintisi alarm sayılmaz (art arda ikinci ölçüm alarm). Neden: açık ve performans gerilemesini kullanıcıdan önce görmek, gürültüsüz ve sızıntısız. Geri dönüş: workflow ve `scripts/health-monitor.mjs` silinir.

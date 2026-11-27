@@ -24,6 +24,7 @@
     "brain:check": "node scripts/brain.mjs --check",
     "audit": "node scripts/audit-scan.mjs",
     "audit:check": "node scripts/audit-scan.mjs --check",
+    "health": "node scripts/health-monitor.mjs",
     "version:check": "node scripts/check-version.mjs",
     "sync": "node scripts/auto-commit.mjs",
     "icons:gen": "node scripts/gen-file-icons.mjs"

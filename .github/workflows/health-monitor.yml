@@ -1,0 +1,99 @@
+name: Sağlık ve güvenlik izleme
+
+# Her 6 saatte bir: bağımlılık açıkları, statik denetim, paket boyutu/derleme süresi eğilimi, dış servis sağlığı
+# (GitHub API, Open VSX, Electron dizini, son release varlıkları, isteğe bağlı senkron sunucusu).
+# Bulgu varsa TEK bir issue açılır/güncellenir ("health-monitor" etiketi), düzelince kendiliğinden kapanır.
+# Repo public: issue ve günlükte zaafiyet ayrıntısı (dosya:satır) yer almaz; yalnız kural/sayı. Tam rapor artifact'ta.
+# İsteğe bağlı secret: NOVA_SYNC_HEALTH_URL (senkron sunucusunun http(s) adresi; günlüğe yazılmaz).
+# Kural: docs/brain/actions/monitoring.md
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: health-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  monitor:
+    name: Ölç, logla, bildir
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Bağımlılıkları kur
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      # Eğilim için önceki ölçümler (son 60) cache'ten gelir; her koşu yeni anahtarla kaydeder
+      - name: Geçmişi geri yükle
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: health-out/history.json
+          key: health-${{ github.run_id }}
+          restore-keys: health-
+
+      - name: Ölç
+        id: health
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NOVA_SYNC_HEALTH_URL: ${{ secrets.NOVA_SYNC_HEALTH_URL }}
+        run: node scripts/health-monitor.mjs --build
+
+      - name: Raporu sakla (30 gün)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: health-report
+          path: health-out/report.*
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Issue aç / güncelle / kapat
+        if: always() && steps.health.outputs.status != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          STATUS: ${{ steps.health.outputs.status }}
+          FINGERPRINT: ${{ steps.health.outputs.fingerprint }}
+        with:
+          script: |
+            const fs = require('fs');
+            const { owner, repo } = context.repo;
+            const status = process.env.STATUS;
+            const fp = process.env.FINGERPRINT;
+            const title = 'Sağlık izleme: açık bulgular';
+            const label = 'health-monitor';
+            try { await github.rest.issues.createLabel({ owner, repo, name: label, color: 'fbca04', description: 'Otomatik: sağlık/güvenlik/performans izleme' }); } catch (e) { /* var */ }
+
+            const open = await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', labels: label, per_page: 100 });
+            const existing = open.find((i) => i.title === title);
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+
+            if (status === 'ok') {
+              if (existing) {
+                await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `✅ Tüm bulgular giderildi, izleme yeşile döndü: ${runUrl}\nOtomatik kapatıldı.` });
+                await github.rest.issues.update({ owner, repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
+              }
+              return;
+            }
+
+            const report = fs.readFileSync('health-out/report.md', 'utf8');
+            const body = `${report}\n\n[Koşu](${runUrl}) · Tam rapor artifact'ta (\`health-report\`) · Kural: \`docs/brain/actions/monitoring.md\`\n\n<!-- fp:${fp} -->`;
+            if (!existing) {
+              await github.rest.issues.create({ owner, repo, title, body, labels: [label] });
+              return;
+            }
+            // Bulgu kümesi değişmediyse sessiz kal (yinelenen yorum yok); değiştiyse güncelle + bildir
+            const prevFp = /<!-- fp:(\w+) -->/.exec(existing.body || '')?.[1];
+            if (prevFp !== fp) {
+              await github.rest.issues.update({ owner, repo, issue_number: existing.number, body });
+              await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Bulgu kümesi değişti (${status}): ${runUrl}` });
+            }

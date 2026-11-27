@@ -38,3 +38,6 @@ coverage
 # Güncelleyici testi (yalnız yerel)
 dev-app-update.yml
 .claude/settings.local.json
+
+# Sağlık izleyici çıktısı (scripts/health-monitor.mjs)
+health-out
