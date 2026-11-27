@@ -148,7 +148,10 @@ if (process.env.NOVA_SYNC_HEALTH_URL && process.env.NOVA_SYNC_METRICS_TOKEN) {
       add("sync-metrics", "senkron", "warn", `Senkron /metrics okunamadı (HTTP ${res.status}); token yanlış ya da sunucu eski sürüm`);
     } else {
       const text = await res.text();
-      const val = (name) => { const m = new RegExp(`^${name.replace(/[{}"=]/g, "\\$&")} ([0-9.eE+-]+)$`, "m").exec(text); return m ? Number(m[1]) : 0; };
+      // Regex yok: satırları 'ad değer' olarak ayır (etiketli ölçü adı olduğu gibi anahtar olur)
+      const table = new Map();
+      for (const line of text.split('\n')) { if (!line || line.startsWith('#')) continue; const sp = line.lastIndexOf(' '); if (sp > 0) table.set(line.slice(0, sp), Number(line.slice(sp + 1))); }
+      const val = (name) => table.get(name) ?? 0;
       const sm = {
         uptime: val("nova_sync_uptime_seconds"), conns: val("nova_sync_connections"), connsMax: val("nova_sync_connections_max"),
         rooms: val("nova_sync_rooms"), roomsMax: val("nova_sync_rooms_max"), rssMB: Math.round(val("nova_sync_memory_rss_bytes") / 1048576),
