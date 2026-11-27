@@ -41,3 +41,6 @@ dev-app-update.yml
 
 # Sağlık izleyici çıktısı (scripts/health-monitor.mjs)
 health-out
+
+# Senkron sunucusu dağıtım sırrı (token)
+server/deploy/.env

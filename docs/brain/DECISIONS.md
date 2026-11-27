@@ -204,3 +204,6 @@ Karar (kurucu talimatı): `health-monitor.yml` her 6 saatte bir bağımlılık a
 
 ## 27.11.2026 — Etiket tamamlayıcı (`release-finalize.yml`); bot PR onayı otomatikleştirilmedi
 Karar: bot birleşmeleri `push` olayı üretmediği için etiketsiz kalan sürümü `release-finalize.yml` etiketleyip Release'i tetikler (v1.9.1 elle kurtarıldı). Bot PR'ı koşu onayının workflow içinden otomatik verilmesi güvenlik katmanınca reddedildi; onay insanda kalır. Geri dönüş: workflow dosyasını sil.
+
+## 27.11.2026 — Senkron sunucusu dağıtım paketi (Docker + Caddy, sslip.io)
+Karar (kurucu talimatı): alan adı yokken `wss://` için `<ip-tireli>.sslip.io` + Caddy otomatik TLS; `server/deploy/install.sh` token üretir ve yalnız sunucuda `.env`'de tutar. Neden: uygulama `wss://` zorunlu kılar, kurucunun alan adı yok. Risk: IP sertifika şeffaflık kayıtlarında görünür; kalıcı için alan adı. Geri dönüş: `docker compose down`, `server/deploy/` silinir.

@@ -1,0 +1,19 @@
+# Otomatik HTTPS (Let's Encrypt). WebSocket (wss) Caddy'de ek ayar gerektirmez.
+# SYNC_HOST: alan adın ya da alan adı yokken <ip-tireli>.sslip.io (install.sh üretir).
+{$SYNC_HOST} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+	reverse_proxy sync:1234 {
+		# Uzun ömürlü WebSocket bağlantıları için
+		flush_interval -1
+	}
+	# İstek gövdesi/başlık günlüğünde token geçmez (token WebSocket alt protokol başlığındadır); erişim günlüğü yalnız stdout
+	log {
+		output stdout
+		format console
+	}
+}
