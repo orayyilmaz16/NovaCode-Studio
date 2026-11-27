@@ -4,6 +4,7 @@
 
 | Sürüm | Tarih | Tür | Özet | Notlar |
 |---|---|---|---|---|
+| v1.9.1 | 27.11.2026 | patch | 3 improved: Continuous monitoring | [v1.9.1](../../release-notes/v1.9.1.md) |
 | v1.9.0 | 26.11.2026 | minor | 1 new, 1 fix, 1 improved: macOS and Linux installers | [v1.9.0](../../release-notes/v1.9.0.md) |
 | v1.8.0 | 25.11.2026 | minor | 1 improved: Latest Electron, Chromium and Node.js in About | [v1.8.0](../../release-notes/v1.8.0.md) |
 | v1.7.2 | 25.11.2026 | patch | 1 improved: Dependencies updated | [v1.7.2](../../release-notes/v1.7.2.md) |
