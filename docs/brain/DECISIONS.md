@@ -201,3 +201,6 @@ Karar (kurucu): otomatik sürümde küçük değişiklikler patch, çok büyük/
 
 ## 27.11.2026 — Sürekli sağlık, güvenlik ve performans izleme
 Karar (kurucu talimatı): `health-monitor.yml` her 6 saatte bir bağımlılık açıklarını, statik denetimi, paket boyutu/derleme süresi eğilimini ve dış servis sağlığını ölçer, raporu artifact'a loglar, bulguyu tek issue ile bildirir. Repo public olduğu için zaafiyet ayrıntısı (dosya:satır) issue/günlüğe yazılmaz; tek seferlik servis kesintisi alarm sayılmaz (art arda ikinci ölçüm alarm). Neden: açık ve performans gerilemesini kullanıcıdan önce görmek, gürültüsüz ve sızıntısız. Geri dönüş: workflow ve `scripts/health-monitor.mjs` silinir.
+
+## 27.11.2026 — Etiket tamamlayıcı (`release-finalize.yml`); bot PR onayı otomatikleştirilmedi
+Karar: bot birleşmeleri `push` olayı üretmediği için etiketsiz kalan sürümü `release-finalize.yml` etiketleyip Release'i tetikler (v1.9.1 elle kurtarıldı). Bot PR'ı koşu onayının workflow içinden otomatik verilmesi güvenlik katmanınca reddedildi; onay insanda kalır. Geri dönüş: workflow dosyasını sil.

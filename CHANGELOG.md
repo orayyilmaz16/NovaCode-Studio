@@ -3,8 +3,10 @@
 ## Unreleased
 
 ### tr
+- [fix] **Otomatik sürüm yayını:** Otomatik hazırlanan sürüm PR'ı birleşince etiket ve GitHub Release üretilmiyordu; eksik etiket artık otomatik tamamlanıyor.
 
 ### en
+- [fix] **Automatic release publishing:** After the auto-prepared release PR merged, the tag and GitHub Release were not produced; a missing tag is now completed automatically.
 
 ## 1.9.1 - 27.11.2026
 <!-- level: patch -->
