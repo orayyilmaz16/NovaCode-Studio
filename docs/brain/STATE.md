@@ -386,6 +386,7 @@
 | `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
 | `.github/workflows/health-monitor.yml` | Sağlık ve güvenlik izleme | `monitor` (Ölç, logla, bildir) |
+| `.github/workflows/release-finalize.yml` | Sürüm etiketini tamamla | `finalize` (Etiketsiz sürüm varsa etiketle ve yayınla) |
 | `.github/workflows/runtime-watch.yml` | Electron, Chromium ve Node.js izleyici | `watch` (Yeni Electron varsa yükselt ve tara) |
 | `.github/workflows/security.yml` | Güvenlik Taraması | `codeql` (CodeQL), `secrets` (Gizli anahtar taraması (gitleaks)), `dependency-review` (Bağımlılık incelemesi), `audit-scan` (Sürekli denetim raporu), `audit-weekly` (Haftalık npm audit) |
 

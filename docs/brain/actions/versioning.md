@@ -75,3 +75,10 @@ Kapatmak: `NOVA_RELEASE=off` (yalnız sürüm hazırlığı), `NOVA_DOCSYNC=off`
 
 **Sürüm hazırlığı artık yalnız bulutta (25.11.2026):** Actions'ın PR oluşturma izni açıldı; `auto-release.yml` her main push'unda/günlük sürümü hazırlayıp PR açar, CI yeşilse birleşir, `ci-cd.yml` etiket + Release üretir. Yerel Stop hook artık `release.mjs prepare` çalıştırmaz (`NOVA_RELEASE=local` ile açılır) ve elle sürüm PR'ı açılmaz; yalnız CHANGELOG Unreleased maddesi (tr+en, etiketli) yazılır.
 
+
+## Etiket tamamlama ve bot PR'ı onayı (27.11.2026)
+- **Sorun 1:** auto-release PR'ı `GITHUB_TOKEN` ile birleşince GitHub `push` olayı üretmez; `ci-cd.yml` `version` işi başlamaz, etiket ve Release çıkmaz (v1.9.1'de yaşandı, etiket elle atıldı).
+  **Çözüm:** `.github/workflows/release-finalize.yml` her 30 dakikada, auto-release bitince ve elle çalışır; `release.mjs tag` etiketsiz sürüm derse açıklamalı etiketi atar ve `ci-cd.yml`'i `release_tag` ile tetikler. Etiket varsa işlem yapmaz.
+- **Sorun 2:** bot PR'ının `pull_request` koşulları GitHub'da `action_required` ile onay bekler, PR `BLOCKED` kalır. **Bilinçli olarak otomatikleştirilmedi** (güvenlik kapısını botun kendi onaylaması reddedildi, 27.11.2026): her sürüm PR'ında Actions → koşu → "Approve and run" ya da `gh api -X POST repos/<repo>/actions/runs/<id>/approve` insan onayıyla yapılır. Kalıcı çözüm için repo ayarı: Settings → Actions → General → "Fork pull request workflows" altındaki onay gereksinimini kaldırmak ya da `auto-release` PR'ını bir PAT/GitHub App ile açmak (secret gerekir; kurucu kararı).
+- **Çakışma:** PR açıkken main ilerlerse (`DIRTY`) PR kapatılır, `gh workflow run auto-release.yml` ile yeniden üretilir; eski dal silinir.
+- **Elle kurtarma:** `git tag -a vX.Y.Z -F release-notes/vX.Y.Z.md <main sha>` + `git push origin vX.Y.Z` + `gh workflow run ci-cd.yml --ref main -f release_tag=vX.Y.Z`.

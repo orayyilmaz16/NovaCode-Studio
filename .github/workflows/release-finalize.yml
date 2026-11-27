@@ -1,0 +1,53 @@
+name: Sürüm etiketini tamamla
+
+# Neden var: auto-release PR'ı GITHUB_TOKEN ile birleşince GitHub `push` olayı üretmez; ci-cd.yml `version` işi hiç başlamaz,
+# etiket ve GitHub Release çıkmaz (27.11.2026'da v1.9.1'de yaşandı). Bu iş akışı main'de package.json sürümü etiketsizse
+# (ve release-notes/vX.Y.Z.md hazırsa) açıklamalı etiketi atar ve ci-cd.yml'i `release_tag` ile tetikler (workflow_dispatch
+# GITHUB_TOKEN ile de çalışır). Etiket zaten varsa hiçbir şey yapmaz; sonsuz döngü yok. Kural: docs/brain/actions/versioning.md
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_run:
+    workflows: ["Otomatik sürüm hazırlığı"]
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: release-finalize
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  finalize:
+    name: Etiketsiz sürüm varsa etiketle ve yayınla
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+
+      - name: Etiket kararı
+        id: bump
+        run: node scripts/release.mjs tag
+
+      - name: Etiketle ve Release'i tetikle
+        if: steps.bump.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.bump.outputs.version }}
+          MSG: ${{ steps.bump.outputs.tag_message_file }}
+        run: |
+          git config user.name "novacode-bot"
+          git config user.email "novacode-bot@users.noreply.github.com"
+          git tag -a "v${VERSION}" -F "${MSG}"
+          git push origin "v${VERSION}"
+          gh workflow run ci-cd.yml --ref main -f release_tag="v${VERSION}"
+          echo "v${VERSION} etiketlendi, Release üretimi tetiklendi" >> "$GITHUB_STEP_SUMMARY"

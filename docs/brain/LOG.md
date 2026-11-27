@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 27.11.2026 11:49 · main
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvcmVsZWFzZS1maW5h -->
+- Alan: [[ci-cd]]
+- Kod (1): `.github/workflows/release-finalize.yml`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/versioning.md`
+- Durum: ✓ belgelendi
+
 ## 27.11.2026 11:41 · main
 <!-- sig:fCxkb2NzL2JyYWluL2FjdGlvbnMvbW9uaXRvcmlu -->
 - Alan: —
@@ -274,11 +281,4 @@
 - Alan: [[ui-design]], [[i18n]], [[motion]]
 - Kod (3): `src/components/EditorArea.tsx`, `src/i18n/uiText.ts`, `src/style.css`
 - Belge (3): `CHANGELOG.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 18.11.2026 12:16 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvRXJy -->
-- Alan: [[ui-design]], [[motion]]
-- Kod (3): `src/App.tsx`, `src/components/ErrorBoundary.tsx`, `src/style.css`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
