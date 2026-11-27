@@ -4,12 +4,8 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.9.2** (patch, 27.11.2026) · notlar `release-notes/v1.9.2.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Yeni özellikler: Kendi senkron sunucun
-- Düzeltmeler: Sürüm hazırlığı çakışması
-- Düzeltmeler: Otomatik sürüm yayını
-- İyileştirmeler: Daha küçük ana paket
-- İyileştirmeler: Senkron sunucusu izleme
+**Son sürüm v1.9.3** (patch, 27.11.2026) · notlar `release-notes/v1.9.3.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- İyileştirmeler: Bağımlılıklar güncellendi
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)

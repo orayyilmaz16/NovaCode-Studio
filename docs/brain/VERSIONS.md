@@ -4,6 +4,7 @@
 
 | Sürüm | Tarih | Tür | Özet | Notlar |
 |---|---|---|---|---|
+| v1.9.3 | 27.11.2026 | patch | 1 improved: Dependencies updated | [v1.9.3](../../release-notes/v1.9.3.md) |
 | v1.9.2 | 27.11.2026 | patch | 1 new, 2 fix, 2 improved: Your own sync server | [v1.9.2](../../release-notes/v1.9.2.md) |
 | v1.9.1 | 27.11.2026 | patch | 3 improved: Continuous monitoring | [v1.9.1](../../release-notes/v1.9.1.md) |
 | v1.9.0 | 26.11.2026 | minor | 1 new, 1 fix, 1 improved: macOS and Linux installers | [v1.9.0](../../release-notes/v1.9.0.md) |
