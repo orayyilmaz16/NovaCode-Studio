@@ -197,6 +197,37 @@ if (process.env.NOVA_SYNC_HEALTH_URL && process.env.NOVA_SYNC_METRICS_TOKEN) {
   }
 }
 
+// İndirme sayıları: GitHub Release varlıklarının herkese açık download_count değerleri (toplu sayı; kişi/IP bilgisi GitHub'da bile yoktur).
+// Güncelleme dosyaları (latest*.yml, .blockmap) sayılmaz. Eğilim: önceki ölçüme göre artış.
+{
+  const repo = process.env.GITHUB_REPOSITORY;
+  if (repo) {
+    try {
+      const h = { accept: "application/vnd.github+json", "user-agent": "NovaCode-Studio-health-monitor", ...(process.env.GITHUB_TOKEN ? { authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) };
+      const res = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=100`, { headers: h, signal: AbortSignal.timeout(HTTP_TIMEOUT_MS) });
+      if (res.ok) {
+        const rels = await res.json();
+        const sum = { win: 0, mac: 0, linux: 0 };
+        let latest = 0;
+        for (const [i, r] of (Array.isArray(rels) ? rels : []).entries()) {
+          for (const a of r.assets || []) {
+            const n = a.name || "";
+            const ext = n.slice(n.lastIndexOf(".") + 1).toLowerCase();
+            const kind = ext === "exe" ? "win" : (ext === "dmg" || ext === "zip") && /mac/i.test(n) ? "mac" : ext === "appimage" || ext === "deb" ? "linux" : "";
+            if (!kind) continue;
+            sum[kind] += a.download_count || 0;
+            if (i === 0) latest += a.download_count || 0;
+          }
+        }
+        const total = sum.win + sum.mac + sum.linux;
+        Object.assign(metrics, { downloadsTotal: total, downloadsWin: sum.win, downloadsMac: sum.mac, downloadsLinux: sum.linux, downloadsLatestRelease: latest });
+        const before = prev && prev.metrics && Number.isFinite(prev.metrics.downloadsTotal) ? prev.metrics.downloadsTotal : null;
+        if (before !== null) metrics.downloadsSinceLastCheck = total - before;
+      }
+    } catch { /* indirme sayısı alınamadı: yalnız metrik eksik kalır, alarm değil */ }
+  }
+}
+
 // ---------- Sonuç ----------
 const order = { alert: 0, warn: 1, info: 2 };
 findings.sort((a, b) => order[a.sev] - order[b.sev] || a.id.localeCompare(b.id));

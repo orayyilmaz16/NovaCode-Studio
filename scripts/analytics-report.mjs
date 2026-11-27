@@ -16,6 +16,13 @@ export function normalizeBase(u) {
   return "";
 }
 
+// Sayaç grubu seçer; önek varsa (ör. "lang_") görünen adtan kaldırır
+function pick(counts, keep, strip = 0) {
+  const out = {};
+  for (const [k, n] of Object.entries(counts || {})) if (keep(k)) out[strip ? k.slice(strip) : k] = n;
+  return out;
+}
+
 export function render(stats) {
   const sorted = (o) => Object.entries(o || {}).sort((a, b) => b[1] - a[1]);
   const section = (title, o) => `\n${title}\n` + (sorted(o).map(([k, n]) => `  ${k.padEnd(18)} ${String(n).padStart(8)}`).join("\n") || "  (veri yok)");
@@ -23,7 +30,10 @@ export function render(stats) {
   const trend = days.slice(-14).map((d) => `  ${d}  gönderim ${String(stats.perDay[d].batches).padStart(5)}`).join("\n") || "  (veri yok)";
   return [
     `Son ${stats.days} gün · toplu gönderim: ${stats.total.batches}  (≈ günlük aktif kurulum toplamı; kimlik olmadığı için tekil kişi sayılamaz)`,
-    section("Olaylar (toplam sayı)", stats.total.counts),
+    section("Diller (açılan dosya sayısı)", pick(stats.total.counts, (k) => k.startsWith("lang_"), 5)),
+    section("Paneller", pick(stats.total.counts, (k) => k.startsWith("panel_"), 6)),
+    section("Oturum, güncelleme, sağlık", pick(stats.total.counts, (k) => /^(github_|update_|app_error)/.test(k))),
+    section("Eylemler", pick(stats.total.counts, (k) => !/^(lang_|panel_|github_|update_|app_error)/.test(k))),
     section("İşletim sistemi (gönderim)", stats.total.os),
     section("Dil (gönderim)", stats.total.lang),
     section("Sürüm (gönderim)", stats.total.version),

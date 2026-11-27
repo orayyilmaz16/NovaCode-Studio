@@ -118,10 +118,25 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'nova-an-'));
   ok(!/console[.](log|info|warn|error)[(][^)]*(req|remoteAddress|headers)/.test(srvSrc), "sunucu istek/IP/başlık yazdırmaz");
   ok(srvSrc.includes("createHmac(\"sha256\", salt)") && !srvSrc.includes("hits.set(req"), "hız sınırı ham IP yerine özet kullanır");
   ok(!/writeFileSync[(][^)]*(remote|[ (,]ip[ ),])/i.test(srvSrc), "sunucu IP diske yazmaz");
+  // ---- izin listesi tutarlılığı: istemci = sunucu = TypeScript tipi (yeni olay üç yerde eklenmeli)
+  ok(JSON.stringify(EVENTS) === JSON.stringify(srv.EVENTS), 'istemci ve sunucu olay listesi aynı', EVENTS.length + ' vs ' + srv.EVENTS.length);
+  const tsSrc = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'services', 'analytics.ts'), 'utf8');
+  const missingInTs = EVENTS.filter((e) => !e.startsWith('lang_') && !tsSrc.includes("'" + e + "'"));
+  ok(missingInTs.length === 0, 'TypeScript olay tipi tüm olayları içerir', missingInTs.join(','));
+  const langBlock = tsSrc.slice(tsSrc.indexOf('const LANG_EVENTS = ['), tsSrc.indexOf(' as const;', tsSrc.indexOf('const LANG_EVENTS = [')));
+  const tsLangs = langBlock.match(/'[a-z]+'/g) || [];
+  ok(JSON.stringify(tsLangs.map((x) => 'lang_' + x.slice(1, -1)).concat('lang_other')) === JSON.stringify(EVENTS.filter((e) => e.startsWith('lang_'))), 'dil olayları TypeScript listesiyle aynı sırada');
+  const worst = {}; for (const e of EVENTS) worst[e] = 100000;
+  ok(JSON.stringify({ v: 1, app: '99.99.99', os: 'linux', lang: 'tr', counts: worst }).length < 2048, 'en kötü durum yükü sunucu sınırının (2 KB) altında');
+  ok(!EVENTS.some((e) => /(user|login_name|email|path|file|name|ip)(_|$)/.test(e.replace('file_save', ''))), 'olay adlarında kimlik/yol/ad alanı yok');
   const rep = await import(pathToFileURL(path.join(__dirname, '..', 'analytics-report.mjs')).href);
   ok(rep.normalizeBase('https://x.example/a?b') === 'https://x.example' && rep.normalizeBase('http://x.example') === '' && rep.normalizeBase('http://127.0.0.1:1') === 'http://127.0.0.1:1', 'rapor betiği adres denetimi');
   const out = rep.render({ days: 7, total: { batches: 2, counts: { panel_git: 5 }, os: { win: 2 }, lang: { tr: 2 }, version: { '1.9.3': 2 } }, perDay: { '2026-11-27': { batches: 2, counts: {} } } });
-  ok(/panel_git/.test(out) && /tekil kişi sayılamaz/.test(out), 'rapor çıktısı');
+  ok(/Paneller/.test(out) && / git +5/.test(out) && /tekil kişi sayılamaz/.test(out), 'rapor çıktısı');
+  const out2 = rep.render({ days: 7, total: { batches: 1, counts: { lang_python: 4, github_login: 1, panel_git: 2, file_save: 9 }, os: {}, lang: {}, version: {} }, perDay: {} });
+  const lines = out2.split('\n');
+  const at = (title) => lines.findIndex((l) => l.startsWith(title));
+  ok(at('Diller') >= 0 && /python +4/.test(lines[at('Diller') + 1]) && at('Oturum') >= 0 && /github_login/.test(lines[at('Oturum') + 1]), 'rapor çıktısı dilleri ve oturum olaylarını ayrı gruplar');
 
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log(fails ? `\n${fails} başarısız` : '\ntüm testler geçti');

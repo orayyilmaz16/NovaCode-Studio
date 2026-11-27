@@ -73,7 +73,7 @@ import './i18n/uiTextScm';
 import './i18n/uiTextComp'; // oturum, onay ve günlük metinleri (açılışta gerekir)
 import { LazyPanel } from './components/ErrorBoundary';
 import { UnsavedDialog, RestoreSessionDialog, AnalyticsConsentDialog, type UnsavedChoice } from './components/AppDialogs';
-import { track, useAnalytics } from './services/analytics';
+import { track, langEvent, useAnalytics } from './services/analytics';
 import { timeAgo } from './services/timeAgo';
 import { StatusProblems, StatusCursor, StatusCompletion, StatusLsp } from './components/StatusCursor';
 import { useEvent } from './services/useEvent';
@@ -290,7 +290,7 @@ export function App() {
 
   const [sidebarVisible, setSidebarVisible] = useState(() => window.innerWidth >= 760); // telefonda kapalı başlar (üstüne biner)
   const sbInitial = useRef(true);
-  const { auth } = useGithubAuth();
+  const { auth, ready: authReady } = useGithubAuth();
 
   // Iframe console dinleyicisi: yalnız sayfadaki bir iframe'den gelen iletiler kabul edilir (S-28)
   useEffect(() => {
@@ -1636,7 +1636,7 @@ export function App() {
   };
   const zoomBy = (d: number) => setSetting('uiZoom', Math.max(80, Math.min(150, Number(settings.uiZoom || 100) + d)));
   const toggleThemeMode = () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
-  const checkUpdatesNow = () => { setUpdateDlg('update'); void checkForUpdates(settings.updateAutoDownload === true); };
+  const checkUpdatesNow = () => { track('update_check'); setUpdateDlg('update'); void checkForUpdates(settings.updateAutoDownload === true); };
   const actions = {
     handleNewUntitled, handleOpenFolderDialog, handleOpenFileDialog, handleCloseFolder, saveActive, closeActive, cycleTab, handleRunCode, runActiveFile,
     splitRight: () => doSplit('row'), splitDown: () => doSplit('col'), focusOtherGroup, closeSplitView, openKeybindings: () => setShowKeybindings(true),
@@ -1667,6 +1667,17 @@ export function App() {
   useEffect(() => { if (sidebarVisible) track(('panel_' + activeSidebarTab) as Parameters<typeof track>[0]); }, [activeSidebarTab, sidebarVisible]);
   useEffect(() => { if (showBottomTerminal) track('panel_terminal'); }, [showBottomTerminal]);
   useEffect(() => { if (showSettings) track('panel_settings'); }, [showSettings]);
+  // Dil dağılımı: aktif dosya değişince yalnız dilin kimliği sayılır (içerik/ad/yol yok)
+  const analyticsFileId = activeFile?.id;
+  const analyticsFileLang = activeFile?.language;
+  useEffect(() => { if (analyticsFileId && analyticsFileLang) track(langEvent(analyticsFileLang)); }, [analyticsFileId]); // eslint-disable-line react-hooks/exhaustive-deps
+  // GitHub oturumu: yalnız giriş/çıkış GEÇİŞİ sayılır (hesap adı yok; açılışta kayıtlı oturumun yüklenmesi giriş sayılmaz)
+  const prevGhConnected = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!authReady) return;
+    if (prevGhConnected.current !== null && prevGhConnected.current !== auth.connected) track(auth.connected ? 'github_login' : 'github_logout');
+    prevGhConnected.current = auth.connected;
+  }, [authReady, auth.connected]);
   const hasFile = !!activeFile;
   const hasRoot = !!currentRootPath;
   const dbgIdle = dbgStatus === 'idle';
