@@ -11,6 +11,7 @@ triggers: ["denetim", "tara", "zaafiyet", "güvenlik açığı", "performans", "
 | Katman | Ne yapar | Ne zaman | Çıktı |
 |---|---|---|---|
 | Otomatik sezgisel tarama | `scripts/audit-scan.mjs` (`npm run audit`): webPreferences, eval, ham HTML, `openExternal`, exec enjeksiyonu, TLS, sır benzeri değer, CSP, preload kanal sızıntısı, eager `require`, senkron fs, dinleyici/interval sızıntısı, büyük dosya, boş catch, TODO, `any`, sabit ms, sabit metin, etiketsiz düğme | Her Claude turu sonunda ([[brain-maintenance]] ile aynı yerde, `scripts/auto-commit.mjs`), CI'da her push/PR (`npm run audit:check`) ve `security.yml` içinde haftalık/her push | [[AUDIT]] + `docs/brain/audit-baseline.json` |
+| Sürekli izleme | `health-monitor.yml`: açık, eğilim, servis sağlığı, tek issue | Her 6 saatte | [[monitoring]] |
 | Bağımlılık ve kod taraması | `npm audit`, CodeQL, gitleaks, dependency review | CI ([[ci-cd]]) | Actions çıktısı |
 | Derin (ajan/elle) tarama | Güvenlik, performans, hata/arayüz/özellik için ayrıntılı inceleme; yalnız kodda doğrulanan bulgular | Büyük özellikten sonra veya ayda bir; "denetim yap" denince | [[BACKLOG]] |
 

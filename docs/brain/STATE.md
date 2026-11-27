@@ -24,6 +24,7 @@
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
 | `audit:check` | `node scripts/audit-scan.mjs --check` |
+| `health` | `node scripts/health-monitor.mjs` |
 | `version:check` | `node scripts/check-version.mjs` |
 | `sync` | `node scripts/auto-commit.mjs` |
 | `icons:gen` | `node scripts/gen-file-icons.mjs` |
@@ -180,6 +181,7 @@
 | `scripts/dep-changelog.mjs` | 52 |
 | `scripts/doc-sync.mjs` | 189 |
 | `scripts/gen-file-icons.mjs` | 24 |
+| `scripts/health-monitor.mjs` | 201 |
 | `scripts/make-icons.cjs` | 29 |
 | `scripts/release.mjs` | 293 |
 | `scripts/runtime-watch.mjs` | 25 |
@@ -383,6 +385,7 @@
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi (${{ matrix.label }})), `build-desktop` (Paket (${{ matrix.label }})), `release-desktop` (GitHub Release (Windows, macOS, Linux)) |
 | `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
+| `.github/workflows/health-monitor.yml` | Sağlık ve güvenlik izleme | `monitor` (Ölç, logla, bildir) |
 | `.github/workflows/runtime-watch.yml` | Electron, Chromium ve Node.js izleyici | `watch` (Yeni Electron varsa yükselt ve tara) |
 | `.github/workflows/security.yml` | Güvenlik Taraması | `codeql` (CodeQL), `secrets` (Gizli anahtar taraması (gitleaks)), `dependency-review` (Bağımlılık incelemesi), `audit-scan` (Sürekli denetim raporu), `audit-weekly` (Haftalık npm audit) |
 
@@ -403,6 +406,7 @@
 | [[git-github]] | `docs/brain/actions/git-github.md` | Git paneli, GitHub hesabı bağlama, PR, eşzamanlama ve canlı takip |
 | [[i18n]] | `docs/brain/actions/i18n.md` | Arayüze metin eklemek (8 dil zorunlu) |
 | [[lsp]] | `docs/brain/actions/lsp.md` | Dil sunucuları (LSP): Monaco'nun yerleşik desteği olmayan diller için tamamlama, üzerine gelme, tanıma git, tanılama |
+| [[monitoring]] | `docs/brain/actions/monitoring.md` | Sürekli sağlık, güvenlik ve performans izleme: açık, eğilim ve servis sağlığı otomatik ölçülür, loglanır, tek issue ile bildirilir |
 | [[motion]] | `docs/brain/actions/motion.md` | Geçiş, animasyon, hover, after ve gecikme efektleri; tek hareket dili |
 | [[preview]] | `docs/brain/actions/preview.md` | HTML/SVG/Markdown önizleme, yerel sunucu önizleme, Çalıştır (F5) ve çalıştırma ayarları |
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |

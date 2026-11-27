@@ -51,6 +51,7 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[testing]] | Doğrulama: tsc, build, birim ve entegrasyon testleri |
 | [[brain-maintenance]] | Bu beyni güncel tutmak |
 | [[audit]] | Sürekli denetim: güvenlik, performans, hata/arayüz/özellik taraması; [[AUDIT]] (otomatik) ve [[BACKLOG]] (doğrulanmış bulgular) |
+| [[monitoring]] | Sürekli sağlık, güvenlik ve performans izleme: 6 saatlik ölçüm, tek issue, açık vermeme kuralları |
 | [[doc-sync]] | Belge otomasyonu: her istemde hatırlatma, tur sonunda denetim ve günlük |
 
 ## Haberleşme kuralları
