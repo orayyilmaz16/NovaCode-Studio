@@ -126,7 +126,8 @@ export function parseImport(text: string): StoredSettings | null {
   try {
     const j = JSON.parse(text);
     if (!j || typeof j !== 'object' || !('values' in j)) return null;
-    return { values: sanitizeAll(j.values) };
+    // Rıza başkasının dosyasından gelemez: içe aktarma analitiği asla açmaz (KVKK: rıza yalnız kullanıcının kendi eylemi).
+    return { values: { ...sanitizeAll(j.values), analyticsEnabled: false } };
   } catch {
     return null;
   }

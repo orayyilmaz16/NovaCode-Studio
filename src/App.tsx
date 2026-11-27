@@ -72,7 +72,8 @@ import { normPath } from './services/problems';
 import './i18n/uiTextScm';
 import './i18n/uiTextComp'; // oturum, onay ve günlük metinleri (açılışta gerekir)
 import { LazyPanel } from './components/ErrorBoundary';
-import { UnsavedDialog, RestoreSessionDialog, type UnsavedChoice } from './components/AppDialogs';
+import { UnsavedDialog, RestoreSessionDialog, AnalyticsConsentDialog, type UnsavedChoice } from './components/AppDialogs';
+import { track, useAnalytics } from './services/analytics';
 import { timeAgo } from './services/timeAgo';
 import { StatusProblems, StatusCursor, StatusCompletion, StatusLsp } from './components/StatusCursor';
 import { useEvent } from './services/useEvent';
@@ -938,6 +939,7 @@ export function App() {
   // manual=false: otomatik kayıt/çalıştırma öncesi kayıt; yazarken biçimlendirme yapılmaz (yalnız Ctrl+S, menü, düğme, palet)
   const handleSaveFile = async (file: FileItem, manual = true): Promise<boolean> => {
     if (file.diff) return true; // fark sekmesi salt okunur
+    if (manual) track('file_save');
     flushEditorChanges();
     const cur = openFilesRef.current.find((f) => f.id === file.id) ?? file;
     let content = getContent(cur);
@@ -1258,6 +1260,7 @@ export function App() {
   };
 
   const handleRunCode = () => {
+    track('code_run');
     const current = openFiles.find((f) => f.id === activeFileId);
     if (!current) return;
     const k = previewKind(current.name);
@@ -1303,6 +1306,7 @@ export function App() {
     setShowLanding(false);
     setShowSettings(false);
     setShowRightPanel('ai');
+    track('panel_ai');
   };
   // Kenar çubuğu (Gezgin) ana sayfada da açık kalır; yalnız kullanıcı kapatırsa kapanır
   const sidebarShown = sidebarVisible;
@@ -1658,6 +1662,11 @@ export function App() {
   gitRepoRef.current = gitStatus.isRepo;
 
   const uiLang = getUiLang();
+  // Anonim kullanım sayacı: rıza ayarı ana sürece eşitlenir, ilk açılışta tek seferlik soru (docs/brain/actions/analytics.md)
+  const analytics = useAnalytics(settings.analyticsEnabled === true, uiLang);
+  useEffect(() => { if (sidebarVisible) track(('panel_' + activeSidebarTab) as Parameters<typeof track>[0]); }, [activeSidebarTab, sidebarVisible]);
+  useEffect(() => { if (showBottomTerminal) track('panel_terminal'); }, [showBottomTerminal]);
+  useEffect(() => { if (showSettings) track('panel_settings'); }, [showSettings]);
   const hasFile = !!activeFile;
   const hasRoot = !!currentRootPath;
   const dbgIdle = dbgStatus === 'idle';
@@ -1911,6 +1920,12 @@ export function App() {
           names={unsavedAsk.files.map((x) => x.name)}
           hasUntitled={unsavedAsk.files.some((x) => !x.path)}
           onChoose={(c) => { unsavedAsk.resolve(c); setUnsavedAsk(null); }}
+        />
+      )}
+      {analytics.ask && !restoreOffer && (
+        <AnalyticsConsentDialog
+          onAllow={() => { setSetting('analyticsEnabled', true); analytics.answered(); }}
+          onDecline={analytics.answered}
         />
       )}
       {restoreOffer && (

@@ -91,6 +91,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     replace: (opts) => ipcRenderer.invoke('search:replace', opts),
     cancel: (id) => ipcRenderer.invoke('search:cancel', id)
   },
+  analytics: {
+    status: () => ipcRenderer.invoke('analytics:status'),
+    setConsent: (on) => ipcRenderer.invoke('analytics:set-consent', on === true),
+    markAsked: () => ipcRenderer.invoke('analytics:mark-asked'),
+    payload: () => ipcRenderer.invoke('analytics:payload'),
+    setLang: (lang) => ipcRenderer.send('analytics:set-lang', String(lang)),
+    track: (name) => ipcRenderer.send('analytics:track', String(name))
+  },
   update: {
     state: () => ipcRenderer.invoke('update:state'),
     check: (opts) => ipcRenderer.invoke('update:check', opts),

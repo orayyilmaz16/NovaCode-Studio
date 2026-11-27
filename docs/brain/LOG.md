@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 27.11.2026 18:13 · main
+<!-- sig:ZWxlY3Ryb24tbWFpbi5janMsZWxlY3Ryb24tcHJl -->
+- Alan: [[security-kvkk]], [[ui-design]], [[i18n]], [[settings]], [[testing]]
+- Kod (13): `electron-main.cjs`, `electron-preload.cjs`, `src/App.tsx`, `src/components/AppDialogs.tsx`, `src/i18n/uiTextComp.ts`, `src/i18n/uiTextTheme.ts`, `src/services/settings.ts`, `src/services/settingsSchema.json`, `src/types.ts`, `electron-analytics.cjs`, `scripts/tests/analytics.test.cjs`, `server/analytics-server.mjs` … (+1)
+- Belge (5): `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/security-kvkk.md`, `docs/brain/actions/analytics.md`
+- Durum: ✓ belgelendi
+
 ## 27.11.2026 17:21 · main
 <!-- sig:LmdpdGh1Yi9kZXAtYXV0b3BpbG90Lmpzb24sLmdp -->
 - Alan: [[ci-cd]], [[ui-design]], [[testing]]
@@ -273,12 +280,5 @@
 <!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
 - Alan: [[ui-design]]
 - Kod (1): `src/components/EditorArea.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/motion.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 21.11.2026 19:59 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
-- Alan: [[ui-design]]
-- Kod (1): `src/App.tsx`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/motion.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

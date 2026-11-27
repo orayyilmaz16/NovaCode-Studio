@@ -19,7 +19,8 @@
 | `electron:build:mac` | `vite build && electron-builder --mac --publish never` |
 | `electron:build:linux` | `vite build && electron-builder --linux --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs` |
+| `analytics:server` | `node server/analytics-server.mjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -34,6 +35,7 @@
 | Dosya | Satır |
 |---|---|
 | `electron-ai.cjs` | 995 |
+| `electron-analytics.cjs` | 147 |
 | `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 341 |
 | `electron-git.cjs` | 450 |
@@ -41,9 +43,9 @@
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
 | `electron-lsp.cjs` | 301 |
-| `electron-main.cjs` | 851 |
+| `electron-main.cjs` | 852 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 283 |
+| `electron-preload.cjs` | 291 |
 | `electron-preview.cjs` | 78 |
 | `electron-pty.cjs` | 237 |
 | `electron-search.cjs` | 289 |
@@ -59,16 +61,16 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2490 |
+| `src/App.tsx` | 2505 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 511 |
+| `src/types.ts` | 519 |
 
 ### Bileşenler
 | Dosya | Satır |
 |---|---|
 | `src/components/AIAssistant.tsx` | 768 |
 | `src/components/AccordionMenu.tsx` | 187 |
-| `src/components/AppDialogs.tsx` | 66 |
+| `src/components/AppDialogs.tsx` | 81 |
 | `src/components/BranchPicker.tsx` | 199 |
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
@@ -120,6 +122,7 @@
 | `src/services/SettingsContext.tsx` | 198 |
 | `src/services/aiClient.ts` | 251 |
 | `src/services/aiCompletion.ts` | 204 |
+| `src/services/analytics.ts` | 52 |
 | `src/services/collabRoom.ts` | 93 |
 | `src/services/completionSchedule.ts` | 69 |
 | `src/services/completionShape.ts` | 180 |
@@ -141,7 +144,7 @@
 | `src/services/ptyBus.ts` | 37 |
 | `src/services/recentFolders.ts` | 28 |
 | `src/services/session.ts` | 103 |
-| `src/services/settings.ts` | 346 |
+| `src/services/settings.ts` | 347 |
 | `src/services/splitLayout.ts` | 135 |
 | `src/services/tasks.ts` | 88 |
 | `src/services/terminalBridge.ts` | 54 |
@@ -162,11 +165,11 @@
 |---|---|
 | `src/i18n/uiText.ts` | 673 |
 | `src/i18n/uiTextAi.ts` | 588 |
-| `src/i18n/uiTextComp.ts` | 329 |
+| `src/i18n/uiTextComp.ts` | 347 |
 | `src/i18n/uiTextDev.ts` | 379 |
 | `src/i18n/uiTextRemote.ts` | 180 |
 | `src/i18n/uiTextScm.ts` | 276 |
-| `src/i18n/uiTextTheme.ts` | 1130 |
+| `src/i18n/uiTextTheme.ts` | 1136 |
 
 ### Betikler
 | Dosya | Satır |
@@ -194,6 +197,7 @@
 | `scripts/tests/ai-complete.test.cjs` | 205 |
 | `scripts/tests/ai-security.test.cjs` | 84 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
+| `scripts/tests/analytics.test.cjs` | 108 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
 | `scripts/tests/debug.test.cjs` | 118 |
@@ -225,12 +229,14 @@
 ### Sunucu
 | Dosya | Satır |
 |---|---|
+| `server/analytics-server.mjs` | 124 |
 | `server/sync-server.mjs` | 319 |
 
 ## IPC kanalları
 | Grup | Kanallar |
 |---|---|
 | ai | `ai:approve`, `ai:cancel`, `ai:commands`, `ai:complete`, `ai:completeCancel`, `ai:completeWarm`, `ai:ollamaModels`, `ai:run`, `ai:transcribe`, `ai:whisperModels` |
+| analytics | `analytics:mark-asked`, `analytics:payload`, `analytics:set-consent`, `analytics:status` |
 | app | `app:openLink`, `app:quit`, `app:reveal` |
 | dbg | `dbg:evaluate`, `dbg:pause`, `dbg:properties`, `dbg:resume`, `dbg:scopes`, `dbg:setBreakpoints`, `dbg:start`, `dbg:stepInto`, `dbg:stepOut`, `dbg:stepOver`, `dbg:stop` |
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
@@ -253,13 +259,13 @@
 | win | `win:close`, `win:is-maximized`, `win:minimize`, `win:toggle-maximize` |
 | workspace | `workspace:open`, `workspace:recent` |
 
-**Olaylar (ana süreç → arayüz):** `ai:event`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
+**Olaylar (ana süreç → arayüz):** `ai:event`, `analytics:set-lang`, `analytics:track`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1082 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1090 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
-116 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
+117 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
 
 | Kategori | Kimlik | Ad (tr) | Tür | Varsayılan | Aralık / seçenekler |
 |---|---|---|---|---|---|
@@ -347,6 +353,7 @@
 | Git ve GitHub | `gitFetchInterval` | Otomatik fetch aralığı | select | `60` | 30, 60, 120, 300 |
 | Ortak düzenleme | `collabEnabled` | Ortak düzenlemeyi aç | toggle | `false` |  |
 | Ortak düzenleme | `collabUrl` | Sunucu adresi | text | `""` | ≤200 karakter |
+| Hakkında ve yedek | `analyticsEnabled` | Anonim kullanım istatistiklerini paylaş | toggle | `false` |  |
 | Hakkında ve yedek | `updateAutoCheck` | Açılışta güncellemeleri denetle | toggle | `true` |  |
 | Hakkında ve yedek | `updateAutoDownload` | Güncellemeyi otomatik indir | toggle | `true` |  |
 | Yapay Zekâ | `aiCompletion` | AI kod tamamlama (hayalet metin) | toggle | `true` |  |
@@ -402,6 +409,7 @@
 | [[CHANGELOG]] | `CHANGELOG.md` | Changelog |
 | [[CLAUDE]] | `CLAUDE.md` | NovaCode Studio |
 | [[ai-assistant]] | `docs/brain/actions/ai-assistant.md` | Yapay zekâ asistanı: çoklu sağlayıcı, Ask/Agent modları, araçlar, oturumlar, görsel girdi, sesli dikte, özel komutlar |
+| [[analytics]] | `docs/brain/actions/analytics.md` | Anonim, rızaya bağlı kullanım sayacı: ne sayılır, ne gönderilir, nerede toplanır, KVKK ve geri alma |
 | [[audit]] | `docs/brain/actions/audit.md` | Sürekli denetim: güvenlik açıkları, performans kayıpları, hatalar, arayüz ve özellik eksikleri |
 | [[brain-maintenance]] | `docs/brain/actions/brain-maintenance.md` | Proje beynini (docs/brain) güncel ve tutarlı tutmak |
 | [[ci-cd]] | `docs/brain/actions/ci-cd.md` | GitHub Actions, audit, bundle bütçesi ve yayın hattı |
