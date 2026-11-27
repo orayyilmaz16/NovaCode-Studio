@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 27.11.2026 17:21 · main
+<!-- sig:LmdpdGh1Yi9kZXAtYXV0b3BpbG90Lmpzb24sLmdp -->
+- Alan: [[ci-cd]], [[ui-design]], [[testing]]
+- Kod (6): `.github/dep-autopilot.json`, `.github/workflows/dep-autopilot.yml`, `.github/workflows/dep-review.yml`, `scripts/dep-review.mjs`, `scripts/dep-update.mjs`, `scripts/tests/deps.test.cjs`
+- Belge (3): `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/updates.md`
+- Durum: ✓ belgelendi
+
 ## 27.11.2026 12:03 · auto/20261127-085853
 <!-- sig:c2NyaXB0cy90ZXN0cy9zeW5jc2VydmVyLnRlc3Qu -->
 - Alan: [[testing]], [[ui-design]]
@@ -273,12 +280,5 @@
 <!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
 - Alan: [[ui-design]]
 - Kod (1): `src/App.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/motion.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 21.11.2026 19:55 · auto/20261118-083349
-<!-- sig:c3JjL3N0eWxlLmNzcyx8LENIQU5HRUxPRy5tZCxk -->
-- Alan: [[motion]]
-- Kod (1): `src/style.css`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/motion.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

@@ -1,0 +1,5 @@
+{
+  "ignore": ["electron", "electron-builder", "@electron/*"],
+  "verify": [["npx", "tsc", "--noEmit"], ["npm", "test"], ["npm", "run", "build"]],
+  "maxIndividualTries": 12
+}

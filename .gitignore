@@ -44,3 +44,5 @@ health-out
 
 # Senkron sunucusu dağıtım sırrı (token)
 server/deploy/.env
+
+.dep-autopilot/

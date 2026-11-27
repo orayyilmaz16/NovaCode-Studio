@@ -19,7 +19,7 @@
 | `electron:build:mac` | `vite build && electron-builder --mac --publish never` |
 | `electron:build:linux` | `vite build && electron-builder --linux --publish never` |
 | `sync:server` | `node server/sync-server.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -179,6 +179,8 @@
 | `scripts/check-hygiene.mjs` | 75 |
 | `scripts/check-version.mjs` | 82 |
 | `scripts/dep-changelog.mjs` | 52 |
+| `scripts/dep-review.mjs` | 56 |
+| `scripts/dep-update.mjs` | 233 |
 | `scripts/doc-sync.mjs` | 189 |
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/health-monitor.mjs` | 237 |
@@ -195,6 +197,7 @@
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
 | `scripts/tests/debug.test.cjs` | 118 |
+| `scripts/tests/deps.test.cjs` | 41 |
 | `scripts/tests/electron-misc.test.cjs` | 138 |
 | `scripts/tests/git.test.cjs` | 163 |
 | `scripts/tests/history.test.cjs` | 66 |
@@ -384,6 +387,8 @@
 | `.github/workflows/backfill-desktop.yml` | Eski sürümlere macOS ve Linux paketi ekle | `plan`, `build` (${{ matrix.tag }} (${{ matrix.os }})) |
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi (${{ matrix.label }})), `build-desktop` (Paket (${{ matrix.label }})), `release-desktop` (GitHub Release (Windows, macOS, Linux)) |
 | `.github/workflows/ci-failure-issue.yml` | CI hata bildirimi (otomatik issue) | `report` (Issue aç / güncelle / kapat) |
+| `.github/workflows/dep-autopilot.yml` | Bağımlılık otopilotu | `autopilot` (Rapor, güncelle, PR aç) |
+| `.github/workflows/dep-review.yml` | Bağımlılık PR incelemesi | `review` (Sürüm farkı raporu) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
 | `.github/workflows/health-monitor.yml` | Sağlık ve güvenlik izleme | `monitor` (Ölç, logla, bildir) |
 | `.github/workflows/release-finalize.yml` | Sürüm etiketini tamamla | `finalize` (Etiketsiz sürüm varsa etiketle ve yayınla) |

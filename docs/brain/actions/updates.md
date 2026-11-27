@@ -50,3 +50,28 @@ Denetim ve notlar `github.com` / `api.github.com`'a gider: IP, uygulama sürüm�
 **Otomatik Electron izleyici (26.11.2026):** `.github/workflows/runtime-watch.yml` günde 2 kez (03:37 ve 15:37 UTC) `scripts/runtime-watch.mjs` ile resmî dizinden son kararlı Electron sürümünü okur. package.json geride ise `auto/electron-X` dalında yükseltir, PR açar, `ci-cd.yml` ve `security.yml` (workflow_dispatch) tetiklenir, yeşilse auto-merge. Açık PR (Dependabot) varsa atlar. Chromium ve Node.js ayrı yükseltilemez; Electron ile gelir. Ayar: Actions → "Allow GitHub Actions to create and approve pull requests" açık olmalı.
 
 **macOS/Linux (26.11.2026):** electron-updater `latest-mac.yml` (zip) ve `latest-linux.yml` (AppImage) kullanır. macOS'ta güncelleme için uygulama imzalı olmalı; imzasızsa denetim çalışır ama kurulum başarısız olabilir. .deb kurulumu otomatik güncellenmez.
+
+## Bağımlılık otopilotu (27.11.2026)
+Üç katman, Dependabot (günlük) ve `runtime-watch.yml` (Electron) üzerine biner; çakışmaz: Electron yığını otopilot dışıdır (`.github/dep-autopilot.json` → `ignore`).
+| Parça | Görev |
+|---|---|
+| `dep-autopilot.yml` (pzt 04:17 UTC + elle) | `scripts/dep-update.mjs`: **temizlik** (main'de zaten karşılanmış Dependabot PR'ı ve eski `auto/deps-*` PR'ı kapatılır) → **rapor** (`npm outdated` + `npm audit`; tek "Bağımlılık durumu (otopilot)" issue'su) → **güvenli güncelleme** (patch/minor, tek PR `auto/deps-<yıl>-w<hafta>`) |
+| Doğrulama | `tsc --noEmit` + `npm test` + `npm run build`. Toplu düşerse paketler tek tek denenir, geçmeyen geri alınır ve raporlanır; hiçbiri geçmezse PR açılmaz. Geçerse `ci-cd.yml`+`security.yml` elle tetiklenir ve `gh pr merge --auto --squash` açılır (birleşmeyi zorunlu kontroller belirler) |
+| Major | Otomatik uygulanmaz, issue'da listelenir. Actions → Bağımlılık otopilotu → Run workflow → `major=<paket>`: tek paketlik PR (`auto/deps-major-<paket>`, etiket `major-review`); doğrulama düşerse **taslak** PR, auto-merge yok |
+| `dep-review.yml` | Dependabot/otopilot/Electron PR'larında `package.json` farkını (patch/minor/major, çalışma zamanı mı geliştirme mi) yapışkan yorum olarak yazar, `safe-update` / `major-review` etiketler. `pull_request_target` kullanır ama PR kodunu **çıkış yapmaz, çalıştırmaz** (yalnız API ile `package.json` okur) |
+| Bildirim | Yeni issue ve içerik (parmak izi) değişince issue yorumu e-posta olarak gider; `auto/*` CI hatası zaten `ci-failure-issue.yml` ile issue açar. Bekleyen kalmayınca issue kendiliğinden kapanır |
+- Çalışma zamanı `dependencies` yükselince birleşme `auto-release.yml` → `dep-changelog.mjs` ile sürüm notu ve patch sürüm üretir; yalnız geliştirme araçları sürüm çıkarmaz.
+- Test: `scripts/tests/deps.test.cjs` (sınıflandırma, semver, başlık ayrıştırma). Elle deneme: `node scripts/dep-update.mjs report` (salt okunur).
+- KVKK: yalnız paket adı/sürümü npm kayıt defterine gider; kişisel veri yok. Gerekli ayar: Actions → "Allow GitHub Actions to create and approve pull requests".
+
+## Bağımlılık otopilotu (27.11.2026)
+Dependabot (günlük) ve `runtime-watch.yml` (Electron) üzerine biner; çakışmaz: Electron yığını otopilot dışıdır (`.github/dep-autopilot.json` → `ignore`).
+
+- **`dep-autopilot.yml`** (pazartesi 04:17 UTC + elle), `scripts/dep-update.mjs`: temizlik (main'de karşılanmış Dependabot PR'ı ve eski `auto/deps-*` PR'ı kapanır) → rapor (`npm outdated` + `npm audit`; tek "Bağımlılık durumu (otopilot)" issue'su) → güvenli (patch/minor) güncelleme, tek PR `auto/deps-<yıl>-w<hafta>`.
+- **Doğrulama:** `tsc --noEmit` + `npm test` + `npm run build`. Toplu düşerse paketler tek tek denenir, geçmeyen geri alınır ve raporlanır; hiçbiri geçmezse PR açılmaz. Geçerse `ci-cd.yml` + `security.yml` elle tetiklenir ve `gh pr merge --auto --squash` açılır (birleşmeyi zorunlu kontroller belirler).
+- **Major:** otomatik uygulanmaz, issue'da listelenir. Actions → Bağımlılık otopilotu → Run workflow → `major=<paket>`: tek paketlik PR (`auto/deps-major-<paket>`, etiket `major-review`); doğrulama düşerse taslak PR, auto-merge yok.
+- **`dep-review.yml`:** Dependabot/otopilot/Electron PR'larında `package.json` farkını (patch/minor/major, çalışma zamanı mı geliştirme mi) yapışkan yorum olarak yazar, `safe-update` / `major-review` etiketler. `pull_request_target` kullanır ama PR kodunu çıkış yapmaz ve çalıştırmaz (yalnız API ile `package.json` okur).
+- **Bildirim:** yeni issue ve içerik (parmak izi) değişince issue yorumu e-posta olarak gider; `auto/*` CI hatası zaten `ci-failure-issue.yml` ile issue açar. Bekleyen kalmayınca issue kendiliğinden kapanır.
+- Çalışma zamanı `dependencies` yükselince birleşme sonrası `auto-release.yml` → `dep-changelog.mjs` sürüm notu ve patch sürüm üretir; yalnız geliştirme araçları sürüm çıkarmaz.
+- Test: `scripts/tests/deps.test.cjs`. Elle deneme: `node scripts/dep-update.mjs report` (salt okunur).
+- KVKK: yalnız paket adı/sürümü npm kayıt defterine gider; kişisel veri yok. Gerekli ayar: Actions → "Allow GitHub Actions to create and approve pull requests".

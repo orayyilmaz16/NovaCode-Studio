@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 27.11.2026 (bağımlılık otopilotu)
+- **Haftalık otonom bağımlılık güncellemesi; major elle.** Neden: Dependabot yalnız tek tek PR açıyor; toplu doğrulama, durum raporu, bildirim ve eskiyen PR temizliği yoktu. Sonuç: `dep-autopilot.yml` patch/minor güncellemeleri tek PR'da (tsc + test + build ile doğrulanmış) açar ve auto-merge eder; major'lar issue'da raporlanır, istenirse paket adıyla tek PR başlatılır (kırıcı değişiklik kendiliğinden birleşmez). Electron yığını mevcut izleyicide kaldı (çift PR yok). `dep-review.yml` `pull_request_target` kullanır ama PR kodunu çıkış yapmaz/çalıştırmaz. Geri dönüş: iki iş akışını silmek yeterli. Bkz. [[updates]].
+
 ## 23.11.2026 (uzak çalışma alanı)
 - **SSH/SFTP ile uzak çalışma alanı; yeni bağımlılık `ssh2` (MIT, saf JS).** Neden: kurucu VS Code'daki Remote-SSH benzeri uzak geliştirme istedi (kapsam sorusunda "SSH uzak sunucu" seçildi). Mevcut çözüm yoktu (git'in ssh'ı dosya düzenleme sunmaz); Node'da SSH istemcisi yazmak güvenlik riski olurdu, `ssh2` yaygın ve bakımlı. Sonuç: bağlantı yalnız ana süreçte; renderer `ssh://<ana>/<yol>` sanal yolunu görür, bu yüzden Gezgin/editör/kaydet akışı neredeyse değişmedi (fs IPC'leri uzak yolda yönlenir). Uzak terminal mevcut PTY/xterm hattına `ssh:<ana>` profili olarak köprülendi. Bkz. [[remote-ssh]].
 - **Parola hiç saklanmaz; parmak izi değişirse kesin ret.** Neden: KVKK/veri güvenliği ve MITM koruması; "beni hatırla" rahatlığı bilinçli feda edildi (varsayılan yöntem SSH ajanı). Değişen parmak izinde onay sorulmaz, kullanıcı kaydı açıkça unutur. Özel anahtar yolu yalnız ana sürecin diyalogundan gelir.

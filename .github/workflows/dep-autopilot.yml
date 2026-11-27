@@ -1,0 +1,138 @@
+name: Bağımlılık otopilotu
+
+# Haftalık (pazartesi 04:17 UTC) ve istenince çalışır. Tüm akış: docs/brain/actions/updates.md → "Bağımlılık otopilotu".
+#   1) Temizlik: main'de zaten karşılanmış Dependabot PR'ları ve eski otopilot PR'ları kapatılır.
+#   2) Rapor: npm outdated + npm audit → tek "Bağımlılık durumu" issue'su (yeni/değişen içerikte bildirim gider; hiç bekleyen yoksa kapanır).
+#   3) Güvenli (patch/minor) güncellemeler tek PR'da: tsc + test + build geçerse uygulanır (toplu düşerse paket paket denenir),
+#      CI ve güvenlik taraması tetiklenir, zorunlu kontroller yeşil olunca auto-merge. Doğrulama düşerse PR açılmaz, sonuç issue'da görünür.
+#   4) Major: otomatik uygulanmaz. "Run workflow → major=<paket>" ile tek paketlik PR açılır; doğrulama düşerse taslak PR olur, birleşmez.
+# Electron yığını bu akışın dışındadır (runtime-watch.yml + Dependabot grubu).
+#
+# GEREKLİ AYAR: Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests" açık olmalı.
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      major:
+        description: "Major sürüme çıkarılacak tek paket (ör. monaco-editor). Boşsa haftalık güvenli güncelleme çalışır."
+        required: false
+        default: ""
+
+concurrency:
+  group: dep-autopilot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+jobs:
+  autopilot:
+    name: Rapor, güncelle, PR aç
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MAJOR: ${{ github.event.inputs.major }}
+      NPM_CONFIG_FUND: "false"
+      NPM_CONFIG_AUDIT: "false"
+      DEP_OUT: .dep-autopilot
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+
+      - name: Etiketler
+        run: |
+          gh label create dependencies --color 0366d6 --description "Bağımlılık güncellemesi" --force
+          gh label create safe-update --color 0e8a16 --description "Patch/minor, otomatik birleşir" --force
+          gh label create major-review --color d93f0b --description "Major güncelleme, insan incelemesi" --force
+
+      - name: Temizlik (eskimiş ve yinelenen PR'lar)
+        if: env.MAJOR == ''
+        run: node scripts/dep-update.mjs housekeeping
+
+      - name: Rapor
+        id: report
+        run: node scripts/dep-update.mjs report
+
+      # Bildirim: yeni issue = e-posta; içerik (parmak izi) değişince yorum = e-posta; değişmediyse sessiz.
+      - name: Durum issue'su (bildirim)
+        if: env.MAJOR == ''
+        env:
+          SAFE: ${{ steps.report.outputs.safe_count }}
+          MAJORS: ${{ steps.report.outputs.major_count }}
+          FP: ${{ steps.report.outputs.fingerprint }}
+        run: |
+          title="Bağımlılık durumu (otopilot)"
+          num=$(gh issue list --state open --label dependencies --search "$title in:title" --json number,title --jq "[.[] | select(.title==\"$title\")][0].number // empty")
+          if [ "$SAFE" = "0" ] && [ "$MAJORS" = "0" ]; then
+            [ -n "$num" ] && gh issue close "$num" --comment "Bekleyen bağımlılık güncellemesi kalmadı." || true
+            exit 0
+          fi
+          if [ -z "$num" ]; then
+            gh issue create --title "$title" --label dependencies --body-file "$DEP_OUT/report.md"
+          else
+            old=$(gh issue view "$num" --json body --jq .body | grep -o 'fingerprint:[0-9a-f]*' | head -1 || true)
+            if [ "$old" != "fingerprint:$FP" ]; then
+              gh issue edit "$num" --body-file "$DEP_OUT/report.md"
+              gh issue comment "$num" --body "Rapor güncellendi: $SAFE güvenli, $MAJORS major güncelleme bekliyor."
+            fi
+          fi
+
+      - name: Güncelle ve doğrula
+        id: apply
+        run: |
+          if [ -n "$MAJOR" ]; then node scripts/dep-update.mjs apply --major "$MAJOR"
+          else node scripts/dep-update.mjs apply; fi
+
+      - name: Dal, PR, CI ve auto-merge
+        if: steps.apply.outputs.applied_count != '0' && steps.apply.outputs.applied_count != ''
+        env:
+          VERIFIED: ${{ steps.apply.outputs.verified }}
+          WEEK: ${{ steps.apply.outputs.week }}
+          BODY: ${{ steps.apply.outputs.body_file }}
+        run: |
+          if [ -n "$MAJOR" ]; then
+            slug=$(printf '%s' "$MAJOR" | tr '@/' '--' | tr -cd 'a-zA-Z0-9._-')
+            branch="auto/deps-major-${slug}"; title="chore(deps): major update ${MAJOR}"; kind=major
+          else
+            branch="auto/deps-${WEEK}"; title="chore(deps): weekly dependency update (${WEEK})"; kind=safe
+          fi
+          if [ -n "$(gh pr list --state open --head "$branch" --json number --jq '.[0].number // empty')" ]; then
+            echo "Açık PR var ($branch); atlanıyor."; exit 0
+          fi
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            echo "Dal zaten var ($branch); atlanıyor."; exit 0
+          fi
+          git config user.name "novacode-bot"
+          git config user.email "novacode-bot@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add package.json package-lock.json
+          git commit -m "$title"
+          git push origin "$branch"
+          draft=""; label="safe-update"
+          [ "$kind" = "major" ] && label="major-review"
+          [ "$VERIFIED" != "true" ] && draft="--draft"
+          gh pr create --base main --head "$branch" --title "$title" --body-file "$BODY" --label dependencies --label "$label" $draft
+          # GITHUB_TOKEN ile açılan PR'da iş akışları kendiliğinden başlamaz; zorunlu kontroller elle tetiklenir
+          gh workflow run ci-cd.yml --ref "$branch"
+          gh workflow run security.yml --ref "$branch"
+          if [ "$kind" = "safe" ] && [ "$VERIFIED" = "true" ]; then
+            gh pr merge --auto --squash "$branch"
+          fi
+
+      - name: Doğrulama düşen güncelleme uygulanamadı (bildirim)
+        if: steps.apply.outputs.failed_count != '0' && steps.apply.outputs.failed_count != '' && env.MAJOR == ''
+        run: |
+          num=$(gh issue list --state open --label dependencies --search "Bağımlılık durumu in:title" --json number --jq '.[0].number // empty')
+          [ -n "$num" ] && gh issue comment "$num" --body "Bazı güvenli güncellemeler doğrulamada düştü ve geri alındı. Ayrıntı: Actions → Bağımlılık otopilotu → son koşu."
+          cat "$DEP_OUT/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
