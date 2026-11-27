@@ -7,7 +7,7 @@
 // Token'sız açmak için NOVA_SYNC_ALLOW_ANON=1 gerekir (yalnız yerel test).
 // Ek ayarlar (hepsi isteğe bağlı): NOVA_SYNC_ALLOWED_ORIGINS (virgülle ayrılmış Origin listesi; varsayılan: Origin'siz, file/null ve localhost),
 // NOVA_SYNC_MAX_CONNS, NOVA_SYNC_MAX_CONNS_PER_IP, NOVA_SYNC_MAX_ROOMS, NOVA_SYNC_ROOM_TTL_MS, NOVA_SYNC_TRUST_PROXY=1 (X-Forwarded-For).
-// Veri yalnızca bellektedir; son bağlantı kapandıktan sonra oda silinir, istemciler dosya içeriğini yeniden gönderir.
+// İzleme: GET /metrics (Prometheus metni; Authorization: Bearer <token>), `server/deploy/status.sh` özetler. Veri yalnızca bellektedir; son bağlantı kapandıktan sonra oda silinir, istemciler dosya içeriğini yeniden gönderir.
 import http from 'node:http';
 import { timingSafeEqual } from 'node:crypto';
 import { WebSocketServer } from 'ws';
@@ -42,8 +42,13 @@ if (!TOKEN && !ALLOW_ANON) {
 }
 
 // Beklenmeyen hata süreci düşürmesin; ayrıntı (token/içerik) yazılmaz.
-process.on('uncaughtException', (e) => console.error('uncaughtException:', e && e.name));
-process.on('unhandledRejection', (e) => console.error('unhandledRejection:', e && e.name));
+process.on('uncaughtException', (e) => { stats.errors += 1; console.error('uncaughtException:', e && e.name); });
+process.on('unhandledRejection', (e) => { stats.errors += 1; console.error('unhandledRejection:', e && e.name); });
+
+// Metrikler (yalnız sayaç/ölçü: IP, oda adı, token, içerik YOK). GET /metrics, Authorization: Bearer <token> ister.
+const startedAt = Date.now();
+const stats = { connectionsTotal: 0, messagesTotal: 0, bytesIn: 0, errors: 0,
+  rejects: { auth: 0, origin: 0, blocked: 0, limit: 0, badRequest: 0 } };
 
 const messageSync = 0;
 const messageAwareness = 1;
@@ -197,7 +202,39 @@ function handleMessage(conn, doc, message) {
   }
 }
 
+function metricsText() {
+  const m = process.memoryUsage();
+  const blockedIps = [...failures.values()].filter((f) => f.blockedUntil > Date.now()).length;
+  const lines = [
+    ['nova_sync_up', 'gauge', 1],
+    ['nova_sync_uptime_seconds', 'gauge', Math.floor((Date.now() - startedAt) / 1000)],
+    ['nova_sync_connections', 'gauge', totalConns],
+    ['nova_sync_connections_max', 'gauge', MAX_CONNS],
+    ['nova_sync_rooms', 'gauge', docs.size],
+    ['nova_sync_rooms_max', 'gauge', MAX_ROOMS],
+    ['nova_sync_blocked_ips', 'gauge', blockedIps],
+    ['nova_sync_connections_total', 'counter', stats.connectionsTotal],
+    ['nova_sync_messages_total', 'counter', stats.messagesTotal],
+    ['nova_sync_received_bytes_total', 'counter', stats.bytesIn],
+    ['nova_sync_errors_total', 'counter', stats.errors],
+    ['nova_sync_memory_rss_bytes', 'gauge', m.rss],
+    ['nova_sync_memory_heap_used_bytes', 'gauge', m.heapUsed],
+  ].map(([n, t, v]) => `# TYPE ${n} ${t}\n${n} ${v}`);
+  lines.push('# TYPE nova_sync_rejected_total counter');
+  for (const [reason, v] of Object.entries(stats.rejects)) lines.push(`nova_sync_rejected_total{reason="${reason}"} ${v}`);
+  return lines.join('\n') + '\n';
+}
+
 const server = http.createServer((req, res) => {
+  const path = (req.url || '/').split('?')[0];
+  if (path === '/metrics') {
+    // Yalnız token'la (sayaçlar bile herkese açık değil); önbelleğe alınmaz
+    const h = String(req.headers.authorization || '');
+    const given = h.startsWith('Bearer ') ? h.slice(7) : '';
+    if (!TOKEN || !tokenOk(given)) { res.writeHead(401, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end('unauthorized'); }
+    res.writeHead(200, { 'Content-Type': 'text/plain; version=0.0.4; charset=utf-8', 'Cache-Control': 'no-store' });
+    return res.end(metricsText());
+  }
   res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('NovaCode sync server');
 });
@@ -216,32 +253,37 @@ server.on('upgrade', (req, socket, head) => {
   socket.on('error', () => socket.destroy());
   try {
     const ip = clientIp(req);
-    if (isBlocked(ip)) return reject(socket, '429 Too Many Requests');
-    if (!originOk(req.headers.origin)) return reject(socket, '403 Forbidden');
+    if (isBlocked(ip)) { stats.rejects.blocked += 1; return reject(socket, '429 Too Many Requests'); }
+    if (!originOk(req.headers.origin)) { stats.rejects.origin += 1; return reject(socket, '403 Forbidden'); }
     const url = new URL(req.url || '/', 'http://localhost');
     if (!tokenOk(extractToken(req, url))) {
       recordFailure(ip);
+      stats.rejects.auth += 1;
       return reject(socket, '401 Unauthorized');
     }
     let room;
-    try { room = decodeURIComponent(url.pathname.slice(1)); } catch { return reject(socket, '400 Bad Request'); }
+    try { room = decodeURIComponent(url.pathname.slice(1)); } catch { stats.rejects.badRequest += 1; return reject(socket, '400 Bad Request'); }
     // eslint-disable-next-line no-control-regex
-    if (!room || room.length > MAX_ROOM_NAME || /[\u0000-\u001f]/.test(room)) return reject(socket, '400 Bad Request');
-    if (totalConns >= MAX_CONNS || (connsPerIp.get(ip) || 0) >= MAX_CONNS_PER_IP) return reject(socket, '503 Service Unavailable');
-    if (!docs.has(room) && docs.size >= MAX_ROOMS) return reject(socket, '503 Service Unavailable');
+    if (!room || room.length > MAX_ROOM_NAME || /[\u0000-\u001f]/.test(room)) { stats.rejects.badRequest += 1; return reject(socket, '400 Bad Request'); }
+    if (totalConns >= MAX_CONNS || (connsPerIp.get(ip) || 0) >= MAX_CONNS_PER_IP) { stats.rejects.limit += 1; return reject(socket, '503 Service Unavailable'); }
+    if (!docs.has(room) && docs.size >= MAX_ROOMS) { stats.rejects.limit += 1; return reject(socket, '503 Service Unavailable'); }
 
     wss.handleUpgrade(req, socket, head, (conn) => {
       const doc = getDoc(room);
       if (!doc) return conn.close(1013);
       totalConns += 1;
+      stats.connectionsTotal += 1;
       connsPerIp.set(ip, (connsPerIp.get(ip) || 0) + 1);
       conn.binaryType = 'arraybuffer';
       doc.conns.set(conn, new Set());
       conn.on('error', () => closeConn(doc, conn));
       conn.on('message', (msg) => {
+        stats.messagesTotal += 1;
+        stats.bytesIn += msg.byteLength || msg.length || 0;
         try {
           handleMessage(conn, doc, new Uint8Array(msg));
         } catch (e) {
+          stats.errors += 1;
           closeConn(doc, conn, 1003); // bozuk Yjs/awareness mesajı süreci düşürmez
         }
       });
@@ -266,6 +308,8 @@ server.on('upgrade', (req, socket, head) => {
       }
     });
   } catch (e) {
+    stats.errors += 1;
+    stats.rejects.badRequest += 1;
     reject(socket, '400 Bad Request');
   }
 });

@@ -64,6 +64,23 @@ const auth = (t) => ['nova-sync', 'nova-auth.' + Buffer.from(t).toString('base64
   }
   ok(!logs.includes(TOKEN), 'token günlüğe yazılmadı');
 
+  // /metrics: token'sız 401, token'lı Prometheus metni; IP/oda/token içermez
+  const http = require('http');
+  const getMetrics = (headers) => new Promise((resolve) => {
+    http.get({ host: '127.0.0.1', port: PORT, path: '/metrics', headers }, (res) => {
+      let d = ''; res.on('data', (c) => { d += c; }); res.on('end', () => resolve({ status: res.statusCode, body: d }));
+    }).on('error', () => resolve({ status: 0, body: '' }));
+  });
+  const m0 = await getMetrics({});
+  ok(m0.status === 401, '/metrics token olmadan 401');
+  const m1 = await getMetrics({ Authorization: 'Bearer yanlis' });
+  ok(m1.status === 401, '/metrics yanlış token 401');
+  const m2 = await getMetrics({ Authorization: 'Bearer ' + TOKEN });
+  ok(m2.status === 200 && /nova_sync_up 1/.test(m2.body) && /nova_sync_connections_total [1-9]/.test(m2.body), '/metrics token ile sayaçları verir');
+  ok(/nova_sync_rejected_total\{reason="auth"\} [1-9]/.test(m2.body) && /reason="origin"\} [1-9]/.test(m2.body), 'reddedilen bağlantılar nedenle sayılır (auth, origin)');
+  ok(/nova_sync_errors_total [1-9]/.test(m2.body), 'bozuk mesaj hata sayacını artırır');
+  ok(!m2.body.includes(TOKEN) && !/127\.0\.0\.1|r1/.test(m2.body), '/metrics token, IP veya oda adı sızdırmaz');
+
   // oran sınırı: 10 başarısız denemeden sonra doğru token bile 429
   for (let i = 0; i < 10; i++) await wsOpen('r2', auth('x' + i));
   const blocked = await wsOpen('r2', auth(TOKEN));

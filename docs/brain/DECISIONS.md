@@ -207,3 +207,6 @@ Karar: bot birleşmeleri `push` olayı üretmediği için etiketsiz kalan sürü
 
 ## 27.11.2026 — Senkron sunucusu dağıtım paketi (Docker + Caddy, sslip.io)
 Karar (kurucu talimatı): alan adı yokken `wss://` için `<ip-tireli>.sslip.io` + Caddy otomatik TLS; `server/deploy/install.sh` token üretir ve yalnız sunucuda `.env`'de tutar. Neden: uygulama `wss://` zorunlu kılar, kurucunun alan adı yok. Risk: IP sertifika şeffaflık kayıtlarında görünür; kalıcı için alan adı. Geri dönüş: `docker compose down`, `server/deploy/` silinir.
+
+## 27.11.2026 — Senkron sunucusu metrik ve hata izleme (`/metrics`, `status.sh`)
+Karar (kurucu talimatı): sunucuya token korumalı Prometheus `/metrics` ve sunucuda çalışan `status.sh` eklendi; metrikler yalnız sayaçtır (IP, oda adı, token, içerik yok; KVKK veri minimizasyonu). GitHub izleyicisine `/metrics` bağlanmadı (ek secret gerektirirdi). Geri dönüş: `/metrics` yolu ve `status.sh` silinir.
