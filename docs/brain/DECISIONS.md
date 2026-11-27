@@ -2,7 +2,11 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 27.11.2026 (auto-commit onarımı)
+- **Stop hook akışı stash'siz; yer tutucu `.env.example` şablonları gizli sayılmaz.** Neden: `git add -N` kalıntısı stash'i çökertip tüm turun commit'ini engelledi; `.env.example` (yalnız `<TOKEN>` yer tutucusu) gizli dosya korumasına takılıp commit'i durdurdu. Sonuç: dal geçişi `git switch` ile değişiklikleri taşır, stash yalnız yedek; gizli dosya koruması gerçek `.env*`/anahtar dosyalarını yine engeller (testli). Geri dönüş: git geçmişi.
+
 ## 27.11.2026 (anonim analitik)
+- **Toplama sunucusu için ayrı, sertleştirilmiş dağıtım paketi (`server/analytics-deploy/`); sunucuya doğrudan bağlanılmadı.** Neden: canlı sunucuya yapay zekâ ajanıyla bağlanmak ve gizli bilgi (IP/SSH) paylaşmak kural dışı; kurulum kullanıcının tek komutuyla yapılsın. Anonimlik yapılandırmayla zorlanır ve CI testiyle kilitlenir (günlük kapalı, ham IP yok, salt-okunur konteyner). Senkron sunucusundan ayrı tutuldu (farklı gizlilik profili, 80/443 çakışması).
 - **Kimliksiz, rızaya bağlı, kendi sunucumuzda toplanan sayaç; 3. parti analitik yok.** Neden: kurucu ürün metriği istedi; KVKK ve ETK gereği rızasız analitik yüklenemez, kişisel veri istenmedi. Sonuç: cihaz/kurulum kimliği hiç üretilmez (kullanıcı yeniden tanınamaz → anonim), yük 5 alanla sınırlı, olaylar izin listesinde, günde bir toplu gönderim, varsayılan kapalı, rıza yalnız kullanıcı eyleminden (ayar içe aktarma açamaz). Bedel bilinçli: gerçek tekil kullanıcı/saklama (retention) ölçülemez, yalnız toplu kullanım. `ENDPOINT` boş olduğu sürece uygulama hiçbir şey saymaz/göndermez; sunucu kurulunca açılır. Geri dönüş: `electron-analytics.cjs` kaydını ve `ENDPOINT`i kaldırmak yeter. Bkz. [[analytics]].
 
 ## 27.11.2026 (bağımlılık otopilotu)

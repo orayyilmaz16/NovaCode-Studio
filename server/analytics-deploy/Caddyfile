@@ -1,0 +1,21 @@
+# Anonim analitik toplama: otomatik HTTPS, ERİŞİM GÜNLÜĞÜ YOK (IP hiçbir yere yazılmaz).
+# "output discard" kaldırılırsa veya stdout/file yapılırsa anonimlik bozulur; scripts/tests/analytics.test.cjs bunu denetler.
+{$ANALYTICS_HOST} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+	# Yalnız bu üç yol dışarı açılır
+	@allowed path /v1/ingest /v1/stats /healthz
+	handle @allowed {
+		reverse_proxy analytics:8788
+	}
+	handle {
+		respond "not found" 404
+	}
+	log {
+		output discard
+	}
+}
