@@ -400,6 +400,7 @@
 | `.github/workflows/dep-autopilot.yml` | Bağımlılık otopilotu | `autopilot` (Rapor, güncelle, PR aç) |
 | `.github/workflows/dep-review.yml` | Bağımlılık PR incelemesi | `review` (Sürüm farkı raporu) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
+| `.github/workflows/docker.yml` | Docker - Sunucu imajları | `image` (İmaj (${{ matrix.name }})) |
 | `.github/workflows/health-monitor.yml` | Sağlık ve güvenlik izleme | `monitor` (Ölç, logla, bildir) |
 | `.github/workflows/release-finalize.yml` | Sürüm etiketini tamamla | `finalize` (Etiketsiz sürüm varsa etiketle ve yayınla) |
 | `.github/workflows/runtime-watch.yml` | Electron, Chromium ve Node.js izleyici | `watch` (Yeni Electron varsa yükselt ve tara) |

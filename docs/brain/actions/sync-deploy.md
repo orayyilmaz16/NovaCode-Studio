@@ -32,3 +32,8 @@ Docker (Compose, 29.9) ile uçtan uca denendi (`SYNC_HOST=localhost`, Caddy yere
 
 ## Bağlantılar
 Sağlık izleme: [[monitoring]]. Güvenlik denetimi: [[audit]].
+
+## Docker imajları ve CI (27.11.2026)
+- `.github/workflows/docker.yml`: `server/**` değişince sync ve analytics imajları derlenir; PR'da yalnız doğrulama, main'de `ghcr.io/<sahip>/novacode-sync|novacode-analytics` olarak `latest`, sürüm ve kısa SHA etiketiyle yayınlanır (`GITHUB_TOKEN`, ek sır yok).
+- `.dockerignore` allowlist'tir: derleme bağlamına yalnız `server/sync-server.mjs` ve `server/analytics-server.mjs` girer. Yeni dosya gerekirse buraya `!` satırı ekle.
+- Yerel derleme: `docker build -f server/deploy/Dockerfile -t novacode-sync:local .`
