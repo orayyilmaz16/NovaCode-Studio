@@ -38,3 +38,8 @@ Bütçe: `MAX_JS_KB`, `MAX_CSS_KB`, `MAX_GZIP_JS_KB` ([[ci-cd]] ile aynı). Diğ
 1. Alarm/uyarı issue'su gelir → ilgili alan: güvenlik ise önce düzelt; performans ise [[audit]] derin tarama + paket bölme/tembel yükleme.
 2. Düzeltme PR'ı birleşince sonraki ölçümde issue kapanır.
 3. Bilinçli kabul edilen eşik aşımı için neden [[DECISIONS]]'a yazılır, sonra eşik güncellenir.
+
+## Kurulum durumu (27.11.2026)
+- İş akışı main'de, elle ilk koşu **başarılı** (20 sn): ölçüm, artifact, issue açma uçtan uca doğrulandı. Gerçek sinyal: JS/CSS paketleri bütçenin %85'ini geçti (uyarı issue'su "Sağlık izleme: açık bulgular").
+- Gerekli ayar yok; yalnız **isteğe bağlı** `NOVA_SYNC_HEALTH_URL` secret'ı (senkron sunucusunun adresi). Tanımsızsa senkron izlemesi atlanır. Secret'ı sohbete yapıştırma; terminalde `gh secret set NOVA_SYNC_HEALTH_URL` (değeri komut istemine gir) kullan.
+- Uyarı kapatma: paket bölme/tembel yükleme ile boyut düşünce sonraki ölçümde issue kendiliğinden kapanır.
