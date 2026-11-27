@@ -9,7 +9,9 @@ triggers: ["sürüm", "versiyon", "major", "minor", "patch", "bugfix", "etiket",
 
 **İlke:** sürüm kararı insana bırakılmaz, **belgelenmiş değişiklikten** türer. Her sürüm; `package.json`, [[CHANGELOG]], `release-notes/vX.Y.Z.md`, [[VERSIONS]], `CLAUDE.md`/`AGENT.md` blokları ve GitHub etiketi/Release olarak tek akışta, tutarlı çıkar.
 
-## Düzey kuralı (SemVer)
+## Düzey kuralı (SemVer; 27.11.2026 güncellemesi)
+**Varsayılan PATCH. Büyük toplu güncelleme MINOR. MAJOR otomatik çıkmaz.** Aşağıdaki tablo etiket anlamını gösterir; otomatik düzey şöyle hesaplanır: `[breaking]` var → minor; `[feat]` sayısı ≥ 2 → minor; docs hariç madde sayısı ≥ 6 → minor; aksi halde patch (tek `[feat]` dahil). MAJOR yalnız `--level major` ile (kullanıcı onayı). Eşikler `scripts/release.mjs` içinde `MINOR_FEAT_COUNT` / `MINOR_ITEM_COUNT`.
+
 | Tür | Ne zaman | Etiket | Örnek |
 |---|---|---|---|
 | **MAJOR** | Geriye uyumsuz değişiklik: ayar/veri biçimi bozulur, özellik kalkar, kullanıcıdan işlem gerekir | `[breaking]` | 1.4.2 → **2.0.0** |
@@ -17,8 +19,8 @@ triggers: ["sürüm", "versiyon", "major", "minor", "patch", "bugfix", "etiket",
 | **PATCH** | Hata düzeltmesi (bugfix), hız, iyileştirme, güvenlik | `[fix]` `[perf]` `[improve]` `[security]` | 1.4.2 → **1.4.3** |
 | yok | Yalnız belge | `[docs]` | sürüm çıkmaz |
 
-- Düzey = **en yüksek** madde türü. Etiketsiz madde `[improve]` (patch) sayılır ve uyarı verir.
-- Commit sinyali ek güvenlik ağıdır: `feat!:` / `BREAKING CHANGE:` → MAJOR, `feat:` → MINOR. Otomatik commit'ler `chore(auto)` olduğu için asıl kaynak CHANGELOG etiketleridir.
+- Etiketsiz madde `[improve]` (patch) sayılır ve uyarı verir.
+- Commit sinyali: `feat!:` / `BREAKING CHANGE:` → MINOR, tek `feat:` → PATCH. Otomatik commit'ler `chore(auto)` olduğu için asıl kaynak CHANGELOG etiketleridir.
 - `--level minor|major` yalnız **yükseltir**, düşüremez (yanlışlıkla major'u patch'e çevirmesin).
 - Madde yoksa sürüm çıkmaz. 0.x kullanılmaz; MAJOR kararını yalnız kullanıcı onaylı kırıcı değişiklik verir ([[DECISIONS]]'a yaz).
 

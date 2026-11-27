@@ -14,8 +14,8 @@ Stop hook, belge tamamsa `node scripts/release.mjs prepare` çalıştırır → 
 1. **Değişikliği sınıfla** (her madde bir etiket alır):
    | Etiket | Ne zaman | Sürüm |
    |---|---|---|
-   | `[breaking]` | Geriye uyumsuz: ayar/veri bozulur, özellik kalkar | MAJOR |
-   | `[feat]` | Yeni özellik | MINOR |
+   | `[breaking]` | Geriye uyumsuz: ayar/veri bozulur, özellik kalkar | MINOR (otomatik major yok) |
+   | `[feat]` | Yeni özellik | PATCH; ≥ 2 `[feat]` ya da ≥ 6 madde → MINOR |
    | `[fix]` | Hata düzeltmesi (bugfix) | PATCH |
    | `[perf]` `[improve]` `[security]` | Hız, iyileştirme, güvenlik | PATCH |
    | `[docs]` | Yalnız belge | sürüm yok |

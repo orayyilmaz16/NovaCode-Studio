@@ -195,3 +195,6 @@ Karar (kurucu): sürüm artık Windows yanında macOS (.dmg+.zip, x64+arm64) ve 
 
 ## 26.11.2026 — Eski sürümlere macOS/Linux ve source code arşivi
 Karar (kurucu): önceki tüm release'lere (v1.0.0+) macOS ve Linux paketleri etiketin kendi kodundan derlenip eklenir (`.github/workflows/backfill-desktop.yml`, `scripts/backfill-overlay.mjs`: güncel mac/linux yapılandırmasını eski package.json'a ekler). GitHub'ın otomatik "Source code (zip/tar.gz)" varlıkları API ile kaldırılamaz; bu yüzden kaldırılamadı. Geri dönüş: workflow dosyasını sil, eklenen varlıkları `gh release delete-asset` ile kaldır.
+
+## 27.11.2026 — Sürüm düzeyi: küçük = patch, büyük toplu = minor
+Karar (kurucu): otomatik sürümde küçük değişiklikler patch, çok büyük/toplu güncellemeler minor olur; major otomatik çıkmaz (yalnız `--level major`). Eşik: `[breaking]` var, `[feat]` ≥ 2 ya da docs hariç ≥ 6 madde → minor. Önceki kural (`[feat]` her zaman minor, `[breaking]` major) geçersiz. Geri dönüş: `levelFromBullets`/`levelFromCommits` eski haline.

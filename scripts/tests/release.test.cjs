@@ -38,11 +38,20 @@ try {
 
   d = repo({ tr: ['[fix] a', '[feat] **Yeni:** b'], en: ['[fix] a', '[feat] **New:** b'] });
   p = plan(d);
-  ok(p.level === 'minor' && p.next === '1.4.0', '[feat] varsa → minor 1.4.0', JSON.stringify(p));
+  ok(p.level === 'patch' && p.next === '1.3.1', 'tek [feat] küçük güncelleme → patch 1.3.1', JSON.stringify(p));
+
+  d = repo({ tr: ['[feat] a', '[feat] b'], en: ['[feat] a', '[feat] b'] });
+  p = plan(d);
+  ok(p.level === 'minor' && p.next === '1.4.0', '2 [feat] (büyük güncelleme) → minor 1.4.0', JSON.stringify(p));
+
+  const six = ['[fix] a', '[fix] b', '[improve] c', '[perf] d', '[fix] e', '[improve] f'];
+  d = repo({ tr: six, en: six });
+  p = plan(d);
+  ok(p.level === 'minor' && p.next === '1.4.0', '6+ madde (toplu güncelleme) → minor 1.4.0', JSON.stringify(p));
 
   d = repo({ tr: ['[feat] a', '[breaking] **Kırıcı:** b'], en: ['[feat] a', '[breaking] **Breaking:** b'] });
   p = plan(d);
-  ok(p.level === 'major' && p.next === '2.0.0', '[breaking] varsa → major 2.0.0', JSON.stringify(p));
+  ok(p.level === 'minor' && p.next === '1.4.0', '[breaking] otomatik major değil → minor 1.4.0', JSON.stringify(p));
 
   d = repo({ tr: ['**Etiketsiz:** x'], en: ['**Untagged:** x'] });
   p = plan(d);
@@ -68,7 +77,7 @@ try {
   sh(d, 'git', ['add', '-A']);
   sh(d, 'git', ['commit', '-qm', 'feat!: drop old api']);
   p = plan(d);
-  ok(p.level === 'major' && p.next === '2.0.0', 'commit `feat!:` → major', JSON.stringify(p));
+  ok(p.level === 'minor' && p.next === '1.4.0', 'commit `feat!:` otomatik major değil → minor', JSON.stringify(p));
 
   // chore(auto) tek başına düzey değiştirmez
   d = repo({ tr: ['[fix] a'], en: ['[fix] a'] });
@@ -79,7 +88,7 @@ try {
   ok(p.level === 'patch', 'chore(auto) commit düzeyi yükseltmez', JSON.stringify(p));
 
   // Etiket HEAD'in atası değil (eski sürümlerde yaşanan durum): en yüksek etiket yine bulunur
-  d = repo({ tr: ['[feat] a'], en: ['[feat] a'] });
+  d = repo({ tr: ['[feat] a', '[feat] b'], en: ['[feat] a', '[feat] b'] });
   sh(d, 'git', ['checkout', '-q', '-b', 'side']);
   fs.writeFileSync(path.join(d, 'side.txt'), 's');
   sh(d, 'git', ['add', '-A']);
@@ -91,8 +100,8 @@ try {
 
   // --- prepare çıktıları ---
   d = repo({
-    tr: ['[feat] **Yeni özellik:** ayrıntı', '[fix] **Hata:** düzeltildi', '[improve] hızlandı'],
-    en: ['[feat] **New feature:** detail', '[fix] **Bug:** fixed', '[improve] faster']
+    tr: ['[feat] **Yeni özellik:** ayrıntı', '[feat] **İkinci:** ayrıntı', '[fix] **Hata:** düzeltildi', '[improve] hızlandı'],
+    en: ['[feat] **New feature:** detail', '[feat] **Second:** detail', '[fix] **Bug:** fixed', '[improve] faster']
   });
   release(d, 'prepare');
   const pkg = JSON.parse(fs.readFileSync(path.join(d, 'package.json'), 'utf8'));
