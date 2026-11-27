@@ -6,6 +6,7 @@
 // Yapay zekâ çağrısı yoktur; tamamen deterministiktir ve ağa çıkmaz.
 import { readFileSync, writeFileSync, readdirSync, existsSync, statSync, mkdirSync } from "node:fs";
 import { join, basename } from "node:path";
+import { execFileSync } from "node:child_process";
 
 const ROOT = process.cwd();
 const BRAIN_DIR = join(ROOT, "docs", "brain");
@@ -294,4 +295,8 @@ if (args.has("--check")) {
     say("STATE.md zaten güncel.");
   }
   for (const e of errors) say(`uyarı (yapı): ${e}`); // üretim modunda sert hata verme: hook'u engellemesin
+  // Docker belgesi (docs/brain/DOCKER.md) Dockerfile/compose'tan üretilir; hata hook'u engellemez
+  try {
+    execFileSync(process.execPath, [join(ROOT, "scripts", "docker-docs.mjs")], { stdio: quiet ? "ignore" : "inherit" });
+  } catch { /* belge üretimi başarısızsa sonraki turda yeniden denenir */ }
 }

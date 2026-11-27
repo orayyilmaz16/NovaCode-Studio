@@ -1,6 +1,7 @@
 # Senkron sunucusu + Caddy (otomatik TLS / wss). Kurulum: ./install.sh  ·  Ayrıntı: README.md
 services:
   sync:
+    image: ghcr.io/orayyilmaz16/novacode-sync:${NOVA_IMAGE_TAG:-latest}   # CI yayınlar; sunucu çeker (pull), --build ile yerelde de derlenir
     build:
       context: ../..
       dockerfile: server/deploy/Dockerfile

@@ -1,19 +1,23 @@
-name: Docker - Sunucu imajları
+name: Docker - Derle, Test, Yayınla, Dağıt
 
-# Senkron ve analitik sunucu imajları: PR'da yalnız derlenir (doğrulama), main'de GHCR'a yayınlanır.
-# Etiketler: main -> latest + sürüm (package.json) + kısa SHA. Sır yok: GITHUB_TOKEN yeterli.
+# server/** değişince tam otomatik hat (komut yazmak gerekmez):
+#   PR   : imajı derler + ayağa kaldırıp sağlık duman testi yapar (yayın yok)
+#   main : duman testi -> GHCR'a yayın (latest, sürüm, kısa SHA) -> sunucuya dağıtım (sırlar varsa) -> belge PR'ı (eskiyse)
+# Ayrıntı ve sır listesi: docs/brain/DOCKER.md (otomatik üretilir). Kural: docs/brain/actions/sync-deploy.md
 on:
   push:
     branches: ["main"]
     paths:
       - "server/**"
       - ".dockerignore"
+      - "scripts/docker-docs.mjs"
       - ".github/workflows/docker.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "server/**"
       - ".dockerignore"
+      - "scripts/docker-docs.mjs"
       - ".github/workflows/docker.yml"
   workflow_dispatch:
 
@@ -36,8 +40,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: sync, dockerfile: server/deploy/Dockerfile }
-          - { name: analytics, dockerfile: server/analytics-deploy/Dockerfile }
+          - { name: sync, dockerfile: server/deploy/Dockerfile, token_env: NOVA_SYNC_TOKEN }
+          - { name: analytics, dockerfile: server/analytics-deploy/Dockerfile, token_env: ANALYTICS_TOKEN }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -47,7 +51,35 @@ jobs:
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
-      # PR'da (özellikle fork) giriş yapılmaz ve yayın yapılmaz
+      # 1) Derle (yerel yükle) ve ayağa kaldır: sağlıklı olmayan imaj yayına çıkmaz
+      - name: Derle (duman testi için)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          load: true
+          tags: novacode-${{ matrix.name }}:ci
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+
+      - name: Duman testi (konteyner ayağa kalkar, sağlık kontrolü geçer)
+        run: |
+          # Üretimle aynı sertleştirme: salt-okunur kök, tüm yetkiler kapalı. Token yalnız bu koşuya özel rastgele değer.
+          docker run -d --name smoke \
+            -e "${{ matrix.token_env }}=ci-$(openssl rand -hex 16)" \
+            -e HOST=0.0.0.0 -e ANALYTICS_DATA=/data \
+            --tmpfs /data:uid=1000,gid=1000 --tmpfs /tmp \
+            --read-only --cap-drop ALL --security-opt no-new-privileges:true \
+            novacode-${{ matrix.name }}:ci
+          for i in $(seq 1 30); do
+            s="$(docker inspect -f '{{.State.Health.Status}}' smoke)"
+            [ "$s" = "healthy" ] && { echo "Sağlıklı ($((i*5)) sn içinde)."; exit 0; }
+            [ "$(docker inspect -f '{{.State.Running}}' smoke)" = "true" ] || break
+            sleep 5
+          done
+          echo "::error::Konteyner sağlıklı olmadı. Günlük:"; docker logs smoke; exit 1
+
+      # 2) Yayın: yalnız main/elle; PR'da (özellikle fork) giriş ve yayın yok
       - name: GHCR girişi
         if: github.event_name != 'pull_request'
         uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
@@ -57,6 +89,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Etiketler
+        if: github.event_name != 'pull_request'
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
@@ -66,13 +99,118 @@ jobs:
             type=raw,value=${{ steps.ver.outputs.v }},enable={{is_default_branch}}
             type=sha,format=short
 
-      - name: Derle ve yayınla
+      - name: Yayınla
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ${{ matrix.dockerfile }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+
+  # 3) Sunucuya dağıtım: sır tanımlı değilse tüm adımlar atlanır (hat yine yeşil kalır)
+  deploy:
+    name: Dağıt (${{ matrix.name }})
+    needs: image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    concurrency:
+      group: docker-deploy-${{ matrix.name }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: sync, dir: server/deploy, prefix: DEPLOY }
+          - { name: analytics, dir: server/analytics-deploy, prefix: ANALYTICS_DEPLOY }
+    env:
+      HOST: ${{ secrets[format('{0}_HOST', matrix.prefix)] }}
+      DUSER: ${{ secrets[format('{0}_USER', matrix.prefix)] }}
+      SSH_KEY: ${{ secrets[format('{0}_SSH_KEY', matrix.prefix)] }}
+      KNOWN_HOSTS: ${{ secrets[format('{0}_KNOWN_HOSTS', matrix.prefix)] }}
+      DPATH: ${{ secrets[format('{0}_PATH', matrix.prefix)] }}
+      HEALTH_URL: ${{ secrets[format('{0}_HEALTH_URL', matrix.prefix)] }}
+    steps:
+      - name: Sır kontrolü
+        id: gate
+        run: |
+          if [ -n "$HOST" ] && [ -n "$DUSER" ] && [ -n "$SSH_KEY" ] && [ -n "$KNOWN_HOSTS" ] && [ -n "$DPATH" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::${{ matrix.prefix }}_* sırları tanımlı değil; dağıtım atlandı (docs/brain/DOCKER.md)."
+          fi
+
+      - name: SSH hazırla
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts   # sunucu parmak izi sabit; StrictHostKeyChecking açık kalır
+
+      - name: Yeni imajı çek ve ayağa kaldır
+        if: steps.gate.outputs.go == 'true'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: |
+          # Geçici GHCR girişi (koşuya özel GITHUB_TOKEN, stdin ile; iş sonunda çıkış yapılır)
+          printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/deploy_key "$DUSER@$HOST" "docker login ghcr.io -u '$GHCR_USER' --password-stdin"
+          ssh -i ~/.ssh/deploy_key "$DUSER@$HOST" "set -e; cd '$DPATH' && git pull --ff-only && cd '${{ matrix.dir }}' && docker compose pull ${{ matrix.name }} && docker compose up -d --no-build --remove-orphans && docker image prune -f >/dev/null; docker logout ghcr.io >/dev/null"
+
+      - name: Sağlık doğrulaması
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          ssh -i ~/.ssh/deploy_key "$DUSER@$HOST" "cd '$DPATH/${{ matrix.dir }}' && docker compose ps ${{ matrix.name }}"
+          if [ -n "$HEALTH_URL" ]; then
+            for _ in $(seq 1 12); do
+              curl -fsS -m 10 "$HEALTH_URL" >/dev/null && { echo "Sağlık adresi yanıt verdi."; exit 0; }
+              sleep 5
+            done
+            echo "::error::Dağıtımdan sonra sağlık adresi yanıt vermedi."; exit 1
+          fi
+
+  # 4) Belge: DOCKER.md Dockerfile/compose'tan üretilir; eskiyse düzeltme PR'ı açılır (main korumalı, doğrudan commit yok)
+  docs:
+    name: Docker belgesi
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      - name: Belgeyi üret ve gerekirse PR aç
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node scripts/docker-docs.mjs
+          if git diff --quiet -- docs/brain/DOCKER.md; then echo "Belge güncel."; exit 0; fi
+          branch="auto/docker-docs"
+          if gh pr list --head "$branch" --state open --json number -q '.[0].number' | grep -q .; then echo "Açık belge PR'ı var."; exit 0; fi
+          git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1 && git push origin --delete "$branch"
+          git config user.name "novacode-bot"
+          git config user.email "novacode-bot@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add docs/brain/DOCKER.md
+          git commit -m "chore(auto): docker docs"
+          git push origin "$branch"
+          if ! gh pr create --base main --head "$branch" --title "chore(auto): docker docs" \
+              --body "docs/brain/DOCKER.md Dockerfile ve compose değişikliğinden otomatik üretildi (scripts/docker-docs.mjs)."; then
+            echo "::warning::PR oluşturulamadı. Settings → Actions → General → 'Allow GitHub Actions to create and approve pull requests' açık olmalı."
+            exit 1
+          fi
+          gh workflow run ci-cd.yml --ref "$branch"
+          gh pr merge --auto --squash "$branch"

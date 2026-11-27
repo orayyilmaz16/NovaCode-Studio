@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 27.11.2026 19:07 · auto/20261127-160116
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvZG9ja2VyLnltbCxz -->
+- Alan: [[ci-cd]], [[brain-maintenance]], [[ui-design]]
+- Kod (6): `.github/workflows/docker.yml`, `scripts/brain.mjs`, `scripts/doc-sync.mjs`, `server/analytics-deploy/docker-compose.yml`, `server/deploy/docker-compose.yml`, `scripts/docker-docs.mjs`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/sync-deploy.md`
+- Durum: ✓ belgelendi
+
 ## 27.11.2026 19:01 · main
 <!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvZG9ja2VyLnltbCx8 -->
 - Alan: [[ci-cd]]
@@ -273,12 +280,5 @@
 <!-- sig:ZWxlY3Ryb24tZ2l0LmNqcyxlbGVjdHJvbi1wcmVs -->
 - Alan: [[git-github]], [[security-kvkk]], [[ui-design]], [[i18n]]
 - Kod (7): `electron-git.cjs`, `electron-preload.cjs`, `src/App.tsx`, `src/components/CommitHistoryMenu.tsx`, `src/i18n/uiTextScm.ts`, `src/types.ts`, `src/services/timeAgo.ts`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/git-github.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 21.11.2026 20:20 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsc3JjL2kxOG4vdWlUZXh0U2Nt -->
-- Alan: [[ui-design]], [[i18n]]
-- Kod (3): `src/App.tsx`, `src/i18n/uiTextScm.ts`, `src/components/CommitHistoryMenu.tsx`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/git-github.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

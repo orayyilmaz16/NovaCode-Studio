@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 27.11.2026 (Docker boru hattı)
+- **Sunucu imajları için otonom hat: derle → duman testi → GHCR → isteğe bağlı SSH dağıtımı → otomatik belge PR'ı.** Neden: imajlar hiç yayınlanmamıştı; elle komut istenmedi. Sonuç: dağıtım yalnız kullanıcının kendi tanımladığı `DEPLOY_*` / `ANALYTICS_DEPLOY_*` sırlarıyla çalışır, sır yoksa atlanır (ajan sunucuya bağlanmaz, önceki "sunucuya doğrudan bağlanılmadı" kararı geçerli). SSH için `known_hosts` sabit, GHCR girişi koşuya özel `GITHUB_TOKEN` ile geçici. Main korumalı olduğundan belge düzeltmesi PR ile gelir. Geri dönüş: `docker.yml` silinir veya sırlar kaldırılır.
+
 ## 27.11.2026 (izleme kapsamı: ayrıntılı değil, kimliksiz)
 - **"Her şeyi ayrıntılı logla" isteği kimliksiz toplu metriğe çevrildi.** Neden: yazılan kod (içerik), GitHub hesabı ve kullanıcı bazlı akış kişisel veri/gizli bilgi taşır; KVKK, açık rıza ve az önce verilen "anonim, kişisel bilgi yansıtma" kararıyla çelişir. Sonuç: dil dağılımı (`lang_*`), giriş/çıkış sayısı, güncelleme denetimi/kurulumu, hata sayısı izin listesine eklendi (kimlik/içerik yok); indirme sayıları GitHub Release herkese açık sayaçlarından sağlık izlemeye eklendi. Kod içeriği, hesap adı ve olay akışı bilerek kapsam dışı; istenirse ayrı ürün kararı + KVKK değerlendirmesi + aydınlatma + rıza gerekir. Bkz. [[analytics]].
 

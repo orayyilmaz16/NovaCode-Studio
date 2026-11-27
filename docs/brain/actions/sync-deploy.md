@@ -34,6 +34,7 @@ Docker (Compose, 29.9) ile uçtan uca denendi (`SYNC_HOST=localhost`, Caddy yere
 Sağlık izleme: [[monitoring]]. Güvenlik denetimi: [[audit]].
 
 ## Docker imajları ve CI (27.11.2026)
-- `.github/workflows/docker.yml`: `server/**` değişince sync ve analytics imajları derlenir; PR'da yalnız doğrulama, main'de `ghcr.io/<sahip>/novacode-sync|novacode-analytics` olarak `latest`, sürüm ve kısa SHA etiketiyle yayınlanır (`GITHUB_TOKEN`, ek sır yok).
+- Tam akış ve sır listesi: [[DOCKER]] (otomatik üretilir, elle yazılmaz). Hat: `.github/workflows/docker.yml` → derle → duman testi (ayağa kalk + sağlık) → GHCR yayını (main) → SSH dağıtımı (sırlar varsa) → belge PR'ı (eskiyse).
 - `.dockerignore` allowlist'tir: derleme bağlamına yalnız `server/sync-server.mjs` ve `server/analytics-server.mjs` girer. Yeni dosya gerekirse buraya `!` satırı ekle.
-- Yerel derleme: `docker build -f server/deploy/Dockerfile -t novacode-sync:local .`
+- Compose dosyalarında `image: ghcr.io/...` ve `build:` birlikte: sunucu `pull` ile çeker, `install.sh --build` ile yerelde de derlenir.
+- `scripts/docker-docs.mjs` DOCKER.md'yi üretir; `npm run brain` ve Stop hook yeniler, main'de eskirse `auto/docker-docs` PR'ı açılır.
