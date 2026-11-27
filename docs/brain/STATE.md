@@ -36,7 +36,7 @@
 | Dosya | Satır |
 |---|---|
 | `electron-ai.cjs` | 995 |
-| `electron-analytics.cjs` | 147 |
+| `electron-analytics.cjs` | 152 |
 | `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 341 |
 | `electron-git.cjs` | 450 |
@@ -62,7 +62,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2505 |
+| `src/App.tsx` | 2516 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 519 |
 
@@ -123,7 +123,7 @@
 | `src/services/SettingsContext.tsx` | 198 |
 | `src/services/aiClient.ts` | 251 |
 | `src/services/aiCompletion.ts` | 204 |
-| `src/services/analytics.ts` | 52 |
+| `src/services/analytics.ts` | 72 |
 | `src/services/collabRoom.ts` | 93 |
 | `src/services/completionSchedule.ts` | 69 |
 | `src/services/completionShape.ts` | 180 |
@@ -153,7 +153,7 @@
 | `src/services/testParse.ts` | 78 |
 | `src/services/timeAgo.ts` | 23 |
 | `src/services/trustService.ts` | 52 |
-| `src/services/updateService.ts` | 28 |
+| `src/services/updateService.ts` | 29 |
 | `src/services/useCollabToken.ts` | 67 |
 | `src/services/useDictation.ts` | 68 |
 | `src/services/useEvent.ts` | 13 |
@@ -175,7 +175,7 @@
 ### Betikler
 | Dosya | Satır |
 |---|---|
-| `scripts/analytics-report.mjs` | 43 |
+| `scripts/analytics-report.mjs` | 53 |
 | `scripts/audit-scan.mjs` | 205 |
 | `scripts/auto-commit.mjs` | 233 |
 | `scripts/backfill-overlay.mjs` | 19 |
@@ -188,7 +188,7 @@
 | `scripts/dep-update.mjs` | 233 |
 | `scripts/doc-sync.mjs` | 189 |
 | `scripts/gen-file-icons.mjs` | 24 |
-| `scripts/health-monitor.mjs` | 237 |
+| `scripts/health-monitor.mjs` | 268 |
 | `scripts/make-icons.cjs` | 29 |
 | `scripts/release.mjs` | 293 |
 | `scripts/runtime-watch.mjs` | 25 |
@@ -199,7 +199,7 @@
 | `scripts/tests/ai-complete.test.cjs` | 205 |
 | `scripts/tests/ai-security.test.cjs` | 84 |
 | `scripts/tests/ai-tools.test.cjs` | 73 |
-| `scripts/tests/analytics.test.cjs` | 128 |
+| `scripts/tests/analytics.test.cjs` | 143 |
 | `scripts/tests/autocommit.test.cjs` | 42 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
@@ -232,7 +232,7 @@
 ### Sunucu
 | Dosya | Satır |
 |---|---|
-| `server/analytics-server.mjs` | 132 |
+| `server/analytics-server.mjs` | 135 |
 | `server/sync-server.mjs` | 319 |
 
 ## IPC kanalları

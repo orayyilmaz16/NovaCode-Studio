@@ -1,4 +1,5 @@
 // Güncelleme durumu (ana süreçteki electron-update.cjs ile eşlenir) ve arayüz deposu.
+import { track } from './analytics';
 import { useSyncExternalStore } from 'react';
 import type { UpdateState } from '../types';
 
@@ -23,6 +24,6 @@ export function useUpdate(): UpdateState {
 
 export const checkForUpdates = (autoDownload = false) => window.electronAPI?.update.check({ autoDownload });
 export const downloadUpdate = () => window.electronAPI?.update.download();
-export const installUpdate = () => window.electronAPI?.update.install();
+export const installUpdate = () => { track('update_install'); return window.electronAPI?.update.install(); };
 
 export const formatBytes = (n: number) => (n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.round(n / 1024)} KB`);

@@ -18,6 +18,11 @@ const ENDPOINT = '';
 const EVENTS = Object.freeze([
   'app_start', 'panel_files', 'panel_search', 'panel_git', 'panel_extensions', 'panel_debug',
   'panel_terminal', 'panel_ai', 'panel_settings', 'file_save', 'code_run',
+  // Dil dağılımı: açılan dosyanın DİLİ (içerik, ad, yol değil). Sabit liste dışındakiler lang_other olur.
+  'lang_javascript', 'lang_typescript', 'lang_python', 'lang_html', 'lang_css', 'lang_json', 'lang_markdown', 'lang_rust', 'lang_go',
+  'lang_java', 'lang_csharp', 'lang_cpp', 'lang_php', 'lang_ruby', 'lang_shell', 'lang_sql', 'lang_yaml', 'lang_other',
+  // Oturum/güncelleme/sağlık: yalnız SAYI (hesap adı, sürüm metni, hata mesajı yok)
+  'github_login', 'github_logout', 'update_check', 'update_install', 'app_error',
 ]);
 const OSES = Object.freeze(['win', 'mac', 'linux']);
 const LANGS = Object.freeze(['tr', 'en', 'de', 'ru', 'ar', 'es', 'fr', 'az']);

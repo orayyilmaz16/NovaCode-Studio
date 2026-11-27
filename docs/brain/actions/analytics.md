@@ -10,7 +10,24 @@ triggers: ["analitik", "analytics", "kullanım istatistiği", "telemetri", "metr
 Amaç: hangi bölümlerin kullanıldığını **kimseyi tanımadan** görmek (ürün kararı). Varsayılan **kapalı**, açık rıza ile açılır.
 
 ## Ne sayılır (izin listesi — tek kaynak `electron-analytics.cjs` `EVENTS`, sunucuda aynısı)
-`app_start`, `panel_files`, `panel_search`, `panel_git`, `panel_extensions`, `panel_debug`, `panel_terminal`, `panel_ai`, `panel_settings`, `file_save`, `code_run`. Yeni olay = üç yerde (istemci, sunucu, `src/services/analytics.ts` tipi) + bu tablo + test. İzinli olmayan ad sessizce atılır. Dosya adı, yol, içerik, arama sözcüğü, komut metni **asla** olay olamaz.
+| Grup | Olaylar | Ne zaman |
+|---|---|---|
+| Eylem | `app_start`, `file_save`, `code_run` | Açılış; elle kaydetme; Çalıştır |
+| Panel | `panel_files/search/git/extensions/debug/terminal/ai/settings` | Panel açılınca |
+| **Dil** | `lang_javascript/typescript/python/html/css/json/markdown/rust/go/java/csharp/cpp/php/ruby/shell/sql/yaml`, `lang_other` | Aktif dosya değişince **dilin kimliği** (içerik/ad/yol değil) |
+| **Oturum** | `github_login`, `github_logout` | Yalnız giriş/çıkış **geçişi** (hesap adı yok; açılışta kayıtlı oturumun yüklenmesi sayılmaz) |
+| **Güncelleme** | `update_check` (kullanıcı menüden denetleyince), `update_install` | Otomatik 6 saatlik denetim sayılmaz |
+| **Sağlık** | `app_error` | Yakalanmamış hata/söz reddi **sayısı** (mesaj/yığın yok; oturum başına en çok 20) |
+
+Yeni olay = üç yerde (istemci `electron-analytics.cjs`, sunucu `analytics-server.mjs`, `src/services/analytics.ts` tipi) + bu tablo + test (`analytics.test.cjs` üçünün eşitliğini denetler). İzinli olmayan ad sessizce atılır. Dosya adı, yol, içerik, arama sözcüğü, komut metni, hesap adı, hata mesajı **asla** olay olamaz.
+
+### Bilerek YAPILMAYANLAR (kurucu "her şeyi ayrıntılı logla" istedi, 27.11.2026)
+- **Yazılan kodun/dosya içeriğinin loglanması yok.** Kod, kullanıcının içeriğidir ve gizli bilgi (anahtar, müşteri verisi) taşıyabilir; toplamak KVKK'da veri sorumluluğu, açık rıza ve güvenlik yükü doğurur. Yerine: hangi **dilin** kaç kez açıldığı.
+- **Kullanıcı bazlı (kimlikli) giriş/çıkış kaydı yok.** GitHub hesap adı/ID'si kişisel veridir ve anonimlik sözüyle çelişir. Yerine: giriş/çıkış **sayısı**.
+- **Olay akışı/zaman çizelgesi yok** (kim, ne zaman, sırayla ne yaptı). Yalnız günlük toplam; tekil kişi izlenemez. Bunlar istenirse ayrı bir ürün kararı, KVKK değerlendirmesi, aydınlatma ve açık rıza gerekir.
+
+### Uygulama indirmeleri (analitik değil, GitHub'dan)
+`health-monitor.mjs` her 6 saatte GitHub Release varlıklarının herkese açık `download_count` toplamını okur: `downloadsTotal`, `downloadsWin/Mac/Linux`, `downloadsLatestRelease`, `downloadsSinceLastCheck`. Aylık/haftalık eğilim: Actions → "Sağlık ve güvenlik izleme" özeti ve `history.json`. Kişi/IP verisi yoktur ([[monitoring]]).
 
 ## Ne gider
 Günde en çok **bir** toplu istek: `{"v":1,"app":"1.9.3","os":"win","lang":"tr","counts":{"panel_git":3}}`. Başka alan yok; sunucu fazladan alanı reddeder. Cihaz/kurulum/oturum kimliği, çerez, tarih, IP kaydı **yok** → kimlik olmadığı için tek tek kullanıcı yeniden tanınamaz; "günlük aktif kullanıcı" yerine "günlük toplu gönderim sayısı" bakılır (yaklaşık, kimliksiz).

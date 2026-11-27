@@ -62,7 +62,7 @@ export const AnalyticsConsentDialog: React.FC<{ onAllow: () => void; onDecline: 
     </>
   }>
     <p>{t('analyticsWhat')}</p>
-    <pre dir="ltr" className="my-2 overflow-x-auto rounded-md border border-nv-border px-2 py-1.5 font-mono text-[11.5px] text-zinc-300">{'{"app":"1.9.3","os":"win","lang":"tr","counts":{"panel_git":3,"file_save":12}}'}</pre>
+    <pre dir="ltr" className="my-2 overflow-x-auto rounded-md border border-nv-border px-2 py-1.5 font-mono text-[11.5px] text-zinc-300">{'{"app":"1.9.3","os":"win","lang":"tr","counts":{"panel_git":3,"lang_python":5,"file_save":12}}'}</pre>
     <p>{t('analyticsNever')}</p>
     <p className="mt-2 text-[12px] text-zinc-500">{t('analyticsRevoke')}</p>
   </Shell>

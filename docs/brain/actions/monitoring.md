@@ -44,3 +44,6 @@ Kişisel veri işlenmez. Giden istekler yalnız public uç noktalara gider (GitH
 - İş akışı main'de, elle ilk koşu **başarılı** (20 sn): ölçüm, artifact, issue açma uçtan uca doğrulandı. Gerçek sinyal: JS/CSS paketleri bütçenin %85'ini geçti (uyarı issue'su "Sağlık izleme: açık bulgular").
 - Gerekli ayar yok; yalnız **isteğe bağlı** `NOVA_SYNC_METRICS_TOKEN` secret'ı (sunucu token'ının aynısı; `/metrics` ölçümü için, bkz. [[sync-deploy]]) ve `NOVA_SYNC_HEALTH_URL` secret'ı (senkron sunucusunun adresi). Tanımsızsa senkron izlemesi atlanır. Secret'ı sohbete yapıştırma; terminalde `gh secret set NOVA_SYNC_HEALTH_URL` (değeri komut istemine gir) kullan.
 - Uyarı kapatma: paket bölme/tembel yükleme ile boyut düşünce sonraki ölçümde issue kendiliğinden kapanır.
+
+## Uygulama indirme metrikleri (27.11.2026)
+Her ölçümde GitHub Release varlıklarının herkese açık `download_count` toplamı rapora girer (`downloadsTotal`, `downloadsWin/Mac/Linux`, `downloadsLatestRelease`, `downloadsSinceLastCheck`; güncelleme dosyaları `latest*.yml`/`.blockmap` sayılmaz). Alarm değil, yalnız eğilim metriği; alınamazsa metrik eksik kalır. Kişi/IP verisi yoktur. Kullanım analitiği (diller, paneller, giriş/çıkış sayısı): [[analytics]].

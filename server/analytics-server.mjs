@@ -13,7 +13,10 @@ import { join } from "node:path";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { pathToFileURL } from "node:url";
 
-export const EVENTS = ["app_start", "panel_files", "panel_search", "panel_git", "panel_extensions", "panel_debug", "panel_terminal", "panel_ai", "panel_settings", "file_save", "code_run"];
+export const EVENTS = ["app_start", "panel_files", "panel_search", "panel_git", "panel_extensions", "panel_debug", "panel_terminal", "panel_ai", "panel_settings", "file_save", "code_run",
+  "lang_javascript", "lang_typescript", "lang_python", "lang_html", "lang_css", "lang_json", "lang_markdown", "lang_rust", "lang_go",
+  "lang_java", "lang_csharp", "lang_cpp", "lang_php", "lang_ruby", "lang_shell", "lang_sql", "lang_yaml", "lang_other",
+  "github_login", "github_logout", "update_check", "update_install", "app_error"];
 const OSES = ["win", "mac", "linux"];
 const LANGS = ["tr", "en", "de", "ru", "ar", "es", "fr", "az"];
 const SEMVER = /^\d+\.\d+\.\d+$/;

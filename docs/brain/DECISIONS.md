@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 27.11.2026 (izleme kapsamı: ayrıntılı değil, kimliksiz)
+- **"Her şeyi ayrıntılı logla" isteği kimliksiz toplu metriğe çevrildi.** Neden: yazılan kod (içerik), GitHub hesabı ve kullanıcı bazlı akış kişisel veri/gizli bilgi taşır; KVKK, açık rıza ve az önce verilen "anonim, kişisel bilgi yansıtma" kararıyla çelişir. Sonuç: dil dağılımı (`lang_*`), giriş/çıkış sayısı, güncelleme denetimi/kurulumu, hata sayısı izin listesine eklendi (kimlik/içerik yok); indirme sayıları GitHub Release herkese açık sayaçlarından sağlık izlemeye eklendi. Kod içeriği, hesap adı ve olay akışı bilerek kapsam dışı; istenirse ayrı ürün kararı + KVKK değerlendirmesi + aydınlatma + rıza gerekir. Bkz. [[analytics]].
+
 ## 27.11.2026 (auto-commit onarımı)
 - **Stop hook akışı stash'siz; yer tutucu `.env.example` şablonları gizli sayılmaz.** Neden: `git add -N` kalıntısı stash'i çökertip tüm turun commit'ini engelledi; `.env.example` (yalnız `<TOKEN>` yer tutucusu) gizli dosya korumasına takılıp commit'i durdurdu. Sonuç: dal geçişi `git switch` ile değişiklikleri taşır, stash yalnız yedek; gizli dosya koruması gerçek `.env*`/anahtar dosyalarını yine engeller (testli). Geri dönüş: git geçmişi.
 
