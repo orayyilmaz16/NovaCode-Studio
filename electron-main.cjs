@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, protocol } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, protocol, net } = require('electron');
 
 // Tek örnek kilidi EN BAŞTA: ikinci örnek ağır modülleri yüklemeden hemen çıkar (P-20).
 if (!app.requestSingleInstanceLock()) {
@@ -787,6 +787,7 @@ function registerDeferredModules() {
   deferredLoaded = true;
   require('./electron-ext.cjs').register();
   require('./electron-update.cjs').register({ getWindow: () => mainWindow });
+  require('./electron-analytics.cjs').register({ app, ipcMain, net }); // anonim, rızaya bağlı sayaç (docs/brain/actions/analytics.md)
   debugModule = require('./electron-debug.cjs');
   debugModule.register({ getWindow: () => mainWindow, getRoot: () => workspaceRoot });
   lspModule = require('./electron-lsp.cjs');

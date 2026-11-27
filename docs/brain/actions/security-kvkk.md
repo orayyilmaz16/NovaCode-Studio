@@ -29,7 +29,9 @@ Veri nedir? Amaç? Hukuki sebep? Saklama süresi? Yurt dışına aktarım var m�
 | Uzak çalışma alanı (SSH) | Sunucu adı/adresi/portu, kullanıcı adı, anahtar dosya yolu, sunucu parmak izi; (saklanmaz) parola/parola cümlesi; uzak dosya içeriği | Kullanıcının istediği uzak bağlantı ve düzenleme | Profil ve parmak izi yerelde (`userData`), silinebilir; parola yalnız bellekte; dosya içeriği diske yazılmaz | Yalnız kullanıcının seçtiği sunucu (şifreli SSH); NovaCode'un 3. partisi yok |
 | Ortak düzenleme token'ı | Sunucu token'ı | Kullanıcının sunucusuna kimlik | Yerelde, şifreli (`safeStorage`); düz metin yok | Yok (yalnız kullanıcının sunucusuna gider) |
 
-Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmadan yükleme.
+| Anonim kullanım sayacı | Sürüm, işletim sistemi, dil, izinli olay sayaçları (kimlik/IP/içerik yok) | Ürün istatistiği; açık rıza, varsayılan kapalı | İstemcide en çok 1 gün; sunucuda günlük toplam 400 gün | Yalnız toplama sunucusunun ülkesi (kimliksiz) |
+
+Analitik/çerez/3. parti servis eklenecekse önce kullanıcıya sor, rıza olmadan yükleme. Anonim sayaç ayrıntısı: [[analytics]].
 
 ## Dosya sistemi IPC kuralları (güncel)
 Ana süreçte yazan/silen/taşıyan her işleyici yolu doğrular: `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:renameItem` yalnız açık çalışma klasörünün **içinde**; `fs:writeFile` çalışma klasörü içinde veya kullanıcının "Dosya Aç" diyaloğuyla seçtiği dosyalarda; taşıma/yeniden adlandırma hedefin üzerine yazmaz. Yeni dosya IPC'si eklerken `insideWorkspace()` / `writable()` kullan. Ayrıntı: [[explorer]].
@@ -43,6 +45,7 @@ Yeni Git kanalları ref/etiket/SHA/stash indeksini ana süreçte doğrular (`REF
 | Hugging Face | Yerleşik model indirme (tek sefer) | Yalnız dosya isteği (IP) | Kullanıcı verisi yok; konak denetimli |
 | Open VSX / Eclipse CDN | Eklenti arama/indirme | Arama sözcüğü, IP | Kullanıcı verisi yok; konak denetimli |
 | Seçilen AI sağlayıcı (Anthropic/OpenAI/Ollama uzak) | Kullanıcı sohbet gönderince | Mesaj, bağlam kodu | Varsayılan yerleşik: hiçbiri |
+| Anonim sayaç (rıza varsa) | Günde en çok bir kez toplu sayaç | Yalnız ana süreçten, kendi toplama sunucumuza (adres boşsa hiçbir şey gitmez); kimlik/IP kaydı yok |
 | Dikte (OpenAI uyumlu) | Mikrofon kullanılınca ve açık rıza varsa | Ses | Yerel adreste yerelde kalır |
 | GitHub (güncelleme) | Güncelleme denetimi / sürüm notları | IP, uygulama sürümü, platform | Kullanıcı isteğiyle veya "açılışta denetle" ayarıyla; kişisel veri yok |
 | GitHub | Git/GitHub paneli | Kimlik doğrulama, repo işlemleri | Kullanıcı eylemiyle |

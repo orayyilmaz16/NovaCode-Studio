@@ -53,6 +53,21 @@ export const UnsavedDialog: React.FC<{ names: string[]; hasUntitled: boolean; on
   </Shell>
 );
 
+/** Anonim kullanım istatistiği rızası (varsayılan: paylaşma). Kapatmak/Esc = paylaşma. Gönderilecek yükün tam örneği gösterilir. */
+export const AnalyticsConsentDialog: React.FC<{ onAllow: () => void; onDecline: () => void }> = ({ onAllow, onDecline }) => (
+  <Shell title={t('analyticsTitle')} onEscape={onDecline} actions={
+    <>
+      <button data-autofocus className="btn-ghost" onClick={onDecline}>{t('analyticsDecline')}</button>
+      <button className="btn-primary" onClick={onAllow}>{t('analyticsAllow')}</button>
+    </>
+  }>
+    <p>{t('analyticsWhat')}</p>
+    <pre dir="ltr" className="my-2 overflow-x-auto rounded-md border border-nv-border px-2 py-1.5 font-mono text-[11.5px] text-zinc-300">{'{"app":"1.9.3","os":"win","lang":"tr","counts":{"panel_git":3,"file_save":12}}'}</pre>
+    <p>{t('analyticsNever')}</p>
+    <p className="mt-2 text-[12px] text-zinc-500">{t('analyticsRevoke')}</p>
+  </Shell>
+);
+
 /** Açılışta önceki oturumu geri yükleme önerisi (kullanıcı onayı olmadan hiçbir klasör/dosya açılmaz). */
 export const RestoreSessionDialog: React.FC<{ tabs: number; unsaved: number; onRestore: () => void; onDismiss: () => void }> = ({ tabs, unsaved, onRestore, onDismiss }) => (
   <Shell title={t('appRestoreTitle')} onEscape={onDismiss} actions={

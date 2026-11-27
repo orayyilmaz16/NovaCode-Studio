@@ -133,6 +133,7 @@
     { "id": "collabEnabled", "category": "collab", "type": "toggle", "default": false },
     { "id": "collabUrl", "category": "collab", "type": "text", "default": "", "maxLength": 200, "placeholder": "wss://sunucun.example.com", "desc": true },
 
+    { "id": "analyticsEnabled", "category": "about", "type": "toggle", "default": false, "desc": true },
     { "id": "updateAutoCheck", "category": "about", "type": "toggle", "default": true, "desc": true },
     { "id": "updateAutoDownload", "category": "about", "type": "toggle", "default": true, "desc": true },
 

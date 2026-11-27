@@ -107,6 +107,11 @@
    "sev": "düşük"
   },
   {
+   "k": "PERF-SYNC-FS|electron-analytics.cjs",
+   "n": 2,
+   "sev": "düşük"
+  },
+  {
    "k": "PERF-SYNC-FS|electron-debug.cjs",
    "n": 1,
    "sev": "düşük"
@@ -207,7 +212,17 @@
    "sev": "düşük"
   },
   {
+   "k": "SEC-HTTP|server/analytics-server.mjs",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
    "k": "SEC-IPC-NOEVT|electron-ai.cjs",
+   "n": 3,
+   "sev": "düşük"
+  },
+  {
+   "k": "SEC-IPC-NOEVT|electron-analytics.cjs",
    "n": 3,
    "sev": "düşük"
   },

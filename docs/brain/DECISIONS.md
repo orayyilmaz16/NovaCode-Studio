@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 27.11.2026 (anonim analitik)
+- **Kimliksiz, rızaya bağlı, kendi sunucumuzda toplanan sayaç; 3. parti analitik yok.** Neden: kurucu ürün metriği istedi; KVKK ve ETK gereği rızasız analitik yüklenemez, kişisel veri istenmedi. Sonuç: cihaz/kurulum kimliği hiç üretilmez (kullanıcı yeniden tanınamaz → anonim), yük 5 alanla sınırlı, olaylar izin listesinde, günde bir toplu gönderim, varsayılan kapalı, rıza yalnız kullanıcı eyleminden (ayar içe aktarma açamaz). Bedel bilinçli: gerçek tekil kullanıcı/saklama (retention) ölçülemez, yalnız toplu kullanım. `ENDPOINT` boş olduğu sürece uygulama hiçbir şey saymaz/göndermez; sunucu kurulunca açılır. Geri dönüş: `electron-analytics.cjs` kaydını ve `ENDPOINT`i kaldırmak yeter. Bkz. [[analytics]].
+
 ## 27.11.2026 (bağımlılık otopilotu)
 - **Haftalık otonom bağımlılık güncellemesi; major elle.** Neden: Dependabot yalnız tek tek PR açıyor; toplu doğrulama, durum raporu, bildirim ve eskiyen PR temizliği yoktu. Sonuç: `dep-autopilot.yml` patch/minor güncellemeleri tek PR'da (tsc + test + build ile doğrulanmış) açar ve auto-merge eder; major'lar issue'da raporlanır, istenirse paket adıyla tek PR başlatılır (kırıcı değişiklik kendiliğinden birleşmez). Electron yığını mevcut izleyicide kaldı (çift PR yok). `dep-review.yml` `pull_request_target` kullanır ama PR kodunu çıkış yapmaz/çalıştırmaz. Geri dönüş: iki iş akışını silmek yeterli. Bkz. [[updates]].
 

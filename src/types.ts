@@ -315,6 +315,14 @@ export interface ElectronBridge {
     cancel: (id: string) => Promise<{ success: boolean }>;
     replace: (opts: ReplaceOpts) => Promise<ReplaceResult>;
   };
+  analytics: {
+    status: () => Promise<{ configured: boolean; enabled: boolean; asked: boolean }>;
+    setConsent: (on: boolean) => Promise<{ configured: boolean; enabled: boolean; asked: boolean }>;
+    markAsked: () => Promise<{ configured: boolean; enabled: boolean; asked: boolean }>;
+    payload: () => Promise<{ v: number; app: string; os: string; lang: string; counts: Record<string, number> } | null>;
+    setLang: (lang: string) => void;
+    track: (name: string) => void;
+  };
   update: {
     state: () => Promise<UpdateState>;
     check: (opts?: { autoDownload?: boolean }) => Promise<UpdateState>;
