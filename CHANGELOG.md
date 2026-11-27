@@ -4,11 +4,17 @@
 
 ### tr
 
-- [feat] **Anonim kullanım istatistiği (isteğe bağlı):** İstersen hangi bölümlerin kaç kez kullanıldığına dair toplu sayılar paylaşabilirsin. Varsayılan kapalıdır; kimlik, IP, dosya adı, yol veya kod asla gönderilmez, istediğin an Ayarlar → Hakkında bölümünden kapatabilirsin.
-
 ### en
 
-- [feat] **Anonymous usage statistics (optional):** You can choose to share aggregate counts of which areas are used. Off by default; identity, IP, file names, paths or code are never sent, and you can turn it off any time in Settings → About.
+## 1.9.4 - 27.11.2026
+<!-- level: patch -->
+### Türkçe
+#### Yeni özellikler
+- **Anonim kullanım istatistiği (isteğe bağlı):** İstersen hangi bölümlerin kaç kez kullanıldığına dair toplu sayılar paylaşabilirsin. Varsayılan kapalıdır; kimlik, IP, dosya adı, yol veya kod asla gönderilmez, istediğin an Ayarlar → Hakkında bölümünden kapatabilirsin.
+
+### English
+#### New features
+- **Anonymous usage statistics (optional):** You can choose to share aggregate counts of which areas are used. Off by default; identity, IP, file names, paths or code are never sent, and you can turn it off any time in Settings → About.
 
 ## 1.9.3 - 27.11.2026
 <!-- level: patch -->
