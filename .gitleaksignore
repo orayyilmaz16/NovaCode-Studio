@@ -3,3 +3,6 @@
 b59f667f7f6f81125e8e5d17f85e4afa601fb375:scripts/tests/ai-security.test.cjs:generic-api-key:55
 3d66374d84680a887a36ad3acaaff2d4c4eb3db8:scripts/tests/ai-security.test.cjs:generic-api-key:54
 3d66374d84680a887a36ad3acaaff2d4c4eb3db8:scripts/tests/syncserver.test.cjs:generic-api-key:45
+# Monaco derlenmiş dosyası (3fc53a9, yerel çevrimdışı Monaco): generic-api-key yanlış alarmı, eşleşen kod "NKeyMap,this._..." (gerçek sır yok).
+3fc53a95187ffee1f5ddcf871be5d87c98593171:dist/vs/editor-BdtEMBbM.js:generic-api-key:54
+3fc53a95187ffee1f5ddcf871be5d87c98593171:public/vs/editor-BdtEMBbM.js:generic-api-key:54
