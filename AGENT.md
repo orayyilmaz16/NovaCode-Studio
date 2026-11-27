@@ -30,12 +30,12 @@ Düzey, `CHANGELOG.md` → `## Unreleased` maddelerinin **türünden** gelir (co
 
 | Madde etiketi | Anlamı | Artış | Örnek |
 |---|---|---|---|
-| `[breaking]` | Kırıcı değişiklik (veri/ayar uyumsuzluğu, kaldırılan özellik) | **MAJOR** | 1.4.2 → 2.0.0 |
-| `[feat]` | Yeni özellik | **MINOR** | 1.4.2 → 1.5.0 |
+| `[breaking]` | Kırıcı değişiklik (veri/ayar uyumsuzluğu, kaldırılan özellik) | **MINOR** (otomatik major yok) | 1.4.2 → 1.5.0 |
+| `[feat]` | Yeni özellik | PATCH; ≥ 2 `[feat]` ya da ≥ 6 madde = **MINOR** | 1.4.2 → 1.4.3 / 1.5.0 |
 | `[fix]` `[perf]` `[improve]` `[security]` | Düzeltme, hız, iyileştirme, güvenlik (etiketsiz = `[improve]`) | **PATCH** | 1.4.2 → 1.4.3 |
 | `[docs]` | Yalnız belge | sürüm çıkmaz | — |
 
-Commit'te `feat!:` / `BREAKING CHANGE:` MAJOR, `feat:` MINOR sinyali ekler; en yüksek düzey kazanır. Maddesi olmayan tur sürüm çıkarmaz. Elle sürüm yükseltme gerekmez; zorlamak için `node scripts/release.mjs prepare --level minor|major` (yalnız yükseltir). Tam kural ve gerekçe: `docs/brain/actions/versioning.md`.
+Commit'te `feat!:` / `BREAKING CHANGE:` MINOR, tek `feat:` PATCH sinyali ekler; en yüksek düzey kazanır. Maddesi olmayan tur sürüm çıkarmaz. Elle sürüm yükseltme gerekmez; zorlamak için `node scripts/release.mjs prepare --level minor|major` (yalnız yükseltir). Tam kural ve gerekçe: `docs/brain/actions/versioning.md`.
 
 ### Sürüm notları (TR + EN) — madde yazma biçimi
 - Kullanıcıya görünen her değişiklikte `## Unreleased` altına iki dilde, **aynı sırayla ve aynı etiketle** madde yaz:

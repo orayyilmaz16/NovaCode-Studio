@@ -181,7 +181,7 @@
 | `scripts/doc-sync.mjs` | 189 |
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/make-icons.cjs` | 29 |
-| `scripts/release.mjs` | 286 |
+| `scripts/release.mjs` | 293 |
 | `scripts/runtime-watch.mjs` | 25 |
 
 ### Testler
@@ -203,7 +203,7 @@
 | `scripts/tests/paths.test.cjs` | 88 |
 | `scripts/tests/preview-csp.test.cjs` | 66 |
 | `scripts/tests/pty.test.cjs` | 114 |
-| `scripts/tests/release.test.cjs` | 140 |
+| `scripts/tests/release.test.cjs` | 149 |
 | `scripts/tests/replace.test.cjs` | 71 |
 | `scripts/tests/search-redos.test.cjs` | 47 |
 | `scripts/tests/services.test.cjs` | 140 |

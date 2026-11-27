@@ -11,8 +11,8 @@
 // Neden yerelde hazırlanır? main korumalıdır (PR zorunlu): CI botu main'e commit atamaz. Sürüm değişikliği bu yüzden PR'ın içinde gelir;
 // birleşince CI yalnız etiketi atar ve GitHub Release'i çıkarır (commit yok, döngü yok).
 //
-// Sürüm düzeyi (SemVer): CHANGELOG `## Unreleased` maddelerinin etiketlerinden gelir ( [breaking] → MAJOR, [feat] → MINOR, diğerleri → PATCH ),
-// ayrıca commit'lerde `feat!:` / `BREAKING CHANGE:` (MAJOR) ve `feat:` (MINOR). Madde yoksa sürüm çıkmaz. `--level` yalnız yükseltir.
+// Sürüm düzeyi (27.11.2026 kararı): varsayılan PATCH (küçük değişiklik). Büyük toplu güncelleme MINOR: [breaking] var, ya da [feat] >= 2, ya da
+// sürüm notuna giren (docs hariç) madde >= 6. MAJOR otomatik çıkmaz; yalnız `--level major` (kullanıcı onayı) ile. Madde yoksa sürüm çıkmaz. `--level` yalnız yükseltir.
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
@@ -73,8 +73,15 @@ function parseUnreleased(changelog) {
   return { tr: bullets("tr"), en: bullets("en") };
 }
 
+const MINOR_FEAT_COUNT = 2; // bu kadar [feat] = büyük güncelleme
+const MINOR_ITEM_COUNT = 6; // bu kadar (docs hariç) madde = büyük toplu güncelleme
 function levelFromBullets(b) {
-  return Math.max(0, ...[...b.tr, ...b.en].map((x) => TAGS[x.tag]));
+  const items = b.tr.length >= b.en.length ? b.tr : b.en;
+  const real = items.filter((x) => TAGS[x.tag] > 0);
+  if (!real.length) return 0;
+  if (real.some((x) => x.tag === "breaking")) return 2; // major otomatik değil
+  if (real.filter((x) => x.tag === "feat").length >= MINOR_FEAT_COUNT || real.length >= MINOR_ITEM_COUNT) return 2;
+  return 1;
 }
 
 function levelFromCommits(lastTag) {
@@ -92,8 +99,8 @@ function levelFromCommits(lastTag) {
     const subject = c.split("\n")[0];
     if (/^chore\(release\)/.test(subject)) continue;
     const m = /^(\w+)(\([^)]*\))?(!)?:/.exec(subject);
-    if (m?.[3] || /BREAKING CHANGE:/.test(c)) level = 3;
-    else if (m?.[1] === "feat" && m?.[2] !== "(auto)") level = Math.max(level, 2);
+    if (m?.[3] || /BREAKING CHANGE:/.test(c)) level = 2; // major otomatik değil, minor
+    else if (m?.[1] === "feat" && m?.[2] !== "(auto)") level = Math.max(level, 1); // tek feat commit'i patch
   }
   return level;
 }
