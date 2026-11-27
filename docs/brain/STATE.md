@@ -179,7 +179,7 @@
 | `scripts/audit-scan.mjs` | 205 |
 | `scripts/auto-commit.mjs` | 233 |
 | `scripts/backfill-overlay.mjs` | 19 |
-| `scripts/brain.mjs` | 297 |
+| `scripts/brain.mjs` | 302 |
 | `scripts/check-bundle.mjs` | 31 |
 | `scripts/check-hygiene.mjs` | 75 |
 | `scripts/check-version.mjs` | 82 |
@@ -187,6 +187,7 @@
 | `scripts/dep-review.mjs` | 56 |
 | `scripts/dep-update.mjs` | 233 |
 | `scripts/doc-sync.mjs` | 189 |
+| `scripts/docker-docs.mjs` | 93 |
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/health-monitor.mjs` | 268 |
 | `scripts/make-icons.cjs` | 29 |
@@ -400,7 +401,7 @@
 | `.github/workflows/dep-autopilot.yml` | Bağımlılık otopilotu | `autopilot` (Rapor, güncelle, PR aç) |
 | `.github/workflows/dep-review.yml` | Bağımlılık PR incelemesi | `review` (Sürüm farkı raporu) |
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
-| `.github/workflows/docker.yml` | Docker - Sunucu imajları | `image` (İmaj (${{ matrix.name }})) |
+| `.github/workflows/docker.yml` | Docker - Derle, Test, Yayınla, Dağıt | `image` (İmaj (${{ matrix.name }})), `deploy` (Dağıt (${{ matrix.name }})), `docs` (Docker belgesi) |
 | `.github/workflows/health-monitor.yml` | Sağlık ve güvenlik izleme | `monitor` (Ölç, logla, bildir) |
 | `.github/workflows/release-finalize.yml` | Sürüm etiketini tamamla | `finalize` (Etiketsiz sürüm varsa etiketle ve yayınla) |
 | `.github/workflows/runtime-watch.yml` | Electron, Chromium ve Node.js izleyici | `watch` (Yeni Electron varsa yükselt ve tara) |
@@ -444,6 +445,7 @@
 | [[BACKLOG]] | `docs/brain/BACKLOG.md` | Denetim yapılacaklar listesi (doğrulanmış bulgular) |
 | [[BRAIN]] | `docs/brain/BRAIN.md` | NovaCode Studio — Proje Beyni |
 | [[DECISIONS]] | `docs/brain/DECISIONS.md` | Karar günlüğü |
+| [[DOCKER]] | `docs/brain/DOCKER.md` | Docker (otomatik üretilir) |
 | [[LOG]] | `docs/brain/LOG.md` | Değişiklik günlüğü (otomatik) |
 | [[PROJECT]] | `docs/brain/PROJECT.md` | Proje: NovaCode Studio |
 | [[STATE]] | `docs/brain/STATE.md` | Proje durumu (otomatik üretilir) |

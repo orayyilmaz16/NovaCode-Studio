@@ -2,6 +2,7 @@
 # Anonimlik ayarları: Caddy erişim günlüğü KAPALI (Caddyfile), uygulama kayıt tutmaz, konteyner günlüğü yalnız başlangıç satırı içerir.
 services:
   analytics:
+    image: ghcr.io/orayyilmaz16/novacode-analytics:${NOVA_IMAGE_TAG:-latest}   # CI yayınlar; sunucu çeker (pull), --build ile yerelde de derlenir
     build:
       context: ../..
       dockerfile: server/analytics-deploy/Dockerfile
