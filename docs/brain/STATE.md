@@ -86,7 +86,7 @@
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitHistory.tsx` | 115 |
+| `src/components/GitHistory.tsx` | 123 |
 | `src/components/GitPanel.tsx` | 916 |
 | `src/components/GithubAccount.tsx` | 137 |
 | `src/components/HoverTip.tsx` | 49 |
@@ -103,7 +103,7 @@
 | `src/components/PtyView.tsx` | 122 |
 | `src/components/RemoteDialog.tsx` | 313 |
 | `src/components/RemoteMenu.tsx` | 159 |
-| `src/components/ResizableBody.tsx` | 77 |
+| `src/components/ResizableBody.tsx` | 139 |
 | `src/components/ResizeHandle.tsx` | 69 |
 | `src/components/SearchPanel.tsx` | 214 |
 | `src/components/SettingsPage.tsx` | 754 |

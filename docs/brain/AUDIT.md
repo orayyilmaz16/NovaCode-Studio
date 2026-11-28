@@ -13,7 +13,7 @@ Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `PERF-LS-WRITE` src/components/GitPanel.tsx, `PERF-LS-WRITE` src/components/ResizableBody.tsx
+- Yeni/artan: yok
 - Giderilen: yok
 
 ## Güvenlik
@@ -45,7 +45,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-LS-WRITE | `src/App.tsx:1587` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/GitPanel.tsx:175` | localStorage yazımı: sık tetikleniyorsa debounce et |
-| düşük | PERF-LS-WRITE | `src/components/ResizableBody.tsx:18` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/components/ResizableBody.tsx:20` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ResizeHandle.tsx:63` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/services/aiClient.ts:130` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/services/collabRoom.ts:32,45,58` | localStorage yazımı: sık tetikleniyorsa debounce et (3×) |
