@@ -2,6 +2,12 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Issue #176 kapandı; #169 ve #168 kısmi)
+- **#176 (debug testi, CI):** kök neden kanıtlandı: V8 betik yolunu Windows kısa adıyla (`RUNNER~1`) raporlarken kesme noktası URL'si `pathToFileURL` ile `%7E` kodlaması kullanıyordu; eşleşme olmuyor, duraklama gelmiyordu. Zaman aşımı ve Node sürümü denemeleri sebep değildi (kanıt: CI teşhis koşusu, `bp.verified:false`). Düzeltme: iki biçimi de kabul eden anchor'lı regex (`electron-debug.cjs`). PR #192 birleşti, issue kapandı.
+- **#169 (ayar seçicisi):** kısmi. Monaco seçenekleri grup bazında saf fonksiyonlara bölündü, birebir eşdeğerlik testi (602 kombinasyon) geçiyor; EditorArea seçicilere geçti (PR #190 birleşti). Kabul kriteri (tarayıcıda React Profiler ile render sayımı) ÖLÇÜLMEDİ; App.tsx ve diğer `useSettings()` kullanıcıları hâlâ kapsam dışı. Issue açık.
+- **#168 (testsiz ana süreç modülleri):** kısmi. `fs:*` işleyicileri ve yol denetimi için testler eklendi (PR #191, yalnız test ve dokümantasyon). secrets, update, github, llm (electron-ai) ve preload kapsamı açık. Issue açık.
+- **Bilinen risk (değerlendirme):** yol denetimi ile dosya işlemi arasında TOCTOU penceresi var; test edilemez, kayıtlı risk.
+
 ## 28.11.2026 (Issue kararları ve kapanışlar: #164 kabul, #165 varsayılan İngilizce)
 - **#164 (OAuth kapsamı):** kabul. `repo` kapsamı kalır (özel depo ve push için gerekli); daha dar kapsam (GitHub App) ayrı ürün kalemi. Issue kapatıldı.
 - **#165 (desteklenmeyen sistem dilinde yedek dil):** öneri (en) uygulandı: [PR #187](https://github.com/orayyilmaz16/NovaCode-Studio/pull/187), iki satır (`src/i18n/uiText.ts`). Türkçe kullanıcılar etkilenmez. Birleşince issue kapanır.
