@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (GitHub oturumu: yenileme token'ı)
+Süreli OAuth token'ları (yenileme token'lı) desteklendi; 401 gelince oturumu hemen silmek yerine önce yenileme denenir. Sebep: kısa süreli oturum düşmeleri. Kaynak: kullanıcı bildirimi. Gerçek GitHub hesabıyla doğrulanmadı.
+
 ## 28.11.2026 (sağ üst bölge AI düğmesi)
 Üst çubuğun sağ kartına, terminal düğmesinin yanına AI asistanı aç/kapa düğmesi eklendi; sol üstteki mevcut AI düğmesi kaldırılmadı (iki giriş noktası). Kaynak: kullanıcı isteği.
 

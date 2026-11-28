@@ -5,10 +5,12 @@
 ### tr
 
 - [improve] **Yapay zekâ düğmesi:** Üst çubukta terminal aç/kapa düğmesinin yanına yapay zekâ asistanını aç/kapa düğmesi eklendi.
+- [fix] **GitHub oturumu:** Süreli GitHub token'ları artık yenileme token'ıyla otomatik yenilenir; süresi dolan erişim token'ı sessizce yenilenir, böylece oturum her seferinde erken düşmez.
 
 ### en
 
 - [improve] **AI button:** Added a toggle for the AI assistant next to the terminal toggle in the top bar.
+- [fix] **GitHub session:** Expiring GitHub tokens are now renewed automatically with the refresh token, so an expired access token is renewed silently and the session no longer drops early.
 
 ## 1.9.4 - 27.11.2026
 <!-- level: patch -->
