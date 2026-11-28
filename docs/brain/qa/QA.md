@@ -33,3 +33,5 @@ Issue şablonları (`.github/ISSUE_TEMPLATE/`): `bug_report.yml` (hata), `user_s
 2. Yeni hata geri gelirse `regression` etiketi eklenir ve ilgili [[SMOKE]] maddesi güçlendirilir.
 3. Kapanan bulgu issue'da kapanır; [[BACKLOG]] durumu elle güncellenir.
 4. Gerçek kullanıcı verisi, token veya kişisel bilgi bu klasöre yazılmaz ([[security-kvkk]]).
+
+E2E: [[qa-agil]] ve [[e2e-yok-xyz-kirik]].
