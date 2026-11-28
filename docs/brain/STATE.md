@@ -432,6 +432,7 @@
 | [[monitoring]] | `docs/brain/actions/monitoring.md` | Sürekli sağlık, güvenlik ve performans izleme: açık, eğilim ve servis sağlığı otomatik ölçülür, loglanır, tek issue ile bildirilir |
 | [[motion]] | `docs/brain/actions/motion.md` | Geçiş, animasyon, hover, after ve gecikme efektleri; tek hareket dili |
 | [[preview]] | `docs/brain/actions/preview.md` | HTML/SVG/Markdown önizleme, yerel sunucu önizleme, Çalıştır (F5) ve çalıştırma ayarları |
+| [[qa-agile]] | `docs/brain/actions/qa-agile.md` | QA ve çevik süreç: iş akışı, Hazır/Bitti tanımları, test seviyeleri, sprint takvimi, GitHub Project ve etiketler |
 | [[release]] | `docs/brain/actions/release.md` | Değişiklikleri commitle, sürümü belirle, push et, CI'yı izle |
 | [[remote-ssh]] | `docs/brain/actions/remote-ssh.md` | Uzak çalışma alanı (VS Code Remote-SSH benzeri): SSH ile sunucuya bağlan, uzak klasörü Gezgin'de aç/düzenle/kaydet (SFTP), uzak terminal |
 | [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git |
@@ -452,6 +453,10 @@
 | [[DOCKER]] | `docs/brain/DOCKER.md` | Docker (otomatik üretilir) |
 | [[LOG]] | `docs/brain/LOG.md` | Değişiklik günlüğü (otomatik) |
 | [[PROJECT]] | `docs/brain/PROJECT.md` | Proje: NovaCode Studio |
+| [[CHARTERS]] | `docs/brain/qa/CHARTERS.md` | Keşif test oturumları (charter) |
+| [[QA]] | `docs/brain/qa/QA.md` | QA altyapısı |
+| [[SMOKE]] | `docs/brain/qa/SMOKE.md` | Duman ve regresyon listesi |
+| [[SPRINTS]] | `docs/brain/qa/SPRINTS.md` | Sprint günlüğü |
 | [[STATE]] | `docs/brain/STATE.md` | Proje durumu (otomatik üretilir) |
 | [[VERSIONS]] | `docs/brain/VERSIONS.md` | Sürüm geçmişi (otomatik) |
 | [[README]] | `README.md` | NovaCode Studio |

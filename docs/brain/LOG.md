@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:09 · main
+<!-- sig:LmdpdGh1Yi9JU1NVRV9URU1QTEFURS9idWdfcmVw -->
+- Alan: [[ci-cd]]
+- Kod (4): `.github/ISSUE_TEMPLATE/bug_report.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/test_session.yml`, `.github/ISSUE_TEMPLATE/user_story.yml`
+- Belge (8): `AGENT.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/qa-agile.md`, `docs/brain/qa/CHARTERS.md`, `docs/brain/qa/QA.md`, `docs/brain/qa/SMOKE.md`, `docs/brain/qa/SPRINTS.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 11:53 · auto/20261128-074543
 <!-- sig:c3JjL2NvbXBvbmVudHMvQ29tbWl0SGlzdG9yeU1l -->
 - Alan: [[ui-design]]
@@ -274,11 +281,4 @@
 - Alan: [[ui-design]], [[explorer]], [[i18n]]
 - Kod (3): `src/App.tsx`, `src/components/FileTree.tsx`, `src/i18n/uiText.ts`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/explorer.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 25.11.2026 10:59 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvQWNjb3JkaW9uTWVudS50 -->
-- Alan: [[ui-design]]
-- Kod (2): `src/components/AccordionMenu.tsx`, `src/components/MenuBar.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

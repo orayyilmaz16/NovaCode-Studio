@@ -21,6 +21,20 @@ body:
       options: ["Windows (masaüstü / desktop)", "Web (tarayıcı / browser)", "Diğer / Other"]
     validations:
       required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Önem / Severity (QA sonra etiketler)
+      options:
+        - "Kritik: veri kaybı, güvenlik, açılmıyor / Critical"
+        - "Yüksek: ana akış bozuk, geçici çözüm yok / Major"
+        - "Orta: ana akış çalışıyor, yan etki var / Minor"
+        - "Düşük: görsel veya yazım / Trivial"
+  - type: dropdown
+    id: repro
+    attributes:
+      label: Tekrar edilebilirlik / Reproducibility
+      options: ["Her zaman / Always", "Bazen / Sometimes", "Bir kez / Once"]
   - type: textarea
     id: steps
     attributes:
