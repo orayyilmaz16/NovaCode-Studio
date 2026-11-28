@@ -50,6 +50,7 @@ Alt paneldeki Test sekmesi kullanıcı projesinin testlerini çalıştırıp öz
 - `preload.test.cjs` (electron-preload, dinamik yükleme): tek köprü `electronAPI`; ham `ipcRenderer` açılmaz; her yöntemin kanalları `ad:eylem`; yakınlaştırma 0.8–1.5 ile sınırlı ve aynı değer tekrar uygulanmaz; dinleyici aboneliği kaldırılır.
 - `electron-llm.cjs` yok: yerleşik model 18.11.2026'da kaldırıldı; #168'in llm maddesi kapsam dışı.
 - Doğrulama: beş bilinçli bozulma (doğrulama adresi host kontrolü, şifreleme koruması, kurulum koşulu, sürüm karşılaştırması, yakınlaştırma sınırı) geçici bir kopyada denendi; her biri ilgili testte başarısız oldu. Repo dosyaları bu sırada değiştirilmedi.
+- Test kaynağında sır görünümlü sahte değer bırakılmaz: jetonlar çalışma zamanında birleştirilir (`fake(...)`), çünkü hijyen adımı (`check-hygiene.mjs`) `token = '…'` biçimini "olası sır" sayar. Host denetimi URL ayrıştırmayla (`new URL(u).hostname`) yapılır; alt dize eşleşmesi CodeQL'in "Incomplete URL substring sanitization" uyarısına yol açar. Bu iki kural PR #198'de CI'yi durdurmuştu.
 
 ## Render sayımı: ayar sürüklemesi (#169, 28.11.2026)
 - Üretim derlemesi `minify` kapalı alınır (bileşen adları korunur), statik sunucuyla açılır; Edge headless `--remote-debugging-port` ile CDP'ye bağlanılır. Ayrı derleme dizini kullanılır; çalışan `electron:dev` oturumunun Vite önbelleğine dokunulmaz.

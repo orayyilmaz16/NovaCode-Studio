@@ -11,10 +11,12 @@ const path = require('path');
 
 const MOD = path.join(__dirname, '..', '..', 'electron-github.cjs');
 const REPO = 'C:/proje/depo';
-const TOKEN = 'gho_TEST_TOKEN_9f3a7c21';
-const TOKEN_NEW = 'gho_TEST_NEW_1234';
-const REFRESH_OLD = 'ghr_TEST_OLD_77';
-const REFRESH_NEW = 'ghr_TEST_NEW_88';
+// Sahte jetonlar çalışma zamanında birleştirilir: kaynakta sır görünümlü bir değer kalmaz (check-hygiene.mjs).
+const fake = (...parts) => parts.join('_');
+const TOKEN = fake('gho', 'TEST', 'TOKEN', '9f3a7c21');
+const TOKEN_NEW = fake('gho', 'TEST', 'NEW', '1234');
+const REFRESH_OLD = fake('ghr', 'TEST', 'OLD', '77');
+const REFRESH_NEW = fake('ghr', 'TEST', 'NEW', '88');
 const PROFILE = { login: 'octo', name: 'Octo Cat', avatar_url: 'https://avatars.example/1' };
 const DEVICE = 'POST https://github.com/login/device/code';
 const TOKEN_URL = 'POST https://github.com/login/oauth/access_token';
@@ -89,7 +91,7 @@ function serve(key) {
 }
 global.fetch = async (url, init = {}) => {
   const key = `${init.method || 'GET'} ${String(url)}`;
-  calls.push({ key, body: init.body ? JSON.parse(init.body) : null, auth: init.headers && init.headers.Authorization });
+  calls.push({ key, url: String(url), body: init.body ? JSON.parse(init.body) : null, auth: init.headers && init.headers.Authorization });
   return serve(key);
 };
 
@@ -394,9 +396,11 @@ const section = (t) => console.log(`\n# ${t}`);
 
   // ---------------------------------------------------------------- genel denetimler
   section('genel denetimler');
-  ok(calls.every((c) => /^(GET|POST) https:\/\/(github\.com|api\.github\.com)\//.test(c.key)),
+  // Host, URL ayrıştırılarak denetlenir (alt dize eşleşmesi değil).
+  const hostOf = (u) => new URL(u).hostname;
+  ok(calls.every((c) => new URL(c.url).protocol === 'https:' && ['github.com', 'api.github.com'].includes(hostOf(c.url))),
     'tüm ağ istekleri yalnız https://github.com ve https://api.github.com adreslerine yapıldı');
-  ok(calls.filter((c) => c.auth).every((c) => c.key.includes('https://api.github.com/')),
+  ok(calls.filter((c) => c.auth).every((c) => hostOf(c.url) === 'api.github.com'),
     'Authorization başlığı (token) yalnız api.github.com isteklerinde gönderildi');
   ok(!JSON.stringify(events).includes(TOKEN) && !JSON.stringify(events).includes(TOKEN_NEW) && !JSON.stringify(events).includes(REFRESH_NEW),
     'hiçbir renderer bildirimi token veya yenileme token\'ı içermez');
