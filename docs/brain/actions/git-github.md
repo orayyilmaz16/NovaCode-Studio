@@ -16,7 +16,8 @@ triggers: ["git", "github", "commit", "pull", "push", "pr", "sync", "fetch"]
 ## Değişmez kurallar
 1. **Kilit:** GitHub bağlı değilken hiçbir `git:*` kanalı veri vermez (`github-required`). Yeni kanal eklerken `guard()` kullan.
 2. **Kabuk yok:** `execFile` + argüman dizisi. Kullanıcıdan gelen yol/dal adı doğrulanır (`safeRelPaths`, `BRANCH_RE` + `git check-ref-format`); yol `--` sonrasına konur.
-3. **Token:** yalnız ana süreçte; git'e `GIT_CONFIG_*` ortam değişkeniyle verilir (argüman değil). Renderer'a, loga, commit'e yazılmaz.
+3. **Oturum (28.11.2026):** Erişim token'ı ve varsa yenileme token'ı tek şifreli JSON (`github-token.bin`, `safeStorage`) olarak saklanır. Erişim token'ı dolmadan (1 dk pay) ve API 401 dönerse `refreshSession` ile yenilenir; yenileme token'ı GitHub'ca döndürülürse yenisi saklanır. Yalnız `bad_refresh_token` veya token'ın yenileme olmadan 401 dönmesinde oturum silinir; ağ hatasında oturum korunur. Eski düz token dosyaları okunmaya devam eder.
+4. **Token:** yalnız ana süreçte; git'e `GIT_CONFIG_*` ortam değişkeniyle verilir (argüman değil). Renderer'a, loga, commit'e yazılmaz.
 4. **Yıkıcı işlem onaylı:** `discard` arayüzde onay ister. Eşzamanla ayrışmış dalı **birleştirmez/yeniden yazmaz**.
 5. **Durum ayrıştırma:** `status --porcelain=v1 -z` (boşluklu/Türkçe adlar, yeniden adlandırma).
 6. **Gerçek zamanlı:** `.git` izleyicisi (`git:changed`) anında, panel 8 sn'de bir, `fetch` dakikada bir, GitHub canlı veri 30 sn'de bir.

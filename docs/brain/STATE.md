@@ -40,7 +40,7 @@
 | `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 341 |
 | `electron-git.cjs` | 450 |
-| `electron-github.cjs` | 343 |
+| `electron-github.cjs` | 397 |
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
 | `electron-lsp.cjs` | 301 |

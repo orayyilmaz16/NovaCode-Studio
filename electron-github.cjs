@@ -12,7 +12,8 @@ const fs = require('fs');
 const GITHUB_SCOPES = 'repo read:user';
 const ALLOWED_OPEN = ['https://github.com/', 'https://docs.github.com/', 'https://github.dev/'];
 
-let session = { token: null, profile: null };
+// token: erişim token'ı; refresh: yenileme token'ı (süreli token verilirse); expiresAt: erişim token'ının bitiş zamanı (ms, 0 = süresiz)
+let session = { token: null, refresh: null, expiresAt: 0, profile: null };
 let pendingUserCode = ''; // cihaz akışındaki bekleyen kod (yalnız bunu panoya kopyalarız)
 let pollAbort = null;
 
@@ -48,24 +49,63 @@ async function canEncrypt() {
   }
 }
 
-async function persistToken(token) {
+// Oturum (erişim + yenileme token'ı + bitiş zamanı) tek şifreli JSON olarak yazılır.
+async function persistSession() {
   if (!(await canEncrypt())) return false; // şifreleyemiyorsak diske yazmayız
-  fs.writeFileSync(tokenFile(), await safeStorage.encryptStringAsync(token), { mode: 0o600 });
+  const payload = JSON.stringify({ access: session.token, refresh: session.refresh, expiresAt: session.expiresAt });
+  fs.writeFileSync(tokenFile(), await safeStorage.encryptStringAsync(payload), { mode: 0o600 });
   return true;
 }
 
-async function loadToken() {
+async function loadSession() {
   try {
     if (!(await canEncrypt()) || !fs.existsSync(tokenFile())) return null;
     const { result } = await safeStorage.decryptStringAsync(fs.readFileSync(tokenFile()));
-    return result;
+    try {
+      const o = JSON.parse(result);
+      if (o && typeof o.access === 'string') return { token: o.access, refresh: o.refresh || null, expiresAt: Number(o.expiresAt) || 0 };
+    } catch { /* eski biçim: düz erişim token'ı */ }
+    return { token: result, refresh: null, expiresAt: 0 };
   } catch {
     return null;
   }
 }
 
+// Erişim token'ını ve (varsa) yenileme token'ını oturuma yazar ve diske kaydeder.
+async function applyTokens(t) {
+  session.token = t.access_token;
+  if (t.refresh_token) session.refresh = t.refresh_token; // GitHub yenileme token'ını döndürürse eskisinin yerine geçer
+  session.expiresAt = t.expires_in ? Date.now() + t.expires_in * 1000 : 0;
+  return persistSession();
+}
+
+let refreshing = null;
+// Döner: 'ok' | 'bad' (yenileme token'ı geçersiz, oturum silindi) | 'net' (ağ hatası, oturum korunur) | 'none' (yenileme token'ı yok)
+function refreshSession() {
+  if (!session.refresh) return Promise.resolve('none');
+  if (refreshing) return refreshing;
+  refreshing = (async () => {
+    try {
+      const tr = await ghFetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: getClientId(), grant_type: 'refresh_token', refresh_token: session.refresh })
+      });
+      const t = await tr.json();
+      if (t.access_token) { await applyTokens(t); return 'ok'; }
+      if (t.error === 'bad_refresh_token') { clearToken(); return 'bad'; }
+      return 'net';
+    } catch {
+      return 'net';
+    } finally {
+      refreshing = null;
+    }
+  })();
+  return refreshing;
+}
+
 function clearToken() {
-  session = { token: null, profile: null };
+  session = { token: null, refresh: null, expiresAt: 0, profile: null };
   try { fs.rmSync(tokenFile(), { force: true }); } catch { /* yok */ }
 }
 
@@ -83,9 +123,8 @@ async function ghFetch(url, init = {}) {
   return res;
 }
 
-async function api(pathname, { method = 'GET', body } = {}) {
-  if (!session.token) throw new Error('GitHub hesabı bağlı değil.');
-  const res = await ghFetch(`https://api.github.com${pathname}`, {
+function apiRaw(pathname, { method = 'GET', body } = {}) {
+  return ghFetch(`https://api.github.com${pathname}`, {
     method,
     headers: {
       Authorization: `Bearer ${session.token}`,
@@ -94,9 +133,22 @@ async function api(pathname, { method = 'GET', body } = {}) {
     },
     body: body ? JSON.stringify(body) : undefined
   });
+}
+
+async function api(pathname, opts = {}) {
+  if (!session.token) throw new Error('GitHub hesabı bağlı değil.');
+  // Süresi dolmak üzereyse önce yenile (1 dk pay bırakılır).
+  if (session.expiresAt && Date.now() > session.expiresAt - 60000) await refreshSession();
+  let res = await apiRaw(pathname, opts);
   if (res.status === 401) {
-    clearToken();
-    throw new Error('GitHub oturumu geçersiz. Tekrar bağlanın.');
+    const r = await refreshSession();
+    if (r === 'ok') res = await apiRaw(pathname, opts);
+    else if (r === 'net') throw new Error('GitHub oturumu yenilenemedi (ağ hatası). Tekrar deneyin.');
+    else if (r === 'none') clearToken();
+    if (res.status === 401) {
+      if (session.token) clearToken();
+      throw new Error('GitHub oturumu geçersiz. Tekrar bağlanın.');
+    }
   }
   if (!res.ok) {
     let detail = '';
@@ -142,9 +194,12 @@ function register({ getWindow, runGit, isValidPath }) {
 
   // Uygulama açılışında kayıtlı oturumu sessizce geri yükle.
   const restore = async () => {
-    const token = await loadToken();
-    if (!token) return;
-    session.token = token;
+    const saved = await loadSession();
+    if (!saved) return;
+    session = { ...session, token: saved.token, refresh: saved.refresh, expiresAt: saved.expiresAt };
+    // Erişim token'ı süresi dolmuşsa açılışta yenile; ağ yoksa oturum saklı kalır.
+    if (session.expiresAt && Date.now() > session.expiresAt - 60000) await refreshSession();
+    if (!session.token) return;
     try {
       notify({ state: 'connected', profile: await loadProfile() });
     } catch {
@@ -214,8 +269,7 @@ function register({ getWindow, runGit, isValidPath }) {
             });
             const t = await tr.json();
             if (t.access_token) {
-              session.token = t.access_token;
-              const stored = await persistToken(t.access_token);
+              const stored = await applyTokens(t);
               notify({ state: 'connected', profile: await loadProfile(), stored });
               return;
             }
