@@ -55,3 +55,15 @@ Metinler [[i18n]]: `src/i18n/uiTextScm.ts` (8 dil).
 
 ### Geçmiş konumu ve grafik (28.11.2026)
 Geçmiş bölümü `mt-auto` sarmalayıcıda: kapalıyken panelin dibinde; açılınca `scrollIntoView` ile görünüme gelir. `GitHistory.tsx`: 48 px satır, 16 px şerit aralığı, 2 px çizgi (`shapeRendering=geometricPrecision`); yerel dal etiketi şerit rengiyle dolgulu, uzak dal çerçeveli bulut etiketi; +/− rozeti yarı saydam zeminde.
+
+### Satır yüksekliği ve kaydırma (28.11.2026)
+`GitHistory` satırı sabit 66 px (`overflow-hidden`): şerit çizgileri her satırda aynı yükseklikte bittiği için kopmaz. Panel kökünde `no-scrollbar` (yalnız çubuk gizli, kaydırma açık); tek görünen çubuk geçmişin kendi `ResizableBody` çubuğu.
+
+### Editör işaret şeritleri (28.11.2026)
+Kenar işaretleri Monaco'nun satır hücresi içinde `::before` (eklenen/değişen çubuk, 3 px, `inset-block:0`) ve `::after` (silinen, üçgen) olarak çizilir; `.monaco-editor` öneki Monaco'nun kendi konumlandırmasını geçersiz kılar. Renkler: eklenen `#3fb950`, değişen `#58a6ff`, silinen `#f85149`.
+
+### Editör işaretleri tek renk (28.11.2026)
+Kenar ve kaydırma işaretleri yalnız mavi (`#58a6ff`): eklenen ve değişen satır `nova-gd-mod` çubuğu, silinen yer aynı renkte üçgen. Yeşil/kırmızı yalnız yan yana fark ekranında (`editorTheme.ts`).
+
+### Commit açılışı (28.11.2026)
+Dosya listesi `GitHistory`'de `grid-template-rows 0fr↔1fr` + opaklık (`--dur-slow`, `--ease-out-soft`), kapalıyken `inert`. Dosya satırı 26 px, durum harfi `bg-white/[0.07]` etiket, `gap-2`.

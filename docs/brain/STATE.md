@@ -40,13 +40,13 @@
 | `electron-debug.cjs` | 240 |
 | `electron-ext.cjs` | 341 |
 | `electron-git.cjs` | 452 |
-| `electron-github.cjs` | 397 |
+| `electron-github.cjs` | 423 |
 | `electron-gitignore.cjs` | 65 |
 | `electron-history.cjs` | 171 |
 | `electron-lsp.cjs` | 301 |
 | `electron-main.cjs` | 852 |
 | `electron-paths.cjs` | 134 |
-| `electron-preload.cjs` | 291 |
+| `electron-preload.cjs` | 293 |
 | `electron-preview.cjs` | 78 |
 | `electron-pty.cjs` | 237 |
 | `electron-search.cjs` | 289 |
@@ -64,7 +64,7 @@
 |---|---|
 | `src/App.tsx` | 2526 |
 | `src/main.tsx` | 30 |
-| `src/types.ts` | 521 |
+| `src/types.ts` | 531 |
 
 ### Bileşenler
 | Dosya | Satır |
@@ -76,7 +76,7 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 166 |
-| `src/components/CommitHistoryMenu.tsx` | 259 |
+| `src/components/CommitHistoryMenu.tsx` | 331 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugConsolePanel.tsx` | 89 |
@@ -86,9 +86,9 @@
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitHistory.tsx` | 126 |
-| `src/components/GitPanel.tsx` | 931 |
-| `src/components/GithubAccount.tsx` | 137 |
+| `src/components/GitHistory.tsx` | 355 |
+| `src/components/GitPanel.tsx` | 942 |
+| `src/components/GithubAccount.tsx` | 161 |
 | `src/components/HoverTip.tsx` | 49 |
 | `src/components/KeybindingsEditor.tsx` | 146 |
 | `src/components/LandingPage.tsx` | 180 |
@@ -133,7 +133,7 @@
 | `src/services/debugEditor.ts` | 57 |
 | `src/services/debugStore.ts` | 152 |
 | `src/services/editorBridge.ts` | 108 |
-| `src/services/editorTheme.ts` | 110 |
+| `src/services/editorTheme.ts` | 130 |
 | `src/services/extensionsService.ts` | 220 |
 | `src/services/gitExplain.ts` | 18 |
 | `src/services/gitGraph.ts` | 58 |
@@ -173,7 +173,7 @@
 | `src/i18n/uiTextComp.ts` | 347 |
 | `src/i18n/uiTextDev.ts` | 379 |
 | `src/i18n/uiTextRemote.ts` | 180 |
-| `src/i18n/uiTextScm.ts` | 300 |
+| `src/i18n/uiTextScm.ts` | 333 |
 | `src/i18n/uiTextTheme.ts` | 1136 |
 
 ### Betikler
@@ -250,8 +250,8 @@
 | dialog | `dialog:openFiles`, `dialog:openFolder` |
 | ext | `ext:checkUpdates`, `ext:details`, `ext:install`, `ext:list`, `ext:search`, `ext:uninstall` |
 | fs | `fs:createFile`, `fs:createFolder`, `fs:deleteItem`, `fs:readDataUrl`, `fs:readDir`, `fs:readFile`, `fs:renameItem`, `fs:writeFile` |
-| git | `git:amend`, `git:branches`, `git:checkout`, `git:checkoutRef`, `git:commit`, `git:commitFiles`, `git:createBranch`, `git:createBranchFrom`, `git:createTag`, `git:deleteBranch`, `git:deleteTag`, `git:diffFile`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:merge`, `git:mergeAbort`, `git:mergeContinue`, `git:pull`, `git:push`, `git:pushTag`, `git:refs`, `git:resolve`, `git:stage`, `git:stageAll`, `git:stashApply`, `git:stashDrop`, `git:stashList`, `git:stashPop`, `git:stashPush`, `git:status`, `git:sync`, `git:undoCommit`, `git:unstage` |
-| github | `github:cancel`, `github:copyCode`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
+| git | `git:amend`, `git:branches`, `git:checkout`, `git:checkoutRef`, `git:commit`, `git:commitFiles`, `git:copyHash`, `git:createBranch`, `git:createBranchFrom`, `git:createTag`, `git:deleteBranch`, `git:deleteTag`, `git:diffFile`, `git:discard`, `git:fetch`, `git:init`, `git:log`, `git:merge`, `git:mergeAbort`, `git:mergeContinue`, `git:pull`, `git:push`, `git:pushTag`, `git:refs`, `git:resolve`, `git:stage`, `git:stageAll`, `git:stashApply`, `git:stashDrop`, `git:stashList`, `git:stashPop`, `git:stashPush`, `git:status`, `git:sync`, `git:undoCommit`, `git:unstage` |
+| github | `github:cancel`, `github:commitAuthor`, `github:copyCode`, `github:createPr`, `github:login`, `github:logout`, `github:openExternal`, `github:publishRepo`, `github:repoInfo`, `github:status` |
 | history | `history:clear`, `history:config`, `history:deleted`, `history:list`, `history:read` |
 | lsp | `lsp:notify`, `lsp:request`, `lsp:start`, `lsp:status` |
 | preview | `preview:drop`, `preview:put` |
@@ -270,7 +270,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `analytics:set-lang`, `analytics:track`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1098 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1109 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 117 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

@@ -48,3 +48,14 @@ Cihaz akışındaki kopyala düğmesi renderer'daki `navigator.clipboard` ile ba
 
 ### Satır sayısı rozeti (21.11.2026)
 Eklenen/silinen satır artık her commit'in başlık satırında sağda `+N −M` rozeti (mono, yeşil/kırmızı). Eski ana süreç (yeniden başlatılmamış) `added` alanı döndürmez; menü bunu algılayıp "uygulamayı yeniden başlat" uyarısını (`histNeedRestart`) gösterir. Ana süreç dosyaları (`electron-*.cjs`) değişince `electron:dev` yeniden başlatılmalı: sıcak yeniden yükleme yok.
+
+## Commit ağacı görünümü (28.11.2026)
+`GitHistory.tsx`: satır sabit 66 px (`overflow-hidden`), dal çizgileri satırlar arasında kopmaz; yerel dal etiketi şerit renginde dolgulu, uzak dal çerçeveli bulut etiketi; `+N −M` rozeti. Dosya listesi commit açılınca yumuşakça açılır (`renderFiles`, GitPanel'den gelir).
+
+Commit satırı hover zemini `mx-1` ile kenardan içeri alındı (`w-[calc(100%-8px)]`), şeffaf zemin içeriğe göre daralır.
+
+Commit satırı sabit 56 px (önceki 66): üst/alt dolgu 3 px, dal etiketi 16 px yüksekliğinde. İçerik bu yüksekliğe sığar, şerit çizgisi kopmaz.
+
+Commit açıldığında dosya satırları sadeleşti: ikon + ad (klasör yok, tam yol başlıkta) + `+N −M` + durum harfi, 22 px. Dal etiketi en fazla iki, uzak dal etiketinde yalnız dal adı (`origin/` kırpılır), tam ad başlıkta.
+
+Açık commit'in altındaki dal şeritleri artık SVG `line` yerine `div` (`absolute top-0 bottom-0 w-[2px]`) ile çizilir: yükseklik dosya listesine göre oluşur ve bir sonraki commit'in üst şeridine kesintisiz bağlanır. Eski SVG'de `y2=100%` yüksekliği bazı durumlarda oturmadığı için şerit kopuyordu.

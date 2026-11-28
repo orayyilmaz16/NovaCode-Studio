@@ -252,12 +252,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     status: () => ipcRenderer.invoke('github:status'),
     login: () => ipcRenderer.invoke('github:login'),
     copyCode: () => ipcRenderer.invoke('github:copyCode'),
+    copyHash: (hash) => ipcRenderer.invoke('git:copyHash', hash),
     cancel: () => ipcRenderer.invoke('github:cancel'),
     logout: () => ipcRenderer.invoke('github:logout'),
     repoInfo: (repoPath) => ipcRenderer.invoke('github:repoInfo', repoPath),
     createPr: (repoPath, input) => ipcRenderer.invoke('github:createPr', repoPath, input),
     publishRepo: (repoPath, input) => ipcRenderer.invoke('github:publishRepo', repoPath, input),
     openExternal: (url) => ipcRenderer.invoke('github:openExternal', url),
+    commitAuthor: (repoPath, hash) => ipcRenderer.invoke('github:commitAuthor', repoPath, hash),
     onAuth: (callback) => {
       const listener = (_event, data) => callback(data);
       ipcRenderer.on('github:auth', listener);

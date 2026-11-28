@@ -221,6 +221,12 @@ function register({ getWindow, runGit, isValidPath }) {
   });
 
   // Kopyala düğmesi: renderer'daki navigator.clipboard Electron'da izin/odak yüzünden başarısız olabilir; bekleyen kod ana süreçten kopyalanır (rastgele metin yazılamaz).
+  // Commit karmasını panoya kopyalar. Renderer'da navigator.clipboard izin politikası yüzünden reddediliyor (setPermissionRequestHandler tüm izinleri kapatır); bu yüzden ana süreçten yazılır. Yalnız kısa, hex metin kabul edilir.
+  ipcMain.handle('git:copyHash', (_e, hash) => {
+    if (typeof hash !== 'string' || !/^[0-9a-f]{4,40}$/i.test(hash)) return { success: false };
+    try { clipboard.writeText(hash); return { success: true }; } catch { return { success: false }; }
+  });
+
   ipcMain.handle('github:copyCode', () => {
     if (!pendingUserCode) return { success: false };
     try { clipboard.writeText(pendingUserCode); return { success: true }; } catch { return { success: false }; }
@@ -362,6 +368,26 @@ function register({ getWindow, runGit, isValidPath }) {
   });
 
   // Açık deponun GitHub'daki canlı durumu: açık PR sayısı, son Actions koşuları.
+  // Commit yazarının GitHub profili (login, avatar, ad). Yalnız bağlı hesapla ve origin GitHub ise; hash doğrulanır.
+  ipcMain.handle('github:commitAuthor', async (_e, repoPath, hash) => {
+    if (!session.token || !isValidPath(repoPath) || typeof hash !== 'string' || !/^[0-9a-f]{4,40}$/i.test(hash)) return null;
+    const remote = await runGit(['remote', 'get-url', 'origin'], repoPath);
+    const parsed = remote.success ? parseRemote(remote.stdout) : null;
+    if (!parsed) return null;
+    try {
+      const c = await api(`/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}/commits/${hash}`);
+      const u = c?.author;
+      return {
+        login: u?.login ?? null,
+        avatarUrl: u?.avatar_url ?? null,
+        profileUrl: u?.html_url ?? null,
+        name: c?.commit?.author?.name ?? null
+      };
+    } catch {
+      return null;
+    }
+  });
+
   ipcMain.handle('github:repoInfo', async (_e, repoPath) => {
     if (!session.token || !isValidPath(repoPath)) return { available: false };
     const remote = await runGit(['remote', 'get-url', 'origin'], repoPath);

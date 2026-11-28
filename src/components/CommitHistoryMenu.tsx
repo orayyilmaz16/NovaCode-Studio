@@ -1,12 +1,26 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { GitBranch, GitCommitHorizontal, ExternalLink, RefreshCcw, ArrowDown, ArrowUp, PanelLeftOpen, PanelLeftClose, UserRound, Clock, ChevronRight, FilePlus2, FileMinus2, FilePen, FileSymlink } from 'lucide-react';
+import { GitBranch, GitCommitHorizontal, ExternalLink, RefreshCcw, ArrowDown, ArrowUp, PanelLeftOpen, PanelLeftClose, UserRound, Clock, Copy, Check } from 'lucide-react';
+import { FileTypeIcon } from './FileTypeIcon';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
-import type { GitCommitFile, GitCommitInfo, GithubRepoInfo } from '../types';
+import { GitHistory, mineAvatar } from './GitHistory';
+import { useGithubAuth } from '../services/useGithubAuth';
+import type { GitCommitFile, GitCommitInfo, GithubCommitAuthor, GithubRepoInfo } from '../types';
 
-// Durum çubuğundaki commit geçmişi menüsü (VS Code "Source Control Graph" benzeri, sade liste):
-// dal + uzak depo bilgisi üstte, son commit'ler altta (kısa karma, mesaj, yazar, zaman, dal/etiket rozetleri).
+// Avatar küçük (s=32) indirilir: hızlı yükleme
+const avatarSmall = (url: string) => {
+  try {
+    const u = new URL(url);
+    u.searchParams.set('s', '32');
+    return u.toString();
+  } catch {
+    return url;
+  }
+};
+
+const initialsOf = (name: string) => (name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('') || '?').toUpperCase();
+
 interface Props {
   anchor: { x: number; y: number };
   repo: string;
@@ -20,26 +34,68 @@ interface Props {
   onOpenGit: () => void;
 }
 
-const STATUS: Record<string, { Icon: React.ElementType; tone: string }> = {
-  A: { Icon: FilePlus2, tone: 'text-emerald-400' },
-  D: { Icon: FileMinus2, tone: 'text-rose-400' },
-  R: { Icon: FileSymlink, tone: 'text-sky-400' },
-  C: { Icon: FileSymlink, tone: 'text-sky-400' },
-};
-const statusOf = (code: string) => STATUS[code] ?? { Icon: FilePen, tone: 'text-amber-300' };
+// Durum harfi rengi (git paneliyle aynı anlam): A yeşil, D kırmızı, R/C mavi, diğer sarı
+const STATUS_TONE: Record<string, string> = { A: 'text-emerald-400', D: 'text-rose-400', R: 'text-sky-400', C: 'text-sky-400' };
+const statusTone = (code: string) => STATUS_TONE[code] ?? 'text-amber-300';
 
-const initials = (name: string) => (name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('') || '?').toUpperCase();
-
+/**
+ * Durum çubuğundaki commit geçmişi menüsü. Liste, git panelindeki GitHistory grafıyla aynıdır
+ * (dal şeritleri, birleştirme halkaları, açılır ayrıntılar); ayrıca hover kartı bu menüde kapalıdır.
+ */
 export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRemote, ahead, behind, gitPanelOpen, onClose, onOpenGit }) => {
   const api = window.electronAPI;
+  const { auth } = useGithubAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [commits, setCommits] = useState<GitCommitInfo[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [info, setInfo] = useState<GithubRepoInfo | null>(null);
   const [loading, setLoading] = useState(false);
-  // Açılır/kapanır commit satırları: açılınca o commit'in dosyaları (dosya başına +/−) yüklenir ve önbelleğe alınır
-  const [open, setOpen] = useState<Record<string, boolean>>({});
+  // Tek açık commit (git paneliyle aynı davranış); dosyalar açılınca yüklenir ve önbelleğe alınır
+  const [openCommit, setOpenCommit] = useState<string | null>(null);
   const [files, setFiles] = useState<Record<string, GitCommitFile[] | 'error'>>({});
+  // GitHub yazar profili: hash başına, satıra gelince istenir; önbellek yalnız bu menünün ömründe
+  const [profiles, setProfiles] = useState<Record<string, GithubCommitAuthor | null>>({});
+  const [copied, setCopied] = useState<{ hash: string; ok: boolean } | null>(null);
+  const requested = useRef(new Set<string>());
+  const copyTimer = useRef<number | undefined>(undefined);
+
+  const fetchAuthor = useCallback((hash: string) => {
+    if (!api?.github?.commitAuthor || !hasRemote) return Promise.resolve(null);
+    return api.github.commitAuthor(repo, hash);
+  }, [api, repo, hasRemote]);
+
+  const loadProfile = useCallback((hash: string) => {
+    if (!api?.github?.commitAuthor || !hasRemote || requested.current.has(hash)) return;
+    requested.current.add(hash);
+    void fetchAuthor(hash)
+      .then((p) => {
+        if (p?.avatarUrl) new Image().src = avatarSmall(p.avatarUrl);
+        setProfiles((m) => ({ ...m, [hash]: p }));
+      })
+      .catch(() => setProfiles((m) => ({ ...m, [hash]: null })));
+  }, [api, hasRemote, fetchAuthor]);
+
+  const copyHash = async (hash: string) => {
+    // Önce ana süreç (pano izni gerektirmez), olmazsa tarayıcı panosu; sonucu düğmede göster
+    let ok = false;
+    try {
+      ok = !!(await api?.github?.copyHash(hash))?.success;
+    } catch (err) {
+      console.warn('[git] copyHash başarısız:', err);
+    }
+    if (!ok) {
+      try {
+        await navigator.clipboard.writeText(hash);
+        ok = true;
+      } catch (err) {
+        console.warn('[git] pano yazılamadı:', err);
+      }
+    }
+    setCopied({ hash, ok });
+    window.clearTimeout(copyTimer.current);
+    copyTimer.current = window.setTimeout(() => setCopied(null), 1500);
+  };
+  useEffect(() => () => window.clearTimeout(copyTimer.current), []);
 
   const load = useCallback(async () => {
     if (!api?.gitLog) { setFailed(true); setCommits([]); return; }
@@ -58,17 +114,17 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
 
   useEffect(() => { void load(); }, [load]);
 
-  const toggle = async (hash: string) => {
-    const next = !open[hash];
-    setOpen((m) => ({ ...m, [hash]: next }));
-    if (!next || files[hash] || !api?.gitCommitFiles) return;
-    try {
-      const r = await api.gitCommitFiles(repo, hash);
-      setFiles((m) => ({ ...m, [hash]: r.success ? r.files : 'error' }));
-    } catch {
-      setFiles((m) => ({ ...m, [hash]: 'error' }));
-    }
+  const toggle = (hash: string) => {
+    const next = openCommit === hash ? null : hash;
+    setOpenCommit(next);
+    if (!next) return;
+    loadProfile(hash);
+    if (files[hash] || !api?.gitCommitFiles) return;
+    api.gitCommitFiles(repo, hash)
+      .then((r) => setFiles((m) => ({ ...m, [hash]: r.success ? r.files : 'error' })))
+      .catch(() => setFiles((m) => ({ ...m, [hash]: 'error' })));
   };
+
   useEffect(() => {
     if (!hasRemote || !api?.github?.repoInfo) return;
     let alive = true;
@@ -89,6 +145,95 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
   const remoteName = info?.available && info.fullName ? info.fullName : null;
   const openGit = () => { onClose(); onOpenGit(); };
 
+  // Açılan commit: düzenli blok. Üstte karma + kopyala, sonra tarih, yazar (fotoğraf, ad, profil), birleştirmede üst commit'ler; altta değişen dosyalar
+  const renderDetails = (hash: string) => {
+    const c = commits?.find((x) => x.hash === hash);
+    if (!c) return null;
+    const p = profiles[hash];
+    const avatar = mineAvatar(c.author, auth.profile) ?? p?.avatarUrl ?? null;
+    const isCopied = copied?.hash === hash;
+    const list = files[hash];
+    const count = Array.isArray(list) ? list.length : null;
+    return (
+      <div className="ms-1 me-2 mb-2 min-w-0 overflow-hidden rounded-md border border-white/[0.06] bg-white/[0.03]">
+        <div className="px-2.5 py-2 flex flex-col gap-1.5 min-w-0 border-b border-white/[0.06]">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-mono text-[11px] text-zinc-200 truncate">{c.hash}</span>
+            <button
+              type="button"
+              onClick={() => void copyHash(hash)}
+              className={`shrink-0 inline-flex items-center gap-1 h-[18px] px-1.5 rounded hover:bg-white/[0.08] transition-colors text-[10.5px] ${isCopied ? (copied?.ok ? 'text-emerald-400' : 'text-rose-400') : 'text-zinc-400'}`}
+            >
+              {isCopied && copied?.ok ? <Check size={11} /> : <Copy size={11} />}
+              {isCopied ? t(copied?.ok ? 'histCardCopied' : 'histCardCopyFailed') : t('histCardCopy')}
+            </button>
+          </div>
+          <div className="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 items-center text-[11px] min-w-0">
+            <span className="text-zinc-500">{t('histCardDate')}</span>
+            <span className="text-zinc-300 truncate">{c.ts ? new Date(c.ts).toLocaleString() : c.when}</span>
+            <span />
+            <span className="flex items-center gap-1.5 min-w-0">
+              {avatar ? (
+                <img src={avatarSmall(avatar)} alt="" width={16} height={16} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="size-4 rounded-full object-cover shrink-0" />
+              ) : (
+                <span aria-hidden className="grid place-items-center size-4 rounded-full text-[7px] font-semibold text-zinc-950 shrink-0 bg-zinc-400">{initialsOf(c.author)}</span>
+              )}
+              <span className="truncate text-zinc-200">{p?.login ? `@${p.login}` : c.author}</span>
+              {p?.profileUrl && (
+                <button type="button" onClick={() => void api?.github?.openExternal(p.profileUrl!)} className="shrink-0 inline-flex items-center gap-1 h-[18px] px-1.5 rounded hover:bg-white/[0.08] text-zinc-400 text-[10.5px]">
+                  <ExternalLink size={10} />{t('histCardOpenProfile')}
+                </button>
+              )}
+            </span>
+            {c.parents && c.parents.length > 1 && (
+              <>
+                <span className="text-zinc-500">{t('histCardMerge')}</span>
+                <span className="font-mono text-zinc-400 truncate">{c.parents.map((x) => x.slice(0, 7)).join(' ')}</span>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="px-1.5 py-1.5">
+          <div className="px-1 pb-1 text-[10.5px] uppercase tracking-wide text-zinc-500">
+            {t('histChangedFiles')}{count !== null ? ` · ${count}` : ''}
+          </div>
+          <div className="max-h-48 overflow-y-auto overflow-x-hidden">
+            {!list ? (
+              <div className="px-1 py-1 text-[11px] text-zinc-500">{t('histLoading')}</div>
+            ) : list === 'error' ? (
+              <div className="px-1 py-1 text-[11px] text-rose-300">{t('histError')}</div>
+            ) : (
+              <div className="flex flex-col gap-px">
+                {list.map((f) => {
+                  const cut = Math.max(f.path.lastIndexOf('/'), f.path.lastIndexOf('\\'));
+                  const name = f.path.slice(cut + 1);
+                  const dir = cut > 0 ? f.path.slice(0, cut) : '';
+                  return (
+                    <div key={f.path} className="flex items-center gap-1.5 h-6 px-1 rounded hover:bg-white/[0.05] text-[11.5px] min-w-0" title={f.orig ? `${f.orig} → ${f.path}` : f.path}>
+                      <FileTypeIcon name={name} size={13} />
+                      <span className="text-zinc-200 truncate shrink min-w-0 max-w-[55%]">{name}</span>
+                      {dir && <span className="text-[10.5px] text-zinc-500 truncate min-w-0 flex-1">{dir}</span>}
+                      {!dir && <span className="flex-1" />}
+                      {f.binary ? (
+                        <span className="shrink-0 text-[10px] text-zinc-500">bin</span>
+                      ) : (
+                        <span className="shrink-0 font-mono text-[10px] tabular-nums flex items-center gap-1">
+                          {f.added ? <span className="text-emerald-400">+{f.added}</span> : null}
+                          {f.deleted ? <span className="text-rose-400">−{f.deleted}</span> : null}
+                        </span>
+                      )}
+                      <span className={`shrink-0 w-3.5 text-center font-mono text-[10px] font-semibold ${statusTone(f.status)}`}>{f.status}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-[70] app-no-drag" onMouseDown={onClose}>
       <div
@@ -98,10 +243,10 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
         aria-label={t('histTitle')}
         onMouseDown={(e) => e.stopPropagation()}
         style={{ left, bottom, width: W, maxHeight: `min(460px, calc(100vh - ${bottom + 16}px))` }}
-        className="absolute max-w-[calc(100vw-16px)] flex flex-col overflow-hidden rounded-[var(--frame-r)] border border-nv-border bg-nv-side float-card animate-dialog outline-none text-zinc-300"
+        className="absolute max-w-[calc(100vw-16px)] flex flex-col overflow-hidden min-w-0 rounded-[var(--frame-r)] border border-nv-border bg-nv-side float-card animate-dialog outline-none text-zinc-300"
       >
         <div className="flex items-center gap-2.5 px-3.5 py-2.5 border-b border-nv-border shrink-0">
-          <span className="size-7 rounded-md bg-nv-active flex items-center justify-center shrink-0"><GitCommitHorizontal size={15} className="text-indigo-300" /></span>
+          <span className="size-7 flex items-center justify-center shrink-0"><GitCommitHorizontal size={16} className="text-indigo-300" /></span>
           <div className="min-w-0 flex-1 leading-tight">
             <div className="text-[13px] font-semibold text-zinc-100 truncate">{t('histTitle')}</div>
             <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-400 min-w-0">
@@ -144,7 +289,7 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
           )}
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto py-1" role="list">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden py-1">
           {commits === null ? (
             <div className="px-3.5 py-6 text-center text-xs text-zinc-500">{t('histLoading')}</div>
           ) : failed ? (
@@ -153,92 +298,19 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
             <div className="px-3.5 py-6 text-center text-xs text-zinc-500">{t('histEmpty')}</div>
           ) : (
             <>
-            {commits.every((c) => c.added === undefined) && (
-              <div className="mx-3.5 mb-1 px-2 py-1 rounded bg-amber-500/10 text-[11px] text-amber-300">{t('histNeedRestart')}</div>
-            )}
-            {commits.map((c, i) => (
-              <div key={c.hash} role="listitem" className="animate-fade-in" style={{ animationDelay: `${Math.min(i, 8) * 20}ms` }}>
-              <button
-                onClick={() => void toggle(c.hash)}
-                aria-expanded={!!open[c.hash]}
-                title={`${c.hash} — ${c.subject}`}
-                className="group w-full text-start flex items-start gap-2.5 px-3.5 py-1.5 hover:bg-nv-hover focus-visible:bg-nv-hover focus-visible:outline-none transition-colors"
-              >
-                <span className="flex flex-col items-center self-stretch shrink-0 pt-1.5">
-                  <span className={`size-2 rounded-full transition-colors ${i === 0 ? 'bg-indigo-400' : 'bg-zinc-500 group-hover:bg-zinc-300'}`} />
-                  {i < commits.length - 1 && <span className="flex-1 w-px bg-nv-border mt-1" />}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1 min-w-0">
-                    <span className="text-[12.5px] text-zinc-200 truncate flex-1">{c.subject}</span>
-                    {c.added !== undefined && (
-                      <span
-                        className="shrink-0 inline-flex items-center gap-1.5 h-[18px] px-1.5 rounded bg-black/20 font-mono text-[11px] tabular-nums"
-                        title={`${t('histAddedTip').replace('{n}', String(c.added))} · ${t('histDeletedTip').replace('{n}', String(c.deleted ?? 0))}${c.files ? ` · ${t('histFilesTip').replace('{n}', String(c.files))}` : ''}`}
-                      >
-                        <span className="text-emerald-400">+{c.added}</span>
-                        <span className="text-rose-400">−{c.deleted ?? 0}</span>
-                      </span>
-                    )}
-                    <ChevronRight size={13} className={`shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open[c.hash] ? 'rotate-90' : ''}`} />
-                  </span>
-                  <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-500 min-w-0">
-                    <span className="size-4 rounded-full bg-zinc-700/70 text-[8px] leading-4 text-center text-zinc-300 font-semibold shrink-0">{initials(c.author)}</span>
-                    <span className="truncate">{c.author}</span>
-                    <span className="shrink-0" title={c.ts ? new Date(c.ts).toLocaleString() : undefined}>· {c.ts ? timeAgo(c.ts) : c.when}</span>
-                    <span className="font-mono shrink-0 ms-auto">{c.hash}</span>
-                  </span>
-                  {c.refs && c.refs.length > 0 && (
-                    <span className="mt-1 flex flex-wrap gap-1">
-                      {c.refs.slice(0, 4).map((r) => {
-                        const remote = r.includes('/');
-                        return (
-                          <span key={r} className={`inline-flex items-center gap-1 h-4 px-1.5 rounded-full text-[10px] max-w-[160px] ${remote ? 'bg-zinc-700/50 text-zinc-400' : 'bg-indigo-500/15 text-indigo-300'}`}>
-                            {remote ? null : <GitBranch size={9} className="shrink-0" />}
-                            <span className="truncate">{r}</span>
-                          </span>
-                        );
-                      })}
-                    </span>
-                  )}
-                </span>
-              </button>
-              <div className="cm-collapse" data-open={!!open[c.hash]} aria-hidden={!open[c.hash]}>
-                <div>
-                  <div className="ms-[30px] me-3.5 mb-1.5 ps-2.5 border-s border-nv-border max-h-48 overflow-y-auto">
-                    {!files[c.hash] ? (
-                      <div className="py-1 text-[11px] text-zinc-500">{t('histLoading')}</div>
-                    ) : files[c.hash] === 'error' ? (
-                      <div className="py-1 text-[11px] text-rose-300">{t('histError')}</div>
-                    ) : (
-                      (files[c.hash] as GitCommitFile[]).map((f) => {
-                        const { Icon, tone } = statusOf(f.status);
-                        const cut = Math.max(f.path.lastIndexOf('/'), f.path.lastIndexOf('\\'));
-                        const name = f.path.slice(cut + 1);
-                        const dir = cut > 0 ? f.path.slice(0, cut) : '';
-                        return (
-                          <div key={f.path} className="flex items-center gap-1.5 h-[22px] text-[11.5px] min-w-0" title={f.orig ? `${f.orig} → ${f.path}` : f.path}>
-                            <Icon size={12} className={`shrink-0 ${tone}`} />
-                            <span className="text-zinc-300 truncate shrink-0 max-w-[55%]">{name}</span>
-                            {dir && <span className="text-zinc-600 truncate min-w-0 flex-1">{dir}</span>}
-                            {!dir && <span className="flex-1" />}
-                            {f.binary ? (
-                              <span className="shrink-0 text-[10px] text-zinc-500">bin</span>
-                            ) : (
-                              <span className="shrink-0 font-mono tabular-nums flex items-center gap-1.5">
-                                {f.added ? <span className="text-emerald-400">+{f.added}</span> : null}
-                                {f.deleted ? <span className="text-rose-400">−{f.deleted}</span> : null}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-              </div>
-              </div>
-            ))}
+              {commits.every((c) => c.added === undefined) && (
+                <div className="mx-3.5 mb-1 px-2 py-1 rounded bg-amber-500/10 text-[11px] text-amber-300">{t('histNeedRestart')}</div>
+              )}
+              <GitHistory
+                commits={commits}
+                currentBranch={branch}
+                openCommit={openCommit}
+                onToggle={toggle}
+                fetchAuthor={hasRemote ? fetchAuthor : undefined}
+                hoverCards={false}
+                me={auth.profile}
+                renderFiles={renderDetails}
+              />
             </>
           )}
         </div>

@@ -2,6 +2,24 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Commit yazarı: GitHub profili, e-posta yok)
+Yazar profili (login, avatar, ad) yalnız bağlı GitHub hesabı ve GitHub origin'iyle, `commits/{hash}` API'sinden alınır. Commit e-postası ne çekilir ne gösterilir (KVKK: üçüncü taraf avatar servisi, Gravatar gibi, kullanılmadı). Sebep: kullanıcı profil fotoğrafı ve hesap bilgisi istedi. Sonuç: bağlı değilken yalnız git kaydındaki ad ve baş harfler. Geri dönüş: `github:commitAuthor` IPC'si ve `fetchAuthor` prop'u kaldırılır. Görsel doğrulama yapılmadı.
+
+## 28.11.2026 (Commit geçmişi: tek graf bileşeni)
+Durum çubuğu commit listesi ile git paneli aynı `GitHistory` bileşenini kullanır; iki ayrı liste tasarımı tutulmaz. Sebep: tutarlılık ve tek yerden bakım. Açılan ayrıntılar yalnız açıkken hesaplanır (hızlı yükleme). Görsel ve etkileşim testi uygulamada yapılmadı; otomatik testler (npm test, 1103 kontrol) ve derleme geçti.
+
+## 28.11.2026 (GitHub hesabı: kapalıyken sıkı başlık)
+GitHub hesabı bloğu açılır başlıkla çalışır; kapalıyken yalnız başlık satırı kalsın diye dolgu açılır içeriğe taşındı. Sebep: kapalıyken altta boşluk kalıyordu. Kaynak: kullanıcı bildirimi. Görsel doğrulama yapılmadı.
+
+## 28.11.2026 (Git paneli: her bölüm açılır liste)
+Commit, GitHub canlı durum, PR ve Yayınla blokları da `Section` ile açılır liste oldu; geçmiş dipte sabitlenmiyor. Sebep: kullanıcı isteği; kapalı bölümler yer açsın, geçmiş yukarı çıksın. Durum yerel tercih olarak saklanır. Geri dönüş: bölümler eski blokları yerine koyup `mt-auto` eklemek. Görsel doğrulama yapılmadı.
+
+## 28.11.2026 (Git geçmişi: commit ayrıntı kartı)
+Commit üzerine gelince yerel `title` ipucu yerine zengin bir kart açılır (portal, sabit konum, gecikme 350 ms). Sebep: kullanıcı ayrıntılı ve güzel bir görünüm istedi. Gövde metni eklenmedi (log biçimi değişmesin diye); sonraki adım olarak düşünülebilir. Kaynak: kullanıcı isteği. Görsel doğrulama yapılmadı.
+
+## 28.11.2026 (Git grafı: açılan commit hizası)
+Açılan commit'in dal şeritleri commit düğmesiyle aynı yatay ofsette (`mx-1`) çizilir. Sebep: 4 px kayma, açılınca çizginin kopması. Kaynak: kullanıcı bildirimi (NovaCode geçmişi). Görsel doğrulama yapılmadı; tsc temiz.
+
 ## 28.11.2026 (GitHub oturumu: yenileme token'ı)
 Süreli OAuth token'ları (yenileme token'lı) desteklendi; 401 gelince oturumu hemen silmek yerine önce yenileme denenir. Sebep: kısa süreli oturum düşmeleri. Kaynak: kullanıcı bildirimi. Gerçek GitHub hesabıyla doğrulanmadı.
 
@@ -235,3 +253,6 @@ Karar (kurucu talimatı): sunucuya token korumalı Prometheus `/metrics` ve sunu
 
 ## 27.11.2026 — Bütçe, paket bölme, auto-release idempotansı, senkron metriği izleyiciye bağlandı
 Karar (kurucu tam yetkiyle): (1) CSS bütçesi 150 KB, JS giriş parçası `manualChunks` ile bölündü (654 → 434 KB). (2) `auto-release.yml` aynı sürüm dalı için açık PR varsa yeni PR açmaz, çakışıyorsa yeniden üretir (yarış hatası #126). (3) `/metrics` izleyiciye bağlandı; ek secret `NOVA_SYNC_METRICS_TOKEN` (= sunucu token'ı, yalnız Actions'ta). Risk: sunucu token'ı bir secret olarak GitHub'da da durur; sunucu tek token tanıdığı için ayrı salt-okunur token yok. Geri dönüş: secret'ı sil (izleme yalnız sağlık adresine döner).
+
+## 28.11.2026 — Git gösterimi tek mavi işaret ve sıkı commit görünümü
+Karar (kurucu): editör kenarı ve kaydırma çubuğundaki git değişiklikleri yalnız mavi gösterilir (yeşil/kırmızı yok). Yan yana fark ekranı VS Code renklerini korur. Commit ağacı ve dosya listesi kompakt tutulur; geçmiş panelin dibinde durur.

@@ -7,8 +7,8 @@ Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 | Alan | Bulgu |
 |---|---|
 | Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 28 |
-| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 78 |
-| Kalite | kritik 0 · yüksek 0 · orta 3 · düşük 12 |
+| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 80 |
+| Kalite | kritik 0 · yüksek 0 · orta 4 · düşük 12 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
@@ -20,7 +20,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
 | orta | SEC-HTML | `src/components/Preview.tsx:184` | Ham HTML basımı; DOMPurify ile temizlendiğini doğrula |
-| orta | SEC-OPENEXT | `electron-github.cjs:252,307` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
+| orta | SEC-OPENEXT | `electron-github.cjs:258,313` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
 | orta | SEC-OPENEXT | `electron-main.cjs:70` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | orta | SEC-OPENEXT | `electron-update.cjs:168` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | düşük | SEC-HTTP | `electron-ai.cjs:118` | Şifresiz http:// adresi |
@@ -28,7 +28,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | SEC-IPC-NOEVT | `electron-ai.cjs:965,968,982` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-analytics.cjs:139,141,142` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-ext.cjs:318,329` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (2×) |
-| düşük | SEC-IPC-NOEVT | `electron-github.cjs:211,224,230…(+2)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (5×) |
+| düşük | SEC-IPC-NOEVT | `electron-github.cjs:211,230,236…(+2)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (5×) |
 | düşük | SEC-IPC-NOEVT | `electron-main.cjs:449,464,514` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-pty.cjs:219` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-search.cjs:245` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
@@ -44,7 +44,8 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-DYN-RE | `src/services/testParse.ts:53,62,70` | Döngüde dinamik RegExp üretimi olabilir (3×) |
 | düşük | PERF-LS-WRITE | `src/App.tsx:1587` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
-| düşük | PERF-LS-WRITE | `src/components/GitPanel.tsx:187` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/components/GithubAccount.tsx:28` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/components/GitPanel.tsx:186,198` | localStorage yazımı: sık tetikleniyorsa debounce et (2×) |
 | düşük | PERF-LS-WRITE | `src/components/ResizableBody.tsx:20` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ResizeHandle.tsx:63` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/services/aiClient.ts:130` | localStorage yazımı: sık tetikleniyorsa debounce et |
@@ -74,6 +75,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 |---|---|---|---|
 | orta | Q-I18N-HARD | `src/App.tsx:122` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
+| orta | Q-I18N-HARD | `src/components/GitHistory.tsx:207` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | düşük | Q-ANY | `src/App.tsx:803` | `any` kullanımı (strict tip güvenliği) |
 | düşük | Q-ANY | `src/components/EditorArea.tsx:78,162,324…(+2)` | `any` kullanımı (strict tip güvenliği) (5×) |
@@ -83,5 +85,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 932, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3029 KB; en büyük: index-a_9Nuwgc.js 445 KB, PtyView-D1H7sTst.js 327 KB, react-vendor-BkhGS2g8.js 206 KB, fileIconLoaders-DMMUOAoz.js 184 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/GitPanel.tsx` 943, `src/components/FileTree.tsx` 942, `electron-main.cjs` 853
+- Üretim paketi (dist varsa): toplam JS 3056 KB; en büyük: index-DtD1Cyvi.js 453 KB, PtyView-D0Ah6tA-.js 327 KB, react-vendor-DN5frQDv.js 206 KB, fileIconLoaders-CTJhsCxz.js 184 KB

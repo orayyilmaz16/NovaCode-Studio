@@ -22,6 +22,11 @@
    "sev": "orta"
   },
   {
+   "k": "Q-I18N-HARD|src/components/GitHistory.tsx",
+   "n": 1,
+   "sev": "orta"
+  },
+  {
    "k": "Q-I18N-HARD|src/components/TimelinePanel.tsx",
    "n": 1,
    "sev": "orta"
@@ -67,8 +72,13 @@
    "sev": "düşük"
   },
   {
-   "k": "PERF-LS-WRITE|src/components/GitPanel.tsx",
+   "k": "PERF-LS-WRITE|src/components/GithubAccount.tsx",
    "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/components/GitPanel.tsx",
+   "n": 2,
    "sev": "düşük"
   },
   {

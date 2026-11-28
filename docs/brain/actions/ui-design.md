@@ -170,3 +170,33 @@ Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori 
 
 ### Tamamı kapalı kategori (25.11.2026)
 `allOff(grup)` doğruysa kategori başlığı etkileşimsizdir: `AccordionMenu` satır listesine hiç girmez (ok tuşlarıyla atlanır), `disabled` + `tabIndex=-1` + `pointer-events-none`, `toggle` yok sayar; `MenuBar` başlığı `disabled`, tıklama ve üzerine gelerek menü geçişi (`onMouseEnter`) kapalı. Tekil kapalı öğeler tıklanmaz ama `title` ipucu için işaretçi olayları açık kalır.
+
+## Fark (diff) renkleri (28.11.2026)
+`services/editorTheme.ts` iki Nova temasına `diffEditor.*` ve `diffEditorGutter.*` anahtarları eklendi: eklenen satır zemini `#2ea04328`, değişen metin `#2ea04359`, silinen `#f8514928` / `#f851495c`, kaydırma işaretleri `#3fb950` / `#f85149`. Açık temada aynı anlamda daha hafif tonlar. Amaç: yan yana farkta ve editör kenar işaretlerinde VS Code ile aynı okuma.
+
+## Commit satırı: kendi fotoğrafı ve ayrıntı düzeni (28.11.2026)
+`mineAvatar(author, me)` (GitHistory'de dışa aktarılır): yazar adı veya kullanıcı adı oturum açık hesapla eşleşirse o hesabın fotoğrafı, değilse API profili. `me` prop'u GitPanel ve CommitHistoryMenu'den gelir (`useGithubAuth`). Graf x ofseti `+2` (sol kenar payı), gutter `lanes*8 + 6`. Açılan commit ayrıntısı: üstte karma + kopyala, grid'te tarih/yazar/üst commit'ler, altta "Değişen dosyalar · n" başlıklı liste (`histChangedFiles`).
+
+## Commit satırı avatarı ve dosya simgeleri (28.11.2026)
+`GitHistory` satırında `RowAvatar` (14 px; GitHub fotoğrafı `s=32`, yoksa renkli baş harfler). Profiller `IntersectionObserver` ile (`rootMargin 160px`) yalnız görünen satırlar için istenir (`data-hash`). Menüde dosya satırları `FileTypeIcon` (dil simgesi) + sondaki durum harfi (`statusTone`: A yeşil, D kırmızı, R/C mavi). Taşma: menü ve liste `min-w-0 overflow-x-hidden`.
+
+## Durum çubuğu commit geçmişi menüsü: graf (28.11.2026)
+Liste artık `GitHistory` ile çizilir (`hoverCards={false}`, menü üstünde kart açılmaz); ayrıntılar `renderDetails` ile `renderFiles` üzerinden gelir. `GitHistory` yalnız açık satırda `renderFiles` çağırır (performans); tek açık commit. Simge arka planı yok (şeffaf).
+
+## Durum çubuğu commit geçmişi menüsü (28.11.2026)
+`CommitHistoryMenu.tsx` git paneliyle aynı veri kaynaklarını kullanır: satıra gelince `github.commitAuthor` (önbellek `profiles`, hash başına, yalnız bağlı hesap + GitHub remote), açılınca tam karma + kopyala (`github.copyHash`, olmazsa `navigator.clipboard`), tam tarih, profil bağlantısı (`openExternal`), birleştirme ise üst commit'ler. Avatar `s=32` ile indirilir. Yeni metin yok; `histCardCopy/Copied/CopyFailed/OpenProfile/Merge` anahtarları kullanılır.
+
+## GitHub hesabı bloğu: açılır (28.11.2026)
+`GithubAccount.tsx` başlığı `Section` ile aynı yerleşim, ama büyük harf dönüşümü yok (yalnız ilk harfler büyük, `text-zinc-300`); açık/kapalı durumu `nova.git.account` (localStorage, "1"/"0") ile saklanır, varsayılan açık. Kapalıyken boşluk kalmaması için dikey dolgu (`pt-1 pb-2`) grid'in içindeki çocukta; dolgu 0fr satırda da yer kaplar, bu yüzden dış kapta yalnız `py-0.5`.
+
+## Git grafı: dal ayrılma/birleşme görünümü (28.11.2026)
+Şerit genişliği `LANE_W` 8 px, düğüm yarıçapı 3 px, gutter `lanes*8 + 4` (tek dal eski sıkı görünüme yakın; ayrım boşluk bırakmadan şeritlerle yapılır). Eğri (`curve`): uçlarda dikey teğetli kübik, orta yükseklikte kıvrım. Birleştirme commit'i (2+ üst) içi boş halka (`merge`), normal commit dolu nokta, HEAD çift halka. Çakışma (conflict) durumu graf düğümünde gösterilmez; çakışmalar yalnız GitPanel'in "Çakışmalar" bölümünde (commit verisinde çakışma alanı yok).
+
+## Git paneli: açılır bölümler (28.11.2026)
+Dal bölümü (`open.branch`, varsayılan açık): `Section` ile aynı başlık (`gitBranchSection`, diğer bölümlerle aynı stil; büyük harf CSS'i yok). İçerik: dal seçici, ↑↓ ve eşzamanla/çek/it/yenile düğmeleri, durum özeti, birleştirme uyarıları.
+`GitPanel` içindeki her blok `Section` (açılır liste) olur: Commit, Çakışmalar, Sahnelenenler, Değişiklikler, Stash, GitHub'da canlı durum, Pull request, Yayınla, Geçmiş. Açık/kapalı durumu `nova.git.sections` (localStorage) altında tutulur, `open` kayıtlarıyla eşleşir. `Section.count` isteğe bağlıdır; 0 ise rozet gösterilmez. Geçmiş `mt-auto` ile dibe sabitlenmez; bölümler kapandıkça akışta yukarı çıkar. Geçmişte `ResizableBody` (sabit 360 px ve boyutlandırma) kaldırıldı: içerik kadar uzar, panel kaydırmasıyla gezilir; altta boşluk kalmaz.
+
+## Git paneli: commit ağacı ve dosya satırları (28.11.2026)
+Commit açılışı `GitHistory`'de `grid-template-rows 0fr↔1fr` + opaklık (`--dur-slow`, `--ease-out-soft`), kapalıyken `inert`. Açılan dosya listesi graf girintisine hizalı; üst/alt dolgu yok, dosya satırı 24 px, durum harfi küçük etiket (`bg-white/[0.07]`). Açılan alan commit düğmesiyle aynı yatay ofseti (`mx-1`) kullanır; aksi halde dal şeritleri 4 px kayar ve açılınca kopar. Kart etkileşimlidir: satırdan çıkınca 180 ms gecikmeyle kapanır, karta girilince açık kalır (`keepOpen`/`closeNow`); kaydırmada kapanır. Kopyala önce `git:copyHash` IPC'siyle ana süreçte `clipboard.writeText` çağırır, olmazsa `navigator.clipboard`; ikisi de başarısızsa "Kopyalanamadı" (rose). Yazar profili satıra gelince (`loadAuthor`) hemen istenir, sonuç `profiles` state'inde tutulur; avatar `new Image()` ile önceden indirilir. Kart satıra 2 px bitişik açılır, kapanma 250 ms. Eski açıklama: renderer `navigator.clipboard` izin politikası nedeniyle reddediliyor (`setPermissionRequestHandler` tüm izinleri kapatır). (renderer `navigator.clipboard` izin politikası nedeniyle reddediliyor; `setPermissionRequestHandler` tüm izinleri kapatır). "Profili aç" (`openExternal`) düğmesi tıklanır. Avatar `s=64` ile indirilir. Commit'in üzerine gelince ~350 ms sonra `HoverCard` (portal, `fixed`, `--float-shadow`) açılır: konu, karma + kopyala, yazar, tarih, üst commit'ler, +/− ve dosya sayısı, dallar. Yazar bloğu: GitHub bağlıysa ve origin GitHub ise `github:commitAuthor` IPC'si (`GET /repos/{o}/{r}/commits/{hash}`) ile login, avatar ve ad alınır; önbellek `authorCache` (hash başına). Bağlı değilse baş harf avatarı ve "Git kaydından" notu. E-posta hiçbir yerde gösterilmez ve dışarı gönderilmez. Kart ayrıntıları `GitCommitInfo` alanlarından gelir; gövde (commit mesajının devamı) yoktur, log biçiminde `%b` eklenirse gösterilebilir. Geçmiş bölümü panelin dibinde (`mt-auto`), panel çubuğu gizli (`no-scrollbar`), tek görünen çubuk geçmişin kendi `ResizableBody` çubuğu.
+
+Commit içi dosya listesi dar panelde sıkışmasın diye sade tutuldu: klasör yolu kaldırıldı (başlıkta görünür), satır 22 px.

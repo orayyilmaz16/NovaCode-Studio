@@ -864,8 +864,29 @@ button.status-item:hover {
   .hdr-btn { width: 26px; }
 }
 
-/* Git satır işaretleri (editör kenarı): eklenen yeşil, değişen mavi, silinen kırmızı üçgen */
-.nova-gd-add, .nova-gd-mod, .nova-gd-del { position: relative; margin-inline-start: 3px; width: 3px !important; }
-.nova-gd-add { background: #3fb950; border-radius: 2px; }
-.nova-gd-mod { background: #58a6ff; border-radius: 2px; }
-.nova-gd-del { width: 0 !important; margin-inline-start: 4px; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-inline-start: 5px solid #f85149; background: none; }
+/* Git satır işaretleri (editör kenarı): tüm git değişiklikleri tek mavi renkle (eklenen, değişen, silinen).
+   Monaco'nun kendi hücre konumunu bozmadan, hücrenin içinde mutlak yerleşen ince şerit olarak çizilir. */
+.monaco-editor .nova-gd-add,
+.monaco-editor .nova-gd-mod,
+.monaco-editor .nova-gd-del { position: relative; }
+.monaco-editor .nova-gd-add::before,
+.monaco-editor .nova-gd-mod::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 2px;
+  width: 3px;
+  border-radius: 2px;
+}
+.monaco-editor .nova-gd-add::before { background: #3fb950; }
+.monaco-editor .nova-gd-mod::before { background: #58a6ff; }
+.monaco-editor .nova-gd-del::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 1px;
+  border-inline-start: 5px solid #58a6ff;
+  border-top: 4px solid transparent;
+  border-bottom: 0;
+  border-inline-end: 0;
+}

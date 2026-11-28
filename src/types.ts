@@ -81,6 +81,14 @@ export interface GitFile {
   conflict: boolean;
 }
 
+/** Commit yazarının GitHub profili (yalnız bağlı hesapla ve GitHub remote'uyla) */
+export interface GithubCommitAuthor {
+  login: string | null;
+  avatarUrl: string | null;
+  profileUrl: string | null;
+  name: string | null;
+}
+
 export interface GitCommitInfo {
   hash: string;
   author: string;
@@ -508,6 +516,8 @@ export interface ElectronBridge {
     createPr: (repoPath: string, input: { title: string; body?: string; draft?: boolean }) => Promise<{ success: boolean; url?: string; number?: number; error?: string; detail?: string }>;
     publishRepo: (repoPath: string, input: { name: string; isPrivate: boolean }) => Promise<{ success: boolean; url?: string; error?: string; detail?: string }>;
     openExternal: (url: string) => Promise<{ success: boolean }>;
+    commitAuthor: (repoPath: string, hash: string) => Promise<GithubCommitAuthor | null>;
+    copyHash: (hash: string) => Promise<{ success: boolean }>;
     onAuth: (callback: (event: GithubAuthEvent) => void) => () => void;
   };
 }

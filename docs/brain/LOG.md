@@ -3,6 +3,104 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 11:53 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvQ29tbWl0SGlzdG9yeU1l -->
+- Alan: [[ui-design]]
+- Kod (1): `src/components/CommitHistoryMenu.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:48 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0aHViQWNjb3VudC50 -->
+- Alan: [[ui-design]]
+- Kod (1): `src/components/GithubAccount.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:23 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
+- Alan: [[ui-design]]
+- Kod (1): `src/components/GitHistory.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:20 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0UGFuZWwudHN4LHws -->
+- Alan: [[git-github]]
+- Kod (1): `src/components/GitPanel.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:19 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0UGFuZWwudHN4LHNy -->
+- Alan: [[git-github]], [[i18n]]
+- Kod (2): `src/components/GitPanel.tsx`, `src/i18n/uiTextScm.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:15 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0UGFuZWwudHN4LHws -->
+- Alan: [[git-github]]
+- Kod (1): `src/components/GitPanel.tsx`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:11 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
+- Alan: [[ui-design]], [[i18n]]
+- Kod (2): `src/components/GitHistory.tsx`, `src/i18n/uiTextScm.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:08 · auto/20261128-074543
+<!-- sig:ZWxlY3Ryb24tZ2l0aHViLmNqcyxlbGVjdHJvbi1w -->
+- Alan: [[git-github]], [[security-kvkk]], [[ui-design]]
+- Kod (4): `electron-github.cjs`, `electron-preload.cjs`, `src/components/GitHistory.tsx`, `src/types.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:07 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
+- Alan: [[ui-design]], [[i18n]]
+- Kod (2): `src/components/GitHistory.tsx`, `src/i18n/uiTextScm.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 11:04 · auto/20261128-074543
+<!-- sig:ZWxlY3Ryb24tZ2l0aHViLmNqcyxlbGVjdHJvbi1w -->
+- Alan: [[git-github]], [[security-kvkk]], [[ui-design]], [[i18n]]
+- Kod (6): `electron-github.cjs`, `electron-preload.cjs`, `src/components/GitHistory.tsx`, `src/components/GitPanel.tsx`, `src/i18n/uiTextScm.ts`, `src/types.ts`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 10:51 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
+- Alan: [[ui-design]], [[git-github]]
+- Kod (2): `src/components/GitHistory.tsx`, `src/components/GitPanel.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/source-control.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 10:49 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (2): `src/components/EditorArea.tsx`, `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/source-control.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 10:48 · auto/20261128-074543
+<!-- sig:c3JjL3NlcnZpY2VzL2VkaXRvclRoZW1lLnRzLHws -->
+- Alan: [[ui-design]]
+- Kod (1): `src/services/editorTheme.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
+## 28.11.2026 10:47 · auto/20261128-074543
+<!-- sig:c3JjL3N0eWxlLmNzcyx8LENIQU5HRUxPRy5tZCxk -->
+- Alan: [[motion]]
+- Kod (1): `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/source-control.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 10:44 · auto/20261128-074130
 <!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
 - Alan: [[ui-design]], [[git-github]]
@@ -183,102 +281,4 @@
 - Alan: [[ui-design]]
 - Kod (2): `src/components/AccordionMenu.tsx`, `src/components/MenuBar.tsx`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 25.11.2026 10:57 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvTWVudUJhci50c3gsfCxD -->
-- Alan: [[ui-design]]
-- Kod (1): `src/components/MenuBar.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 25.11.2026 10:56 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvTWVudUJhci50c3gsc3Jj -->
-- Alan: [[ui-design]]
-- Kod (2): `src/components/MenuBar.tsx`, `src/components/AccordionMenu.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 12:09 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvTWVu -->
-- Alan: [[ui-design]], [[motion]]
-- Kod (3): `src/App.tsx`, `src/components/MenuBar.tsx`, `src/style.css`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 12:08 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvTWVudUJhci50c3gsc3Jj -->
-- Alan: [[ui-design]], [[motion]]
-- Kod (3): `src/components/MenuBar.tsx`, `src/components/WindowControls.tsx`, `src/style.css`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 12:06 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
-- Alan: [[ui-design]]
-- Kod (1): `src/App.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 12:04 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsc3JjL3NlcnZpY2VzL2VkaXRv -->
-- Alan: [[ui-design]]
-- Kod (2): `src/App.tsx`, `src/services/editorTheme.ts`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 12:02 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
-- Alan: [[ui-design]]
-- Kod (1): `src/App.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 11:59 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsc3JjL3N0eWxlLmNzcyx8LENI -->
-- Alan: [[ui-design]], [[motion]]
-- Kod (2): `src/App.tsx`, `src/style.css`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 11:56 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvTWVu -->
-- Alan: [[ui-design]], [[motion]]
-- Kod (4): `src/App.tsx`, `src/components/MenuBar.tsx`, `src/components/WindowControls.tsx`, `src/style.css`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 11:53 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
-- Alan: [[ui-design]]
-- Kod (1): `src/components/EditorArea.tsx`
-- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 11:50 · auto/20261118-083349
-<!-- sig:ZWxlY3Ryb24tZ2l0aHViLmNqcyxzcmMvQXBwLnRz -->
-- Alan: [[git-github]], [[ui-design]], [[i18n]]
-- Kod (4): `electron-github.cjs`, `src/App.tsx`, `src/i18n/uiTextDev.ts`, `src/components/RemoteMenu.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/remote-ssh.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 10:51 · auto/20261118-083349
-<!-- sig:ZWxlY3Ryb24tbWFpbi5janMsZWxlY3Ryb24tcHJl -->
-- Alan: [[security-kvkk]], [[terminal]], [[i18n]], [[ui-design]], [[testing]]
-- Kod (15): `electron-main.cjs`, `electron-preload.cjs`, `electron-pty.cjs`, `scripts/tests/i18n.test.cjs`, `src/App.tsx`, `src/components/LandingPage.tsx`, `src/components/Terminal.tsx`, `src/i18n/uiText.ts`, `src/types.ts`, `electron-ssh-core.cjs`, `electron-ssh.cjs`, `scripts/tests/ssh-sftp.test.cjs` … (+3)
-- Belge (8): `AGENT.md`, `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/security-kvkk.md`, `docs/brain/actions/terminal.md`, `docs/brain/actions/testing.md`, `docs/brain/actions/remote-ssh.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 22.11.2026 15:36 · auto/20261118-083349
-<!-- sig:ZWxlY3Ryb24tcHJlbG9hZC5janMsZWxlY3Ryb24t -->
-- Alan: [[security-kvkk]], [[terminal]], [[testing]], [[ui-design]]
-- Kod (6): `electron-preload.cjs`, `electron-pty.cjs`, `scripts/tests/pty.test.cjs`, `src/components/Terminal.tsx`, `src/services/terminalText.ts`, `src/types.ts`
-- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/terminal.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 22.11.2026 15:25 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvVGVybWluYWwudHN4LHws -->
-- Alan: [[terminal]]
-- Kod (1): `src/components/Terminal.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/terminal.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
