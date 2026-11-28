@@ -122,7 +122,7 @@ Otomatik testler bir şeyi kanıtlar, ama arayüzü kanıtlamaz. Arayüz değiş
 
 ## 10. GitHub Project kurulumu (durum: bekliyor)
 
-**Kurulan (28.11.2026):** 39 etiket (QA, önem, alan ve `triage` dahil), issue şablonları `user_story` ve `test_session`, `bug_report` önem ve tekrar alanları, PR şablonunda QA kutuları.
+**Kurulan (28.11.2026):** 8 açık backlog kalemi issue oldu (#163–#170, alan ve önem etiketli). 39 etiket (QA, önem, alan ve `triage` dahil), issue şablonları `user_story` ve `test_session`, `bug_report` önem ve tekrar alanları, PR şablonunda QA kutuları.
 
 **Bekleyen:** Projects için token kapsamı yok (`read:project`, `project`). Kullanıcı bunu tarayıcıda yeniler:
 
@@ -144,8 +144,9 @@ Yeni issue'ları Project'e otomatik eklemek için bir workflow gerekir; `PROJECT
 ## 11. Açık kararlar
 
 - Özellik işleri PR'dan mı geçsin, yoksa otomatik commit ile `main`e mi gitsin? (Bölüm 8)
-- Sprint 1 tarihleri (önerilen 30.11.2026 – 11.12.2026) onaylanacak mı?
-- Mevcut açık [[BACKLOG]] kalemleri (S-04, S-18, I-05, F-08, F-09, T-01, P-13, U-05) GitHub issue'su olarak açılsın mı?
+- Sprint 1 tarihleri: **onaylandı** (30.11.2026 – 11.12.2026).
+- Açık [[BACKLOG]] kalemleri (S-04, S-18, I-05, F-08, F-09, T-01, P-13, U-05): **issue oldu** (#163–#170).
+- Özellik işlerinin PR'dan geçmesi: süreç önerisi olarak uygulanıyor; Stop hook'una dokunulmadı. Hook'un `main`e otomatik commit'i ile bu kuralın çakışmasını kurucu teyit edecek.
 
 ## Durum (AGENT'a yazılır)
 Süreç ve md altyapısı yazıldı. Project alanları, sütunlar ve otomasyonlar bekliyor (token kapsamı). Açık kararlar Bölüm 11'de.
