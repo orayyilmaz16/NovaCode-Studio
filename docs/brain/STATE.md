@@ -37,7 +37,7 @@
 |---|---|
 | `electron-ai.cjs` | 995 |
 | `electron-analytics.cjs` | 152 |
-| `electron-debug.cjs` | 240 |
+| `electron-debug.cjs` | 248 |
 | `electron-ext.cjs` | 341 |
 | `electron-git.cjs` | 452 |
 | `electron-github.cjs` | 423 |
