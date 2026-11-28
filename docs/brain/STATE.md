@@ -86,7 +86,7 @@
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitHistory.tsx` | 294 |
+| `src/components/GitHistory.tsx` | 311 |
 | `src/components/GitPanel.tsx` | 937 |
 | `src/components/GithubAccount.tsx` | 137 |
 | `src/components/HoverTip.tsx` | 49 |
@@ -173,7 +173,7 @@
 | `src/i18n/uiTextComp.ts` | 347 |
 | `src/i18n/uiTextDev.ts` | 379 |
 | `src/i18n/uiTextRemote.ts` | 180 |
-| `src/i18n/uiTextScm.ts` | 324 |
+| `src/i18n/uiTextScm.ts` | 327 |
 | `src/i18n/uiTextTheme.ts` | 1136 |
 
 ### Betikler
@@ -270,7 +270,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `analytics:set-lang`, `analytics:track`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1106 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1107 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 117 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].

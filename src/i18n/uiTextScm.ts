@@ -269,6 +269,9 @@ export const SCM_TEXT = {
   histCardCopy: {
     tr: "Karmayı kopyala", en: "Copy hash", de: "Hash kopieren", ru: "Копировать хеш", ar: "نسخ المعرّف", es: "Copiar hash", fr: "Copier le hash", az: "Hash-i kopyala",
   },
+  histCardCopyFailed: {
+    tr: "Kopyalanamadı", en: "Copy failed", de: "Kopieren fehlgeschlagen", ru: "Не удалось скопировать", ar: "تعذّر النسخ", es: "No se pudo copiar", fr: "Échec de la copie", az: "Kopyalana bilmədi",
+  },
   histCardCopied: {
     tr: "Kopyalandı", en: "Copied", de: "Kopiert", ru: "Скопировано", ar: "تم النسخ", es: "Copiado", fr: "Copié", az: "Kopyalandı",
   },

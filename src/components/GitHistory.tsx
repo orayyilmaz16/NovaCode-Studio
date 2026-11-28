@@ -44,10 +44,9 @@ const GraphCell: React.FC<{ row: GraphRow; width: number; hash: string; head: bo
 
 const CARD_W = 300;
 const CARD_H_EST = 250;
+const CARD_GAP = 2; // kart satıra bitişik: fare aradan geçerken kart kapanmasın
 
 /** Commit'in üzerine gelince açılan ayrıntı kartı: konu, karma, yazar, tarih, değişiklik özeti, üst commit'ler, dallar. */
-// Yazar profili önbelleği (hash → profil); aynı commit'e tekrar gelince ağ isteği yapılmaz
-const authorCache = new Map<string, GithubCommitAuthor | null>();
 
 // GitHub avatarı 30 px'de gösterilir; küçük (s=64) sürümü indirerek yükleme hızlanır (2x ekran için yeterli)
 const avatarSized = (url: string) => {
@@ -69,34 +68,37 @@ const HoverCard: React.FC<{
   c: GitCommitInfo;
   anchor: DOMRect;
   currentBranch?: string;
-  fetchAuthor?: (hash: string) => Promise<GithubCommitAuthor | null>;
+  /** Yazar profili: undefined = yükleniyor, null = yok */
+  profile: GithubCommitAuthor | null | undefined;
   onEnter: () => void;
   onLeave: () => void;
-}> = ({ c, anchor, currentBranch, fetchAuthor, onEnter, onLeave }) => {
-  const [copied, setCopied] = useState(false);
-  const [profile, setProfile] = useState<GithubCommitAuthor | null | undefined>(() => authorCache.get(c.hash));
+}> = ({ c, anchor, currentBranch, profile, onEnter, onLeave }) => {
+  const [copyState, setCopyState] = useState<'idle' | 'done' | 'failed'>('idle');
   const [avatarOk, setAvatarOk] = useState(true);
-  useEffect(() => {
-    if (!fetchAuthor || authorCache.has(c.hash)) return;
-    let alive = true;
-    void fetchAuthor(c.hash).then((p) => {
-      authorCache.set(c.hash, p);
-      if (alive) setProfile(p);
-    }).catch(() => { if (alive) setProfile(null); });
-    return () => { alive = false; };
-  }, [c.hash, fetchAuthor]);
   const displayName = profile?.name || profile?.login || c.author;
   const hue = laneColor(Math.abs([...c.author].reduce((a, ch) => a + ch.charCodeAt(0), 0)) % 8);
-  const left = anchor.right + 8 + CARD_W > window.innerWidth ? Math.max(8, anchor.left - CARD_W - 8) : anchor.right + 8;
+  const left = anchor.right + CARD_GAP + CARD_W > window.innerWidth ? Math.max(8, anchor.left - CARD_W - CARD_GAP) : anchor.right + CARD_GAP;
   const top = Math.max(8, Math.min(anchor.top, window.innerHeight - CARD_H_EST - 8));
   const parents = c.parents ?? [];
   const refs = c.refs ?? [];
   const copy = async () => {
-    // Ana süreç üzerinden kopyalanır (renderer panosu izin politikasıyla engelleniyor)
-    const res = await window.electronAPI?.github?.copyHash(c.hash).catch(() => ({ success: false }));
-    if (!res?.success) return;
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
+    // Önce ana süreç (pano izni gerektirmez), olmazsa tarayıcı panosu
+    let ok = false;
+    try {
+      ok = !!(await window.electronAPI?.github?.copyHash(c.hash))?.success;
+    } catch (err) {
+      console.warn('[git] copyHash başarısız:', err);
+    }
+    if (!ok) {
+      try {
+        await navigator.clipboard.writeText(c.hash);
+        ok = true;
+      } catch (err) {
+        console.warn('[git] pano yazılamadı:', err);
+      }
+    }
+    setCopyState(ok ? 'done' : 'failed');
+    window.setTimeout(() => setCopyState('idle'), 1500);
   };
   return (
     <div
@@ -113,10 +115,10 @@ const HoverCard: React.FC<{
         <button
           type="button"
           onClick={copy}
-          tabIndex={-1}
-          className="pointer-events-auto inline-flex items-center gap-1 h-[18px] px-1.5 rounded text-[10.5px] text-zinc-400 hover:bg-white/[0.08] transition-colors duration-(--dur-fast)"
+          className={`inline-flex items-center gap-1 h-[18px] px-1.5 rounded text-[10.5px] hover:bg-white/[0.08] transition-colors duration-(--dur-fast) ${copyState === 'failed' ? 'text-rose-400' : copyState === 'done' ? 'text-emerald-400' : 'text-zinc-400'}`}
         >
-          {copied ? <Check size={11} /> : <Copy size={11} />}{t(copied ? 'histCardCopied' : 'histCardCopy')}
+          {copyState === 'done' ? <Check size={11} /> : <Copy size={11} />}
+          {t(copyState === 'done' ? 'histCardCopied' : copyState === 'failed' ? 'histCardCopyFailed' : 'histCardCopy')}
         </button>
       </div>
       <div className="mt-2.5 flex items-center gap-2.5">
@@ -193,14 +195,29 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
   const [hover, setHover] = useState<{ hash: string; rect: DOMRect } | null>(null);
   const hoverTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
+  // Yazar profili: satıra gelince hemen istenir (kart açılmadan yüklenmeye başlar); sonuç hash başına tutulur
+  const [profiles, setProfiles] = useState<Record<string, GithubCommitAuthor | null>>({});
+  const requested = useRef(new Set<string>());
+  const loadAuthor = (hash: string) => {
+    if (!fetchAuthor || requested.current.has(hash)) return;
+    requested.current.add(hash);
+    void fetchAuthor(hash)
+      .then((p) => {
+        // Avatarı önceden indir: kart açıldığında hazır olsun
+        if (p?.avatarUrl) new Image().src = avatarSized(p.avatarUrl);
+        setProfiles((prev) => ({ ...prev, [hash]: p }));
+      })
+      .catch(() => setProfiles((prev) => ({ ...prev, [hash]: null })));
+  };
   // Satırdan karta geçerken kapanmasın diye kapanış kısa bir gecikmeyle yapılır; kart üzerine gelince iptal edilir
   const hoverOn = (hash: string, el: HTMLElement) => {
+    loadAuthor(hash);
     window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = window.setTimeout(() => setHover({ hash, rect: el.getBoundingClientRect() }), 350);
+    hoverTimer.current = window.setTimeout(() => setHover({ hash, rect: el.getBoundingClientRect() }), 250);
   };
   const hoverOff = () => {
     window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = window.setTimeout(() => setHover(null), 180);
+    hoverTimer.current = window.setTimeout(() => setHover(null), 250);
   };
   const keepOpen = () => window.clearTimeout(hoverTimer.current);
   const closeNow = () => {
@@ -288,7 +305,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
           </div>
         );
       })}
-      {hover && hoverCommit && createPortal(<HoverCard c={hoverCommit} anchor={hover.rect} currentBranch={currentBranch} fetchAuthor={fetchAuthor} onEnter={keepOpen} onLeave={closeNow} />, document.body)}
+      {hover && hoverCommit && createPortal(<HoverCard c={hoverCommit} anchor={hover.rect} currentBranch={currentBranch} profile={profiles[hover.hash]} onEnter={keepOpen} onLeave={closeNow} />, document.body)}
     </div>
   );
 };

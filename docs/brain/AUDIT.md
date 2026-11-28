@@ -8,7 +8,7 @@ Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 |---|---|
 | Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 28 |
 | Performans | kritik 0 · yüksek 0 · orta 2 · düşük 78 |
-| Kalite | kritik 0 · yüksek 0 · orta 5 · düşük 12 |
+| Kalite | kritik 0 · yüksek 0 · orta 4 · düşük 12 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
@@ -74,7 +74,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 |---|---|---|---|
 | orta | Q-I18N-HARD | `src/App.tsx:122` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
-| orta | Q-I18N-HARD | `src/components/GitHistory.tsx:72,181` | JSX içinde sabit metin olabilir (8 dil kuralı) (2×) |
+| orta | Q-I18N-HARD | `src/components/GitHistory.tsx:183` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | düşük | Q-ANY | `src/App.tsx:803` | `any` kullanımı (strict tip güvenliği) |
 | düşük | Q-ANY | `src/components/EditorArea.tsx:78,162,324…(+2)` | `any` kullanımı (strict tip güvenliği) (5×) |
@@ -85,4 +85,4 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 938, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-BogDKE-p.js 452 KB, PtyView-CVbglrSO.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-3ycY-YNf.js 184 KB
+- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-IMZYn1Ak.js 452 KB, PtyView-CZ3pKLIB.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-C8RDAPjM.js 184 KB
