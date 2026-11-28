@@ -4,7 +4,11 @@
 
 ### tr
 
+- [fix] **Kesme noktası:** Windows kısa yollu (örn. `RUNNER~1`) geçici klasörlerde kesme noktası bağlanmıyor ve program duraklamıyordu; artık eşleşiyor.
+
 ### en
+
+- [fix] **Breakpoints:** On Windows paths with 8.3 short names (e.g. `RUNNER~1`), breakpoints were not bound and the program did not pause; they now bind correctly.
 
 ## 1.10.0 - 28.11.2026
 <!-- level: minor -->
