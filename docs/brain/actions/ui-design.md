@@ -170,3 +170,6 @@ Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori 
 
 ### Tamamı kapalı kategori (25.11.2026)
 `allOff(grup)` doğruysa kategori başlığı etkileşimsizdir: `AccordionMenu` satır listesine hiç girmez (ok tuşlarıyla atlanır), `disabled` + `tabIndex=-1` + `pointer-events-none`, `toggle` yok sayar; `MenuBar` başlığı `disabled`, tıklama ve üzerine gelerek menü geçişi (`onMouseEnter`) kapalı. Tekil kapalı öğeler tıklanmaz ama `title` ipucu için işaretçi olayları açık kalır.
+
+## Fark (diff) renkleri (28.11.2026)
+`services/editorTheme.ts` iki Nova temasına `diffEditor.*` ve `diffEditorGutter.*` anahtarları eklendi: eklenen satır zemini `#2ea04328`, değişen metin `#2ea04359`, silinen `#f8514928` / `#f851495c`, kaydırma işaretleri `#3fb950` / `#f85149`. Açık temada aynı anlamda daha hafif tonlar. Amaç: yan yana farkta ve editör kenar işaretlerinde VS Code ile aynı okuma.
