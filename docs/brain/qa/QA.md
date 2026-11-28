@@ -34,4 +34,4 @@ Issue şablonları (`.github/ISSUE_TEMPLATE/`): `bug_report.yml` (hata), `user_s
 3. Kapanan bulgu issue'da kapanır; [[BACKLOG]] durumu elle güncellenir.
 4. Gerçek kullanıcı verisi, token veya kişisel bilgi bu klasöre yazılmaz ([[security-kvkk]]).
 
-E2E: [[qa-agil]] ve [[e2e-yok-xyz-kirik]].
+E2E: [[qa-agile]] ve `e2e-yok-xyz-kirik`.
