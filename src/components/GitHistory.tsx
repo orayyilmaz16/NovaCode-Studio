@@ -11,10 +11,10 @@ import type { GitCommitInfo, GithubCommitAuthor } from '../types';
 // Dosya listesi ve fark açma GitPanel'dedir (renderFiles ile gelir).
 const ROW_H = 56; // sabit satır: içerik her zaman bu yükseklikte, şeritler satırlar arası kopmaz
 // Şerit genişliği dar: dal ağacı panelde daha az yer kaplar
-const LANE_W = 12;
+const LANE_W = 8;
 const NODE_Y = 18;
-const NODE_R = 3.5;
-const x = (i: number) => i * LANE_W + LANE_W / 2 + 1;
+const NODE_R = 3;
+const x = (i: number) => i * LANE_W + LANE_W / 2;
 
 // Yumuşak eğri: uçlarda dikey teğet, ortada düzgün geçiş (dal ayrılma/birleşme)
 const curve = (x1: number, y1: number, x2: number, y2: number) => {
@@ -37,7 +37,7 @@ const GraphCell: React.FC<{ row: GraphRow; width: number; hash: string; head: bo
       {lines}
       {head ? (
         <>
-          <circle cx={x(row.lane)} cy={NODE_Y} r={NODE_R + 1.5} fill="var(--color-nv-side)" stroke={c} strokeWidth={1.75} />
+          <circle cx={x(row.lane)} cy={NODE_Y} r={NODE_R + 1} fill="var(--color-nv-side)" stroke={c} strokeWidth={1.75} />
           <circle cx={x(row.lane)} cy={NODE_Y} r={1.75} fill={c} stroke="none" />
         </>
       ) : merge ? (
@@ -198,7 +198,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
     () => layoutGraph(commits.map((c, i) => ({ hash: c.hash, parents: c.parents ?? (commits[i + 1] ? [commits[i + 1].hash] : []) }))),
     [commits]
   );
-  const gutter = layout.laneCount * LANE_W + 8;
+  const gutter = layout.laneCount * LANE_W + 4;
   // Ayrıntı kartı: kısa bir gecikmeden sonra açılır; fare çıkınca kapanır
   const [hover, setHover] = useState<{ hash: string; rect: DOMRect } | null>(null);
   const hoverTimer = useRef<number | undefined>(undefined);

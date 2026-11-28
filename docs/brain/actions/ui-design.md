@@ -175,7 +175,7 @@ Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori 
 `services/editorTheme.ts` iki Nova temasına `diffEditor.*` ve `diffEditorGutter.*` anahtarları eklendi: eklenen satır zemini `#2ea04328`, değişen metin `#2ea04359`, silinen `#f8514928` / `#f851495c`, kaydırma işaretleri `#3fb950` / `#f85149`. Açık temada aynı anlamda daha hafif tonlar. Amaç: yan yana farkta ve editör kenar işaretlerinde VS Code ile aynı okuma.
 
 ## Git grafı: dal ayrılma/birleşme görünümü (28.11.2026)
-Şerit genişliği `LANE_W` 12 px, düğüm yarıçapı 3.5 px, gutter `lanes*12 + 8`. Eğri (`curve`): uçlarda dikey teğetli kübik, orta yükseklikte kıvrım. Birleştirme commit'i (2+ üst) içi boş halka (`merge`), normal commit dolu nokta, HEAD çift halka. Çakışma (conflict) durumu graf düğümünde gösterilmez; çakışmalar yalnız GitPanel'in "Çakışmalar" bölümünde (commit verisinde çakışma alanı yok).
+Şerit genişliği `LANE_W` 8 px, düğüm yarıçapı 3 px, gutter `lanes*8 + 4` (tek dal eski sıkı görünüme yakın; ayrım boşluk bırakmadan şeritlerle yapılır). Eğri (`curve`): uçlarda dikey teğetli kübik, orta yükseklikte kıvrım. Birleştirme commit'i (2+ üst) içi boş halka (`merge`), normal commit dolu nokta, HEAD çift halka. Çakışma (conflict) durumu graf düğümünde gösterilmez; çakışmalar yalnız GitPanel'in "Çakışmalar" bölümünde (commit verisinde çakışma alanı yok).
 
 ## Git paneli: açılır bölümler (28.11.2026)
 Dal bölümü (`open.branch`, varsayılan açık): `Section` ile aynı başlık (`gitBranchSection`, diğer bölümlerle aynı stil; büyük harf CSS'i yok). İçerik: dal seçici, ↑↓ ve eşzamanla/çek/it/yenile düğmeleri, durum özeti, birleştirme uyarıları.

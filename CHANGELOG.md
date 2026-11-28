@@ -7,7 +7,7 @@
 - [fix] **Commit açılınca grafik kopması:** Açılan commit'in dosya listesinin altından geçen dal çizgisi artık sonraki commit'e kesintisiz bağlanır.
 - [feat] **Commit ayrıntı kartı:** Geçmişte bir commit'in üzerine gelince konu, tam karma (kopyala düğmesiyle), yazar, tarih, üst commit'ler (birleştirmeyse ayrıca belirtilir), +/− satır ve dosya sayısı, dallar ve etiketler bir kartta açılır.
 - [improve] **Git paneli açılır bölümler:** Commit, GitHub'da canlı durum, Pull request ve Yayınla alanları da diğer bölümler gibi açılır listedir; açık/kapalı durumu hatırlanır. Geçmiş kapalı bölümlerin ardından akışta yukarı çıkar, dipte sabitlenmez.
-- [improve] **Daha dar dal grafı:** Geçmişteki dal çizgileri daha dar şeritlerde ve yumuşak eğrilerle çizilir; birleştirme commit'leri içi boş halka olarak gösterilir, panelde daha az yer kaplar.
+- [improve] **Daha sıkı dal grafı:** Dal şeritleri birbirine çok yakın çizilir, tek dal görünümündeki gibi az yer kaplar; dal çizgileri yumuşak eğrilerle çizilir; birleştirme commit'leri içi boş halka olarak gösterilir, panelde daha az yer kaplar.
 - [improve] **Dal bölümü açılır:** Dal ve eşzamanlama bölümü diğer bölümler gibi açılır başlıkla görünür; dal seçici ve eşzamanla düğmeleri açılır kısımdadır.
 - [fix] **Geçmiş altındaki boşluk:** Geçmiş bölümü sabit yükseklikte değil; içeriği kadar uzar ve panel kaydırmasıyla gezilir, altında boş alan kalmaz.
 - [improve] **Commit ve PR alanları:** Mesaj ve açıklama kutularında karakter sayacı var; GitHub canlı durum kartı tek bölümde toplandı.
