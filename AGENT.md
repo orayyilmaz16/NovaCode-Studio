@@ -4,11 +4,8 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.9.4** (patch, 27.11.2026) · notlar `release-notes/v1.9.4.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Yeni özellikler: Anonim kullanım istatistiği (isteğe bağlı)
-- İyileştirmeler: Sunucu imajları otomatik yayınlanıyor
-- İyileştirmeler: Daha güçlü anonimlik
-- İyileştirmeler: Daha kapsamlı anonim istatistik ve indirme takibi
+**Son sürüm v1.9.5** (patch, 28.11.2026) · notlar `release-notes/v1.9.5.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- İyileştirmeler: Yapay zekâ düğmesi
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)
