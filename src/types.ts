@@ -517,6 +517,7 @@ export interface ElectronBridge {
     publishRepo: (repoPath: string, input: { name: string; isPrivate: boolean }) => Promise<{ success: boolean; url?: string; error?: string; detail?: string }>;
     openExternal: (url: string) => Promise<{ success: boolean }>;
     commitAuthor: (repoPath: string, hash: string) => Promise<GithubCommitAuthor | null>;
+    copyHash: (hash: string) => Promise<{ success: boolean }>;
     onAuth: (callback: (event: GithubAuthEvent) => void) => () => void;
   };
 }

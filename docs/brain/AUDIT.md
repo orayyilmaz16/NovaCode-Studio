@@ -20,7 +20,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
 | orta | SEC-HTML | `src/components/Preview.tsx:184` | Ham HTML basımı; DOMPurify ile temizlendiğini doğrula |
-| orta | SEC-OPENEXT | `electron-github.cjs:252,307` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
+| orta | SEC-OPENEXT | `electron-github.cjs:258,313` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et (2×) |
 | orta | SEC-OPENEXT | `electron-main.cjs:70` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | orta | SEC-OPENEXT | `electron-update.cjs:168` | openExternal: URL şeması (yalnız https/http) doğrulanıyor mu kontrol et |
 | düşük | SEC-HTTP | `electron-ai.cjs:118` | Şifresiz http:// adresi |
@@ -28,7 +28,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | SEC-IPC-NOEVT | `electron-ai.cjs:965,968,982` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-analytics.cjs:139,141,142` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-ext.cjs:318,329` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (2×) |
-| düşük | SEC-IPC-NOEVT | `electron-github.cjs:211,224,230…(+2)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (5×) |
+| düşük | SEC-IPC-NOEVT | `electron-github.cjs:211,230,236…(+2)` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (5×) |
 | düşük | SEC-IPC-NOEVT | `electron-main.cjs:449,464,514` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor (3×) |
 | düşük | SEC-IPC-NOEVT | `electron-pty.cjs:219` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
 | düşük | SEC-IPC-NOEVT | `electron-search.cjs:245` | IPC işleyicisi gönderen (event.senderFrame) doğrulamıyor |
@@ -85,4 +85,4 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 938, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-DIK39ZTI.js 452 KB, PtyView-Det66Jxt.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-CLcGY-bI.js 184 KB
+- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-BogDKE-p.js 452 KB, PtyView-CVbglrSO.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-3ycY-YNf.js 184 KB

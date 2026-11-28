@@ -92,11 +92,11 @@ const HoverCard: React.FC<{
   const parents = c.parents ?? [];
   const refs = c.refs ?? [];
   const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(c.hash);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1200);
-    } catch { /* pano erişilemezse sessiz geç */ }
+    // Ana süreç üzerinden kopyalanır (renderer panosu izin politikasıyla engelleniyor)
+    const res = await window.electronAPI?.github?.copyHash(c.hash).catch(() => ({ success: false }));
+    if (!res?.success) return;
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
   };
   return (
     <div

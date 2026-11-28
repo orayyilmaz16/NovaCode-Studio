@@ -221,6 +221,12 @@ function register({ getWindow, runGit, isValidPath }) {
   });
 
   // Kopyala düğmesi: renderer'daki navigator.clipboard Electron'da izin/odak yüzünden başarısız olabilir; bekleyen kod ana süreçten kopyalanır (rastgele metin yazılamaz).
+  // Commit karmasını panoya kopyalar. Renderer'da navigator.clipboard izin politikası yüzünden reddediliyor (setPermissionRequestHandler tüm izinleri kapatır); bu yüzden ana süreçten yazılır. Yalnız kısa, hex metin kabul edilir.
+  ipcMain.handle('git:copyHash', (_e, hash) => {
+    if (typeof hash !== 'string' || !/^[0-9a-f]{4,40}$/i.test(hash)) return { success: false };
+    try { clipboard.writeText(hash); return { success: true }; } catch { return { success: false }; }
+  });
+
   ipcMain.handle('github:copyCode', () => {
     if (!pendingUserCode) return { success: false };
     try { clipboard.writeText(pendingUserCode); return { success: true }; } catch { return { success: false }; }
