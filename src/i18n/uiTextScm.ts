@@ -281,6 +281,18 @@ export const SCM_TEXT = {
   gitSumChangedTip: {
     tr: "Hazırlanmamış değişiklikler", en: "Unstaged changes", de: "Nicht vorgemerkte Änderungen", ru: "Неподготовленные изменения", ar: "تغييرات غير مجهزة", es: "Cambios sin preparar", fr: "Modifications non indexées", az: "Hazırlanmamış dəyişikliklər",
   },
+  scmResizeSection: {
+    tr: "Bölüm yüksekliğini sürükleyerek ayarla", en: "Drag to resize this section", de: "Zum Ändern der Höhe ziehen", ru: "Перетащите, чтобы изменить высоту", ar: "اسحب لتغيير الارتفاع", es: "Arrastra para cambiar la altura", fr: "Faites glisser pour redimensionner", az: "Hündürlüyü dəyişmək üçün sürüşdürün",
+  },
+  scmResizeReset: {
+    tr: "çift tıkla: otomatik", en: "double-click: auto", de: "Doppelklick: automatisch", ru: "двойной щелчок: авто", ar: "نقر مزدوج: تلقائي", es: "doble clic: automático", fr: "double-clic : auto", az: "iki dəfə klik: avtomatik",
+  },
+  gitHistAll: {
+    tr: "Tüm dallar", en: "All branches", de: "Alle Branches", ru: "Все ветки", ar: "كل الفروع", es: "Todas las ramas", fr: "Toutes les branches", az: "Bütün budaqlar",
+  },
+  gitHistCurrent: {
+    tr: "Geçerli dal", en: "Current branch", de: "Aktueller Branch", ru: "Текущая ветка", ar: "الفرع الحالي", es: "Rama actual", fr: "Branche actuelle", az: "Cari budaq",
+  },
 } satisfies Record<string, Dict>;
 
 export type ScmTextKey = keyof typeof SCM_TEXT;

@@ -67,6 +67,16 @@
    "sev": "düşük"
   },
   {
+   "k": "PERF-LS-WRITE|src/components/GitPanel.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
+   "k": "PERF-LS-WRITE|src/components/ResizableBody.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
    "k": "PERF-LS-WRITE|src/components/ResizeHandle.tsx",
    "n": 1,
    "sev": "düşük"

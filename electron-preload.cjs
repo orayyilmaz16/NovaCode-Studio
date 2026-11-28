@@ -221,7 +221,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gitBranches: (repoPath) => ipcRenderer.invoke('git:branches', repoPath),
   gitCheckout: (repoPath, name) => ipcRenderer.invoke('git:checkout', repoPath, name),
   gitCreateBranch: (repoPath, name) => ipcRenderer.invoke('git:createBranch', repoPath, name),
-  gitLog: (repoPath, limit) => ipcRenderer.invoke('git:log', repoPath, limit),
+  gitLog: (repoPath, limit, all) => ipcRenderer.invoke('git:log', repoPath, limit, all),
   gitInit: (repoPath) => ipcRenderer.invoke('git:init', repoPath),
   gitDiffFile: (repoPath, opts) => ipcRenderer.invoke('git:diffFile', repoPath, opts),
   gitCommitFiles: (repoPath, hash) => ipcRenderer.invoke('git:commitFiles', repoPath, hash),
