@@ -235,3 +235,6 @@ Karar (kurucu talimatı): sunucuya token korumalı Prometheus `/metrics` ve sunu
 
 ## 27.11.2026 — Bütçe, paket bölme, auto-release idempotansı, senkron metriği izleyiciye bağlandı
 Karar (kurucu tam yetkiyle): (1) CSS bütçesi 150 KB, JS giriş parçası `manualChunks` ile bölündü (654 → 434 KB). (2) `auto-release.yml` aynı sürüm dalı için açık PR varsa yeni PR açmaz, çakışıyorsa yeniden üretir (yarış hatası #126). (3) `/metrics` izleyiciye bağlandı; ek secret `NOVA_SYNC_METRICS_TOKEN` (= sunucu token'ı, yalnız Actions'ta). Risk: sunucu token'ı bir secret olarak GitHub'da da durur; sunucu tek token tanıdığı için ayrı salt-okunur token yok. Geri dönüş: secret'ı sil (izleme yalnız sağlık adresine döner).
+
+## 28.11.2026 — Git gösterimi tek mavi işaret ve sıkı commit görünümü
+Karar (kurucu): editör kenarı ve kaydırma çubuğundaki git değişiklikleri yalnız mavi gösterilir (yeşil/kırmızı yok). Yan yana fark ekranı VS Code renklerini korur. Commit ağacı ve dosya listesi kompakt tutulur; geçmiş panelin dibinde durur.

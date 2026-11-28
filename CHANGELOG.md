@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Commit dosya listesi sıkılaştırıldı:** Açılan commit'in dosya listesinin çevresindeki boşluklar azaltıldı; dosya satırları daha kompakt.
 - [improve] **Commit açılış animasyonu ve liste tasarımı:** Bir commit'in dosya listesi artık yumuşakça açılıp kapanır (diğer bölümlerle aynı süre ve eğri). Dosya satırları daha net: durum harfi küçük bir etiket, ad ve klasör ayrı, eklenen/silinen sayıları sağda.
 - [improve] **Editör git işaretleri tek renk:** Editör kenarı ve kaydırma çubuğunda git değişiklikleri (eklenen, değişen, silinen) yalnızca mavi ile gösterilir; yeşil ve kırmızı kullanılmaz.
 - [improve] **Fark görünümü VS Code renkleri:** Yan yana fark ekranında eklenen satırlar yeşil, silinenler kırmızı zeminle ve metnin değişen kısmı daha koyu vurguyla gösterilir; kenar ve kaydırma çubuğu işaretleri de aynı renklerdedir (koyu ve açık tema).
@@ -19,6 +20,7 @@
 
 ### en
 
+- [improve] **Tighter commit file list:** Reduced the spacing around a expanded commit's file list; file rows are more compact.
 - [improve] **Commit expand animation and list design:** A commit's file list now opens and closes smoothly, with the same timing as the other sections. File rows are clearer: the status letter is a small tag, name and folder are separated, and added/deleted counts sit on the right.
 - [improve] **Single-color editor git markers:** Git changes in the editor gutter and scrollbar (added, changed, deleted) are shown only in blue; green and red are no longer used.
 - [improve] **VS Code diff colors:** In the side-by-side diff, added lines are green and removed lines red, with the changed text highlighted more strongly; the gutter and overview ruler use the same colors (dark and light themes).

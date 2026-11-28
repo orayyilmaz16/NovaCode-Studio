@@ -903,7 +903,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                   key={`${h}-${cf.path}`}
                   onClick={() => void showCommitDiff(h, cf)}
                   title={cf.orig ? `${cf.orig} → ${cf.path}` : cf.path}
-                  className="group/cf flex items-center gap-2 ps-2 pe-2 h-[26px] rounded-md hover:bg-white/[0.06] cursor-pointer min-w-0 transition-colors duration-(--dur-fast)"
+                  className="group/cf flex items-center gap-2 ps-2 pe-2 h-[24px] rounded-md hover:bg-white/[0.06] cursor-pointer min-w-0 transition-colors duration-(--dur-fast)"
                 >
                   <FileTypeIcon name={splitPath(cf.path).name} size={14} />
                   <span className={`truncate flex-1 min-w-0 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>

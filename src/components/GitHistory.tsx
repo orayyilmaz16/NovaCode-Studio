@@ -117,11 +117,11 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0, transition: 'grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease' }}
             >
               <div className="min-h-0 overflow-hidden">
-                <div className="relative pb-1.5 pt-0.5" style={{ paddingInlineStart: gutter }}>
+                <div className="relative" style={{ paddingInlineStart: gutter }}>
                   <svg width={gutter} height="100%" className="absolute start-0 top-0 pointer-events-none" aria-hidden fill="none" strokeWidth={2} shapeRendering="geometricPrecision">
                     {row.bottom.map((h, k) => (h ? <line key={k} x1={x(k)} x2={x(k)} y1={0} y2="100%" stroke={laneColor(k)} /> : null))}
                   </svg>
-                  <div className="flex flex-col gap-px">{renderFiles(c.hash)}</div>
+                  <div className="flex flex-col">{renderFiles(c.hash)}</div>
                 </div>
               </div>
             </div>

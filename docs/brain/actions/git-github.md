@@ -48,3 +48,6 @@ Cihaz akışındaki kopyala düğmesi renderer'daki `navigator.clipboard` ile ba
 
 ### Satır sayısı rozeti (21.11.2026)
 Eklenen/silinen satır artık her commit'in başlık satırında sağda `+N −M` rozeti (mono, yeşil/kırmızı). Eski ana süreç (yeniden başlatılmamış) `added` alanı döndürmez; menü bunu algılayıp "uygulamayı yeniden başlat" uyarısını (`histNeedRestart`) gösterir. Ana süreç dosyaları (`electron-*.cjs`) değişince `electron:dev` yeniden başlatılmalı: sıcak yeniden yükleme yok.
+
+## Commit ağacı görünümü (28.11.2026)
+`GitHistory.tsx`: satır sabit 66 px (`overflow-hidden`), dal çizgileri satırlar arasında kopmaz; yerel dal etiketi şerit renginde dolgulu, uzak dal çerçeveli bulut etiketi; `+N −M` rozeti. Dosya listesi commit açılınca yumuşakça açılır (`renderFiles`, GitPanel'den gelir).
