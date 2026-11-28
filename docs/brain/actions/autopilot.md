@@ -125,7 +125,7 @@ Secret'lar repoya kod olarak yazılmaz. Değer yapıştırmak için:
 
 **Henüz doğrulanmadı (ilk gerçek koşularda kontrol edilecek):**
 - GitHub tarafında zamanlanmış koşular ve `workflow_dispatch` (dosyalar `main`'e girdikten sonra).
-- `PROJECT_TOKEN` ile proje yazımı (secret henüz yok).
+- **Proje senkronu (gerçek olaylar, PROJECT_TOKEN ile, 28.11.2026):** geçici test issue'su #181: açılış → Backlog, `qa:needs-test` → QA’da, kapanış → Tamam. Üç koşu da başarılı. Bağlı issue'su olmayan otomatik PR olayı 0 işlem yaptı (beklenen). Test issue'su #181 kapalı kalır; panodaki kartı ve issue'yu silmek kurucu kararı.
 - `claude-code-action` ile uçtan uca düzeltme (`ANTHROPIC_API_KEY` henüz yok; `allowed_bots` ve `allowedTools` sözdizimi ilk koşuda doğrulanır).
 - Windows runner'da `npm ci` (install scripts açık) ve tam `npm test`: yerelde geçti, CI ortamında farklılık olabilir. İlk taramada sahte alarm çıkarsa kapı tanımı ayarlanır.
 
