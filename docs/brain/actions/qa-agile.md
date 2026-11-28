@@ -105,6 +105,7 @@ Otomatik testler bir şeyi kanıtlar, ama arayüzü kanıtlamaz. Arayüz değiş
 
 ## 8. Mevcut otomasyon ile ilişki
 
+- Otomasyonun tamamı [[autopilot]] içinde: zamanlanmış kalite taraması (`qa-sweep`), sprint devri (`sprint-cadence`), proje durumu (`project-sync`), mekanik düzeltme (`auto-fix`).
 - `ci-failure-issue.yml`: CI kırılınca otomatik issue (`ci-failure`). Bu issue triage'a düşer.
 - `health-monitor.yml`: tek issue altında sağlık ve güvenlik bulguları (`health-monitor`).
 - Dependabot ve `dep-autopilot`: bağımlılık PR'ları (`dependencies`, `safe-update`, `major-review`).

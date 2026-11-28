@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Otopilot: zamanlanmış tarama, sprint devri, proje senkronu, mekanik düzeltme)
+Sürekli süreç otomasyonu [[autopilot]] aksiyonunda: `qa-sweep` (her gün; tsc, tam npm test, brain:check), `sprint-cadence` (her Pazartesi), `project-sync` (issue ve PR olayları), `auto-fix` (yalnız mekanik kapı, Claude Code ile PR). Sebep: hataları elle aramadan yakalamak, sprint geçişini ve proje durumunu kendiliğinden tutmak. Karar: bot `main`e yazmaz; düzeltme PR açar, birleştirmeyi insan yapar (org politikası: commit/push/deploy onaysız değil). Otomatik düzeltme yalnız belge ve i18n kapısıyla sınırlı; kod testleri insan işi. Public repo için çıktı temizlenir. Secret'lar (`PROJECT_TOKEN`, `ANTHROPIC_API_KEY`) repoya yazılmaz; yoksa adımlar atlanır. Doğrulanmamış: GitHub tarafı koşuları ve Claude ile uçtan uca düzeltme (secret gerekir). Geri dönüş: `gh workflow disable`, secret silme.
+
 ## 28.11.2026 (GitHub Project kuruldu)
 Proje #2 "NovaCode Studio: Geliştirme ve QA" oluşturuldu, repoya bağlandı. Status altı sütuna çevrildi; Öncelik, Büyüklük ve Test durumu alanları eklendi; sprint için Milestone kullanılır (ayrı iterasyon alanı eklenmedi, CLI oluşturamıyor). #163–#170 projeye eklendi; öncelik ve büyüklükler öneri olarak girildi (kurucu teyidi bekleniyor). Sebep: kart durumunu, önceliği ve test durumunu tek yerden izlemek. Sonuç: arayüz otomasyonları (öğe eklenince Backlog, kapanınca Tamam) elle yapılacak. Geri dönüş: proje kapatılır veya silinir; repo ve issue'lar etkilenmez.
 
