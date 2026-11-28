@@ -47,7 +47,7 @@ flowchart TD
 | `qa-sweep.yml` | Her gün 03:17 UTC, elle | Kapıları çalıştırır, issue açar/günceller/kapatır, projeye ekler, mekanik kapıda düzeltmeyi tetikler | `PROJECT_TOKEN` (isteğe bağlı) | contents read, issues write, actions write |
 | `sprint-cadence.yml` | Pazartesi 05:05 UTC, elle (isteğe bağlı `date` girdisi) | Milestone oluşturur, devir yapar, rapor yazar | — | contents read, issues write |
 | `project-sync.yml` | Issue ve PR olayları | Projects #2 kartının Status alanını günceller | `PROJECT_TOKEN` (isteğe bağlı) | contents read |
-| `auto-fix.yml` | Yalnız `qa-sweep`'ten (elle de çağrılabilir) | Deterministik düzeltme (çözülmeyen belge bağlantıları), dal, PR ve CI tetikleme. LLM yok, ücret yok | — | contents write, pull-requests write, issues write, actions write |
+| `auto-fix.yml` | Yalnız `qa-sweep`'ten (elle de çağrılabilir). Hatanın olduğu dalda koşar, PR'ı o dala açar (main için main, özellik dalı için o dal) | Deterministik düzeltme (çözülmeyen belge bağlantıları), dal, PR ve CI tetikleme. LLM yok, ücret yok | — | contents write, pull-requests write, issues write, actions write |
 
 Betikler: `scripts/qa-sweep.mjs`, `scripts/sprint-cadence.mjs`, `scripts/project-sync.mjs`, ortak kurallar `scripts/autopilot-lib.mjs`. Testler: `scripts/tests/autopilot.test.cjs` (`npm test` zincirinde).
 

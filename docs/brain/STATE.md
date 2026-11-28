@@ -198,7 +198,7 @@
 | `scripts/health-monitor.mjs` | 268 |
 | `scripts/make-icons.cjs` | 29 |
 | `scripts/project-sync.mjs` | 75 |
-| `scripts/qa-sweep.mjs` | 100 |
+| `scripts/qa-sweep.mjs` | 102 |
 | `scripts/release.mjs` | 293 |
 | `scripts/runtime-watch.mjs` | 25 |
 | `scripts/sprint-cadence.mjs` | 63 |
