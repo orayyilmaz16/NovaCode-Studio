@@ -2,6 +2,11 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Sürüm hattı: bot birleşmesi etiketi ve yayını tetiklemez)
+- **Olay:** Sürüm PR'ı #200 (v1.10.2) `github-actions[bot]` ile açıldı; aynı bot auto-merge'i etkinleştirdi ve birleştirdi. GitHub, GITHUB_TOKEN ile yapılan birleşmelerin push iş akışlarını başlatmadığı için main'de CI/CD, Otomatik Sürümleme ve GitHub Release çalışmadı. Aynı kural nedeniyle bot açılışlı PR'larda kontroller de başlamaz; önceki sürümde ve #200'de boş bir `ci:` commit'i ile tetiklendi.
+- **Geçici çözüm:** Sürüm birleşmesi, kullanıcı hesabıyla birleşen bir PR ile tetiklenir (bu belge PR'ı). #198 (`autopilot` commit yazarlı) onay istemeden birleşti; ek onay kuralı bu durumda engel olmadı.
+- **Öneri (uygulanmadı, kurucu kararı):** Sürüm PR'ını PROJECT_TOKEN ile açmak, ya da birleşme sonrası sürüm işini `workflow_dispatch` ile tetiklemek.
+
 ## 28.11.2026 (#169: App ayar seçicisine geçti; kabul kriteri henüz tam değil)
 - **Karar:** `App.tsx` ayarları `useSettings()` yerine anahtar bazlı okur (`useSettingValue`); yan etkiler `useSettingsEffect` (temizleme destekli), olay işleyicileri yeni `useSettingsGetter()` ile okur. Bu değişiklikte modal (`SettingsPage`) ve diğer tüketiciler (FileTree, Terminal, GitPanel, AIAssistant, ExtensionsPanel, CompletionMenu) değiştirilmedi.
 - **Neden:** Ölçüm (16 adımlık `fontSize` sürüklemesi): App her adımda yeniden çiziliyordu (16); değişiklikten sonra 0. Kalan maliyet modal satırlarında; bu büyük bir yüzey (bileşen testi yok), ayrı bir adım olarak yapılacak.
