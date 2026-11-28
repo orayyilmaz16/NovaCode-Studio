@@ -86,8 +86,8 @@
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitHistory.tsx` | 123 |
-| `src/components/GitPanel.tsx` | 924 |
+| `src/components/GitHistory.tsx` | 126 |
+| `src/components/GitPanel.tsx` | 931 |
 | `src/components/GithubAccount.tsx` | 137 |
 | `src/components/HoverTip.tsx` | 49 |
 | `src/components/KeybindingsEditor.tsx` | 146 |
