@@ -59,8 +59,10 @@ async function report(token, data, dry) {
       if (project) await setIssueStatus(projectToken, project, created.number, 'Backlog');
       if (a.autoFix) {
         // GITHUB_TOKEN ile açılan issue etiketi başka workflow'u tetiklemez; düzeltme doğrudan çağrılır.
+        // Düzeltme, hatanın olduğu dalda koşar ve o dala PR açar (main için main; özellik dalı için o dal).
+        const ref = process.env.GITHUB_REF_NAME || 'main';
         await ghRest(token, 'POST', `/repos/${repo}/actions/workflows/auto-fix.yml/dispatches`, {
-          ref: 'main', inputs: { issue_number: String(created.number) },
+          ref, inputs: { issue_number: String(created.number) },
         });
         console.log(`Düzeltme tetiklendi: #${created.number}`);
       }

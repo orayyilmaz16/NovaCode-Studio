@@ -86,7 +86,8 @@ jobs:
           git add docs/brain
           git commit -m "fix(brain): çözülmeyen belge bağlantıları onarıldı (#$ISSUE)"
           git push origin "$branch"
-          gh pr create --base main --head "$branch" \
+          base="${GITHUB_REF_NAME}"
+          gh pr create --base "$base" --head "$branch" \
             --title "fix(brain): çözülmeyen belge bağlantıları (#$ISSUE)" \
             --body "$(printf 'Closes #%s\n\nOtomatik düzeltici (deterministik, LLM yok) çözülmeyen [[bağlantı]]ları onardı. Yazım benzeri adlar en yakın dosyaya bağlandı; eşleşmeyenler düz metne çevrildi. Doğrulama: npm run brain:check geçti.\n\nBirleştirme insan işidir.' "$ISSUE")"
           # GITHUB_TOKEN ile açılan PR ve push, pull_request/push CI'ını tetiklemez; kaliteyi bu dalda elle koştur.
