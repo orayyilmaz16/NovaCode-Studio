@@ -4,8 +4,8 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.10.1** (patch, 28.11.2026) · notlar `release-notes/v1.10.1.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Düzeltmeler: Kesme noktası
+**Son sürüm v1.10.2** (patch, 28.11.2026) · notlar `release-notes/v1.10.2.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- İyileştirmeler: Ayarlar
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)
