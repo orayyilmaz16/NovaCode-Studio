@@ -4,13 +4,8 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.10.0** (minor, 28.11.2026) · notlar `release-notes/v1.10.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Yeni özellikler: Commit ayrıntı kartı
-- Yeni özellikler: Commit yazarı kartta
-- Yeni özellikler: Editörde Git satır işaretleri
-- Yeni özellikler: Git dal grafı ve yeniden boyutlanan bölümler
-- Düzeltmeler: Commit açılınca grafik kopması
-- … ve 35 madde daha (`release-notes/v1.10.0.md`)
+**Son sürüm v1.10.1** (patch, 28.11.2026) · notlar `release-notes/v1.10.1.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- Düzeltmeler: Kesme noktası
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)
