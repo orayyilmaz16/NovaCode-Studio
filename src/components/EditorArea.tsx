@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Editor, { DiffEditor } from '@monaco-editor/react';
 import { bindProblemDecorations, setProblemsMonaco, useFileProblems } from '../services/problems';
 import { FileTypeIcon } from './FileTypeIcon';
@@ -16,8 +16,8 @@ import { PopupMenu, type MenuItem } from './Menu';
 import { Logo } from './Logo';
 import { useHoverTip } from './HoverTip';
 import { defineNovaThemes } from '../services/editorTheme';
-import { useSettings } from '../services/SettingsContext';
-import { toMonacoOptions, toMonacoOptionsForFile } from '../services/settings';
+import { useSettingValue, useSettingsEffect, useSettingsSlice } from '../services/SettingsContext';
+import { AI_COMPLETION_KEYS, EDITOR_OPTION_KEYS, applyFileSize, toMonacoEditorOptions } from '../services/settings';
 import type { FileItem } from '../types';
 import { t } from '../i18n/uiText';
 
@@ -225,17 +225,13 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
   onSplitRight,
   onCloseSplit,
 }) => {
-  // Ayarlar: yazı tipi, tema, imleç... değiştiği an editöre yansır (gerçek zamanlı)
-  const { values } = useSettings();
+  // Ayarlar: yazı tipi, tema, imleç... değiştiği an editöre yansır (gerçek zamanlı).
+  // Seçiciler: yalnız düzenleyici seçeneklerini (ve ihtiyaç duyulan tek tek ayarları) izler; AI tamamlama
+  // ayarları yan etki olarak okunur, böylece onların kaydırıcısı bu bileşeni yeniden çizmez.
   const theme = useActiveEditorTheme();
-  const editorOptions = useMemo(
-    () => ({
-      ...toMonacoOptions(values),
-      // Copilot tarzı satır içi öneri: önizleme araç çubuğu (kabul / kelime / satır / sonraki), klasik öneri listesiyle birlikte çalışır
-      inlineSuggest: { enabled: values.aiCompletion !== false, showToolbar: (values.aiCompletionToolbar === false ? 'onHover' : 'always') as 'onHover' | 'always', suppressSuggestions: false }
-    }),
-    [values]
-  );
+  const editorOptions = useSettingsSlice(EDITOR_OPTION_KEYS, toMonacoEditorOptions);
+  const showBreadcrumbs = useSettingValue('showBreadcrumbs');
+  const lspEnabled = useSettingValue('lspEnabled');
   const [copied, setCopied] = React.useState(false);
   const [more, setMore] = React.useState<{ x: number; y: number } | null>(null); // dar editörde ikincil eylemler "⋯" menüsünde
   const [savedEffect, setSavedEffect] = React.useState(false);
@@ -360,12 +356,13 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
     const ed = editorInstance;
     const m = ed?.getModel?.();
     if (!ed || !m || !activeFile || activeFile.diff) return;
-    ed.updateOptions({ ...toMonacoOptionsForFile(values, { chars: m.getValueLength(), lines: m.getLineCount() }), inlineSuggest: (editorOptions as { inlineSuggest: unknown }).inlineSuggest });
+    // editorOptions zaten inlineSuggest'i içerir; büyük dosya kuralı yalnız üstüne yazar
+    ed.updateOptions(applyFileSize(editorOptions, { chars: m.getValueLength(), lines: m.getLineCount() }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorInstance, activeFile?.id, editorOptions]);
 
-  // AI kod tamamlama ayarları (açık/kapalı, gecikme) anında yansır
-  useEffect(() => {
+  // AI kod tamamlama ayarları (açık/kapalı, gecikme) anında yansır; yalnız bu ayarlar değişince çalışır, çizim tetiklemez
+  useSettingsEffect(AI_COMPLETION_KEYS, (values) => {
     const num = (v: unknown, d: number) => (Number.isFinite(Number(v)) && v !== '' && v !== undefined ? Number(v) : d);
     const len = String(values.aiCompletionLength);
     setCompletionConfig({
@@ -381,7 +378,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       count: num(values.aiCompletionCount, 1),
       length: len === 'line' || len === 'long' ? len : 'block'
     });
-  }, [values.aiCompletion, values.aiCompletionTrigger, values.aiCompletionDelay, values.aiCompletionCooldown, values.aiCompletionModel, values.aiCompletionMaxTokens, values.aiCompletionPrefix, values.aiCompletionSuffix, values.aiCompletionTemperature, values.aiCompletionCount, values.aiCompletionLength]);
+  });
 
   // Hatalı satırlar kırmızı, uyarılı satırlar sarı çizgiyle işaretlenir
   useEffect(() => {
@@ -398,8 +395,8 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
   // Dil sunucusu (LSP): Python, Rust, Go, C/C++ vb. için tanılama, tamamlama, üzerine gelme, tanıma git
   useEffect(() => {
     if (!editorInstance || !activeFile?.path) return;
-    return bindLspShared(editorInstance, activeFile.path, values.lspEnabled !== false);
-  }, [editorInstance, activeFile?.path, values.lspEnabled]);
+    return bindLspShared(editorInstance, activeFile.path, lspEnabled !== false);
+  }, [editorInstance, activeFile?.path, lspEnabled]);
 
   // Ortak düzenleme: aktif dosya için bir Yjs odası aç ve Monaco modeline bağla.
   // Odalar dosya bazlıdır: <proje>/<dosya-yolu>. Sunucu kapalıysa editör yerel çalışmaya devam eder.
@@ -642,7 +639,7 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       })()}
 
       {/* Yol göstergesi */}
-      {activeFile && !activeFile.diff && values.showBreadcrumbs !== false && (
+      {activeFile && !activeFile.diff && showBreadcrumbs !== false && (
         <div className="flex items-center gap-1 h-[22px] shrink-0 px-3 text-[12px] text-zinc-500 bg-nv-editor select-none overflow-hidden whitespace-nowrap" aria-label={t('appBreadcrumbs')}>
           {crumbs.map((c, i) => (
             <React.Fragment key={crumbs.slice(0, i + 1).join('/')}>
