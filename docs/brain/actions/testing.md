@@ -33,7 +33,7 @@ Ayrı profille Electron: `NOVA_HEADLESS=1 npx electron . --remote-debugging-port
 Sonucu [[AGENT]] **Durum**'a tek satır yaz (ne doğrulandı, ne doğrulanamadı).
 
 ## Denetim düzeltmeleri (17.11.2026)
-Yeni testler: `paths.test.cjs` (yol doğrulama, symlink), `fs-handlers.test.cjs` (fs:* IPC işleyicileri: çalışma klasörü sınırı, bağ kaçışı, geçersiz yol, onaylı dış dosyalar; electron taklit edilir, #168 kısmi), `ai-security.test.cjs`, `syncserver.test.cjs` (sync sunucusu sertleştirme).
+Yeni testler: `paths.test.cjs` (yol doğrulama, symlink), `fs-handlers.test.cjs` (fs:* IPC işleyicileri: çalışma klasörü sınırı, bağ kaçışı, geçersiz yol, onaylı dış dosyalar; electron taklit edilir, #168 kısmi), `secrets.test.cjs` (secrets:has/get/set: yalnız collabToken renderer'a, AI anahtarı reddedilir, diskte düz metin yok, şifreleme yokken yazılmaz; safeStorage taklit edilir), `ipc-contract.test.cjs` (preload ↔ ana süreç kanal sözleşmesi, statik tarama: invoke/send/on ↔ handle/on/send, kayıt tekrarı, dinamik kanal, ham ipcRenderer; uyarılar kullanılmayan kanalları listeler), `ai-security.test.cjs`, `syncserver.test.cjs` (sync sunucusu sertleştirme).
 
 - Test dosyalarında sahte anahtar/özel anahtar değerleri kaynakta bütün yazılmaz, çalışma zamanında birleştirilir (`check-hygiene.mjs` sır taraması kaynakta eşleşme görmesin; bkz. `ai-security.test.cjs`).
 
