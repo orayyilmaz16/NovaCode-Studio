@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:52 · main
+<!-- sig:fCxkb2NzL2JyYWluL0RFQ0lTSU9OUy5tZCxkb2Nz -->
+- Alan: —
+- Kod (0): —
+- Belge (2): `docs/brain/DECISIONS.md`, `docs/brain/qa/SPRINTS.md`
+- Durum: ✓ yalnız belge değişti
+
 ## 28.11.2026 13:46 · auto/20261128-104344
 <!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvYXV0by1maXgueW1s -->
 - Alan: [[ci-cd]], [[ui-design]], [[testing]]
@@ -274,11 +281,4 @@
 - Alan: [[ui-design]]
 - Kod (5): `server/deploy/Caddyfile`, `server/deploy/Dockerfile`, `server/deploy/README.md`, `server/deploy/docker-compose.yml`, `server/deploy/install.sh`
 - Belge (4): `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/sync-deploy.md`
-- Durum: ✓ belgelendi
-
-## 27.11.2026 11:49 · main
-<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvcmVsZWFzZS1maW5h -->
-- Alan: [[ci-cd]]
-- Kod (1): `.github/workflows/release-finalize.yml`
-- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/versioning.md`
 - Durum: ✓ belgelendi
