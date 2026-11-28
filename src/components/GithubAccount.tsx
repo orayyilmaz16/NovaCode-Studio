@@ -87,7 +87,7 @@ export const GithubAccount: React.FC = () => {
       <button
         onClick={toggleOpen}
         aria-expanded={open}
-        className="group/sec flex items-center w-full h-6 pe-2 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider text-start hover:text-zinc-200"
+        className="group/sec flex items-center w-full h-6 pe-2 text-[11px] text-zinc-300 font-semibold text-start hover:text-zinc-100"
       >
         <ChevronRight size={13} className={`ms-1.5 shrink-0 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open ? 'rotate-90' : ''}`} />
         <Github size={12} className="ms-1 shrink-0" />
