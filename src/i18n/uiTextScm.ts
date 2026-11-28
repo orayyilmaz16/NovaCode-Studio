@@ -266,6 +266,27 @@ export const SCM_TEXT = {
   histFilesTip: {
     tr: "{n} dosya değişti", en: "{n} files changed", de: "{n} Dateien geändert", ru: "Изменено файлов: {n}", ar: "تم تغيير {n} ملف", es: "{n} archivos modificados", fr: "{n} fichiers modifiés", az: "{n} fayl dəyişdi",
   },
+  histCardCopy: {
+    tr: "Karmayı kopyala", en: "Copy hash", de: "Hash kopieren", ru: "Копировать хеш", ar: "نسخ المعرّف", es: "Copiar hash", fr: "Copier le hash", az: "Hash-i kopyala",
+  },
+  histCardCopied: {
+    tr: "Kopyalandı", en: "Copied", de: "Kopiert", ru: "Скопировано", ar: "تم النسخ", es: "Copiado", fr: "Copié", az: "Kopyalandı",
+  },
+  histCardAuthor: {
+    tr: "Yazar", en: "Author", de: "Autor", ru: "Автор", ar: "المؤلف", es: "Autor", fr: "Auteur", az: "Müəllif",
+  },
+  histCardDate: {
+    tr: "Tarih", en: "Date", de: "Datum", ru: "Дата", ar: "التاريخ", es: "Fecha", fr: "Date", az: "Tarix",
+  },
+  histCardParents: {
+    tr: "Üst commit", en: "Parent", de: "Übergeordnet", ru: "Родитель", ar: "الأصل", es: "Padre", fr: "Parent", az: "Valideyn commit",
+  },
+  histCardMerge: {
+    tr: "Birleştirme", en: "Merge of", de: "Zusammenführung", ru: "Слияние", ar: "دمج", es: "Fusión de", fr: "Fusion de", az: "Birləşdirmə",
+  },
+  histCardHint: {
+    tr: "Dosyaları görmek için tıkla", en: "Click to see the files", de: "Klicken, um die Dateien zu sehen", ru: "Нажмите, чтобы увидеть файлы", ar: "انقر لعرض الملفات", es: "Haz clic para ver los archivos", fr: "Cliquez pour voir les fichiers", az: "Faylları görmək üçün klikləyin",
+  },
   histNeedRestart: {
     tr: "Satır sayıları için uygulamayı yeniden başlat.", en: "Restart the app to see line counts.", de: "Starte die App neu, um Zeilenzahlen zu sehen.", ru: "Перезапустите приложение, чтобы увидеть число строк.", ar: "أعد تشغيل التطبيق لرؤية عدد الأسطر.", es: "Reinicia la aplicación para ver el recuento de líneas.", fr: "Redémarrez l'application pour voir le nombre de lignes.", az: "Sətir sayını görmək üçün tətbiqi yenidən başladın.",
   },

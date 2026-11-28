@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Git geçmişi: commit ayrıntı kartı)
+Commit üzerine gelince yerel `title` ipucu yerine zengin bir kart açılır (portal, sabit konum, gecikme 350 ms). Sebep: kullanıcı ayrıntılı ve güzel bir görünüm istedi. Gövde metni eklenmedi (log biçimi değişmesin diye); sonraki adım olarak düşünülebilir. Kaynak: kullanıcı isteği. Görsel doğrulama yapılmadı.
+
 ## 28.11.2026 (Git grafı: açılan commit hizası)
 Açılan commit'in dal şeritleri commit düğmesiyle aynı yatay ofsette (`mx-1`) çizilir. Sebep: 4 px kayma, açılınca çizginin kopması. Kaynak: kullanıcı bildirimi (NovaCode geçmişi). Görsel doğrulama yapılmadı; tsc temiz.
 

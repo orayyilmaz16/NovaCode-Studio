@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
-import { Cloud, GitBranch, Target } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Check, Cloud, Copy, GitBranch, GitCommitHorizontal, Target } from 'lucide-react';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
@@ -41,6 +42,72 @@ const GraphCell: React.FC<{ row: GraphRow; width: number; hash: string; head: bo
   );
 };
 
+const CARD_W = 300;
+const CARD_H_EST = 250;
+
+/** Commit'in üzerine gelince açılan ayrıntı kartı: konu, karma, yazar, tarih, değişiklik özeti, üst commit'ler, dallar. */
+const HoverCard: React.FC<{ c: GitCommitInfo; anchor: DOMRect; currentBranch?: string }> = ({ c, anchor, currentBranch }) => {
+  const [copied, setCopied] = useState(false);
+  const left = anchor.right + 8 + CARD_W > window.innerWidth ? Math.max(8, anchor.left - CARD_W - 8) : anchor.right + 8;
+  const top = Math.max(8, Math.min(anchor.top, window.innerHeight - CARD_H_EST - 8));
+  const parents = c.parents ?? [];
+  const refs = c.refs ?? [];
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(c.hash);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch { /* pano erişilemezse sessiz geç */ }
+  };
+  return (
+    <div
+      role="tooltip"
+      style={{ left, top, width: CARD_W }}
+      className="fixed z-50 pointer-events-none rounded-lg border border-white/10 bg-[var(--color-nv-side)] p-3 text-start shadow-[var(--float-shadow)] transition-opacity duration-(--dur-fast)"
+    >
+      <div className="text-[12.5px] font-medium leading-snug text-zinc-100 break-words">{c.subject}</div>
+      <div className="mt-2 flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 font-mono text-[11px] text-zinc-300"><GitCommitHorizontal size={12} className="text-zinc-500" />{c.hash}</span>
+        <button
+          type="button"
+          onClick={copy}
+          tabIndex={-1}
+          className="pointer-events-auto inline-flex items-center gap-1 h-[18px] px-1.5 rounded text-[10.5px] text-zinc-400 hover:bg-white/[0.08] transition-colors duration-(--dur-fast)"
+        >
+          {copied ? <Check size={11} /> : <Copy size={11} />}{t(copied ? 'histCardCopied' : 'histCardCopy')}
+        </button>
+      </div>
+      <div className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[11px]">
+        <span className="text-zinc-500">{t('histCardAuthor')}</span>
+        <span className="text-zinc-200 truncate">{c.author}</span>
+        <span className="text-zinc-500">{t('histCardDate')}</span>
+        <span className="text-zinc-200">{c.ts ? new Date(c.ts).toLocaleString() : c.when}</span>
+        {parents.length > 0 && (
+          <>
+            <span className="text-zinc-500">{parents.length > 1 ? t('histCardMerge') : t('histCardParents')}</span>
+            <span className="font-mono text-zinc-300">{parents.map((p) => p.slice(0, 7)).join(' ')}</span>
+          </>
+        )}
+      </div>
+      <div className="mt-2 flex items-center gap-1.5 flex-wrap font-mono text-[11px] tabular-nums">
+        {c.added !== undefined && <span className="text-emerald-400">+{c.added}</span>}
+        {c.deleted !== undefined && <span className="text-rose-400">−{c.deleted}</span>}
+        {c.files !== undefined && <span className="text-zinc-400">· {t('histFilesTip').replace('{n}', String(c.files))}</span>}
+      </div>
+      {refs.length > 0 && (
+        <div className="mt-2 flex items-center gap-1 flex-wrap">
+          {refs.map((r) => (
+            <span key={r} className={`inline-flex items-center gap-1 h-[16px] px-1.5 rounded-md text-[10.5px] font-mono ${r === currentBranch ? 'bg-white/[0.12] text-zinc-100' : 'border border-white/15 text-zinc-300'}`}>
+              {r === currentBranch ? <Target size={10} /> : r.includes('/') ? <Cloud size={10} className="text-zinc-400" /> : <GitBranch size={10} />}{r}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="mt-2.5 pt-2 border-t border-white/[0.06] text-[10.5px] text-zinc-500">{t('histCardHint')}</div>
+    </div>
+  );
+};
+
 interface Props {
   commits: GitCommitInfo[];
   currentBranch?: string;
@@ -57,6 +124,19 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
     [commits]
   );
   const gutter = layout.laneCount * LANE_W + 12;
+  // Ayrıntı kartı: kısa bir gecikmeden sonra açılır; fare çıkınca kapanır
+  const [hover, setHover] = useState<{ hash: string; rect: DOMRect } | null>(null);
+  const hoverTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
+  const hoverOn = (hash: string, el: HTMLElement) => {
+    window.clearTimeout(hoverTimer.current);
+    hoverTimer.current = window.setTimeout(() => setHover({ hash, rect: el.getBoundingClientRect() }), 350);
+  };
+  const hoverOff = () => {
+    window.clearTimeout(hoverTimer.current);
+    setHover(null);
+  };
+  const hoverCommit = hover ? commits.find((c) => c.hash === hover.hash) : undefined;
 
   return (
     <div role="list" className="min-w-0 pb-1">
@@ -72,7 +152,10 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
             <button
               onClick={() => onToggle(c.hash)}
               aria-expanded={open}
-              title={`${c.hash} — ${c.subject}\n${c.author} · ${c.ts ? new Date(c.ts).toLocaleString() : c.when}`}
+              onMouseEnter={(e) => hoverOn(c.hash, e.currentTarget)}
+              onMouseLeave={hoverOff}
+              onFocus={(e) => hoverOn(c.hash, e.currentTarget)}
+              onBlur={hoverOff}
               style={{ height: ROW_H, paddingInlineStart: gutter }}
               className="group relative w-[calc(100%-8px)] mx-1 block overflow-hidden text-start pe-2 py-[3px] rounded-md hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none transition-colors duration-(--dur-fast)"
             >
@@ -128,6 +211,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
           </div>
         );
       })}
+      {hover && hoverCommit && createPortal(<HoverCard c={hoverCommit} anchor={hover.rect} currentBranch={currentBranch} />, document.body)}
     </div>
   );
 };
