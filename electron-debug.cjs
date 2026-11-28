@@ -65,12 +65,20 @@ function toFile(url) {
   try { return fileURLToPath(url); } catch { return null; }
 }
 
+// V8 betik URL'sini bazen ham yolla (örn. Windows kısa adı "RUNNER~1"), bazen pathToFileURL biçimiyle ("%7E") raporlar:
+// ikisi de eşleşmeli, yoksa kesme noktası hiç bağlanmaz.
+function scriptUrlRegex(file) {
+  const raw = 'file://' + (file.startsWith('/') ? '' : '/') + file.replace(/\\/g, '/');
+  const alts = [...new Set([raw, pathToFileURL(file).href])].map(reEsc);
+  return '^(?:' + alts.join('|') + ')$';
+}
+
 async function applyBreakpoints(file) {
   if (!sess) return [];
   for (const id of sess.bpIds.get(file) || []) { try { await cdp('Debugger.removeBreakpoint', { breakpointId: id }); } catch { /* yok */ } }
   sess.bpIds.set(file, []);
   const out = [];
-  const regex = '^' + reEsc(pathToFileURL(file).href) + '$';
+  const regex = scriptUrlRegex(file);
   for (const line of bps.get(file) || []) {
     try {
       const r = await cdp('Debugger.setBreakpointByUrl', { lineNumber: line - 1, urlRegex: regex });

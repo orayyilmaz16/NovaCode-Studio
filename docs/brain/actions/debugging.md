@@ -30,6 +30,9 @@ Yalnız Node/JavaScript. TypeScript için kaynak haritası yok (derlenmiş `.js`
 `scripts/tests/debug.test.cjs` (gerçek Node süreci: duraklama, adım, değişken, ifade, çıkış, yol reddi). Arayüz: [[testing]] gizli profil + CDP.
 Yeni metin [[i18n]] ile `src/i18n/uiTextDev.ts` içine (8 dil).
 
+## Kesme noktası eşleşmesi (28.11.2026)
+Kesme noktası `setBreakpointByUrl` ile betik URL'sine bağlanır. V8 betik URL'sini ham yolla (Windows kısa adı `RUNNER~1` gibi) raporlar; `pathToFileURL` ise `~` karakterini `%7E` yazar. `scriptUrlRegex` ikisini de kabul eder. Kısa adlı geçici klasörde test (`TEMP` = 8.3 yolu) bu yüzden başarısız oluyordu (issue #176).
+
 ## Denetim düzeltmeleri (17.11.2026)
 Debug alt süreci `safeEnv` ile başlar: hata ayıklanan programın kabuktaki özel ortam değişkenlerini görmez. Durdurma/kapanışta `killSync` (Windows `taskkill /T /F`).
 
