@@ -643,9 +643,9 @@ export type UiTextKey = keyof typeof UI_TEXT;
 function detectLang(): UiLang {
   try {
     const code = (navigator.language || 'tr').slice(0, 2).toLowerCase() as UiLang;
-    return (UI_LANGS as readonly string[]).includes(code) ? code : 'tr';
+    return (UI_LANGS as readonly string[]).includes(code) ? code : 'en';
   } catch {
-    return 'tr';
+    return 'en';
   }
 }
 
