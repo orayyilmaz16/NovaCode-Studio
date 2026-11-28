@@ -4,12 +4,14 @@
 
 ### tr
 
+- [feat] **Git dal grafı ve yeniden boyutlanan bölümler:** Git paneli geçmişi artık dal topolojisini çizer: renkli şeritler, dalın ayrıldığı ve birleştiği noktalar, geçerli dal hedef simgesiyle işaretli; dal rozetleri (yerel dal dolgulu, uzak dal bulut simgeli) satır sonunda. "Tüm dallar / Geçerli dal" seçeneği var. Geçmiş, Hazırlanan, Değişiklikler, Birleştirme ve Stash bölümleri hem açılır/kapanır hem de alt kenardan sürüklenerek (ya da ↑/↓ tuşlarıyla) boyutlandırılır; yükseklik hatırlanır, çift tıklama otomatiğe döndürür. 8 dilde.
 - [improve] **Git paneli geçmişi ve durum özeti:** Geçmiş listesindeki taşma giderildi (konu ve yazar satırı kırpılır, dal/etiket rozetleri kendi satırında sarılır). Her commit'te zaman arayüz dilinde, eklenen/silinen satır sayısı ve dal/etiket rozetleri görünür; açılınca dosya başına +/− sayıları listelenir. Dal satırının altına durum özeti eklendi: birleştirme sürüyor, çakışma sayısı, ayrık HEAD, hazırlanan ve değişen dosya sayıları (ya da "temiz"). 8 dilde.
 - [improve] **Yapay zekâ düğmesi:** Üst çubukta terminal aç/kapa düğmesinin yanına yapay zekâ asistanını aç/kapa düğmesi eklendi.
 - [fix] **GitHub oturumu:** Süreli GitHub token'ları artık yenileme token'ıyla otomatik yenilenir; süresi dolan erişim token'ı sessizce yenilenir, böylece oturum her seferinde erken düşmez.
 
 ### en
 
+- [feat] **Git branch graph and resizable sections:** The Git panel history now draws branch topology: colored lanes, fork and merge points, the current branch marked with a target icon; branch badges (local filled, remote with a cloud icon) at the end of each row. There is an "All branches / Current branch" switch. The History, Staged, Changes, Merge and Stash sections are collapsible and can be resized by dragging the bottom edge (or with the up/down keys); the height is remembered and double-click resets it to auto. In 8 languages.
 - [improve] **Git panel history and status summary:** Fixed the overflow in the history list (subject and author lines are truncated, branch/tag badges wrap on their own line). Each commit shows time in the UI language, lines added/deleted and branch/tag badges; expanding it lists per-file +/- counts. A status summary was added under the branch row: merge in progress, conflict count, detached HEAD, staged and changed file counts (or "clean"). In 8 languages.
 - [improve] **AI button:** Added a toggle for the AI assistant next to the terminal toggle in the top bar.
 - [fix] **GitHub session:** Expiring GitHub tokens are now renewed automatically with the refresh token, so an expired access token is renewed silently and the session no longer drops early.

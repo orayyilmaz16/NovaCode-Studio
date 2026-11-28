@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { timeAgo } from '../services/timeAgo';
+import { GitHistory } from './GitHistory';
+import { ResizableBody } from './ResizableBody';
 import {
   GitBranch,
   GitCommit,
@@ -15,7 +16,6 @@ import {
   Minus,
   Undo2,
   RefreshCcw,
-  History,
   Loader2,
   CloudUpload,
   ChevronDown,
@@ -140,7 +140,7 @@ const FileRow: React.FC<FileRowProps> = ({ f, side, busy, onOpenDiff, onOpenFile
   );
 };
 
-const Section: React.FC<{ title: string; count: number; open: boolean; onToggle: () => void; actions?: React.ReactNode; children: React.ReactNode }> = ({ title, count, open, onToggle, actions, children }) => (
+const Section: React.FC<{ id?: string; defaultHeight?: number; title: string; count: number; open: boolean; onToggle: () => void; actions?: React.ReactNode; children: React.ReactNode }> = ({ id, defaultHeight, title, count, open, onToggle, actions, children }) => (
   <div className="py-1 border-b border-zinc-800/80">
     <div className="group/sec flex items-center h-6 pe-2 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">
       <button onClick={onToggle} aria-expanded={open} title={t('scmCollapse')} className="flex items-center gap-1 flex-1 min-w-0 ps-1.5 h-full text-start hover:text-zinc-200">
@@ -150,7 +150,7 @@ const Section: React.FC<{ title: string; count: number; open: boolean; onToggle:
       <span className="hidden group-hover/sec:flex items-center">{actions}</span>
       <span className="ms-1 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300 normal-case tracking-normal">{count}</span>
     </div>
-    {open && <div className="px-1">{children}</div>}
+    {open && (id ? <div className="px-1"><ResizableBody id={id} defaultHeight={defaultHeight}>{children}</ResizableBody></div> : <div className="px-1">{children}</div>)}
   </div>
 );
 
@@ -170,7 +170,9 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   const [pr, setPr] = useState({ title: '', body: '', draft: false });
   const [pubOpen, setPubOpen] = useState(false);
   const [pub, setPub] = useState({ name: '', isPrivate: true });
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(true);
+  const [histAll, setHistAll] = useState(() => { try { return localStorage.getItem('nova.git.histAll') !== '0'; } catch { return true; } });
+  const setHistAllPersist = (v: boolean) => { setHistAll(v); try { localStorage.setItem('nova.git.histAll', v ? '1' : '0'); } catch { /* depolama kapalı */ } };
   const [commits, setCommits] = useState<GitCommitInfo[]>([]);
   const [stashes, setStashes] = useState<GitStash[]>([]);
   const [openCommit, setOpenCommit] = useState<string | null>(null);
@@ -264,7 +266,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   useEffect(() => {
     if (!currentRepoPath || !isRepo || !api) return;
     let cancelled = false;
-    void api.gitLog(currentRepoPath).then((r) => {
+    void api.gitLog(currentRepoPath, histAll ? 150 : 60, histAll).then((r) => {
       if (!cancelled && r.success) setCommits(r.commits);
     });
     void api.gitStashList(currentRepoPath).then((r) => {
@@ -273,7 +275,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
     return () => {
       cancelled = true;
     };
-  }, [status, currentRepoPath, isRepo, api]);
+  }, [status, currentRepoPath, isRepo, api, histAll]);
 
   useEffect(() => () => clearTimeout(feedbackTimer.current), []);
 
@@ -648,6 +650,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       {/* Çakışmalar */}
       {conflicts.length > 0 && (
         <Section
+          id="merge"
           title={t('scmMergeChanges')}
           count={conflicts.length}
           open={!!open.merge}
@@ -667,6 +670,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       {/* Sahnelenenler */}
       {staged.length > 0 && (
         <Section
+          id="staged"
           title={t('gitStaged')}
           count={staged.length}
           open={!!open.staged}
@@ -685,6 +689,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
 
       {/* Değişiklikler */}
       <Section
+        id="changes"
         title={t('gitChanges')}
         count={unstaged.length}
         open={!!open.changes}
@@ -714,7 +719,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
 
       {/* Stash */}
       {stashes.length > 0 && (
-        <Section title={t('scmStashes')} count={stashes.length} open={!!open.stash} onToggle={() => tog('stash')}>
+        <Section id="stash" title={t('scmStashes')} count={stashes.length} open={!!open.stash} onToggle={() => tog('stash')}>
           {stashes.map((s) => (
             <div key={s.index} className="group flex items-center gap-1.5 ps-3 pe-2 h-[22px] rounded hover:bg-zinc-800/50" title={`${s.message} · ${s.when}`}>
               <Archive size={13} className="text-zinc-500 shrink-0" />
@@ -849,87 +854,61 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         </div>
       )}
 
-      {/* Geçmiş: commit'e tıkla → dosyaları listelenir; dosyaya tıkla → fark */}
-      <div className="p-2 min-w-0 overflow-x-hidden">
-        <button onClick={() => setHistoryOpen((v) => !v)} className="w-full flex items-center gap-1.5 px-2 py-1 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider hover:text-zinc-200">
-          <History size={12} />
-          <span>{t('gitHistory')}</span>
-          <span className="ms-auto">{commits.length}</span>
-        </button>
-        {historyOpen &&
-          (commits.length === 0 ? (
-            <div className="p-3 text-center text-zinc-500">{t('gitNoCommits')}</div>
-          ) : (
-            commits.map((c, i) => (
-              <div key={c.hash} className="min-w-0">
-                <div
-                  onClick={() => void toggleCommit(c.hash)}
-                  className="group flex items-start gap-2 ps-2 pe-2 py-1.5 rounded-md hover:bg-white/[0.05] cursor-pointer min-w-0 transition-colors"
-                  title={`${c.hash} — ${c.subject}\n${c.author} · ${c.ts ? new Date(c.ts).toLocaleString() : c.when}`}
-                  role="button"
-                  aria-expanded={openCommit === c.hash}
-                >
-                  <span className="flex flex-col items-center self-stretch shrink-0 pt-1.5" aria-hidden>
-                    <span className={`size-2 rounded-full ${i === 0 ? 'bg-indigo-400' : 'bg-zinc-500 group-hover:bg-zinc-300'} transition-colors`} />
-                    {i < commits.length - 1 && <span className="flex-1 w-px bg-zinc-700/70 mt-1" />}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-zinc-200 text-[12px]">{c.subject}</div>
-                    <div className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-zinc-500 min-w-0">
-                      <span className="font-mono shrink-0">{c.hash}</span>
-                      <span className="truncate min-w-0">· {c.author}</span>
-                      <span className="shrink-0 ms-auto">{c.ts ? timeAgo(c.ts) : c.when}</span>
-                    </div>
-                    {c.refs && c.refs.length > 0 && (
-                      <div className="mt-1 flex flex-wrap gap-1 min-w-0">
-                        {c.refs.slice(0, 4).map((r) => (
-                          <span
-                            key={r}
-                            title={r}
-                            className={`inline-flex items-center gap-1 max-w-full h-4 px-1.5 rounded-full text-[10px] font-mono ${r.includes('/') ? 'bg-white/[0.07] text-zinc-400' : 'bg-indigo-500/15 text-indigo-300'}`}
-                          >
-                            {r.includes('/') ? null : <GitBranch size={9} className="shrink-0" />}
-                            <span className="truncate">{r}</span>
-                          </span>
-                        ))}
-                        {c.refs.length > 4 && <span className="text-[10px] text-zinc-500">+{c.refs.length - 4}</span>}
-                      </div>
-                    )}
-                    {(c.added !== undefined) && (
-                      <div className="mt-0.5 font-mono text-[10.5px] tabular-nums flex items-center gap-2">
-                        <span className="text-emerald-400">+{c.added}</span>
-                        <span className="text-rose-400">−{c.deleted ?? 0}</span>
-                        {c.files ? <span className="text-zinc-500">· {c.files}</span> : null}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {openCommit === c.hash &&
-                  (commitFiles[c.hash] ?? []).map((cf) => (
-                    <div
-                      key={`${c.hash}-${cf.path}`}
-                      onClick={() => void showCommitDiff(c.hash, cf)}
-                      title={cf.orig ? `${cf.orig} → ${cf.path}` : cf.path}
-                      className="flex items-center gap-1.5 ps-6 pe-2 h-[22px] rounded-md hover:bg-white/[0.05] cursor-pointer min-w-0"
-                    >
-                      <FileTypeIcon name={splitPath(cf.path).name} size={14} />
-                      <span className={`truncate flex-1 min-w-0 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>
-                        {splitPath(cf.path).name}
-                        <span className="text-zinc-500 ms-1.5 text-[11px]">{splitPath(cf.path).dir}</span>
-                      </span>
-                      {!cf.binary && (cf.added || cf.deleted) ? (
-                        <span className="shrink-0 font-mono text-[10px] tabular-nums flex gap-1">
-                          {cf.added ? <span className="text-emerald-400">+{cf.added}</span> : null}
-                          {cf.deleted ? <span className="text-rose-400">−{cf.deleted}</span> : null}
-                        </span>
-                      ) : null}
-                      <span className={`font-mono text-[10px] font-bold w-4 text-center shrink-0 ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
-                    </div>
-                  ))}
-              </div>
-            ))
+      {/* Geçmiş: dal grafı; açılır/kapanır ve alt kenardan sürüklenerek boyutlanır. Commit'e tıkla → dosyalar; dosyaya tıkla → fark */}
+      <Section
+        id="history"
+        defaultHeight={360}
+        title={t('gitHistory')}
+        count={commits.length}
+        open={historyOpen}
+        onToggle={() => setHistoryOpen((v) => !v)}
+      >
+        <div className="flex items-center gap-1 px-1 pb-1.5" role="group">
+          {([[true, t('gitHistAll')], [false, t('gitHistCurrent')]] as const).map(([v, label]) => (
+            <button
+              key={String(v)}
+              onClick={() => setHistAllPersist(v)}
+              aria-pressed={histAll === v}
+              className={`h-5 px-2 rounded-full text-[10.5px] font-normal normal-case tracking-normal transition-colors duration-(--dur-fast) ${histAll === v ? 'bg-indigo-500/20 text-indigo-100' : 'text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-200'}`}
+            >
+              {label}
+            </button>
           ))}
-      </div>
+        </div>
+        {commits.length === 0 ? (
+          <div className="p-3 text-center text-zinc-500">{t('gitNoCommits')}</div>
+        ) : (
+          <GitHistory
+            commits={commits}
+            currentBranch={status.branch}
+            openCommit={openCommit}
+            onToggle={(h) => void toggleCommit(h)}
+            renderFiles={(h) =>
+              (commitFiles[h] ?? []).map((cf) => (
+                <div
+                  key={`${h}-${cf.path}`}
+                  onClick={() => void showCommitDiff(h, cf)}
+                  title={cf.orig ? `${cf.orig} → ${cf.path}` : cf.path}
+                  className="flex items-center gap-1.5 ps-2 pe-2 h-[22px] rounded-md hover:bg-white/[0.05] cursor-pointer min-w-0"
+                >
+                  <FileTypeIcon name={splitPath(cf.path).name} size={14} />
+                  <span className={`truncate flex-1 min-w-0 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>
+                    {splitPath(cf.path).name}
+                    <span className="text-zinc-500 ms-1.5 text-[11px]">{splitPath(cf.path).dir}</span>
+                  </span>
+                  {!cf.binary && (cf.added || cf.deleted) ? (
+                    <span className="shrink-0 font-mono text-[10px] tabular-nums flex gap-1">
+                      {cf.added ? <span className="text-emerald-400">+{cf.added}</span> : null}
+                      {cf.deleted ? <span className="text-rose-400">−{cf.deleted}</span> : null}
+                    </span>
+                  ) : null}
+                  <span className={`font-mono text-[10px] font-bold w-4 text-center shrink-0 ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
+                </div>
+              ))
+            }
+          />
+        )}
+      </Section>
 
       {menu && <PopupMenu x={menu.x} y={menu.y} items={menu.kind === 'more' ? moreItems : commitItems} onClose={() => setMenu(null)} />}
     </div>

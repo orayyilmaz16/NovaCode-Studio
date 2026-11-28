@@ -214,21 +214,23 @@ function register({ runGit, github, isValidPath }) {
   }));
 
   // ---- Geçmiş ----
-  ipcMain.handle('git:log', guard(async (repoPath, limit) => {
-    const n = Math.max(1, Math.min(100, Number.isInteger(limit) ? limit : 30));
+  ipcMain.handle('git:log', guard(async (repoPath, limit, all) => {
+    const n = Math.max(1, Math.min(200, Number.isInteger(limit) ? limit : 30));
     // Kayıt başlangıcı: U+001E; --shortstat satırı kaydın sonuna eklenir (eklenen/silinen satır sayısı).
-    const res = await runGit(['log', '-n', String(n), '--shortstat', '--pretty=format:%x1e%h%x1f%an%x1f%ar%x1f%s%x1f%D%x1f%at'], repoPath);
+    // all: tüm dallar (graf görünümü için topolojik sıra); %p: üst commit'ler (kısa karma, boşlukla ayrık).
+    const res = await runGit(['log', '-n', String(n), ...(all === true ? ['--all', '--topo-order'] : []), '--shortstat', '--pretty=format:%x1e%h%x1f%an%x1f%ar%x1f%s%x1f%D%x1f%at%x1f%p'], repoPath);
     if (!res.success) return { success: true, commits: [] }; // henüz commit yok
     return {
       success: true,
       commits: res.stdout.split('\x1e').filter((r) => r.trim()).map((rec) => {
         const [head, ...rest] = rec.split('\n');
-        const [hash, author, when, subject, decor, at] = head.split('\x1f');
+        const [hash, author, when, subject, decor, at, par] = head.split('\x1f');
         const refs = (decor || '').split(',').map((x) => x.trim().replace(/^HEAD -> /, '').replace(/^tag: /, '')).filter((x) => x && x !== 'HEAD');
         const stat = rest.join(' ');
         const num = (re) => { const m = re.exec(stat); return m ? Number(m[1]) : 0; };
         return {
           hash, author, when, subject, refs,
+          parents: (par || '').split(' ').filter(Boolean),
           ts: Number(at) * 1000 || undefined,
           files: num(/(\d+) files? changed/),
           added: num(/(\d+) insertions?\(\+\)/),
