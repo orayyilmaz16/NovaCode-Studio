@@ -97,7 +97,7 @@ Secret'lar repoya kod olarak yazılmaz. Değer yapıştırmak için:
 ! gh secret set ANTHROPIC_API_KEY --repo orayyilmaz16/NovaCode-Studio
 ```
 
-- `PROJECT_TOKEN`: kullanıcı projesi #2'ye yazma yetkisi olan token (classic: `project` kapsamı; fine-grained: Projects read/write). Yoksa proje senkronu ve sweep'in proje eklemesi atlanır.
+- `PROJECT_TOKEN`: kullanıcı projesi #2'ye yazma yetkisi olan token (classic token, yalnız `project` kapsamı; kullanıcıya ait Projects için fine-grained token'da Projects izni görünmez). Yoksa proje senkronu ve sweep'in proje eklemesi atlanır.
 - `ANTHROPIC_API_KEY`: otomatik düzeltme için. Yoksa `auto-fix` atlanır. Anahtar, `claude-code-action` (v1, SHA `4411a9e9…`) ile kullanılır.
 
 ## 9. Güvenlik kuralları
