@@ -81,13 +81,13 @@
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugConsolePanel.tsx` | 89 |
 | `src/components/DebugPanel.tsx` | 198 |
-| `src/components/EditorArea.tsx` | 764 |
+| `src/components/EditorArea.tsx` | 801 |
 | `src/components/ErrorBoundary.tsx` | 70 |
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
 | `src/components/GitHistory.tsx` | 123 |
-| `src/components/GitPanel.tsx` | 916 |
+| `src/components/GitPanel.tsx` | 924 |
 | `src/components/GithubAccount.tsx` | 137 |
 | `src/components/HoverTip.tsx` | 49 |
 | `src/components/KeybindingsEditor.tsx` | 146 |
@@ -139,6 +139,7 @@
 | `src/services/gitGraph.ts` | 58 |
 | `src/services/keybindings.ts` | 288 |
 | `src/services/lang.ts` | 26 |
+| `src/services/lineDiff.ts` | 71 |
 | `src/services/lspClient.ts` | 213 |
 | `src/services/lspStore.ts` | 34 |
 | `src/services/monacoShim.ts` | 28 |
