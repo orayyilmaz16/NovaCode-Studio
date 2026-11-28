@@ -4,89 +4,103 @@
 
 ### tr
 
-- [fix] **Commit açılınca grafik kopması:** Açılan commit'in dosya listesinin altından geçen dal çizgisi artık sonraki commit'e kesintisiz bağlanır.
-- [feat] **Commit ayrıntı kartı:** Geçmişte bir commit'in üzerine gelince konu, tam karma (kopyala düğmesiyle), yazar, tarih, üst commit'ler (birleştirmeyse ayrıca belirtilir), +/− satır ve dosya sayısı, dallar ve etiketler bir kartta açılır.
-- [improve] **Git paneli açılır bölümler:** Commit, GitHub'da canlı durum, Pull request ve Yayınla alanları da diğer bölümler gibi açılır listedir; açık/kapalı durumu hatırlanır. Geçmiş kapalı bölümlerin ardından akışta yukarı çıkar, dipte sabitlenmez.
-- [fix] **Graf sol kenar taşması:** Dal grafındaki düğümler ve halkalar sol kenarda kesilmiyor.
-- [improve] **Kendi commit'lerinde fotoğrafın:** Oturum açık GitHub hesabının commit'lerinde kendi profil fotoğrafın görünür.
-- [improve] **Commit ayrıntısı düzeni:** Açılan commit'te karma, tarih, yazar ve dosyalar ayrı bölümlerde; "Değişen dosyalar" başlığı ve dosya sayısı var.
-- [fix] **Commit geçmişi taşması:** Commit geçmişi menüsünde satırlar ve dosya listesi kendi genişliğinde kalır; taşma ve kesilme yok.
-- [improve] **Commit satırlarında profil fotoğrafı:** Her commit'in yazarının GitHub fotoğrafı (bağlıysa) ya da baş harfleri gösterilir; profiller satır ekrana gelince yüklenir.
-- [improve] **Dosya listesinde dil simgesi:** Commit'te değişen dosyaların başında dil simgesi, sonunda değişiklik harfi (A/M/D) görünür.
-- [improve] **Commit geçmişi menüsünde graf:** Durum çubuğundaki commit geçmişi, git paneliyle aynı dal grafı ve ayrıntılarla gösterilir; simgenin arka planı kaldırıldı (şeffaf).
-- [improve] **Git geçmişi daha hızlı:** Commit ayrıntıları yalnız açıldığında hazırlanır.
-- [improve] **Commit geçmişi menüsü git paneliyle uyumlu:** Durum çubuğundaki commit geçmişi açılınca commit'in tam karması kopyalanabilir, tam tarih, GitHub yazarı (avatar ve kullanıcı adı, bağlıysa) ve birleştirme commit'lerinin üst commit'leri görünür.
-- [improve] **GitHub hesabı başlığı:** Başlık büyük harfe çevrilmez; yalnız ilk harfler büyük yazılır.
-- [fix] **GitHub hesabı kapalıyken boşluk:** Kapalı GitHub hesabı başlığının altında kalan boşluk azaltıldı.
-- [improve] **GitHub hesabı açılır:** GitHub hesabı bölümü de diğer bölümler gibi açılır kapanır; durumu hatırlanır.
-- [improve] **Daha sıkı dal grafı:** Dal şeritleri birbirine çok yakın çizilir, tek dal görünümündeki gibi az yer kaplar; dal çizgileri yumuşak eğrilerle çizilir; birleştirme commit'leri içi boş halka olarak gösterilir, panelde daha az yer kaplar.
-- [improve] **Dal bölümü açılır:** Dal ve eşzamanlama bölümü diğer bölümler gibi açılır başlıkla görünür; dal seçici ve eşzamanla düğmeleri açılır kısımdadır.
-- [fix] **Geçmiş altındaki boşluk:** Geçmiş bölümü sabit yükseklikte değil; içeriği kadar uzar ve panel kaydırmasıyla gezilir, altında boş alan kalmaz.
-- [improve] **Commit ve PR alanları:** Mesaj ve açıklama kutularında karakter sayacı var; GitHub canlı durum kartı tek bölümde toplandı.
-- [fix] **Karmayı kopyala çalışıyor:** Commit kartındaki kopyala düğmesi karmayı panoya yazar (önce ana süreç üzerinden, tarayıcı pano izni gerekmez; o da olmazsa tarayıcı panosu). Başarısızsa düğmede "Kopyalanamadı" görünür.
-- [improve] **Commit kartı daha hızlı:** Yazar profili satıra gelince hemen istenir, profil fotoğrafı önceden indirilir; kart bilgisi anında açılır.
-- [improve] **Commit kartı etkileşimli:** Kart, fare satırdan karta geçerken açık kalır; kopyala ve "Profili aç" düğmeleri tıklanır. Liste kayınca kart kapanır. Profil fotoğrafı küçük boyutta indirilir, daha hızlı yüklenir.
-- [feat] **Commit yazarı kartta:** Ayrıntı kartında yazarın adı, GitHub kullanıcı adı ve profil fotoğrafı (GitHub hesabı bağlıysa) ile tarih ve "şu kadar önce" bilgisi görünür. Bağlı değilse baş harflerle yerel bir avatar gösterilir.
-- [fix] **Açılan commit'te çizgi kayması:** Açılan commit'in dal çizgileri 4 piksel sola kayıp kopmuyordu; artık commit satırıyla aynı hizada.
-- [fix] **Commit dosya listesi düzeltildi:** Açılan commit'in dosyaları dar panelde sıkışmıyor; yalnız ad ve sayılar görünür, tam yol üzerine gelince çıkar. Dal etiketleri en fazla ikisi gösterilir.
-- [improve] **Commit satırları daha kısa:** Geçmişteki commit satırlarının yüksekliği azaltıldı; dal çizgisi yine satırlar arasında kesintisiz.
-- [improve] **Commit üzerine gelme alanı daraltıldı:** Commit satırının üzerine gelince çıkan şeffaf zemin artık panelin kenarına kadar uzanmaz, içeriğe göre daralır.
-- [improve] **Commit dosya listesi sıkılaştırıldı:** Açılan commit'in dosya listesinin çevresindeki boşluklar azaltıldı; dosya satırları daha kompakt.
-- [improve] **Commit açılış animasyonu ve liste tasarımı:** Bir commit'in dosya listesi artık yumuşakça açılıp kapanır (diğer bölümlerle aynı süre ve eğri). Dosya satırları daha net: durum harfi küçük bir etiket, ad ve klasör ayrı, eklenen/silinen sayıları sağda.
-- [improve] **Editör git işaretleri tek renk:** Editör kenarı ve kaydırma çubuğunda git değişiklikleri (eklenen, değişen, silinen) yalnızca mavi ile gösterilir; yeşil ve kırmızı kullanılmaz.
-- [improve] **Fark görünümü VS Code renkleri:** Yan yana fark ekranında eklenen satırlar yeşil, silinenler kırmızı zeminle ve metnin değişen kısmı daha koyu vurguyla gösterilir; kenar ve kaydırma çubuğu işaretleri de aynı renklerdedir (koyu ve açık tema).
-- [fix] **Editör git işaretleri netleştirildi:** Eklenen satırlar yeşil dolu çubuk, değişen satırlar mavi çubuk, silinen yerler kırmızı üçgen olarak kenarda ayrı ayrı çizilir (önceki hali birbirine karışıyordu).
-- [fix] **Git geçmişi kopukluğu ve çift kaydırma çubuğu:** Dal çizgisi satırlar arasında kopmuyor (satırlar sabit yükseklikte); geçmiş açıkken iki kaydırma çubuğu yerine yalnızca geçmişin kendi çubuğu görünür.
-- [improve] **Git geçmişi görünümü:** Geçmiş bölümü kapalıyken panelin en altında durur, açılınca görünüme kaydırılır. Graf çizgileri daha net, dal etiketleri (yerel dal renkli, uzak dal çerçeveli) ve +/− sayıları daha okunur.
-- [feat] **Editörde Git satır işaretleri:** Açık bir dosyada HEAD'e göre eklenen satırlar yeşil, değişenler mavi, silinen yerler kırmızı üçgen olarak kenarda görünür; kaydırma çubuğunda da işaretlenir. Git paneli: "±2 Değişiklikler" yerine sayı rozeti + "Değişiklikler"; geçmiş açılıp kapanırken yumuşak bir geçişle açılır ve kapalıyken listeyi yukarı alıp boşluk bırakmaz.
-- [fix] **Git paneli bölme düzeni:** Bölümlerin yüksekliği artık içeriğini aşmaz, aralarında boş alan kalmaz. Alt kenar tutamacı VS Code gibi bağlı çalışır: bir bölüm büyürken altındaki açık bölüm küçülür, toplam sabit kalır; içeriğin sonuna ya da alt sınıra gelince sürükleme durur, boşluğa sürüklenmez. Geçmiş grafında satırlar arası şerit kesintisiz çizilir; üst commit bilgisi yoksa (eski süreç) liste doğrusal çizilir ve yeniden başlatma uyarısı çıkar.
-- [feat] **Git dal grafı ve yeniden boyutlanan bölümler:** Git paneli geçmişi artık dal topolojisini çizer: renkli şeritler, dalın ayrıldığı ve birleştiği noktalar, geçerli dal hedef simgesiyle işaretli; dal rozetleri (yerel dal dolgulu, uzak dal bulut simgeli) satır sonunda. "Tüm dallar / Geçerli dal" seçeneği var. Geçmiş, Hazırlanan, Değişiklikler, Birleştirme ve Stash bölümleri hem açılır/kapanır hem de alt kenardan sürüklenerek (ya da ↑/↓ tuşlarıyla) boyutlandırılır; yükseklik hatırlanır, çift tıklama otomatiğe döndürür. 8 dilde.
-- [improve] **Git paneli geçmişi ve durum özeti:** Geçmiş listesindeki taşma giderildi (konu ve yazar satırı kırpılır, dal/etiket rozetleri kendi satırında sarılır). Her commit'te zaman arayüz dilinde, eklenen/silinen satır sayısı ve dal/etiket rozetleri görünür; açılınca dosya başına +/− sayıları listelenir. Dal satırının altına durum özeti eklendi: birleştirme sürüyor, çakışma sayısı, ayrık HEAD, hazırlanan ve değişen dosya sayıları (ya da "temiz"). 8 dilde.
-- [improve] **Yapay zekâ düğmesi:** Üst çubukta terminal aç/kapa düğmesinin yanına yapay zekâ asistanını aç/kapa düğmesi eklendi.
-- [fix] **GitHub oturumu:** Süreli GitHub token'ları artık yenileme token'ıyla otomatik yenilenir; süresi dolan erişim token'ı sessizce yenilenir, böylece oturum her seferinde erken düşmez.
-
 ### en
 
-- [fix] **Graph break when a commit is expanded:** The branch line below an expanded commit's file list now connects continuously to the next commit.
-- [feat] **Commit details card:** Hovering a commit in the history opens a card with its subject, full hash (with copy button), author, date, parent commits (marked as merge when there are several), +/− line and file counts, and branches and tags.
-- [improve] **Git panel dropdown sections:** Commit, live GitHub status, Pull request and Publish are now collapsible sections like the rest; open or closed state is remembered. When sections are collapsed, the history moves up instead of staying pinned to the bottom.
-- [fix] **Graph left edge:** Nodes and rings on the left of the branch graph are no longer cut off.
-- [improve] **Your own photo on your commits:** Commits by the signed-in GitHub account show your profile photo.
-- [improve] **Commit details layout:** An opened commit shows the hash, date, author and files in separate sections, with a "Changed files" heading and count.
-- [fix] **Commit history overflow:** Rows and the file list in the commit history menu stay inside its width; nothing overflows or is cut off.
-- [improve] **Author photo on commit rows:** Each commit shows its author's GitHub photo (when connected) or initials; profiles load when the row scrolls into view.
-- [improve] **Language icons in file list:** Changed files in a commit show their language icon, with the change letter (A/M/D) at the end.
-- [improve] **Commit history menu with graph:** The status bar commit history shows the same branch graph and details as the git panel; the icon has a transparent background.
-- [improve] **Faster git history:** Commit details are built only when a commit is opened.
-- [improve] **Commit history menu matches git panel:** Opening the commit history from the status bar shows the full hash with a copy button, the full date, the GitHub author (avatar and username when connected) and parent commits for merges.
-- [improve] **GitHub account header:** The header is no longer uppercase; only the first letters are capitalized.
-- [fix] **Less space under collapsed GitHub account:** The gap below the collapsed GitHub account header is reduced.
-- [improve] **GitHub account collapsible:** The GitHub account block opens and closes like the other sections, and remembers its state.
-- [improve] **Narrower branch graph:** Branch lines in the history use narrower lanes with smoother curves; merge commits are drawn as hollow rings, so the graph takes less room.
-- [improve] **Collapsible branch section:** "Branch and sync" uses the same collapsible header as the other sections; the branch picker and sync buttons sit inside it.
-- [fix] **No gap below history:** The history section grows with its content and is scrolled with the panel, so no empty space remains below it.
-- [improve] **Commit and PR fields:** Message and description boxes show a character counter; the live GitHub status is grouped into one section.
-- [fix] **Copy hash works:** The copy button on the commit card now writes the hash to the clipboard through the main process, so it no longer depends on the browser clipboard permission. If that fails it falls back to the browser clipboard, and shows "Copy failed" when both fail.
-- [improve] **Faster commit card:** The author profile is requested as soon as the pointer reaches a row, and the profile photo is preloaded, so the card fills in immediately.
-- [improve] **Interactive commit card:** The card stays open while the pointer moves from the row onto it; the copy and "Open profile" buttons are clickable. The card closes when the list scrolls. The profile photo is loaded at a smaller size for faster display.
-- [feat] **Commit author on the card:** The details card shows the author's name, GitHub username and profile photo (when a GitHub account is connected), plus the date and a relative time. Without a connection, initials are shown as the avatar.
-- [fix] **Lane offset on expanded commit:** Branch lines under an expanded commit were shifted 4px left and broke the line; they now align with the commit row.
-- [fix] **Commit file list fixed:** Files of an expanded commit no longer crowd the narrow panel; only name and counts show, the full path appears on hover. At most two branch labels are shown.
-- [improve] **Shorter commit rows:** Commit rows in the history are shorter; the branch line still connects continuously between rows.
-- [improve] **Narrower commit hover area:** The translucent hover background on a commit row no longer spans to the panel edge; it fits the content.
-- [improve] **Tighter commit file list:** Reduced the spacing around a expanded commit's file list; file rows are more compact.
-- [improve] **Commit expand animation and list design:** A commit's file list now opens and closes smoothly, with the same timing as the other sections. File rows are clearer: the status letter is a small tag, name and folder are separated, and added/deleted counts sit on the right.
-- [improve] **Single-color editor git markers:** Git changes in the editor gutter and scrollbar (added, changed, deleted) are shown only in blue; green and red are no longer used.
-- [improve] **VS Code diff colors:** In the side-by-side diff, added lines are green and removed lines red, with the changed text highlighted more strongly; the gutter and overview ruler use the same colors (dark and light themes).
-- [fix] **Clearer editor git markers:** Added lines show a solid green bar, changed lines a blue bar, and deleted spots a red triangle, each drawn distinctly in the gutter (they previously blended together).
-- [fix] **Git history gaps and double scrollbar:** The branch line no longer breaks between rows (rows have a fixed height); with history open only the history's own scrollbar shows, not two.
-- [improve] **Git history view:** The history section sits at the bottom of the panel when collapsed and scrolls into view when opened. Graph lines are crisper, branch labels (local branches colored, remote ones outlined) and +/− counts are easier to read.
-- [feat] **Git line markers in the editor:** For an open file, lines added versus HEAD show green, changed lines blue, and deleted spots a red triangle in the gutter, also marked on the scrollbar. Git panel: "±2 Changes" became a count badge plus "Changes"; the history opens and closes with a smooth transition and leaves no gap when collapsed.
-- [fix] **Git panel pane layout:** Section heights no longer exceed their content, so no blank space is left between them. The bottom-edge handle now works coupled like VS Code: when one section grows, the open section below it shrinks and the total stays constant; dragging stops at the end of the content or at the minimum height, never into empty space. Lanes in the history graph connect continuously between rows; when parent info is missing (old process) the list is drawn linearly and a restart hint appears.
-- [feat] **Git branch graph and resizable sections:** The Git panel history now draws branch topology: colored lanes, fork and merge points, the current branch marked with a target icon; branch badges (local filled, remote with a cloud icon) at the end of each row. There is an "All branches / Current branch" switch. The History, Staged, Changes, Merge and Stash sections are collapsible and can be resized by dragging the bottom edge (or with the up/down keys); the height is remembered and double-click resets it to auto. In 8 languages.
-- [improve] **Git panel history and status summary:** Fixed the overflow in the history list (subject and author lines are truncated, branch/tag badges wrap on their own line). Each commit shows time in the UI language, lines added/deleted and branch/tag badges; expanding it lists per-file +/- counts. A status summary was added under the branch row: merge in progress, conflict count, detached HEAD, staged and changed file counts (or "clean"). In 8 languages.
-- [improve] **AI button:** Added a toggle for the AI assistant next to the terminal toggle in the top bar.
-- [fix] **GitHub session:** Expiring GitHub tokens are now renewed automatically with the refresh token, so an expired access token is renewed silently and the session no longer drops early.
+## 1.10.0 - 28.11.2026
+<!-- level: minor -->
+### Türkçe
+#### Yeni özellikler
+- **Commit ayrıntı kartı:** Geçmişte bir commit'in üzerine gelince konu, tam karma (kopyala düğmesiyle), yazar, tarih, üst commit'ler (birleştirmeyse ayrıca belirtilir), +/− satır ve dosya sayısı, dallar ve etiketler bir kartta açılır.
+- **Commit yazarı kartta:** Ayrıntı kartında yazarın adı, GitHub kullanıcı adı ve profil fotoğrafı (GitHub hesabı bağlıysa) ile tarih ve "şu kadar önce" bilgisi görünür. Bağlı değilse baş harflerle yerel bir avatar gösterilir.
+- **Editörde Git satır işaretleri:** Açık bir dosyada HEAD'e göre eklenen satırlar yeşil, değişenler mavi, silinen yerler kırmızı üçgen olarak kenarda görünür; kaydırma çubuğunda da işaretlenir. Git paneli: "±2 Değişiklikler" yerine sayı rozeti + "Değişiklikler"; geçmiş açılıp kapanırken yumuşak bir geçişle açılır ve kapalıyken listeyi yukarı alıp boşluk bırakmaz.
+- **Git dal grafı ve yeniden boyutlanan bölümler:** Git paneli geçmişi artık dal topolojisini çizer: renkli şeritler, dalın ayrıldığı ve birleştiği noktalar, geçerli dal hedef simgesiyle işaretli; dal rozetleri (yerel dal dolgulu, uzak dal bulut simgeli) satır sonunda. "Tüm dallar / Geçerli dal" seçeneği var. Geçmiş, Hazırlanan, Değişiklikler, Birleştirme ve Stash bölümleri hem açılır/kapanır hem de alt kenardan sürüklenerek (ya da ↑/↓ tuşlarıyla) boyutlandırılır; yükseklik hatırlanır, çift tıklama otomatiğe döndürür. 8 dilde.
+
+#### Düzeltmeler
+- **Commit açılınca grafik kopması:** Açılan commit'in dosya listesinin altından geçen dal çizgisi artık sonraki commit'e kesintisiz bağlanır.
+- **Graf sol kenar taşması:** Dal grafındaki düğümler ve halkalar sol kenarda kesilmiyor.
+- **Commit geçmişi taşması:** Commit geçmişi menüsünde satırlar ve dosya listesi kendi genişliğinde kalır; taşma ve kesilme yok.
+- **GitHub hesabı kapalıyken boşluk:** Kapalı GitHub hesabı başlığının altında kalan boşluk azaltıldı.
+- **Geçmiş altındaki boşluk:** Geçmiş bölümü sabit yükseklikte değil; içeriği kadar uzar ve panel kaydırmasıyla gezilir, altında boş alan kalmaz.
+- **Karmayı kopyala çalışıyor:** Commit kartındaki kopyala düğmesi karmayı panoya yazar (önce ana süreç üzerinden, tarayıcı pano izni gerekmez; o da olmazsa tarayıcı panosu). Başarısızsa düğmede "Kopyalanamadı" görünür.
+- **Açılan commit'te çizgi kayması:** Açılan commit'in dal çizgileri 4 piksel sola kayıp kopmuyordu; artık commit satırıyla aynı hizada.
+- **Commit dosya listesi düzeltildi:** Açılan commit'in dosyaları dar panelde sıkışmıyor; yalnız ad ve sayılar görünür, tam yol üzerine gelince çıkar. Dal etiketleri en fazla ikisi gösterilir.
+- **Editör git işaretleri netleştirildi:** Eklenen satırlar yeşil dolu çubuk, değişen satırlar mavi çubuk, silinen yerler kırmızı üçgen olarak kenarda ayrı ayrı çizilir (önceki hali birbirine karışıyordu).
+- **Git geçmişi kopukluğu ve çift kaydırma çubuğu:** Dal çizgisi satırlar arasında kopmuyor (satırlar sabit yükseklikte); geçmiş açıkken iki kaydırma çubuğu yerine yalnızca geçmişin kendi çubuğu görünür.
+- **Git paneli bölme düzeni:** Bölümlerin yüksekliği artık içeriğini aşmaz, aralarında boş alan kalmaz. Alt kenar tutamacı VS Code gibi bağlı çalışır: bir bölüm büyürken altındaki açık bölüm küçülür, toplam sabit kalır; içeriğin sonuna ya da alt sınıra gelince sürükleme durur, boşluğa sürüklenmez. Geçmiş grafında satırlar arası şerit kesintisiz çizilir; üst commit bilgisi yoksa (eski süreç) liste doğrusal çizilir ve yeniden başlatma uyarısı çıkar.
+- **GitHub oturumu:** Süreli GitHub token'ları artık yenileme token'ıyla otomatik yenilenir; süresi dolan erişim token'ı sessizce yenilenir, böylece oturum her seferinde erken düşmez.
+
+#### İyileştirmeler
+- **Git paneli açılır bölümler:** Commit, GitHub'da canlı durum, Pull request ve Yayınla alanları da diğer bölümler gibi açılır listedir; açık/kapalı durumu hatırlanır. Geçmiş kapalı bölümlerin ardından akışta yukarı çıkar, dipte sabitlenmez.
+- **Kendi commit'lerinde fotoğrafın:** Oturum açık GitHub hesabının commit'lerinde kendi profil fotoğrafın görünür.
+- **Commit ayrıntısı düzeni:** Açılan commit'te karma, tarih, yazar ve dosyalar ayrı bölümlerde; "Değişen dosyalar" başlığı ve dosya sayısı var.
+- **Commit satırlarında profil fotoğrafı:** Her commit'in yazarının GitHub fotoğrafı (bağlıysa) ya da baş harfleri gösterilir; profiller satır ekrana gelince yüklenir.
+- **Dosya listesinde dil simgesi:** Commit'te değişen dosyaların başında dil simgesi, sonunda değişiklik harfi (A/M/D) görünür.
+- **Commit geçmişi menüsünde graf:** Durum çubuğundaki commit geçmişi, git paneliyle aynı dal grafı ve ayrıntılarla gösterilir; simgenin arka planı kaldırıldı (şeffaf).
+- **Git geçmişi daha hızlı:** Commit ayrıntıları yalnız açıldığında hazırlanır.
+- **Commit geçmişi menüsü git paneliyle uyumlu:** Durum çubuğundaki commit geçmişi açılınca commit'in tam karması kopyalanabilir, tam tarih, GitHub yazarı (avatar ve kullanıcı adı, bağlıysa) ve birleştirme commit'lerinin üst commit'leri görünür.
+- **GitHub hesabı başlığı:** Başlık büyük harfe çevrilmez; yalnız ilk harfler büyük yazılır.
+- **GitHub hesabı açılır:** GitHub hesabı bölümü de diğer bölümler gibi açılır kapanır; durumu hatırlanır.
+- **Daha sıkı dal grafı:** Dal şeritleri birbirine çok yakın çizilir, tek dal görünümündeki gibi az yer kaplar; dal çizgileri yumuşak eğrilerle çizilir; birleştirme commit'leri içi boş halka olarak gösterilir, panelde daha az yer kaplar.
+- **Dal bölümü açılır:** Dal ve eşzamanlama bölümü diğer bölümler gibi açılır başlıkla görünür; dal seçici ve eşzamanla düğmeleri açılır kısımdadır.
+- **Commit ve PR alanları:** Mesaj ve açıklama kutularında karakter sayacı var; GitHub canlı durum kartı tek bölümde toplandı.
+- **Commit kartı daha hızlı:** Yazar profili satıra gelince hemen istenir, profil fotoğrafı önceden indirilir; kart bilgisi anında açılır.
+- **Commit kartı etkileşimli:** Kart, fare satırdan karta geçerken açık kalır; kopyala ve "Profili aç" düğmeleri tıklanır. Liste kayınca kart kapanır. Profil fotoğrafı küçük boyutta indirilir, daha hızlı yüklenir.
+- **Commit satırları daha kısa:** Geçmişteki commit satırlarının yüksekliği azaltıldı; dal çizgisi yine satırlar arasında kesintisiz.
+- **Commit üzerine gelme alanı daraltıldı:** Commit satırının üzerine gelince çıkan şeffaf zemin artık panelin kenarına kadar uzanmaz, içeriğe göre daralır.
+- **Commit dosya listesi sıkılaştırıldı:** Açılan commit'in dosya listesinin çevresindeki boşluklar azaltıldı; dosya satırları daha kompakt.
+- **Commit açılış animasyonu ve liste tasarımı:** Bir commit'in dosya listesi artık yumuşakça açılıp kapanır (diğer bölümlerle aynı süre ve eğri). Dosya satırları daha net: durum harfi küçük bir etiket, ad ve klasör ayrı, eklenen/silinen sayıları sağda.
+- **Editör git işaretleri tek renk:** Editör kenarı ve kaydırma çubuğunda git değişiklikleri (eklenen, değişen, silinen) yalnızca mavi ile gösterilir; yeşil ve kırmızı kullanılmaz.
+- **Fark görünümü VS Code renkleri:** Yan yana fark ekranında eklenen satırlar yeşil, silinenler kırmızı zeminle ve metnin değişen kısmı daha koyu vurguyla gösterilir; kenar ve kaydırma çubuğu işaretleri de aynı renklerdedir (koyu ve açık tema).
+- **Git geçmişi görünümü:** Geçmiş bölümü kapalıyken panelin en altında durur, açılınca görünüme kaydırılır. Graf çizgileri daha net, dal etiketleri (yerel dal renkli, uzak dal çerçeveli) ve +/− sayıları daha okunur.
+- **Git paneli geçmişi ve durum özeti:** Geçmiş listesindeki taşma giderildi (konu ve yazar satırı kırpılır, dal/etiket rozetleri kendi satırında sarılır). Her commit'te zaman arayüz dilinde, eklenen/silinen satır sayısı ve dal/etiket rozetleri görünür; açılınca dosya başına +/− sayıları listelenir. Dal satırının altına durum özeti eklendi: birleştirme sürüyor, çakışma sayısı, ayrık HEAD, hazırlanan ve değişen dosya sayıları (ya da "temiz"). 8 dilde.
+- **Yapay zekâ düğmesi:** Üst çubukta terminal aç/kapa düğmesinin yanına yapay zekâ asistanını aç/kapa düğmesi eklendi.
+
+### English
+#### New features
+- **Commit details card:** Hovering a commit in the history opens a card with its subject, full hash (with copy button), author, date, parent commits (marked as merge when there are several), +/− line and file counts, and branches and tags.
+- **Commit author on the card:** The details card shows the author's name, GitHub username and profile photo (when a GitHub account is connected), plus the date and a relative time. Without a connection, initials are shown as the avatar.
+- **Git line markers in the editor:** For an open file, lines added versus HEAD show green, changed lines blue, and deleted spots a red triangle in the gutter, also marked on the scrollbar. Git panel: "±2 Changes" became a count badge plus "Changes"; the history opens and closes with a smooth transition and leaves no gap when collapsed.
+- **Git branch graph and resizable sections:** The Git panel history now draws branch topology: colored lanes, fork and merge points, the current branch marked with a target icon; branch badges (local filled, remote with a cloud icon) at the end of each row. There is an "All branches / Current branch" switch. The History, Staged, Changes, Merge and Stash sections are collapsible and can be resized by dragging the bottom edge (or with the up/down keys); the height is remembered and double-click resets it to auto. In 8 languages.
+
+#### Fixes
+- **Graph break when a commit is expanded:** The branch line below an expanded commit's file list now connects continuously to the next commit.
+- **Graph left edge:** Nodes and rings on the left of the branch graph are no longer cut off.
+- **Commit history overflow:** Rows and the file list in the commit history menu stay inside its width; nothing overflows or is cut off.
+- **Less space under collapsed GitHub account:** The gap below the collapsed GitHub account header is reduced.
+- **No gap below history:** The history section grows with its content and is scrolled with the panel, so no empty space remains below it.
+- **Copy hash works:** The copy button on the commit card now writes the hash to the clipboard through the main process, so it no longer depends on the browser clipboard permission. If that fails it falls back to the browser clipboard, and shows "Copy failed" when both fail.
+- **Lane offset on expanded commit:** Branch lines under an expanded commit were shifted 4px left and broke the line; they now align with the commit row.
+- **Commit file list fixed:** Files of an expanded commit no longer crowd the narrow panel; only name and counts show, the full path appears on hover. At most two branch labels are shown.
+- **Clearer editor git markers:** Added lines show a solid green bar, changed lines a blue bar, and deleted spots a red triangle, each drawn distinctly in the gutter (they previously blended together).
+- **Git history gaps and double scrollbar:** The branch line no longer breaks between rows (rows have a fixed height); with history open only the history's own scrollbar shows, not two.
+- **Git panel pane layout:** Section heights no longer exceed their content, so no blank space is left between them. The bottom-edge handle now works coupled like VS Code: when one section grows, the open section below it shrinks and the total stays constant; dragging stops at the end of the content or at the minimum height, never into empty space. Lanes in the history graph connect continuously between rows; when parent info is missing (old process) the list is drawn linearly and a restart hint appears.
+- **GitHub session:** Expiring GitHub tokens are now renewed automatically with the refresh token, so an expired access token is renewed silently and the session no longer drops early.
+
+#### Improvements
+- **Git panel dropdown sections:** Commit, live GitHub status, Pull request and Publish are now collapsible sections like the rest; open or closed state is remembered. When sections are collapsed, the history moves up instead of staying pinned to the bottom.
+- **Your own photo on your commits:** Commits by the signed-in GitHub account show your profile photo.
+- **Commit details layout:** An opened commit shows the hash, date, author and files in separate sections, with a "Changed files" heading and count.
+- **Author photo on commit rows:** Each commit shows its author's GitHub photo (when connected) or initials; profiles load when the row scrolls into view.
+- **Language icons in file list:** Changed files in a commit show their language icon, with the change letter (A/M/D) at the end.
+- **Commit history menu with graph:** The status bar commit history shows the same branch graph and details as the git panel; the icon has a transparent background.
+- **Faster git history:** Commit details are built only when a commit is opened.
+- **Commit history menu matches git panel:** Opening the commit history from the status bar shows the full hash with a copy button, the full date, the GitHub author (avatar and username when connected) and parent commits for merges.
+- **GitHub account header:** The header is no longer uppercase; only the first letters are capitalized.
+- **GitHub account collapsible:** The GitHub account block opens and closes like the other sections, and remembers its state.
+- **Narrower branch graph:** Branch lines in the history use narrower lanes with smoother curves; merge commits are drawn as hollow rings, so the graph takes less room.
+- **Collapsible branch section:** "Branch and sync" uses the same collapsible header as the other sections; the branch picker and sync buttons sit inside it.
+- **Commit and PR fields:** Message and description boxes show a character counter; the live GitHub status is grouped into one section.
+- **Faster commit card:** The author profile is requested as soon as the pointer reaches a row, and the profile photo is preloaded, so the card fills in immediately.
+- **Interactive commit card:** The card stays open while the pointer moves from the row onto it; the copy and "Open profile" buttons are clickable. The card closes when the list scrolls. The profile photo is loaded at a smaller size for faster display.
+- **Shorter commit rows:** Commit rows in the history are shorter; the branch line still connects continuously between rows.
+- **Narrower commit hover area:** The translucent hover background on a commit row no longer spans to the panel edge; it fits the content.
+- **Tighter commit file list:** Reduced the spacing around a expanded commit's file list; file rows are more compact.
+- **Commit expand animation and list design:** A commit's file list now opens and closes smoothly, with the same timing as the other sections. File rows are clearer: the status letter is a small tag, name and folder are separated, and added/deleted counts sit on the right.
+- **Single-color editor git markers:** Git changes in the editor gutter and scrollbar (added, changed, deleted) are shown only in blue; green and red are no longer used.
+- **VS Code diff colors:** In the side-by-side diff, added lines are green and removed lines red, with the changed text highlighted more strongly; the gutter and overview ruler use the same colors (dark and light themes).
+- **Git history view:** The history section sits at the bottom of the panel when collapsed and scrolls into view when opened. Graph lines are crisper, branch labels (local branches colored, remote ones outlined) and +/− counts are easier to read.
+- **Git panel history and status summary:** Fixed the overflow in the history list (subject and author lines are truncated, branch/tag badges wrap on their own line). Each commit shows time in the UI language, lines added/deleted and branch/tag badges; expanding it lists per-file +/- counts. A status summary was added under the branch row: merge in progress, conflict count, detached HEAD, staged and changed file counts (or "clean"). In 8 languages.
+- **AI button:** Added a toggle for the AI assistant next to the terminal toggle in the top bar.
 
 ## 1.9.4 - 27.11.2026
 <!-- level: patch -->
