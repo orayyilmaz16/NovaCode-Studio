@@ -74,7 +74,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               aria-expanded={open}
               title={`${c.hash} — ${c.subject}\n${c.author} · ${c.ts ? new Date(c.ts).toLocaleString() : c.when}`}
               style={{ height: ROW_H, paddingInlineStart: gutter }}
-              className="group relative w-full block overflow-hidden text-start pe-2 py-[5px] rounded-md hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none transition-colors duration-(--dur-fast)"
+              className="group relative w-[calc(100%-8px)] mx-1 block overflow-hidden text-start pe-2 py-[5px] rounded-md hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none transition-colors duration-(--dur-fast)"
             >
               <GraphCell row={row} width={gutter} hash={c.hash} head={isHead} />
               <span className="flex items-center gap-1.5 min-w-0">

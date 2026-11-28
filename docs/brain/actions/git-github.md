@@ -51,3 +51,5 @@ Eklenen/silinen satır artık her commit'in başlık satırında sağda `+N −M
 
 ## Commit ağacı görünümü (28.11.2026)
 `GitHistory.tsx`: satır sabit 66 px (`overflow-hidden`), dal çizgileri satırlar arasında kopmaz; yerel dal etiketi şerit renginde dolgulu, uzak dal çerçeveli bulut etiketi; `+N −M` rozeti. Dosya listesi commit açılınca yumuşakça açılır (`renderFiles`, GitPanel'den gelir).
+
+Commit satırı hover zemini `mx-1` ile kenardan içeri alındı (`w-[calc(100%-8px)]`), şeffaf zemin içeriğe göre daralır.
