@@ -52,3 +52,6 @@ Metinler [[i18n]]: `src/i18n/uiTextScm.ts` (8 dil).
 
 ### Editör satır işaretleri ve bölüm geçişi (28.11.2026)
 `src/services/lineDiff.ts` `diffLines(eski, yeni)`: ortak önek/sonek kırpılır, orta kısım LCS ile eşleşir (n·m ≤ 4M; aşılırsa orta tümüyle değişmiş sayılır). Çıktı: `added`, `modified`, `deletedAt`. `EditorArea.tsx`: aktif dosya için `gitDiffFile({path, staged:true})` (HEAD sürümü) ile 250 ms gecikmeli hesaplanır; işaretler `createDecorationsCollection` ile çizilir (`nova-gd-add` yeşil, `nova-gd-mod` mavi, `nova-gd-del` kırmızı üçgen; kaydırma çubuğu `overviewRuler`). Depo dışı, ikili, çok büyük dosyada işaret yok. Sağdaki önizleme paneli kod görünümü olmadığı için kapsam dışı. `GitPanel` bölümleri: gövde her zaman mount, `grid-template-rows 0fr↔1fr` + opaklık ile açılıp kapanır (`inert` kapalıyken); kapalıyken yer kaplamaz. Değişiklik sayısı: `±` yerine sayı rozeti.
+
+### Geçmiş konumu ve grafik (28.11.2026)
+Geçmiş bölümü `mt-auto` sarmalayıcıda: kapalıyken panelin dibinde; açılınca `scrollIntoView` ile görünüme gelir. `GitHistory.tsx`: 48 px satır, 16 px şerit aralığı, 2 px çizgi (`shapeRendering=geometricPrecision`); yerel dal etiketi şerit rengiyle dolgulu, uzak dal çerçeveli bulut etiketi; +/− rozeti yarı saydam zeminde.

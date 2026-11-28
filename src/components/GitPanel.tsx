@@ -179,6 +179,10 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   const [pubOpen, setPubOpen] = useState(false);
   const [pub, setPub] = useState({ name: '', isPrivate: true });
   const [historyOpen, setHistoryOpen] = useState(true);
+  const historyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (historyOpen) requestAnimationFrame(() => historyRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+  }, [historyOpen]);
   const [histAll, setHistAll] = useState(() => { try { return localStorage.getItem('nova.git.histAll') !== '0'; } catch { return true; } });
   const setHistAllPersist = (v: boolean) => { setHistAll(v); try { localStorage.setItem('nova.git.histAll', v ? '1' : '0'); } catch { /* depolama kapalı */ } };
   const [commits, setCommits] = useState<GitCommitInfo[]>([]);
@@ -862,6 +866,8 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         </div>
       )}
 
+      {/* Geçmiş en altta: kapalıyken panelin dibinde kalır (mt-auto); açılınca görünüme kaydırılır */}
+      <div ref={historyRef} className="mt-auto">
       {/* Geçmiş: dal grafı; açılır/kapanır ve alt kenardan sürüklenerek boyutlanır. Commit'e tıkla → dosyalar; dosyaya tıkla → fark */}
       <Section
         id="history"
@@ -917,6 +923,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
           />
         )}
       </Section>
+      </div>
 
       {menu && <PopupMenu x={menu.x} y={menu.y} items={menu.kind === 'more' ? moreItems : commitItems} onClose={() => setMenu(null)} />}
     </div>
