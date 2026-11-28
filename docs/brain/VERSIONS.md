@@ -4,6 +4,7 @@
 
 | Sürüm | Tarih | Tür | Özet | Notlar |
 |---|---|---|---|---|
+| v1.10.2 | 28.11.2026 | patch | 1 improved: Settings | [v1.10.2](../../release-notes/v1.10.2.md) |
 | v1.10.1 | 28.11.2026 | patch | 1 fix: Breakpoints | [v1.10.1](../../release-notes/v1.10.1.md) |
 | v1.10.0 | 28.11.2026 | minor | 4 new, 12 fix, 24 improved: Commit details card | [v1.10.0](../../release-notes/v1.10.0.md) |
 | v1.9.4 | 27.11.2026 | patch | 1 new, 3 improved: Anonymous usage statistics (optional) | [v1.9.4](../../release-notes/v1.9.4.md) |

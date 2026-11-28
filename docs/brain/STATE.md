@@ -3,7 +3,7 @@
 > Bu dosya `scripts/brain.mjs` tarafından koddan üretilir; **elle düzenleme**. Yenilemek için `npm run brain`. Bkz. [[BRAIN]].
 
 ## Sürümler
-- Uygulama: **1.10.1**
+- Uygulama: **1.10.2**
 - Electron ^45.5.0 · React ^19.3.1 · Vite ^8.4.0 · TypeScript ~7.0.2 · Tailwind ^4.3.5
 - Monaco: `@monaco-editor/react` ^4.7.0, `monaco-editor` ^0.58.0
 - GitHub OAuth Client ID tanımlı: evet
@@ -220,7 +220,7 @@
 | `scripts/tests/electron-misc.test.cjs` | 138 |
 | `scripts/tests/fs-handlers.test.cjs` | 230 |
 | `scripts/tests/git.test.cjs` | 163 |
-| `scripts/tests/github.test.cjs` | 407 |
+| `scripts/tests/github.test.cjs` | 411 |
 | `scripts/tests/history.test.cjs` | 66 |
 | `scripts/tests/i18n.test.cjs` | 100 |
 | `scripts/tests/ipc-contract.test.cjs` | 112 |
