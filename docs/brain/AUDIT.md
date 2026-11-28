@@ -7,13 +7,13 @@ Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 | Alan | Bulgu |
 |---|---|
 | Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 28 |
-| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 79 |
+| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 80 |
 | Kalite | kritik 0 · yüksek 0 · orta 4 · düşük 12 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: yok
+- Yeni/artan: `PERF-LS-WRITE` src/components/GithubAccount.tsx
 - Giderilen: yok
 
 ## Güvenlik
@@ -44,6 +44,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-DYN-RE | `src/services/testParse.ts:53,62,70` | Döngüde dinamik RegExp üretimi olabilir (3×) |
 | düşük | PERF-LS-WRITE | `src/App.tsx:1587` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/components/GithubAccount.tsx:28` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/GitPanel.tsx:186,198` | localStorage yazımı: sık tetikleniyorsa debounce et (2×) |
 | düşük | PERF-LS-WRITE | `src/components/ResizableBody.tsx:20` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ResizeHandle.tsx:63` | localStorage yazımı: sık tetikleniyorsa debounce et |
@@ -85,4 +86,4 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 942, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3054 KB; en büyük: index-BnbjCjdE.js 453 KB, PtyView-DP0T2Dui.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-BRKMhybV.js 184 KB
+- Üretim paketi (dist varsa): toplam JS 3055 KB; en büyük: index-BAAso_qj.js 453 KB, PtyView-B0IyZKi9.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-BHwWQjkK.js 184 KB

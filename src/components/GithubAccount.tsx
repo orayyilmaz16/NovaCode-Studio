@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LogOut, Copy, Check, Loader2, UserPlus } from 'lucide-react';
+import { LogOut, Copy, Check, Loader2, UserPlus, ChevronRight } from 'lucide-react';
 import { t } from '../i18n/uiText';
 import { useGithubAuth } from '../services/useGithubAuth';
 import '../i18n/uiTextTheme'; // taşınan metinler (gecikmeli sözlük)
@@ -19,6 +19,16 @@ export const GithubAccount: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState<boolean>(() => {
+    try { return localStorage.getItem('nova.git.account') !== '0'; } catch { return true; }
+  });
+  const toggleOpen = () => {
+    setOpen((v) => {
+      const next = !v;
+      try { localStorage.setItem('nova.git.account', next ? '1' : '0'); } catch { /* depolama kapalı */ }
+      return next;
+    });
+  };
 
   // Cihaz akışı sonucu (onay / ret / süre doldu) ana süreçten gerçek zamanlı gelir.
   useEffect(() => {
@@ -72,11 +82,23 @@ export const GithubAccount: React.FC = () => {
   const btn = 'flex items-center justify-center gap-1.5 py-1.5 rounded font-medium transition-colors cursor-pointer text-xs';
 
   return (
-    <div className="p-3 border-b border-zinc-800/80 text-xs bg-nv-side">
-      <div className="flex items-center gap-2 mb-2 text-zinc-200 font-semibold">
-        <Github size={14} className="text-zinc-300" />
-        <span>{t('ghTitle')}</span>
-      </div>
+    <div className="py-1 border-b border-zinc-800/80 text-xs bg-nv-side">
+      {/* Açılır başlık: diğer bölümlerle aynı stil; durum yerelde hatırlanır */}
+      <button
+        onClick={toggleOpen}
+        aria-expanded={open}
+        className="group/sec flex items-center w-full h-6 pe-2 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider text-start hover:text-zinc-200"
+      >
+        <ChevronRight size={13} className={`ms-1.5 shrink-0 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open ? 'rotate-90' : ''}`} />
+        <Github size={12} className="ms-1 shrink-0" />
+        <span className="truncate ms-1">{t('ghTitle')}</span>
+      </button>
+      <div
+        inert={!open}
+        aria-hidden={!open}
+        style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0, transition: 'grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease' }}
+      >
+      <div className="min-h-0 overflow-hidden px-3 pb-2 pt-1">
 
       {auth.connected && auth.profile ? (
         <div className="flex items-center gap-2">
@@ -132,6 +154,8 @@ export const GithubAccount: React.FC = () => {
       )}
 
       {error && <div className="mt-2 text-[11px] text-rose-300 bg-rose-950/40 border border-rose-900/60 rounded px-2 py-1">{error}</div>}
+      </div>
+      </div>
     </div>
   );
 };

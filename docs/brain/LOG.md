@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 11:48 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0aHViQWNjb3VudC50 -->
+- Alan: [[ui-design]]
+- Kod (1): `src/components/GithubAccount.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 11:23 · auto/20261128-074543
 <!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
 - Alan: [[ui-design]]
@@ -273,12 +280,5 @@
 <!-- sig:c3JjL2NvbXBvbmVudHMvTWVudUJhci50c3gsfCxD -->
 - Alan: [[ui-design]]
 - Kod (1): `src/components/MenuBar.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 25.11.2026 10:56 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvTWVudUJhci50c3gsc3Jj -->
-- Alan: [[ui-design]]
-- Kod (2): `src/components/MenuBar.tsx`, `src/components/AccordionMenu.tsx`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

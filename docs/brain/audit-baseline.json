@@ -72,6 +72,11 @@
    "sev": "düşük"
   },
   {
+   "k": "PERF-LS-WRITE|src/components/GithubAccount.tsx",
+   "n": 1,
+   "sev": "düşük"
+  },
+  {
    "k": "PERF-LS-WRITE|src/components/GitPanel.tsx",
    "n": 2,
    "sev": "düşük"
