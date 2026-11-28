@@ -27,10 +27,11 @@ flowchart TD
   G -->|kırmızı| I[Tek açık issue<br/>etiket: bug, auto-detected, sev, area]
   I --> P[Projects #2: Backlog]
   I -->|brain, auto-fix| D[auto-fix workflow tetiklenir]
-  D --> K{ANTHROPIC_API_KEY var mı?}
-  K -->|hayır| X[Atla]
-  K -->|evet| A[Claude Code: düzelt, dal, PR]
-  A --> CI[PR CI: quality, security]
+  D --> F[Deterministik düzeltici: çözülmeyen belge bağlantıları, LLM yok]
+  F --> K{brain:check geçti mi?}
+  K -->|hayır| X[Issue'ya yorum, PR yok]
+  K -->|evet| A[Dal, PR, CI elle tetiklenir]
+  A --> CI[PR CI: quality]
   CI --> H[İnsan inceler ve birleştirir]
   S2[Her Pazartesi 05:05 UTC<br/>sprint-cadence] --> M[Milestone: mevcut ve sonraki sprint]
   M --> R[Süresi geçen sprintteki açık issue'lar devredilir]
@@ -46,7 +47,7 @@ flowchart TD
 | `qa-sweep.yml` | Her gün 03:17 UTC, elle | Kapıları çalıştırır, issue açar/günceller/kapatır, projeye ekler, mekanik kapıda düzeltmeyi tetikler | `PROJECT_TOKEN` (isteğe bağlı) | contents read, issues write, actions write |
 | `sprint-cadence.yml` | Pazartesi 05:05 UTC, elle (isteğe bağlı `date` girdisi) | Milestone oluşturur, devir yapar, rapor yazar | — | contents read, issues write |
 | `project-sync.yml` | Issue ve PR olayları | Projects #2 kartının Status alanını günceller | `PROJECT_TOKEN` (isteğe bağlı) | contents read |
-| `auto-fix.yml` | Yalnız `qa-sweep`'ten (elle de çağrılabilir) | Claude Code ile mekanik düzeltme, dal ve PR | `ANTHROPIC_API_KEY` (isteğe bağlı) | contents write, pull-requests write, issues write |
+| `auto-fix.yml` | Yalnız `qa-sweep`'ten (elle de çağrılabilir) | Deterministik düzeltme (çözülmeyen belge bağlantıları), dal, PR ve CI tetikleme. LLM yok, ücret yok | — | contents write, pull-requests write, issues write, actions write |
 
 Betikler: `scripts/qa-sweep.mjs`, `scripts/sprint-cadence.mjs`, `scripts/project-sync.mjs`, ortak kurallar `scripts/autopilot-lib.mjs`. Testler: `scripts/tests/autopilot.test.cjs` (`npm test` zincirinde).
 
@@ -94,19 +95,18 @@ Secret'lar repoya kod olarak yazılmaz. Değer yapıştırmak için:
 
 ```
 ! gh secret set PROJECT_TOKEN --repo orayyilmaz16/NovaCode-Studio
-! gh secret set ANTHROPIC_API_KEY --repo orayyilmaz16/NovaCode-Studio
 ```
 
 - `PROJECT_TOKEN`: kullanıcı projesi #2'ye yazma yetkisi olan token (classic token, yalnız `project` kapsamı; kullanıcıya ait Projects için fine-grained token'da Projects izni görünmez). Yoksa proje senkronu ve sweep'in proje eklemesi atlanır.
-- `ANTHROPIC_API_KEY`: otomatik düzeltme için. Yoksa `auto-fix` atlanır. Anahtar, `claude-code-action` (v1, SHA `4411a9e9…`) ile kullanılır.
+- Ücretsiz düzeltme: düzeltici bir dil modeli kullanmaz, API anahtarı ve ücret gerekmez. Yalnız `PROJECT_TOKEN` gerekir.
 
 ## 9. Güvenlik kuralları
 
 - Issue gövdesi ve kapı çıktısı **veri**tir; düzeltme isteminde talimat olarak uygulanmaz.
-- Düzeltme yalnız `docs/brain/`, `src/i18n/` ve `CHANGELOG.md` dosyalarını değiştirebilir. Test, kaynak, yapılandırma ve workflow dosyalarına dokunamaz (istem ve `allowedTools` ile sınırlı).
+- Düzeltici yalnız `docs/brain/` altındaki çözülmeyen bağlantıları değiştirir. Kaynak, test, yapılandırma ve workflow dosyalarına dokunmaz; kod hataları her zaman insan işidir.
 - Düzeltme yalnız bot kaynaklı, `auto-fix` etiketli ve `qa-fingerprint: brain` işaretli issue için çalışır.
-- `--max-turns 20`; eşzamanlılık `auto-fix-<issue>` grubuyla sınırlı.
-- Secret değerleri log'a ve istemine girmez; `ANTHROPIC_API_KEY` yalnız action girdisi olarak geçer.
+- Eşzamanlılık `auto-fix-<issue>` grubuyla sınırlı; bot yorumları ve PR gövdesi temiz metin.
+- Secret değerleri log'a girmez; düzeltici hiçbir anahtar kullanmaz.
 - Birleştirme otomatik değil. PR, CI'dan geçmeden ve insan onayı olmadan birleşmez.
 
 ## 10. Doğrulama durumu (28.11.2026)
@@ -126,13 +126,13 @@ Secret'lar repoya kod olarak yazılmaz. Değer yapıştırmak için:
 **Henüz doğrulanmadı (ilk gerçek koşularda kontrol edilecek):**
 - GitHub tarafında zamanlanmış koşular ve `workflow_dispatch` (dosyalar `main`'e girdikten sonra).
 - **Proje senkronu (gerçek olaylar, PROJECT_TOKEN ile, 28.11.2026):** geçici test issue'su #181: açılış → Backlog, `qa:needs-test` → QA’da, kapanış → Tamam. Üç koşu da başarılı. Bağlı issue'su olmayan otomatik PR olayı 0 işlem yaptı (beklenen). Test issue'su #181 kapalı kalır; panodaki kartı ve issue'yu silmek kurucu kararı.
-- `claude-code-action` ile uçtan uca düzeltme (`ANTHROPIC_API_KEY` henüz yok; `allowed_bots` ve `allowedTools` sözdizimi ilk koşuda doğrulanır).
+- Deterministik düzeltici ile uçtan uca koşu (kırık bağlantı → düzeltme PR'ı → CI → insan birleştirir). Yerel kopyada test edildi (bkz. aşağı); GitHub'da ana dala girdikten sonra doğrulanacak.
 - Windows runner'da `npm ci` (install scripts açık) ve tam `npm test`: yerelde geçti, CI ortamında farklılık olabilir. İlk taramada sahte alarm çıkarsa kapı tanımı ayarlanır.
 
 ## 11. Geri dönüş
 
 - Bir workflow'u durdur: `gh workflow disable <dosya>`.
-- Secret'ları kaldır: `gh secret delete PROJECT_TOKEN` / `ANTHROPIC_API_KEY`.
+- Secret'ı kaldır: `gh secret delete PROJECT_TOKEN`.
 - Açık otomatik issue'lar: `auto-detected` etiketiyle filtrele, toplu kapat.
 
 ## 12. Nerede bakılır

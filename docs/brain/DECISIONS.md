@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Otomatik düzeltme: LLM yerine deterministik düzeltici; API anahtarı yok)
+Bu kayıt, aşağıdaki otopilot kararındaki "Claude Code ile düzeltme" kısmını geri alır. Sebep: kullanıcı ücretli API istemiyor ve anahtar gerektirmesini istemiyor. Çözüm: `scripts/auto-fix-brain.mjs` çözülmeyen belge bağlantılarını kuralla onarır (en yakın dosya adı ≤ 3 düzenleme uzaklığı, eşleşmezse düz metin); LLM, ücret ve secret yok. Kapsam aynı: yalnız `brain` kapısı; kod hataları insan işi. Doğrulama: birim testi (12 kontrol, `npm test`) ve yerel kopyada kırık bağlantı → düzeltme → brain:check. Geri dönüş: `auto-fix.yml` eski haline ve `claude-code-action`a döner. Free LLM (ör. Gemini/Groq ücretsiz katman) ileride eklenebilir; ancak veri gizliliği (KVKK, yurt dışı aktarım) ve kota kararı ayrıca alınmalı.
+
 ## 28.11.2026 (Otopilot: zamanlanmış tarama, sprint devri, proje senkronu, mekanik düzeltme)
 Sürekli süreç otomasyonu [[autopilot]] aksiyonunda: `qa-sweep` (her gün; tsc, tam npm test, brain:check), `sprint-cadence` (her Pazartesi), `project-sync` (issue ve PR olayları), `auto-fix` (yalnız mekanik kapı, Claude Code ile PR). Sebep: hataları elle aramadan yakalamak, sprint geçişini ve proje durumunu kendiliğinden tutmak. Karar: bot `main`e yazmaz; düzeltme PR açar, birleştirmeyi insan yapar (org politikası: commit/push/deploy onaysız değil). Otomatik düzeltme yalnız belge ve i18n kapısıyla sınırlı; kod testleri insan işi. Public repo için çıktı temizlenir. Secret'lar (`PROJECT_TOKEN`, `ANTHROPIC_API_KEY`) repoya yazılmaz; yoksa adımlar atlanır. Doğrulanmamış: GitHub tarafı koşuları ve Claude ile uçtan uca düzeltme (secret gerekir). Geri dönüş: `gh workflow disable`, secret silme.
 
