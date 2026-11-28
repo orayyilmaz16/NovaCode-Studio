@@ -124,6 +124,8 @@ Otomatik testler bir şeyi kanıtlar, ama arayüzü kanıtlamaz. Arayüz değiş
 
 **Kurulan (28.11.2026):** 8 açık backlog kalemi issue oldu (#163–#170, alan ve önem etiketli). 39 etiket (QA, önem, alan ve `triage` dahil), issue şablonları `user_story` ve `test_session`, `bug_report` önem ve tekrar alanları, PR şablonunda QA kutuları.
 
+**Milestone'lar (28.11.2026):** `Sprint 1` (son tarih 11.12.2026), `Sprint 2` (25.12.2026), `Ürün kararı bekliyor` (son tarihsiz). Sprint issue'ları ilgili sprint milestone'una, kurucu kararı bekleyenler karar milestone'una bağlanır. Sürüm milestone'ları, sürüm planı netleşince eklenir.
+
 **Bekleyen:** Projects için token kapsamı yok (`read:project`, `project`). Kullanıcı bunu tarayıcıda yeniler:
 
 ```

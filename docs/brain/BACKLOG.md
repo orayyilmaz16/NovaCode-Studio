@@ -76,7 +76,7 @@ Kritik düzeyde bulgu yok. **Birinci ve ikinci dalga düzeltmeleri 17.11.2026'da
 | U-02 | orta | `style.css:395-637` | Sabit ms animasyonlar (180/260/600/1100ms…); `--dur-*` jetonları var ama kullanılmıyor (kural 9) | Jetonlara çevir | giderildi (17.11.2026) |
 | U-03 | orta | `FileTree.tsx`, `SplashScreen.tsx`, `AIAssistant.tsx`, `UpdateDialog.tsx`, `Terminal.tsx`, `WindowControls.tsx` | Tailwind `duration-*` ve satır içi ms | `motion-*` sınıfları | giderildi (17.11.2026) |
 | U-04 | orta | `App.tsx:1157`, `style.css:523-604` | Modal gölgesi ve `box-shadow` yığını (kural 9) | Düz kenarlık + tek odak halkası | giderildi (17.11.2026) |
-| U-05 | orta | `AIAssistant.tsx:549,665,685`, `ChipSlider.tsx:52` | AI avatarlarında indigo→mor→fuşya degrade (kural 9: degrade yok, tek vurgu) | Düz `bg-indigo-500` | kısmen: avatarlar düz indigo; ajan modunun kalan violet kullanımları duruyor |
+| U-05 | orta | `AIAssistant.tsx:549,665,685`, `ChipSlider.tsx:52` | AI avatarlarında indigo→mor→fuşya degrade (kural 9: degrade yok, tek vurgu) | Düz `bg-indigo-500` | giderildi (28.11.2026, #170): AI bileşenlerinde degrade ve violet yok; slider dolgusu fonksiyonel |
 | U-06 | düşük | `LandingPage.tsx:128` vb. (18 yer) | Koyu zeminde `text-zinc-600/700` WCAG AA kontrastı geçmez | En az `zinc-400/500` | giderildi (17.11.2026) |
 | U-07 | düşük | `ExtensionsPanel`, `GitPanel`, `PtyView`, `AIAssistant` | `button` sayısı `aria-label`'dan fazla (örnek sayım, tek tek doğrulanmadı) | Metinsiz düğmeleri tara | giderildi (17.11.2026) |
 | U-08 | düşük | `App.tsx:1152` | Ayarlar modalı dar pencerede kırılma testi yok | Dar genişlikte kategori listesi üst sekme | giderildi (17.11.2026) |

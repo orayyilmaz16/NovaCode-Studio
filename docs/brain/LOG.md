@@ -3,6 +3,20 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:16 · auto/20261128-101432
+<!-- sig:fCxkb2NzL2JyYWluL0RFQ0lTSU9OUy5tZCxkb2Nz -->
+- Alan: —
+- Kod (0): —
+- Belge (3): `docs/brain/DECISIONS.md`, `docs/brain/actions/qa-agile.md`, `docs/brain/qa/SPRINTS.md`
+- Durum: ✓ yalnız belge değişti
+
+## 28.11.2026 13:14 · auto/20261128-101132
+<!-- sig:fCxBR0VOVC5tZCxkb2NzL2JyYWluL0JBQ0tMT0cu -->
+- Alan: —
+- Kod (0): —
+- Belge (2): `AGENT.md`, `docs/brain/BACKLOG.md`
+- Durum: ✓ yalnız belge değişti
+
 ## 28.11.2026 13:11 · auto/20261128-100940
 <!-- sig:fCxBR0VOVC5tZCxkb2NzL2JyYWluL0RFQ0lTSU9O -->
 - Alan: —
@@ -268,17 +282,3 @@
 - Kod (3): `.github/workflows/security.yml`, `.github/workflows/runtime-watch.yml`, `scripts/runtime-watch.mjs`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/updates.md`
 - Durum: ✓ belgelendi
-
-## 26.11.2026 08:17 · main
-<!-- sig:ZWxlY3Ryb24tdXBkYXRlLmNqcyx8LENIQU5HRUxP -->
-- Alan: [[updates]]
-- Kod (1): `electron-update.cjs`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/updates.md`
-- Durum: ✓ belgelendi
-
-## 25.11.2026 11:07 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
-- Alan: [[ui-design]]
-- Kod (1): `src/App.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/explorer.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

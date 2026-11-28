@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Milestone yapısı: sprint ve karar)
+GitHub milestone'ları: `Sprint 1` (11.12.2026), `Sprint 2` (25.12.2026), `Ürün kararı bekliyor` (tarihsiz). Sebep: sprint takvimini ve kurucu kararı bekleyen işleri ayırmak; kararı bekleyen iş sprint kapasitesini tüketmesin. Sonuç: #163, #168, #169 Sprint 1'de; #164–#167 karar milestone'unda. Geri dönüş: milestone silinir, issue'lar milestone'suz kalır. Bu yapı Projects alanlarından bağımsız çalışır.
+
 ## 28.11.2026 (Sprint 1 onayı ve backlog issue'ları)
 Sprint 1 (30.11.2026 – 11.12.2026) onaylandı. Açık [[BACKLOG]] kalemleri (S-04, S-18, I-05, F-08, F-09, T-01, P-13, U-05) issue'ya dönüştü: #163–#170, alan ve önem etiketli. Sebep: çalışma kalemlerini tek yerde izlemek; BACKLOG kimliği başlıkta korunur. Sonuç: önem etiketleri QA önerisidir (yüksek→major, orta→minor, düşük→trivial). F-09 için not: test sekmesi 21.11.2026'da eklendi, kalan kapsam kararı açık. Geri dönüş: issue'lar kapatılır; BACKLOG değişmez. GitHub Project henüz kurulmadı (token kapsamı).
 
