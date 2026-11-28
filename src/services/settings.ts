@@ -266,48 +266,127 @@ export function codeFontFamily(values: SettingsValues): string {
   return CODE_FONTS[id] ?? CODE_FONTS.cascadia;
 }
 
-// Monaco seçenekleri (gerçek zamanlı: ayar değişince doğrudan güncellenir)
-export function toMonacoOptions(v: SettingsValues): Record<string, unknown> {
-  const rulers = String(v.rulers)
-    .split(/[ ,]+/)
-    .map(Number)
-    .filter((n) => Number.isInteger(n) && n > 0 && n < 500);
-  const b = (id: string) => v[id] === true;
+// Monaco seçenekleri (gerçek zamanlı: ayar değişince doğrudan güncellenir).
+// Ayarlar anahtar grubuna göre saf fonksiyonlara bölünmüştür; her grup yalnız kendi anahtarlarını okur.
+// Seçici kullanan bileşen (EditorArea) yalnız ilgili grup değiştiğinde yeni nesne alır (bkz. SettingsContext useSettingsSlice).
+export const MONACO_KEYS = {
+  font: ['fontFamily', 'fontFamilyCustom', 'fontSize', 'lineHeight', 'fontWeight', 'letterSpacing', 'fontLigatures'],
+  editing: ['tabSize', 'insertSpaces', 'autoClosingBrackets', 'formatOnPaste', 'formatOnType'],
+  view: ['wordWrap', 'lineNumbers', 'minimap', 'renderWhitespace', 'renderLineHighlight', 'folding', 'stickyScroll', 'scrollBeyondLastLine', 'bracketColorization', 'indentGuides', 'rulers'],
+  cursor: ['cursorStyle', 'cursorBlinking', 'smoothCaret'],
+  scroll: ['smoothScrolling'],
+  suggest: ['quickSuggestions', 'suggestOnTriggerCharacters', 'parameterHints', 'hover'],
+  inlineSuggest: ['aiCompletion', 'aiCompletionToolbar']
+} as const;
+
+/** Düzenleyici seçeneklerini besleyen tüm anahtarlar (toMonacoEditorOptions bunları okur). */
+export const EDITOR_OPTION_KEYS: readonly string[] = [
+  ...MONACO_KEYS.font,
+  ...MONACO_KEYS.editing,
+  ...MONACO_KEYS.view,
+  ...MONACO_KEYS.cursor,
+  ...MONACO_KEYS.scroll,
+  ...MONACO_KEYS.suggest,
+  ...MONACO_KEYS.inlineSuggest
+];
+
+/** Satır içi AI tamamlamayı yapılandıran anahtarlar. */
+export const AI_COMPLETION_KEYS: readonly string[] = [
+  'aiCompletion', 'aiCompletionTrigger', 'aiCompletionDelay', 'aiCompletionCooldown', 'aiCompletionModel',
+  'aiCompletionMaxTokens', 'aiCompletionPrefix', 'aiCompletionSuffix', 'aiCompletionTemperature', 'aiCompletionCount', 'aiCompletionLength'
+];
+
+const isOn = (v: SettingsValues, id: string) => v[id] === true;
+
+export function monacoFontOptions(v: SettingsValues): Record<string, unknown> {
   return {
     fontFamily: codeFontFamily(v),
     fontSize: Number(v.fontSize),
     lineHeight: Number(v.lineHeight),
     fontWeight: String(v.fontWeight),
     letterSpacing: Number(v.letterSpacing),
-    fontLigatures: b('fontLigatures'),
+    fontLigatures: isOn(v, 'fontLigatures')
+  };
+}
+
+export function monacoEditingOptions(v: SettingsValues): Record<string, unknown> {
+  return {
     tabSize: Number(v.tabSize),
-    insertSpaces: b('insertSpaces'),
+    insertSpaces: isOn(v, 'insertSpaces'),
+    autoClosingBrackets: String(v.autoClosingBrackets),
+    formatOnPaste: isOn(v, 'formatOnPaste'),
+    formatOnType: isOn(v, 'formatOnType')
+  };
+}
+
+export function monacoViewOptions(v: SettingsValues): Record<string, unknown> {
+  const rulers = String(v.rulers)
+    .split(/[ ,]+/)
+    .map(Number)
+    .filter((n) => Number.isInteger(n) && n > 0 && n < 500);
+  return {
     wordWrap: String(v.wordWrap),
     lineNumbers: String(v.lineNumbers),
-    minimap: { enabled: b('minimap'), renderCharacters: false },
+    minimap: { enabled: isOn(v, 'minimap'), renderCharacters: false },
     renderWhitespace: String(v.renderWhitespace),
+    renderLineHighlight: String(v.renderLineHighlight),
+    folding: isOn(v, 'folding'),
+    stickyScroll: { enabled: isOn(v, 'stickyScroll') },
+    scrollBeyondLastLine: isOn(v, 'scrollBeyondLastLine'),
+    bracketPairColorization: { enabled: isOn(v, 'bracketColorization') },
+    guides: { bracketPairs: isOn(v, 'bracketColorization'), indentation: isOn(v, 'indentGuides') },
+    rulers
+  };
+}
+
+export function monacoCursorOptions(v: SettingsValues): Record<string, unknown> {
+  return {
     cursorStyle: String(v.cursorStyle),
     cursorBlinking: String(v.cursorBlinking),
-    cursorSmoothCaretAnimation: b('smoothCaret') ? 'on' : 'off',
-    smoothScrolling: b('smoothScrolling'),
-    bracketPairColorization: { enabled: b('bracketColorization') },
-    guides: { bracketPairs: b('bracketColorization'), indentation: b('indentGuides') },
-    renderLineHighlight: String(v.renderLineHighlight),
-    folding: b('folding'),
-    stickyScroll: { enabled: b('stickyScroll') },
-    scrollBeyondLastLine: b('scrollBeyondLastLine'),
-    formatOnPaste: b('formatOnPaste'),
-    formatOnType: b('formatOnType'),
-    autoClosingBrackets: String(v.autoClosingBrackets),
-    quickSuggestions: b('quickSuggestions'),
-    suggestOnTriggerCharacters: b('suggestOnTriggerCharacters'),
-    parameterHints: { enabled: b('parameterHints') },
-    hover: { enabled: b('hover') },
-    rulers,
+    cursorSmoothCaretAnimation: isOn(v, 'smoothCaret') ? 'on' : 'off'
+  };
+}
+
+export function monacoScrollOptions(v: SettingsValues): Record<string, unknown> {
+  return { smoothScrolling: isOn(v, 'smoothScrolling') };
+}
+
+export function monacoSuggestOptions(v: SettingsValues): Record<string, unknown> {
+  return {
+    quickSuggestions: isOn(v, 'quickSuggestions'),
+    suggestOnTriggerCharacters: isOn(v, 'suggestOnTriggerCharacters'),
+    parameterHints: { enabled: isOn(v, 'parameterHints') },
+    hover: { enabled: isOn(v, 'hover') }
+  };
+}
+
+/** Düzenleyici seçenekleri (inlineSuggest hariç). */
+export function toMonacoOptions(v: SettingsValues): Record<string, unknown> {
+  return {
+    ...monacoFontOptions(v),
+    ...monacoEditingOptions(v),
+    ...monacoViewOptions(v),
+    ...monacoCursorOptions(v),
+    ...monacoScrollOptions(v),
+    ...monacoSuggestOptions(v),
     automaticLayout: true,
     padding: { top: 8 },
     roundedSelection: true
   };
+}
+
+/** Satır içi öneri: önizleme araç çubuğu (kabul / kelime / satır / sonraki), klasik öneri listesiyle birlikte çalışır. */
+export function toMonacoInlineSuggest(v: SettingsValues): { enabled: boolean; showToolbar: 'onHover' | 'always'; suppressSuggestions: boolean } {
+  return {
+    enabled: v.aiCompletion !== false,
+    showToolbar: v.aiCompletionToolbar === false ? 'onHover' : 'always',
+    suppressSuggestions: false
+  };
+}
+
+/** Editöre verilen tam seçenek seti (toMonacoOptions + inlineSuggest). */
+export function toMonacoEditorOptions(v: SettingsValues): Record<string, unknown> {
+  return { ...toMonacoOptions(v), inlineSuggest: toMonacoInlineSuggest(v) };
 }
 
 // ---------- Büyük dosya koruması (P-25) ----------
@@ -340,8 +419,38 @@ export function largeFileOverrides(): Record<string, unknown> {
   };
 }
 
+/** Hazır Monaco seçeneklerine dosya boyutu kuralını uygular; dosya büyükse ağır özellikler kapatılır. */
+export function applyFileSize(opts: Record<string, unknown>, size?: FileSize): Record<string, unknown> {
+  return size && isLargeFile(size) ? { ...opts, ...largeFileOverrides() } : opts;
+}
+
 /** Ayarlardan Monaco seçenekleri; dosya büyükse ağır özellikler kapatılır. */
 export function toMonacoOptionsForFile(v: SettingsValues, size?: FileSize): Record<string, unknown> {
-  const base = toMonacoOptions(v);
-  return size && isLargeFile(size) ? { ...base, ...largeFileOverrides() } : base;
+  return applyFileSize(toMonacoOptions(v), size);
+}
+
+// ---------- Seçici yardımcıları (saf; React bağı SettingsContext.tsx'te) ----------
+/** Yalnız `keys` içindeki bir değer değişince yeni nesne döner; aksi halde önceki (aynı referanslı) nesne. */
+export function createSlice<T>(keys: readonly string[], select: (v: SettingsValues) => T): (v: SettingsValues) => T {
+  const changed = createChangeDetector(keys);
+  let last: T | undefined;
+  let primed = false;
+  return (v) => {
+    if (changed(v) || !primed) {
+      last = select(v);
+      primed = true;
+    }
+    return last as T;
+  };
+}
+
+/** `keys` değerlerinden biri önceki çağrıdan beri değiştiyse true döner (ilk çağrıda her zaman true). */
+export function createChangeDetector(keys: readonly string[]): (v: SettingsValues) => boolean {
+  let prev: SettingValue[] | null = null;
+  return (v) => {
+    const cur = keys.map((k) => v[k]);
+    const dirty = prev === null || cur.some((x, i) => x !== prev![i]);
+    prev = cur;
+    return dirty;
+  };
 }

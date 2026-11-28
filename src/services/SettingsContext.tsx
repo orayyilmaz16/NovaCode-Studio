@@ -12,6 +12,8 @@ import {
   saveSettings,
   getDef,
   sanitizeValue,
+  createChangeDetector,
+  createSlice,
   type ResolvedMode,
   type SettingValue,
   type SettingsValues
@@ -47,6 +49,37 @@ export function useSettingValue(id: string): SettingValue {
   if (!store) throw new Error('useSettingValue: SettingsProvider eksik');
   const subscribe = useCallback((fn: () => void) => { store.listeners.add(fn); return () => { store.listeners.delete(fn); }; }, [store]);
   return useSyncExternalStore(subscribe, () => store.values[id]);
+}
+
+/**
+ * Ayar grubunun türetilmiş değeri (ör. Monaco seçenekleri). `keys` ve `select` modül düzeyinde sabit olmalı.
+ * Dönen nesne yalnız `keys` içinden bir ayar değişince değişir: diğer ayarların değişimi çizimi tetiklemez.
+ */
+export function useSettingsSlice<T>(keys: readonly string[], select: (v: SettingsValues) => T): T {
+  const store = useContext(StoreCtx);
+  if (!store) throw new Error('useSettingsSlice: SettingsProvider eksik');
+  const slice = useMemo(() => createSlice(keys, select), [keys, select]);
+  const subscribe = useCallback((fn: () => void) => { store.listeners.add(fn); return () => { store.listeners.delete(fn); }; }, [store]);
+  const getSnapshot = useCallback(() => slice(store.values), [slice, store]);
+  return useSyncExternalStore(subscribe, getSnapshot);
+}
+
+/**
+ * Yan etki (DOM dışı servis çağrısı vb.) için: `keys` ayarlarından biri değişince `effect` çağrılır, bileşen yeniden çizilmez.
+ * Mount'ta bir kez de çağrılır (useEffect ile aynı davranış).
+ */
+export function useSettingsEffect(keys: readonly string[], effect: (v: SettingsValues) => void): void {
+  const store = useContext(StoreCtx);
+  if (!store) throw new Error('useSettingsEffect: SettingsProvider eksik');
+  const effectRef = useRef(effect);
+  useLayoutEffect(() => { effectRef.current = effect; });
+  useEffect(() => {
+    const changed = createChangeDetector(keys);
+    const run = () => { if (changed(store.values)) effectRef.current(store.values); };
+    run();
+    store.listeners.add(run);
+    return () => { store.listeners.delete(run); };
+  }, [store, keys]);
 }
 
 /** Ayar değiştirici eylemler (değer okumaz, değişimde yeniden çizilmez). */
