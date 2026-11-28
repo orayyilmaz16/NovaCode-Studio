@@ -7,6 +7,9 @@
 - [fix] **Commit açılınca grafik kopması:** Açılan commit'in dosya listesinin altından geçen dal çizgisi artık sonraki commit'e kesintisiz bağlanır.
 - [feat] **Commit ayrıntı kartı:** Geçmişte bir commit'in üzerine gelince konu, tam karma (kopyala düğmesiyle), yazar, tarih, üst commit'ler (birleştirmeyse ayrıca belirtilir), +/− satır ve dosya sayısı, dallar ve etiketler bir kartta açılır.
 - [improve] **Git paneli açılır bölümler:** Commit, GitHub'da canlı durum, Pull request ve Yayınla alanları da diğer bölümler gibi açılır listedir; açık/kapalı durumu hatırlanır. Geçmiş kapalı bölümlerin ardından akışta yukarı çıkar, dipte sabitlenmez.
+- [fix] **Commit geçmişi taşması:** Commit geçmişi menüsünde satırlar ve dosya listesi kendi genişliğinde kalır; taşma ve kesilme yok.
+- [improve] **Commit satırlarında profil fotoğrafı:** Her commit'in yazarının GitHub fotoğrafı (bağlıysa) ya da baş harfleri gösterilir; profiller satır ekrana gelince yüklenir.
+- [improve] **Dosya listesinde dil simgesi:** Commit'te değişen dosyaların başında dil simgesi, sonunda değişiklik harfi (A/M/D) görünür.
 - [improve] **Commit geçmişi menüsünde graf:** Durum çubuğundaki commit geçmişi, git paneliyle aynı dal grafı ve ayrıntılarla gösterilir; simgenin arka planı kaldırıldı (şeffaf).
 - [improve] **Git geçmişi daha hızlı:** Commit ayrıntıları yalnız açıldığında hazırlanır.
 - [improve] **Commit geçmişi menüsü git paneliyle uyumlu:** Durum çubuğundaki commit geçmişi açılınca commit'in tam karması kopyalanabilir, tam tarih, GitHub yazarı (avatar ve kullanıcı adı, bağlıysa) ve birleştirme commit'lerinin üst commit'leri görünür.
@@ -44,6 +47,9 @@
 - [fix] **Graph break when a commit is expanded:** The branch line below an expanded commit's file list now connects continuously to the next commit.
 - [feat] **Commit details card:** Hovering a commit in the history opens a card with its subject, full hash (with copy button), author, date, parent commits (marked as merge when there are several), +/− line and file counts, and branches and tags.
 - [improve] **Git panel dropdown sections:** Commit, live GitHub status, Pull request and Publish are now collapsible sections like the rest; open or closed state is remembered. When sections are collapsed, the history moves up instead of staying pinned to the bottom.
+- [fix] **Commit history overflow:** Rows and the file list in the commit history menu stay inside its width; nothing overflows or is cut off.
+- [improve] **Author photo on commit rows:** Each commit shows its author's GitHub photo (when connected) or initials; profiles load when the row scrolls into view.
+- [improve] **Language icons in file list:** Changed files in a commit show their language icon, with the change letter (A/M/D) at the end.
 - [improve] **Commit history menu with graph:** The status bar commit history shows the same branch graph and details as the git panel; the icon has a transparent background.
 - [improve] **Faster git history:** Commit details are built only when a commit is opened.
 - [improve] **Commit history menu matches git panel:** Opening the commit history from the status bar shows the full hash with a copy button, the full date, the GitHub author (avatar and username when connected) and parent commits for merges.

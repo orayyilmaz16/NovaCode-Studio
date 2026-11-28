@@ -54,13 +54,22 @@ const CARD_W = 300;
 const CARD_H_EST = 250;
 const CARD_GAP = 2; // kart satıra bitişik: fare aradan geçerken kart kapanmasın
 
+// Satır avatarı: GitHub fotoğrafı (yoksa renkli baş harfler); profil gelene kadar baş harfler görünür
+const avatarHue = (name: string) => laneColor(Math.abs([...name].reduce((a, ch) => a + ch.charCodeAt(0), 0)) % 8);
+const RowAvatar: React.FC<{ name: string; url?: string | null }> = ({ name, url }) =>
+  url ? (
+    <img src={avatarSized(url, 32)} alt="" width={14} height={14} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="size-3.5 shrink-0 rounded-full object-cover" />
+  ) : (
+    <span aria-hidden className="grid place-items-center size-3.5 shrink-0 rounded-full text-[7px] font-semibold text-zinc-950" style={{ background: avatarHue(name) }}>{initials(name)}</span>
+  );
+
 /** Commit'in üzerine gelince açılan ayrıntı kartı: konu, karma, yazar, tarih, değişiklik özeti, üst commit'ler, dallar. */
 
 // GitHub avatarı 30 px'de gösterilir; küçük (s=64) sürümü indirerek yükleme hızlanır (2x ekran için yeterli)
-const avatarSized = (url: string) => {
+const avatarSized = (url: string, size = 64) => {
   try {
     const u = new URL(url);
-    u.searchParams.set('s', '64');
+    u.searchParams.set('s', String(size));
     return u.toString();
   } catch {
     return url;
@@ -208,6 +217,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
   // Yazar profili: satıra gelince hemen istenir (kart açılmadan yüklenmeye başlar); sonuç hash başına tutulur
   const [profiles, setProfiles] = useState<Record<string, GithubCommitAuthor | null>>({});
   const requested = useRef(new Set<string>());
+  const listRef = useRef<HTMLDivElement>(null);
   const loadAuthor = (hash: string) => {
     if (!fetchAuthor || requested.current.has(hash)) return;
     requested.current.add(hash);
@@ -243,8 +253,21 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
   }, [hover]);
   const hoverCommit = hover ? commits.find((c) => c.hash === hover.hash) : undefined;
 
+  // Profiller yalnız satır ekrana gelince istenir (commit sayısı kadar istek atılmaz)
+  useEffect(() => {
+    const root = listRef.current;
+    if (!root || !fetchAuthor || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((en) => { if (en.isIntersecting) loadAuthor((en.target as HTMLElement).dataset.hash || ''); }),
+      { root: null, rootMargin: '160px 0px' }
+    );
+    root.querySelectorAll<HTMLElement>('[data-hash]').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commits, fetchAuthor]);
+
   return (
-    <div role="list" className="min-w-0 pb-1">
+    <div role="list" ref={listRef} className="min-w-0 pb-1">
       {noParents && <div className="mx-1 mb-1.5 px-2 py-1 rounded bg-amber-500/10 text-[11px] text-amber-300">{t('histNeedRestart')}</div>}
       {commits.map((c, i) => {
         const row = layout.rows[i];
@@ -253,7 +276,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
         const isHead = !!currentBranch && refs.includes(currentBranch);
         const color = laneColor(row.lane);
         return (
-          <div key={c.hash} role="listitem" className="min-w-0">
+          <div key={c.hash} role="listitem" data-hash={c.hash} className="min-w-0">
             <button
               onClick={() => onToggle(c.hash)}
               aria-expanded={open}
@@ -294,7 +317,8 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               )}
               <span className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-zinc-500 min-w-0">
                 <span className="font-mono shrink-0 text-zinc-400">{c.hash}</span>
-                <span className="truncate min-w-0">· {c.author}</span>
+                <RowAvatar name={c.author} url={profiles[c.hash]?.avatarUrl} />
+                <span className="truncate min-w-0">{c.author}</span>
                 <span className="shrink-0">· {c.ts ? timeAgo(c.ts) : c.when}</span>
               </span>
             </button>

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { GitBranch, GitCommitHorizontal, ExternalLink, RefreshCcw, ArrowDown, ArrowUp, PanelLeftOpen, PanelLeftClose, UserRound, Clock, FilePlus2, FileMinus2, FilePen, FileSymlink, Copy, Check } from 'lucide-react';
+import { GitBranch, GitCommitHorizontal, ExternalLink, RefreshCcw, ArrowDown, ArrowUp, PanelLeftOpen, PanelLeftClose, UserRound, Clock, Copy, Check } from 'lucide-react';
+import { FileTypeIcon } from './FileTypeIcon';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
@@ -30,13 +31,9 @@ interface Props {
   onOpenGit: () => void;
 }
 
-const STATUS: Record<string, { Icon: React.ElementType; tone: string }> = {
-  A: { Icon: FilePlus2, tone: 'text-emerald-400' },
-  D: { Icon: FileMinus2, tone: 'text-rose-400' },
-  R: { Icon: FileSymlink, tone: 'text-sky-400' },
-  C: { Icon: FileSymlink, tone: 'text-sky-400' },
-};
-const statusOf = (code: string) => STATUS[code] ?? { Icon: FilePen, tone: 'text-amber-300' };
+// Durum harfi rengi (git paneliyle aynı anlam): A yeşil, D kırmızı, R/C mavi, diğer sarı
+const STATUS_TONE: Record<string, string> = { A: 'text-emerald-400', D: 'text-rose-400', R: 'text-sky-400', C: 'text-sky-400' };
+const statusTone = (code: string) => STATUS_TONE[code] ?? 'text-amber-300';
 
 /**
  * Durum çubuğundaki commit geçmişi menüsü. Liste, git panelindeki GitHistory grafıyla aynıdır
@@ -151,7 +148,7 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
     const p = profiles[hash];
     const isCopied = copied?.hash === hash;
     return (
-      <div className="ms-1 me-2 mb-1.5 pb-1">
+      <div className="ms-1 me-2 mb-1.5 pb-1 min-w-0 overflow-hidden">
         <div className="py-1 flex flex-col gap-1 text-[11px] text-zinc-400">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="font-mono text-zinc-300 truncate">{c.hash}</span>
@@ -179,34 +176,36 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
             <div className="font-mono text-zinc-500">{t('histCardMerge')}: {c.parents.map((x) => x.slice(0, 7)).join(' ')}</div>
           )}
         </div>
-        <div className="max-h-48 overflow-y-auto">
+        <div className="max-h-48 overflow-y-auto overflow-x-hidden">
           {!files[hash] ? (
             <div className="py-1 text-[11px] text-zinc-500">{t('histLoading')}</div>
           ) : files[hash] === 'error' ? (
             <div className="py-1 text-[11px] text-rose-300">{t('histError')}</div>
           ) : (
-            (files[hash] as GitCommitFile[]).map((f) => {
-              const { Icon, tone } = statusOf(f.status);
-              const cut = Math.max(f.path.lastIndexOf('/'), f.path.lastIndexOf('\\'));
-              const name = f.path.slice(cut + 1);
-              const dir = cut > 0 ? f.path.slice(0, cut) : '';
-              return (
-                <div key={f.path} className="flex items-center gap-1.5 h-[22px] text-[11.5px] min-w-0" title={f.orig ? `${f.orig} → ${f.path}` : f.path}>
-                  <Icon size={12} className={`shrink-0 ${tone}`} />
-                  <span className="text-zinc-300 truncate shrink-0 max-w-[55%]">{name}</span>
-                  {dir && <span className="text-zinc-600 truncate min-w-0 flex-1">{dir}</span>}
-                  {!dir && <span className="flex-1" />}
-                  {f.binary ? (
-                    <span className="shrink-0 text-[10px] text-zinc-500">bin</span>
-                  ) : (
-                    <span className="shrink-0 font-mono tabular-nums flex items-center gap-1.5">
-                      {f.added ? <span className="text-emerald-400">+{f.added}</span> : null}
-                      {f.deleted ? <span className="text-rose-400">−{f.deleted}</span> : null}
-                    </span>
-                  )}
-                </div>
-              );
-            })
+            <div className="flex flex-col gap-px">
+              {(files[hash] as GitCommitFile[]).map((f) => {
+                const cut = Math.max(f.path.lastIndexOf('/'), f.path.lastIndexOf('\\'));
+                const name = f.path.slice(cut + 1);
+                const dir = cut > 0 ? f.path.slice(0, cut) : '';
+                return (
+                  <div key={f.path} className="flex items-center gap-1.5 h-6 ps-1 pe-1 rounded hover:bg-white/[0.05] text-[11.5px] min-w-0" title={f.orig ? `${f.orig} → ${f.path}` : f.path}>
+                    <FileTypeIcon name={name} size={13} />
+                    <span className="text-zinc-200 truncate shrink min-w-0 max-w-[55%]">{name}</span>
+                    {dir && <span className="text-[10.5px] text-zinc-500 truncate min-w-0 flex-1">{dir}</span>}
+                    {!dir && <span className="flex-1" />}
+                    {f.binary ? (
+                      <span className="shrink-0 text-[10px] text-zinc-500">bin</span>
+                    ) : (
+                      <span className="shrink-0 font-mono text-[10px] tabular-nums flex items-center gap-1">
+                        {f.added ? <span className="text-emerald-400">+{f.added}</span> : null}
+                        {f.deleted ? <span className="text-rose-400">−{f.deleted}</span> : null}
+                      </span>
+                    )}
+                    <span className={`shrink-0 w-3.5 text-center font-mono text-[10px] font-semibold ${statusTone(f.status)}`}>{f.status}</span>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       </div>
@@ -222,7 +221,7 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
         aria-label={t('histTitle')}
         onMouseDown={(e) => e.stopPropagation()}
         style={{ left, bottom, width: W, maxHeight: `min(460px, calc(100vh - ${bottom + 16}px))` }}
-        className="absolute max-w-[calc(100vw-16px)] flex flex-col overflow-hidden rounded-[var(--frame-r)] border border-nv-border bg-nv-side float-card animate-dialog outline-none text-zinc-300"
+        className="absolute max-w-[calc(100vw-16px)] flex flex-col overflow-hidden min-w-0 rounded-[var(--frame-r)] border border-nv-border bg-nv-side float-card animate-dialog outline-none text-zinc-300"
       >
         <div className="flex items-center gap-2.5 px-3.5 py-2.5 border-b border-nv-border shrink-0">
           <span className="size-7 flex items-center justify-center shrink-0"><GitCommitHorizontal size={16} className="text-indigo-300" /></span>
@@ -268,7 +267,7 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
           )}
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto py-1">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden py-1">
           {commits === null ? (
             <div className="px-3.5 py-6 text-center text-xs text-zinc-500">{t('histLoading')}</div>
           ) : failed ? (
