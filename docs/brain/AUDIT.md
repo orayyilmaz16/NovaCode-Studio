@@ -84,5 +84,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 940, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-CL7AKMa4.js 452 KB, PtyView-CVvmML8e.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-IRmT8yvA.js 184 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/GitPanel.tsx` 965, `src/components/FileTree.tsx` 942, `electron-main.cjs` 853
+- Üretim paketi (dist varsa): toplam JS 3054 KB; en büyük: index-z4P6Gp_c.js 452 KB, PtyView-CbaMnk8-.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-CfNzMlpQ.js 184 KB

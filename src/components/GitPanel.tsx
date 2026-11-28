@@ -175,7 +175,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   const [menu, setMenu] = useState<{ x: number; y: number; kind: 'more' | 'commit' } | null>(null);
   // Tüm bölümler açılır listedir; açık/kapalı durumu hatırlanır (yerel tercih)
   const [open, setOpen] = useState<Record<string, boolean>>(() => {
-    const base: Record<string, boolean> = { commit: true, merge: true, staged: true, changes: true, stash: true, github: true, pr: false, publish: false, history: true };
+    const base: Record<string, boolean> = { branch: true, commit: true, merge: true, staged: true, changes: true, stash: true, github: true, pr: false, publish: false, history: true };
     try {
       const saved = JSON.parse(localStorage.getItem('nova.git.sections') || 'null');
       if (saved && typeof saved === 'object') return { ...base, ...saved };
@@ -515,8 +515,30 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
 
   return (
     <div className="no-scrollbar flex flex-col h-full bg-nv-side text-zinc-300 select-none text-xs overflow-y-auto">
-      {/* Başlık: dal düğmesi + eşzamanla */}
-      <div className="px-3 py-2.5 border-b border-zinc-800/80 space-y-2">
+      {/* Dal bölümü: açılır/kapanır; kapalıyken yalnız dal adı ve ↑↓ görünür. İçerik: dal seçici + eşzamanla */}
+      <div className="border-b border-zinc-800/80">
+      <button
+        onClick={() => tog('branch')}
+        aria-expanded={!!open.branch}
+        className="w-full flex items-center gap-1.5 px-3 py-2 text-start text-zinc-300 hover:bg-white/[0.03] transition-colors duration-(--dur-fast)"
+      >
+        <ChevronRight size={13} className={`shrink-0 text-zinc-500 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open.branch ? 'rotate-90' : ''}`} />
+        <GitBranch size={13} className="shrink-0 text-indigo-300" />
+        <span className="truncate flex-1 font-mono text-[11px] text-indigo-300">{status.branch}</span>
+        {status.hasUpstream && (
+          <span className="shrink-0 font-mono text-[10px] text-zinc-400">
+            <span className={status.ahead ? 'text-emerald-400' : ''}>↑{status.ahead ?? 0}</span>{' '}
+            <span className={status.behind ? 'text-amber-300' : ''}>↓{status.behind ?? 0}</span>
+          </span>
+        )}
+      </button>
+      <div
+        inert={!open.branch}
+        aria-hidden={!open.branch}
+        style={{ display: 'grid', gridTemplateRows: open.branch ? '1fr' : '0fr', opacity: open.branch ? 1 : 0, transition: 'grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease' }}
+      >
+      <div className="min-h-0 overflow-hidden">
+      <div className="px-3 pb-2.5 space-y-2">
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => onPicker('checkout')}
@@ -639,6 +661,9 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             </div>
           </form>
         )}
+        </div>
+        </div>
+        </div>
       </div>
 
       {/* Commit: açılır bölüm; mesaj alanı ve karakter sayacı */}

@@ -7,6 +7,7 @@
 - [fix] **Commit açılınca grafik kopması:** Açılan commit'in dosya listesinin altından geçen dal çizgisi artık sonraki commit'e kesintisiz bağlanır.
 - [feat] **Commit ayrıntı kartı:** Geçmişte bir commit'in üzerine gelince konu, tam karma (kopyala düğmesiyle), yazar, tarih, üst commit'ler (birleştirmeyse ayrıca belirtilir), +/− satır ve dosya sayısı, dallar ve etiketler bir kartta açılır.
 - [improve] **Git paneli açılır bölümler:** Commit, GitHub'da canlı durum, Pull request ve Yayınla alanları da diğer bölümler gibi açılır listedir; açık/kapalı durumu hatırlanır. Geçmiş kapalı bölümlerin ardından akışta yukarı çıkar, dipte sabitlenmez.
+- [improve] **Dal bölümü açılır:** Dal adı ve ↑↓ sayıları başlıkta her zaman görünür; dal seçici ve eşzamanla düğmeleri açılır bölüme alındı.
 - [fix] **Geçmiş altındaki boşluk:** Geçmiş bölümü sabit yükseklikte değil; içeriği kadar uzar ve panel kaydırmasıyla gezilir, altında boş alan kalmaz.
 - [improve] **Commit ve PR alanları:** Mesaj ve açıklama kutularında karakter sayacı var; GitHub canlı durum kartı tek bölümde toplandı.
 - [fix] **Karmayı kopyala çalışıyor:** Commit kartındaki kopyala düğmesi karmayı panoya yazar (önce ana süreç üzerinden, tarayıcı pano izni gerekmez; o da olmazsa tarayıcı panosu). Başarısızsa düğmede "Kopyalanamadı" görünür.
@@ -36,6 +37,7 @@
 - [fix] **Graph break when a commit is expanded:** The branch line below an expanded commit's file list now connects continuously to the next commit.
 - [feat] **Commit details card:** Hovering a commit in the history opens a card with its subject, full hash (with copy button), author, date, parent commits (marked as merge when there are several), +/− line and file counts, and branches and tags.
 - [improve] **Git panel dropdown sections:** Commit, live GitHub status, Pull request and Publish are now collapsible sections like the rest; open or closed state is remembered. When sections are collapsed, the history moves up instead of staying pinned to the bottom.
+- [improve] **Collapsible branch section:** The branch name and ↑↓ counts stay visible in the header; the branch picker and sync buttons move into a section that can be collapsed.
 - [fix] **No gap below history:** The history section grows with its content and is scrolled with the panel, so no empty space remains below it.
 - [improve] **Commit and PR fields:** Message and description boxes show a character counter; the live GitHub status is grouped into one section.
 - [fix] **Copy hash works:** The copy button on the commit card now writes the hash to the clipboard through the main process, so it no longer depends on the browser clipboard permission. If that fails it falls back to the browser clipboard, and shows "Copy failed" when both fail.
