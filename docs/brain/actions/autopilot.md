@@ -44,7 +44,7 @@ flowchart TD
 | Dosya | Tetik | Ne yapar | Secret | Yetki |
 |---|---|---|---|---|
 | `qa-sweep.yml` | Her gün 03:17 UTC, elle | Kapıları çalıştırır, issue açar/günceller/kapatır, projeye ekler, mekanik kapıda düzeltmeyi tetikler | `PROJECT_TOKEN` (isteğe bağlı) | contents read, issues write, actions write |
-| `sprint-cadence.yml` | Pazartesi 05:05 UTC, elle | Milestone oluşturur, devir yapar, rapor yazar | — | contents read, issues write |
+| `sprint-cadence.yml` | Pazartesi 05:05 UTC, elle (isteğe bağlı `date` girdisi) | Milestone oluşturur, devir yapar, rapor yazar | — | contents read, issues write |
 | `project-sync.yml` | Issue ve PR olayları | Projects #2 kartının Status alanını günceller | `PROJECT_TOKEN` (isteğe bağlı) | contents read |
 | `auto-fix.yml` | Yalnız `qa-sweep`'ten (elle de çağrılabilir) | Claude Code ile mekanik düzeltme, dal ve PR | `ANTHROPIC_API_KEY` (isteğe bağlı) | contents write, pull-requests write, issues write |
 
@@ -116,6 +116,10 @@ Secret'lar repoya kod olarak yazılmaz. Değer yapıştırmak için:
 - Yerel kapılar: `tsc` geçti, `npm test` geçti (autopilot dahil), `brain:check` geçti.
 - Canlı veriyle kuru çalıştırma: sprint devri (14.12 tarihiyle #163/#168/#169 → Sprint 2, Sprint 3 oluşturulur), proje planı (#163→Backlog, PR → PR / CI), kapı raporu (brain hatası → issue ve `auto-fix`).
 - Workflow YAML sözdizimi ve tetikleyicileri ayrıştırıldı.
+- **GitHub'da gerçek koşular (28.11.2026):** `auto-fix` (#163 için): yazar bot değil → kapı doğru atladı. `sprint-cadence` (bugün çapadan önce): "henüz başlamadı" çıktısı, beklenen davranış. `qa-sweep` (main): tamamlandı. `project-sync`: secret yokken başarıyla atlandı.
+- **Canlı proje yazımı:** yerel geçici token ile `project-sync` (idempotent olay, #164 Backlog → Backlog): GraphQL ekleme ve durum yazımı çalıştı; kart durumları değişmedi.
+- **Uçtan uca hata yolu (test dalı `autopilot-e2e-test`):** kasıtlı kırık belge bağlantısı → tarama kırmızı → tek issue, etiketler, `auto-fix` tetiklenir (anahtar yok → atlanır). Düzeltme sonrası aynı dalda yeşil → issue otomatik kapanır. Test dalı ve test issue'su bittikten sonra kaldırılır.
+- `sprint-cadence` artık `date` girdisiyle elle çalıştırılabilir (test ve geri dönüş için).
 
 **Henüz doğrulanmadı (ilk gerçek koşularda kontrol edilecek):**
 - GitHub tarafında zamanlanmış koşular ve `workflow_dispatch` (dosyalar `main`'e girdikten sonra).
