@@ -4,7 +4,11 @@
 
 ### tr
 
+- [improve] **Yapay zekâ düğmesi:** Üst çubukta terminal aç/kapa düğmesinin yanına yapay zekâ asistanını aç/kapa düğmesi eklendi.
+
 ### en
+
+- [improve] **AI button:** Added a toggle for the AI assistant next to the terminal toggle in the top bar.
 
 ## 1.9.4 - 27.11.2026
 <!-- level: patch -->

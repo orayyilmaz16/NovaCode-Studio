@@ -1,7 +1,7 @@
 <!-- Bu dosya scripts/audit-scan.mjs tarafından otomatik üretilir; elle düzenleme. -->
 # Denetim raporu (otomatik)
 
-Son tarama: 27.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da haftalık/her push'ta) · Derin/elle bulgular: [[BACKLOG]] · Kural: [[audit]]
+Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da haftalık/her push'ta) · Derin/elle bulgular: [[BACKLOG]] · Kural: [[audit]]
 
 ## Özet
 | Alan | Bulgu |
@@ -38,7 +38,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 ## Performans
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | PERF-BIGFILE | `src/App.tsx:1` | 2517 satır: bölünmeli / memo ile ayrıştırılmalı |
+| orta | PERF-BIGFILE | `src/App.tsx:1` | 2527 satır: bölünmeli / memo ile ayrıştırılmalı |
 | orta | PERF-LISTENER-LEAK | `src/components/Preview.tsx:1` | addEventListener (4) > removeEventListener (1): temizlenmeyen dinleyici olabilir |
 | düşük | PERF-DYN-RE | `src/components/Preview.tsx:58` | Döngüde dinamik RegExp üretimi olabilir |
 | düşük | PERF-DYN-RE | `src/services/testParse.ts:53,62,70` | Döngüde dinamik RegExp üretimi olabilir (3×) |
@@ -81,5 +81,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2517, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 853
+- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 884, `electron-main.cjs` 853
 - Üretim paketi (dist varsa): toplam JS 3029 KB; en büyük: index-a_9Nuwgc.js 445 KB, PtyView-D1H7sTst.js 327 KB, react-vendor-BkhGS2g8.js 206 KB, fileIconLoaders-DMMUOAoz.js 184 KB

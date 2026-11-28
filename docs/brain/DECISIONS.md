@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (sağ üst bölge AI düğmesi)
+Üst çubuğun sağ kartına, terminal düğmesinin yanına AI asistanı aç/kapa düğmesi eklendi; sol üstteki mevcut AI düğmesi kaldırılmadı (iki giriş noktası). Kaynak: kullanıcı isteği.
+
 ## 27.11.2026 (Docker boru hattı)
 - **Sunucu imajları için otonom hat: derle → duman testi → GHCR → isteğe bağlı SSH dağıtımı → otomatik belge PR'ı.** Neden: imajlar hiç yayınlanmamıştı; elle komut istenmedi. Sonuç: dağıtım yalnız kullanıcının kendi tanımladığı `DEPLOY_*` / `ANALYTICS_DEPLOY_*` sırlarıyla çalışır, sır yoksa atlanır (ajan sunucuya bağlanmaz, önceki "sunucuya doğrudan bağlanılmadı" kararı geçerli). SSH için `known_hosts` sabit, GHCR girişi koşuya özel `GITHUB_TOKEN` ile geçici. Main korumalı olduğundan belge düzeltmesi PR ile gelir. Geri dönüş: `docker.yml` silinir veya sırlar kaldırılır.
 
