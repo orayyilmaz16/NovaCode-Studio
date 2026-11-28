@@ -340,9 +340,9 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
         if (!r?.success || r.tooLarge || r.binary || (text.length > 2_000_000)) { clear(); return; }
         const d = diffLines(r.original ?? '', text);
         const decos: any[] = [];
-        for (const l of d.added) decos.push({ range: { startLineNumber: l, endLineNumber: l, startColumn: 1, endColumn: 1 }, options: { linesDecorationsClassName: 'nova-gd-add', overviewRuler: { color: '#3fb950', position: 4 } } });
+        for (const l of d.added) decos.push({ range: { startLineNumber: l, endLineNumber: l, startColumn: 1, endColumn: 1 }, options: { linesDecorationsClassName: 'nova-gd-mod', overviewRuler: { color: '#58a6ff', position: 4 } } });
         for (const l of d.modified) decos.push({ range: { startLineNumber: l, endLineNumber: l, startColumn: 1, endColumn: 1 }, options: { linesDecorationsClassName: 'nova-gd-mod', overviewRuler: { color: '#58a6ff', position: 4 } } });
-        for (const l of d.deletedAt) decos.push({ range: { startLineNumber: l, endLineNumber: l, startColumn: 1, endColumn: 1 }, options: { linesDecorationsClassName: 'nova-gd-del', overviewRuler: { color: '#f85149', position: 4 } } });
+        for (const l of d.deletedAt) decos.push({ range: { startLineNumber: l, endLineNumber: l, startColumn: 1, endColumn: 1 }, options: { linesDecorationsClassName: 'nova-gd-del', overviewRuler: { color: '#58a6ff', position: 4 } } });
         if (!gdRef.current || gdRef.current.ed !== ed) {
           gdRef.current = { ed, coll: ed.createDecorationsCollection ? ed.createDecorationsCollection() : null };
         }

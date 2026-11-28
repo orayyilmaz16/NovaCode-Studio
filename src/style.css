@@ -864,7 +864,7 @@ button.status-item:hover {
   .hdr-btn { width: 26px; }
 }
 
-/* Git satır işaretleri (editör kenarı, VS Code gibi): eklenen yeşil dolu çubuk, değişen mavi çubuk, silinen yerde kırmızı üçgen.
+/* Git satır işaretleri (editör kenarı): tüm git değişiklikleri tek mavi renkle (eklenen, değişen, silinen).
    Monaco'nun kendi hücre konumunu bozmadan, hücrenin içinde mutlak yerleşen ince şerit olarak çizilir. */
 .monaco-editor .nova-gd-add,
 .monaco-editor .nova-gd-mod,
@@ -885,7 +885,7 @@ button.status-item:hover {
   position: absolute;
   bottom: 0;
   inset-inline-start: 1px;
-  border-inline-start: 5px solid #f85149;
+  border-inline-start: 5px solid #58a6ff;
   border-top: 4px solid transparent;
   border-bottom: 0;
   border-inline-end: 0;

@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 10:49 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
+- Alan: [[ui-design]], [[motion]]
+- Kod (2): `src/components/EditorArea.tsx`, `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/source-control.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 10:48 · auto/20261128-074543
 <!-- sig:c3JjL3NlcnZpY2VzL2VkaXRvclRoZW1lLnRzLHws -->
 - Alan: [[ui-design]]
@@ -274,11 +281,4 @@
 - Alan: [[git-github]], [[ui-design]], [[i18n]]
 - Kod (4): `electron-github.cjs`, `src/App.tsx`, `src/i18n/uiTextDev.ts`, `src/components/RemoteMenu.tsx`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/remote-ssh.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 10:51 · auto/20261118-083349
-<!-- sig:ZWxlY3Ryb24tbWFpbi5janMsZWxlY3Ryb24tcHJl -->
-- Alan: [[security-kvkk]], [[terminal]], [[i18n]], [[ui-design]], [[testing]]
-- Kod (15): `electron-main.cjs`, `electron-preload.cjs`, `electron-pty.cjs`, `scripts/tests/i18n.test.cjs`, `src/App.tsx`, `src/components/LandingPage.tsx`, `src/components/Terminal.tsx`, `src/i18n/uiText.ts`, `src/types.ts`, `electron-ssh-core.cjs`, `electron-ssh.cjs`, `scripts/tests/ssh-sftp.test.cjs` … (+3)
-- Belge (8): `AGENT.md`, `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/security-kvkk.md`, `docs/brain/actions/terminal.md`, `docs/brain/actions/testing.md`, `docs/brain/actions/remote-ssh.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
