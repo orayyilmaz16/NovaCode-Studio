@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:33 · auto/20261128-103206
+<!-- sig:c2NyaXB0cy9xYS1zd2VlcC5tanMsfCxkb2NzL2Jy -->
+- Alan: [[ui-design]]
+- Kod (1): `scripts/qa-sweep.mjs`
+- Belge (1): `docs/brain/actions/autopilot.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 13:32 · auto/20261128-102807
 <!-- sig:LmdpdGh1Yi93b3JrZmxvd3Mvc3ByaW50LWNhZGVu -->
 - Alan: [[ci-cd]]
@@ -274,11 +281,4 @@
 - Alan: [[ci-cd]], [[ui-design]]
 - Kod (2): `.github/workflows/health-monitor.yml`, `scripts/health-monitor.mjs`
 - Belge (5): `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/audit.md`, `docs/brain/actions/monitoring.md`
-- Durum: ✓ belgelendi
-
-## 27.11.2026 11:29 · main
-<!-- sig:c2NyaXB0cy9yZWxlYXNlLm1qcyxzY3JpcHRzL3Rl -->
-- Alan: [[versioning]]
-- Kod (2): `scripts/release.mjs`, `scripts/tests/release.test.cjs`
-- Belge (5): `AGENT.md`, `CHANGELOG.md`, `CLAUDE.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/versioning.md`
 - Durum: ✓ belgelendi

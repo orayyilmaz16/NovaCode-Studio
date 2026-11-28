@@ -81,6 +81,8 @@ async function main() {
     const data = runGates();
     writeFileSync(out, JSON.stringify(data, null, 2));
     console.log(`Sonuç yazıldı: ${out}`);
+    // Kırmızı kapı varsa iş kırmızı biter; rapor adımı if: always() olduğu için issue akışı yine çalışır.
+    if (data.results.some((r) => r.status === 'fail')) process.exitCode = 1;
     return;
   }
   if (mode === 'report') {
