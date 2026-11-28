@@ -4,11 +4,13 @@ Bu dosya, repoda çalışan her ajanın (Claude Code, alt ajanlar, CI botları) 
 
 ## Son sürüm (otomatik)
 <!-- release:start -->
-**Son sürüm v1.9.4** (patch, 27.11.2026) · notlar `release-notes/v1.9.4.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
-- Yeni özellikler: Anonim kullanım istatistiği (isteğe bağlı)
-- İyileştirmeler: Sunucu imajları otomatik yayınlanıyor
-- İyileştirmeler: Daha güçlü anonimlik
-- İyileştirmeler: Daha kapsamlı anonim istatistik ve indirme takibi
+**Son sürüm v1.10.0** (minor, 28.11.2026) · notlar `release-notes/v1.10.0.md` · geçmiş `docs/brain/VERSIONS.md` · otomatik güncellenir
+- Yeni özellikler: Editörde Git satır işaretleri
+- Yeni özellikler: Git dal grafı ve yeniden boyutlanan bölümler
+- Düzeltmeler: Git paneli bölme düzeni
+- Düzeltmeler: GitHub oturumu
+- İyileştirmeler: Git paneli geçmişi ve durum özeti
+- … ve 1 madde daha (`release-notes/v1.10.0.md`)
 <!-- release:end -->
 
 ## 1. Çalışma döngüsü (hızlı)

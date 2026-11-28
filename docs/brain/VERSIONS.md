@@ -4,6 +4,7 @@
 
 | Sürüm | Tarih | Tür | Özet | Notlar |
 |---|---|---|---|---|
+| v1.10.0 | 28.11.2026 | minor | 2 new, 2 fix, 2 improved: Git line markers in the editor | [v1.10.0](../../release-notes/v1.10.0.md) |
 | v1.9.4 | 27.11.2026 | patch | 1 new, 3 improved: Anonymous usage statistics (optional) | [v1.9.4](../../release-notes/v1.9.4.md) |
 | v1.9.3 | 27.11.2026 | patch | 1 improved: Dependencies updated | [v1.9.3](../../release-notes/v1.9.3.md) |
 | v1.9.2 | 27.11.2026 | patch | 1 new, 2 fix, 2 improved: Your own sync server | [v1.9.2](../../release-notes/v1.9.2.md) |
