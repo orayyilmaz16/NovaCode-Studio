@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 10:41 · auto/20261128-073612
+<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
+- Alan: [[ui-design]], [[git-github]], [[motion]], [[source-control]]
+- Kod (4): `src/components/EditorArea.tsx`, `src/components/GitPanel.tsx`, `src/style.css`, `src/services/lineDiff.ts`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/source-control.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 10:36 · auto/20261128-073309
 <!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
 - Alan: [[ui-design]]
@@ -274,11 +281,4 @@
 - Alan: [[terminal]], [[testing]], [[i18n]], [[settings]], [[ui-design]]
 - Kod (7): `electron-pty.cjs`, `scripts/tests/pty.test.cjs`, `src/components/Terminal.tsx`, `src/i18n/uiTextDev.ts`, `src/services/settingsSchema.json`, `src/services/terminalText.ts`, `src/types.ts`
 - Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/terminal.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 22.11.2026 15:16 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvUHR5Vmlldy50c3gsc3Jj -->
-- Alan: [[ui-design]], [[terminal]], [[motion]]
-- Kod (3): `src/components/PtyView.tsx`, `src/components/Terminal.tsx`, `src/style.css`
-- Belge (4): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/motion.md`, `docs/brain/actions/terminal.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

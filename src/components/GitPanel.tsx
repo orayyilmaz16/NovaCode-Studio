@@ -144,13 +144,21 @@ const Section: React.FC<{ id?: string; defaultHeight?: number; title: string; co
   <div className="py-1 border-b border-zinc-800/80">
     <div className="group/sec flex items-center h-6 pe-2 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">
       <button onClick={onToggle} aria-expanded={open} title={t('scmCollapse')} className="flex items-center gap-1 flex-1 min-w-0 ps-1.5 h-full text-start hover:text-zinc-200">
-        {open ? <ChevronDown size={13} className="shrink-0" /> : <ChevronRight size={13} className="shrink-0" />}
+        <ChevronRight size={13} className={`shrink-0 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open ? 'rotate-90' : ''}`} />
         <span className="truncate">{title}</span>
       </button>
       <span className="hidden group-hover/sec:flex items-center">{actions}</span>
       <span className="ms-1 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300 normal-case tracking-normal">{count}</span>
     </div>
-    {open && (id ? <div className="px-1"><ResizableBody id={id} defaultHeight={defaultHeight}>{children}</ResizableBody></div> : <div className="px-1">{children}</div>)}
+    <div
+      inert={!open}
+      aria-hidden={!open}
+      style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0, transition: 'grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease' }}
+    >
+      <div className="min-h-0 overflow-hidden px-1">
+        {id ? <ResizableBody id={id} defaultHeight={defaultHeight}>{children}</ResizableBody> : children}
+      </div>
+    </div>
   </div>
 );
 
@@ -552,7 +560,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             <span title={t('gitSumStagedTip')} className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-emerald-500/15 text-emerald-300 text-[10.5px]"><Check size={11} />{staged.length} {t('gitStaged')}</span>
           )}
           {files.filter((f) => !f.conflict && (f.worktree || f.untracked)).length > 0 && (
-            <span title={t('gitSumChangedTip')} className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-amber-400/15 text-amber-200 text-[10.5px]">±{files.filter((f) => !f.conflict && (f.worktree || f.untracked)).length} {t('gitChanges')}</span>
+            <span title={t('gitSumChangedTip')} className="inline-flex items-center gap-1.5 h-5 ps-1 pe-2 rounded-full bg-amber-400/15 text-amber-200 text-[10.5px]"><span className="inline-flex items-center justify-center min-w-[16px] h-[15px] px-1 rounded-full bg-amber-300 text-zinc-900 text-[9.5px] font-semibold tabular-nums">{files.filter((f) => !f.conflict && (f.worktree || f.untracked)).length}</span>{t('gitChanges')}</span>
           )}
           {files.length === 0 && !status.merging && (
             <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-white/[0.06] text-zinc-400 text-[10.5px]"><Check size={11} />{t('gitClean')}</span>

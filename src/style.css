@@ -863,3 +863,9 @@ button.status-item:hover {
   .hdr-sep { margin-inline: 3px; }
   .hdr-btn { width: 26px; }
 }
+
+/* Git satır işaretleri (editör kenarı): eklenen yeşil, değişen mavi, silinen kırmızı üçgen */
+.nova-gd-add, .nova-gd-mod, .nova-gd-del { position: relative; margin-inline-start: 3px; width: 3px !important; }
+.nova-gd-add { background: #3fb950; border-radius: 2px; }
+.nova-gd-mod { background: #58a6ff; border-radius: 2px; }
+.nova-gd-del { width: 0 !important; margin-inline-start: 4px; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-inline-start: 5px solid #f85149; background: none; }

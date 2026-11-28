@@ -10,6 +10,7 @@ import type { GroupId } from '../services/splitLayout';
 import { setCursor } from '../services/cursorStore';
 import { setCompletionConfig, setCompletionMonaco } from '../services/aiCompletion';
 import { setMonacoForExtensions, useActiveEditorTheme } from '../services/extensionsService';
+import { diffLines } from '../services/lineDiff';
 import { TriangleAlert, X, Play, Copy, Check, Download, FileCode, Save, Users, FolderOpen, FilePlus, ChevronRight, Columns, GitCompare, Rows2, ExternalLink, SquareSplitHorizontal, Ellipsis } from 'lucide-react';
 import { PopupMenu, type MenuItem } from './Menu';
 import { Logo } from './Logo';
@@ -317,6 +318,42 @@ const EditorAreaImpl: React.FC<EditorAreaProps> = ({
       suppressRef.current = false;
     }
   }, [editorInstance, activeFile?.id, activeFile?.content, activeFile?.isModified]);
+
+  // Git satır işaretleri (VS Code gibi): HEAD'deki sürüme göre eklenen (yeşil), değişen (mavi) ve silinen (kırmızı) satırlar.
+  // Metin değişince kısa gecikmeyle yeniden hesaplanır; git yoksa, dosya depoda değilse ya da büyük/ikili ise işaret çizilmez.
+  const gdRef = useRef<{ ed: any; coll: any; ids?: string[] } | null>(null);
+  useEffect(() => {
+    const ed = editorInstance;
+    const api = window.electronAPI?.gitDiffFile;
+    const fp = activeFile?.path;
+    const clear = () => { gdRef.current?.coll?.clear?.(); };
+    if (!ed || !activeFile || activeFile.diff || !fp || !rootPath || !api) { clear(); return; }
+    const np = fp.split('\\').join('/');
+    const nr = rootPath.split('\\').join('/').replace(/\/+$/, '');
+    if (!nr || !np.toLowerCase().startsWith(nr.toLowerCase() + '/')) { clear(); return; }
+    const rel = np.slice(nr.length + 1);
+    const text = activeFile.content ?? '';
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      void api(rootPath, { path: rel, staged: true }).then((r) => {
+        if (cancelled) return;
+        if (!r?.success || r.tooLarge || r.binary || (text.length > 2_000_000)) { clear(); return; }
+        const d = diffLines(r.original ?? '', text);
+        const decos: any[] = [];
+        for (const l of d.added) decos.push({ range: { startLineNumber: l, endLineNumber: l, startColumn: 1, endColumn: 1 }, options: { linesDecorationsClassName: 'nova-gd-add', overviewRuler: { color: '#3fb950', position: 4 } } });
+        for (const l of d.modified) decos.push({ range: { startLineNumber: l, endLineNumber: l, startColumn: 1, endColumn: 1 }, options: { linesDecorationsClassName: 'nova-gd-mod', overviewRuler: { color: '#58a6ff', position: 4 } } });
+        for (const l of d.deletedAt) decos.push({ range: { startLineNumber: l, endLineNumber: l, startColumn: 1, endColumn: 1 }, options: { linesDecorationsClassName: 'nova-gd-del', overviewRuler: { color: '#f85149', position: 4 } } });
+        if (!gdRef.current || gdRef.current.ed !== ed) {
+          gdRef.current = { ed, coll: ed.createDecorationsCollection ? ed.createDecorationsCollection() : null };
+        }
+        const coll = gdRef.current.coll;
+        if (coll) coll.set(decos);
+        else gdRef.current.ids = ed.deltaDecorations(gdRef.current.ids ?? [], decos);
+      }).catch(() => clear());
+    }, 250);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorInstance, activeFile?.id, activeFile?.content, activeFile?.path, rootPath]);
 
   // Büyük dosyada (>2 MB / >20k satır) minimap/katlama/parantez renklendirme kapanır (P-25)
   useEffect(() => {
