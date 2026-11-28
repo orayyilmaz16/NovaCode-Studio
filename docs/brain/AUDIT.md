@@ -13,7 +13,7 @@ Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `Q-I18N-HARD` src/components/GitHistory.tsx
+- Yeni/artan: yok
 - Giderilen: yok
 
 ## Güvenlik
@@ -74,7 +74,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 |---|---|---|---|
 | orta | Q-I18N-HARD | `src/App.tsx:122` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
-| orta | Q-I18N-HARD | `src/components/GitHistory.tsx:61,156` | JSX içinde sabit metin olabilir (8 dil kuralı) (2×) |
+| orta | Q-I18N-HARD | `src/components/GitHistory.tsx:72,181` | JSX içinde sabit metin olabilir (8 dil kuralı) (2×) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | düşük | Q-ANY | `src/App.tsx:803` | `any` kullanımı (strict tip güvenliği) |
 | düşük | Q-ANY | `src/components/EditorArea.tsx:78,162,324…(+2)` | `any` kullanımı (strict tip güvenliği) (5×) |
@@ -85,4 +85,4 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 938, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3051 KB; en büyük: index-CTOYuZ7X.js 452 KB, PtyView-QUkS0H_Z.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-CpNTNQmV.js 184 KB
+- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-DIK39ZTI.js 452 KB, PtyView-Det66Jxt.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-CLcGY-bI.js 184 KB

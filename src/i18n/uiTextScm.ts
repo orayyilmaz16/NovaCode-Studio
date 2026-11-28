@@ -284,6 +284,9 @@ export const SCM_TEXT = {
   histCardMerge: {
     tr: "Birleştirme", en: "Merge of", de: "Zusammenführung", ru: "Слияние", ar: "دمج", es: "Fusión de", fr: "Fusion de", az: "Birləşdirmə",
   },
+  histCardOpenProfile: {
+    tr: "Profili aç", en: "Open profile", de: "Profil öffnen", ru: "Открыть профиль", ar: "فتح الملف", es: "Abrir perfil", fr: "Ouvrir le profil", az: "Profili aç",
+  },
   histCardHint: {
     tr: "Dosyaları görmek için tıkla", en: "Click to see the files", de: "Klicken, um die Dateien zu sehen", ru: "Нажмите, чтобы увидеть файлы", ar: "انقر لعرض الملفات", es: "Haz clic para ver los archivos", fr: "Cliquez pour voir les fichiers", az: "Faylları görmək üçün klikləyin",
   },

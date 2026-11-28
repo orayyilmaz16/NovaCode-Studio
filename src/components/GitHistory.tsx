@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Cloud, Copy, GitBranch, GitCommitHorizontal, Target } from 'lucide-react';
+import { Check, Cloud, Copy, ExternalLink, GitBranch, GitCommitHorizontal, Target } from 'lucide-react';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
@@ -49,6 +49,17 @@ const CARD_H_EST = 250;
 // Yazar profili önbelleği (hash → profil); aynı commit'e tekrar gelince ağ isteği yapılmaz
 const authorCache = new Map<string, GithubCommitAuthor | null>();
 
+// GitHub avatarı 30 px'de gösterilir; küçük (s=64) sürümü indirerek yükleme hızlanır (2x ekran için yeterli)
+const avatarSized = (url: string) => {
+  try {
+    const u = new URL(url);
+    u.searchParams.set('s', '64');
+    return u.toString();
+  } catch {
+    return url;
+  }
+};
+
 const initials = (name: string) => {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   return ((parts[0]?.[0] ?? '?') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
@@ -59,7 +70,9 @@ const HoverCard: React.FC<{
   anchor: DOMRect;
   currentBranch?: string;
   fetchAuthor?: (hash: string) => Promise<GithubCommitAuthor | null>;
-}> = ({ c, anchor, currentBranch, fetchAuthor }) => {
+  onEnter: () => void;
+  onLeave: () => void;
+}> = ({ c, anchor, currentBranch, fetchAuthor, onEnter, onLeave }) => {
   const [copied, setCopied] = useState(false);
   const [profile, setProfile] = useState<GithubCommitAuthor | null | undefined>(() => authorCache.get(c.hash));
   const [avatarOk, setAvatarOk] = useState(true);
@@ -87,9 +100,12 @@ const HoverCard: React.FC<{
   };
   return (
     <div
-      role="tooltip"
-      style={{ left, top, width: CARD_W }}
-      className="fixed z-50 pointer-events-none rounded-lg border border-white/10 bg-[var(--color-nv-side)] p-3 text-start shadow-[var(--float-shadow)] transition-opacity duration-(--dur-fast)"
+      role="dialog"
+      aria-label={c.subject}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      style={{ left, top, width: CARD_W, maxHeight: 'calc(100vh - 16px)', overflowY: 'auto' }}
+      className="fixed z-50 rounded-lg border border-white/10 bg-[var(--color-nv-side)] p-3 text-start shadow-[var(--float-shadow)] transition-opacity duration-(--dur-fast)"
     >
       <div className="text-[12.5px] font-medium leading-snug text-zinc-100 break-words">{c.subject}</div>
       <div className="mt-2 flex items-center gap-2">
@@ -105,7 +121,7 @@ const HoverCard: React.FC<{
       </div>
       <div className="mt-2.5 flex items-center gap-2.5">
         {profile?.avatarUrl && avatarOk ? (
-          <img src={profile.avatarUrl} alt="" width={30} height={30} referrerPolicy="no-referrer" onError={() => setAvatarOk(false)} className="size-[30px] shrink-0 rounded-full border border-white/10 object-cover" />
+          <img src={avatarSized(profile.avatarUrl)} alt="" width={30} height={30} loading="eager" decoding="async" fetchPriority="high" referrerPolicy="no-referrer" onError={() => setAvatarOk(false)} className="size-[30px] shrink-0 rounded-full border border-white/10 object-cover" />
         ) : (
           <span aria-hidden className="grid place-items-center size-[30px] shrink-0 rounded-full text-[11px] font-semibold text-zinc-950" style={{ background: hue }}>{initials(displayName)}</span>
         )}
@@ -113,6 +129,15 @@ const HoverCard: React.FC<{
           <span className="truncate text-[12px] font-medium text-zinc-100">{displayName}</span>
           <span className="truncate text-[11px] text-zinc-500">{profile?.login ? `@${profile.login}` : t('histCardLocalAuthor')}</span>
         </span>
+        {profile?.profileUrl && (
+          <button
+            type="button"
+            onClick={() => void window.electronAPI?.github?.openExternal(profile.profileUrl!)}
+            className="ms-auto shrink-0 inline-flex items-center gap-1 h-[20px] px-1.5 rounded text-[10.5px] text-zinc-400 hover:bg-white/[0.08] hover:text-zinc-100 transition-colors duration-(--dur-fast)"
+          >
+            <ExternalLink size={11} />{t('histCardOpenProfile')}
+          </button>
+        )}
       </div>
       <div className="mt-2.5 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[11px]">
         <span className="text-zinc-500">{t('histCardDate')}</span>
@@ -168,14 +193,26 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
   const [hover, setHover] = useState<{ hash: string; rect: DOMRect } | null>(null);
   const hoverTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
+  // Satırdan karta geçerken kapanmasın diye kapanış kısa bir gecikmeyle yapılır; kart üzerine gelince iptal edilir
   const hoverOn = (hash: string, el: HTMLElement) => {
     window.clearTimeout(hoverTimer.current);
     hoverTimer.current = window.setTimeout(() => setHover({ hash, rect: el.getBoundingClientRect() }), 350);
   };
   const hoverOff = () => {
     window.clearTimeout(hoverTimer.current);
+    hoverTimer.current = window.setTimeout(() => setHover(null), 180);
+  };
+  const keepOpen = () => window.clearTimeout(hoverTimer.current);
+  const closeNow = () => {
+    window.clearTimeout(hoverTimer.current);
     setHover(null);
   };
+  // Liste kayarsa kart sabit konumda kalmasın: kaydırmada kapat
+  useEffect(() => {
+    if (!hover) return;
+    window.addEventListener('scroll', closeNow, true);
+    return () => window.removeEventListener('scroll', closeNow, true);
+  }, [hover]);
   const hoverCommit = hover ? commits.find((c) => c.hash === hover.hash) : undefined;
 
   return (
@@ -251,7 +288,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
           </div>
         );
       })}
-      {hover && hoverCommit && createPortal(<HoverCard c={hoverCommit} anchor={hover.rect} currentBranch={currentBranch} fetchAuthor={fetchAuthor} />, document.body)}
+      {hover && hoverCommit && createPortal(<HoverCard c={hoverCommit} anchor={hover.rect} currentBranch={currentBranch} fetchAuthor={fetchAuthor} onEnter={keepOpen} onLeave={closeNow} />, document.body)}
     </div>
   );
 };
