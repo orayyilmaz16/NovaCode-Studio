@@ -2,6 +2,13 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Issue kararları ve kapanışlar: #164 kabul, #165 varsayılan İngilizce)
+- **#164 (OAuth kapsamı):** kabul. `repo` kapsamı kalır (özel depo ve push için gerekli); daha dar kapsam (GitHub App) ayrı ürün kalemi. Issue kapatıldı.
+- **#165 (desteklenmeyen sistem dilinde yedek dil):** öneri (en) uygulandı: [PR #187](https://github.com/orayyilmaz16/NovaCode-Studio/pull/187), iki satır (`src/i18n/uiText.ts`). Türkçe kullanıcılar etkilenmez. Birleşince issue kapanır.
+- **E2E otomasyon zinciri:** kırık bağlantı → tarama issue'su → deterministik düzeltme dalı → PR → CI tetikleme, uçtan uca doğrulandı. Test dalı, test PR'ı (#186) ve test issue'su (#185) kapatıldı/silindi.
+- **#176 (debug testi, CI):** kök neden doğrulanmadı. Denenen: olay bekleme süresi 15 sn → 60 sn (`fix/debug-test-timeout`). Taramanın sonucu bu kayda eklenecek.
+- **Milestone:** #168, #169 Sprint 2'ye; #163 (sertifika) ve #166, #167 karar/dış bağımlılık milestone'unda.
+
 ## 28.11.2026 (Otomatik düzeltme: LLM yerine deterministik düzeltici; API anahtarı yok)
 Bu kayıt, aşağıdaki otopilot kararındaki "Claude Code ile düzeltme" kısmını geri alır. Sebep: kullanıcı ücretli API istemiyor ve anahtar gerektirmesini istemiyor. Çözüm: `scripts/auto-fix-brain.mjs` çözülmeyen belge bağlantılarını kuralla onarır (en yakın dosya adı ≤ 3 düzenleme uzaklığı, eşleşmezse düz metin); LLM, ücret ve secret yok. Kapsam aynı: yalnız `brain` kapısı; kod hataları insan işi. Doğrulama: birim testi (12 kontrol, `npm test`) ve yerel kopyada kırık bağlantı → düzeltme → brain:check. Geri dönüş: `auto-fix.yml` eski haline ve `claude-code-action`a döner. Free LLM (ör. Gemini/Groq ücretsiz katman) ileride eklenebilir; ancak veri gizliliği (KVKK, yurt dışı aktarım) ve kota kararı ayrıca alınmalı.
 
