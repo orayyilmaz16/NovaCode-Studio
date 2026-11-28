@@ -65,21 +65,34 @@ export function useSettingsSlice<T>(keys: readonly string[], select: (v: Setting
 }
 
 /**
- * Yan etki (DOM dışı servis çağrısı vb.) için: `keys` ayarlarından biri değişince `effect` çağrılır, bileşen yeniden çizilmez.
- * Mount'ta bir kez de çağrılır (useEffect ile aynı davranış).
+ * Yan etki (DOM dışı servis çağrısı, zamanlayıcı vb.) için: `keys` ayarlarından biri değişince `effect` çağrılır, bileşen yeniden çizilmez.
+ * Mount'ta bir kez de çağrılır; `effect` useEffect gibi bir temizleme işlevi döndürebilir. `keys` modül düzeyinde sabit olmalı.
  */
-export function useSettingsEffect(keys: readonly string[], effect: (v: SettingsValues) => void): void {
+export function useSettingsEffect(keys: readonly string[], effect: (v: SettingsValues) => void | (() => void)): void {
   const store = useContext(StoreCtx);
   if (!store) throw new Error('useSettingsEffect: SettingsProvider eksik');
   const effectRef = useRef(effect);
   useLayoutEffect(() => { effectRef.current = effect; });
   useEffect(() => {
     const changed = createChangeDetector(keys);
-    const run = () => { if (changed(store.values)) effectRef.current(store.values); };
+    let cleanup: (() => void) | undefined;
+    const run = () => {
+      if (!changed(store.values)) return;
+      cleanup?.();
+      const next = effectRef.current(store.values);
+      cleanup = typeof next === 'function' ? next : undefined;
+    };
     run();
     store.listeners.add(run);
-    return () => { store.listeners.delete(run); };
+    return () => { store.listeners.delete(run); cleanup?.(); };
   }, [store, keys]);
+}
+
+/** Güncel ayar değerlerini anlık okuyan kararlı işlev: olay işleyicilerinde ve zamanlayıcılarda; okuma bileşeni yeniden çizmez. */
+export function useSettingsGetter(): () => SettingsValues {
+  const store = useContext(StoreCtx);
+  if (!store) throw new Error('useSettingsGetter: SettingsProvider eksik');
+  return useCallback(() => store.values, [store]);
 }
 
 /** Ayar değiştirici eylemler (değer okumaz, değişimde yeniden çizilmez). */

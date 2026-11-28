@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 18:59 · auto/20261128-112908
+<!-- sig:c3JjL0FwcC50c3gsc3JjL3NlcnZpY2VzL1NldHRp -->
+- Alan: [[ui-design]], [[settings]], [[testing]]
+- Kod (5): `src/App.tsx`, `src/services/SettingsContext.tsx`, `scripts/tests/github.test.cjs`, `scripts/tests/preload.test.cjs`, `scripts/tests/update.test.cjs`
+- Belge (6): `AGENT.md`, `CHANGELOG.md`, `docs/brain/BACKLOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/settings.md`, `docs/brain/actions/testing.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 14:16 · auto/20261128-111405
 <!-- sig:fCxkb2NzL2JyYWluL3FhL1NQUklOVFMubWQsfCzi -->
 - Alan: —
@@ -274,11 +281,4 @@
 - Alan: [[security-kvkk]], [[ui-design]], [[i18n]], [[settings]], [[testing]]
 - Kod (13): `electron-main.cjs`, `electron-preload.cjs`, `src/App.tsx`, `src/components/AppDialogs.tsx`, `src/i18n/uiTextComp.ts`, `src/i18n/uiTextTheme.ts`, `src/services/settings.ts`, `src/services/settingsSchema.json`, `src/types.ts`, `electron-analytics.cjs`, `scripts/tests/analytics.test.cjs`, `server/analytics-server.mjs` … (+1)
 - Belge (5): `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/security-kvkk.md`, `docs/brain/actions/analytics.md`
-- Durum: ✓ belgelendi
-
-## 27.11.2026 17:21 · main
-<!-- sig:LmdpdGh1Yi9kZXAtYXV0b3BpbG90Lmpzb24sLmdp -->
-- Alan: [[ci-cd]], [[ui-design]], [[testing]]
-- Kod (6): `.github/dep-autopilot.json`, `.github/workflows/dep-autopilot.yml`, `.github/workflows/dep-review.yml`, `scripts/dep-review.mjs`, `scripts/dep-update.mjs`, `scripts/tests/deps.test.cjs`
-- Belge (3): `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/updates.md`
 - Durum: ✓ belgelendi

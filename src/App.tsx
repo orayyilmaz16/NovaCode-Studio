@@ -33,7 +33,7 @@ const TrustDialog = lazy(() => import('./components/TrustDialog').then((m) => ({
 const TrustBadge = lazy(() => import('./components/TrustDialog').then((m) => ({ default: m.TrustBadge })));
 const RemoteDialog = lazy(() => import('./components/RemoteDialog').then((m) => ({ default: m.RemoteDialog })));
 import { trustOnOpen, useTrust } from './services/trustService';
-import { useSettings } from './services/SettingsContext';
+import { useSettingValue, useSettingsActions, useSettingsEffect, useSettingsGetter } from './services/SettingsContext';
 import { useCollabToken } from './services/useCollabToken';
 import { getCollabRoomId } from './services/collabRoom';
 import { loadSettings } from './services/settings';
@@ -106,6 +106,12 @@ function remapPath(p: string, from: string, to: string): string {
 const setNodeContent = (items: FileItem[], id: string, content: string): FileItem[] =>
   items.map((it) => (it.id === id ? { ...it, content, isModified: false } : it.children ? { ...it, children: setNodeContent(it.children, id, content) } : it));
 const useDebugStatus = () => useSyncExternalStore(subscribeDebug, () => getDebugState().status, () => getDebugState().status);
+// Ayar anahtar grupları (P-13): modül düzeyinde sabit; useSettingsEffect bu dizilere göre yeniden kurulur.
+const LOCAL_HISTORY_KEYS = ['localHistory', 'localHistoryMax'] as const;
+const EXT_UPDATE_KEYS = ['extAutoUpdate'] as const;
+const UPDATE_CHECK_KEYS = ['updateAutoCheck', 'updateAutoDownload'] as const;
+const AUTOSAVE_KEYS = ['autoSave', 'autoSaveDelay'] as const;
+const AUTOSAVE_MODE_KEYS = ['autoSave'] as const;
 
 export function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -239,8 +245,10 @@ export function App() {
   useEffect(() => { saveStoredNumber('nova.aiWidth', aiWidth); }, [aiWidth]);
 
   // Ortak düzenleme (kendi sunucun, açık kaynak Yjs). Ayarlar tarayıcıda saklanır.
-  // Ayarlar (gerçek zamanlı, tek kaynak: SettingsContext)
-  const { values: settings, set: setSetting } = useSettings();
+  // Ayarlar (gerçek zamanlı, tek kaynak: SettingsContext). Her ayar kendi aboneliğiyle okunur (P-13): yalnız çizimde kullanılanlar
+  // (aşağıdaki blok) App'i o ayar değişince yeniden çizer; yan etkiler useSettingsEffect ile, olay işleyicileri getSettings() ile okur.
+  const setSetting = useSettingsActions().set;
+  const getSettings = useSettingsGetter();
   const [palette, setPalette] = useState<null | '' | '>' | ':' | 'theme'>(null);
   const themeOrig = useRef({ editorTheme: 'auto', extTheme: '' }); // tema seçici açılırken özgün tema (Esc ile geri yüklenir)
   const [updateDlg, setUpdateDlg] = useState<null | 'update' | 'notes'>(null);
@@ -248,8 +256,24 @@ export function App() {
   const [localUrl, setLocalUrl] = useState<string | null>(null); // terminalde yakalanan yerel sunucu adresi (önizleme için)
   const autoPreviewed = useRef<Set<string>>(new Set());
   const { token: collabToken } = useCollabToken();
-  const collabEnabled = settings.collabEnabled === true;
-  const collabUrl = String(settings.collabUrl);
+  // Çizimde kullanılan ayarlar (her biri ayrı abonelik; bu ayarlardan biri değişince yalnız App yeniden çizilir)
+  const collabEnabled = useSettingValue('collabEnabled') === true;
+  const collabUrl = String(useSettingValue('collabUrl'));
+  const sidebarRight = useSettingValue('sidebarPosition') === 'right';
+  const tabSize = Number(useSettingValue('tabSize')) || 2;
+  const activityBarVisible = useSettingValue('activityBarVisible') !== false;
+  const statusBarVisible = useSettingValue('statusBarVisible') !== false;
+  const treeDensity = useSettingValue('treeDensity');
+  const treeIndentGuides = useSettingValue('treeIndentGuides') !== false;
+  const showOpenEditors = useSettingValue('showOpenEditors') !== false;
+  const welcomeOnStartup = useSettingValue('welcomeOnStartup') === true;
+  const terminalShowBranch = useSettingValue('terminalShowBranch') !== false;
+  const localHistoryOn = useSettingValue('localHistory') !== false;
+  const showGitDecorations = useSettingValue('showGitDecorations') !== false;
+  const editorThemeSetting = useSettingValue('editorTheme');
+  const extThemeSetting = useSettingValue('extTheme');
+  const analyticsEnabled = useSettingValue('analyticsEnabled') === true;
+  const updateAutoDownload = useSettingValue('updateAutoDownload') === true;
 
   // Son açılan klasörler (yalnız yerelde, ana süreçte tutulur): tek paylaşılan çağrı (P-21)
   const [recentFolders, setRecentFolders] = useState<{ path: string; name: string }[]>([]);
@@ -432,13 +456,13 @@ export function App() {
   }, []);
 
   // Yerel geçmiş ayarı ana sürece iletilir (F-07); kapatılınca tüm yerel geçmiş silinir (KVKK: kullanıcı kontrolü)
-  useEffect(() => {
+  useSettingsEffect(LOCAL_HISTORY_KEYS, (s) => {
     const h = window.electronAPI?.history;
     if (!h) return;
-    const enabled = settings.localHistory !== false;
-    void h.config({ enabled, maxVersions: Number(settings.localHistoryMax) || 30 });
+    const enabled = s.localHistory !== false;
+    void h.config({ enabled, maxVersions: Number(s.localHistoryMax) || 30 });
     if (!enabled) void h.clear('all');
-  }, [settings.localHistory, settings.localHistoryMax]);
+  });
   // Kullanıcı snippet'leri: açılışta ve çalışma klasörü değişince yeniden okunur (F-06)
   useEffect(() => { void reloadSnippets(); }, [currentRootPath]);
 
@@ -460,7 +484,7 @@ export function App() {
   // HTML dosyası etkin olunca önizleme kendiliğinden açılır (ayar: previewAutoOpen; oturumda dosya başına bir kez;
   // dar pencerede ve başka bir sağ panel (ör. yapay zekâ) açıkken açılmaz)
   useEffect(() => {
-    if (settings.previewAutoOpen === false || !activeFileId || vw < 1100) return;
+    if (getSettings().previewAutoOpen === false || !activeFileId || vw < 1100) return;
     const f = openFiles.find((x) => x.id === activeFileId);
     if (!f || previewKind(f.name) !== 'html' || autoPreviewed.current.has(f.id) || showRightPanel !== null) return;
     autoPreviewed.current.add(f.id);
@@ -484,13 +508,13 @@ export function App() {
   }, [showSettings, palette, updateDlg]);
 
   // Eklentileri açılıştan kısa süre sonra ve 6 saatte bir sessizce güncelle (ayar: extAutoUpdate)
-  useEffect(() => {
-    if (!window.electronAPI?.ext || settings.extAutoUpdate === false) return;
+  useSettingsEffect(EXT_UPDATE_KEYS, (s) => {
+    if (!window.electronAPI?.ext || s.extAutoUpdate === false) return;
     const run = () => void autoUpdateExtensions();
     const first = window.setTimeout(run, 12000);
     const every = window.setInterval(run, 6 * 60 * 60 * 1000);
     return () => { window.clearTimeout(first); window.clearInterval(every); };
-  }, [settings.extAutoUpdate]);
+  });
 
   // Terminal çıktısında yakalanan yerel sunucu adresi (http://localhost:PORT): önizleme panelinde tek tıkla açılır
   useEffect(() => {
@@ -500,13 +524,13 @@ export function App() {
   }, []);
 
   // Güncelleme: açılıştan kısa süre sonra ve 6 saatte bir sessizce denetle (ayar açıksa; indirme yalnız ayarla otomatik)
-  useEffect(() => {
-    if (!window.electronAPI?.update || settings.updateAutoCheck === false) return;
-    const run = () => void checkForUpdates(settings.updateAutoDownload === true);
+  useSettingsEffect(UPDATE_CHECK_KEYS, (s) => {
+    if (!window.electronAPI?.update || s.updateAutoCheck === false) return;
+    const run = () => void checkForUpdates(s.updateAutoDownload === true);
     const first = window.setTimeout(run, 8000);
     const every = window.setInterval(run, 6 * 60 * 60 * 1000);
     return () => { window.clearTimeout(first); window.clearInterval(every); };
-  }, [settings.updateAutoCheck, settings.updateAutoDownload]);
+  });
 
   // Kısayol tuşları. Dinleyici tek sefer kurulur; her render'da güncel işleyiciye yönlenir.
   // Hata ayıklama: durum deposu, kesme noktaları çalışma klasörüne göre yüklenir; durunca dosya ve satır açılır
@@ -673,7 +697,7 @@ export function App() {
   // Dosya ağacı için Git durumu: dosya -> harf, üst klasörler -> 'dir'
   const gitDecor = React.useMemo(() => {
     const map: Record<string, string> = {};
-    if (!currentRootPath || !gitStatus.isRepo || settings.showGitDecorations === false) return map;
+    if (!currentRootPath || !gitStatus.isRepo || !showGitDecorations) return map;
     const root = currentRootPath.split('\\').join('/').replace(/\/+$/, '');
     for (const f of gitStatus.files ?? []) {
       const letter = f.untracked ? 'U' : f.worktree || f.index || 'M';
@@ -687,7 +711,7 @@ export function App() {
       }
     }
     return map;
-  }, [gitStatus, currentRootPath, settings.showGitDecorations]);
+  }, [gitStatus, currentRootPath, showGitDecorations]);
 
   const handleNewUntitled = () => {
     untitledCounter.current += 1;
@@ -945,14 +969,14 @@ export function App() {
     let content = getContent(cur);
     if (cur.path && window.electronAPI?.writeFile) {
       // Kayıtta biçimlendir: yalnız etkin sekme (düzenleyici o dosyayı tutar), makul boyutta dosyalar
-      if (manual && settings.formatOnSave === true && cur.id === activeFileId && content.length <= 1_000_000) {
+      if (manual && getSettings().formatOnSave === true && cur.id === activeFileId && content.length <= 1_000_000) {
         const formatted = await formatActiveDocument();
         if (formatted !== null) content = formatted;
       }
       const edited = content; // dönüşümlerden önceki, editördeki sürüm
       // Ayarlara göre kayıt dönüşümleri
-      if (settings.trimTrailingWhitespace === true) content = content.replace(/[ \t]+$/gm, '');
-      if (settings.insertFinalNewline === true && content && !content.endsWith('\n')) content += '\n';
+      if (getSettings().trimTrailingWhitespace === true) content = content.replace(/[ \t]+$/gm, '');
+      if (getSettings().insertFinalNewline === true && content && !content.endsWith('\n')) content += '\n';
       recentSaves.current.set(cur.id, Date.now());
       const res = await window.electronAPI.writeFile(cur.path, content);
       recentSaves.current.set(cur.id, Date.now());
@@ -997,22 +1021,27 @@ export function App() {
   handleSaveFileRef.current = handleSaveFile;
 
   // Otomatik kayıt: gecikmeyle (yazmayı bırakınca) veya pencere odağını kaybedince
-  // (diskte değişmiş/silinmiş dosyalar sessizce ezilmez)
-  const autoSave = String(settings.autoSave);
-  const autoSaveDelay = Number(settings.autoSaveDelay);
-  useEffect(() => {
-    if (autoSave !== 'afterDelay') return;
-    const dirty = openFiles.filter((f) => f.isModified && f.path && !f.externalChange && !f.missing);
+  // (diskte değişmiş/silinmiş dosyalar sessizce ezilmez). Zamanlayıcı; dosya/yazma veya autoSave/autoSaveDelay değişince yeniden kurulur.
+  // Gecikme kaydırıcısı App'i yeniden çizmeden zamanlayıcıyı günceller (P-13).
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const armAutoSaveRef = useRef<() => void>(() => {});
+  armAutoSaveRef.current = () => {
+    clearTimeout(autoSaveTimer.current);
+    const cfg = getSettings();
+    if (String(cfg.autoSave) !== 'afterDelay') return;
+    const dirty = openFilesRef.current.filter((f) => f.isModified && f.path && !f.externalChange && !f.missing);
     if (dirty.length === 0) return;
-    const timer = setTimeout(() => dirty.forEach((f) => void handleSaveFileRef.current(f, false)), autoSaveDelay);
-    return () => clearTimeout(timer);
-  }, [openFiles, liveTick, autoSave, autoSaveDelay]);
-  useEffect(() => {
-    if (autoSave !== 'onFocusChange') return;
+    autoSaveTimer.current = setTimeout(() => dirty.forEach((f) => void handleSaveFileRef.current(f, false)), Number(cfg.autoSaveDelay));
+  };
+  useEffect(() => { armAutoSaveRef.current(); }, [openFiles, liveTick]);
+  useSettingsEffect(AUTOSAVE_KEYS, () => armAutoSaveRef.current());
+  useEffect(() => () => clearTimeout(autoSaveTimer.current), []);
+  useSettingsEffect(AUTOSAVE_MODE_KEYS, (s) => {
+    if (String(s.autoSave) !== 'onFocusChange') return;
     const onBlur = () => openFilesRef.current.filter((f) => f.isModified && f.path && !f.externalChange && !f.missing).forEach((f) => void handleSaveFileRef.current(f, false));
     window.addEventListener('blur', onBlur);
     return () => window.removeEventListener('blur', onBlur);
-  }, [autoSave]);
+  });
 
   const refreshTree = async () => {
     if (currentRootPath && window.electronAPI) {
@@ -1310,8 +1339,6 @@ export function App() {
   };
   // Kenar çubuğu (Gezgin) ana sayfada da açık kalır; yalnız kullanıcı kapatırsa kapanır
   const sidebarShown = sidebarVisible;
-  const sidebarRight = settings.sidebarPosition === 'right';
-  const tabSize = Number(settings.tabSize) || 2;
 
   // Kenar çubuğu kapanırken içerik genişlik animasyonu bitene kadar bağlı kalır
   useEffect(() => {
@@ -1432,11 +1459,12 @@ export function App() {
   const runActiveFile = () => {
     const f = openFiles.find((x) => x.id === activeFileId);
     if (!f?.path) { addLog('warn', t('mnRunNoFile')); setShowBottomTerminal(true); return; }
-    const custom = { node: String(settings.runCommandNode || ''), ts: String(settings.runCommandTs || ''), python: String(settings.runCommandPython || ''), go: String(settings.runCommandGo || ''), php: String(settings.runCommandPhp || '') };
+    const rs = getSettings();
+    const custom = { node: String(rs.runCommandNode || ''), ts: String(rs.runCommandTs || ''), python: String(rs.runCommandPython || ''), go: String(rs.runCommandGo || ''), php: String(rs.runCommandPhp || '') };
     const cmd = runCommandFor(f.path, f.language, custom);
     if (!cmd) { addLog('warn', t('mnRunNoRunner')); setShowBottomTerminal(true); return; }
-    if (f.isModified && settings.runSaveBefore !== false) void handleSaveFile(f, false);
-    if (settings.runClearTerminal === true) sendTerminal({ action: 'clear' });
+    if (f.isModified && rs.runSaveBefore !== false) void handleSaveFile(f, false);
+    if (rs.runClearTerminal === true) sendTerminal({ action: 'clear' });
     runInTerminal(cmd);
   };
 
@@ -1591,9 +1619,10 @@ export function App() {
 
   // Renk teması seçici: gezilirken canlı uygulanır; Esc özgün temayı geri yükler
   const extThemeList = listExtThemes(extInstalled);
-  const activeThemeId = extThemeList.some((th) => th.id === String(settings.extTheme || '')) ? String(settings.extTheme) : String(settings.editorTheme || 'auto');
+  const activeThemeId = extThemeList.some((th) => th.id === String(extThemeSetting || '')) ? String(extThemeSetting) : String(editorThemeSetting || 'auto');
   const openThemePicker = () => {
-    themeOrig.current = { editorTheme: String(settings.editorTheme || 'auto'), extTheme: String(settings.extTheme || '') };
+    const ts = getSettings();
+    themeOrig.current = { editorTheme: String(ts.editorTheme || 'auto'), extTheme: String(ts.extTheme || '') };
     setPalette('theme');
   };
   const previewTheme = (id: string) => { if (extThemeList.some((th) => th.id === id)) setSetting('extTheme', id); else setSetting('editorTheme', id); };
@@ -1634,9 +1663,9 @@ export function App() {
     const i = list.findIndex((f) => f.id === activeFileId);
     selectInGroupTab(list[(i + delta + list.length) % list.length].id, s0?.focus ?? 'a');
   };
-  const zoomBy = (d: number) => setSetting('uiZoom', Math.max(80, Math.min(150, Number(settings.uiZoom || 100) + d)));
+  const zoomBy = (d: number) => setSetting('uiZoom', Math.max(80, Math.min(150, Number(getSettings().uiZoom || 100) + d)));
   const toggleThemeMode = () => setSetting('themeMode', document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
-  const checkUpdatesNow = () => { track('update_check'); setUpdateDlg('update'); void checkForUpdates(settings.updateAutoDownload === true); };
+  const checkUpdatesNow = () => { track('update_check'); setUpdateDlg('update'); void checkForUpdates(getSettings().updateAutoDownload === true); };
   const actions = {
     handleNewUntitled, handleOpenFolderDialog, handleOpenFileDialog, handleCloseFolder, saveActive, closeActive, cycleTab, handleRunCode, runActiveFile,
     splitRight: () => doSplit('row'), splitDown: () => doSplit('col'), focusOtherGroup, closeSplitView, openKeybindings: () => setShowKeybindings(true),
@@ -1663,7 +1692,7 @@ export function App() {
 
   const uiLang = getUiLang();
   // Anonim kullanım sayacı: rıza ayarı ana sürece eşitlenir, ilk açılışta tek seferlik soru (docs/brain/actions/analytics.md)
-  const analytics = useAnalytics(settings.analyticsEnabled === true, uiLang);
+  const analytics = useAnalytics(analyticsEnabled, uiLang);
   useEffect(() => { if (sidebarVisible) track(('panel_' + activeSidebarTab) as Parameters<typeof track>[0]); }, [activeSidebarTab, sidebarVisible]);
   useEffect(() => { if (showBottomTerminal) track('panel_terminal'); }, [showBottomTerminal]);
   useEffect(() => { if (showSettings) track('panel_settings'); }, [showSettings]);
@@ -1964,7 +1993,7 @@ export function App() {
       )}
       {showRemote && <LazyPanel><RemoteDialog onClose={() => setShowRemote(false)} onOpened={applyWorkspace} /></LazyPanel>}
 
-      {updateDlg && <UpdateDialog initialTab={updateDlg} autoDownload={settings.updateAutoDownload === true} onClose={() => setUpdateDlg(null)} />}
+      {updateDlg && <UpdateDialog initialTab={updateDlg} autoDownload={updateAutoDownload} onClose={() => setUpdateDlg(null)} />}
 
       {palette !== null && (
         <LazyPanel>
@@ -2043,7 +2072,7 @@ export function App() {
           >
             <Columns size={15} />
           </button>
-          {settings.activityBarVisible === false && (
+          {!activityBarVisible && (
             <button
               onClick={() => {
                 setShowLanding(false);
@@ -2090,9 +2119,9 @@ export function App() {
       </header>
 
       {/* Çalışma alanı */}
-      <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${settings.statusBarVisible === false ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
+      <div className={`relative flex flex-1 min-h-0 overflow-hidden px-[var(--frame)] pt-[var(--frame)] ${!statusBarVisible ? 'pb-[var(--frame)]' : ''} ${sidebarRight ? 'flex-row-reverse' : ''}`}>
         {/* Etkinlik çubuğu */}
-        {settings.activityBarVisible !== false && (
+        {activityBarVisible && (
         <nav aria-label={t('appActivityBar')} className={`w-[48px] float-card bg-nv-side rounded-[var(--frame-r)] border border-nv-border ${sidebarRight ? 'ml-0.5' : 'mr-0.5'} py-1 flex flex-col items-center justify-between select-none shrink-0`}>
           <div className="flex flex-col">
             <button {...barBtn(sidebarShown && activeSidebarTab === 'files')} data-tip={t('actExplorer')} aria-label={t('actExplorer')} onClick={() => pickSidebar('files')}>
@@ -2158,7 +2187,7 @@ export function App() {
           className={`sidebar-shell h-full shrink-0 overflow-hidden ${compactLeft ? 'absolute z-30 top-[var(--frame)] bottom-0' : ''}`}
           data-open={sidebarShown}
           data-side={sidebarRight ? 'right' : 'left'}
-          style={{ width: sidebarShown ? sbW : 0, ...(compactLeft ? { [sidebarRight ? 'right' : 'left']: `calc(var(--frame) + ${settings.activityBarVisible !== false ? 50 : 0}px)` } : {}) }}
+          style={{ width: sidebarShown ? sbW : 0, ...(compactLeft ? { [sidebarRight ? 'right' : 'left']: `calc(var(--frame) + ${activityBarVisible ? 50 : 0}px)` } : {}) }}
         >
           {sbMounted && (
             <div style={{ width: sbW }} className="h-full rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden">
@@ -2172,9 +2201,9 @@ export function App() {
                     activeFileId={activeFileId}
                     rootName={projectName}
                     rootPath={currentRootPath}
-                    density={settings.treeDensity === 'comfortable' ? 'comfortable' : settings.treeDensity === 'spacious' ? 'spacious' : 'compact'}
-                    indentGuides={settings.treeIndentGuides !== false}
-                    showOpenEditors={settings.showOpenEditors !== false}
+                    density={treeDensity === 'comfortable' ? 'comfortable' : treeDensity === 'spacious' ? 'spacious' : 'compact'}
+                    indentGuides={treeIndentGuides}
+                    showOpenEditors={showOpenEditors}
                     onSelectFile={eTreeSelect}
                     onCloseOpenFile={eCloseTab}
                     onCreate={eCreate}
@@ -2246,7 +2275,7 @@ export function App() {
             onOpenRecent={handleOpenRecent}
             recentFolders={recentFolders}
             githubLogin={auth.connected ? auth.profile?.login : null}
-            showOnStartup={settings.welcomeOnStartup === true}
+            showOnStartup={welcomeOnStartup}
             onToggleStartup={(v) => setSetting('welcomeOnStartup', v)}
           /></LazyPanel>
             ) : (
@@ -2340,7 +2369,7 @@ export function App() {
               logs={logs}
               onClear={() => setLogs([])}
               cwd={currentRootPath}
-              branch={gitStatus.isRepo && settings.terminalShowBranch !== false ? gitStatus.branch : null}
+              branch={gitStatus.isRepo && terminalShowBranch ? gitStatus.branch : null}
               visible={showBottomTerminal}
               maximized={terminalMaximized}
               onToggleMaximize={() => setTerminalMaximized((v) => !v)}
@@ -2418,7 +2447,7 @@ export function App() {
         <LazyPanel>
           <TimelinePanel
             filePath={activeFile && !activeFile.diff ? activeFile.path ?? null : null}
-            enabled={settings.localHistory !== false}
+            enabled={localHistoryOn}
             getCurrent={() => (activeFile ? getContent(activeFile) : '')}
             onOpenDiff={openDiffTab}
             onRestore={restoreFromHistory}
@@ -2439,7 +2468,7 @@ export function App() {
       )}
 
       {/* Durum çubuğu: yalnız anlamlı bilgiler */}
-      {settings.statusBarVisible !== false && (
+      {statusBarVisible && (
         <footer className="@container h-6 m-[var(--frame)] rounded-[var(--frame-r)] float-card border border-nv-border bg-nv-side overflow-hidden flex items-center justify-between text-[12px] text-zinc-400 select-none shrink-0">
           <div className="flex items-center h-full min-w-0 overflow-hidden">
             <button

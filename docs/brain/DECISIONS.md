@@ -2,6 +2,16 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (#169: App ayar seçicisine geçti; kabul kriteri henüz tam değil)
+- **Karar:** `App.tsx` ayarları `useSettings()` yerine anahtar bazlı okur (`useSettingValue`); yan etkiler `useSettingsEffect` (temizleme destekli), olay işleyicileri yeni `useSettingsGetter()` ile okur. Bu değişiklikte modal (`SettingsPage`) ve diğer tüketiciler (FileTree, Terminal, GitPanel, AIAssistant, ExtensionsPanel, CompletionMenu) değiştirilmedi.
+- **Neden:** Ölçüm (16 adımlık `fontSize` sürüklemesi): App her adımda yeniden çiziliyordu (16); değişiklikten sonra 0. Kalan maliyet modal satırlarında; bu büyük bir yüzey (bileşen testi yok), ayrı bir adım olarak yapılacak.
+- **Ölçüm yöntemi:** üretim derlemesi (minify kapalı), Edge CDP, React DevTools kancası; `PerformedWork` bayrağına göre sayım. Bayrağı eski kalan fiber'ları bir önceki commit'e bakarak eleyen filtre Terminal'i yanlışlıkla 0 gösterdi; ham sayım esas alındı.
+- **Sonuç:** #169 açık kalır. Kabul kriteri (yalnız ilgili bileşen çizilir) modal ve tüketiciler tamamlanınca sağlanır.
+
+## 28.11.2026 (#168 kapanış yöntemi; #163 sertifika beklemesi)
+- **#168 (ana süreç testleri): ayıklama yapılmadı, taklitle test edildi.** Issue, secrets/update/github için önce işleyicilerin ana süreç dosyasından ayıklanmasını (ayrı, onaylı adım) öngörüyordu. Ayıklama yapılmadı: aynı sözleşmeler (token renderer'a gitmez, izinli adresler, kurulum koşulu, şifreli saklama) üretim kodu değiştirilmeden `electron` ve `electron-updater` taklidiyle ölçülebiliyor. Fs işleyicileri için bu yöntem 3ae0ea6'da zaten kullanılmıştı; aynısı uygulandı. **Sonuç:** update, github ve preload testleri eklendi. `electron-llm.cjs` kapsam dışı (18.11.2026'da kaldırıldı). Issue, değişiklik main'e birleşince kapanır.
+- **#163 (Windows kod imzalama): bekletildi.** EV/OV sertifika veya Azure Trusted Signing hesabı dış bağımlılık; kod tarafında `publisherName` eklenmedi. Yayıncı adı sertifikadaki konu adıyla birebir eşleşmeli; uydurulan bir ad imza doğrulamasını yanlış değere bağlar. CI `CSC_LINK` / `CSC_KEY_PASSWORD` değerlerini okuyor, ama bu secret'lar repoda henüz tanımlı değil (28.11.2026, `gh secret list`: yalnız `PROJECT_TOKEN`); issue yorumundaki "secret'lar hazır" ifadesi yanlış. Sertifika gelince secret'lar eklenir ve `publisherName` yazılır. Issue açık kalır.
+
 ## 28.11.2026 (Issue #176 kapandı; #169 ve #168 kısmi)
 - **#176 (debug testi, CI):** kök neden kanıtlandı: V8 betik yolunu Windows kısa adıyla (`RUNNER~1`) raporlarken kesme noktası URL'si `pathToFileURL` ile `%7E` kodlaması kullanıyordu; eşleşme olmuyor, duraklama gelmiyordu. Zaman aşımı ve Node sürümü denemeleri sebep değildi (kanıt: CI teşhis koşusu, `bp.verified:false`). Düzeltme: iki biçimi de kabul eden anchor'lı regex (`electron-debug.cjs`). PR #192 birleşti, issue kapandı.
 - **#169 (ayar seçicisi):** kısmi. Monaco seçenekleri grup bazında saf fonksiyonlara bölündü, birebir eşdeğerlik testi (602 kombinasyon) geçiyor; EditorArea seçicilere geçti (PR #190 birleşti). Kabul kriteri (tarayıcıda React Profiler ile render sayımı) ÖLÇÜLMEDİ; App.tsx ve diğer `useSettings()` kullanıcıları hâlâ kapsam dışı. Issue açık.
