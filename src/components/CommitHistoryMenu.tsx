@@ -4,7 +4,8 @@ import { FileTypeIcon } from './FileTypeIcon';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
-import { GitHistory } from './GitHistory';
+import { GitHistory, mineAvatar } from './GitHistory';
+import { useGithubAuth } from '../services/useGithubAuth';
 import type { GitCommitFile, GitCommitInfo, GithubCommitAuthor, GithubRepoInfo } from '../types';
 
 // Avatar küçük (s=32) indirilir: hızlı yükleme
@@ -17,6 +18,8 @@ const avatarSmall = (url: string) => {
     return url;
   }
 };
+
+const initialsOf = (name: string) => (name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('') || '?').toUpperCase();
 
 interface Props {
   anchor: { x: number; y: number };
@@ -41,6 +44,7 @@ const statusTone = (code: string) => STATUS_TONE[code] ?? 'text-amber-300';
  */
 export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRemote, ahead, behind, gitPanelOpen, onClose, onOpenGit }) => {
   const api = window.electronAPI;
+  const { auth } = useGithubAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [commits, setCommits] = useState<GitCommitInfo[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -141,72 +145,90 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
   const remoteName = info?.available && info.fullName ? info.fullName : null;
   const openGit = () => { onClose(); onOpenGit(); };
 
-  // Açılan commit'in ayrıntıları ve dosyaları (GitHistory her satırda yalnız açıkken çağırır)
+  // Açılan commit: düzenli blok. Üstte karma + kopyala, sonra tarih, yazar (fotoğraf, ad, profil), birleştirmede üst commit'ler; altta değişen dosyalar
   const renderDetails = (hash: string) => {
     const c = commits?.find((x) => x.hash === hash);
     if (!c) return null;
     const p = profiles[hash];
+    const avatar = mineAvatar(c.author, auth.profile) ?? p?.avatarUrl ?? null;
     const isCopied = copied?.hash === hash;
+    const list = files[hash];
+    const count = Array.isArray(list) ? list.length : null;
     return (
-      <div className="ms-1 me-2 mb-1.5 pb-1 min-w-0 overflow-hidden">
-        <div className="py-1 flex flex-col gap-1 text-[11px] text-zinc-400">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-mono text-zinc-300 truncate">{c.hash}</span>
+      <div className="ms-1 me-2 mb-2 min-w-0 overflow-hidden rounded-md border border-white/[0.06] bg-white/[0.03]">
+        <div className="px-2.5 py-2 flex flex-col gap-1.5 min-w-0 border-b border-white/[0.06]">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-mono text-[11px] text-zinc-200 truncate">{c.hash}</span>
             <button
               type="button"
               onClick={() => void copyHash(hash)}
-              className={`shrink-0 inline-flex items-center gap-1 h-[18px] px-1.5 rounded hover:bg-white/[0.08] transition-colors ${isCopied ? (copied?.ok ? 'text-emerald-400' : 'text-rose-400') : 'text-zinc-400'}`}
+              className={`shrink-0 inline-flex items-center gap-1 h-[18px] px-1.5 rounded hover:bg-white/[0.08] transition-colors text-[10.5px] ${isCopied ? (copied?.ok ? 'text-emerald-400' : 'text-rose-400') : 'text-zinc-400'}`}
             >
               {isCopied && copied?.ok ? <Check size={11} /> : <Copy size={11} />}
               {isCopied ? t(copied?.ok ? 'histCardCopied' : 'histCardCopyFailed') : t('histCardCopy')}
             </button>
           </div>
-          <div className="truncate">{c.ts ? new Date(c.ts).toLocaleString() : c.when}</div>
-          {p?.login && (
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="truncate text-zinc-300">@{p.login}</span>
-              {p.profileUrl && (
-                <button type="button" onClick={() => void api?.github?.openExternal(p.profileUrl!)} className="shrink-0 inline-flex items-center gap-1 h-[18px] px-1.5 rounded hover:bg-white/[0.08] text-zinc-400">
-                  <ExternalLink size={11} />{t('histCardOpenProfile')}
+          <div className="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 items-center text-[11px] min-w-0">
+            <span className="text-zinc-500">{t('histCardDate')}</span>
+            <span className="text-zinc-300 truncate">{c.ts ? new Date(c.ts).toLocaleString() : c.when}</span>
+            <span />
+            <span className="flex items-center gap-1.5 min-w-0">
+              {avatar ? (
+                <img src={avatarSmall(avatar)} alt="" width={16} height={16} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="size-4 rounded-full object-cover shrink-0" />
+              ) : (
+                <span aria-hidden className="grid place-items-center size-4 rounded-full text-[7px] font-semibold text-zinc-950 shrink-0 bg-zinc-400">{initialsOf(c.author)}</span>
+              )}
+              <span className="truncate text-zinc-200">{p?.login ? `@${p.login}` : c.author}</span>
+              {p?.profileUrl && (
+                <button type="button" onClick={() => void api?.github?.openExternal(p.profileUrl!)} className="shrink-0 inline-flex items-center gap-1 h-[18px] px-1.5 rounded hover:bg-white/[0.08] text-zinc-400 text-[10.5px]">
+                  <ExternalLink size={10} />{t('histCardOpenProfile')}
                 </button>
               )}
-            </div>
-          )}
-          {c.parents && c.parents.length > 1 && (
-            <div className="font-mono text-zinc-500">{t('histCardMerge')}: {c.parents.map((x) => x.slice(0, 7)).join(' ')}</div>
-          )}
+            </span>
+            {c.parents && c.parents.length > 1 && (
+              <>
+                <span className="text-zinc-500">{t('histCardMerge')}</span>
+                <span className="font-mono text-zinc-400 truncate">{c.parents.map((x) => x.slice(0, 7)).join(' ')}</span>
+              </>
+            )}
+          </div>
         </div>
-        <div className="max-h-48 overflow-y-auto overflow-x-hidden">
-          {!files[hash] ? (
-            <div className="py-1 text-[11px] text-zinc-500">{t('histLoading')}</div>
-          ) : files[hash] === 'error' ? (
-            <div className="py-1 text-[11px] text-rose-300">{t('histError')}</div>
-          ) : (
-            <div className="flex flex-col gap-px">
-              {(files[hash] as GitCommitFile[]).map((f) => {
-                const cut = Math.max(f.path.lastIndexOf('/'), f.path.lastIndexOf('\\'));
-                const name = f.path.slice(cut + 1);
-                const dir = cut > 0 ? f.path.slice(0, cut) : '';
-                return (
-                  <div key={f.path} className="flex items-center gap-1.5 h-6 ps-1 pe-1 rounded hover:bg-white/[0.05] text-[11.5px] min-w-0" title={f.orig ? `${f.orig} → ${f.path}` : f.path}>
-                    <FileTypeIcon name={name} size={13} />
-                    <span className="text-zinc-200 truncate shrink min-w-0 max-w-[55%]">{name}</span>
-                    {dir && <span className="text-[10.5px] text-zinc-500 truncate min-w-0 flex-1">{dir}</span>}
-                    {!dir && <span className="flex-1" />}
-                    {f.binary ? (
-                      <span className="shrink-0 text-[10px] text-zinc-500">bin</span>
-                    ) : (
-                      <span className="shrink-0 font-mono text-[10px] tabular-nums flex items-center gap-1">
-                        {f.added ? <span className="text-emerald-400">+{f.added}</span> : null}
-                        {f.deleted ? <span className="text-rose-400">−{f.deleted}</span> : null}
-                      </span>
-                    )}
-                    <span className={`shrink-0 w-3.5 text-center font-mono text-[10px] font-semibold ${statusTone(f.status)}`}>{f.status}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+        <div className="px-1.5 py-1.5">
+          <div className="px-1 pb-1 text-[10.5px] uppercase tracking-wide text-zinc-500">
+            {t('histChangedFiles')}{count !== null ? ` · ${count}` : ''}
+          </div>
+          <div className="max-h-48 overflow-y-auto overflow-x-hidden">
+            {!list ? (
+              <div className="px-1 py-1 text-[11px] text-zinc-500">{t('histLoading')}</div>
+            ) : list === 'error' ? (
+              <div className="px-1 py-1 text-[11px] text-rose-300">{t('histError')}</div>
+            ) : (
+              <div className="flex flex-col gap-px">
+                {list.map((f) => {
+                  const cut = Math.max(f.path.lastIndexOf('/'), f.path.lastIndexOf('\\'));
+                  const name = f.path.slice(cut + 1);
+                  const dir = cut > 0 ? f.path.slice(0, cut) : '';
+                  return (
+                    <div key={f.path} className="flex items-center gap-1.5 h-6 px-1 rounded hover:bg-white/[0.05] text-[11.5px] min-w-0" title={f.orig ? `${f.orig} → ${f.path}` : f.path}>
+                      <FileTypeIcon name={name} size={13} />
+                      <span className="text-zinc-200 truncate shrink min-w-0 max-w-[55%]">{name}</span>
+                      {dir && <span className="text-[10.5px] text-zinc-500 truncate min-w-0 flex-1">{dir}</span>}
+                      {!dir && <span className="flex-1" />}
+                      {f.binary ? (
+                        <span className="shrink-0 text-[10px] text-zinc-500">bin</span>
+                      ) : (
+                        <span className="shrink-0 font-mono text-[10px] tabular-nums flex items-center gap-1">
+                          {f.added ? <span className="text-emerald-400">+{f.added}</span> : null}
+                          {f.deleted ? <span className="text-rose-400">−{f.deleted}</span> : null}
+                        </span>
+                      )}
+                      <span className={`shrink-0 w-3.5 text-center font-mono text-[10px] font-semibold ${statusTone(f.status)}`}>{f.status}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -286,6 +308,7 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
                 onToggle={toggle}
                 fetchAuthor={hasRemote ? fetchAuthor : undefined}
                 hoverCards={false}
+                me={auth.profile}
                 renderFiles={renderDetails}
               />
             </>

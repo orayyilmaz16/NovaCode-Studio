@@ -5,7 +5,7 @@ import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
 import { laneColor, layoutGraph, type GraphRow } from '../services/gitGraph';
-import type { GitCommitInfo, GithubCommitAuthor } from '../types';
+import type { GitCommitInfo, GithubCommitAuthor, GithubProfile } from '../types';
 
 // Git geçmişi: dal topolojisi (şeritler, ayrılma/birleşme) + okunur satırlar. Satır yüksekliği sabit; şeritler satırlar arasında kesintisiz.
 // Dosya listesi ve fark açma GitPanel'dedir (renderFiles ile gelir).
@@ -14,7 +14,8 @@ const ROW_H = 56; // sabit satır: içerik her zaman bu yükseklikte, şeritler 
 const LANE_W = 8;
 const NODE_Y = 18;
 const NODE_R = 3;
-const x = (i: number) => i * LANE_W + LANE_W / 2;
+// Sol kenara taşmasın diye düğüm ve halkanın yarıçapı kadar pay bırakılır
+const x = (i: number) => i * LANE_W + LANE_W / 2 + 2;
 
 // Yumuşak eğri: uçlarda dikey teğet, ortada düzgün geçiş (dal ayrılma/birleşme)
 const curve = (x1: number, y1: number, x2: number, y2: number) => {
@@ -56,6 +57,12 @@ const CARD_GAP = 2; // kart satıra bitişik: fare aradan geçerken kart kapanma
 
 // Satır avatarı: GitHub fotoğrafı (yoksa renkli baş harfler); profil gelene kadar baş harfler görünür
 const avatarHue = (name: string) => laneColor(Math.abs([...name].reduce((a, ch) => a + ch.charCodeAt(0), 0)) % 8);
+// Commit yazarı oturum açık hesapla eşleşiyorsa (ad veya kullanıcı adı) o hesabın fotoğrafı
+export const mineAvatar = (author: string, me?: GithubProfile | null) => {
+  if (!me?.avatarUrl) return null;
+  const a = author.trim().toLowerCase();
+  return a === (me.name || '').trim().toLowerCase() || a === me.login.toLowerCase() ? me.avatarUrl : null;
+};
 const RowAvatar: React.FC<{ name: string; url?: string | null }> = ({ name, url }) =>
   url ? (
     <img src={avatarSized(url, 32)} alt="" width={14} height={14} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="size-3.5 shrink-0 rounded-full object-cover" />
@@ -200,16 +207,18 @@ interface Props {
   fetchAuthor?: (hash: string) => Promise<GithubCommitAuthor | null>;
   /** Ayrıntı kartı (hover) açık mı; menü gibi üst katmanlarda kapalı */
   hoverCards?: boolean;
+  /** Oturum açık GitHub hesabı: bu hesabın commit'lerinde kendi fotoğrafı gösterilir */
+  me?: GithubProfile | null;
 }
 
-export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit, onToggle, renderFiles, fetchAuthor, hoverCards = true }) => {
+export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit, onToggle, renderFiles, fetchAuthor, hoverCards = true, me }) => {
   // Üst commit bilgisi yoksa (eski ana süreç) liste doğrusal sayılır
   const noParents = commits.length > 1 && commits.every((c) => c.parents === undefined);
   const layout = useMemo(
     () => layoutGraph(commits.map((c, i) => ({ hash: c.hash, parents: c.parents ?? (commits[i + 1] ? [commits[i + 1].hash] : []) }))),
     [commits]
   );
-  const gutter = layout.laneCount * LANE_W + 4;
+  const gutter = layout.laneCount * LANE_W + 6;
   // Ayrıntı kartı: kısa bir gecikmeden sonra açılır; fare çıkınca kapanır
   const [hover, setHover] = useState<{ hash: string; rect: DOMRect } | null>(null);
   const hoverTimer = useRef<number | undefined>(undefined);
@@ -317,7 +326,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               )}
               <span className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-zinc-500 min-w-0">
                 <span className="font-mono shrink-0 text-zinc-400">{c.hash}</span>
-                <RowAvatar name={c.author} url={profiles[c.hash]?.avatarUrl} />
+                <RowAvatar name={c.author} url={mineAvatar(c.author, me) ?? profiles[c.hash]?.avatarUrl} />
                 <span className="truncate min-w-0">{c.author}</span>
                 <span className="shrink-0">· {c.ts ? timeAgo(c.ts) : c.when}</span>
               </span>

@@ -75,7 +75,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 |---|---|---|---|
 | orta | Q-I18N-HARD | `src/App.tsx:122` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
-| orta | Q-I18N-HARD | `src/components/GitHistory.tsx:200` | JSX içinde sabit metin olabilir (8 dil kuralı) |
+| orta | Q-I18N-HARD | `src/components/GitHistory.tsx:207` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | düşük | Q-ANY | `src/App.tsx:803` | `any` kullanımı (strict tip güvenliği) |
 | düşük | Q-ANY | `src/components/EditorArea.tsx:78,162,324…(+2)` | `any` kullanımı (strict tip güvenliği) (5×) |
@@ -85,5 +85,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 942, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3055 KB; en büyük: index-MMRG8QvL.js 453 KB, PtyView-D3GpnOuL.js 327 KB, react-vendor-DN5frQDv.js 206 KB, fileIconLoaders-M8Gn54jg.js 184 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/GitPanel.tsx` 943, `src/components/FileTree.tsx` 942, `electron-main.cjs` 853
+- Üretim paketi (dist varsa): toplam JS 3056 KB; en büyük: index-DtD1Cyvi.js 453 KB, PtyView-D0Ah6tA-.js 327 KB, react-vendor-DN5frQDv.js 206 KB, fileIconLoaders-CTJhsCxz.js 184 KB

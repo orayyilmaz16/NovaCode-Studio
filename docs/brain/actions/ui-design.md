@@ -174,6 +174,9 @@ Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori 
 ## Fark (diff) renkleri (28.11.2026)
 `services/editorTheme.ts` iki Nova temasına `diffEditor.*` ve `diffEditorGutter.*` anahtarları eklendi: eklenen satır zemini `#2ea04328`, değişen metin `#2ea04359`, silinen `#f8514928` / `#f851495c`, kaydırma işaretleri `#3fb950` / `#f85149`. Açık temada aynı anlamda daha hafif tonlar. Amaç: yan yana farkta ve editör kenar işaretlerinde VS Code ile aynı okuma.
 
+## Commit satırı: kendi fotoğrafı ve ayrıntı düzeni (28.11.2026)
+`mineAvatar(author, me)` (GitHistory'de dışa aktarılır): yazar adı veya kullanıcı adı oturum açık hesapla eşleşirse o hesabın fotoğrafı, değilse API profili. `me` prop'u GitPanel ve CommitHistoryMenu'den gelir (`useGithubAuth`). Graf x ofseti `+2` (sol kenar payı), gutter `lanes*8 + 6`. Açılan commit ayrıntısı: üstte karma + kopyala, grid'te tarih/yazar/üst commit'ler, altta "Değişen dosyalar · n" başlıklı liste (`histChangedFiles`).
+
 ## Commit satırı avatarı ve dosya simgeleri (28.11.2026)
 `GitHistory` satırında `RowAvatar` (14 px; GitHub fotoğrafı `s=32`, yoksa renkli baş harfler). Profiller `IntersectionObserver` ile (`rootMargin 160px`) yalnız görünen satırlar için istenir (`data-hash`). Menüde dosya satırları `FileTypeIcon` (dil simgesi) + sondaki durum harfi (`statusTone`: A yeşil, D kırmızı, R/C mavi). Taşma: menü ve liste `min-w-0 overflow-x-hidden`.
 

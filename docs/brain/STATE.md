@@ -76,7 +76,7 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 166 |
-| `src/components/CommitHistoryMenu.tsx` | 308 |
+| `src/components/CommitHistoryMenu.tsx` | 331 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugConsolePanel.tsx` | 89 |
@@ -86,8 +86,8 @@
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitHistory.tsx` | 346 |
-| `src/components/GitPanel.tsx` | 941 |
+| `src/components/GitHistory.tsx` | 355 |
+| `src/components/GitPanel.tsx` | 942 |
 | `src/components/GithubAccount.tsx` | 161 |
 | `src/components/HoverTip.tsx` | 49 |
 | `src/components/KeybindingsEditor.tsx` | 146 |
@@ -173,7 +173,7 @@
 | `src/i18n/uiTextComp.ts` | 347 |
 | `src/i18n/uiTextDev.ts` | 379 |
 | `src/i18n/uiTextRemote.ts` | 180 |
-| `src/i18n/uiTextScm.ts` | 330 |
+| `src/i18n/uiTextScm.ts` | 333 |
 | `src/i18n/uiTextTheme.ts` | 1136 |
 
 ### Betikler
@@ -270,7 +270,7 @@
 **Olaylar (ana süreç → arayüz):** `ai:event`, `analytics:set-lang`, `analytics:track`, `app:close-pending`, `app:close-request`, `app:close-response`, `dbg:event`, `fs:watch-change`, `git:changed`, `github:auth`, `lsp:event`, `pty:data`, `pty:exit`, `ssh:event`, `term:cwd`, `term:exit`, `term:output`, `term:ready`, `trust:changed`, `update:state`, `win:maximized`
 
 ## i18n
-- 1108 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
+- 1109 anahtar; her biri 8 dilde (tr, en, de, ru, ar, es, fr, az) dolu olmalı. Denetim: `npm run brain:check`.
 
 ## Ayarlar
 117 ayar, 12 kategori. Tek kaynak: `src/services/settingsSchema.json`. Ekleme kuralı: [[settings]].
@@ -426,7 +426,7 @@
 | [[doc-sync]] | `docs/brain/actions/doc-sync.md` | Her istem ve değişiklikte proje beyninin otomatik güncel tutulması (hatırlatma, denetim, değişiklik günlüğü) |
 | [[explorer]] | `docs/brain/actions/explorer.md` | Gezgin (dosya ağacı): görünüm seçenekleri, filtre, sürükle-bırak taşıma, bağlam menüsü, simge stilleri, güvenlik kuralları |
 | [[extensions]] | `docs/brain/actions/extensions.md` | Eklenti mağazası (Open VSX): arama, yükleme, güncelleme, kaldırma; tema katkısı |
-| [[git-github]] | `docs/brain/actions/git-github.md` | Aksiyon: Git ve GitHub |
+| [[git-github]] | `docs/brain/actions/git-github.md` | Git paneli, GitHub hesabı bağlama, PR, eşzamanlama ve canlı takip |
 | [[i18n]] | `docs/brain/actions/i18n.md` | Arayüze metin eklemek (8 dil zorunlu) |
 | [[lsp]] | `docs/brain/actions/lsp.md` | Dil sunucuları (LSP): Monaco'nun yerleşik desteği olmayan diller için tamamlama, üzerine gelme, tanıma git, tanılama |
 | [[monitoring]] | `docs/brain/actions/monitoring.md` | Sürekli sağlık, güvenlik ve performans izleme: açık, eğilim ve servis sağlığı otomatik ölçülür, loglanır, tek issue ile bildirilir |
@@ -437,7 +437,7 @@
 | [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
 | [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör davranışları, kalıcılık ve gizli değerler |
-| [[source-control]] | `docs/brain/actions/source-control.md` | Aksiyon: Kaynak denetimi ve Sorunlar |
+| [[source-control]] | `docs/brain/actions/source-control.md` | Kaynak denetimi: fark sekmesi, dal/etiket seçici, birleştirme, stash, geçmiş; Sorunlar (hata/uyarı) sayacı ve renkleri |
 | [[sync-deploy]] | `docs/brain/actions/sync-deploy.md` | Senkron sunucusunu (Yjs) TLS/wss ile kendi sunucuna kurma paketi: Docker + Caddy, alan adsız sslip.io, token, sağlık izleme |
 | [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: gerçek PTY (xterm.js) ve klasik boru terminali, çoklu oturum, panel davranışı |
 | [[testing]] | `docs/brain/actions/testing.md` | Değişikliği doğrulamak: tip, derleme, birim ve entegrasyon testleri, uygulamayı çalıştırma |

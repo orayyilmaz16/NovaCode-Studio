@@ -910,6 +910,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             openCommit={openCommit}
             onToggle={(h) => void toggleCommit(h)}
             fetchAuthor={fetchAuthor}
+            me={auth.profile}
             renderFiles={(h) =>
               (commitFiles[h] ?? []).map((cf) => (
                 <div
