@@ -13,7 +13,7 @@ Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `PERF-LS-WRITE` src/components/GithubAccount.tsx
+- Yeni/artan: yok
 - Giderilen: yok
 
 ## Güvenlik
@@ -86,4 +86,4 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 
 ## Ölçümler
 - En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 942, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3055 KB; en büyük: index-BAAso_qj.js 453 KB, PtyView-B0IyZKi9.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-BHwWQjkK.js 184 KB
+- Üretim paketi (dist varsa): toplam JS 3055 KB; en büyük: index-T2wc6j2n.js 453 KB, PtyView-DYIHa2al.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-CY6sIg0r.js 184 KB

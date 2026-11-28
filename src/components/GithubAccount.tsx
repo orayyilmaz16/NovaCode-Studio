@@ -82,7 +82,7 @@ export const GithubAccount: React.FC = () => {
   const btn = 'flex items-center justify-center gap-1.5 py-1.5 rounded font-medium transition-colors cursor-pointer text-xs';
 
   return (
-    <div className="py-1 border-b border-zinc-800/80 text-xs bg-nv-side">
+    <div className="border-b border-zinc-800/80 text-xs bg-nv-side py-0.5">
       {/* Açılır başlık: diğer bölümlerle aynı stil; durum yerelde hatırlanır */}
       <button
         onClick={toggleOpen}
@@ -98,7 +98,7 @@ export const GithubAccount: React.FC = () => {
         aria-hidden={!open}
         style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0, transition: 'grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease' }}
       >
-      <div className="min-h-0 overflow-hidden px-3 pb-2 pt-1">
+      <div className="min-h-0 overflow-hidden"><div className="px-3 pb-2 pt-1">
 
       {auth.connected && auth.profile ? (
         <div className="flex items-center gap-2">
@@ -154,7 +154,7 @@ export const GithubAccount: React.FC = () => {
       )}
 
       {error && <div className="mt-2 text-[11px] text-rose-300 bg-rose-950/40 border border-rose-900/60 rounded px-2 py-1">{error}</div>}
-      </div>
+      </div></div>
       </div>
     </div>
   );
