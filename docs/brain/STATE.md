@@ -21,7 +21,7 @@
 | `sync:server` | `node server/sync-server.mjs` |
 | `analytics:server` | `node server/analytics-server.mjs` |
 | `analytics:report` | `node scripts/analytics-report.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/settings-selectors.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs && node scripts/tests/autocommit.test.cjs && node scripts/tests/autopilot.test.cjs && node scripts/tests/autofix.test.cjs && node scripts/tests/fs-handlers.test.cjs && node scripts/tests/secrets.test.cjs && node scripts/tests/ipc-contract.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/settings-selectors.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs && node scripts/tests/autocommit.test.cjs && node scripts/tests/autopilot.test.cjs && node scripts/tests/autofix.test.cjs && node scripts/tests/fs-handlers.test.cjs && node scripts/tests/secrets.test.cjs && node scripts/tests/ipc-contract.test.cjs && node scripts/tests/update.test.cjs && node scripts/tests/github.test.cjs && node scripts/tests/preload.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -62,7 +62,7 @@
 ### Arayüz kabuğu
 | Dosya | Satır |
 |---|---|
-| `src/App.tsx` | 2526 |
+| `src/App.tsx` | 2555 |
 | `src/main.tsx` | 30 |
 | `src/types.ts` | 531 |
 
@@ -122,7 +122,7 @@
 ### Servisler
 | Dosya | Satır |
 |---|---|
-| `src/services/SettingsContext.tsx` | 231 |
+| `src/services/SettingsContext.tsx` | 244 |
 | `src/services/aiClient.ts` | 251 |
 | `src/services/aiCompletion.ts` | 204 |
 | `src/services/analytics.ts` | 72 |
@@ -220,6 +220,7 @@
 | `scripts/tests/electron-misc.test.cjs` | 138 |
 | `scripts/tests/fs-handlers.test.cjs` | 230 |
 | `scripts/tests/git.test.cjs` | 163 |
+| `scripts/tests/github.test.cjs` | 407 |
 | `scripts/tests/history.test.cjs` | 66 |
 | `scripts/tests/i18n.test.cjs` | 100 |
 | `scripts/tests/ipc-contract.test.cjs` | 112 |
@@ -227,6 +228,7 @@
 | `scripts/tests/lsp.test.cjs` | 104 |
 | `scripts/tests/palettes.test.cjs` | 75 |
 | `scripts/tests/paths.test.cjs` | 88 |
+| `scripts/tests/preload.test.cjs` | 131 |
 | `scripts/tests/preview-csp.test.cjs` | 66 |
 | `scripts/tests/pty.test.cjs` | 114 |
 | `scripts/tests/release.test.cjs` | 149 |
@@ -244,6 +246,7 @@
 | `scripts/tests/term.test.cjs` | 74 |
 | `scripts/tests/textbuffer.test.cjs` | 135 |
 | `scripts/tests/trust.test.cjs` | 74 |
+| `scripts/tests/update.test.cjs` | 244 |
 
 ### Sunucu
 | Dosya | Satır |

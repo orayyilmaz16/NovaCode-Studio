@@ -38,11 +38,11 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 ## Performans
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | PERF-BIGFILE | `src/App.tsx:1` | 2527 satır: bölünmeli / memo ile ayrıştırılmalı |
+| orta | PERF-BIGFILE | `src/App.tsx:1` | 2556 satır: bölünmeli / memo ile ayrıştırılmalı |
 | orta | PERF-LISTENER-LEAK | `src/components/Preview.tsx:1` | addEventListener (4) > removeEventListener (1): temizlenmeyen dinleyici olabilir |
 | düşük | PERF-DYN-RE | `src/components/Preview.tsx:58` | Döngüde dinamik RegExp üretimi olabilir |
 | düşük | PERF-DYN-RE | `src/services/testParse.ts:53,62,70` | Döngüde dinamik RegExp üretimi olabilir (3×) |
-| düşük | PERF-LS-WRITE | `src/App.tsx:1587` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/App.tsx:1615` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/GithubAccount.tsx:28` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/GitPanel.tsx:186,198` | localStorage yazımı: sık tetikleniyorsa debounce et (2×) |
@@ -73,11 +73,11 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 ## Kalite ve arayüz
 | Önem | Kural | Konum | Sorun |
 |---|---|---|---|
-| orta | Q-I18N-HARD | `src/App.tsx:122` | JSX içinde sabit metin olabilir (8 dil kuralı) |
+| orta | Q-I18N-HARD | `src/App.tsx:128` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/AIAssistant.tsx:322` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/GitHistory.tsx:207` | JSX içinde sabit metin olabilir (8 dil kuralı) |
 | orta | Q-I18N-HARD | `src/components/TimelinePanel.tsx:19` | JSX içinde sabit metin olabilir (8 dil kuralı) |
-| düşük | Q-ANY | `src/App.tsx:803` | `any` kullanımı (strict tip güvenliği) |
+| düşük | Q-ANY | `src/App.tsx:827` | `any` kullanımı (strict tip güvenliği) |
 | düşük | Q-ANY | `src/components/EditorArea.tsx:78,162,320…(+2)` | `any` kullanımı (strict tip güvenliği) (5×) |
 | düşük | Q-CONSOLE | `src/components/SnippetsEditor.tsx:11` | Kalan console.log |
 | düşük | Q-CONSOLE | `src/mockFiles.ts:89,91,112` | Kalan console.log (3×) |
@@ -85,5 +85,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/GitPanel.tsx` 943, `src/components/FileTree.tsx` 942, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3056 KB; en büyük: index-DtD1Cyvi.js 453 KB, PtyView-D0Ah6tA-.js 327 KB, react-vendor-DN5frQDv.js 206 KB, fileIconLoaders-CTJhsCxz.js 184 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2556, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/GitPanel.tsx` 943, `src/components/FileTree.tsx` 942, `electron-main.cjs` 853
+- Üretim paketi (dist varsa): toplam JS 3058 KB; en büyük: index-B50p5YMZ.js 455 KB, PtyView-BnDOIybM.js 327 KB, react-vendor-DN5frQDv.js 206 KB, fileIconLoaders-C5-SgGBS.js 184 KB

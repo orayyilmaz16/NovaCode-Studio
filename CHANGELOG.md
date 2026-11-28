@@ -4,7 +4,11 @@
 
 ### tr
 
+- [improve] **Ayarlar:** Yazı boyutu gibi bir kaydırıcı sürüklenirken uygulamanın ana bileşeni artık gereksiz yere yeniden çizilmiyor.
+
 ### en
+
+- [improve] **Settings:** While a slider such as font size is dragged, the app's main component no longer re-renders unnecessarily.
 
 ## 1.10.1 - 28.11.2026
 <!-- level: patch -->

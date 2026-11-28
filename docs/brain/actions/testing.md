@@ -38,7 +38,22 @@ Yeni testler: `paths.test.cjs` (yol doğrulama, symlink), `fs-handlers.test.cjs`
 - Test dosyalarında sahte anahtar/özel anahtar değerleri kaynakta bütün yazılmaz, çalışma zamanında birleştirilir (`check-hygiene.mjs` sır taraması kaynakta eşleşme görmesin; bkz. `ai-security.test.cjs`).
 
 ## Denetim düzeltmeleri, ikinci dalga (17.11.2026)
-Yeni testler: `services.test.cjs` (saf servisler, Vite SSR ile `.ts` yükleme), `i18n.test.cjs` (909+ anahtar 8 dil, yer tutucu, `MSG` tablosu; kullanılmayan anahtar yalnız uyarı), `electron-misc.test.cjs` (ext/llm/search saf kısımları), `replace.test.cjs`, `trust.test.cjs`, `preview-csp.test.cjs`, `history.test.cjs`, `snippets.test.cjs`, `keybindings.test.cjs`. Windows'ta sembolik bağ oluşturulamadığı için ilgili senaryolar atlanır. Hâlâ testsiz: `electron-secrets/update/github` (ayıklama gerekir), `electron-main` fs işleyicileri.
+Yeni testler: `services.test.cjs` (saf servisler, Vite SSR ile `.ts` yükleme), `i18n.test.cjs` (909+ anahtar 8 dil, yer tutucu, `MSG` tablosu; kullanılmayan anahtar yalnız uyarı), `electron-misc.test.cjs` (ext/llm/search saf kısımları), `replace.test.cjs`, `trust.test.cjs`, `preview-csp.test.cjs`, `history.test.cjs`, `snippets.test.cjs`, `keybindings.test.cjs`. Windows'ta sembolik bağ oluşturulamadığı için ilgili senaryolar atlanır. (28.11.2026: bu boşluklar kapandı; bkz. «#168 kapanışı» bölümü.)
 
 ## Uygulama içi Test sekmesi (21.11.2026)
 Alt paneldeki Test sekmesi kullanıcı projesinin testlerini çalıştırıp özetler (bkz. [[terminal]]); ayrıştırıcı `src/services/testParse.ts`. Yeni runner eklenirse özet satırı deseni oraya eklenir ve örnek çıktıyla denenir.
+
+## #168 kapanışı: ana süreç modülleri (28.11.2026)
+Üretim kodu değiştirilmedi. Modüller `electron`, `electron-updater`, global `fetch` ve `package.json` taklidiyle (`Module._load`) yüklenir; issue'nun öngördüğü ayıklama (refactor) gerekmedi ([[DECISIONS]]).
+- `update.test.cjs` (electron-update, 34 kontrol): geliştirme kanalında güncelleyici ve ağ yok; kurulum yalnız hazır paket için ve tek kez (`quitAndInstall(false, true)`); indirme sürerken gelen denetim olayı durumu geri almaz; hatalar `checksum` / `no-release` / `network` / `failed` koduna çevrilir; Hakkında'daki Electron sürümü sayısal karşılaştırmayla seçilir ve 6 saat önbelleğe alınır; `app:openLink` yalnız https ve kimlik bilgisiz adresleri açar.
+- `github.test.cjs` (electron-github, 73 kontrol): cihaz akışı (bekleme, yavaşlatma, onay, red, süre dolumu, iptal, geçici ağ hatası); güvenilmeyen doğrulama adresi (host, şema) reddedilir; token yalnız şifreli yazılır, şifreleme yoksa diske yazılmaz; açılışta geri yükleme, yenileme ve geçersiz yenileme token'ının temizlenmesi; PR / yeni depo / commit yazarı / depo durumu girdi ve hata yolları; 401'de oturum temizlenir; token yalnız `api.github.com`a gider ve hiçbir renderer bildirimine girmez.
+- `preload.test.cjs` (electron-preload, dinamik yükleme): tek köprü `electronAPI`; ham `ipcRenderer` açılmaz; her yöntemin kanalları `ad:eylem`; yakınlaştırma 0.8–1.5 ile sınırlı ve aynı değer tekrar uygulanmaz; dinleyici aboneliği kaldırılır.
+- `electron-llm.cjs` yok: yerleşik model 18.11.2026'da kaldırıldı; #168'in llm maddesi kapsam dışı.
+- Doğrulama: beş bilinçli bozulma (doğrulama adresi host kontrolü, şifreleme koruması, kurulum koşulu, sürüm karşılaştırması, yakınlaştırma sınırı) geçici bir kopyada denendi; her biri ilgili testte başarısız oldu. Repo dosyaları bu sırada değiştirilmedi.
+
+## Render sayımı: ayar sürüklemesi (#169, 28.11.2026)
+- Üretim derlemesi `minify` kapalı alınır (bileşen adları korunur), statik sunucuyla açılır; Edge headless `--remote-debugging-port` ile CDP'ye bağlanılır. Ayrı derleme dizini kullanılır; çalışan `electron:dev` oturumunun Vite önbelleğine dokunulmaz.
+- Sayfa açılmadan önce React DevTools global kancası enjekte edilir (`Page.addScriptToEvaluateOnNewDocument`). `onCommitFiberRoot` her commit'te fiber ağacını gezer; `PerformedWork` (bayrak 1) taşıyan fonksiyon, forwardRef ve memo bileşenleri sayılır.
+- Kaydırıcı sürüklemesi native `value` setter ve `input` olayıyla adım adım simüle edilir. `uiZoom` gibi `deferred` kaydırıcılar yalnız bırakınca yazar; bu yüzden ölçüme uygun değildir. Ayar modalı önce ilgili kategoriye gidilerek açılır (`nav` düğmeleri).
+- Uyarı: bayrağı eski kalan fiber'lar yanlış sayılabilir. Bir önceki commit'e bakan filtre bazı gerçek çizimleri de düşürdü (Terminal örneği); bu yüzden ham sayım raporlanır.
+- Kapsam: yalnız web sürümü ölçülür (`electron` yok). Geçici dosyalar repoya girmez.
