@@ -10,15 +10,20 @@ import type { GitCommitInfo, GithubCommitAuthor } from '../types';
 // Git geçmişi: dal topolojisi (şeritler, ayrılma/birleşme) + okunur satırlar. Satır yüksekliği sabit; şeritler satırlar arasında kesintisiz.
 // Dosya listesi ve fark açma GitPanel'dedir (renderFiles ile gelir).
 const ROW_H = 56; // sabit satır: içerik her zaman bu yükseklikte, şeritler satırlar arası kopmaz
-const LANE_W = 16;
+// Şerit genişliği dar: dal ağacı panelde daha az yer kaplar
+const LANE_W = 12;
 const NODE_Y = 18;
-const NODE_R = 4.5;
-const x = (i: number) => i * LANE_W + LANE_W / 2 + 2;
+const NODE_R = 3.5;
+const x = (i: number) => i * LANE_W + LANE_W / 2 + 1;
 
-const curve = (x1: number, y1: number, x2: number, y2: number) =>
-  x1 === x2 ? `M${x1} ${y1}L${x2} ${y2}` : `M${x1} ${y1}C${x1} ${y1 + (y2 - y1) * 0.6} ${x2} ${y1 + (y2 - y1) * 0.4} ${x2} ${y2}`;
+// Yumuşak eğri: uçlarda dikey teğet, ortada düzgün geçiş (dal ayrılma/birleşme)
+const curve = (x1: number, y1: number, x2: number, y2: number) => {
+  if (x1 === x2) return `M${x1} ${y1}L${x2} ${y2}`;
+  const mid = (y1 + y2) / 2;
+  return `M${x1} ${y1}C${x1} ${mid} ${x2} ${mid} ${x2} ${y2}`;
+};
 
-const GraphCell: React.FC<{ row: GraphRow; width: number; hash: string; head: boolean }> = ({ row, width, hash, head }) => {
+const GraphCell: React.FC<{ row: GraphRow; width: number; hash: string; head: boolean; merge: boolean }> = ({ row, width, hash, head, merge }) => {
   const lines: React.ReactNode[] = [];
   row.top.forEach((h, i) => {
     if (!h) return;
@@ -28,15 +33,18 @@ const GraphCell: React.FC<{ row: GraphRow; width: number; hash: string; head: bo
   row.parentLanes.forEach((j, k) => lines.push(<path key={`b${k}`} d={curve(x(row.lane), NODE_Y, x(j), ROW_H)} stroke={laneColor(j)} />));
   const c = laneColor(row.lane);
   return (
-    <svg width={width} height={ROW_H} className="absolute start-0 top-0 pointer-events-none" aria-hidden fill="none" strokeWidth={2} strokeLinecap="round" shapeRendering="geometricPrecision">
+    <svg width={width} height={ROW_H} className="absolute start-0 top-0 pointer-events-none" aria-hidden fill="none" strokeWidth={1.75} strokeLinecap="round" shapeRendering="geometricPrecision">
       {lines}
       {head ? (
         <>
-          <circle cx={x(row.lane)} cy={NODE_Y} r={NODE_R + 2} fill="var(--color-nv-side)" stroke={c} strokeWidth={2} />
-          <circle cx={x(row.lane)} cy={NODE_Y} r={2} fill={c} stroke="none" />
+          <circle cx={x(row.lane)} cy={NODE_Y} r={NODE_R + 1.5} fill="var(--color-nv-side)" stroke={c} strokeWidth={1.75} />
+          <circle cx={x(row.lane)} cy={NODE_Y} r={1.75} fill={c} stroke="none" />
         </>
+      ) : merge ? (
+        // Birleştirme commit'i (2+ üst): içi boş halka; normal commit dolu nokta
+        <circle cx={x(row.lane)} cy={NODE_Y} r={NODE_R - 0.5} fill="var(--color-nv-side)" stroke={c} strokeWidth={1.75} />
       ) : (
-        <circle cx={x(row.lane)} cy={NODE_Y} r={NODE_R} fill={c} stroke="var(--color-nv-side)" strokeWidth={1.5} />
+        <circle cx={x(row.lane)} cy={NODE_Y} r={NODE_R} fill={c} stroke="none" />
       )}
     </svg>
   );
@@ -190,7 +198,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
     () => layoutGraph(commits.map((c, i) => ({ hash: c.hash, parents: c.parents ?? (commits[i + 1] ? [commits[i + 1].hash] : []) }))),
     [commits]
   );
-  const gutter = layout.laneCount * LANE_W + 12;
+  const gutter = layout.laneCount * LANE_W + 8;
   // Ayrıntı kartı: kısa bir gecikmeden sonra açılır; fare çıkınca kapanır
   const [hover, setHover] = useState<{ hash: string; rect: DOMRect } | null>(null);
   const hoverTimer = useRef<number | undefined>(undefined);
@@ -253,7 +261,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               style={{ height: ROW_H, paddingInlineStart: gutter }}
               className="group relative w-[calc(100%-8px)] mx-1 block overflow-hidden text-start pe-2 py-[3px] rounded-md hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none transition-colors duration-(--dur-fast)"
             >
-              <GraphCell row={row} width={gutter} hash={c.hash} head={isHead} />
+              <GraphCell row={row} width={gutter} hash={c.hash} head={isHead} merge={(c.parents?.length ?? 0) > 1} />
               <span className="flex items-center gap-1.5 min-w-0">
                 <span className="truncate flex-1 min-w-0 text-[12.5px] leading-tight text-zinc-100">{c.subject}</span>
                 {c.added !== undefined && (

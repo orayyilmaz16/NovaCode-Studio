@@ -7,6 +7,7 @@
 - [fix] **Commit açılınca grafik kopması:** Açılan commit'in dosya listesinin altından geçen dal çizgisi artık sonraki commit'e kesintisiz bağlanır.
 - [feat] **Commit ayrıntı kartı:** Geçmişte bir commit'in üzerine gelince konu, tam karma (kopyala düğmesiyle), yazar, tarih, üst commit'ler (birleştirmeyse ayrıca belirtilir), +/− satır ve dosya sayısı, dallar ve etiketler bir kartta açılır.
 - [improve] **Git paneli açılır bölümler:** Commit, GitHub'da canlı durum, Pull request ve Yayınla alanları da diğer bölümler gibi açılır listedir; açık/kapalı durumu hatırlanır. Geçmiş kapalı bölümlerin ardından akışta yukarı çıkar, dipte sabitlenmez.
+- [improve] **Daha dar dal grafı:** Geçmişteki dal çizgileri daha dar şeritlerde ve yumuşak eğrilerle çizilir; birleştirme commit'leri içi boş halka olarak gösterilir, panelde daha az yer kaplar.
 - [improve] **Dal bölümü açılır:** Dal ve eşzamanlama bölümü diğer bölümler gibi açılır başlıkla görünür; dal seçici ve eşzamanla düğmeleri açılır kısımdadır.
 - [fix] **Geçmiş altındaki boşluk:** Geçmiş bölümü sabit yükseklikte değil; içeriği kadar uzar ve panel kaydırmasıyla gezilir, altında boş alan kalmaz.
 - [improve] **Commit ve PR alanları:** Mesaj ve açıklama kutularında karakter sayacı var; GitHub canlı durum kartı tek bölümde toplandı.
@@ -37,6 +38,7 @@
 - [fix] **Graph break when a commit is expanded:** The branch line below an expanded commit's file list now connects continuously to the next commit.
 - [feat] **Commit details card:** Hovering a commit in the history opens a card with its subject, full hash (with copy button), author, date, parent commits (marked as merge when there are several), +/− line and file counts, and branches and tags.
 - [improve] **Git panel dropdown sections:** Commit, live GitHub status, Pull request and Publish are now collapsible sections like the rest; open or closed state is remembered. When sections are collapsed, the history moves up instead of staying pinned to the bottom.
+- [improve] **Narrower branch graph:** Branch lines in the history use narrower lanes with smoother curves; merge commits are drawn as hollow rings, so the graph takes less room.
 - [improve] **Collapsible branch section:** "Branch and sync" uses the same collapsible header as the other sections; the branch picker and sync buttons sit inside it.
 - [fix] **No gap below history:** The history section grows with its content and is scrolled with the panel, so no empty space remains below it.
 - [improve] **Commit and PR fields:** Message and description boxes show a character counter; the live GitHub status is grouped into one section.
