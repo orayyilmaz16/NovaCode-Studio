@@ -57,3 +57,5 @@ Commit satırı hover zemini `mx-1` ile kenardan içeri alındı (`w-[calc(100%-
 Commit satırı sabit 56 px (önceki 66): üst/alt dolgu 3 px, dal etiketi 16 px yüksekliğinde. İçerik bu yüksekliğe sığar, şerit çizgisi kopmaz.
 
 Commit açıldığında dosya satırları sadeleşti: ikon + ad (klasör yok, tam yol başlıkta) + `+N −M` + durum harfi, 22 px. Dal etiketi en fazla iki, uzak dal etiketinde yalnız dal adı (`origin/` kırpılır), tam ad başlıkta.
+
+Açık commit'in altındaki dal şeritleri artık SVG `line` yerine `div` (`absolute top-0 bottom-0 w-[2px]`) ile çizilir: yükseklik dosya listesine göre oluşur ve bir sonraki commit'in üst şeridine kesintisiz bağlanır. Eski SVG'de `y2=100%` yüksekliği bazı durumlarda oturmadığı için şerit kopuyordu.

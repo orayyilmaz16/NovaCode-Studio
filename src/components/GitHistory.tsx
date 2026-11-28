@@ -118,9 +118,8 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
             >
               <div className="min-h-0 overflow-hidden">
                 <div className="relative" style={{ paddingInlineStart: gutter }}>
-                  <svg width={gutter} height="100%" className="absolute start-0 top-0 pointer-events-none" aria-hidden fill="none" strokeWidth={2} shapeRendering="geometricPrecision">
-                    {row.bottom.map((h, k) => (h ? <line key={k} x1={x(k)} x2={x(k)} y1={0} y2="100%" stroke={laneColor(k)} /> : null))}
-                  </svg>
+                  {/* Açık dosya listesinin altından geçen dal şeritleri (div ile: yükseklik içeriğe göre, sonraki commit'e kesintisiz bağlanır) */}
+                  {row.bottom.map((h, k) => (h ? <span key={k} aria-hidden className="absolute top-0 bottom-0 w-[2px] rounded-full pointer-events-none" style={{ left: x(k) - 1, background: laneColor(k) }} /> : null))}
                   <div className="flex flex-col">{renderFiles(c.hash)}</div>
                 </div>
               </div>
