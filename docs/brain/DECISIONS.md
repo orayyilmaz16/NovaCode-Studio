@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (GitHub Project kuruldu)
+Proje #2 "NovaCode Studio: Geliştirme ve QA" oluşturuldu, repoya bağlandı. Status altı sütuna çevrildi; Öncelik, Büyüklük ve Test durumu alanları eklendi; sprint için Milestone kullanılır (ayrı iterasyon alanı eklenmedi, CLI oluşturamıyor). #163–#170 projeye eklendi; öncelik ve büyüklükler öneri olarak girildi (kurucu teyidi bekleniyor). Sebep: kart durumunu, önceliği ve test durumunu tek yerden izlemek. Sonuç: arayüz otomasyonları (öğe eklenince Backlog, kapanınca Tamam) elle yapılacak. Geri dönüş: proje kapatılır veya silinir; repo ve issue'lar etkilenmez.
+
 ## 28.11.2026 (Milestone yapısı: sprint ve karar)
 GitHub milestone'ları: `Sprint 1` (11.12.2026), `Sprint 2` (25.12.2026), `Ürün kararı bekliyor` (tarihsiz). Sebep: sprint takvimini ve kurucu kararı bekleyen işleri ayırmak; kararı bekleyen iş sprint kapasitesini tüketmesin. Sonuç: #163, #168, #169 Sprint 1'de; #164–#167 karar milestone'unda. Geri dönüş: milestone silinir, issue'lar milestone'suz kalır. Bu yapı Projects alanlarından bağımsız çalışır.
 
