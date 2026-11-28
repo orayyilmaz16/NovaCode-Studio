@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:11 · auto/20261128-100940
+<!-- sig:fCxBR0VOVC5tZCxkb2NzL2JyYWluL0RFQ0lTSU9O -->
+- Alan: —
+- Kod (0): —
+- Belge (4): `AGENT.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/qa-agile.md`, `docs/brain/qa/SPRINTS.md`
+- Durum: ✓ yalnız belge değişti
+
 ## 28.11.2026 13:09 · main
 <!-- sig:LmdpdGh1Yi9JU1NVRV9URU1QTEFURS9idWdfcmVw -->
 - Alan: [[ci-cd]]
@@ -273,12 +280,5 @@
 <!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
 - Alan: [[ui-design]]
 - Kod (1): `src/App.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/explorer.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 25.11.2026 11:05 · auto/20261118-083349
-<!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvRmls -->
-- Alan: [[ui-design]], [[explorer]], [[i18n]]
-- Kod (3): `src/App.tsx`, `src/components/FileTree.tsx`, `src/i18n/uiText.ts`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/explorer.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

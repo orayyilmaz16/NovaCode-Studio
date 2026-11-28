@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Sprint 1 onayı ve backlog issue'ları)
+Sprint 1 (30.11.2026 – 11.12.2026) onaylandı. Açık [[BACKLOG]] kalemleri (S-04, S-18, I-05, F-08, F-09, T-01, P-13, U-05) issue'ya dönüştü: #163–#170, alan ve önem etiketli. Sebep: çalışma kalemlerini tek yerde izlemek; BACKLOG kimliği başlıkta korunur. Sonuç: önem etiketleri QA önerisidir (yüksek→major, orta→minor, düşük→trivial). F-09 için not: test sekmesi 21.11.2026'da eklendi, kalan kapsam kararı açık. Geri dönüş: issue'lar kapatılır; BACKLOG değişmez. GitHub Project henüz kurulmadı (token kapsamı).
+
 ## 28.11.2026 (QA ve çevik süreç: GitHub Project + md altyapısı)
 Süreç tek kaynakta, aksiyon [[qa-agile]]: issue akışı (triage, Hazır, Geliştiriliyor, PR/CI, QA'da, Tamam), DoR/DoD, test seviyeleri, 2 haftalık sprint. Md altyapısı `docs/brain/qa/` altında ([[QA]], [[SMOKE]], [[CHARTERS]], [[SPRINTS]]). Önem (`sev:*`, QA) ile öncelik (P0–P3, kurucu) ayrıdır. 39 etiket, `user_story` ve `test_session` şablonları, `bug_report`a önem alanı eklendi. Sebep: test ve çevik akışı görünür kılmak; ajan ve insan aynı kuralları okusun. Sonuç: GitHub Project alanları henüz kurulmadı (token'da `project` kapsamı yok); arayüz otomasyonları ve Sprint alanı elle eklenecek. Açık: özellik işlerinin PR'dan geçmesi (Stop hook otomatik commit ile çakışıyor), Sprint 1 onayı. Geri dönüş: şablon ve etiket silinir, `docs/brain/qa/` ve aksiyon kaldırılır.
 
