@@ -21,7 +21,7 @@
 | `sync:server` | `node server/sync-server.mjs` |
 | `analytics:server` | `node server/analytics-server.mjs` |
 | `analytics:report` | `node scripts/analytics-report.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs && node scripts/tests/autocommit.test.cjs && node scripts/tests/autopilot.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs && node scripts/tests/autocommit.test.cjs && node scripts/tests/autopilot.test.cjs && node scripts/tests/autofix.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -182,6 +182,7 @@
 | `scripts/analytics-report.mjs` | 53 |
 | `scripts/audit-scan.mjs` | 205 |
 | `scripts/auto-commit.mjs` | 233 |
+| `scripts/auto-fix-brain.mjs` | 100 |
 | `scripts/autopilot-lib.mjs` | 230 |
 | `scripts/backfill-overlay.mjs` | 19 |
 | `scripts/brain.mjs` | 302 |
@@ -210,6 +211,7 @@
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/analytics.test.cjs` | 143 |
 | `scripts/tests/autocommit.test.cjs` | 42 |
+| `scripts/tests/autofix.test.cjs` | 41 |
 | `scripts/tests/autopilot.test.cjs` | 94 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
@@ -403,7 +405,7 @@
 ## GitHub Actions
 | Dosya | Ad | İşler |
 |---|---|---|
-| `.github/workflows/auto-fix.yml` | Otomatik düzeltme (mekanik kapı) | `fix` (Düzelt ve PR aç) |
+| `.github/workflows/auto-fix.yml` | Otomatik düzeltme (mekanik kapı, ücretsiz) | `fix` (Düzelt, dal aç, PR aç, CI'ı tetikle) |
 | `.github/workflows/auto-release.yml` | Otomatik sürüm hazırlığı | `prepare` (Sürümü hazırla ve PR aç) |
 | `.github/workflows/backfill-desktop.yml` | Eski sürümlere macOS ve Linux paketi ekle | `plan`, `build` (${{ matrix.tag }} (${{ matrix.os }})) |
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi (${{ matrix.label }})), `build-desktop` (Paket (${{ matrix.label }})), `release-desktop` (GitHub Release (Windows, macOS, Linux)) |

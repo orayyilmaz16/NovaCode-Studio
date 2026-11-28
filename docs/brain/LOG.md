@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:46 · auto/20261128-104344
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvYXV0by1maXgueW1s -->
+- Alan: [[ci-cd]], [[ui-design]], [[testing]]
+- Kod (3): `.github/workflows/auto-fix.yml`, `scripts/auto-fix-brain.mjs`, `scripts/tests/autofix.test.cjs`
+- Belge (3): `AGENT.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/autopilot.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 13:37 · main
 <!-- sig:fCxkb2NzL2JyYWluL2FjdGlvbnMvYXV0b3BpbG90 -->
 - Alan: —
@@ -275,10 +282,3 @@
 - Kod (1): `.github/workflows/release-finalize.yml`
 - Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/versioning.md`
 - Durum: ✓ belgelendi
-
-## 27.11.2026 11:41 · main
-<!-- sig:fCxkb2NzL2JyYWluL2FjdGlvbnMvbW9uaXRvcmlu -->
-- Alan: —
-- Kod (0): —
-- Belge (1): `docs/brain/actions/monitoring.md`
-- Durum: ✓ yalnız belge değişti
