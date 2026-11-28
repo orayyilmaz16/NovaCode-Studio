@@ -258,6 +258,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createPr: (repoPath, input) => ipcRenderer.invoke('github:createPr', repoPath, input),
     publishRepo: (repoPath, input) => ipcRenderer.invoke('github:publishRepo', repoPath, input),
     openExternal: (url) => ipcRenderer.invoke('github:openExternal', url),
+    commitAuthor: (repoPath, hash) => ipcRenderer.invoke('github:commitAuthor', repoPath, hash),
     onAuth: (callback) => {
       const listener = (_event, data) => callback(data);
       ipcRenderer.on('github:auth', listener);

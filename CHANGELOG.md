@@ -6,6 +6,7 @@
 
 - [fix] **Commit açılınca grafik kopması:** Açılan commit'in dosya listesinin altından geçen dal çizgisi artık sonraki commit'e kesintisiz bağlanır.
 - [feat] **Commit ayrıntı kartı:** Geçmişte bir commit'in üzerine gelince konu, tam karma (kopyala düğmesiyle), yazar, tarih, üst commit'ler (birleştirmeyse ayrıca belirtilir), +/− satır ve dosya sayısı, dallar ve etiketler bir kartta açılır.
+- [feat] **Commit yazarı kartta:** Ayrıntı kartında yazarın adı, GitHub kullanıcı adı ve profil fotoğrafı (GitHub hesabı bağlıysa) ile tarih ve "şu kadar önce" bilgisi görünür. Bağlı değilse baş harflerle yerel bir avatar gösterilir.
 - [fix] **Açılan commit'te çizgi kayması:** Açılan commit'in dal çizgileri 4 piksel sola kayıp kopmuyordu; artık commit satırıyla aynı hizada.
 - [fix] **Commit dosya listesi düzeltildi:** Açılan commit'in dosyaları dar panelde sıkışmıyor; yalnız ad ve sayılar görünür, tam yol üzerine gelince çıkar. Dal etiketleri en fazla ikisi gösterilir.
 - [improve] **Commit satırları daha kısa:** Geçmişteki commit satırlarının yüksekliği azaltıldı; dal çizgisi yine satırlar arasında kesintisiz.
@@ -28,6 +29,7 @@
 
 - [fix] **Graph break when a commit is expanded:** The branch line below an expanded commit's file list now connects continuously to the next commit.
 - [feat] **Commit details card:** Hovering a commit in the history opens a card with its subject, full hash (with copy button), author, date, parent commits (marked as merge when there are several), +/− line and file counts, and branches and tags.
+- [feat] **Commit author on the card:** The details card shows the author's name, GitHub username and profile photo (when a GitHub account is connected), plus the date and a relative time. Without a connection, initials are shown as the avatar.
 - [fix] **Lane offset on expanded commit:** Branch lines under an expanded commit were shifted 4px left and broke the line; they now align with the commit row.
 - [fix] **Commit file list fixed:** Files of an expanded commit no longer crowd the narrow panel; only name and counts show, the full path appears on hover. At most two branch labels are shown.
 - [improve] **Shorter commit rows:** Commit rows in the history are shorter; the branch line still connects continuously between rows.

@@ -272,8 +272,8 @@ export const SCM_TEXT = {
   histCardCopied: {
     tr: "Kopyalandı", en: "Copied", de: "Kopiert", ru: "Скопировано", ar: "تم النسخ", es: "Copiado", fr: "Copié", az: "Kopyalandı",
   },
-  histCardAuthor: {
-    tr: "Yazar", en: "Author", de: "Autor", ru: "Автор", ar: "المؤلف", es: "Autor", fr: "Auteur", az: "Müəllif",
+  histCardLocalAuthor: {
+    tr: "Git kaydından · GitHub bağlı değil", en: "From the git record · GitHub not linked", de: "Aus dem Git-Eintrag · GitHub nicht verknüpft", ru: "Из записи git · GitHub не подключён", ar: "من سجل git · GitHub غير مرتبط", es: "Del registro de git · GitHub no vinculado", fr: "Depuis l'enregistrement git · GitHub non lié", az: "Git qeydindən · GitHub bağlı deyil",
   },
   histCardDate: {
     tr: "Tarih", en: "Date", de: "Datum", ru: "Дата", ar: "التاريخ", es: "Fecha", fr: "Date", az: "Tarix",

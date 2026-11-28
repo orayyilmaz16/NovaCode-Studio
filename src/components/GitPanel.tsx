@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GitHistory } from './GitHistory';
 import { ResizableBody } from './ResizableBody';
 import {
@@ -293,6 +293,14 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
 
   // ---- Durum ekranları ----
   const center = 'flex flex-col items-center justify-center h-full p-4 text-center text-zinc-500 text-xs';
+
+  // Commit yazarının GitHub profili: yalnız bağlı hesap + GitHub remote varken (kanca early return'lerden önce olmalı)
+  const fetchAuthor = useMemo(
+    () => (canInfo && repoInfo?.available && currentRepoPath && window.electronAPI?.github
+      ? (h: string) => window.electronAPI!.github.commitAuthor(currentRepoPath, h)
+      : undefined),
+    [canInfo, repoInfo?.available, currentRepoPath]
+  );
 
   if (!auth.connected || status.locked) {
     return (
@@ -897,6 +905,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             currentBranch={status.branch}
             openCommit={openCommit}
             onToggle={(h) => void toggleCommit(h)}
+            fetchAuthor={fetchAuthor}
             renderFiles={(h) =>
               (commitFiles[h] ?? []).map((cf) => (
                 <div

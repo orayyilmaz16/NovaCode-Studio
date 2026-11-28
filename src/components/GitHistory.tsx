@@ -5,7 +5,7 @@ import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
 import { laneColor, layoutGraph, type GraphRow } from '../services/gitGraph';
-import type { GitCommitInfo } from '../types';
+import type { GitCommitInfo, GithubCommitAuthor } from '../types';
 
 // Git geçmişi: dal topolojisi (şeritler, ayrılma/birleşme) + okunur satırlar. Satır yüksekliği sabit; şeritler satırlar arasında kesintisiz.
 // Dosya listesi ve fark açma GitPanel'dedir (renderFiles ile gelir).
@@ -46,8 +46,34 @@ const CARD_W = 300;
 const CARD_H_EST = 250;
 
 /** Commit'in üzerine gelince açılan ayrıntı kartı: konu, karma, yazar, tarih, değişiklik özeti, üst commit'ler, dallar. */
-const HoverCard: React.FC<{ c: GitCommitInfo; anchor: DOMRect; currentBranch?: string }> = ({ c, anchor, currentBranch }) => {
+// Yazar profili önbelleği (hash → profil); aynı commit'e tekrar gelince ağ isteği yapılmaz
+const authorCache = new Map<string, GithubCommitAuthor | null>();
+
+const initials = (name: string) => {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? '?') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+};
+
+const HoverCard: React.FC<{
+  c: GitCommitInfo;
+  anchor: DOMRect;
+  currentBranch?: string;
+  fetchAuthor?: (hash: string) => Promise<GithubCommitAuthor | null>;
+}> = ({ c, anchor, currentBranch, fetchAuthor }) => {
   const [copied, setCopied] = useState(false);
+  const [profile, setProfile] = useState<GithubCommitAuthor | null | undefined>(() => authorCache.get(c.hash));
+  const [avatarOk, setAvatarOk] = useState(true);
+  useEffect(() => {
+    if (!fetchAuthor || authorCache.has(c.hash)) return;
+    let alive = true;
+    void fetchAuthor(c.hash).then((p) => {
+      authorCache.set(c.hash, p);
+      if (alive) setProfile(p);
+    }).catch(() => { if (alive) setProfile(null); });
+    return () => { alive = false; };
+  }, [c.hash, fetchAuthor]);
+  const displayName = profile?.name || profile?.login || c.author;
+  const hue = laneColor(Math.abs([...c.author].reduce((a, ch) => a + ch.charCodeAt(0), 0)) % 8);
   const left = anchor.right + 8 + CARD_W > window.innerWidth ? Math.max(8, anchor.left - CARD_W - 8) : anchor.right + 8;
   const top = Math.max(8, Math.min(anchor.top, window.innerHeight - CARD_H_EST - 8));
   const parents = c.parents ?? [];
@@ -77,11 +103,23 @@ const HoverCard: React.FC<{ c: GitCommitInfo; anchor: DOMRect; currentBranch?: s
           {copied ? <Check size={11} /> : <Copy size={11} />}{t(copied ? 'histCardCopied' : 'histCardCopy')}
         </button>
       </div>
-      <div className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[11px]">
-        <span className="text-zinc-500">{t('histCardAuthor')}</span>
-        <span className="text-zinc-200 truncate">{c.author}</span>
+      <div className="mt-2.5 flex items-center gap-2.5">
+        {profile?.avatarUrl && avatarOk ? (
+          <img src={profile.avatarUrl} alt="" width={30} height={30} referrerPolicy="no-referrer" onError={() => setAvatarOk(false)} className="size-[30px] shrink-0 rounded-full border border-white/10 object-cover" />
+        ) : (
+          <span aria-hidden className="grid place-items-center size-[30px] shrink-0 rounded-full text-[11px] font-semibold text-zinc-950" style={{ background: hue }}>{initials(displayName)}</span>
+        )}
+        <span className="min-w-0 flex flex-col">
+          <span className="truncate text-[12px] font-medium text-zinc-100">{displayName}</span>
+          <span className="truncate text-[11px] text-zinc-500">{profile?.login ? `@${profile.login}` : t('histCardLocalAuthor')}</span>
+        </span>
+      </div>
+      <div className="mt-2.5 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[11px]">
         <span className="text-zinc-500">{t('histCardDate')}</span>
-        <span className="text-zinc-200">{c.ts ? new Date(c.ts).toLocaleString() : c.when}</span>
+        <span className="text-zinc-200">
+          {c.ts ? new Date(c.ts).toLocaleString() : c.when}
+          {c.ts !== undefined && <span className="text-zinc-500"> · {timeAgo(c.ts)}</span>}
+        </span>
         {parents.length > 0 && (
           <>
             <span className="text-zinc-500">{parents.length > 1 ? t('histCardMerge') : t('histCardParents')}</span>
@@ -114,9 +152,11 @@ interface Props {
   openCommit: string | null;
   onToggle: (hash: string) => void;
   renderFiles: (hash: string) => React.ReactNode;
+  /** GitHub profili getirir (bağlı hesap + GitHub remote); yoksa kart yerel bilgiyle çalışır */
+  fetchAuthor?: (hash: string) => Promise<GithubCommitAuthor | null>;
 }
 
-export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit, onToggle, renderFiles }) => {
+export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit, onToggle, renderFiles, fetchAuthor }) => {
   // Üst commit bilgisi yoksa (eski ana süreç) liste doğrusal sayılır
   const noParents = commits.length > 1 && commits.every((c) => c.parents === undefined);
   const layout = useMemo(
@@ -211,7 +251,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
           </div>
         );
       })}
-      {hover && hoverCommit && createPortal(<HoverCard c={hoverCommit} anchor={hover.rect} currentBranch={currentBranch} />, document.body)}
+      {hover && hoverCommit && createPortal(<HoverCard c={hoverCommit} anchor={hover.rect} currentBranch={currentBranch} fetchAuthor={fetchAuthor} />, document.body)}
     </div>
   );
 };

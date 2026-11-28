@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 11:04 · auto/20261128-074543
+<!-- sig:ZWxlY3Ryb24tZ2l0aHViLmNqcyxlbGVjdHJvbi1w -->
+- Alan: [[git-github]], [[security-kvkk]], [[ui-design]], [[i18n]]
+- Kod (6): `electron-github.cjs`, `electron-preload.cjs`, `src/components/GitHistory.tsx`, `src/components/GitPanel.tsx`, `src/i18n/uiTextScm.ts`, `src/types.ts`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 10:51 · auto/20261128-074543
 <!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
 - Alan: [[ui-design]], [[git-github]]
@@ -274,11 +281,4 @@
 - Alan: [[ui-design]], [[motion]]
 - Kod (4): `src/App.tsx`, `src/components/MenuBar.tsx`, `src/components/WindowControls.tsx`, `src/style.css`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 11:53 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvRWRpdG9yQXJlYS50c3gs -->
-- Alan: [[ui-design]]
-- Kod (1): `src/components/EditorArea.tsx`
-- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

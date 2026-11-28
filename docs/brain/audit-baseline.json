@@ -22,6 +22,11 @@
    "sev": "orta"
   },
   {
+   "k": "Q-I18N-HARD|src/components/GitHistory.tsx",
+   "n": 2,
+   "sev": "orta"
+  },
+  {
    "k": "Q-I18N-HARD|src/components/TimelinePanel.tsx",
    "n": 1,
    "sev": "orta"
