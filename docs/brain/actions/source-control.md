@@ -40,3 +40,6 @@ Tüm komutlar `execFile` + argüman dizisi; `guard()` GitHub bağlantısını ve
 ## Test
 `scripts/tests/git.test.cjs` (63 kontrol: diff, merge/çakışma/çözüm/iptal, stash, etiket, amend/undo, tehlikeli ref reddi). Arayüz: [[testing]] gizli profil + CDP; GitHub oturumu yalnız test için `-r` ile taklit edilir (ürün koduna arka kapı konmaz).
 Metinler [[i18n]]: `src/i18n/uiTextScm.ts` (8 dil).
+
+## Geçmiş ve durum özeti (28.11.2026)
+`GitPanel.tsx` geçmiş satırı: sol commit çizgisi, tek satır kırpılan konu, `hash · yazar · zaman` (zaman `timeAgo(ts)`, arayüz dilinde), dal/etiket rozetleri ayrı sarılan satırda (yerel dal indigo, `uzak/` önekliler soluk), `+eklenen −silinen · dosya` (git:log shortstat) ve açılınca dosya başına sayılar (git:commitFiles numstat). Taşma nedeni: ikinci satır kırpılmıyordu ve rozetler konuyla aynı satırdaydı; kapsayıcıya `min-w-0 overflow-x-hidden` eklendi. Dal satırının altındaki özet şeridi: birleştirme, çakışma sayısı, ayrık HEAD, hazırlanan (`gitStaged`), değişen (`gitChanges`) ya da `gitClean`; metinler `uiTextScm.ts` (`gitSum*`).

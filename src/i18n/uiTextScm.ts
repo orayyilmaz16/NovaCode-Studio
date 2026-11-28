@@ -269,6 +269,18 @@ export const SCM_TEXT = {
   histNeedRestart: {
     tr: "Satır sayıları için uygulamayı yeniden başlat.", en: "Restart the app to see line counts.", de: "Starte die App neu, um Zeilenzahlen zu sehen.", ru: "Перезапустите приложение, чтобы увидеть число строк.", ar: "أعد تشغيل التطبيق لرؤية عدد الأسطر.", es: "Reinicia la aplicación para ver el recuento de líneas.", fr: "Redémarrez l'application pour voir le nombre de lignes.", az: "Sətir sayını görmək üçün tətbiqi yenidən başladın.",
   },
+  gitSumConflicts: {
+    tr: "çakışma", en: "conflicts", de: "Konflikte", ru: "конфликтов", ar: "تعارضات", es: "conflictos", fr: "conflits", az: "konflikt",
+  },
+  gitSumDetached: {
+    tr: "Ayrık HEAD", en: "Detached HEAD", de: "Losgelöster HEAD", ru: "Отсоединённый HEAD", ar: "HEAD منفصل", es: "HEAD separado", fr: "HEAD détaché", az: "Ayrılmış HEAD",
+  },
+  gitSumStagedTip: {
+    tr: "Commit için hazırlanan dosyalar", en: "Files staged for commit", de: "Für Commit vorgemerkte Dateien", ru: "Файлы, подготовленные к коммиту", ar: "ملفات جاهزة للإيداع", es: "Archivos preparados para commit", fr: "Fichiers indexés pour le commit", az: "Commit üçün hazırlanan fayllar",
+  },
+  gitSumChangedTip: {
+    tr: "Hazırlanmamış değişiklikler", en: "Unstaged changes", de: "Nicht vorgemerkte Änderungen", ru: "Неподготовленные изменения", ar: "تغييرات غير مجهزة", es: "Cambios sin preparar", fr: "Modifications non indexées", az: "Hazırlanmamış dəyişikliklər",
+  },
 } satisfies Record<string, Dict>;
 
 export type ScmTextKey = keyof typeof SCM_TEXT;

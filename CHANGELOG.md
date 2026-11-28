@@ -4,11 +4,13 @@
 
 ### tr
 
+- [improve] **Git paneli geçmişi ve durum özeti:** Geçmiş listesindeki taşma giderildi (konu ve yazar satırı kırpılır, dal/etiket rozetleri kendi satırında sarılır). Her commit'te zaman arayüz dilinde, eklenen/silinen satır sayısı ve dal/etiket rozetleri görünür; açılınca dosya başına +/− sayıları listelenir. Dal satırının altına durum özeti eklendi: birleştirme sürüyor, çakışma sayısı, ayrık HEAD, hazırlanan ve değişen dosya sayıları (ya da "temiz"). 8 dilde.
 - [improve] **Yapay zekâ düğmesi:** Üst çubukta terminal aç/kapa düğmesinin yanına yapay zekâ asistanını aç/kapa düğmesi eklendi.
 - [fix] **GitHub oturumu:** Süreli GitHub token'ları artık yenileme token'ıyla otomatik yenilenir; süresi dolan erişim token'ı sessizce yenilenir, böylece oturum her seferinde erken düşmez.
 
 ### en
 
+- [improve] **Git panel history and status summary:** Fixed the overflow in the history list (subject and author lines are truncated, branch/tag badges wrap on their own line). Each commit shows time in the UI language, lines added/deleted and branch/tag badges; expanding it lists per-file +/- counts. A status summary was added under the branch row: merge in progress, conflict count, detached HEAD, staged and changed file counts (or "clean"). In 8 languages.
 - [improve] **AI button:** Added a toggle for the AI assistant next to the terminal toggle in the top bar.
 - [fix] **GitHub session:** Expiring GitHub tokens are now renewed automatically with the refresh token, so an expired access token is renewed silently and the session no longer drops early.
 
