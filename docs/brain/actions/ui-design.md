@@ -174,6 +174,9 @@ Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori 
 ## Fark (diff) renkleri (28.11.2026)
 `services/editorTheme.ts` iki Nova temasına `diffEditor.*` ve `diffEditorGutter.*` anahtarları eklendi: eklenen satır zemini `#2ea04328`, değişen metin `#2ea04359`, silinen `#f8514928` / `#f851495c`, kaydırma işaretleri `#3fb950` / `#f85149`. Açık temada aynı anlamda daha hafif tonlar. Amaç: yan yana farkta ve editör kenar işaretlerinde VS Code ile aynı okuma.
 
+## Durum çubuğu commit geçmişi menüsü (28.11.2026)
+`CommitHistoryMenu.tsx` git paneliyle aynı veri kaynaklarını kullanır: satıra gelince `github.commitAuthor` (önbellek `profiles`, hash başına, yalnız bağlı hesap + GitHub remote), açılınca tam karma + kopyala (`github.copyHash`, olmazsa `navigator.clipboard`), tam tarih, profil bağlantısı (`openExternal`), birleştirme ise üst commit'ler. Avatar `s=32` ile indirilir. Yeni metin yok; `histCardCopy/Copied/CopyFailed/OpenProfile/Merge` anahtarları kullanılır.
+
 ## GitHub hesabı bloğu: açılır (28.11.2026)
 `GithubAccount.tsx` başlığı `Section` ile aynı yerleşim, ama büyük harf dönüşümü yok (yalnız ilk harfler büyük, `text-zinc-300`); açık/kapalı durumu `nova.git.account` (localStorage, "1"/"0") ile saklanır, varsayılan açık. Kapalıyken boşluk kalmaması için dikey dolgu (`pt-1 pb-2`) grid'in içindeki çocukta; dolgu 0fr satırda da yer kaplar, bu yüzden dış kapta yalnız `py-0.5`.
 

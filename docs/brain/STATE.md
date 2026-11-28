@@ -76,7 +76,7 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 166 |
-| `src/components/CommitHistoryMenu.tsx` | 259 |
+| `src/components/CommitHistoryMenu.tsx` | 337 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugConsolePanel.tsx` | 89 |

@@ -1,9 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { GitBranch, GitCommitHorizontal, ExternalLink, RefreshCcw, ArrowDown, ArrowUp, PanelLeftOpen, PanelLeftClose, UserRound, Clock, ChevronRight, FilePlus2, FileMinus2, FilePen, FileSymlink } from 'lucide-react';
+import { GitBranch, GitCommitHorizontal, ExternalLink, RefreshCcw, ArrowDown, ArrowUp, PanelLeftOpen, PanelLeftClose, UserRound, Clock, ChevronRight, FilePlus2, FileMinus2, FilePen, FileSymlink, Copy, Check } from 'lucide-react';
 import { t } from '../i18n/uiText';
 import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
-import type { GitCommitFile, GitCommitInfo, GithubRepoInfo } from '../types';
+import type { GitCommitFile, GitCommitInfo, GithubCommitAuthor, GithubRepoInfo } from '../types';
+
+// Avatar 16 px'de gösterilir; küçük (s=32) sürüm indirilir
+const avatarSmall = (url: string) => {
+  try {
+    const u = new URL(url);
+    u.searchParams.set('s', '32');
+    return u.toString();
+  } catch {
+    return url;
+  }
+};
 
 // Durum çubuğundaki commit geçmişi menüsü (VS Code "Source Control Graph" benzeri, sade liste):
 // dal + uzak depo bilgisi üstte, son commit'ler altta (kısa karma, mesaj, yazar, zaman, dal/etiket rozetleri).
@@ -40,6 +51,39 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
   // Açılır/kapanır commit satırları: açılınca o commit'in dosyaları (dosya başına +/−) yüklenir ve önbelleğe alınır
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [files, setFiles] = useState<Record<string, GitCommitFile[] | 'error'>>({});
+  // GitHub yazar profili (bağlı hesap + GitHub remote): hash başına, satıra gelince istenir (git panelindeki kartla aynı kaynak)
+  const [profiles, setProfiles] = useState<Record<string, GithubCommitAuthor | null>>({});
+  const [copied, setCopied] = useState<{ hash: string; ok: boolean } | null>(null);
+  const requested = useRef(new Set<string>());
+  const loadProfile = useCallback((hash: string) => {
+    if (!api?.github?.commitAuthor || !hasRemote || requested.current.has(hash)) return;
+    requested.current.add(hash);
+    void api.github.commitAuthor(repo, hash)
+      .then((p) => {
+        if (p?.avatarUrl) new Image().src = avatarSmall(p.avatarUrl);
+        setProfiles((m) => ({ ...m, [hash]: p }));
+      })
+      .catch(() => setProfiles((m) => ({ ...m, [hash]: null })));
+  }, [api, repo, hasRemote]);
+  const copyHash = async (hash: string) => {
+    // Önce ana süreç (pano izni gerektirmez), olmazsa tarayıcı panosu; sonucu düğmede göster
+    let ok = false;
+    try {
+      ok = !!(await api?.github?.copyHash(hash))?.success;
+    } catch (err) {
+      console.warn('[git] copyHash başarısız:', err);
+    }
+    if (!ok) {
+      try {
+        await navigator.clipboard.writeText(hash);
+        ok = true;
+      } catch (err) {
+        console.warn('[git] pano yazılamadı:', err);
+      }
+    }
+    setCopied({ hash, ok });
+    window.setTimeout(() => setCopied(null), 1500);
+  };
 
   const load = useCallback(async () => {
     if (!api?.gitLog) { setFailed(true); setCommits([]); return; }
@@ -61,6 +105,7 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
   const toggle = async (hash: string) => {
     const next = !open[hash];
     setOpen((m) => ({ ...m, [hash]: next }));
+    if (next) loadProfile(hash);
     if (!next || files[hash] || !api?.gitCommitFiles) return;
     try {
       const r = await api.gitCommitFiles(repo, hash);
@@ -160,6 +205,7 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
               <div key={c.hash} role="listitem" className="animate-fade-in" style={{ animationDelay: `${Math.min(i, 8) * 20}ms` }}>
               <button
                 onClick={() => void toggle(c.hash)}
+                onMouseEnter={() => loadProfile(c.hash)}
                 aria-expanded={!!open[c.hash]}
                 title={`${c.hash} — ${c.subject}`}
                 className="group w-full text-start flex items-start gap-2.5 px-3.5 py-1.5 hover:bg-nv-hover focus-visible:bg-nv-hover focus-visible:outline-none transition-colors"
@@ -183,7 +229,11 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
                     <ChevronRight size={13} className={`shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open[c.hash] ? 'rotate-90' : ''}`} />
                   </span>
                   <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-500 min-w-0">
-                    <span className="size-4 rounded-full bg-zinc-700/70 text-[8px] leading-4 text-center text-zinc-300 font-semibold shrink-0">{initials(c.author)}</span>
+                    {profiles[c.hash]?.avatarUrl ? (
+                      <img src={avatarSmall(profiles[c.hash]!.avatarUrl!)} alt="" width={16} height={16} loading="eager" decoding="async" referrerPolicy="no-referrer" className="size-4 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <span className="size-4 rounded-full bg-zinc-700/70 text-[8px] leading-4 text-center text-zinc-300 font-semibold shrink-0">{initials(c.author)}</span>
+                    )}
                     <span className="truncate">{c.author}</span>
                     <span className="shrink-0" title={c.ts ? new Date(c.ts).toLocaleString() : undefined}>· {c.ts ? timeAgo(c.ts) : c.when}</span>
                     <span className="font-mono shrink-0 ms-auto">{c.hash}</span>
@@ -206,6 +256,34 @@ export const CommitHistoryMenu: React.FC<Props> = ({ anchor, repo, branch, hasRe
               <div className="cm-collapse" data-open={!!open[c.hash]} aria-hidden={!open[c.hash]}>
                 <div>
                   <div className="ms-[30px] me-3.5 mb-1.5 ps-2.5 border-s border-nv-border max-h-48 overflow-y-auto">
+                    {/* Ayrıntılar: tam karma + kopyala, tam tarih, yazar profili, üst commit'ler */}
+                    <div className="py-1 flex flex-col gap-1 text-[11px] text-zinc-400">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="font-mono text-zinc-300 truncate">{c.hash}</span>
+                        <button
+                          type="button"
+                          onClick={() => void copyHash(c.hash)}
+                          className={`shrink-0 inline-flex items-center gap-1 h-[18px] px-1.5 rounded hover:bg-white/[0.08] transition-colors ${copied?.hash === c.hash ? (copied.ok ? 'text-emerald-400' : 'text-rose-400') : 'text-zinc-400'}`}
+                        >
+                          {copied?.hash === c.hash && copied.ok ? <Check size={11} /> : <Copy size={11} />}
+                          {copied?.hash === c.hash ? t(copied.ok ? 'histCardCopied' : 'histCardCopyFailed') : t('histCardCopy')}
+                        </button>
+                      </div>
+                      <div className="truncate">{c.ts ? new Date(c.ts).toLocaleString() : c.when}</div>
+                      {profiles[c.hash]?.login && (
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="truncate text-zinc-300">@{profiles[c.hash]!.login}</span>
+                          {profiles[c.hash]?.profileUrl && (
+                            <button type="button" onClick={() => void api?.github?.openExternal(profiles[c.hash]!.profileUrl!)} className="shrink-0 inline-flex items-center gap-1 h-[18px] px-1.5 rounded hover:bg-white/[0.08] text-zinc-400">
+                              <ExternalLink size={11} />{t('histCardOpenProfile')}
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      {c.parents && c.parents.length > 1 && (
+                        <div className="font-mono text-zinc-500">{t('histCardMerge')}: {c.parents.map((p) => p.slice(0, 7)).join(' ')}</div>
+                      )}
+                    </div>
                     {!files[c.hash] ? (
                       <div className="py-1 text-[11px] text-zinc-500">{t('histLoading')}</div>
                     ) : files[c.hash] === 'error' ? (
