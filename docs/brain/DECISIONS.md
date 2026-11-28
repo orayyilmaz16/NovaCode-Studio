@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (QA ve çevik süreç: GitHub Project + md altyapısı)
+Süreç tek kaynakta, aksiyon [[qa-agile]]: issue akışı (triage, Hazır, Geliştiriliyor, PR/CI, QA'da, Tamam), DoR/DoD, test seviyeleri, 2 haftalık sprint. Md altyapısı `docs/brain/qa/` altında ([[QA]], [[SMOKE]], [[CHARTERS]], [[SPRINTS]]). Önem (`sev:*`, QA) ile öncelik (P0–P3, kurucu) ayrıdır. 39 etiket, `user_story` ve `test_session` şablonları, `bug_report`a önem alanı eklendi. Sebep: test ve çevik akışı görünür kılmak; ajan ve insan aynı kuralları okusun. Sonuç: GitHub Project alanları henüz kurulmadı (token'da `project` kapsamı yok); arayüz otomasyonları ve Sprint alanı elle eklenecek. Açık: özellik işlerinin PR'dan geçmesi (Stop hook otomatik commit ile çakışıyor), Sprint 1 onayı. Geri dönüş: şablon ve etiket silinir, `docs/brain/qa/` ve aksiyon kaldırılır.
+
 ## 28.11.2026 (Commit yazarı: GitHub profili, e-posta yok)
 Yazar profili (login, avatar, ad) yalnız bağlı GitHub hesabı ve GitHub origin'iyle, `commits/{hash}` API'sinden alınır. Commit e-postası ne çekilir ne gösterilir (KVKK: üçüncü taraf avatar servisi, Gravatar gibi, kullanılmadı). Sebep: kullanıcı profil fotoğrafı ve hesap bilgisi istedi. Sonuç: bağlı değilken yalnız git kaydındaki ad ve baş harfler. Geri dönüş: `github:commitAuthor` IPC'si ve `fetchAuthor` prop'u kaldırılır. Görsel doğrulama yapılmadı.
 

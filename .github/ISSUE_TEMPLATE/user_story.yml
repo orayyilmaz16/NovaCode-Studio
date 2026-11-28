@@ -1,0 +1,54 @@
+name: Kullanıcı hikâyesi / User story
+description: Kabul kriterleri olan bir iş tanımlayın. / Define work with acceptance criteria.
+labels: ["story", "triage"]
+body:
+  - type: textarea
+    id: story
+    attributes:
+      label: Hikâye / Story
+      description: "Bir <kullanıcı> olarak, <şunu> yapmak istiyorum, çünkü <neden>. / As a <user>, I want <goal>, so that <reason>."
+      placeholder: "Bir geliştirici olarak, ... istiyorum, çünkü ..."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Kabul kriterleri / Acceptance criteria
+      description: Her madde ayrı test edilebilir olmalı (Verilen / Eğer / Sonra). / Each item must be testable (Given / When / Then).
+      placeholder: "- Verilen ... Eğer ... Sonra ...\n- ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Alan / Area
+      options:
+        - "Editör / Editor"
+        - "Git / GitHub"
+        - "Terminal"
+        - "AI asistanı / AI assistant"
+        - "Gezgin / Explorer"
+        - "Arama / Search"
+        - "Arayüz / UI"
+        - "Dil ve metin (8 dil) / i18n"
+        - "Senkron / Sync"
+        - "Güvenlik ve KVKK / Security"
+        - "Sürüm ve CI / Release"
+        - "Diğer / Other"
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Büyüklük / Size
+      options: ["XS", "S", "M", "L", "XL"]
+    validations:
+      required: true
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: Etki kontrolü / Impact check
+      options:
+        - label: Arayüze yeni metin ekleniyor (8 dil gerekir). / New UI text (needs 8 languages).
+        - label: Yeni kişisel veri, 3. parti servis veya analitik olayı var (açıklayın). / New personal data, third-party service or analytics event (describe).
+        - label: IPC, dosya sistemi veya güvenlik ayarlarına dokunuyor. / Touches IPC, file system or security settings.

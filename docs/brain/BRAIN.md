@@ -55,6 +55,7 @@ Her aksiyon dosyası baştaki `reads` (önce oku) ve `writes` (bitince güncelle
 | [[monitoring]] | Sürekli sağlık, güvenlik ve performans izleme: 6 saatlik ölçüm, tek issue, açık vermeme kuralları |
 | [[sync-deploy]] | Senkron sunucusu dağıtımı: Docker + Caddy, TLS/wss, alan adsız sslip.io, token, sağlık izleme |
 | [[doc-sync]] | Belge otomasyonu: her istemde hatırlatma, tur sonunda denetim ve günlük |
+| [[qa-agile]] | QA ve çevik süreç: issue akışı, Hazır/Bitti tanımları, test seviyeleri, sprint, GitHub Project; md altyapısı [[QA]] (duman [[SMOKE]], keşif [[CHARTERS]], sprint [[SPRINTS]]) |
 
 ## Haberleşme kuralları
 - Bir aksiyon bitince `writes` listesindeki dosyaları günceller; **Durum** devir notu [[AGENT]] içine yazılır.

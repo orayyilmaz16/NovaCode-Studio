@@ -1,0 +1,65 @@
+name: Keşif test oturumu / Exploratory test session
+description: Bir charter ile sınırlı süreli manuel test oturumunu kaydedin. / Log a time-boxed manual test session with a charter.
+labels: ["test-session"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gerçek kullanıcı verisi, token veya kişisel bilgi yapıştırmayın; örnek proje kullanın.
+        Do not paste real user data, tokens or personal info; use a sample project.
+  - type: textarea
+    id: mission
+    attributes:
+      label: Görev (charter) / Mission
+      description: "Şunu keşfet: <alan>, <kaynak/veri ile>, <riski> bulmak için. / Explore <area> with <resources> to discover <risks>."
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Alan / Area
+      options:
+        - "Editör / Editor"
+        - "Git / GitHub"
+        - "Terminal"
+        - "AI asistanı / AI assistant"
+        - "Gezgin / Explorer"
+        - "Arama / Search"
+        - "Arayüz / UI"
+        - "Dil ve metin (8 dil) / i18n"
+        - "Senkron / Sync"
+        - "Güvenlik ve KVKK / Security"
+        - "Sürüm ve CI / Release"
+    validations:
+      required: true
+  - type: dropdown
+    id: duration
+    attributes:
+      label: Süre / Time-box
+      options: ["30 dk / 30 min", "60 dk / 60 min", "90 dk / 90 min"]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Sürüm / Version
+      placeholder: "1.10.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Sonuç / Outcome
+      options:
+        - "Bulgu yok / No findings"
+        - "Bulgu var (issue açıldı) / Findings (issues opened)"
+        - "Bloke / Blocked"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notlar ve kapsam / Notes and coverage
+      description: Yapılanlar, kapsanmayanlar, açılan issue numaraları. / What was done, what was not covered, issue numbers.
+    validations:
+      required: true
