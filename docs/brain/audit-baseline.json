@@ -73,7 +73,7 @@
   },
   {
    "k": "PERF-LS-WRITE|src/components/GitPanel.tsx",
-   "n": 1,
+   "n": 2,
    "sev": "düşük"
   },
   {

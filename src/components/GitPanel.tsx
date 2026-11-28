@@ -140,7 +140,7 @@ const FileRow: React.FC<FileRowProps> = ({ f, side, busy, onOpenDiff, onOpenFile
   );
 };
 
-const Section: React.FC<{ id?: string; defaultHeight?: number; title: string; count: number; open: boolean; onToggle: () => void; actions?: React.ReactNode; children: React.ReactNode }> = ({ id, defaultHeight, title, count, open, onToggle, actions, children }) => (
+const Section: React.FC<{ id?: string; defaultHeight?: number; title: string; count?: number; open: boolean; onToggle: () => void; actions?: React.ReactNode; children: React.ReactNode }> = ({ id, defaultHeight, title, count, open, onToggle, actions, children }) => (
   <div className="py-1 border-b border-zinc-800/80">
     <div className="group/sec flex items-center h-6 pe-2 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">
       <button onClick={onToggle} aria-expanded={open} title={t('scmCollapse')} className="flex items-center gap-1 flex-1 min-w-0 ps-1.5 h-full text-start hover:text-zinc-200">
@@ -148,7 +148,7 @@ const Section: React.FC<{ id?: string; defaultHeight?: number; title: string; co
         <span className="truncate">{title}</span>
       </button>
       <span className="hidden group-hover/sec:flex items-center">{actions}</span>
-      <span className="ms-1 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300 normal-case tracking-normal">{count}</span>
+      {count !== undefined && count > 0 && <span className="ms-1 px-1.5 rounded-full bg-zinc-700/70 text-[10px] text-zinc-300 normal-case tracking-normal">{count}</span>}
     </div>
     <div
       inert={!open}
@@ -173,12 +173,23 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [ask, setAsk] = useState<Ask>(null);
   const [menu, setMenu] = useState<{ x: number; y: number; kind: 'more' | 'commit' } | null>(null);
-  const [open, setOpen] = useState<Record<string, boolean>>({ merge: true, staged: true, changes: true, stash: true });
-  const [prOpen, setPrOpen] = useState(false);
+  // Tüm bölümler açılır listedir; açık/kapalı durumu hatırlanır (yerel tercih)
+  const [open, setOpen] = useState<Record<string, boolean>>(() => {
+    const base: Record<string, boolean> = { commit: true, merge: true, staged: true, changes: true, stash: true, github: true, pr: false, publish: false, history: true };
+    try {
+      const saved = JSON.parse(localStorage.getItem('nova.git.sections') || 'null');
+      if (saved && typeof saved === 'object') return { ...base, ...saved };
+    } catch { /* bozuk kayıt: varsayılana dön */ }
+    return base;
+  });
+  useEffect(() => {
+    try { localStorage.setItem('nova.git.sections', JSON.stringify(open)); } catch { /* depolama yoksa sessiz geç */ }
+  }, [open]);
   const [pr, setPr] = useState({ title: '', body: '', draft: false });
-  const [pubOpen, setPubOpen] = useState(false);
   const [pub, setPub] = useState({ name: '', isPrivate: true });
-  const [historyOpen, setHistoryOpen] = useState(true);
+  const prOpen = !!open.pr;
+  const pubOpen = !!open.publish;
+  const historyOpen = !!open.history;
   const historyRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (historyOpen) requestAnimationFrame(() => historyRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
@@ -432,7 +443,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       if (res.success) {
         say('ok', t('prCreated'));
         setPr({ title: '', body: '', draft: false });
-        setPrOpen(false);
+        setOpen((o) => ({ ...o, pr: false }));
         if (res.url) void api.github.openExternal(res.url);
       } else {
         say('err', res.error === 'on-default-branch' ? t('prOnDefault') : res.error === 'pr-exists' ? t('prExists') : res.detail || t('gitFailed'));
@@ -451,7 +462,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       const res = await api.github.publishRepo(repo, { name: pub.name.trim(), isPrivate: pub.isPrivate });
       if (res.success) {
         say('ok', t('pubDone'));
-        setPubOpen(false);
+        setOpen((o) => ({ ...o, publish: false }));
       } else {
         say('err', res.error === 'no-commits' ? t('pubNoCommits') : res.error === 'repo-exists' ? t('pubExists') : res.detail || t('gitFailed'));
       }
@@ -630,9 +641,13 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         )}
       </div>
 
-      {/* Commit */}
-      <form onSubmit={(e) => void doCommit(e)} className="p-3 border-b border-zinc-800/80 space-y-2">
-        <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t('gitCommitPlaceholder')} className={`${field} resize-none h-16 font-sans`} />
+      {/* Commit: açılır bölüm; mesaj alanı ve karakter sayacı */}
+      <Section title={t('gitCommit')} count={staged.length} open={!!open.commit} onToggle={() => tog('commit')}>
+      <form onSubmit={(e) => void doCommit(e)} className="p-1 pb-2 space-y-2">
+        <div className="relative">
+          <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t('gitCommitPlaceholder')} className={`${field} resize-none h-20 font-sans pb-4`} />
+          <span className="pointer-events-none absolute end-2 bottom-1.5 font-mono text-[10px] tabular-nums text-zinc-500">{message.length}</span>
+        </div>
         <div className="flex">
           <button type="submit" disabled={!message.trim() || staged.length === 0 || isBusy} className={`${primaryBtn} rounded-e-none!`}>
             {busy === 'commit' ? <Loader2 size={14} className="animate-spin" /> : <GitCommit size={14} />}
@@ -666,6 +681,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
           </div>
         )}
       </form>
+      </Section>
 
       {/* Çakışmalar */}
       {conflicts.length > 0 && (
@@ -767,68 +783,55 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         </Section>
       )}
 
-      {/* Pull request / yayınla */}
-      {(canPr || canPublish) && (
-        <div className="p-3 border-b border-zinc-800/80 space-y-2">
-          {canPr && (
-            <>
-              <button onClick={() => setPrOpen((v) => !v)} className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200">
-                <GitPullRequest size={14} />
-                <span>{t('prOpen')}</span>
-              </button>
-              {prOpen && (
-                <form onSubmit={doCreatePr} className="space-y-2">
-                  <input value={pr.title} onChange={(e) => setPr({ ...pr, title: e.target.value })} placeholder={t('prTitle')} maxLength={256} className={field} />
-                  <textarea value={pr.body} onChange={(e) => setPr({ ...pr, body: e.target.value })} placeholder={t('prBody')} className={`${field} resize-none h-16 font-sans`} />
-                  <label className="flex items-center gap-2 text-zinc-400">
-                    <input type="checkbox" checked={pr.draft} onChange={(e) => setPr({ ...pr, draft: e.target.checked })} />
-                    {t('prDraft')}
-                  </label>
-                  <button type="submit" disabled={!pr.title.trim() || isBusy} className={primaryBtn}>
-                    {busy === 'pr' ? <Loader2 size={14} className="animate-spin" /> : <GitPullRequest size={14} />}
-                    <span>{t('prSubmit')}</span>
-                  </button>
-                </form>
-              )}
-            </>
-          )}
-          {canPublish && (
-            <>
-              <button onClick={() => setPubOpen((v) => !v)} className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200">
-                <CloudUpload size={14} />
-                <span>{t('pubTitle')}</span>
-              </button>
-              {pubOpen && (
-                <form onSubmit={doPublish} className="space-y-2">
-                  <input
-                    value={pub.name}
-                    onChange={(e) => setPub({ ...pub, name: e.target.value })}
-                    placeholder={t('pubName')}
-                    pattern="[A-Za-z0-9._\-]{1,100}"
-                    spellCheck={false}
-                    className={`${field} font-mono`}
-                  />
-                  <label className="flex items-center gap-2 text-zinc-400">
-                    <input type="checkbox" checked={pub.isPrivate} onChange={(e) => setPub({ ...pub, isPrivate: e.target.checked })} />
-                    {t('pubPrivate')}
-                  </label>
-                  <button type="submit" disabled={!pub.name.trim() || isBusy} className={primaryBtn}>
-                    {busy === 'publish' ? <Loader2 size={14} className="animate-spin" /> : <CloudUpload size={14} />}
-                    <span>{t('pubSubmit')}</span>
-                  </button>
-                </form>
-              )}
-            </>
-          )}
-        </div>
+      {/* Pull request / yayınla: her biri açılır bölüm */}
+      {canPr && (
+        <Section title={t('prOpen')} open={prOpen} onToggle={() => tog('pr')}>
+          <form onSubmit={doCreatePr} className="space-y-2 p-1 pb-2">
+            <input value={pr.title} onChange={(e) => setPr({ ...pr, title: e.target.value })} placeholder={t('prTitle')} maxLength={256} className={field} />
+            <div className="relative">
+              <textarea value={pr.body} onChange={(e) => setPr({ ...pr, body: e.target.value })} placeholder={t('prBody')} className={`${field} resize-none h-20 font-sans pb-4`} />
+              <span className="pointer-events-none absolute end-2 bottom-1.5 font-mono text-[10px] tabular-nums text-zinc-500">{pr.body.length}</span>
+            </div>
+            <label className="flex items-center gap-2 text-zinc-400">
+              <input type="checkbox" checked={pr.draft} onChange={(e) => setPr({ ...pr, draft: e.target.checked })} />
+              {t('prDraft')}
+            </label>
+            <button type="submit" disabled={!pr.title.trim() || isBusy} className={primaryBtn}>
+              {busy === 'pr' ? <Loader2 size={14} className="animate-spin" /> : <GitPullRequest size={14} />}
+              <span>{t('prSubmit')}</span>
+            </button>
+          </form>
+        </Section>
+      )}
+      {canPublish && (
+        <Section title={t('pubTitle')} open={pubOpen} onToggle={() => tog('publish')}>
+          <form onSubmit={doPublish} className="space-y-2 p-1 pb-2">
+            <input
+              value={pub.name}
+              onChange={(e) => setPub({ ...pub, name: e.target.value })}
+              placeholder={t('pubName')}
+              pattern="[A-Za-z0-9._\-]{1,100}"
+              spellCheck={false}
+              className={`${field} font-mono`}
+            />
+            <label className="flex items-center gap-2 text-zinc-400">
+              <input type="checkbox" checked={pub.isPrivate} onChange={(e) => setPub({ ...pub, isPrivate: e.target.checked })} />
+              {t('pubPrivate')}
+            </label>
+            <button type="submit" disabled={!pub.name.trim() || isBusy} className={primaryBtn}>
+              {busy === 'publish' ? <Loader2 size={14} className="animate-spin" /> : <CloudUpload size={14} />}
+              <span>{t('pubSubmit')}</span>
+            </button>
+          </form>
+        </Section>
       )}
 
-      {/* GitHub'da canlı durum */}
+      {/* GitHub'da canlı durum: açılır bölüm; repo, PR'lar ve iş akışları */}
       {repoInfo?.available && (
-        <div className="px-3 py-2 border-b border-zinc-800/80 space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">{t('ghLive')}</span>
-            <button onClick={() => repoInfo.url && api.github.openExternal(repoInfo.url)} title={repoInfo.fullName} className="flex items-center gap-1 text-zinc-300 hover:text-white truncate max-w-[60%]">
+        <Section title={t('ghLive')} count={repoInfo.pulls?.length ?? 0} open={!!open.github} onToggle={() => tog('github')}>
+        <div className="space-y-1.5 p-1 pb-2">
+          <div className="flex items-center justify-between gap-2">
+            <button onClick={() => repoInfo.url && api.github.openExternal(repoInfo.url)} title={repoInfo.fullName} className="flex items-center gap-1 text-zinc-300 hover:text-white truncate max-w-full">
               <span className="truncate">{repoInfo.fullName}</span>
               <ExternalLink size={11} className="shrink-0" />
             </button>
@@ -872,10 +875,11 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             <div className="text-zinc-500">{t('ghNoRuns')}</div>
           )}
         </div>
+        </Section>
       )}
 
-      {/* Geçmiş en altta: kapalıyken panelin dibinde kalır (mt-auto); açılınca görünüme kaydırılır */}
-      <div ref={historyRef} className="mt-auto">
+      {/* Geçmiş: bölümler kapalıyken akışta yukarı çıkar (mt-auto ile dipte sabitlenmez); açılınca görünüme kaydırılır */}
+      <div ref={historyRef}>
       {/* Geçmiş: dal grafı; açılır/kapanır ve alt kenardan sürüklenerek boyutlanır. Commit'e tıkla → dosyalar; dosyaya tıkla → fark */}
       <Section
         id="history"
@@ -883,7 +887,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         title={t('gitHistory')}
         count={commits.length}
         open={historyOpen}
-        onToggle={() => setHistoryOpen((v) => !v)}
+        onToggle={() => tog('history')}
       >
         <div className="flex items-center gap-1 px-1 pb-1.5" role="group">
           {([[true, t('gitHistAll')], [false, t('gitHistCurrent')]] as const).map(([v, label]) => (

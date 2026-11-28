@@ -6,6 +6,8 @@
 
 - [fix] **Commit açılınca grafik kopması:** Açılan commit'in dosya listesinin altından geçen dal çizgisi artık sonraki commit'e kesintisiz bağlanır.
 - [feat] **Commit ayrıntı kartı:** Geçmişte bir commit'in üzerine gelince konu, tam karma (kopyala düğmesiyle), yazar, tarih, üst commit'ler (birleştirmeyse ayrıca belirtilir), +/− satır ve dosya sayısı, dallar ve etiketler bir kartta açılır.
+- [improve] **Git paneli açılır bölümler:** Commit, GitHub'da canlı durum, Pull request ve Yayınla alanları da diğer bölümler gibi açılır listedir; açık/kapalı durumu hatırlanır. Geçmiş kapalı bölümlerin ardından akışta yukarı çıkar, dipte sabitlenmez.
+- [improve] **Commit ve PR alanları:** Mesaj ve açıklama kutularında karakter sayacı var; GitHub canlı durum kartı tek bölümde toplandı.
 - [fix] **Karmayı kopyala çalışıyor:** Commit kartındaki kopyala düğmesi karmayı panoya yazar (önce ana süreç üzerinden, tarayıcı pano izni gerekmez; o da olmazsa tarayıcı panosu). Başarısızsa düğmede "Kopyalanamadı" görünür.
 - [improve] **Commit kartı daha hızlı:** Yazar profili satıra gelince hemen istenir, profil fotoğrafı önceden indirilir; kart bilgisi anında açılır.
 - [improve] **Commit kartı etkileşimli:** Kart, fare satırdan karta geçerken açık kalır; kopyala ve "Profili aç" düğmeleri tıklanır. Liste kayınca kart kapanır. Profil fotoğrafı küçük boyutta indirilir, daha hızlı yüklenir.
@@ -32,6 +34,8 @@
 
 - [fix] **Graph break when a commit is expanded:** The branch line below an expanded commit's file list now connects continuously to the next commit.
 - [feat] **Commit details card:** Hovering a commit in the history opens a card with its subject, full hash (with copy button), author, date, parent commits (marked as merge when there are several), +/− line and file counts, and branches and tags.
+- [improve] **Git panel dropdown sections:** Commit, live GitHub status, Pull request and Publish are now collapsible sections like the rest; open or closed state is remembered. When sections are collapsed, the history moves up instead of staying pinned to the bottom.
+- [improve] **Commit and PR fields:** Message and description boxes show a character counter; the live GitHub status is grouped into one section.
 - [fix] **Copy hash works:** The copy button on the commit card now writes the hash to the clipboard through the main process, so it no longer depends on the browser clipboard permission. If that fails it falls back to the browser clipboard, and shows "Copy failed" when both fail.
 - [improve] **Faster commit card:** The author profile is requested as soon as the pointer reaches a row, and the profile photo is preloaded, so the card fills in immediately.
 - [improve] **Interactive commit card:** The card stays open while the pointer moves from the row onto it; the copy and "Open profile" buttons are clickable. The card closes when the list scrolls. The profile photo is loaded at a smaller size for faster display.

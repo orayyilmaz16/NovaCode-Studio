@@ -7,13 +7,13 @@ Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 | Alan | Bulgu |
 |---|---|
 | Güvenlik | kritik 0 · yüksek 0 · orta 5 · düşük 28 |
-| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 78 |
+| Performans | kritik 0 · yüksek 0 · orta 2 · düşük 79 |
 | Kalite | kritik 0 · yüksek 0 · orta 4 · düşük 12 |
 
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: yok
+- Yeni/artan: `PERF-LS-WRITE` src/components/GitPanel.tsx
 - Giderilen: yok
 
 ## Güvenlik
@@ -44,7 +44,7 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | PERF-DYN-RE | `src/services/testParse.ts:53,62,70` | Döngüde dinamik RegExp üretimi olabilir (3×) |
 | düşük | PERF-LS-WRITE | `src/App.tsx:1587` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ChatSessions.tsx:46` | localStorage yazımı: sık tetikleniyorsa debounce et |
-| düşük | PERF-LS-WRITE | `src/components/GitPanel.tsx:187` | localStorage yazımı: sık tetikleniyorsa debounce et |
+| düşük | PERF-LS-WRITE | `src/components/GitPanel.tsx:186,198` | localStorage yazımı: sık tetikleniyorsa debounce et (2×) |
 | düşük | PERF-LS-WRITE | `src/components/ResizableBody.tsx:20` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/components/ResizeHandle.tsx:63` | localStorage yazımı: sık tetikleniyorsa debounce et |
 | düşük | PERF-LS-WRITE | `src/services/aiClient.ts:130` | localStorage yazımı: sık tetikleniyorsa debounce et |
@@ -84,5 +84,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 938, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-IMZYn1Ak.js 452 KB, PtyView-CZ3pKLIB.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-C8RDAPjM.js 184 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 942, `electron-main.cjs` 853
+- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-CuLZlgJU.js 452 KB, PtyView-DAOYfJt1.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-COS2Udsm.js 184 KB

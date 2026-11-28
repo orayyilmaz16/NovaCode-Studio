@@ -5,6 +5,9 @@ Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kar
 ## 28.11.2026 (Commit yazarı: GitHub profili, e-posta yok)
 Yazar profili (login, avatar, ad) yalnız bağlı GitHub hesabı ve GitHub origin'iyle, `commits/{hash}` API'sinden alınır. Commit e-postası ne çekilir ne gösterilir (KVKK: üçüncü taraf avatar servisi, Gravatar gibi, kullanılmadı). Sebep: kullanıcı profil fotoğrafı ve hesap bilgisi istedi. Sonuç: bağlı değilken yalnız git kaydındaki ad ve baş harfler. Geri dönüş: `github:commitAuthor` IPC'si ve `fetchAuthor` prop'u kaldırılır. Görsel doğrulama yapılmadı.
 
+## 28.11.2026 (Git paneli: her bölüm açılır liste)
+Commit, GitHub canlı durum, PR ve Yayınla blokları da `Section` ile açılır liste oldu; geçmiş dipte sabitlenmiyor. Sebep: kullanıcı isteği; kapalı bölümler yer açsın, geçmiş yukarı çıksın. Durum yerel tercih olarak saklanır. Geri dönüş: bölümler eski blokları yerine koyup `mt-auto` eklemek. Görsel doğrulama yapılmadı.
+
 ## 28.11.2026 (Git geçmişi: commit ayrıntı kartı)
 Commit üzerine gelince yerel `title` ipucu yerine zengin bir kart açılır (portal, sabit konum, gecikme 350 ms). Sebep: kullanıcı ayrıntılı ve güzel bir görünüm istedi. Gövde metni eklenmedi (log biçimi değişmesin diye); sonraki adım olarak düşünülebilir. Kaynak: kullanıcı isteği. Görsel doğrulama yapılmadı.
 
