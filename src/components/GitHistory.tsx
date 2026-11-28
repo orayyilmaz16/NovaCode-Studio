@@ -117,7 +117,8 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0, transition: 'grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease' }}
             >
               <div className="min-h-0 overflow-hidden">
-                <div className="relative" style={{ paddingInlineStart: gutter }}>
+                {/* mx-1: commit düğmesiyle aynı yatay ofset (düğme mx-1 kullanır); yoksa şeritler açılınca 4px kayıp kopma görünür */}
+                <div className="relative mx-1" style={{ paddingInlineStart: gutter }}>
                   {/* Açık dosya listesinin altından geçen dal şeritleri (div ile: yükseklik içeriğe göre, sonraki commit'e kesintisiz bağlanır) */}
                   {row.bottom.map((h, k) => (h ? <span key={k} aria-hidden className="absolute top-0 bottom-0 w-[2px] rounded-full pointer-events-none" style={{ left: x(k) - 1, background: laneColor(k) }} /> : null))}
                   <div className="flex flex-col">{renderFiles(c.hash)}</div>

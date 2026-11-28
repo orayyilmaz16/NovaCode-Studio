@@ -2,6 +2,9 @@
 
 Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kararı geri almak = yeni kayıt (eskisini silme).
 
+## 28.11.2026 (Git grafı: açılan commit hizası)
+Açılan commit'in dal şeritleri commit düğmesiyle aynı yatay ofsette (`mx-1`) çizilir. Sebep: 4 px kayma, açılınca çizginin kopması. Kaynak: kullanıcı bildirimi (NovaCode geçmişi). Görsel doğrulama yapılmadı; tsc temiz.
+
 ## 28.11.2026 (GitHub oturumu: yenileme token'ı)
 Süreli OAuth token'ları (yenileme token'lı) desteklendi; 401 gelince oturumu hemen silmek yerine önce yenileme denenir. Sebep: kısa süreli oturum düşmeleri. Kaynak: kullanıcı bildirimi. Gerçek GitHub hesabıyla doğrulanmadı.
 
