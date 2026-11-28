@@ -7,6 +7,11 @@ on:
   schedule:
     - cron: "5 5 * * 1"
   workflow_dispatch:
+    inputs:
+      date:
+        description: "Takvim tarihi (YYYY-MM-DD, boşsa bugün UTC). Test ve geri dönüş için."
+        required: false
+        type: string
 
 concurrency:
   group: sprint-cadence
@@ -29,4 +34,6 @@ jobs:
       - name: Sprint takvimini uygula
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/sprint-cadence.mjs
+          DATE_INPUT: ${{ inputs.date }}
+        run: |
+          if [ -n "$DATE_INPUT" ]; then node scripts/sprint-cadence.mjs --date "$DATE_INPUT"; else node scripts/sprint-cadence.mjs; fi
