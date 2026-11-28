@@ -41,7 +41,7 @@ flowchart TD
 | Hazır | DoR tamam, sprint'e alınabilir | Bölüm 4 DoR | — |
 | Geliştiriliyor | Dal açıldı | `feat/*` dalı | — |
 | PR / CI | PR açık, CI koşuyor | PR açıldı | — |
-| QA'da | CI yeşil, test sürüyor | CI yeşil | `qa:needs-test` |
+| QA’da | CI yeşil, test sürüyor | CI yeşil | `qa:needs-test` |
 | Tamam | Kabul geçti | QA kabul | `qa:verified` |
 
 QA kaldıysa kart **Geliştiriliyor** sütununa döner ve `qa:reopened` eklenir. Test durumu ayrı bir alandır (Bölüm 10).
@@ -120,7 +120,13 @@ Otomatik testler bir şeyi kanıtlar, ama arayüzü kanıtlamaz. Arayüz değiş
 - Güvenlik açığı issue ile bildirilmez; [[SECURITY]] yolu kullanılır.
 - Dış servise giden veri değişiklik varsa veri, amaç, hukuki sebep, saklama ve yurt dışı aktarım işaretlenir.
 
-## 10. GitHub Project kurulumu (durum: bekliyor)
+## 10. GitHub Project (durum: kuruldu, 28.11.2026)
+
+Proje: https://github.com/users/orayyilmaz16/projects/2 (numara 2, repoya bağlı, özel). Alanlar: **Status** (Backlog, Hazır, Geliştiriliyor, PR / CI, QA’da, Tamam), **Öncelik** (P0–P3), **Büyüklük** (XS–XL), **Test durumu** (Test edilmedi, Geçti, Kaldı, Bloke). Sprint ataması için Projects'in yerleşik **Milestone** alanı kullanılır. Aşağıdaki komutlar kurulum kaydıdır; tekrar çalıştırılmaz.
+
+Kalan elle adımlar: arayüz otomasyonları (madde 6) ve isteğe bağlı workflow (aşağıda).
+
+### Kurulum kaydı
 
 **Kurulan (28.11.2026):** 8 açık backlog kalemi issue oldu (#163–#170, alan ve önem etiketli). 39 etiket (QA, önem, alan ve `triage` dahil), issue şablonları `user_story` ve `test_session`, `bug_report` önem ve tekrar alanları, PR şablonunda QA kutuları.
 
@@ -138,7 +144,7 @@ Kapsam verildikten sonra kurulum (komutlar çalıştırılmadan önce doğrulan�
 2. `gh project link <numara> --owner orayyilmaz16 --repo orayyilmaz16/NovaCode-Studio`
 3. Alanlar: `Öncelik` (P0, P1, P2, P3), `Büyüklük` (XS, S, M, L, XL), `Test durumu` (Test edilmedi, Geçti, Kaldı, Bloke). Komut: `gh project field-create <numara> --owner orayyilmaz16 --name "Öncelik" --data-type SINGLE_SELECT --single-select-options "P0,P1,P2,P3"`
 4. `Status` seçeneklerini Bölüm 2'deki altı sütuna çevir. Varsayılan seçenekler arayüzden değiştirilir.
-5. `Sprint` iterasyon alanı arayüzden eklenir (2 haftalık). CLI bu alan türünü oluşturamaz.
+5. Sprint için ayrı alan eklenmedi; Milestone alanı kullanılıyor (Sprint 1, Sprint 2, Ürün kararı bekliyor).
 6. Arayüz otomasyonları: "Item added" → Backlog; "Item closed" → Tamam; "PR merged" → Tamam.
 
 Yeni issue'ları Project'e otomatik eklemek için bir workflow gerekir; `PROJECT_TOKEN` gizli değeri ister. Bu değer kurucu tarafından eklenir, koda yazılmaz.

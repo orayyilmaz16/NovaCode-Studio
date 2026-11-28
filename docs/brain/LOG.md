@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:21 · main
+<!-- sig:fCxBR0VOVC5tZCxkb2NzL2JyYWluL0RFQ0lTSU9O -->
+- Alan: —
+- Kod (0): —
+- Belge (3): `AGENT.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/qa-agile.md`
+- Durum: ✓ yalnız belge değişti
+
 ## 28.11.2026 13:16 · auto/20261128-101432
 <!-- sig:fCxkb2NzL2JyYWluL0RFQ0lTSU9OUy5tZCxkb2Nz -->
 - Alan: —
@@ -274,11 +281,4 @@
 - Alan: [[ci-cd]]
 - Kod (1): `.github/workflows/ci-cd.yml`
 - Belge (4): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/updates.md`
-- Durum: ✓ belgelendi
-
-## 26.11.2026 08:25 · main
-<!-- sig:LmdpdGh1Yi93b3JrZmxvd3Mvc2VjdXJpdHkueW1s -->
-- Alan: [[ci-cd]], [[ui-design]]
-- Kod (3): `.github/workflows/security.yml`, `.github/workflows/runtime-watch.yml`, `scripts/runtime-watch.mjs`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/updates.md`
 - Durum: ✓ belgelendi
