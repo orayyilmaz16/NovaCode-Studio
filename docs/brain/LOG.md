@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 10:47 · auto/20261128-074543
+<!-- sig:c3JjL3N0eWxlLmNzcyx8LENIQU5HRUxPRy5tZCxk -->
+- Alan: [[motion]]
+- Kod (1): `src/style.css`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/source-control.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 10:44 · auto/20261128-074130
 <!-- sig:c3JjL2NvbXBvbmVudHMvR2l0SGlzdG9yeS50c3gs -->
 - Alan: [[ui-design]], [[git-github]]
@@ -274,11 +281,4 @@
 - Alan: [[security-kvkk]], [[terminal]], [[testing]], [[ui-design]]
 - Kod (6): `electron-preload.cjs`, `electron-pty.cjs`, `scripts/tests/pty.test.cjs`, `src/components/Terminal.tsx`, `src/services/terminalText.ts`, `src/types.ts`
 - Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/terminal.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 22.11.2026 15:25 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvVGVybWluYWwudHN4LHws -->
-- Alan: [[terminal]]
-- Kod (1): `src/components/Terminal.tsx`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/terminal.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

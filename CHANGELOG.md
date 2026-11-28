@@ -4,6 +4,7 @@
 
 ### tr
 
+- [fix] **Editör git işaretleri netleştirildi:** Eklenen satırlar yeşil dolu çubuk, değişen satırlar mavi çubuk, silinen yerler kırmızı üçgen olarak kenarda ayrı ayrı çizilir (önceki hali birbirine karışıyordu).
 - [fix] **Git geçmişi kopukluğu ve çift kaydırma çubuğu:** Dal çizgisi satırlar arasında kopmuyor (satırlar sabit yükseklikte); geçmiş açıkken iki kaydırma çubuğu yerine yalnızca geçmişin kendi çubuğu görünür.
 - [improve] **Git geçmişi görünümü:** Geçmiş bölümü kapalıyken panelin en altında durur, açılınca görünüme kaydırılır. Graf çizgileri daha net, dal etiketleri (yerel dal renkli, uzak dal çerçeveli) ve +/− sayıları daha okunur.
 - [feat] **Editörde Git satır işaretleri:** Açık bir dosyada HEAD'e göre eklenen satırlar yeşil, değişenler mavi, silinen yerler kırmızı üçgen olarak kenarda görünür; kaydırma çubuğunda da işaretlenir. Git paneli: "±2 Değişiklikler" yerine sayı rozeti + "Değişiklikler"; geçmiş açılıp kapanırken yumuşak bir geçişle açılır ve kapalıyken listeyi yukarı alıp boşluk bırakmaz.
@@ -15,6 +16,7 @@
 
 ### en
 
+- [fix] **Clearer editor git markers:** Added lines show a solid green bar, changed lines a blue bar, and deleted spots a red triangle, each drawn distinctly in the gutter (they previously blended together).
 - [fix] **Git history gaps and double scrollbar:** The branch line no longer breaks between rows (rows have a fixed height); with history open only the history's own scrollbar shows, not two.
 - [improve] **Git history view:** The history section sits at the bottom of the panel when collapsed and scrolls into view when opened. Graph lines are crisper, branch labels (local branches colored, remote ones outlined) and +/− counts are easier to read.
 - [feat] **Git line markers in the editor:** For an open file, lines added versus HEAD show green, changed lines blue, and deleted spots a red triangle in the gutter, also marked on the scrollbar. Git panel: "±2 Changes" became a count badge plus "Changes"; the history opens and closes with a smooth transition and leaves no gap when collapsed.
