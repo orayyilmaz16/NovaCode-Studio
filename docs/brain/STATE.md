@@ -76,7 +76,7 @@
 | `src/components/ChatSessions.tsx` | 340 |
 | `src/components/ChipSlider.tsx` | 58 |
 | `src/components/CommandPalette.tsx` | 166 |
-| `src/components/CommitHistoryMenu.tsx` | 337 |
+| `src/components/CommitHistoryMenu.tsx` | 309 |
 | `src/components/CompletionIcon.tsx` | 14 |
 | `src/components/CompletionMenu.tsx` | 196 |
 | `src/components/DebugConsolePanel.tsx` | 89 |
@@ -86,7 +86,7 @@
 | `src/components/ExtensionsPanel.tsx` | 303 |
 | `src/components/FileTree.tsx` | 941 |
 | `src/components/FileTypeIcon.tsx` | 226 |
-| `src/components/GitHistory.tsx` | 319 |
+| `src/components/GitHistory.tsx` | 322 |
 | `src/components/GitPanel.tsx` | 941 |
 | `src/components/GithubAccount.tsx` | 161 |
 | `src/components/HoverTip.tsx` | 49 |

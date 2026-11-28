@@ -189,9 +189,11 @@ interface Props {
   renderFiles: (hash: string) => React.ReactNode;
   /** GitHub profili getirir (bağlı hesap + GitHub remote); yoksa kart yerel bilgiyle çalışır */
   fetchAuthor?: (hash: string) => Promise<GithubCommitAuthor | null>;
+  /** Ayrıntı kartı (hover) açık mı; menü gibi üst katmanlarda kapalı */
+  hoverCards?: boolean;
 }
 
-export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit, onToggle, renderFiles, fetchAuthor }) => {
+export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit, onToggle, renderFiles, fetchAuthor, hoverCards = true }) => {
   // Üst commit bilgisi yoksa (eski ana süreç) liste doğrusal sayılır
   const noParents = commits.length > 1 && commits.every((c) => c.parents === undefined);
   const layout = useMemo(
@@ -221,6 +223,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
   const hoverOn = (hash: string, el: HTMLElement) => {
     loadAuthor(hash);
     window.clearTimeout(hoverTimer.current);
+    if (!hoverCards) return;
     hoverTimer.current = window.setTimeout(() => setHover({ hash, rect: el.getBoundingClientRect() }), 250);
   };
   const hoverOff = () => {
@@ -306,7 +309,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
                 <div className="relative mx-1" style={{ paddingInlineStart: gutter }}>
                   {/* Açık dosya listesinin altından geçen dal şeritleri (div ile: yükseklik içeriğe göre, sonraki commit'e kesintisiz bağlanır) */}
                   {row.bottom.map((h, k) => (h ? <span key={k} aria-hidden className="absolute top-0 bottom-0 w-[2px] rounded-full pointer-events-none" style={{ left: x(k) - 1, background: laneColor(k) }} /> : null))}
-                  <div className="flex flex-col">{renderFiles(c.hash)}</div>
+                  <div className="flex flex-col">{open ? renderFiles(c.hash) : null}</div>
                 </div>
               </div>
             </div>

@@ -5,6 +5,9 @@ Yeni karar en üste, tarihli (GG.AA.YYYY). Her kayıt: karar, neden, sonuç. Kar
 ## 28.11.2026 (Commit yazarı: GitHub profili, e-posta yok)
 Yazar profili (login, avatar, ad) yalnız bağlı GitHub hesabı ve GitHub origin'iyle, `commits/{hash}` API'sinden alınır. Commit e-postası ne çekilir ne gösterilir (KVKK: üçüncü taraf avatar servisi, Gravatar gibi, kullanılmadı). Sebep: kullanıcı profil fotoğrafı ve hesap bilgisi istedi. Sonuç: bağlı değilken yalnız git kaydındaki ad ve baş harfler. Geri dönüş: `github:commitAuthor` IPC'si ve `fetchAuthor` prop'u kaldırılır. Görsel doğrulama yapılmadı.
 
+## 28.11.2026 (Commit geçmişi: tek graf bileşeni)
+Durum çubuğu commit listesi ile git paneli aynı `GitHistory` bileşenini kullanır; iki ayrı liste tasarımı tutulmaz. Sebep: tutarlılık ve tek yerden bakım. Açılan ayrıntılar yalnız açıkken hesaplanır (hızlı yükleme). Görsel ve etkileşim testi uygulamada yapılmadı; otomatik testler (npm test, 1103 kontrol) ve derleme geçti.
+
 ## 28.11.2026 (GitHub hesabı: kapalıyken sıkı başlık)
 GitHub hesabı bloğu açılır başlıkla çalışır; kapalıyken yalnız başlık satırı kalsın diye dolgu açılır içeriğe taşındı. Sebep: kapalıyken altta boşluk kalıyordu. Kaynak: kullanıcı bildirimi. Görsel doğrulama yapılmadı.
 
