@@ -880,10 +880,8 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
 
       {/* Geçmiş: bölümler kapalıyken akışta yukarı çıkar (mt-auto ile dipte sabitlenmez); açılınca görünüme kaydırılır */}
       <div ref={historyRef}>
-      {/* Geçmiş: dal grafı; açılır/kapanır ve alt kenardan sürüklenerek boyutlanır. Commit'e tıkla → dosyalar; dosyaya tıkla → fark */}
+      {/* Geçmiş: dal grafı; açılır/kapanır. Yüksekliği içeriğine göre gelir ve panel kaydırmasıyla gezilir (sabit yükseklik boşluk bırakıyordu). Commit'e tıkla → dosyalar; dosyaya tıkla → fark */}
       <Section
-        id="history"
-        defaultHeight={360}
         title={t('gitHistory')}
         count={commits.length}
         open={historyOpen}

@@ -13,7 +13,7 @@ Son tarama: 28.11.2026 · Kaynak: `npm run audit` (her Claude turunda ve CI'da h
 Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve ayrıntılı bulgular [[BACKLOG]] içinde doğrulanmış olarak tutulur. Bağımlılık açıkları `npm audit` ve CodeQL/gitleaks ile ayrıca taranır ([[ci-cd]]).
 
 ## Önceki taramaya göre
-- Yeni/artan: `PERF-LS-WRITE` src/components/GitPanel.tsx
+- Yeni/artan: yok
 - Giderilen: yok
 
 ## Güvenlik
@@ -84,5 +84,5 @@ Bu sezgisel taramadır (regex); yanlış pozitif olabilir. Gerçek açıklar ve 
 | düşük | Q-TODO | `src/i18n/uiTextAi.ts:294` | Açık TODO/FIXME |
 
 ## Ölçümler
-- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 942, `electron-main.cjs` 853
-- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-CuLZlgJU.js 452 KB, PtyView-DAOYfJt1.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-COS2Udsm.js 184 KB
+- En büyük kaynak dosyalar: `src/App.tsx` 2527, `src/i18n/uiTextTheme.ts` 1137, `electron-ai.cjs` 996, `src/components/FileTree.tsx` 942, `src/components/GitPanel.tsx` 940, `electron-main.cjs` 853
+- Üretim paketi (dist varsa): toplam JS 3052 KB; en büyük: index-CL7AKMa4.js 452 KB, PtyView-CVvmML8e.js 327 KB, react-vendor-BalG9PuF.js 206 KB, fileIconLoaders-IRmT8yvA.js 184 KB
