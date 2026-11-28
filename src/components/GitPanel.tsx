@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { timeAgo } from '../services/timeAgo';
 import {
   GitBranch,
   GitCommit,
@@ -534,6 +535,28 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
           </div>
         </div>
 
+        {/* Durum özeti: birleştirme, çakışma, ayrık HEAD, hazırlanan ve değişen dosya sayıları */}
+        <div className="flex flex-wrap gap-1.5" aria-label={t('actGit')}>
+          {status.merging && (
+            <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-amber-400/15 text-amber-200 text-[10.5px]"><GitMerge size={11} />{t('scmMerging')}</span>
+          )}
+          {conflicts.length > 0 && (
+            <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-rose-500/15 text-rose-300 text-[10.5px]"><AlertCircle size={11} />{conflicts.length} {t('gitSumConflicts')}</span>
+          )}
+          {status.detached && (
+            <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-violet-400/15 text-violet-300 text-[10.5px]"><GitBranch size={11} />{t('gitSumDetached')}</span>
+          )}
+          {staged.length > 0 && (
+            <span title={t('gitSumStagedTip')} className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-emerald-500/15 text-emerald-300 text-[10.5px]"><Check size={11} />{staged.length} {t('gitStaged')}</span>
+          )}
+          {files.filter((f) => !f.conflict && (f.worktree || f.untracked)).length > 0 && (
+            <span title={t('gitSumChangedTip')} className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-amber-400/15 text-amber-200 text-[10.5px]">±{files.filter((f) => !f.conflict && (f.worktree || f.untracked)).length} {t('gitChanges')}</span>
+          )}
+          {files.length === 0 && !status.merging && (
+            <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full bg-white/[0.06] text-zinc-400 text-[10.5px]"><Check size={11} />{t('gitClean')}</span>
+          )}
+        </div>
+
         {hasRemote === false && <p className="text-[11px] text-amber-300/90 leading-relaxed">{t('gitNoRemote')}</p>}
 
         {/* Birleştirme sürüyor */}
@@ -827,7 +850,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
       )}
 
       {/* Geçmiş: commit'e tıkla → dosyaları listelenir; dosyaya tıkla → fark */}
-      <div className="p-2">
+      <div className="p-2 min-w-0 overflow-x-hidden">
         <button onClick={() => setHistoryOpen((v) => !v)} className="w-full flex items-center gap-1.5 px-2 py-1 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider hover:text-zinc-200">
           <History size={12} />
           <span>{t('gitHistory')}</span>
@@ -837,23 +860,48 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
           (commits.length === 0 ? (
             <div className="p-3 text-center text-zinc-500">{t('gitNoCommits')}</div>
           ) : (
-            commits.map((c) => (
-              <div key={c.hash}>
+            commits.map((c, i) => (
+              <div key={c.hash} className="min-w-0">
                 <div
                   onClick={() => void toggleCommit(c.hash)}
-                  className="px-2 py-1 rounded hover:bg-zinc-800/50 cursor-pointer"
-                  title={`${c.author} · ${c.when}`}
+                  className="group flex items-start gap-2 ps-2 pe-2 py-1.5 rounded-md hover:bg-white/[0.05] cursor-pointer min-w-0 transition-colors"
+                  title={`${c.hash} — ${c.subject}\n${c.author} · ${c.ts ? new Date(c.ts).toLocaleString() : c.when}`}
                   role="button"
                   aria-expanded={openCommit === c.hash}
                 >
-                  <div className="flex items-center gap-1.5">
-                    <span className="truncate text-zinc-200 flex-1">{c.subject}</span>
-                    {c.refs?.slice(0, 3).map((r) => (
-                      <span key={r} className="shrink-0 max-w-[90px] truncate px-1.5 rounded bg-indigo-500/15 text-indigo-300 text-[10px] font-mono">{r}</span>
-                    ))}
-                  </div>
-                  <div className="text-[10px] text-zinc-500 font-mono">
-                    {c.hash} · {c.author} · {c.when}
+                  <span className="flex flex-col items-center self-stretch shrink-0 pt-1.5" aria-hidden>
+                    <span className={`size-2 rounded-full ${i === 0 ? 'bg-indigo-400' : 'bg-zinc-500 group-hover:bg-zinc-300'} transition-colors`} />
+                    {i < commits.length - 1 && <span className="flex-1 w-px bg-zinc-700/70 mt-1" />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-zinc-200 text-[12px]">{c.subject}</div>
+                    <div className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-zinc-500 min-w-0">
+                      <span className="font-mono shrink-0">{c.hash}</span>
+                      <span className="truncate min-w-0">· {c.author}</span>
+                      <span className="shrink-0 ms-auto">{c.ts ? timeAgo(c.ts) : c.when}</span>
+                    </div>
+                    {c.refs && c.refs.length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1 min-w-0">
+                        {c.refs.slice(0, 4).map((r) => (
+                          <span
+                            key={r}
+                            title={r}
+                            className={`inline-flex items-center gap-1 max-w-full h-4 px-1.5 rounded-full text-[10px] font-mono ${r.includes('/') ? 'bg-white/[0.07] text-zinc-400' : 'bg-indigo-500/15 text-indigo-300'}`}
+                          >
+                            {r.includes('/') ? null : <GitBranch size={9} className="shrink-0" />}
+                            <span className="truncate">{r}</span>
+                          </span>
+                        ))}
+                        {c.refs.length > 4 && <span className="text-[10px] text-zinc-500">+{c.refs.length - 4}</span>}
+                      </div>
+                    )}
+                    {(c.added !== undefined) && (
+                      <div className="mt-0.5 font-mono text-[10.5px] tabular-nums flex items-center gap-2">
+                        <span className="text-emerald-400">+{c.added}</span>
+                        <span className="text-rose-400">−{c.deleted ?? 0}</span>
+                        {c.files ? <span className="text-zinc-500">· {c.files}</span> : null}
+                      </div>
+                    )}
                   </div>
                 </div>
                 {openCommit === c.hash &&
@@ -862,14 +910,20 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                       key={`${c.hash}-${cf.path}`}
                       onClick={() => void showCommitDiff(c.hash, cf)}
                       title={cf.orig ? `${cf.orig} → ${cf.path}` : cf.path}
-                      className="flex items-center gap-1.5 ps-5 pe-2 h-[22px] rounded hover:bg-zinc-800/50 cursor-pointer"
+                      className="flex items-center gap-1.5 ps-6 pe-2 h-[22px] rounded-md hover:bg-white/[0.05] cursor-pointer min-w-0"
                     >
                       <FileTypeIcon name={splitPath(cf.path).name} size={14} />
-                      <span className={`truncate flex-1 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>
+                      <span className={`truncate flex-1 min-w-0 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>
                         {splitPath(cf.path).name}
                         <span className="text-zinc-500 ms-1.5 text-[11px]">{splitPath(cf.path).dir}</span>
                       </span>
-                      <span className={`font-mono text-[10px] font-bold w-4 text-center ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
+                      {!cf.binary && (cf.added || cf.deleted) ? (
+                        <span className="shrink-0 font-mono text-[10px] tabular-nums flex gap-1">
+                          {cf.added ? <span className="text-emerald-400">+{cf.added}</span> : null}
+                          {cf.deleted ? <span className="text-rose-400">−{cf.deleted}</span> : null}
+                        </span>
+                      ) : null}
+                      <span className={`font-mono text-[10px] font-bold w-4 text-center shrink-0 ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
                     </div>
                   ))}
               </div>
