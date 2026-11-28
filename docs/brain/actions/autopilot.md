@@ -122,6 +122,7 @@ Secret'lar repoya kod olarak yazılmaz. Değer yapıştırmak için:
 - `sprint-cadence` artık `date` girdisiyle elle çalıştırılabilir (test ve geri dönüş için).
 - **İlk gerçek bulgu:** ana dalda `tests` kapısı CI'da (Windows, Node 24) kırmızı; `debug.test.cjs` "ilk kesme noktasında durdu" adımı zaman aşımına düşüyor (duraklama olayı gelmiyor). Yerelde (Node 26) aynı test geçiyor. Otomatik açılan issue: #176 (`sev:major`, `auto-detected`). Kök neden henüz doğrulanmadı; Node 24 yerelde kurulu değil ve indirme izni reddedildi. Karar: CI'da Node sürümünü hizalama veya testi Node 24'te onaylama (kurucu/geliştirici).
 - Kapı düzeltmesi: `qa-sweep run` kırmızı kapı varsa çıkış kodu 1 döner; iş kırmızı biter, rapor adımı yine çalışır. (Önceden iş yeşil görünüyordu.)
+- **#176 analizi:** Hipotez "15 sn zaman aşımı" 60 sn'de de başarısız oldu (`debug.test.cjs` "ilk kesme noktasında durdu": duraklama olayı hiç gelmiyor). Zamanlama değil, ortam farkı olarak ele alındı. Deneme: taramanın Node sürümü 24'ten 26'ya (geliştirici sürümü) alınarak aynı dalda koşturuldu. Sonuç bu kayda eklenecek.
 
 **Henüz doğrulanmadı (ilk gerçek koşularda kontrol edilecek):**
 - GitHub tarafında zamanlanmış koşular ve `workflow_dispatch` (dosyalar `main`'e girdikten sonra).

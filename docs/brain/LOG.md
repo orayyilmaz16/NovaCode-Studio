@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:55 · main
+<!-- sig:fCxkb2NzL2JyYWluL2FjdGlvbnMvYXV0b3BpbG90 -->
+- Alan: —
+- Kod (0): —
+- Belge (1): `docs/brain/actions/autopilot.md`
+- Durum: ✓ yalnız belge değişti
+
 ## 28.11.2026 13:52 · main
 <!-- sig:fCxkb2NzL2JyYWluL0RFQ0lTSU9OUy5tZCxkb2Nz -->
 - Alan: —
@@ -275,10 +282,3 @@
 - Kod (0): —
 - Belge (1): `docs/brain/actions/sync-deploy.md`
 - Durum: ✓ yalnız belge değişti
-
-## 27.11.2026 11:52 · auto/20261127-084932
-<!-- sig:c2VydmVyL2RlcGxveS9DYWRkeWZpbGUsc2VydmVy -->
-- Alan: [[ui-design]]
-- Kod (5): `server/deploy/Caddyfile`, `server/deploy/Dockerfile`, `server/deploy/README.md`, `server/deploy/docker-compose.yml`, `server/deploy/install.sh`
-- Belge (4): `CHANGELOG.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/sync-deploy.md`
-- Durum: ✓ belgelendi
