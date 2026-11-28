@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { Cloud, GitBranch, Target } from 'lucide-react';
+import { t } from '../i18n/uiText';
+import '../i18n/uiTextScm';
 import { timeAgo } from '../services/timeAgo';
 import { laneColor, layoutGraph, type GraphRow } from '../services/gitGraph';
 import type { GitCommitInfo } from '../types';
@@ -47,11 +49,17 @@ interface Props {
 }
 
 export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit, onToggle, renderFiles }) => {
-  const layout = useMemo(() => layoutGraph(commits), [commits]);
+  // Üst commit bilgisi yoksa (eski ana süreç) liste doğrusal sayılır: satırlar arası çubuk yine kesintisiz çizilir
+  const noParents = commits.length > 1 && commits.every((c) => c.parents === undefined);
+  const layout = useMemo(
+    () => layoutGraph(commits.map((c, i) => ({ hash: c.hash, parents: c.parents ?? (commits[i + 1] ? [commits[i + 1].hash] : []) }))),
+    [commits]
+  );
   const gutter = layout.laneCount * LANE_W + 10;
 
   return (
     <div role="list" className="min-w-0">
+      {noParents && <div className="mx-1 mb-1.5 px-2 py-1 rounded bg-amber-500/10 text-[11px] text-amber-300">{t('histNeedRestart')}</div>}
       {commits.map((c, i) => {
         const row = layout.rows[i];
         const open = openCommit === c.hash;
