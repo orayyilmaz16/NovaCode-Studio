@@ -287,6 +287,9 @@ export const SCM_TEXT = {
   histCardMerge: {
     tr: "Birleştirme", en: "Merge of", de: "Zusammenführung", ru: "Слияние", ar: "دمج", es: "Fusión de", fr: "Fusion de", az: "Birləşdirmə",
   },
+  gitBranchSection: {
+    tr: "Dal ve eşzamanlama", en: "Branch and sync", de: "Branch und Synchronisierung", ru: "Ветка и синхронизация", ar: "الفرع والمزامنة", es: "Rama y sincronización", fr: "Branche et synchronisation", az: "Budaq və sinxronizasiya",
+  },
   histCardOpenProfile: {
     tr: "Profili aç", en: "Open profile", de: "Profil öffnen", ru: "Открыть профиль", ar: "فتح الملف", es: "Abrir perfil", fr: "Ouvrir le profil", az: "Profili aç",
   },

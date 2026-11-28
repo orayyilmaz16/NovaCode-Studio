@@ -523,8 +523,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
         className="w-full flex items-center gap-1.5 px-3 py-2 text-start text-zinc-300 hover:bg-white/[0.03] transition-colors duration-(--dur-fast)"
       >
         <ChevronRight size={13} className={`shrink-0 text-zinc-500 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open.branch ? 'rotate-90' : ''}`} />
-        <GitBranch size={13} className="shrink-0 text-indigo-300" />
-        <span className="truncate flex-1 font-mono text-[11px] text-indigo-300">{status.branch}</span>
+        <span className="truncate flex-1 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">{t('gitBranchSection')}</span>
         {status.hasUpstream && (
           <span className="shrink-0 font-mono text-[10px] text-zinc-400">
             <span className={status.ahead ? 'text-emerald-400' : ''}>↑{status.ahead ?? 0}</span>{' '}
