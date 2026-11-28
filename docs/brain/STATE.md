@@ -437,7 +437,7 @@
 | [[search-palette]] | `docs/brain/actions/search-palette.md` | Komut paleti (Ctrl+P / >), proje araması, satıra git |
 | [[security-kvkk]] | `docs/brain/actions/security-kvkk.md` | IPC, dosya sistemi, token ve kişisel veriye dokunan her değişikliğin güvenlik ve KVKK kapısı |
 | [[settings]] | `docs/brain/actions/settings.md` | Ayarlar sistemi: yeni ayar eklemek, tema/yazı tipi/editör davranışları, kalıcılık ve gizli değerler |
-| [[source-control]] | `docs/brain/actions/source-control.md` | Kaynak denetimi: fark sekmesi, dal/etiket seçici, birleştirme, stash, geçmiş; Sorunlar (hata/uyarı) sayacı ve renkleri |
+| [[source-control]] | `docs/brain/actions/source-control.md` | Aksiyon: Kaynak denetimi ve Sorunlar |
 | [[sync-deploy]] | `docs/brain/actions/sync-deploy.md` | Senkron sunucusunu (Yjs) TLS/wss ile kendi sunucuna kurma paketi: Docker + Caddy, alan adsız sslip.io, token, sağlık izleme |
 | [[terminal]] | `docs/brain/actions/terminal.md` | Entegre terminal: gerçek PTY (xterm.js) ve klasik boru terminali, çoklu oturum, panel davranışı |
 | [[testing]] | `docs/brain/actions/testing.md` | Değişikliği doğrulamak: tip, derleme, birim ve entegrasyon testleri, uygulamayı çalıştırma |

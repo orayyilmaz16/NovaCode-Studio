@@ -4,6 +4,7 @@
 
 ### tr
 
+- [fix] **Git geçmişi kopukluğu ve çift kaydırma çubuğu:** Dal çizgisi satırlar arasında kopmuyor (satırlar sabit yükseklikte); geçmiş açıkken iki kaydırma çubuğu yerine yalnızca geçmişin kendi çubuğu görünür.
 - [improve] **Git geçmişi görünümü:** Geçmiş bölümü kapalıyken panelin en altında durur, açılınca görünüme kaydırılır. Graf çizgileri daha net, dal etiketleri (yerel dal renkli, uzak dal çerçeveli) ve +/− sayıları daha okunur.
 - [feat] **Editörde Git satır işaretleri:** Açık bir dosyada HEAD'e göre eklenen satırlar yeşil, değişenler mavi, silinen yerler kırmızı üçgen olarak kenarda görünür; kaydırma çubuğunda da işaretlenir. Git paneli: "±2 Değişiklikler" yerine sayı rozeti + "Değişiklikler"; geçmiş açılıp kapanırken yumuşak bir geçişle açılır ve kapalıyken listeyi yukarı alıp boşluk bırakmaz.
 - [fix] **Git paneli bölme düzeni:** Bölümlerin yüksekliği artık içeriğini aşmaz, aralarında boş alan kalmaz. Alt kenar tutamacı VS Code gibi bağlı çalışır: bir bölüm büyürken altındaki açık bölüm küçülür, toplam sabit kalır; içeriğin sonuna ya da alt sınıra gelince sürükleme durur, boşluğa sürüklenmez. Geçmiş grafında satırlar arası şerit kesintisiz çizilir; üst commit bilgisi yoksa (eski süreç) liste doğrusal çizilir ve yeniden başlatma uyarısı çıkar.
@@ -14,6 +15,7 @@
 
 ### en
 
+- [fix] **Git history gaps and double scrollbar:** The branch line no longer breaks between rows (rows have a fixed height); with history open only the history's own scrollbar shows, not two.
 - [improve] **Git history view:** The history section sits at the bottom of the panel when collapsed and scrolls into view when opened. Graph lines are crisper, branch labels (local branches colored, remote ones outlined) and +/− counts are easier to read.
 - [feat] **Git line markers in the editor:** For an open file, lines added versus HEAD show green, changed lines blue, and deleted spots a red triangle in the gutter, also marked on the scrollbar. Git panel: "±2 Changes" became a count badge plus "Changes"; the history opens and closes with a smooth transition and leaves no gap when collapsed.
 - [fix] **Git panel pane layout:** Section heights no longer exceed their content, so no blank space is left between them. The bottom-edge handle now works coupled like VS Code: when one section grows, the open section below it shrinks and the total stays constant; dragging stops at the end of the content or at the minimum height, never into empty space. Lanes in the history graph connect continuously between rows; when parent info is missing (old process) the list is drawn linearly and a restart hint appears.

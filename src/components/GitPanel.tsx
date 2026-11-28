@@ -495,7 +495,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
   ];
 
   return (
-    <div className="flex flex-col h-full bg-nv-side text-zinc-300 select-none text-xs overflow-y-auto">
+    <div className="no-scrollbar flex flex-col h-full bg-nv-side text-zinc-300 select-none text-xs overflow-y-auto">
       {/* Başlık: dal düğmesi + eşzamanla */}
       <div className="px-3 py-2.5 border-b border-zinc-800/80 space-y-2">
         <div className="flex items-center gap-1.5">

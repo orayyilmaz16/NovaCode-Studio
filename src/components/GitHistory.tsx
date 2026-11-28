@@ -8,7 +8,7 @@ import type { GitCommitInfo } from '../types';
 
 // Git geçmişi: dal topolojisi (şeritler, ayrılma/birleşme) + okunur satırlar. Satır yüksekliği sabit; şeritler satırlar arasında kesintisiz.
 // Dosya listesi ve fark açma GitPanel'dedir (renderFiles ile gelir).
-const ROW_H = 48;
+const ROW_H = 66; // sabit satır: içerik her zaman bu yükseklikte, şeritler satırlar arası kopmaz
 const LANE_W = 16;
 const NODE_Y = 18;
 const NODE_R = 4.5;
@@ -73,8 +73,8 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               onClick={() => onToggle(c.hash)}
               aria-expanded={open}
               title={`${c.hash} — ${c.subject}\n${c.author} · ${c.ts ? new Date(c.ts).toLocaleString() : c.when}`}
-              style={{ minHeight: ROW_H, paddingInlineStart: gutter }}
-              className="group relative w-full block text-start pe-2 py-[5px] rounded-md hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none transition-colors duration-(--dur-fast)"
+              style={{ height: ROW_H, paddingInlineStart: gutter }}
+              className="group relative w-full block overflow-hidden text-start pe-2 py-[5px] rounded-md hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none transition-colors duration-(--dur-fast)"
             >
               <GraphCell row={row} width={gutter} hash={c.hash} head={isHead} />
               <span className="flex items-center gap-1.5 min-w-0">
