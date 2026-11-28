@@ -1,0 +1,55 @@
+name: Kalite taraması (otomatik)
+
+# Her gün: tip kontrolü, tam test takımı (Windows, pty/terminal testleri dahil) ve belge/i18n kapısı.
+# Başarısız kapı → tek açık issue (parmak izi işaretçisi, etiketli, projeye eklenir); yeşile dönünce otomatik kapanır.
+# Mekanik kapı (brain) → auto-fix workflow'u tetiklenir (bot PR açar, birleştirme insan işi).
+# Public repo: issue gövdesi temizlenmiş çıktı taşır (yol, sır, e-posta, IP yok). Kural: docs/brain/actions/autopilot.md
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: qa-sweep
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+  actions: write
+
+jobs:
+  sweep:
+    name: Tara ve bildir
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Bağımlılıkları kur
+        run: npm ci --no-audit --no-fund
+
+      - name: Kalite kapılarını çalıştır (tsc, npm test, brain:check)
+        shell: bash
+        run: node scripts/qa-sweep.mjs run --out qa-results.json
+
+      - name: Sonucu GitHub'a yansıt (issue, proje, düzeltme)
+        if: always()
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: node scripts/qa-sweep.mjs report --results qa-results.json
+
+      - name: Ham sonucu sakla (30 gün)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: qa-sweep
+          path: qa-results.json
+          retention-days: 30
+          if-no-files-found: ignore

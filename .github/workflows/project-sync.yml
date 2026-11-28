@@ -1,0 +1,31 @@
+name: Proje senkronu (issue ve PR → Projects)
+
+# Issue ve PR olaylarını GitHub Projects #2 kartlarına yansıtır (Status: Backlog, PR / CI, QA’da, Tamam, Geliştiriliyor).
+# Secret PROJECT_TOKEN yoksa adım atlanır (hata vermez). Kural: docs/brain/actions/autopilot.md
+on:
+  issues:
+    types: [opened, reopened, labeled, closed]
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize, closed]
+
+concurrency:
+  group: project-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Kartı ve durumu güncelle
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      - name: Olayı projeye yansıt
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: node scripts/project-sync.mjs

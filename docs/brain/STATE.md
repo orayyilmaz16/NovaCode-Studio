@@ -21,7 +21,7 @@
 | `sync:server` | `node server/sync-server.mjs` |
 | `analytics:server` | `node server/analytics-server.mjs` |
 | `analytics:report` | `node scripts/analytics-report.mjs` |
-| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs && node scripts/tests/autocommit.test.cjs` |
+| `test` | `node scripts/tests/git.test.cjs && node scripts/tests/sync.test.cjs && node scripts/tests/term.test.cjs && node scripts/tests/textbuffer.test.cjs && node scripts/tests/debug.test.cjs && node scripts/tests/pty.test.cjs && node scripts/tests/lsp.test.cjs && node scripts/tests/ai-tools.test.cjs && node scripts/tests/ai-complete.test.cjs && node scripts/tests/completion-schedule.test.cjs && node scripts/tests/completion-shape.test.cjs && node scripts/tests/settings-migrate.test.cjs && node scripts/tests/palettes.test.cjs && node scripts/tests/release.test.cjs && node scripts/tests/paths.test.cjs && node scripts/tests/ai-security.test.cjs && node scripts/tests/syncserver.test.cjs && node scripts/tests/services.test.cjs && node scripts/tests/i18n.test.cjs && node scripts/tests/electron-misc.test.cjs && node scripts/tests/replace.test.cjs && node scripts/tests/trust.test.cjs && node scripts/tests/preview-csp.test.cjs && node scripts/tests/history.test.cjs && node scripts/tests/snippets.test.cjs && node scripts/tests/keybindings.test.cjs && node scripts/tests/search-redos.test.cjs && node scripts/tests/ssh.test.cjs && node scripts/tests/ssh-sftp.test.cjs && node scripts/tests/deps.test.cjs && node scripts/tests/analytics.test.cjs && node scripts/tests/autocommit.test.cjs && node scripts/tests/autopilot.test.cjs` |
 | `brain` | `node scripts/brain.mjs` |
 | `brain:check` | `node scripts/brain.mjs --check` |
 | `audit` | `node scripts/audit-scan.mjs` |
@@ -182,6 +182,7 @@
 | `scripts/analytics-report.mjs` | 53 |
 | `scripts/audit-scan.mjs` | 205 |
 | `scripts/auto-commit.mjs` | 233 |
+| `scripts/autopilot-lib.mjs` | 230 |
 | `scripts/backfill-overlay.mjs` | 19 |
 | `scripts/brain.mjs` | 302 |
 | `scripts/check-bundle.mjs` | 31 |
@@ -195,8 +196,11 @@
 | `scripts/gen-file-icons.mjs` | 24 |
 | `scripts/health-monitor.mjs` | 268 |
 | `scripts/make-icons.cjs` | 29 |
+| `scripts/project-sync.mjs` | 75 |
+| `scripts/qa-sweep.mjs` | 98 |
 | `scripts/release.mjs` | 293 |
 | `scripts/runtime-watch.mjs` | 25 |
+| `scripts/sprint-cadence.mjs` | 63 |
 
 ### Testler
 | Dosya | Satır |
@@ -206,6 +210,7 @@
 | `scripts/tests/ai-tools.test.cjs` | 73 |
 | `scripts/tests/analytics.test.cjs` | 143 |
 | `scripts/tests/autocommit.test.cjs` | 42 |
+| `scripts/tests/autopilot.test.cjs` | 94 |
 | `scripts/tests/completion-schedule.test.cjs` | 53 |
 | `scripts/tests/completion-shape.test.cjs` | 70 |
 | `scripts/tests/debug.test.cjs` | 118 |
@@ -398,6 +403,7 @@
 ## GitHub Actions
 | Dosya | Ad | İşler |
 |---|---|---|
+| `.github/workflows/auto-fix.yml` | Otomatik düzeltme (mekanik kapı) | `fix` (Düzelt ve PR aç) |
 | `.github/workflows/auto-release.yml` | Otomatik sürüm hazırlığı | `prepare` (Sürümü hazırla ve PR aç) |
 | `.github/workflows/backfill-desktop.yml` | Eski sürümlere macOS ve Linux paketi ekle | `plan`, `build` (${{ matrix.tag }} (${{ matrix.os }})) |
 | `.github/workflows/ci-cd.yml` | CI/CD - Kalite, Güvenlik, Sürüm, Masaüstü Release | `quality` (Kalite, Güvenlik ve Performans), `version` (Otomatik Sürümleme), `desktop-smoke` (Masaüstü paketleme denetimi (${{ matrix.label }})), `build-desktop` (Paket (${{ matrix.label }})), `release-desktop` (GitHub Release (Windows, macOS, Linux)) |
@@ -407,9 +413,12 @@
 | `.github/workflows/dependabot-automerge.yml` | Dependabot güvenli güncellemeleri otomatik birleştir | `automerge` (Patch/minor ise auto-merge) |
 | `.github/workflows/docker.yml` | Docker - Derle, Test, Yayınla, Dağıt | `image` (İmaj (${{ matrix.name }})), `deploy` (Dağıt (${{ matrix.name }})), `docs` (Docker belgesi) |
 | `.github/workflows/health-monitor.yml` | Sağlık ve güvenlik izleme | `monitor` (Ölç, logla, bildir) |
+| `.github/workflows/project-sync.yml` | Proje senkronu (issue ve PR → Projects) | `sync` (Kartı ve durumu güncelle) |
+| `.github/workflows/qa-sweep.yml` | Kalite taraması (otomatik) | `sweep` (Tara ve bildir) |
 | `.github/workflows/release-finalize.yml` | Sürüm etiketini tamamla | `finalize` (Etiketsiz sürüm varsa etiketle ve yayınla) |
 | `.github/workflows/runtime-watch.yml` | Electron, Chromium ve Node.js izleyici | `watch` (Yeni Electron varsa yükselt ve tara) |
 | `.github/workflows/security.yml` | Güvenlik Taraması | `codeql` (CodeQL), `secrets` (Gizli anahtar taraması (gitleaks)), `dependency-review` (Bağımlılık incelemesi), `audit-scan` (Sürekli denetim raporu), `audit-weekly` (Haftalık npm audit) |
+| `.github/workflows/sprint-cadence.yml` | Sprint otomasyonu (haftalık) | `cadence` (Sprint takvimi ve devir) |
 
 ## Md haritası
 | Ad | Yol | Amaç |
@@ -420,6 +429,7 @@
 | [[ai-assistant]] | `docs/brain/actions/ai-assistant.md` | Yapay zekâ asistanı: çoklu sağlayıcı, Ask/Agent modları, araçlar, oturumlar, görsel girdi, sesli dikte, özel komutlar |
 | [[analytics]] | `docs/brain/actions/analytics.md` | Anonim, rızaya bağlı kullanım sayacı: ne sayılır, ne gönderilir, nerede toplanır, KVKK ve geri alma |
 | [[audit]] | `docs/brain/actions/audit.md` | Sürekli denetim: güvenlik açıkları, performans kayıpları, hatalar, arayüz ve özellik eksikleri |
+| [[autopilot]] | `docs/brain/actions/autopilot.md` | Sprint, proje ve kalite otomasyonu: zamanlanmış tarama, issue açma ve kapatma, proje durumu, sprint devri, mekanik düzeltme PR'ı; hepsi CI ile birlikte izlenir |
 | [[brain-maintenance]] | `docs/brain/actions/brain-maintenance.md` | Proje beynini (docs/brain) güncel ve tutarlı tutmak |
 | [[ci-cd]] | `docs/brain/actions/ci-cd.md` | GitHub Actions, audit, bundle bütçesi ve yayın hattı |
 | [[debugging]] | `docs/brain/actions/debugging.md` | Hata ayıklayıcı (Node/JavaScript): kesme noktası, adım adım, değişkenler, çağrı yığını |

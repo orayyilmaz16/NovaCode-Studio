@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 13:28 · auto/20261128-102142
+<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvYXV0by1maXgueW1s -->
+- Alan: [[ci-cd]], [[ui-design]], [[testing]]
+- Kod (9): `.github/workflows/auto-fix.yml`, `.github/workflows/project-sync.yml`, `.github/workflows/qa-sweep.yml`, `.github/workflows/sprint-cadence.yml`, `scripts/autopilot-lib.mjs`, `scripts/project-sync.mjs`, `scripts/qa-sweep.mjs`, `scripts/sprint-cadence.mjs`, `scripts/tests/autopilot.test.cjs`
+- Belge (5): `AGENT.md`, `docs/brain/BRAIN.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/qa-agile.md`, `docs/brain/actions/autopilot.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 13:21 · main
 <!-- sig:fCxBR0VOVC5tZCxkb2NzL2JyYWluL0RFQ0lTSU9O -->
 - Alan: —
@@ -274,11 +281,4 @@
 - Alan: [[ci-cd]], [[ui-design]]
 - Kod (2): `.github/workflows/backfill-desktop.yml`, `scripts/backfill-overlay.mjs`
 - Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/release.md`
-- Durum: ✓ belgelendi
-
-## 26.11.2026 09:18 · auto/20261126-052515
-<!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvY2ktY2QueW1sLHws -->
-- Alan: [[ci-cd]]
-- Kod (1): `.github/workflows/ci-cd.yml`
-- Belge (4): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/updates.md`
 - Durum: ✓ belgelendi

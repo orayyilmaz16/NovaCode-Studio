@@ -1,0 +1,32 @@
+name: Sprint otomasyonu (haftalık)
+
+# Her Pazartesi (UTC): mevcut ve sonraki sprint milestone'unu oluşturur, süresi geçen sprintteki açık issue'ları
+# mevcut sprint'e taşır ve milestone açıklamasını otomatik sprint raporuyla günceller.
+# Kural: docs/brain/actions/autopilot.md
+on:
+  schedule:
+    - cron: "5 5 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: sprint-cadence
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  cadence:
+    name: Sprint takvimi ve devir
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      - name: Sprint takvimini uygula
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/sprint-cadence.mjs
