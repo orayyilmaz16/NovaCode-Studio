@@ -903,7 +903,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                   key={`${h}-${cf.path}`}
                   onClick={() => void showCommitDiff(h, cf)}
                   title={cf.orig ? `${cf.orig} → ${cf.path}` : cf.path}
-                  className="flex items-center gap-1.5 ps-2 pe-2 h-[22px] rounded-md hover:bg-white/[0.05] cursor-pointer min-w-0"
+                  className="group/cf flex items-center gap-2 ps-2 pe-2 h-[26px] rounded-md hover:bg-white/[0.06] cursor-pointer min-w-0 transition-colors duration-(--dur-fast)"
                 >
                   <FileTypeIcon name={splitPath(cf.path).name} size={14} />
                   <span className={`truncate flex-1 min-w-0 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>
@@ -916,7 +916,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                       {cf.deleted ? <span className="text-rose-400">−{cf.deleted}</span> : null}
                     </span>
                   ) : null}
-                  <span className={`font-mono text-[10px] font-bold w-4 text-center shrink-0 ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
+                  <span className={`shrink-0 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded font-mono text-[10px] font-semibold bg-white/[0.07] ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
                 </div>
               ))
             }
