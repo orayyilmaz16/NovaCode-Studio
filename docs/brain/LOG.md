@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 14:16 · auto/20261128-111405
+<!-- sig:fCxkb2NzL2JyYWluL3FhL1NQUklOVFMubWQsfCzi -->
+- Alan: —
+- Kod (0): —
+- Belge (1): `docs/brain/qa/SPRINTS.md`
+- Durum: ✓ yalnız belge değişti
+
 ## 28.11.2026 14:14 · main
 <!-- sig:fCxkb2NzL2JyYWluL0RFQ0lTSU9OUy5tZCx8LOKc -->
 - Alan: —
@@ -274,11 +281,4 @@
 - Alan: [[ci-cd]], [[ui-design]], [[testing]]
 - Kod (6): `.github/dep-autopilot.json`, `.github/workflows/dep-autopilot.yml`, `.github/workflows/dep-review.yml`, `scripts/dep-review.mjs`, `scripts/dep-update.mjs`, `scripts/tests/deps.test.cjs`
 - Belge (3): `docs/brain/DECISIONS.md`, `docs/brain/actions/ci-cd.md`, `docs/brain/actions/updates.md`
-- Durum: ✓ belgelendi
-
-## 27.11.2026 12:03 · auto/20261127-085853
-<!-- sig:c2NyaXB0cy90ZXN0cy9zeW5jc2VydmVyLnRlc3Qu -->
-- Alan: [[testing]], [[ui-design]]
-- Kod (4): `scripts/tests/syncserver.test.cjs`, `server/deploy/README.md`, `server/sync-server.mjs`, `server/deploy/status.sh`
-- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/sync-deploy.md`
 - Durum: ✓ belgelendi
