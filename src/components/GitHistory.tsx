@@ -88,12 +88,12 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               </span>
               {refs.length > 0 && (
                 <span className="mt-0.5 flex items-center gap-1 min-w-0 overflow-hidden">
-                  {refs.slice(0, 3).map((r) => {
+                  {refs.slice(0, 2).map((r) => {
                     const remote = r.includes('/');
                     const cur = r === currentBranch;
                     return remote ? (
                       <span key={r} title={r} className="inline-flex items-center gap-1 min-w-0 max-w-[60%] h-[16px] px-1.5 rounded-md border border-white/15 text-[10.5px] text-zinc-300">
-                        <Cloud size={10} className="shrink-0 text-zinc-400" /><span className="truncate font-mono">{r}</span>
+                        <Cloud size={10} className="shrink-0 text-zinc-400" /><span className="truncate font-mono">{r.slice(r.indexOf('/') + 1)}</span>
                       </span>
                     ) : (
                       <span key={r} title={r} className="inline-flex items-center gap-1 min-w-0 max-w-[60%] h-[16px] px-1.5 rounded-md text-[10.5px] font-semibold text-zinc-950" style={{ background: color }}>
@@ -101,7 +101,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
                       </span>
                     );
                   })}
-                  {refs.length > 3 && <span className="shrink-0 text-[10px] text-zinc-500">+{refs.length - 3}</span>}
+                  {refs.length > 2 && <span className="shrink-0 text-[10px] text-zinc-500">+{refs.length - 2}</span>}
                 </span>
               )}
               <span className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-zinc-500 min-w-0">

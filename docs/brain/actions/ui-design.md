@@ -176,3 +176,5 @@ Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori 
 
 ## Git paneli: commit ağacı ve dosya satırları (28.11.2026)
 Commit açılışı `GitHistory`'de `grid-template-rows 0fr↔1fr` + opaklık (`--dur-slow`, `--ease-out-soft`), kapalıyken `inert`. Açılan dosya listesi graf girintisine hizalı; üst/alt dolgu yok, dosya satırı 24 px, durum harfi küçük etiket (`bg-white/[0.07]`). Geçmiş bölümü panelin dibinde (`mt-auto`), panel çubuğu gizli (`no-scrollbar`), tek görünen çubuk geçmişin kendi `ResizableBody` çubuğu.
+
+Commit içi dosya listesi dar panelde sıkışmasın diye sade tutuldu: klasör yolu kaldırıldı (başlıkta görünür), satır 22 px.

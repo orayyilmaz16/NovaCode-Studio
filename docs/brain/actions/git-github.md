@@ -55,3 +55,5 @@ Eklenen/silinen satır artık her commit'in başlık satırında sağda `+N −M
 Commit satırı hover zemini `mx-1` ile kenardan içeri alındı (`w-[calc(100%-8px)]`), şeffaf zemin içeriğe göre daralır.
 
 Commit satırı sabit 56 px (önceki 66): üst/alt dolgu 3 px, dal etiketi 16 px yüksekliğinde. İçerik bu yüksekliğe sığar, şerit çizgisi kopmaz.
+
+Commit açıldığında dosya satırları sadeleşti: ikon + ad (klasör yok, tam yol başlıkta) + `+N −M` + durum harfi, 22 px. Dal etiketi en fazla iki, uzak dal etiketinde yalnız dal adı (`origin/` kırpılır), tam ad başlıkta.

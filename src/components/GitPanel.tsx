@@ -903,20 +903,17 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
                   key={`${h}-${cf.path}`}
                   onClick={() => void showCommitDiff(h, cf)}
                   title={cf.orig ? `${cf.orig} → ${cf.path}` : cf.path}
-                  className="group/cf flex items-center gap-2 ps-2 pe-2 h-[24px] rounded-md hover:bg-white/[0.06] cursor-pointer min-w-0 transition-colors duration-(--dur-fast)"
+                  className="group/cf flex items-center gap-1.5 ps-1 pe-1 h-[22px] rounded hover:bg-white/[0.06] cursor-pointer min-w-0 transition-colors duration-(--dur-fast)"
                 >
-                  <FileTypeIcon name={splitPath(cf.path).name} size={14} />
-                  <span className={`truncate flex-1 min-w-0 ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>
-                    {splitPath(cf.path).name}
-                    <span className="text-zinc-500 ms-1.5 text-[11px]">{splitPath(cf.path).dir}</span>
-                  </span>
+                  <FileTypeIcon name={splitPath(cf.path).name} size={13} />
+                  <span className={`truncate flex-1 min-w-0 text-[11.5px] ${NAME_COLOR[cf.status] ?? 'text-zinc-200'}`}>{splitPath(cf.path).name}</span>
                   {!cf.binary && (cf.added || cf.deleted) ? (
                     <span className="shrink-0 font-mono text-[10px] tabular-nums flex gap-1">
                       {cf.added ? <span className="text-emerald-400">+{cf.added}</span> : null}
                       {cf.deleted ? <span className="text-rose-400">−{cf.deleted}</span> : null}
                     </span>
                   ) : null}
-                  <span className={`shrink-0 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded font-mono text-[10px] font-semibold bg-white/[0.07] ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
+                  <span className={`shrink-0 w-4 text-center font-mono text-[10px] font-semibold ${STATUS_COLOR[cf.status] ?? 'text-zinc-400'}`}>{cf.status}</span>
                 </div>
               ))
             }

@@ -4,6 +4,7 @@
 
 ### tr
 
+- [fix] **Commit dosya listesi düzeltildi:** Açılan commit'in dosyaları dar panelde sıkışmıyor; yalnız ad ve sayılar görünür, tam yol üzerine gelince çıkar. Dal etiketleri en fazla ikisi gösterilir.
 - [improve] **Commit satırları daha kısa:** Geçmişteki commit satırlarının yüksekliği azaltıldı; dal çizgisi yine satırlar arasında kesintisiz.
 - [improve] **Commit üzerine gelme alanı daraltıldı:** Commit satırının üzerine gelince çıkan şeffaf zemin artık panelin kenarına kadar uzanmaz, içeriğe göre daralır.
 - [improve] **Commit dosya listesi sıkılaştırıldı:** Açılan commit'in dosya listesinin çevresindeki boşluklar azaltıldı; dosya satırları daha kompakt.
@@ -22,6 +23,7 @@
 
 ### en
 
+- [fix] **Commit file list fixed:** Files of an expanded commit no longer crowd the narrow panel; only name and counts show, the full path appears on hover. At most two branch labels are shown.
 - [improve] **Shorter commit rows:** Commit rows in the history are shorter; the branch line still connects continuously between rows.
 - [improve] **Narrower commit hover area:** The translucent hover background on a commit row no longer spans to the panel edge; it fits the content.
 - [improve] **Tighter commit file list:** Reduced the spacing around a expanded commit's file list; file rows are more compact.
