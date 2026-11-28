@@ -2072,6 +2072,16 @@ export function App() {
           >
             <PanelBottom size={15} />
           </button>
+          <button
+            onClick={toggleAI}
+            title={`${t('actAI')} (Ctrl+Shift+L)`}
+            aria-label={t('actAI')}
+            aria-pressed={aiOpen}
+            data-active={aiOpen}
+            className="hdr-btn"
+          >
+            <Sparkles size={15} />
+          </button>
           </div>
         </div>
         {isElectron && <span className="hdr-sep app-no-drag" aria-hidden />}

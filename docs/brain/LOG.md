@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 10:17 · main
+<!-- sig:c3JjL0FwcC50c3gsfCxDSEFOR0VMT0cubWQsZG9j -->
+- Alan: [[ui-design]]
+- Kod (1): `src/App.tsx`
+- Belge (3): `CHANGELOG.md`, `docs/brain/DECISIONS.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
 ## 27.11.2026 19:07 · auto/20261127-160116
 <!-- sig:LmdpdGh1Yi93b3JrZmxvd3MvZG9ja2VyLnltbCxz -->
 - Alan: [[ci-cd]], [[brain-maintenance]], [[ui-design]]
@@ -273,12 +280,5 @@
 <!-- sig:ZWxlY3Ryb24tZ2l0LmNqcyxzcmMvY29tcG9uZW50 -->
 - Alan: [[git-github]], [[ui-design]]
 - Kod (3): `electron-git.cjs`, `src/components/CommitHistoryMenu.tsx`, `src/types.ts`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/git-github.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 21.11.2026 20:23 · auto/20261118-083349
-<!-- sig:ZWxlY3Ryb24tZ2l0LmNqcyxlbGVjdHJvbi1wcmVs -->
-- Alan: [[git-github]], [[security-kvkk]], [[ui-design]], [[i18n]]
-- Kod (7): `electron-git.cjs`, `electron-preload.cjs`, `src/App.tsx`, `src/components/CommitHistoryMenu.tsx`, `src/i18n/uiTextScm.ts`, `src/types.ts`, `src/services/timeAgo.ts`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/git-github.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

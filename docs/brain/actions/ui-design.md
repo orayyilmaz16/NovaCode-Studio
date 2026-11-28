@@ -155,6 +155,8 @@ Sol (logo + menü) `flex-1 basis-0 min-w-0` ilk küçülür; orta arama hapı `s
 
 **İçeriği kadar kart (23.11.2026):** sol ve sağ kart `flex-1` değil; aralarındaki `flex-1` boşluklar kartsızdır (sürükleme alanı). Orta kart iki boşluğun arasında kalır.
 
+**Sağ bölge AI düğmesi (28.11.2026):** Sağ kartta (`hdr-group inline-flex`) terminal düğmesinin yanında `Sparkles` simgeli AI aç/kapa düğmesi var; `toggleAI` ile sağ paneli açıp kapatır, `aria-pressed` ve `data-active` ile durum gösterir. Sol üstteki AI düğmesi (`hidden @xl:flex`) korundu.
+
 **Tam ortalı arama (23.11.2026):** `header` `grid-cols-[minmax(0,1fr)_auto_minmax(max-content,1fr)]`: sol kart `justify-self-start`, sağ kart `justify-self-end`, orta arama kartı `auto` sütunda geometrik merkezde. Önceki `flex-1` boşluk elemanları kalktı.
 
 **Pencereli görünümde küçültme (23.11.2026):** `App.tsx` `markWindowed` pencere tam ekran değilse (`outerWidth < screen.availWidth - 8`) `<html data-win="windowed">` koyar ve menüyü kompakt (tek "Menü" düğmesi) yapar; `style.css` bu durumda `.hdr-btn` 24×20 (simge 13 px), `.hdr-sep`/`.hdr-group` sıkı, `.wc-btn` 34 px, `.mb-btn` (MenuBar düğmeleri) 24 px yükseklik/11,5 px yazı yapar. Tam ekranda eski boyutlar.
