@@ -3,6 +3,13 @@
 `scripts/doc-sync.mjs` her Claude turu sonunda yazar; **elle düzenleme**. Yeniden üretilen [[STATE]] gibi koddan türer, ama yalnız son 40 tur tutulur.
 İstem metni kaydedilmez (KVKK/gizli bilgi); yalnız dosya yolları, alanlar ve belge durumu. Kural: [[doc-sync]]. Neden/karar için [[DECISIONS]], kullanıcı notu için [[CHANGELOG]].
 
+## 28.11.2026 11:20 · auto/20261128-074543
+<!-- sig:c3JjL2NvbXBvbmVudHMvR2l0UGFuZWwudHN4LHws -->
+- Alan: [[git-github]]
+- Kod (1): `src/components/GitPanel.tsx`
+- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
+- Durum: ✓ belgelendi
+
 ## 28.11.2026 11:19 · auto/20261128-074543
 <!-- sig:c3JjL2NvbXBvbmVudHMvR2l0UGFuZWwudHN4LHNy -->
 - Alan: [[git-github]], [[i18n]]
@@ -273,12 +280,5 @@
 <!-- sig:c3JjL0FwcC50c3gsc3JjL2NvbXBvbmVudHMvTWVu -->
 - Alan: [[ui-design]], [[motion]]
 - Kod (3): `src/App.tsx`, `src/components/MenuBar.tsx`, `src/style.css`
-- Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
-- Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır
-
-## 23.11.2026 12:08 · auto/20261118-083349
-<!-- sig:c3JjL2NvbXBvbmVudHMvTWVudUJhci50c3gsc3Jj -->
-- Alan: [[ui-design]], [[motion]]
-- Kod (3): `src/components/MenuBar.tsx`, `src/components/WindowControls.tsx`, `src/style.css`
 - Belge (2): `CHANGELOG.md`, `docs/brain/actions/ui-design.md`
 - Durum: ✓ belgelendi · sürüm: v1.5.1 hazır, etiketlenmeyi bekliyor (PR birleşince CI etiketler); yeni maddeler bir sonraki sürüme kalır

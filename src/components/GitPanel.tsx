@@ -515,29 +515,9 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
 
   return (
     <div className="no-scrollbar flex flex-col h-full bg-nv-side text-zinc-300 select-none text-xs overflow-y-auto">
-      {/* Dal bölümü: açılır/kapanır; kapalıyken yalnız dal adı ve ↑↓ görünür. İçerik: dal seçici + eşzamanla */}
-      <div className="border-b border-zinc-800/80">
-      <button
-        onClick={() => tog('branch')}
-        aria-expanded={!!open.branch}
-        className="w-full flex items-center gap-1.5 px-3 py-2 text-start text-zinc-300 hover:bg-white/[0.03] transition-colors duration-(--dur-fast)"
-      >
-        <ChevronRight size={13} className={`shrink-0 text-zinc-500 transition-transform duration-(--dur-base) ease-(--ease-out-soft) ${open.branch ? 'rotate-90' : ''}`} />
-        <span className="truncate flex-1 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">{t('gitBranchSection')}</span>
-        {status.hasUpstream && (
-          <span className="shrink-0 font-mono text-[10px] text-zinc-400">
-            <span className={status.ahead ? 'text-emerald-400' : ''}>↑{status.ahead ?? 0}</span>{' '}
-            <span className={status.behind ? 'text-amber-300' : ''}>↓{status.behind ?? 0}</span>
-          </span>
-        )}
-      </button>
-      <div
-        inert={!open.branch}
-        aria-hidden={!open.branch}
-        style={{ display: 'grid', gridTemplateRows: open.branch ? '1fr' : '0fr', opacity: open.branch ? 1 : 0, transition: 'grid-template-rows var(--dur-slow) var(--ease-out-soft), opacity var(--dur-base) ease' }}
-      >
-      <div className="min-h-0 overflow-hidden">
-      <div className="px-3 pb-2.5 space-y-2">
+      {/* Dal bölümü: diğer bölümlerle aynı açılır başlık; içerik: dal seçici + eşzamanla */}
+      <Section title={t('gitBranchSection')} open={!!open.branch} onToggle={() => tog('branch')}>
+      <div className="px-2 pb-2 pt-1 space-y-2">
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => onPicker('checkout')}
@@ -660,10 +640,8 @@ export const GitPanel: React.FC<GitPanelProps> = ({ status, currentRepoPath, onR
             </div>
           </form>
         )}
-        </div>
-        </div>
-        </div>
       </div>
+      </Section>
 
       {/* Commit: açılır bölüm; mesaj alanı ve karakter sayacı */}
       <Section title={t('gitCommit')} count={staged.length} open={!!open.commit} onToggle={() => tog('commit')}>

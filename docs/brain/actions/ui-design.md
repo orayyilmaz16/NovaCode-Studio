@@ -175,7 +175,7 @@ Kapalı (`disabled`) menü öğeleri, kısayolları ve tamamı kapalı kategori 
 `services/editorTheme.ts` iki Nova temasına `diffEditor.*` ve `diffEditorGutter.*` anahtarları eklendi: eklenen satır zemini `#2ea04328`, değişen metin `#2ea04359`, silinen `#f8514928` / `#f851495c`, kaydırma işaretleri `#3fb950` / `#f85149`. Açık temada aynı anlamda daha hafif tonlar. Amaç: yan yana farkta ve editör kenar işaretlerinde VS Code ile aynı okuma.
 
 ## Git paneli: açılır bölümler (28.11.2026)
-Dal bölümü (`open.branch`, varsayılan açık): başlık satırı "Dal ve eşzamanlama" (`gitBranchSection`) ile ↑↓ gösterir (dal adı açılır kısımdaki seçicide), altındaki grid açılır bölüm dal seçici ve eşzamanla/çek/it/yenile düğmelerini, durum özetini ve birleştirme uyarılarını taşır. Aynı grid-rows geçişi kullanılır.
+Dal bölümü (`open.branch`, varsayılan açık): `Section` ile aynı başlık (`gitBranchSection`, diğer bölümlerle aynı stil; büyük harf CSS'i yok). İçerik: dal seçici, ↑↓ ve eşzamanla/çek/it/yenile düğmeleri, durum özeti, birleştirme uyarıları.
 `GitPanel` içindeki her blok `Section` (açılır liste) olur: Commit, Çakışmalar, Sahnelenenler, Değişiklikler, Stash, GitHub'da canlı durum, Pull request, Yayınla, Geçmiş. Açık/kapalı durumu `nova.git.sections` (localStorage) altında tutulur, `open` kayıtlarıyla eşleşir. `Section.count` isteğe bağlıdır; 0 ise rozet gösterilmez. Geçmiş `mt-auto` ile dibe sabitlenmez; bölümler kapandıkça akışta yukarı çıkar. Geçmişte `ResizableBody` (sabit 360 px ve boyutlandırma) kaldırıldı: içerik kadar uzar, panel kaydırmasıyla gezilir; altta boşluk kalmaz.
 
 ## Git paneli: commit ağacı ve dosya satırları (28.11.2026)
