@@ -426,7 +426,7 @@
 | [[doc-sync]] | `docs/brain/actions/doc-sync.md` | Her istem ve değişiklikte proje beyninin otomatik güncel tutulması (hatırlatma, denetim, değişiklik günlüğü) |
 | [[explorer]] | `docs/brain/actions/explorer.md` | Gezgin (dosya ağacı): görünüm seçenekleri, filtre, sürükle-bırak taşıma, bağlam menüsü, simge stilleri, güvenlik kuralları |
 | [[extensions]] | `docs/brain/actions/extensions.md` | Eklenti mağazası (Open VSX): arama, yükleme, güncelleme, kaldırma; tema katkısı |
-| [[git-github]] | `docs/brain/actions/git-github.md` | Git paneli, GitHub hesabı bağlama, PR, eşzamanlama ve canlı takip |
+| [[git-github]] | `docs/brain/actions/git-github.md` | Aksiyon: Git ve GitHub |
 | [[i18n]] | `docs/brain/actions/i18n.md` | Arayüze metin eklemek (8 dil zorunlu) |
 | [[lsp]] | `docs/brain/actions/lsp.md` | Dil sunucuları (LSP): Monaco'nun yerleşik desteği olmayan diller için tamamlama, üzerine gelme, tanıma git, tanılama |
 | [[monitoring]] | `docs/brain/actions/monitoring.md` | Sürekli sağlık, güvenlik ve performans izleme: açık, eğilim ve servis sağlığı otomatik ölçülür, loglanır, tek issue ile bildirilir |

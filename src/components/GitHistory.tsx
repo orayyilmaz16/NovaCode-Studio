@@ -8,7 +8,7 @@ import type { GitCommitInfo } from '../types';
 
 // Git geçmişi: dal topolojisi (şeritler, ayrılma/birleşme) + okunur satırlar. Satır yüksekliği sabit; şeritler satırlar arasında kesintisiz.
 // Dosya listesi ve fark açma GitPanel'dedir (renderFiles ile gelir).
-const ROW_H = 66; // sabit satır: içerik her zaman bu yükseklikte, şeritler satırlar arası kopmaz
+const ROW_H = 56; // sabit satır: içerik her zaman bu yükseklikte, şeritler satırlar arası kopmaz
 const LANE_W = 16;
 const NODE_Y = 18;
 const NODE_R = 4.5;
@@ -74,7 +74,7 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
               aria-expanded={open}
               title={`${c.hash} — ${c.subject}\n${c.author} · ${c.ts ? new Date(c.ts).toLocaleString() : c.when}`}
               style={{ height: ROW_H, paddingInlineStart: gutter }}
-              className="group relative w-[calc(100%-8px)] mx-1 block overflow-hidden text-start pe-2 py-[5px] rounded-md hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none transition-colors duration-(--dur-fast)"
+              className="group relative w-[calc(100%-8px)] mx-1 block overflow-hidden text-start pe-2 py-[3px] rounded-md hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none transition-colors duration-(--dur-fast)"
             >
               <GraphCell row={row} width={gutter} hash={c.hash} head={isHead} />
               <span className="flex items-center gap-1.5 min-w-0">
@@ -87,16 +87,16 @@ export const GitHistory: React.FC<Props> = ({ commits, currentBranch, openCommit
                 )}
               </span>
               {refs.length > 0 && (
-                <span className="mt-1 flex items-center gap-1 min-w-0 overflow-hidden">
+                <span className="mt-0.5 flex items-center gap-1 min-w-0 overflow-hidden">
                   {refs.slice(0, 3).map((r) => {
                     const remote = r.includes('/');
                     const cur = r === currentBranch;
                     return remote ? (
-                      <span key={r} title={r} className="inline-flex items-center gap-1 min-w-0 max-w-[60%] h-[18px] px-1.5 rounded-md border border-white/15 text-[10.5px] text-zinc-300">
+                      <span key={r} title={r} className="inline-flex items-center gap-1 min-w-0 max-w-[60%] h-[16px] px-1.5 rounded-md border border-white/15 text-[10.5px] text-zinc-300">
                         <Cloud size={10} className="shrink-0 text-zinc-400" /><span className="truncate font-mono">{r}</span>
                       </span>
                     ) : (
-                      <span key={r} title={r} className="inline-flex items-center gap-1 min-w-0 max-w-[60%] h-[18px] px-1.5 rounded-md text-[10.5px] font-semibold text-zinc-950" style={{ background: color }}>
+                      <span key={r} title={r} className="inline-flex items-center gap-1 min-w-0 max-w-[60%] h-[16px] px-1.5 rounded-md text-[10.5px] font-semibold text-zinc-950" style={{ background: color }}>
                         {cur ? <Target size={10} className="shrink-0" /> : <GitBranch size={10} className="shrink-0" />}<span className="truncate font-mono">{r}</span>
                       </span>
                     );

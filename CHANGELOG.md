@@ -4,6 +4,7 @@
 
 ### tr
 
+- [improve] **Commit satırları daha kısa:** Geçmişteki commit satırlarının yüksekliği azaltıldı; dal çizgisi yine satırlar arasında kesintisiz.
 - [improve] **Commit üzerine gelme alanı daraltıldı:** Commit satırının üzerine gelince çıkan şeffaf zemin artık panelin kenarına kadar uzanmaz, içeriğe göre daralır.
 - [improve] **Commit dosya listesi sıkılaştırıldı:** Açılan commit'in dosya listesinin çevresindeki boşluklar azaltıldı; dosya satırları daha kompakt.
 - [improve] **Commit açılış animasyonu ve liste tasarımı:** Bir commit'in dosya listesi artık yumuşakça açılıp kapanır (diğer bölümlerle aynı süre ve eğri). Dosya satırları daha net: durum harfi küçük bir etiket, ad ve klasör ayrı, eklenen/silinen sayıları sağda.
@@ -21,6 +22,7 @@
 
 ### en
 
+- [improve] **Shorter commit rows:** Commit rows in the history are shorter; the branch line still connects continuously between rows.
 - [improve] **Narrower commit hover area:** The translucent hover background on a commit row no longer spans to the panel edge; it fits the content.
 - [improve] **Tighter commit file list:** Reduced the spacing around a expanded commit's file list; file rows are more compact.
 - [improve] **Commit expand animation and list design:** A commit's file list now opens and closes smoothly, with the same timing as the other sections. File rows are clearer: the status letter is a small tag, name and folder are separated, and added/deleted counts sit on the right.
